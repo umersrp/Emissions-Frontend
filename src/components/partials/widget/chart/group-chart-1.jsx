@@ -1,6 +1,5 @@
 import React from "react";
 import Chart from "react-apexcharts";
-import { useParams } from "react-router-dom";
 
 const shapeLine1 = {
   series: [
@@ -224,9 +223,7 @@ const statistics = [
     bg: "bg-[#EAE5FF] dark:bg-slate-900	",
   },
 ];
-const GroupChart1 = ({statistics}) => {
-  const { id } = useParams();
-
+const GroupChart1 = () => {
   return (
     <>
       {statistics.map((item, i) => (

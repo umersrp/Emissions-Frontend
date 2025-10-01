@@ -22,7 +22,7 @@ export default defineConfig({
       values: {
         __DEV__: JSON.stringify(true),
         "process.env.NODE_ENV": JSON.stringify("development"),
-        "process.env.REACT_APP_BASE_URL": JSON.stringify("https://app.timetokickoff.com/api"),
+        "process.env.REACT_APP_BASE_URL": JSON.stringify("http://localhost:3009/api"),
       },
     }),
     react(),

@@ -4,146 +4,72 @@ import LoginForm from "./common/login-form";
 import Social from "./common/social";
 import useDarkMode from "@/hooks/useDarkMode";
 
-// image import
+// Images
 import LogoWhite from "@/assets/images/logo/logo-white.svg";
-import Logo from "@/assets/images/logo/logo.svg";
-import Illustration from "@/assets/images/auth/ils1.svg";
-import backfoot from "@/assets/images/all-img/backfoot.jpg";
-import Logo3 from "@/assets/images/logo/logooos.jpg";
+import Logo from "@/assets/images/logo/SrpLogo.png";
+import backfoot from "@/assets/images/all-img/backiamge.jpg";
 
-
-
-const login = () => {
+const Login = () => {
   const [isDark] = useDarkMode();
+
   return (
-    <div className="loginwrapper ">
-      <div className="lg-inner-column">
-        <div className="left-column relative">
-          {/* <div className="max-w-[520px] pt-20 ltr:pl-20 rtl:pr-20">
-            <div className="flex justify-center mt-[-50px]">
-            <img src={Logo2} alt=""  />
-            
-            </div>
-            <div className="flex text-center justify-center">
-            <h3 className="text-slate-800 dark:text-slate-400 font-bold text-[26px] mt-[-57px] ">
-              WE DELIVERED EVERYTHING
-             
-                
-            </h3>
-            </div>
-          </div> */}
-          <div className="relative w-full h-screen">
-      <img src={backfoot} alt="Background" className="w-full h-full object-cover" />
-      <div className="absolute inset-0 bg-black opacity-5"></div>
-      <div className="absolute top-[10%] left-[20%] flex flex-col items-center text-center z-10">
-        <div className="flex text-center justify-center">
-           
-            
-            </div>
-      </div>
-    </div>
-        </div>
-        <div className="right-column relative">
-          <div className="inner-content h-full flex flex-col bg-white dark:bg-slate-800">
-            <div className="auth-box h-full flex flex-col justify-center">
-              <div className="mobile-logo text-center mb-6 lg:hidden block">
-                <Link to="/">
-                  <img
-                    src={isDark ? LogoWhite : Logo}
-                    alt=""
-                    className="mx-auto"
-                  />
-                </Link>
-              </div>
-              <div className="text-center 2xl:mb-10 mb-4">
-                <h4 className="font-medium">Sign in</h4>
-                <div className="text-slate-500 text-base">
-                  Sign in to your account to start using Kickoff
-                </div>
-              </div>
-              <LoginForm />
-              <div className="relative border-b-[#9AA2AF] border-opacity-[16%] border-b pt-6">
-                <div className="absolute inline-block bg-white dark:bg-slate-800 dark:text-slate-400 left-1/2 top-1/2 transform -translate-x-1/2 px-4 min-w-max text-sm text-slate-500 font-normal">
-                  Or continue with
-                </div>
-              </div>
-              <div className="max-w-[242px] mx-auto mt-8 w-full">
-                <Social />
-              </div>
-              <div className="md:max-w-[345px] mx-auto font-normal text-slate-500 dark:text-slate-400 mt-12 uppercase text-sm">
-                Don’t have an account?{" "}
-                <Link
-                  to="/register"
-                  className="text-slate-900 dark:text-white font-medium hover:underline"
-                >
-                  Sign up
-                </Link>
-              </div>
-            </div>
-            <div className="auth-footer text-center">
-              Copyright 2024, SRPTECHS All Rights Reserved.
-            </div>
+    <div className="w-full min-h-screen flex">
+      {/* Left side with background image and overlay */}
+      <div className="hidden lg:block relative w-1/2 h-screen">
+        <img src={backfoot} alt="background" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center px-12">
+          <div className="text-white text-left">
+            <h1 className="text-4xl font-bold mb-4 leading-snug bg-gradient-to-r from-[#94ffed] to-[#1e816e] text-transparent bg-clip-text">
+              Welcome to CarbonX
+            </h1>
+
+            <p className="text-lg opacity-90">
+              Your one-stop platform for tracking, analyzing, and reducing carbon emissions.
+            </p>
           </div>
         </div>
       </div>
+
+      {/* Right side login form */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center bg-white dark:bg-slate-900 px-6 sm:px-12 py-10">
+        <div className="w-full max-w-md space-y-6">
+          <div className="text-center">
+            <Link to="/">
+              <img src={isDark ? LogoWhite : Logo} alt="Logo" className="mx-auto h-28" />
+            </Link>
+            <h2 className="mt-6 text-2xl font-bold text-slate-800 dark:text-white">
+              Sign in to your CarbonX account
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Manage your company’s carbon footprint with ease
+            </p>
+          </div>
+
+          <LoginForm />
+
+          {/* <div className="flex items-center justify-center">
+            <span className="text-sm text-slate-400 dark:text-slate-500">Or sign in with</span>
+          </div> */}
+
+          {/* <Social /> */}
+
+          {/* <div className="text-center text-sm text-slate-500 dark:text-slate-400">
+            Don’t have an account?{" "}
+            <Link
+              to="/register"
+              className="text-primary-600 dark:text-primary-400 hover:underline font-medium"
+            >
+              Sign up
+            </Link>
+          </div> */}
+        </div>
+
+        <footer className="mt-10 text-xs text-center text-blue-600 dark:text-green-700">
+          &copy; 2025 SrpTechnologies. All rights reserved.
+        </footer>
+      </div>
     </div>
-    // <div className="w-full h-screen flex item start">
-    //   <div className="relative w-1/2 h-full flex flex-col">
-    //     <div className="absolute top-[20%] left-[10%] flex flex-col">
-    //       <h1 className="text-4xl text-white font-extrabold my-4">
-    //       WE DELIVERED EVERYTHING
-    //       </h1>
-    //     </div>
-    //     <img src={Logo3} alt="" className="w-full h-full object-cover" />
-    //   </div>
-    //   <div className="right-column relative">
-    //       <div className="inner-content h-full flex flex-col bg-white dark:bg-slate-800">
-    //         <div className="auth-box h-full flex flex-col justify-center">
-    //           <div className="mobile-logo text-center mb-6 lg:hidden block">
-    //             <Link to="/">
-    //               <img
-    //                 src={isDark ? LogoWhite : Logo}
-    //                 alt=""
-    //                 className="mx-auto"
-    //               />
-    //             </Link>
-    //           </div>
-    //           <div className="text-center 2xl:mb-10 mb-4">
-    //             <h4 className="font-medium">Sign in</h4>
-    //             <div className="text-slate-500 text-base">
-    //               Sign in to your account to start using Dashcode
-    //             </div>
-    //           </div>
-    //           <LoginForm />
-    //           <div className="relative border-b-[#9AA2AF] border-opacity-[16%] border-b pt-6">
-    //             <div className="absolute inline-block bg-white dark:bg-slate-800 dark:text-slate-400 left-1/2 top-1/2 transform -translate-x-1/2 px-4 min-w-max text-sm text-slate-500 font-normal">
-    //               Or continue with
-    //             </div>
-    //           </div>
-    //           <div className="max-w-[242px] mx-auto mt-8 w-full">
-    //             <Social />
-    //           </div>
-    //           <div className="md:max-w-[345px] mx-auto font-normal text-slate-500 dark:text-slate-400 mt-12 uppercase text-sm">
-    //             Don’t have an account?{" "}
-    //             <Link
-    //               to="/register"
-    //               className="text-slate-900 dark:text-white font-medium hover:underline"
-    //             >
-    //               Sign up
-    //             </Link>
-    //           </div>
-    //         </div>
-    //         <div className="auth-footer text-center">
-    //           Copyright 2021, Dashcode All Rights Reserved.
-    //         </div>
-    //       </div>
-    //     </div>
-        
-
-
-    //   </div>
-    
   );
 };
 
-export default login;
+export default Login;

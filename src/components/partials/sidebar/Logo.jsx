@@ -7,7 +7,7 @@ import useSemiDark from "@/hooks/useSemiDark";
 import useSkin from "@/hooks/useSkin";
 
 // import images
-import sufilogo from "@/assets/images/logo/KickLogo.png";
+import sufilogo from "@/assets/images/logo/SrpLogo.png";
 import MobileLogoWhite from "@/assets/images/logo/logo-c-white.svg";
 
 const SidebarLogo = ({ menuHover }) => {
