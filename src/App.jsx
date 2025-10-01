@@ -192,6 +192,14 @@ import Venueview from "./pages/utility/Venue-view";
 import BookingView from "./pages/utility/Booking-view";
 import SendNotificationForm from "./pages/utility/Notification";
 import NotificationTable from "./pages/utility/Notification-Table";
+import SectorTable from "./Carbonx-pages/Sectors-table";
+import SectorAddForm from "./Carbonx-pages/SectorsAdd";
+import SectorEdit from "./Carbonx-pages/SectorEdit";
+import SectorView from "./Carbonx-pages/SectorView";
+import Industry from "./Carbonx-pages/Industry/Industry";
+import IndustryAddFrom from "./Carbonx-pages/Industry/IndustryAdd";
+import CompanyProfileForm from "./Carbonx-pages/Company/CompanyAddForm";
+import CompanyTable from "./Carbonx-pages/Company/CompanyTable";
 
 
 
@@ -384,6 +392,23 @@ function App() {
           <Route path="booking-view" element={<BookingView />} />
           <Route path="Notification" element={<SendNotificationForm />} />
           <Route path="Notification-table" element={<NotificationTable />} />
+          <Route path="Sector-table" element={<SectorTable />} />
+          <Route path="Add-Sector-Form" element={<SectorAddForm />} />
+          <Route path="Add-Sector-Edit/:id" element={<SectorEdit />} />
+          <Route path="Sector-View/:id" element={<SectorView />} />
+          <Route path="Industry" element={<Industry />} />
+          <Route path="Industry-Add" element={<IndustryAddFrom />} />
+          <Route path="Company-Add" element={<CompanyProfileForm />} />
+          <Route path="Company" element={<CompanyTable />} />
+
+
+
+
+
+
+
+
+
 
 
 

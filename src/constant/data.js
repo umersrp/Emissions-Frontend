@@ -7,15 +7,42 @@ export const menuItems = [
   {
     title: "Dashboard",
     icon: "heroicons-outline:home",
+    isOpen: true,
     isHide: true,
-    link: "dashboard"
-
+    child: [
+      {
+        childtitle: "Analytics Dashboard",
+        childlink: "dashboard",
+      },
+      // {
+      //   childtitle: "Ecommerce Dashboard",
+      //   childlink: "ecommerce",
+      // },
+      // {
+      //   childtitle: "Project  Dashbaord",
+      //   childlink: "project",
+      // },
+      // {
+      //   childtitle: " CRM Dashbaord",
+      //   childlink: "crm",
+      // },
+      // {
+      //   childtitle: "Banking Dashboard",
+      //   childlink: "banking",
+      // },
+    ],
   },
-
-  // {
-  //   isHeadr: true,
-  //   title: "apps",
-  // },
+  {
+    title: "changelog",
+    icon: "heroicons:arrow-trending-up",
+    link: "changelog",
+    isHide: false,
+    badge: "1.0.0",
+  },
+  {
+    isHeadr: true,
+    title: "apps",
+  },
 
   // {
   //   title: "Chat",
@@ -24,12 +51,12 @@ export const menuItems = [
   //   link: "chat",
   // },
 
-  // {
-  //   title: "Email",
-  //   isHide: true,
-  //   icon: "heroicons-outline:mail",
-  //   link: "email",
-  // },
+  {
+    title: "Email",
+    isHide: true,
+    icon: "heroicons-outline:mail",
+    link: "email",
+  },
 
   // {
   //   title: "Kanban",
@@ -134,284 +161,140 @@ export const menuItems = [
   //     },
   //   ],
   // },
-  // {
-  //   isHeadr: true,
-  //   title: "Pages",
-  // },
-  // {
-  //   title: "Authentication",
-  //   icon: "heroicons-outline:lock-closed",
-  //   link: "#",
-  //   child: [
-  //     {
-  //       childtitle: "Signin One",
-  //       childlink: "/",
-  //     },
-  //     {
-  //       childtitle: "Signin Two",
-  //       childlink: "/login2",
-  //     },
-  //     {
-  //       childtitle: "Signin Three",
-  //       childlink: "/login3",
-  //     },
-  //     {
-  //       childtitle: "Signup One",
-  //       childlink: "/reg",
-  //     },
-  //     {
-  //       childtitle: "Signup Two",
-  //       childlink: "/reg2",
-  //     },
-  //     {
-  //       childtitle: "Signup Three",
-  //       childlink: "/reg3",
-  //     },
-  //     {
-  //       childtitle: "Forget Password One",
-  //       childlink: "/forgot-password",
-  //     },
-  //     {
-  //       childtitle: "Forget Password Two",
-  //       childlink: "/forgot-password2",
-  //     },
-  //     {
-  //       childtitle: "Forget Password Three",
-  //       childlink: "/forgot-password3",
-  //     },
-  //     {
-  //       childtitle: "Lock Screen One",
-  //       childlink: "/lock-screen",
-  //     },
-  //     {
-  //       childtitle: "Lock Screen Two",
-  //       childlink: "/lock-screen2",
-  //     },
-  //     {
-  //       childtitle: "Lock Screen Three",
-  //       childlink: "/lock-screen3",
-  //     },
-  //   ],
-  // },
   {
-    title: "Player-Record",
-    icon: "heroicons-outline:users",
-    link: "#",
-    isHide: false,
-    child: [
-      {
-        childtitle: "Player-Record",
-        childlink: "Player",
-      },
-      {
-        childtitle: "Booked-Played-User",
-        childlink: "Booked-user-list",
-      }
-      // {
-      //   childtitle: "Customers",
-      //   childlink: "Customer",
-      // },
-      // {
-      //   childtitle: "Vendors",
-      //   childlink: "vendor"
-      // }
-      // {
-      //   childtitle: "Pricing",
-      //   childlink: "pricing",
-      // },
-      // // {
-      // //   childtitle: "Testimonial",
-      // //   childlink: "testimonial",
-      // // },
-      // {
-      //   childtitle: "FAQ",
-      //   childlink: "faq",
-      // },
-      // {
-      //   childtitle: "Blog",
-      //   childlink: "blog",
-      // },
-      // {
-      //   childtitle: "Blank page",
-      //   childlink: "blank-page",
-      // },
-      // {
-      //   childtitle: "Prfoile",
-      //   childlink: "profile",
-      // },
-      // {
-      //   childtitle: "Settings",
-      //   childlink: "settings",
-      // },
-      // {
-      //   childtitle: "404 page",
-      //   childlink: "/404",
-      // },
+    isHeadr: true,
+    title: "Pages",
+  },
 
-      // {
-      //   childtitle: "Coming Soon",
-      //   childlink: "/coming-soon",
-      // },
-      // {
-      //   childtitle: "Under Maintanance page",
-      //   childlink: "/under-construction",
-      // },
-    ],
+  {
+    title: "Sectors",
+    isHide: true,
+    icon: "heroicons-outline:building-library",
+    link: "Sector-table",
+  },
+
+  {
+    title: "Industry",
+    isHide: true,
+    icon: "heroicons-outline:home-modern",
+    link: "Industry"
 
   },
+
   {
-    title: "player Attendence",
+    title: "Company",
+    isHide: true,
     icon: "heroicons-outline:table-cells",
-    link: "attendence",
+    link: "Company"
   },
   {
-    title: "Coach",
-    link: "Coach",
-    icon: "heroicons-outline:user-group",
-
+    title: "Authentication",
+    icon: "heroicons-outline:lock-closed",
+    link: "#",
+    child: [
+      {
+        childtitle: "Signin One",
+        childlink: "/",
+      },
+      {
+        childtitle: "Signin Two",
+        childlink: "/login2",
+      },
+      {
+        childtitle: "Signin Three",
+        childlink: "/login3",
+      },
+      {
+        childtitle: "Signup One",
+        childlink: "/reg",
+      },
+      {
+        childtitle: "Signup Two",
+        childlink: "/reg2",
+      },
+      {
+        childtitle: "Signup Three",
+        childlink: "/reg3",
+      },
+      {
+        childtitle: "Forget Password One",
+        childlink: "/forgot-password",
+      },
+      {
+        childtitle: "Forget Password Two",
+        childlink: "/forgot-password2",
+      },
+      {
+        childtitle: "Forget Password Three",
+        childlink: "/forgot-password3",
+      },
+      {
+        childtitle: "Lock Screen One",
+        childlink: "/lock-screen",
+      },
+      {
+        childtitle: "Lock Screen Two",
+        childlink: "/lock-screen2",
+      },
+      {
+        childtitle: "Lock Screen Three",
+        childlink: "/lock-screen3",
+      },
+    ],
   },
   {
-    title: "Vendors",
-    icon: "heroicons-outline:user-circle",
-    isHide: true,
-    link: "vendor"
-
-  },
-
-  {
-    title: "Venue",
-    icon: "heroicons-outline:collection",
-    isHide: true,
-    link: "venue"
-
-  },
-  {
-    title: "Location",
-    link: "location",
-    icon: "heroicons-outline:map-pin",
-    isHide: true,
-
-
-  },
-
-  {
-    title: "Groups",
-    link: "Group-table",
-    icon: "heroicons-outline:calendar",
-    isHide: true,
-
-
-  },
-  {
-    title: "Amenities",
-    link: "amenities",
-    icon: "heroicons-outline:calendar",
-    isHide: true,
-
-
-  },
-  {
-    title: "Booking",
-    link: "booking",
-    icon: "heroicons-outline:collection",
-    isHide: true,
-
-
-  },
-  {
-    title: "Sports",
-    link: "sportlist",
-    icon: "heroicons-outline:collection",
-    isHide: true,
-
-
-  },
-
-
-
-
-
-  {
-    title: "CMS",
-    icon: "heroicons-solid:device-phone-mobile",
+    title: "Utility",
+    icon: "heroicons-outline:view-boards",
     link: "#",
     isHide: false,
     child: [
       {
-        childtitle: "Home Page",
-        childlink: "add-config",
+        childtitle: "Invoice",
+        childlink: "invoice",
       },
       {
-        childtitle: "About Us",
-        childlink: "discount-edit",
+        childtitle: "Pricing",
+        childlink: "pricing",
+      },
+      // {
+      //   childtitle: "Testimonial",
+      //   childlink: "testimonial",
+      // },
+      {
+        childtitle: "FAQ",
+        childlink: "faq",
       },
       {
-        childtitle: "Contact Us",
-        childlink: "contactus"
+        childtitle: "Blog",
+        childlink: "blog",
       },
       {
-        childtitle: "Feedback",
-        childlink: "feedback",
+        childtitle: "Blank page",
+        childlink: "blank-page",
       },
       {
-        childlink: "Gallery",
-        childtitle: "Gallery"
+        childtitle: "Prfoile",
+        childlink: "profile",
+      },
+      {
+        childtitle: "Settings",
+        childlink: "settings",
+      },
+      {
+        childtitle: "404 page",
+        childlink: "/404",
       },
 
-
-    ]
+      {
+        childtitle: "Coming Soon",
+        childlink: "/coming-soon",
+      },
+      {
+        childtitle: "Under Maintanance page",
+        childlink: "/under-construction",
+      },
+    ],
   },
-  {
-    title: "Notification",
-    link: "Notification-table",
-    icon: "heroicons-outline:bell",
-    isHide: true,
-
-
-  },
-
-  // {
-  //   title: "Vendor-Category",
-  //   icon: "heroicons-outline:user-circle",
-  //   link: "#",
-  //   child: [
-  //     {
-  //       childtitle: "Category",
-  //       childlink: "Vendor-category",
-  //     },
-
-  //   ],
-  // },
-
-
-
-
-  // {
-  //   title: "Brands",
-  //   icon: "heroicons-outline:gift-top",
-  //   link: "#",
-  //   child: [
-  //     {
-  //       childtitle: "Brands",
-  //       childlink: "brands",
-  //     },
-
-  //   ],
-  // },
-  // {
-  //   title: "Discount",
-  //   icon: "heroicons-outline:ticket",
-  //   link: "#",
-  //   child: [
-  //     {
-  //       childtitle: "Discount",
-  //       childlink: "discout-table",
-  //     },
-
-  //   ],
-  // },
-
-
 
 
   // {
@@ -1446,8 +1329,6 @@ import ssl from "@/assets/images/e-commerce/cart-icon/ssl.png";
 import stripe from "@/assets/images/e-commerce/cart-icon/stripe.png";
 import truck from "@/assets/images/e-commerce/cart-icon/truck.png";
 import vougepay from "@/assets/images/e-commerce/cart-icon/vougepay.png";
-import { Link } from "react-router-dom";
-import Feedback from "react-bootstrap/esm/Feedback";
 
 export const payments = [
   {

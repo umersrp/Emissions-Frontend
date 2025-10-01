@@ -1,15 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Textinput from "@/components/ui/Textinput";
+
 const GlobalFilter = ({ filter, setFilter }) => {
-  const [value, setValue] = useState(filter);
+  const [value, setValue] = useState(filter || "");
+
+  useEffect(() => {
+    // Only update internal state if prop changes externally
+    setValue(filter || "");
+  }, [filter]);
+
   const onChange = (e) => {
-    setValue(e.target.value);
-    setFilter(e.target.value || undefined);
+    const inputValue = e.target.value;
+    setValue(inputValue);
+    setFilter(inputValue || undefined);
   };
+
   return (
     <div>
       <Textinput
-        value={value || ""}
+        value={value}
         onChange={onChange}
         placeholder="search..."
       />

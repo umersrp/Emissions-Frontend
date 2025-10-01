@@ -1,387 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Card from "@/components/ui/Card";
 import ImageBlock1 from "@/components/partials/widget/block/image-block-1";
 import GroupChart1 from "@/components/partials/widget/chart/group-chart-1";
 import RevenueBarChart from "@/components/partials/widget/chart/revenue-bar-chart";
 import RadialsChart from "@/components/partials/widget/chart/radials";
 import SelectMonth from "@/components/partials/SelectMonth";
+import CompanyTable from "@/components/partials/Table/company-table";
 import RecentActivity from "@/components/partials/widget/recent-activity";
 import MostSales from "../../components/partials/widget/most-sales";
 import RadarChart from "../../components/partials/widget/chart/radar-chart";
 import HomeBredCurbs from "./HomeBredCurbs";
-import axios from "axios";
-import GroupChart4 from "@/components/partials/widget/chart/group-chart-4";
-import { count } from "d3-array";
-import { useSelector } from "react-redux";
-import foot from "../../assets/images/logo/ball.avif"
-import CompanyTable from "@/components/partials/Table/company-table";
 
 const Dashboard = () => {
-  const [dash,setdashboard] = useState()
-  const user = useSelector((state) => state.auth.user);
-  console.log(user)
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/${user.type}/dashboard/get-dashboard`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        setdashboard(response.data.dashboard);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchData();
-  }, [user.type]);
-
-  if (!user?.type) {
-    // reload the page
-    window.location.reload();
-  }
-
-
-
-  const shapeLine1 = {
-    series: [
-      {
-        data: [800, 600, 1000, 800, 600, 1000, 800, 900],
-      },
-    ],
-    options: {
-      chart: {
-        toolbar: {
-          autoSelected: "pan",
-          show: false,
-        },
-        offsetX: 0,
-        offsetY: 0,
-        zoom: {
-          enabled: false,
-        },
-        sparkline: {
-          enabled: true,
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        curve: "smooth",
-        width: 2,
-      },
-      colors: ["#00EBFF"],
-      tooltip: {
-        theme: "light",
-      },
-      grid: {
-        show: false,
-        padding: {
-          left: 0,
-          right: 0,
-        },
-      },
-      yaxis: {
-        show: false,
-      },
-      fill: {
-        type: "solid",
-        opacity: [0.1],
-      },
-      legend: {
-        show: false,
-      },
-      xaxis: {
-        low: 0,
-        offsetX: 0,
-        offsetY: 0,
-        show: false,
-        labels: {
-          low: 0,
-          offsetX: 0,
-          show: false,
-        },
-        axisBorder: {
-          low: 0,
-          offsetX: 0,
-          show: false,
-        },
-      },
-    },
-  };
-  const shapeLine2 = {
-    series: [
-      {
-        data: [800, 600, 1000, 800, 600, 1000, 800, 900],
-      },
-    ],
-    options: {
-      chart: {
-        toolbar: {
-          autoSelected: "pan",
-          show: false,
-        },
-        offsetX: 0,
-        offsetY: 0,
-        zoom: {
-          enabled: false,
-        },
-        sparkline: {
-          enabled: true,
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        curve: "smooth",
-        width: 2,
-      },
-      colors: ["#FB8F65"],
-      tooltip: {
-        theme: "light",
-      },
-      grid: {
-        show: false,
-        padding: {
-          left: 0,
-          right: 0,
-        },
-      },
-      yaxis: {
-        show: false,
-      },
-      fill: {
-        type: "solid",
-        opacity: [0.1],
-      },
-      legend: {
-        show: false,
-      },
-      xaxis: {
-        low: 0,
-        offsetX: 0,
-        offsetY: 0,
-        show: false,
-        labels: {
-          low: 0,
-          offsetX: 0,
-          show: false,
-        },
-        axisBorder: {
-          low: 0,
-          offsetX: 0,
-          show: false,
-        },
-      },
-    },
-  };
-  const shapeLine3 = {
-    series: [
-      {
-        data: [800, 600, 1000, 800, 600, 1000, 800, 900],
-      },
-    ],
-    options: {
-      chart: {
-        toolbar: {
-          autoSelected: "pan",
-          show: false,
-        },
-        offsetX: 0,
-        offsetY: 0,
-        zoom: {
-          enabled: false,
-        },
-        sparkline: {
-          enabled: true,
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        curve: "smooth",
-        width: 2,
-      },
-      colors: ["#5743BE"],
-      tooltip: {
-        theme: "light",
-      },
-      grid: {
-        show: false,
-        padding: {
-          left: 0,
-          right: 0,
-        },
-      },
-      yaxis: {
-        show: false,
-      },
-      fill: {
-        type: "solid",
-        opacity: [0.1],
-      },
-      legend: {
-        show: false,
-      },
-      xaxis: {
-        low: 0,
-        offsetX: 0,
-        offsetY: 0,
-        show: false,
-        labels: {
-          low: 0,
-          offsetX: 0,
-          show: false,
-        },
-        axisBorder: {
-          low: 0,
-          offsetX: 0,
-          show: false,
-        },
-      },
-    },
-  };
-
-  const Dashcode=[
-
-    {
-      name: shapeLine3,
-      title: "Total No Of",
-      count: { "Vendors" : <><br /><strong>{dash?.vendor || 0}</strong> </>
-    
-    },   
-     
-         bg: "bg-gradient-to-r from-[#FB8F65] to-[#EAE5FF] dark:bg-slate-900	",
-    icon: "heroicons-outline:truck",
-
-    },
-    {
-      name: shapeLine2,
-      title: "Total no of ",
-      count:{ "Players" : <><br /><strong>{dash?.users || 0}</strong> </>,
-      
-      
-    },       
-    bg: "   bg-gradient-to-r from-[#00EBFF] to-[#EAE5FF] dark:bg-slate-800	",
-    icon: "heroicons-outline:user-group",
-    },
-    {
-      name: shapeLine1,
-      title: "Total no of",
-      count: { "Venue" : <><br /><strong>{dash?.venue || 0}</strong> </>,
-      
-      
-    },   
-    bg: " bg-gradient-to-r from-[#5743BE] to-[#EAE5FF] dark:bg-slate-800	",
-    icon: "heroicons:shopping-bag",
-    },
-    {
-      name: shapeLine3,
-      title: "Total no of ",
-      count: { "Coach" : <><br /><strong>{dash?.coach || 0}</strong> </>
-    
-    },         bg: "bg-gradient-to-r from-[#FFEDE5] to-[#EAE5FF] dark:bg-slate-800	",
-    icon: "heroicons-outline:user",
-
-    },
-  ]
-
-
-  // counts
-  const counters = [
-    // {
-    //   name: shapeLine1,
-    //   title: "Total no of product ",
-    //   count: { "category" : <><br /><strong>{dash?.category || 0}</strong> </>
-    
-    // },   
-    //    bg: "bg-[#E5F9FF] dark:bg-slate-900	",
-    //    icon: "heroicons-outline:shopping-bag",
-
-    // },
-    // {
-    //   name: shapeLine2,
-    //   title: "Total no of ",
-    //   count: { "Brands" : <><br /><strong>{dash?.brand || 0}</strong> </>,
-      
-      
-    // },       
-    // bg: "bg-[#FFEDE5] dark:bg-slate-900	",
-    // icon: "heroicons-outline:gift-top",
-    // },
-    // {
-    //   name: shapeLine3,
-    //   title: "Total no of ",
-    //   count: { "Order" : <><br /><strong>{dash?.order || 0}</strong> </>
-    
-    // },         bg: "bg-[#EAE5FF] dark:bg-slate-900	",
-    // icon: "heroicons-outline:shopping-cart",
-
-    // },
-    // {
-    //   name: shapeLine3,
-    //   title: "Total No Of",
-    //   count: { "Vendors" : <><br /><strong>{dash?.vendor || 0}</strong> </>
-    
-    // },         bg: "bg-[#EAE5FF] dark:bg-slate-900	",
-    // icon: "heroicons-outline:truck",
-
-    // },
-    // {
-    //   name: shapeLine2,
-    //   title: "Total no of ",
-    //   count: { "User" : <><br /><strong>{dash?.users || 0}</strong> </>,
-      
-      
-    // },       
-    // bg: "bg-[#FFEDE5] dark:bg-slate-900	",
-    // icon: "heroicons-outline:user-group",
-    // },
-    // {
-    //   name: shapeLine1,
-    //   title: "Total no of Properties",
-    //   count: { "Products" : <><br /><strong>{dash?.products || 0}</strong> </>,
-      
-      
-    // },   
-    // bg: "bg-[#E5F9FF] dark:bg-slate-900	",
-    // icon: "heroicons:shopping-bag",
-    // },
-  ];
-  console.log(counters,"jj");
-
-
-
-
-
-
-
-
-
-
   const [filterMap, setFilterMap] = useState("usa");
   return (
     <div>
       <HomeBredCurbs title="Dashboard" />
-      <div className="grid grid-cols-12 gap-5 mb-5 ">
-        {/* <div className="2xl:col-span-3 lg:col-span-4 col-span-12">
+      <div className="grid grid-cols-12 gap-5 mb-5">
+        <div className="2xl:col-span-3 lg:col-span-4 col-span-12">
           <ImageBlock1 />
-        </div> */}
-        {/* <div className="2xl:col-span-12 lg:col-span-12 col-span-12">
+        </div>
+        <div className="2xl:col-span-9 lg:col-span-8 col-span-12">
           <Card bodyClass="p-4">
             <div className="grid md:grid-cols-3 col-span-1 gap-4">
-              <GroupChart4 statistics={counters} />
-            </div>
-          </Card>
-        </div> */}
-        <div className="2xl:col-span-12 lg:col-span-12 col-span-12">
-          <Card bodyClass="p-4">
-            <div className="grid md:grid-cols-4 col-span-1 gap-4">
-              <GroupChart4 statistics={Dashcode} />
+              <GroupChart1 />
             </div>
           </Card>
         </div>
@@ -395,13 +37,13 @@ const Dashboard = () => {
           </Card>
         </div>
         <div className="lg:col-span-4 col-span-12">
-          <Card title="feature" >
-            <img src={foot} alt="" />
+          <Card title="Overview" headerslot={<SelectMonth />}>
+            <RadialsChart />
           </Card>
         </div>
         <div className="lg:col-span-8 col-span-12">
           <Card title="All Company" headerslot={<SelectMonth />} noborder>
-            <CompanyTable/>
+            <CompanyTable />
           </Card>
         </div>
         <div className="lg:col-span-4 col-span-12">
@@ -484,4 +126,5 @@ const Dashboard = () => {
     </div>
   );
 };
+
 export default Dashboard;

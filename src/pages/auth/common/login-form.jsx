@@ -143,61 +143,69 @@ const schema = yup
   })
   .required();
 
-  const LoginForm = () => {
-    const [login, { isLoading }] = useLoginMutation();
-    const dispatch = useDispatch();
-    const user = useSelector((state) => state.auth);
-  
-    const {
-      register,
-      formState: { errors },
-      handleSubmit,
-    } = useForm({
-      resolver: yupResolver(schema),
-      mode: "all",
-    });
-  
-    const navigate = useNavigate();
-  
-    useEffect(() => {
-      if (user?.isAuth) {
-        navigate("/dashboard");
+const LoginForm = () => {
+  const [login, { isLoading }] = useLoginMutation();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth);
+
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+  } = useForm({
+    resolver: yupResolver(schema),
+    mode: "all",
+  });
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?.isAuth) {
+      navigate("/dashboard");
+    }
+  }, [user, navigate]);
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await login(data);
+
+      // Handle HTTP or backend error
+      if (response?.error) {
+        throw new Error(response.error.data.message);
       }
-    }, [user, navigate]);
-  
-    const onSubmit = async (data) => {
-      try {
-        const response = await login(data);
-  
-        if (response?.error) {
-          throw new Error(response.error.data.message);
-        }
-  
-        if (response?.data?.error) {
-          throw new Error(response.error.data.message);
-        }
-  
-        if (!response?.data?.token) {
-          throw new Error("Invalid credentials");
-        }
-  
-        if (response?.data?.user?.type === "user") {
-          throw new Error("Invalid credentials");
-        }
-        
-        console.log(response.data)
-        dispatch(setUser(response?.data?.user));
-        localStorage.setItem("user", JSON.stringify(response?.data?.user));
-        localStorage.setItem("token", response?.data?.token);
-  
-        navigate("/dashboard");
-        toast.success("Login Successful");
-      } catch (error) {
-        toast.error(error.message);
+
+      const userData = response?.data.data;
+
+      // Check token presence
+      if (!userData?.token) {
+        throw new Error("Invalid credentials");
       }
-    };
-  
-    const [checked, setChecked] = useState(false);
+
+      // You were doing this:
+      // if (response?.data?.user?.type === "admin") {
+      //   throw new Error("Invalid credentials");
+      // }
+
+      // But userData is the user object itself
+      if (userData?.type !== "admin") {
+        throw new Error("Invalid credentials");
+      }
+
+      // ✅ Save user and token
+      dispatch(setUser(userData));
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("token", userData.token);
+
+      navigate("/dashboard");
+      toast.success("Login Successful");
+
+    } catch (error) {
+      toast.error(error.message || "Login failed");
+    }
+  };
+
+
+  const [checked, setChecked] = useState(false);
 
 
   return (
