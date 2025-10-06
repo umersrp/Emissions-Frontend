@@ -12,13 +12,18 @@ const CompanyProfileForm = () => {
 
 
     // Form state
+    const [showFields, setShowFields] = useState({
+        showCalendar: false,
+        showFiscal: false,
+        showCustom: false,
+    });
     const [formData, setFormData] = useState({
         companyName: "",
         reportingYear: "",
         boundary: "",
         country: "",
         province: "",
-        baseyear: "",
+        baseyear: null,
         Calendaryear: "",
         fiscalyear: "",
         customyear: "",
@@ -161,7 +166,7 @@ const CompanyProfileForm = () => {
                 }
             );
             toast.success("Company profile created successfully!");
-            navigate("/some-route"); // Redirect after success
+            navigate("/Company"); // Redirect after success
         } catch (error) {
             console.error("Failed to create company profile", error);
             toast.error(error.response?.data?.message || "Failed to create company profile");
@@ -171,16 +176,43 @@ const CompanyProfileForm = () => {
     };
 
     // Controlled input change handler
+    // const handleChange = (e) => {
+    //     const { name, value } = e.target;
+    //     setFormData((prev) => ({
+    //         ...prev,
+    //         [name]: value,
+    //     }));
+    //     setErrors((prev) => ({ ...prev, [name]: null }));
+    // };
+    const handleCancel = () => {
+        navigate("/Company");
+    };
+
+
+
     const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value,
+        }));
+    };
+
+    const handleCheckboxChange = (e) => {
+        const { name, checked } = e.target;
+        setShowFields((prev) => ({
+            ...prev,
+            [name]: checked,
+        }));
+    };
+    // Generate years from 2000 to current year + 10
+    const years = Array.from({ length: 30 }, (_, i) => 2000 + i);
+    const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: value,
         }));
-        setErrors((prev) => ({ ...prev, [name]: null }));
-    };
-    const handleCancel = () => {
-        navigate("/Industry");
     };
 
     return (
@@ -267,53 +299,103 @@ const CompanyProfileForm = () => {
                     <div className="mb-4">
                         <label className="block font-semibold mb-1">Base Year</label>
                         <input
-                            type="date"
+                            type="checkbox"
                             name="baseyear"
-                            value={formData.baseyear}
+                            checked={formData.baseyear}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
-                            placeholder="Enter base year"
                         />
                     </div>
 
-                    {/* Calendar Year */}
-                    <div className="mb-4">
-                        <label className="block font-semibold mb-1">Calendar Year</label>
-                        <input
-                            type="date"
-                            name="Calendaryear"
-                            value={formData.Calendaryear}
-                            onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
-                            placeholder="Enter calendar year"
-                        />
+                    <div className="mb-2">
+                        <label className="flex items-center gap-2 font-medium">
+                            <input
+                                type="checkbox"
+                                name="showCalendar"
+                                checked={showFields.showCalendar}
+                                onChange={handleCheckboxChange}
+                            />
+                            Show Calendar Year
+                        </label>
                     </div>
 
-                    {/* Fiscal Year */}
-                    <div className="mb-4">
-                        <label className="block font-semibold mb-1">Fiscal Year</label>
-                        <input
-                            type="date"
-                            name="fiscalyear"
-                            value={formData.fiscalyear}
-                            onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
-                            placeholder="Enter fiscal year"
-                        />
+                    {/* Fiscal Year Checkbox */}
+                    <div className="mb-2">
+                        <label className="flex items-center gap-2 font-medium">
+                            <input
+                                type="checkbox"
+                                name="showFiscal"
+                                checked={showFields.showFiscal}
+                                onChange={handleCheckboxChange}
+                            />
+                            Show Fiscal Year
+                        </label>
                     </div>
 
-                    {/* Custom Year */}
+                    {/* Custom Year Checkbox */}
                     <div className="mb-4">
-                        <label className="block font-semibold mb-1">Custom Year</label>
-                        <input
-                            type="date"
-                            name="customyear"
-                            value={formData.customyear}
-                            onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
-                            placeholder="Enter custom year"
-                        />
+                        <label className="flex items-center gap-2 font-medium">
+                            <input
+                                type="checkbox"
+                                name="showCustom"
+                                checked={showFields.showCustom}
+                                onChange={handleCheckboxChange}
+                            />
+                            Show Custom Year
+                        </label>
                     </div>
+
+                    {/* Calendar Year Input */}
+                    {showFields.showCalendar && (
+                        <div className="mb-4">
+                            <label className="block font-semibold mb-1">Calendar Year</label>
+                            <select
+                                name="Calendaryear"
+                                value={formData.Calendaryear}
+                                onChange={handleInputChange}
+                                className="border-[3px] h-10 w-full mb-3 p-2"
+                            >
+                                <option value="">Select Year</option>
+                                {Array.from({ length: 50 }, (_, i) => {
+                                    const year = 2000 + i;
+                                    return (
+                                        <option key={year} value={year}>
+                                            {year}
+                                        </option>
+                                    );
+                                })}
+                            </select>
+                        </div>
+                    )}
+
+                    {/* Fiscal Year Input */}
+                    {showFields.showFiscal && (
+                        <div className="mb-4">
+                            <label className="block font-semibold mb-1">Fiscal Year</label>
+                            <input
+                                type="date"
+                                name="fiscalyear"
+                                value={formData.fiscalyear}
+                                onChange={handleInputChange}
+                                className="border-[3px] h-10 w-full mb-3 p-2"
+                                placeholder="Enter fiscal year"
+                            />
+                        </div>
+                    )}
+
+                    {/* Custom Year Input */}
+                    {showFields.showCustom && (
+                        <div className="mb-4">
+                            <label className="block font-semibold mb-1">Custom Year</label>
+                            <input
+                                type="date"
+                                name="customyear"
+                                value={formData.customyear}
+                                onChange={handleInputChange}
+                                className="border-[3px] h-10 w-full mb-3 p-2"
+                                placeholder="Enter custom year"
+                            />
+                        </div>
+                    )}
 
                     {/* Address */}
                     <div className="mb-4">
