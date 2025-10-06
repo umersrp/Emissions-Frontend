@@ -25,9 +25,9 @@ const Card = ({
         `}
     >
       {(title || subtitle) && (
-        <header className={`card-header text-white bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] dark:bg-slate-800 ${noborder ? "no-border" : ""}`}>
+        <header className={`card-header bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] dark:bg-slate-800 ${noborder ? "no-border" : ""}`}>
           <div>
-            {title && <div className={`card-title ${titleClass}`}>{title}</div>}
+            {title && <div className={`card-title  ${titleClass}`}>{title}</div>}
             {subtitle && <div className="card-subtitle">{subtitle}</div>}
           </div>
           {headerslot && <div className="card-header-slot">{headerslot}</div>}
