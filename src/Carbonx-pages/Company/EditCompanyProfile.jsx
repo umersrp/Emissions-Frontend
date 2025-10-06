@@ -1,29 +1,21 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 
-const CompanyProfileForm = () => {
+const EditCompanyProfile = () => {
     const navigate = useNavigate();
-    const [countries, setCountries] = useState([]);
-    const [currencies, setCurrencies] = useState([]);
+    const { id } = useParams(); // get ID from URL
 
-
-    // Form state
-    const [showFields, setShowFields] = useState({
-        showCalendar: false,
-        showFiscal: false,
-        showCustom: false,
-    });
     const [formData, setFormData] = useState({
         companyName: "",
         reportingYear: "",
         boundary: "",
         country: "",
         province: "",
-        baseyear: null,
+        baseyear: "",
         Calendaryear: "",
         fiscalyear: "",
         customyear: "",
@@ -45,14 +37,34 @@ const CompanyProfileForm = () => {
         industryId: "",
     });
 
-    // Dropdown options
     const [sectors, setSectors] = useState([]);
     const [industries, setIndustries] = useState([]);
-
-    // Loading state
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState({});
+    const [countries, setCountries] = useState([]);
+    const [currencies, setCurrencies] = useState([]);
+    // 🟢 Fetch existing company profile by ID
+    useEffect(() => {
+        const fetchCompanyProfile = async () => {
+            try {
+                const response = await axios.get(
+                    `${process.env.REACT_APP_BASE_URL}/company/company-profile/${id}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                    }
+                );
+                setFormData(response.data.data); // pre-fill form
+            } catch (error) {
+                console.error("Failed to fetch company profile", error);
+                toast.error("Failed to load company profile");
+            }
+        };
+        fetchCompanyProfile();
+    }, [id]);
 
-    // Fetch sectors on mount
+    // 🟡 Fetch sectors on mount
     useEffect(() => {
         const fetchSectors = async () => {
             try {
@@ -73,11 +85,10 @@ const CompanyProfileForm = () => {
         fetchSectors();
     }, []);
 
-    // Fetch industries when sectorId changes
+    // 🟣 Fetch industries when sector changes
     useEffect(() => {
         if (!formData.sectorId) {
             setIndustries([]);
-            setFormData(prev => ({ ...prev, industryId: "" }));
             return;
         }
 
@@ -89,8 +100,7 @@ const CompanyProfileForm = () => {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem("token")}`,
                         },
-                        params: { sectorId: formData.sectorId, page: 1, limit: 100 }, // example
-
+                        params: { sectorId: formData.sectorId, page: 1, limit: 100 },
                     }
                 );
                 setIndustries(response.data.data || []);
@@ -103,32 +113,38 @@ const CompanyProfileForm = () => {
         fetchIndustries();
     }, [formData.sectorId]);
 
-   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // ✅ Fetch countries
-        const countryRes = await axios.get("https://restcountries.com/v3.1/all?fields=name,flags");
-        const countryList = countryRes.data
-          .map((c) => c.name.common)
-          .sort();
-        setCountries(countryList);
+    useEffect(() => {
+        const fetchCountriesAndCurrencies = async () => {
+            try {
+                //  Fetch all countries
+                const countryRes = await axios.get("https://restcountries.com/v3.1/all?fields=name,flags");
+                const countryList = countryRes.data
+                    .map((c) => c.name.common)
+                    .sort();
+                setCountries(countryList);
 
-        // ✅ Fetch currencies
-        const currencyRes = await axios.get("https://open.er-api.com/v6/latest/USD");
-        const currencyList = Object.keys(currencyRes.data.rates).sort();
-        setCurrencies(currencyList);
-      } catch (error) {
-        console.error("Error fetching country/currency:", error);
-        alert("Failed to load country and currency data");
-      }
-    };
+                // Fetch currencies using Open Exchange Rate API (base USD)
+                const currencyRes = await axios.get("https://open.er-api.com/v6/latest/USD");
+                const rates = currencyRes.data.rates; // e.g., { PKR: 278.5, EUR: 0.92, ... }
+                const currencyList = Object.keys(rates)
+                    .sort()
+                    .map((code) => ({
+                        code,
+                        rate: rates[code],
+                    }));
+                setCurrencies(currencyList);
+            } catch (error) {
+                console.error("Failed to load countries or currencies", error);
+                toast.error("Failed to load countries or currencies");
+            }
+        };
 
-    fetchData();
-  }, []);
+        fetchCountriesAndCurrencies();
+    }, []);
 
 
 
-    // Simple validation before submit
+    // ✅ Validation
     const validate = () => {
         const errors = {};
         if (!formData.companyName) errors.companyName = "Company name is required";
@@ -142,9 +158,17 @@ const CompanyProfileForm = () => {
         return errors;
     };
 
-    const [errors, setErrors] = useState({});
+    // 🧩 Handle input change
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+        setErrors((prev) => ({ ...prev, [name]: null }));
+    };
 
-    // Submit form handler
+    // 🟠 Handle form submission (UPDATE)
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -156,8 +180,8 @@ const CompanyProfileForm = () => {
 
         setLoading(true);
         try {
-            const response = await axios.post(
-                `${process.env.REACT_APP_BASE_URL}/company/company-profile`, // Adjust endpoint if needed
+            await axios.put(
+                `${process.env.REACT_APP_BASE_URL}/company/company-profile/${id}`,
                 formData,
                 {
                     headers: {
@@ -165,61 +189,21 @@ const CompanyProfileForm = () => {
                     },
                 }
             );
-            toast.success("Company profile created successfully!");
+            toast.success("Company profile updated successfully!");
             navigate("/Company"); // Redirect after success
         } catch (error) {
-            console.error("Failed to create company profile", error);
-            toast.error(error.response?.data?.message || "Failed to create company profile");
+            console.error("Failed to update company profile", error);
+            toast.error(error.response?.data?.message || "Failed to update company profile");
         } finally {
             setLoading(false);
         }
     };
 
-    // Controlled input change handler
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setFormData((prev) => ({
-    //         ...prev,
-    //         [name]: value,
-    //     }));
-    //     setErrors((prev) => ({ ...prev, [name]: null }));
-    // };
-    const handleCancel = () => {
-        navigate("/Company");
-    };
-
-
-
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value,
-        }));
-    };
-
-    const handleCheckboxChange = (e) => {
-        const { name, checked } = e.target;
-        setShowFields((prev) => ({
-            ...prev,
-            [name]: checked,
-        }));
-    };
-    // Generate years from 2000 to current year + 10
-    const years = Array.from({ length: 30 }, (_, i) => 2000 + i);
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
+    const handleCancel = () => navigate("/Company");
 
     return (
-        <Card title="Create Company Profile">
-
+        <Card title="Edit Company Profile">
             <div className="w-full mx-auto p-6">
-                {/* <h2 className="text-2xl font-bold mb-6">Create Company Profile</h2> */}
                 <form className="lg:grid-cols-3 grid gap-8 grid-cols-1">
 
                     {/* Company Name */}
@@ -273,15 +257,19 @@ const CompanyProfileForm = () => {
                             name="country"
                             value={formData.country}
                             onChange={handleChange}
-                            className={`border-[3px] h-10 w-full mb-3 p-2 ${errors.country ? "border-red-500" : ""}`}
+                            className={`border-[3px] h-10 w-full mb-3 p-2 ${errors.country ? "border-red-500" : ""
+                                }`}
                         >
                             <option value="">Select Country</option>
-                            {countries.map((country, index) => (
-                                <option key={index} value={country}>{country}</option>
+                            {countries.map((country, i) => (
+                                <option key={i} value={country}>
+                                    {country}
+                                </option>
                             ))}
                         </select>
                         {errors.country && <p className="text-red-500">{errors.country}</p>}
                     </div>
+
                     {/* Province */}
                     <div className="mb-4">
                         <label className="block font-semibold mb-1">Province</label>
@@ -299,103 +287,53 @@ const CompanyProfileForm = () => {
                     <div className="mb-4">
                         <label className="block font-semibold mb-1">Base Year</label>
                         <input
-                            type="checkbox"
+                            type="date"
                             name="baseyear"
-                            checked={formData.baseyear}
+                            value={formData.baseyear}
                             onChange={handleChange}
+                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            placeholder="Enter base year"
                         />
                     </div>
 
-                    <div className="mb-2">
-                        <label className="flex items-center gap-2 font-medium">
-                            <input
-                                type="checkbox"
-                                name="showCalendar"
-                                checked={showFields.showCalendar}
-                                onChange={handleCheckboxChange}
-                            />
-                            Show Calendar Year
-                        </label>
-                    </div>
-
-                    {/* Fiscal Year Checkbox */}
-                    <div className="mb-2">
-                        <label className="flex items-center gap-2 font-medium">
-                            <input
-                                type="checkbox"
-                                name="showFiscal"
-                                checked={showFields.showFiscal}
-                                onChange={handleCheckboxChange}
-                            />
-                            Show Fiscal Year
-                        </label>
-                    </div>
-
-                    {/* Custom Year Checkbox */}
+                    {/* Calendar Year */}
                     <div className="mb-4">
-                        <label className="flex items-center gap-2 font-medium">
-                            <input
-                                type="checkbox"
-                                name="showCustom"
-                                checked={showFields.showCustom}
-                                onChange={handleCheckboxChange}
-                            />
-                            Show Custom Year
-                        </label>
+                        <label className="block font-semibold mb-1">Calendar Year</label>
+                        <input
+                            type="date"
+                            name="Calendaryear"
+                            value={formData.Calendaryear}
+                            onChange={handleChange}
+                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            placeholder="Enter calendar year"
+                        />
                     </div>
 
-                    {/* Calendar Year Input */}
-                    {showFields.showCalendar && (
-                        <div className="mb-4">
-                            <label className="block font-semibold mb-1">Calendar Year</label>
-                            <select
-                                name="Calendaryear"
-                                value={formData.Calendaryear}
-                                onChange={handleInputChange}
-                                className="border-[3px] h-10 w-full mb-3 p-2"
-                            >
-                                <option value="">Select Year</option>
-                                {Array.from({ length: 50 }, (_, i) => {
-                                    const year = 2000 + i;
-                                    return (
-                                        <option key={year} value={year}>
-                                            {year}
-                                        </option>
-                                    );
-                                })}
-                            </select>
-                        </div>
-                    )}
+                    {/* Fiscal Year */}
+                    <div className="mb-4">
+                        <label className="block font-semibold mb-1">Fiscal Year</label>
+                        <input
+                            type="date"
+                            name="fiscalyear"
+                            value={formData.fiscalyear}
+                            onChange={handleChange}
+                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            placeholder="Enter fiscal year"
+                        />
+                    </div>
 
-                    {/* Fiscal Year Input */}
-                    {showFields.showFiscal && (
-                        <div className="mb-4">
-                            <label className="block font-semibold mb-1">Fiscal Year</label>
-                            <input
-                                type="date"
-                                name="fiscalyear"
-                                value={formData.fiscalyear}
-                                onChange={handleInputChange}
-                                className="border-[3px] h-10 w-full mb-3 p-2"
-                                placeholder="Enter fiscal year"
-                            />
-                        </div>
-                    )}
-
-                    {/* Custom Year Input */}
-                    {showFields.showCustom && (
-                        <div className="mb-4">
-                            <label className="block font-semibold mb-1">Custom Year</label>
-                            <input
-                                type="date"
-                                name="customyear"
-                                value={formData.customyear}
-                                onChange={handleInputChange}
-                                className="border-[3px] h-10 w-full mb-3 p-2"
-                                placeholder="Enter custom year"
-                            />
-                        </div>
-                    )}
+                    {/* Custom Year */}
+                    <div className="mb-4">
+                        <label className="block font-semibold mb-1">Custom Year</label>
+                        <input
+                            type="date"
+                            name="customyear"
+                            value={formData.customyear}
+                            onChange={handleChange}
+                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            placeholder="Enter custom year"
+                        />
+                    </div>
 
                     {/* Address */}
                     <div className="mb-4">
@@ -431,15 +369,20 @@ const CompanyProfileForm = () => {
                             name="currency"
                             value={formData.currency}
                             onChange={handleChange}
-                            className={`border-[3px] h-10 w-full mb-3 p-2 ${errors.currency ? "border-red-500" : ""}`}
+                            className={`border-[3px] h-10 w-full mb-3 p-2 ${errors.currency ? "border-red-500" : ""
+                                }`}
                         >
                             <option value="">Select Currency</option>
-                            {currencies.map((currency, index) => (
-                                <option key={index} value={currency}>{currency}</option>
+                            {currencies.map((cur, i) => (
+                                <option key={i} value={cur.code}>
+                                    {cur.code}
+                                </option>
                             ))}
                         </select>
                         {errors.currency && <p className="text-red-500">{errors.currency}</p>}
                     </div>
+
+
                     {/* Headquarter Location */}
                     <div className="mb-4">
                         <label className="block font-semibold mb-1">Headquarter Location</label>
@@ -625,23 +568,15 @@ const CompanyProfileForm = () => {
                     {/* Submit Button */}
                 </form>
             </div>
+
             <div className="ltr:text-right rtl:text-left space-x-3 rtl:space-x-reverse">
-                <button
-                    className="btn btn-light text-center"
-                    onClick={handleCancel}
-                    type="button"
-                >
+                <button className="btn btn-light text-center" onClick={handleCancel} type="button">
                     Cancel
                 </button>
-                <Button
-                    text="Save"
-                    className="btn-dark"
-                    onClick={handleSubmit}
-                    isLoading={loading}
-                />
+                <Button text="Update" className="btn-dark" onClick={handleSubmit} isLoading={loading} />
             </div>
         </Card>
     );
 };
 
-export default CompanyProfileForm;
+export default EditCompanyProfile;
