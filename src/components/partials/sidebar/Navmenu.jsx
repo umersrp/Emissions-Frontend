@@ -66,7 +66,7 @@ const Navmenu = ({ menus }) => {
         });
       }
     });
-    document.title = `KickOff  | ${locationName}`;
+    document.title = `SRP  | ${locationName}`;
 
     setActiveSubmenu(submenuIndex);
     setMultiMenu(multiMenuIndex);
