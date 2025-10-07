@@ -23,7 +23,7 @@ const CompanyProfileForm = () => {
         boundary: "",
         country: "",
         province: "",
-        baseyear: null,
+        baseyear: false,
         Calendaryear: "",
         fiscalyear: "",
         customyear: "",
@@ -41,90 +41,93 @@ const CompanyProfileForm = () => {
         energyGeneratedGJPerAnnum: "",
         revenuePerAnnum: "",
         totalManHoursPerAnnum: "",
-        sectorId: "",
-        industryId: "",
+        // sectorId: "",
+        // industryId: "",
     });
 
-    // Dropdown options
-    const [sectors, setSectors] = useState([]);
-    const [industries, setIndustries] = useState([]);
+    // // Dropdown options
+    // const [sectors, setSectors] = useState([]);
+    // const [industries, setIndustries] = useState([]);
 
     // Loading state
     const [loading, setLoading] = useState(false);
 
     // Fetch sectors on mount
-    useEffect(() => {
-        const fetchSectors = async () => {
-            try {
-                const response = await axios.get(
-                    `${process.env.REACT_APP_BASE_URL}/sector/Get-All`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                    }
-                );
-                setSectors(response.data.data || []);
-            } catch (error) {
-                console.error("Failed to fetch sectors", error);
-                toast.error("Failed to load sectors");
-            }
-        };
-        fetchSectors();
-    }, []);
+    // useEffect(() => {
+    //     const fetchSectors = async () => {
+    //         try {
+    //             const response = await axios.get(
+    //                 `${process.env.REACT_APP_BASE_URL}/sector/Get-All`,
+    //                 {
+    //                     headers: {
+    //                         Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     },
+    //                 }
+    //             );
+    //             setSectors(response.data.data || []);
+    //         } catch (error) {
+    //             console.error("Failed to fetch sectors", error);
+    //             toast.error("Failed to load sectors");
+    //         }
+    //     };
+    //     fetchSectors();
+    // }, []);
 
     // Fetch industries when sectorId changes
+    // useEffect(() => {
+    //     if (!formData.sectorId) {
+    //         setIndustries([]);
+    //         setFormData(prev => ({ ...prev, industryId: "" }));
+    //         return;
+    //     }
+
+    //     const fetchIndustries = async () => {
+    //         try {
+    //             const response = await axios.get(
+    //                 `${process.env.REACT_APP_BASE_URL}/industry/get-All-Industry`,
+    //                 {
+    //                     headers: {
+    //                         Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //                     },
+    //                     params: { sectorId: formData.sectorId, page: 1, limit: 100 }, // example
+
+    //                 }
+    //             );
+    //             setIndustries(response.data.data || []);
+    //         } catch (error) {
+    //             console.error("Failed to fetch industries", error);
+    //             toast.error("Failed to load industries");
+    //         }
+    //     };
+
+    //     fetchIndustries();
+    // }, [formData.sectorId]);
+
     useEffect(() => {
-        if (!formData.sectorId) {
-            setIndustries([]);
-            setFormData(prev => ({ ...prev, industryId: "" }));
-            return;
-        }
-
-        const fetchIndustries = async () => {
+        const fetchData = async () => {
             try {
-                const response = await axios.get(
-                    `${process.env.REACT_APP_BASE_URL}/industry/get-All-Industry`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                        params: { sectorId: formData.sectorId, page: 1, limit: 100 }, // example
+                //  Fetch countries
+                const countryRes = await axios.get("https://restcountries.com/v3.1/all?fields=name");
+                const countryList = countryRes.data.map((c) => c.name.common).sort();
+                setCountries(countryList);
 
-                    }
+                //  Fetch currencies from Open Exchange Rate API (no key needed)
+                const currencyRes = await axios.get("https://open.er-api.com/v6/latest/USD");
+
+                // The API gives rates in key-value format like { "USD": 1, "PKR": 278.6, ... }
+                const currencyList = Object.entries(currencyRes.data.rates).map(
+                    ([code, rate]) => ({ code, rate })
                 );
-                setIndustries(response.data.data || []);
+                setCurrencies(currencyList);
             } catch (error) {
-                console.error("Failed to fetch industries", error);
-                toast.error("Failed to load industries");
+                console.error("Error fetching country/currency:", error);
+                toast.error("Failed to load country or currency data");
             }
         };
 
-        fetchIndustries();
-    }, [formData.sectorId]);
+        fetchData();
+    }, []);
 
-   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // ✅ Fetch countries
-        const countryRes = await axios.get("https://restcountries.com/v3.1/all?fields=name,flags");
-        const countryList = countryRes.data
-          .map((c) => c.name.common)
-          .sort();
-        setCountries(countryList);
-
-        // ✅ Fetch currencies
-        const currencyRes = await axios.get("https://open.er-api.com/v6/latest/USD");
-        const currencyList = Object.keys(currencyRes.data.rates).sort();
-        setCurrencies(currencyList);
-      } catch (error) {
-        console.error("Error fetching country/currency:", error);
-        alert("Failed to load country and currency data");
-      }
-    };
-
-    fetchData();
-  }, []);
 
 
 
@@ -137,8 +140,6 @@ const CompanyProfileForm = () => {
         if (!formData.country) errors.country = "Country is required";
         if (!formData.totalEmployees) errors.totalEmployees = "Total employees is required";
         if (!formData.currency) errors.currency = "Currency is required";
-        if (!formData.sectorId) errors.sectorId = "Sector is required";
-        if (!formData.industryId) errors.industryId = "Industry is required";
         return errors;
     };
 
@@ -219,7 +220,7 @@ const CompanyProfileForm = () => {
         <Card title="Create Company Profile">
 
             <div className="w-full mx-auto p-6">
-                {/* <h2 className="text-2xl font-bold mb-6">Create Company Profile</h2> */}
+                <h2 className="text-2xl font-bold mb-6">Create Company Profile</h2>
                 <form className="lg:grid-cols-3 grid gap-8 grid-cols-1">
 
                     {/* Company Name */}
@@ -425,21 +426,28 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Currency */}
+                    {/* Currency */}
                     <div className="mb-4">
                         <label className="block font-semibold mb-1">Currency *</label>
+
                         <select
                             name="currency"
                             value={formData.currency}
                             onChange={handleChange}
-                            className={`border-[3px] h-10 w-full mb-3 p-2 ${errors.currency ? "border-red-500" : ""}`}
+                            className={`border-[3px] h-10 w-full mb-3 p-2 ${errors.currency ? "border-red-500" : ""
+                                }`}
                         >
                             <option value="">Select Currency</option>
-                            {currencies.map((currency, index) => (
-                                <option key={index} value={currency}>{currency}</option>
+                            {currencies.map((item) => (
+                                <option key={item.code} value={item.code}>
+                                    {item.code} - {item.rate.toFixed(2)}
+                                </option>
                             ))}
                         </select>
+
                         {errors.currency && <p className="text-red-500">{errors.currency}</p>}
                     </div>
+
                     {/* Headquarter Location */}
                     <div className="mb-4">
                         <label className="block font-semibold mb-1">Headquarter Location</label>
@@ -584,7 +592,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Sector Dropdown */}
-                    <div className="mb-4">
+                    {/* <div className="mb-4">
                         <label className="block font-semibold mb-1">Sector *</label>
                         <select
                             value={formData.sectorId}
@@ -601,10 +609,10 @@ const CompanyProfileForm = () => {
                             ))}
                         </select>
                         {errors.sectorId && <p className="text-red-500">{errors.sectorId}</p>}
-                    </div>
+                    </div> */}
 
                     {/* Industry Dropdown */}
-                    <div className="mb-4">
+                    {/* <div className="mb-4">
                         <label className="block font-semibold mb-1">Industry *</label>
                         <select
                             value={formData.industryId}
@@ -620,7 +628,7 @@ const CompanyProfileForm = () => {
                             ))}
                         </select>
                         {errors.industryId && <p className="text-red-500">{errors.industryId}</p>}
-                    </div>
+                    </div> */}
 
                     {/* Submit Button */}
                 </form>

@@ -202,6 +202,8 @@ import CompanyProfileForm from "./Carbonx-pages/Company/CompanyAddForm";
 import CompanyTable from "./Carbonx-pages/Company/CompanyTable";
 import EditCompanyProfile from "./Carbonx-pages/Company/EditCompanyProfile";
 import ViewCompanyProfile from "./Carbonx-pages/Company/ViewComapyProfile";
+import BuildingFormPage from "./Carbonx-pages/Building/[id]/Building-form";
+import BuildingTable from "./Carbonx-pages/Building/Buidingtable";
 
 
 function App() {
@@ -397,6 +399,9 @@ function App() {
           <Route path="Company-Edit/:id" element={<EditCompanyProfile />} />
           <Route path="Company-View/:id" element={<ViewCompanyProfile/>} />
           <Route path="Company" element={<CompanyTable />} />
+          <Route path="Building-Form/add" element={<BuildingFormPage />} />
+          <Route path="Building-Form/:id" element={<BuildingFormPage/>} />
+          <Route path="Building" element={<BuildingTable />} />
 
 
 

@@ -188,6 +188,12 @@ export const menuItems = [
     link: "Company"
   },
   {
+    title: "Building",
+    isHide: true,
+    icon: "heroicons-outline:table-cells",
+    link: "Building"
+  },
+  {
     title: "Authentication",
     icon: "heroicons-outline:lock-closed",
     link: "#",

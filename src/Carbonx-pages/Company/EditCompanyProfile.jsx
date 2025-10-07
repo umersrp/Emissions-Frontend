@@ -7,7 +7,15 @@ import Button from "@/components/ui/Button";
 
 const EditCompanyProfile = () => {
     const navigate = useNavigate();
-    const { id } = useParams(); // get ID from URL
+    const { id } = useParams(); 
+    const [countries, setCountries] = useState([]);
+    const [currencies, setCurrencies] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [showFields, setShowFields] = useState({
+        showCalendar: false,
+        showFiscal: false,
+        showCustom: false,
+    });
 
     const [formData, setFormData] = useState({
         companyName: "",
@@ -15,7 +23,7 @@ const EditCompanyProfile = () => {
         boundary: "",
         country: "",
         province: "",
-        baseyear: "",
+        baseyear: false,
         Calendaryear: "",
         fiscalyear: "",
         customyear: "",
@@ -37,141 +45,117 @@ const EditCompanyProfile = () => {
         industryId: "",
     });
 
-    const [sectors, setSectors] = useState([]);
-    const [industries, setIndustries] = useState([]);
-    const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
-    const [countries, setCountries] = useState([]);
-    const [currencies, setCurrencies] = useState([]);
-    // 🟢 Fetch existing company profile by ID
+
+    //  Fetch dropdown data
+    // useEffect(() => {
+    //     const fetchDropdowns = async () => {
+    //         try {
+    //             const [countryRes, currencyRes, sectorRes] = await Promise.all([
+    //                 axios.get("https://restcountries.com/v3.1/all?fields=name"),
+    //                 axios.get("https://open.er-api.com/v6/latest/USD"),
+    //                 axios.get(`${process.env.REACT_APP_BASE_URL}/sector/Get-All`, {
+    //                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    //                 }),
+    //             ]);
+
+    //             const countryList = countryRes.data.map((c) => c.name.common).sort();
+    //             setCountries(countryList);
+
+    //             const currencyList = Object.entries(currencyRes.data.rates).map(([code, rate]) => ({
+    //                 code,
+    //                 rate,
+    //             }));
+    //             setCurrencies(currencyList);
+
+    //             setSectors(sectorRes.data.data || []);
+    //         } catch (error) {
+    //             console.error("Dropdown data error:", error);
+    //             toast.error("Failed to load dropdown data");
+    //         }
+    //     };
+    //     fetchDropdowns();
+    // }, []);
+
+    //  Fetch industries when sectorId changes
+    // useEffect(() => {
+    //     if (!formData.sectorId) return;
+    //     const fetchIndustries = async () => {
+    //         try {
+    //             const response = await axios.get(
+    //                 `${process.env.REACT_APP_BASE_URL}/industry/get-All-Industry`,
+    //                 {
+    //                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    //                     params: { sectorId: formData.sectorId, page: 1, limit: 100 },
+    //                 }
+    //             );
+    //             setIndustries(response.data.data || []);
+    //         } catch (error) {
+    //             console.error("Industry fetch failed:", error);
+    //             toast.error("Failed to load industries");
+    //         }
+    //     };
+    //     fetchIndustries();
+    // }, [formData.sectorId]);
+
+    //  Fetch existing company data
     useEffect(() => {
-        const fetchCompanyProfile = async () => {
+        const fetchCompany = async () => {
             try {
-                const response = await axios.get(
+                const res = await axios.get(
                     `${process.env.REACT_APP_BASE_URL}/company/company-profile/${id}`,
                     {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
+                        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
                     }
                 );
-                setFormData(response.data.data); // pre-fill form
+                setFormData(res.data.data);
             } catch (error) {
-                console.error("Failed to fetch company profile", error);
+                console.error("Error loading company:", error);
                 toast.error("Failed to load company profile");
             }
         };
-        fetchCompanyProfile();
+
+        fetchCompany();
     }, [id]);
 
-    // 🟡 Fetch sectors on mount
-    useEffect(() => {
-        const fetchSectors = async () => {
-            try {
-                const response = await axios.get(
-                    `${process.env.REACT_APP_BASE_URL}/sector/Get-All`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                    }
-                );
-                setSectors(response.data.data || []);
-            } catch (error) {
-                console.error("Failed to fetch sectors", error);
-                toast.error("Failed to load sectors");
-            }
-        };
-        fetchSectors();
-    }, []);
-
-    // 🟣 Fetch industries when sector changes
-    useEffect(() => {
-        if (!formData.sectorId) {
-            setIndustries([]);
-            return;
-        }
-
-        const fetchIndustries = async () => {
-            try {
-                const response = await axios.get(
-                    `${process.env.REACT_APP_BASE_URL}/industry/get-All-Industry`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                        params: { sectorId: formData.sectorId, page: 1, limit: 100 },
-                    }
-                );
-                setIndustries(response.data.data || []);
-            } catch (error) {
-                console.error("Failed to fetch industries", error);
-                toast.error("Failed to load industries");
-            }
-        };
-
-        fetchIndustries();
-    }, [formData.sectorId]);
-
-    useEffect(() => {
-        const fetchCountriesAndCurrencies = async () => {
-            try {
-                //  Fetch all countries
-                const countryRes = await axios.get("https://restcountries.com/v3.1/all?fields=name,flags");
-                const countryList = countryRes.data
-                    .map((c) => c.name.common)
-                    .sort();
-                setCountries(countryList);
-
-                // Fetch currencies using Open Exchange Rate API (base USD)
-                const currencyRes = await axios.get("https://open.er-api.com/v6/latest/USD");
-                const rates = currencyRes.data.rates; // e.g., { PKR: 278.5, EUR: 0.92, ... }
-                const currencyList = Object.keys(rates)
-                    .sort()
-                    .map((code) => ({
-                        code,
-                        rate: rates[code],
-                    }));
-                setCurrencies(currencyList);
-            } catch (error) {
-                console.error("Failed to load countries or currencies", error);
-                toast.error("Failed to load countries or currencies");
-            }
-        };
-
-        fetchCountriesAndCurrencies();
-    }, []);
-
-
-
-    // ✅ Validation
-    const validate = () => {
-        const errors = {};
-        if (!formData.companyName) errors.companyName = "Company name is required";
-        if (!formData.reportingYear) errors.reportingYear = "Reporting year is required";
-        if (!formData.boundary) errors.boundary = "Boundary is required";
-        if (!formData.country) errors.country = "Country is required";
-        if (!formData.totalEmployees) errors.totalEmployees = "Total employees is required";
-        if (!formData.currency) errors.currency = "Currency is required";
-        if (!formData.sectorId) errors.sectorId = "Sector is required";
-        if (!formData.industryId) errors.industryId = "Industry is required";
-        return errors;
+    // Handlers
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: type === "checkbox" ? checked : value,
+        }));
     };
 
-    // 🧩 Handle input change
-    const handleChange = (e) => {
+    const handleCheckboxChange = (e) => {
+        const { name, checked } = e.target;
+        setShowFields((prev) => ({
+            ...prev,
+            [name]: checked,
+        }));
+    };
+    const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: value,
         }));
-        setErrors((prev) => ({ ...prev, [name]: null }));
     };
 
-    // 🟠 Handle form submission (UPDATE)
+    const validate = () => {
+        const errors = {};
+        if (!formData.companyName) errors.companyName = "Company name is required";
+        if (!formData.reportingYear) errors.reportingYear = "Reporting year is required";
+        if (!formData.country) errors.country = "Country is required";
+        if (!formData.currency) errors.currency = "Currency is required";
+        // if (!formData.sectorId) errors.sectorId = "Sector is required";
+        // if (!formData.industryId) errors.industryId = "Industry is required";
+        return errors;
+    };
+
+    //  Submit (Update)
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         const validationErrors = validate();
         if (Object.keys(validationErrors).length > 0) {
             setErrors(validationErrors);
@@ -190,9 +174,9 @@ const EditCompanyProfile = () => {
                 }
             );
             toast.success("Company profile updated successfully!");
-            navigate("/Company"); // Redirect after success
+            navigate("/Company");
         } catch (error) {
-            console.error("Failed to update company profile", error);
+            console.error("Update failed:", error);
             toast.error(error.response?.data?.message || "Failed to update company profile");
         } finally {
             setLoading(false);
@@ -205,7 +189,6 @@ const EditCompanyProfile = () => {
         <Card title="Edit Company Profile">
             <div className="w-full mx-auto p-6">
                 <form className="lg:grid-cols-3 grid gap-8 grid-cols-1">
-
                     {/* Company Name */}
                     <div className="mb-4">
                         <label className="block font-semibold mb-1">Company Name *</label>
@@ -257,19 +240,15 @@ const EditCompanyProfile = () => {
                             name="country"
                             value={formData.country}
                             onChange={handleChange}
-                            className={`border-[3px] h-10 w-full mb-3 p-2 ${errors.country ? "border-red-500" : ""
-                                }`}
+                            className={`border-[3px] h-10 w-full mb-3 p-2 ${errors.country ? "border-red-500" : ""}`}
                         >
                             <option value="">Select Country</option>
-                            {countries.map((country, i) => (
-                                <option key={i} value={country}>
-                                    {country}
-                                </option>
+                            {countries.map((country, index) => (
+                                <option key={index} value={country}>{country}</option>
                             ))}
                         </select>
                         {errors.country && <p className="text-red-500">{errors.country}</p>}
                     </div>
-
                     {/* Province */}
                     <div className="mb-4">
                         <label className="block font-semibold mb-1">Province</label>
@@ -287,53 +266,103 @@ const EditCompanyProfile = () => {
                     <div className="mb-4">
                         <label className="block font-semibold mb-1">Base Year</label>
                         <input
-                            type="date"
+                            type="checkbox"
                             name="baseyear"
-                            value={formData.baseyear}
+                            checked={formData.baseyear}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
-                            placeholder="Enter base year"
                         />
                     </div>
 
-                    {/* Calendar Year */}
-                    <div className="mb-4">
-                        <label className="block font-semibold mb-1">Calendar Year</label>
-                        <input
-                            type="date"
-                            name="Calendaryear"
-                            value={formData.Calendaryear}
-                            onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
-                            placeholder="Enter calendar year"
-                        />
+                    <div className="mb-2">
+                        <label className="flex items-center gap-2 font-medium">
+                            <input
+                                type="checkbox"
+                                name="showCalendar"
+                                checked={showFields.showCalendar}
+                                onChange={handleCheckboxChange}
+                            />
+                            Show Calendar Year
+                        </label>
                     </div>
 
-                    {/* Fiscal Year */}
-                    <div className="mb-4">
-                        <label className="block font-semibold mb-1">Fiscal Year</label>
-                        <input
-                            type="date"
-                            name="fiscalyear"
-                            value={formData.fiscalyear}
-                            onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
-                            placeholder="Enter fiscal year"
-                        />
+                    {/* Fiscal Year Checkbox */}
+                    <div className="mb-2">
+                        <label className="flex items-center gap-2 font-medium">
+                            <input
+                                type="checkbox"
+                                name="showFiscal"
+                                checked={showFields.showFiscal}
+                                onChange={handleCheckboxChange}
+                            />
+                            Show Fiscal Year
+                        </label>
                     </div>
 
-                    {/* Custom Year */}
+                    {/* Custom Year Checkbox */}
                     <div className="mb-4">
-                        <label className="block font-semibold mb-1">Custom Year</label>
-                        <input
-                            type="date"
-                            name="customyear"
-                            value={formData.customyear}
-                            onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
-                            placeholder="Enter custom year"
-                        />
+                        <label className="flex items-center gap-2 font-medium">
+                            <input
+                                type="checkbox"
+                                name="showCustom"
+                                checked={showFields.showCustom}
+                                onChange={handleCheckboxChange}
+                            />
+                            Show Custom Year
+                        </label>
                     </div>
+
+                    {/* Calendar Year Input */}
+                    {showFields.showCalendar && (
+                        <div className="mb-4">
+                            <label className="block font-semibold mb-1">Calendar Year</label>
+                            <select
+                                name="Calendaryear"
+                                value={formData.Calendaryear}
+                                onChange={handleInputChange}
+                                className="border-[3px] h-10 w-full mb-3 p-2"
+                            >
+                                <option value="">Select Year</option>
+                                {Array.from({ length: 50 }, (_, i) => {
+                                    const year = 2000 + i;
+                                    return (
+                                        <option key={year} value={year}>
+                                            {year}
+                                        </option>
+                                    );
+                                })}
+                            </select>
+                        </div>
+                    )}
+
+                    {/* Fiscal Year Input */}
+                    {showFields.showFiscal && (
+                        <div className="mb-4">
+                            <label className="block font-semibold mb-1">Fiscal Year</label>
+                            <input
+                                type="date"
+                                name="fiscalyear"
+                                value={formData.fiscalyear ? formData.fiscalyear.split("T")[0] : ""}
+                                onChange={handleInputChange}
+                                className="border-[3px] h-10 w-full mb-3 p-2"
+                                placeholder="Enter fiscal year"
+                            />
+                        </div>
+                    )}
+
+                    {/* Custom Year Input */}
+                    {showFields.showCustom && (
+                        <div className="mb-4">
+                            <label className="block font-semibold mb-1">Custom Year</label>
+                            <input
+                                type="date"
+                                name="customyear"
+                                value={formData.customyear ? formData.customyear.split("T")[0] : ""}
+                                onChange={handleInputChange}
+                                className="border-[3px] h-10 w-full mb-3 p-2"
+                                placeholder="Enter custom year"
+                            />
+                        </div>
+                    )}
 
                     {/* Address */}
                     <div className="mb-4">
@@ -365,6 +394,7 @@ const EditCompanyProfile = () => {
                     {/* Currency */}
                     <div className="mb-4">
                         <label className="block font-semibold mb-1">Currency *</label>
+
                         <select
                             name="currency"
                             value={formData.currency}
@@ -373,15 +403,15 @@ const EditCompanyProfile = () => {
                                 }`}
                         >
                             <option value="">Select Currency</option>
-                            {currencies.map((cur, i) => (
-                                <option key={i} value={cur.code}>
-                                    {cur.code}
+                            {currencies.map((item) => (
+                                <option key={item.code} value={item.code}>
+                                    {item.code} - {item.rate.toFixed(2)}
                                 </option>
                             ))}
                         </select>
+
                         {errors.currency && <p className="text-red-500">{errors.currency}</p>}
                     </div>
-
 
                     {/* Headquarter Location */}
                     <div className="mb-4">
@@ -527,7 +557,7 @@ const EditCompanyProfile = () => {
                     </div>
 
                     {/* Sector Dropdown */}
-                    <div className="mb-4">
+                    {/* <div className="mb-4">
                         <label className="block font-semibold mb-1">Sector *</label>
                         <select
                             value={formData.sectorId}
@@ -544,10 +574,10 @@ const EditCompanyProfile = () => {
                             ))}
                         </select>
                         {errors.sectorId && <p className="text-red-500">{errors.sectorId}</p>}
-                    </div>
+                    </div> */}
 
                     {/* Industry Dropdown */}
-                    <div className="mb-4">
+                    {/* <div className="mb-4">
                         <label className="block font-semibold mb-1">Industry *</label>
                         <select
                             value={formData.industryId}
@@ -563,14 +593,14 @@ const EditCompanyProfile = () => {
                             ))}
                         </select>
                         {errors.industryId && <p className="text-red-500">{errors.industryId}</p>}
-                    </div>
+                    </div> */}
 
                     {/* Submit Button */}
                 </form>
             </div>
 
-            <div className="ltr:text-right rtl:text-left space-x-3 rtl:space-x-reverse">
-                <button className="btn btn-light text-center" onClick={handleCancel} type="button">
+            <div className="text-right space-x-3">
+                <button className="btn btn-light" onClick={handleCancel} type="button">
                     Cancel
                 </button>
                 <Button text="Update" className="btn-dark" onClick={handleSubmit} isLoading={loading} />

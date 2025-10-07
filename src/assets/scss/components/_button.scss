@@ -29,7 +29,7 @@
 }
 
 .btn-primary {
-  @apply bg-primary-500 dark:hover:bg-opacity-70 text-white hover:ring-2 hover:ring-opacity-80 ring-primary-500 hover:ring-offset-1 dark:hover:ring-0 dark:hover:ring-offset-0;
+  @apply bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] dark:hover:bg-opacity-70 text-white hover:ring-2 hover:ring-opacity-80 ring-primary-700 hover:ring-offset-1 dark:hover:ring-0 dark:hover:ring-offset-0;
 }
 
 .btn-secondary {

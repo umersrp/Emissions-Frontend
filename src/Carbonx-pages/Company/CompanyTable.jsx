@@ -1,14 +1,3 @@
-// import React from 'react'
-
-// function Discounttable() {
-//   return (
-//     <div>Discount-table</div>
-//   )
-// }
-
-// export default Discounttable
-
-
 import React, { useState, useMemo, useEffect } from "react";
 import Card from "@/components/ui/Card";
 import Icon from "@/components/ui/Icon";
@@ -18,9 +7,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/images/logo/SrpLogo.png"
-
 import Tippy from '@tippyjs/react';
-
 import {
     useTable,
     useRowSelect,
@@ -146,8 +133,7 @@ const CompanyTable = () => {
         {
             Header: "Calendar Year",
             accessor: "Calendaryear",
-            Cell: ({ cell }) =>
-                cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+
         },
         {
             Header: "Fiscal Year",
@@ -217,17 +203,16 @@ const CompanyTable = () => {
             Header: "Total Man Hours Per Annum",
             accessor: "totalManHoursPerAnnum",
         },
-        // Assuming sector and industry objects have a "name" property
-        {
-            Header: "Sector",
-            accessor: "sectorId.name",
-            Cell: ({ cell }) => cell.value || "-",
-        },
-        {
-            Header: "Industry",
-            accessor: "industryId.name",
-            Cell: ({ cell }) => cell.value || "-",
-        },
+        // {
+        //     Header: "Sector",
+        //     accessor: "sectorId.name",
+        //     Cell: ({ cell }) => cell.value || "-",
+        // },
+        // {
+        //     Header: "Industry",
+        //     accessor: "industryId.name",
+        //     Cell: ({ cell }) => cell.value || "-",
+        // },
         {
             Header: "Created By",
             accessor: "createdBy.name",

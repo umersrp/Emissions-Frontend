@@ -6,7 +6,7 @@
 }
 
 .card-header {
-  @apply flex items-center justify-between px-6 pt-6;
+  @apply flex bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] items-center justify-between px-6 pt-6;
 }
 .card-header:not(.no-border) {
   @apply border-b border-slate-200 dark:border-slate-700 pb-5;
