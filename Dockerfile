@@ -1,23 +1,27 @@
-# Use lightweight Node.js image
-FROM node:22-slim
+# Step 1: Build the Vite app
+FROM node:22-slim as build
 
-# Set working directory
 WORKDIR /usr/src/app
 
-# Copy only package files first (for better layer caching)
 COPY package*.json ./
+RUN npm install --legacy-peer-deps
 
-# Install dependencies
-RUN npm ci --only=production
-
-# Copy the rest of the source code
 COPY . .
-
-# Build the app
 RUN npm run build
 
-# Expose port (use 3000 or your custom one)
+# Step 2: Serve the app using a lightweight server
+FROM node:22-slim
+
+WORKDIR /app
+
+# Install serve globally
+RUN npm install -g serve
+
+# Vite outputs to "dist", not "build"
+COPY --from=build /usr/src/app/dist ./build
+
+# Expose the desired port
 EXPOSE 3001
 
-# Start the built app with Vite preview
-CMD ["npm", "start"]
+# Serve the app from the "build" folder
+CMD ["serve", "-s", "build", "-l", "3001"]
