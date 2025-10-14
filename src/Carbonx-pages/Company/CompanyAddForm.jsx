@@ -218,29 +218,24 @@ const CompanyProfileForm = () => {
 
     return (
         <Card title="Create Company Profile">
-
             <div className="w-full mx-auto p-6">
-                <h2 className="text-2xl font-bold mb-6">Create Company Profile</h2>
                 <form className="lg:grid-cols-3 grid gap-8 grid-cols-1">
-
                     {/* Company Name */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Company Name *</label>
                         <input
                             type="text"
                             name="companyName"
-
                             value={formData.companyName}
                             onChange={handleChange}
                             className={`input ${errors.companyName ? "border-red-500" : "border-[3px] h-10 w-[100%] mb-3 p-2"}`}
-
                             placeholder="Enter company name"
                         />
                         {errors.companyName && <p className="text-red-500">{errors.companyName}</p>}
                     </div>
 
                     {/* Reporting Year */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Reporting Year *</label>
                         <input
                             type="number"
@@ -254,7 +249,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Boundary */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Boundary *</label>
                         <input
                             type="text"
@@ -268,7 +263,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Country */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Country *</label>
                         <select
                             name="country"
@@ -284,7 +279,7 @@ const CompanyProfileForm = () => {
                         {errors.country && <p className="text-red-500">{errors.country}</p>}
                     </div>
                     {/* Province */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Province</label>
                         <input
                             type="text"
@@ -297,13 +292,14 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Base Year */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Base Year</label>
                         <input
                             type="checkbox"
                             name="baseyear"
                             checked={formData.baseyear}
                             onChange={handleChange}
+                            className="h-5 w-5 mt-2"
                         />
                     </div>
 
@@ -333,7 +329,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Custom Year Checkbox */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="flex items-center gap-2 font-medium">
                             <input
                                 type="checkbox"
@@ -347,7 +343,7 @@ const CompanyProfileForm = () => {
 
                     {/* Calendar Year Input */}
                     {showFields.showCalendar && (
-                        <div className="mb-4">
+                        <div className="">
                             <label className="block font-semibold mb-1">Calendar Year</label>
                             <select
                                 name="Calendaryear"
@@ -370,7 +366,7 @@ const CompanyProfileForm = () => {
 
                     {/* Fiscal Year Input */}
                     {showFields.showFiscal && (
-                        <div className="mb-4">
+                        <div className="">
                             <label className="block font-semibold mb-1">Fiscal Year</label>
                             <input
                                 type="date"
@@ -385,7 +381,7 @@ const CompanyProfileForm = () => {
 
                     {/* Custom Year Input */}
                     {showFields.showCustom && (
-                        <div className="mb-4">
+                        <div className="">
                             <label className="block font-semibold mb-1">Custom Year</label>
                             <input
                                 type="date"
@@ -399,7 +395,7 @@ const CompanyProfileForm = () => {
                     )}
 
                     {/* Address */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Address</label>
                         <input
                             type="text"
@@ -412,7 +408,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Total Employees */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Total Employees *</label>
                         <input
                             type="number"
@@ -427,7 +423,7 @@ const CompanyProfileForm = () => {
 
                     {/* Currency */}
                     {/* Currency */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Currency *</label>
 
                         <select
@@ -449,7 +445,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Headquarter Location */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Headquarter Location</label>
                         <input
                             type="text"
@@ -462,7 +458,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Total Sites */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Total Sites</label>
                         <input
                             type="number"
@@ -475,7 +471,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Total Area Sq M */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Total Area (Sq M)</label>
                         <input
                             type="number"
@@ -488,7 +484,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Units Manufactured Per Month */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Units Manufactured Per Month</label>
                         <input
                             type="number"
@@ -501,7 +497,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Units Manufactured Per Annum */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Units Manufactured Per Annum</label>
                         <input
                             type="number"
@@ -514,7 +510,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Production Volume Tonne Per Annum */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Production Volume (Tonne Per Annum)</label>
                         <input
                             type="number"
@@ -527,7 +523,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Units Sold Per Annum */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Units Sold Per Annum</label>
                         <input
                             type="number"
@@ -540,7 +536,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Electricity Generated MWh Per Annum */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Electricity Generated (MWh Per Annum)</label>
                         <input
                             type="number"
@@ -553,7 +549,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Energy Generated GJ Per Annum */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Energy Generated (GJ Per Annum)</label>
                         <input
                             type="number"
@@ -566,7 +562,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Revenue Per Annum */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Revenue Per Annum</label>
                         <input
                             type="number"
@@ -579,7 +575,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Total Man Hours Per Annum */}
-                    <div className="mb-4">
+                    <div className="">
                         <label className="block font-semibold mb-1">Total Man Hours Per Annum</label>
                         <input
                             type="number"
@@ -592,7 +588,7 @@ const CompanyProfileForm = () => {
                     </div>
 
                     {/* Sector Dropdown */}
-                    {/* <div className="mb-4">
+                    {/* <div className="">
                         <label className="block font-semibold mb-1">Sector *</label>
                         <select
                             value={formData.sectorId}
@@ -612,7 +608,7 @@ const CompanyProfileForm = () => {
                     </div> */}
 
                     {/* Industry Dropdown */}
-                    {/* <div className="mb-4">
+                    {/* <div className="">
                         <label className="block font-semibold mb-1">Industry *</label>
                         <select
                             value={formData.industryId}
