@@ -141,9 +141,6 @@ const IndustryAddFrom = () => {
                             />
                             {errors.name && <p className="text-red-500">{errors.name}</p>}
                             <br />
-
-
-
                             <br />
                         </div>
                         <div>
@@ -159,7 +156,6 @@ const IndustryAddFrom = () => {
                             />
                             {errors.description && <p className="text-red-500">{errors.description}</p>}
                             <br />
-
                             <br />
                         </div>
 

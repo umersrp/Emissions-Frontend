@@ -204,6 +204,9 @@ import EditCompanyProfile from "./Carbonx-pages/Company/EditCompanyProfile";
 import ViewCompanyProfile from "./Carbonx-pages/Company/ViewComapyProfile";
 import BuildingFormPage from "./Carbonx-pages/Building/[id]/Building-form";
 import BuildingTable from "./Carbonx-pages/Building/Buidingtable";
+import StationaryCombustionFormPage from "./Carbonx-pages/Stationary/[id]/Stationary-Combustion-form";
+import StationaryCombustionListing from "./Carbonx-pages/Stationary/Stationary-Combustion-Listing";
+import Scope1 from "./Carbonx-pages/Scope1/Scope1";
 
 
 function App() {
@@ -397,37 +400,18 @@ function App() {
           <Route path="Industry-Add" element={<IndustryAddFrom />} />
           <Route path="Company-Add" element={<CompanyProfileForm />} />
           <Route path="Company-Edit/:id" element={<EditCompanyProfile />} />
-          <Route path="Company-View/:id" element={<ViewCompanyProfile/>} />
+          <Route path="Company-View/:id" element={<ViewCompanyProfile />} />
           <Route path="Company" element={<CompanyTable />} />
           <Route path="Building-Form/add" element={<BuildingFormPage />} />
-          <Route path="Building-Form/:id" element={<BuildingFormPage/>} />
+          <Route path="Building-Form/:id" element={<BuildingFormPage />} />
           <Route path="Building" element={<BuildingTable />} />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+          <Route path="Stationary-Combustion-Form/add" element={<StationaryCombustionFormPage />} />
+          <Route path="Stationary-Combustion-Form/:id" element={<StationaryCombustionFormPage />} />
+          <Route path="Stationary-Combustion" element={<StationaryCombustionListing />} />
+          <Route path="Scope-1" element={<Scope1/>} />
 
 
           <Route path="Coach-edit" element={<CoachEditPage />} />
-
-
-
-
 
 
           <Route path="*" element={<Navigate to="/404" />} />

@@ -165,7 +165,12 @@ export const menuItems = [
     isHeadr: true,
     title: "Pages",
   },
-
+   {
+    title: "Scope 1",
+    isHide: true,
+    icon: "heroicons-outline:table-cells",
+    link: "Scope-1"
+  },
   {
     title: "Sectors",
     isHide: true,
@@ -192,6 +197,12 @@ export const menuItems = [
     isHide: true,
     icon: "heroicons-outline:table-cells",
     link: "Building"
+  },
+  {
+    title: "Stationary",
+    isHide: true,
+    icon: "heroicons-outline:table-cells",
+    link: "Stationary-Combustion"
   },
   {
     title: "Authentication",
