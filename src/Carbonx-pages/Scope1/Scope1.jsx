@@ -6,7 +6,7 @@ const Scope1 = () => {
   const navigate = useNavigate();
 
   const categories = [
-    { title: "Stationary Combustion", path: "/scope1/stationary" },
+    { title: "Stationary Combustion", path: "/Stationary-Combustion" },
     { title: "Mobile Combustion", path: "/scope1/mobile" },
     { title: "Fugitive Emissions", path: "/scope1/fugitive" },
     { title: "Process Emissions", path: "/scope1/process" },

@@ -41,7 +41,11 @@ const customStyles = {
   }),
   singleValue: (base) => ({
     ...base,
-    color: "#6B7280", 
+    color: "black", //  make selected text black
+  }),
+  input: (base) => ({
+    ...base,
+    color: "black", //  make typed text black
   }),
   container: (base) => ({
     ...base,

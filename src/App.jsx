@@ -204,8 +204,8 @@ import EditCompanyProfile from "./Carbonx-pages/Company/EditCompanyProfile";
 import ViewCompanyProfile from "./Carbonx-pages/Company/ViewComapyProfile";
 import BuildingFormPage from "./Carbonx-pages/Building/[id]/Building-form";
 import BuildingTable from "./Carbonx-pages/Building/Buidingtable";
-import StationaryCombustionFormPage from "./Carbonx-pages/Stationary/Stationary-Combustion-Form";
-import StationaryCombustionListing from "./Carbonx-pages/Stationary/Stationary-Combustion-Listing";
+import StationaryCombustionFormPage from "@/Carbonx-pages/Stationary/Stationary-Combustion-Form";
+import StationaryCombustionListing from "@/Carbonx-pages/Stationary/Stationary-Combustion-Listing";
 import Scope1 from "./Carbonx-pages/Scope1/Scope1";
 
 
