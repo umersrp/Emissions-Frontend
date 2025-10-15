@@ -16,6 +16,8 @@ const EditCompanyProfile = () => {
         showFiscal: false,
         showCustom: false,
     });
+      const [sectors, setSectors] = useState([]);        // ✅ add this
+  const [industries, setIndustries] = useState([]); 
 
     const [formData, setFormData] = useState({
         companyName: "",
@@ -47,56 +49,56 @@ const EditCompanyProfile = () => {
 
     const [errors, setErrors] = useState({});
 
-    //  Fetch dropdown data
-    // useEffect(() => {
-    //     const fetchDropdowns = async () => {
-    //         try {
-    //             const [countryRes, currencyRes, sectorRes] = await Promise.all([
-    //                 axios.get("https://restcountries.com/v3.1/all?fields=name"),
-    //                 axios.get("https://open.er-api.com/v6/latest/USD"),
-    //                 axios.get(`${process.env.REACT_APP_BASE_URL}/sector/Get-All`, {
-    //                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    //                 }),
-    //             ]);
+     //Fetch dropdown data
+    useEffect(() => {
+        const fetchDropdowns = async () => {
+            try {
+                const [countryRes, currencyRes, sectorRes] = await Promise.all([
+                    axios.get("https://restcountries.com/v3.1/all?fields=name"),
+                    axios.get("https://open.er-api.com/v6/latest/USD"),
+                    axios.get(`${process.env.REACT_APP_BASE_URL}/sector/Get-All`, {
+                        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                    }),
+                ]);
 
-    //             const countryList = countryRes.data.map((c) => c.name.common).sort();
-    //             setCountries(countryList);
+                const countryList = countryRes.data.map((c) => c.name.common).sort();
+                setCountries(countryList);
 
-    //             const currencyList = Object.entries(currencyRes.data.rates).map(([code, rate]) => ({
-    //                 code,
-    //                 rate,
-    //             }));
-    //             setCurrencies(currencyList);
+                const currencyList = Object.entries(currencyRes.data.rates).map(([code, rate]) => ({
+                    code,
+                    rate,
+                }));
+                setCurrencies(currencyList);
 
-    //             setSectors(sectorRes.data.data || []);
-    //         } catch (error) {
-    //             console.error("Dropdown data error:", error);
-    //             toast.error("Failed to load dropdown data");
-    //         }
-    //     };
-    //     fetchDropdowns();
-    // }, []);
+                setSectors(sectorRes.data.data || []);
+            } catch (error) {
+                console.error("Dropdown data error:", error);
+                toast.error("Failed to load dropdown data");
+            }
+        };
+        fetchDropdowns();
+    }, []);
 
-    //  Fetch industries when sectorId changes
-    // useEffect(() => {
-    //     if (!formData.sectorId) return;
-    //     const fetchIndustries = async () => {
-    //         try {
-    //             const response = await axios.get(
-    //                 `${process.env.REACT_APP_BASE_URL}/industry/get-All-Industry`,
-    //                 {
-    //                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    //                     params: { sectorId: formData.sectorId, page: 1, limit: 100 },
-    //                 }
-    //             );
-    //             setIndustries(response.data.data || []);
-    //         } catch (error) {
-    //             console.error("Industry fetch failed:", error);
-    //             toast.error("Failed to load industries");
-    //         }
-    //     };
-    //     fetchIndustries();
-    // }, [formData.sectorId]);
+     //Fetch industries when sectorId changes
+    useEffect(() => {
+        if (!formData.sectorId) return;
+        const fetchIndustries = async () => {
+            try {
+                const response = await axios.get(
+                    `${process.env.REACT_APP_BASE_URL}/industry/get-All-Industry`,
+                    {
+                        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                        params: { sectorId: formData.sectorId, page: 1, limit: 100 },
+                    }
+                );
+                setIndustries(response.data.data || []);
+            } catch (error) {
+                console.error("Industry fetch failed:", error);
+                toast.error("Failed to load industries");
+            }
+        };
+        fetchIndustries();
+    }, [formData.sectorId]);
 
     //  Fetch existing company data
     useEffect(() => {
@@ -557,7 +559,7 @@ const EditCompanyProfile = () => {
                     </div>
 
                     {/* Sector Dropdown */}
-                    {/* <div className="mb-4">
+                    <div className="mb-4">
                         <label className="block font-semibold mb-1">Sector *</label>
                         <select
                             value={formData.sectorId}
@@ -574,10 +576,10 @@ const EditCompanyProfile = () => {
                             ))}
                         </select>
                         {errors.sectorId && <p className="text-red-500">{errors.sectorId}</p>}
-                    </div> */}
+                    </div>
 
                     {/* Industry Dropdown */}
-                    {/* <div className="mb-4">
+                    <div className="mb-4">
                         <label className="block font-semibold mb-1">Industry *</label>
                         <select
                             value={formData.industryId}
@@ -593,7 +595,7 @@ const EditCompanyProfile = () => {
                             ))}
                         </select>
                         {errors.industryId && <p className="text-red-500">{errors.industryId}</p>}
-                    </div> */}
+                    </div>
 
                     {/* Submit Button */}
                 </form>

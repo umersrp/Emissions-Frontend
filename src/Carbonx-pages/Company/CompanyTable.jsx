@@ -133,7 +133,7 @@ const CompanyTable = () => {
         {
             Header: "Calendar Year",
             accessor: "Calendaryear",
-
+            Cell: ({ value }) => (value ? new Date(value).getFullYear() : "-"),
         },
         {
             Header: "Fiscal Year",

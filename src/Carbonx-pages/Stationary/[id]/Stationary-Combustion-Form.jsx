@@ -35,7 +35,7 @@ const StationaryCombustionFormPage = () => {
     consumptionUnit: null,
     remarks: "",
   });
-
+console.log("🔥 StationaryCombustionFormPage re-rendered");
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
 
@@ -232,8 +232,9 @@ const StationaryCombustionFormPage = () => {
       >
         <form
           onSubmit={handleSubmit}
-          className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="p-6 grid gap-6"
         >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* --- Building --- */}
           <div>
             <label className="block font-semibold mb-1">Site / Building Name</label>
@@ -363,15 +364,16 @@ const StationaryCombustionFormPage = () => {
               <p className="text-red-500 text-sm mt-1">{errors.consumptionUnit}</p>
             )}
           </div>
-
+            </div>
           {/* --- Remarks --- */}
-          <div>
+          <div className="col-span-full">
             <label className="block font-semibold mb-1">Remarks (Optional)</label>
             <textarea
               name="remarks"
               value={formData.remarks}
               onChange={handleInputChange}
               placeholder="Any remarks..."
+              rows={3}
               className="border-[2px] w-full h-10 p-2 rounded-md"
               disabled={isView}
             />

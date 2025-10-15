@@ -105,6 +105,10 @@ const icons = [
   {
     name: "heroicons:pencil-square",
   },
+  { name: "heroicons:globe-alt", label: "Scope" },              
+  { name: "heroicons:building-office", label: "Company" },       
+  { name: "heroicons:home-modern", label: "Building" },          
+  { name: "heroicons:fire", label: "Stationary Combustion" },
   { name: "heroicons:rectangle-stack" },
   { name: "heroicons:rocket-launch" },
   { name: "heroicons:window" },

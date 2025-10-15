@@ -27,8 +27,10 @@ const buildingTypeOptions = [
 
 const ownershipOptions = [
   { value: "owned", label: "Owned" },
+  { value: "partially Owned", label: "Partially Owned" },
   { value: "rented", label: "Rented" },
-  { value: "leased", label: "Leased" },
+  { value: "partially (Some Part) rented", label: "Partially (Some Part) Rented" },
+
 ];
 
 const BuildingFormPage = () => {
@@ -39,20 +41,17 @@ const BuildingFormPage = () => {
   const mode = location.state?.mode || "add";
   const isViewMode = mode === "view";
   const isEditMode = mode === "edit";
-
-  const [buildingType, setBuildingType] = useState(null);
-  const [ownership, setOwnership] = useState(null);
   const [countryOptions, setCountryOptions] = useState([]);
 
   const [formData, setFormData] = useState({
     buildingName: "",
     country: null,
     buildingLocation: "",
-    buildingType: "",
+    buildingType: null,
     numberOfEmployees: "",
     operatingHours: "",
     buildingArea: "",
-    ownership: "",
+    ownership: null,
     electricityConsumption: "",
     heatingUsed: false,
     heatingType: "",
@@ -62,6 +61,11 @@ const BuildingFormPage = () => {
   });
 
   const [loading, setLoading] = useState(isViewMode || isEditMode);
+  const capitalizeLabel = (value) =>
+    value
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
 
   // --- Fetch country list ---
   useEffect(() => {
@@ -99,8 +103,15 @@ const BuildingFormPage = () => {
           country: data.country
             ? { value: data.country, label: data.country }
             : null,
+          buildingType: data.buildingType
+            ? { value: data.buildingType, label: capitalizeLabel(data.buildingType) }
+            : null,
+          ownership: data.ownership
+            ? { value: data.ownership, label: capitalizeLabel(data.ownership) }
+            : null,
           operatingHours: data.operatingHours || "",
         }));
+
       } catch (error) {
         toast.error("Error fetching building data");
         console.error(error);
@@ -123,24 +134,24 @@ const BuildingFormPage = () => {
   };
 
   // --- Handle Switch Change ---
-const handleSwitchChange = (field) => {
-  if (isViewMode) return;
+  const handleSwitchChange = (field) => {
+    if (isViewMode) return;
 
-  setFormData((prev) => {
-    const updated = { ...prev, [field]: !prev[field] };
+    setFormData((prev) => {
+      const updated = { ...prev, [field]: !prev[field] };
 
-    // Handle each switch separately
-    if (field === "heatingUsed" && !updated.heatingUsed) {
-      updated.heatingType = "";
-    }
+      // Handle each switch separately
+      if (field === "heatingUsed" && !updated.heatingUsed) {
+        updated.heatingType = "";
+      }
 
-    if (field === "coolingUsed" && !updated.coolingUsed) {
-      updated.coolingType = "";
-    }
+      if (field === "coolingUsed" && !updated.coolingUsed) {
+        updated.coolingType = "";
+      }
 
-    return updated;
-  });
-};
+      return updated;
+    });
+  };
 
 
   // --- Handle Country Change ---
@@ -159,8 +170,8 @@ const handleSwitchChange = (field) => {
         buildingName: formData.buildingName.trim(),
         country: formData.country?.value || "",
         buildingLocation: formData.buildingLocation.trim(),
-        buildingType: formData.buildingType.trim(),
-        ownership: formData.ownership.trim(),
+        buildingType: formData.buildingType?.value || "",
+        ownership: formData.ownership?.value || "",
         heatingType: formData.heatingType.trim(),
         coolingType: formData.coolingType.trim(),
         operatingHours: formData.operatingHours.trim(),
@@ -214,7 +225,7 @@ const handleSwitchChange = (field) => {
         }
       >
         <form onSubmit={handleSubmit} className="p-4">
-          <div className="lg:grid-cols-3 grid gap-8 grid-cols-1">
+          <div className="lg:grid-cols-3 grid gap-8 grid-cols-1 mb-4">
             {/* --- Building Name --- */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Building Name</label>
@@ -224,9 +235,8 @@ const handleSwitchChange = (field) => {
                 placeholder="Building Name"
                 value={formData.buildingName}
                 onChange={handleInputChange}
-                className={`border-[2px] w-full h-10 p-2 rounded-md ${
-                  isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
-                }`}
+                className={`border-[2px] w-full h-10 p-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
+                  }`}
                 readOnly={isViewMode}
               />
             </div>
@@ -252,9 +262,8 @@ const handleSwitchChange = (field) => {
                 placeholder="Building Location"
                 value={formData.buildingLocation}
                 onChange={handleInputChange}
-                className={`border-[2px] w-full h-10 p-2 rounded-md ${
-                  isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
-                }`}
+                className={`border-[2px] w-full h-10 p-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
+                  }`}
                 readOnly={isViewMode}
               />
             </div>
@@ -266,11 +275,14 @@ const handleSwitchChange = (field) => {
               </label>
               <Select
                 options={buildingTypeOptions}
-                value={buildingType}
-                onChange={(selectedOption) => setBuildingType(selectedOption)}
+                value={formData.buildingType}
+                onChange={(selectedOption) =>
+                  setFormData((prev) => ({ ...prev, buildingType: selectedOption }))
+                }
                 placeholder="Select Building Type"
                 isDisabled={isViewMode}
               />
+
             </div>
 
             {/* --- Ownership --- */}
@@ -280,11 +292,14 @@ const handleSwitchChange = (field) => {
               </label>
               <Select
                 options={ownershipOptions}
-                value={ownership}
-                onChange={(selectedOption) => setOwnership(selectedOption)}
+                value={formData.ownership}
+                onChange={(selectedOption) =>
+                  setFormData((prev) => ({ ...prev, ownership: selectedOption }))
+                }
                 placeholder="Select Ownership"
                 isDisabled={isViewMode}
               />
+
             </div>
 
             {/* --- Number of Employees --- */}
@@ -296,9 +311,8 @@ const handleSwitchChange = (field) => {
                 placeholder="Number of Employees"
                 value={formData.numberOfEmployees}
                 onChange={handleInputChange}
-                className={`border-[2px] w-full h-10 p-2 rounded-md ${
-                  isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
-                }`}
+                className={`border-[2px] w-full h-10 p-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
+                  }`}
                 readOnly={isViewMode}
               />
             </div>
@@ -311,14 +325,13 @@ const handleSwitchChange = (field) => {
                 name="operatingHours"
                 value={formData.operatingHours}
                 onChange={handleInputChange}
-                placeholder="e.g. 7:30 AM - 7:00 PM"
-                className={`border-[2px] w-full h-10 p-2 rounded-md ${
-                  isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
-                }`}
+                placeholder="Enter Operating Hours"
+                className={`border-[2px] w-full h-10 p-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
+                  }`}
                 readOnly={isViewMode}
               />
             </div>
-
+           
             {/* --- Building Area --- */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Building Area (sq ft)</label>
@@ -328,32 +341,34 @@ const handleSwitchChange = (field) => {
                 placeholder="Building Area"
                 value={formData.buildingArea}
                 onChange={handleInputChange}
-                className={`border-[2px] w-full h-10 p-2 rounded-md ${
-                  isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
-                }`}
+                className={`border-[2px] w-full h-10 p-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
+                  }`}
                 readOnly={isViewMode}
               />
             </div>
 
             {/* --- Electricity Consumption --- */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Electricity Consumption</label>
+              <label className="field-label">Electricity Consumption (kWh)</label>
               <input
                 type="number"
                 name="electricityConsumption"
-                placeholder="Electricity Consumption"
+                placeholder="Electricity Consumption (kWh)"
                 value={formData.electricityConsumption}
                 onChange={handleInputChange}
-                className={`border-[2px] w-full h-10 p-2 rounded-md ${
-                  isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
-                }`}
+                className={`border-[2px] w-full h-10 p-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
+                  }`}
                 readOnly={isViewMode}
               />
             </div>
-
+            </div>
+             <p className="field-label text-black-500">
+              Are The Following Used In This Building?
+              </p>
+            <div className="lg:grid-cols-3 grid gap-8 grid-cols-1 mt-2">
             {/* --- Heating --- */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Heating</label>
+              <label className="field-label">Heating</label>
               <Switch
                 value={formData.heatingUsed}
                 onChange={() => handleSwitchChange("heatingUsed")}
@@ -366,9 +381,8 @@ const handleSwitchChange = (field) => {
                   value={formData.heatingType}
                   onChange={handleInputChange}
                   placeholder="Heating Type"
-                  className={`border-[2px] w-full h-10 p-2 rounded-md mt-2${
-                    isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
-                  }`}
+                  className={`border-[2px] w-full h-10 p-2 rounded-md mt-2${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
+                    }`}
                   readOnly={isViewMode}
                 />
               )}
@@ -389,9 +403,8 @@ const handleSwitchChange = (field) => {
                   value={formData.coolingType}
                   onChange={handleInputChange}
                   placeholder="Cooling Type"
-                  className={`border-[2px] w-full h-10 p-2 rounded-md mt-2 ${
-                    isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
-                  }`}
+                  className={`border-[2px] w-full h-10 p-2 rounded-md mt-2 ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
+                    }`}
                   readOnly={isViewMode}
                 />
               )}
@@ -410,6 +423,7 @@ const handleSwitchChange = (field) => {
               />
             </div>
           </div>
+          
 
           {/* --- Buttons --- */}
           <div className="flex justify-end gap-4 pt-6">

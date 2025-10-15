@@ -4,12 +4,19 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import Switch from "@/components/ui/Switch";
+import Select from "@/components/ui/Select";
+
+const boundaryOptions = [
+    { value: "operational control", label: "Operational Control" },
+    { value: "financial control", label: "Financial Control" },
+    { value: "equity share", label: "Equity Share" },
+];
 
 const CompanyProfileForm = () => {
     const navigate = useNavigate();
     const [countries, setCountries] = useState([]);
     const [currencies, setCurrencies] = useState([]);
-
 
     // Form state
     const [showFields, setShowFields] = useState({
@@ -20,16 +27,16 @@ const CompanyProfileForm = () => {
     const [formData, setFormData] = useState({
         companyName: "",
         reportingYear: "",
-        boundary: "",
+        boundary: null,
         country: "",
         province: "",
         baseyear: false,
-        Calendaryear: "",
+        Calendaryear: null,
         fiscalyear: "",
         customyear: "",
         address: "",
         totalEmployees: "",
-        currency: "",
+        currency: null,
         headquarterLocation: "",
         totalSites: "",
         totalAreaSqM: "",
@@ -108,16 +115,19 @@ const CompanyProfileForm = () => {
             try {
                 //  Fetch countries
                 const countryRes = await axios.get("https://restcountries.com/v3.1/all?fields=name");
-                const countryList = countryRes.data.map((c) => c.name.common).sort();
+                const countryList = countryRes.data
+                    .map((c) => ({ value: c.name.common, label: c.name.common }))
+                    .sort((a, b) => a.label.localeCompare(b.label));
                 setCountries(countryList);
 
                 //  Fetch currencies from Open Exchange Rate API (no key needed)
                 const currencyRes = await axios.get("https://open.er-api.com/v6/latest/USD");
 
                 // The API gives rates in key-value format like { "USD": 1, "PKR": 278.6, ... }
-                const currencyList = Object.entries(currencyRes.data.rates).map(
-                    ([code, rate]) => ({ code, rate })
-                );
+                const currencyList = Object.keys(currencyRes.data.rates).map((code) => ({
+                    value: code,
+                    label: code,
+                }));
                 setCurrencies(currencyList);
             } catch (error) {
                 console.error("Error fetching country/currency:", error);
@@ -128,6 +138,28 @@ const CompanyProfileForm = () => {
         fetchData();
     }, []);
 
+
+    // Switch handlers
+    const handleSwitchChange = (field) => {
+        setShowFields((prev) => ({
+            ...prev,
+            [field]: !prev[field],
+        }));
+    };
+    const handleCountryChange = (selectedOption) =>
+        setFormData((prev) => ({ ...prev, country: selectedOption }));
+
+    const handleCurrencyChange = (selectedOption) =>
+        setFormData((prev) => ({ ...prev, currency: selectedOption }));
+
+    const handleCalendarChange = (selectedOption) =>
+        setFormData((prev) => ({ ...prev, Calendaryear: selectedOption }));
+
+
+    const yearOptions = Array.from({ length: 50 }, (_, i) => {
+        const y = 2000 + i;
+        return { value: y, label: y.toString() };
+    });
 
 
 
@@ -222,78 +254,160 @@ const CompanyProfileForm = () => {
                 <form className="lg:grid-cols-3 grid gap-8 grid-cols-1">
                     {/* Company Name */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Company Name *</label>
+                        <label className="field-label">Company/Organization Name *</label>
                         <input
                             type="text"
                             name="companyName"
                             value={formData.companyName}
                             onChange={handleChange}
-                            className={`input ${errors.companyName ? "border-red-500" : "border-[3px] h-10 w-[100%] mb-3 p-2"}`}
+                            className={`input ${errors.companyName ? "border-red-500" : "border-[2px] w-full h-10 p-2 rounded-md"}`}
                             placeholder="Enter company name"
                         />
                         {errors.companyName && <p className="text-red-500">{errors.companyName}</p>}
                     </div>
 
                     {/* Reporting Year */}
-                    <div className="">
-                        <label className="block font-semibold mb-1">Reporting Year *</label>
+                    {/* <div className="">
+                        <label className="field-label">Reporting Year *</label>
                         <input
                             type="number"
                             name="reportingYear"
                             value={formData.reportingYear}
                             onChange={handleChange}
-                            className={`input ${errors.reportingYear ? "border-red-500" : "border-[3px] h-10 w-[100%] mb-3 p-2"}`}
+                            className={`input ${errors.reportingYear ? "border-red-500" : "border-[2px] w-full h-10 p-2 rounded-md"}`}
                             placeholder="Enter reporting year"
                         />
                         {errors.reportingYear && <p className="text-red-500">{errors.reportingYear}</p>}
+                    </div> */}
+                    {/* Reporting Year Type */}
+                    <div className="flex-1">
+                        <label className="field-label">Reporting Year Type *</label>
+                        <Select
+                            options={[
+                                { value: "calendar", label: "Calendar Year" },
+                                { value: "fiscal", label: "Fiscal Year" },
+                                { value: "custom", label: "Custom Year" },
+                            ]}
+                            value={
+                                formData.reportingYear
+                                    ? {
+                                        value: formData.reportingYear,
+                                        label:
+                                            formData.reportingYear === "calendar"
+                                                ? "Calendar Year"
+                                                : formData.reportingYear === "fiscal"
+                                                    ? "Fiscal Year"
+                                                    : "Custom Year",
+                                    }
+                                    : null
+                            }
+                            onChange={(selected) =>
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    reportingYear: selected?.value || "",
+                                    Calendaryear: "",
+                                    fiscalyear: "",
+                                    customyear: "",
+                                }))
+                            }
+                            placeholder="Select Reporting Year Type"
+                        />
                     </div>
+
+                    {/* Show the corresponding input beside it */}
+                    {formData.reportingYear === "calendar" && (
+                        <div className="flex-1">
+                            <label className="field-label">Calendar Year</label>
+                            <Select
+                                options={Array.from({ length: 50 }, (_, i) => {
+                                    const y = 2000 + i;
+                                    return { value: y, label: y.toString() };
+                                })}
+                                value={
+                                    formData.Calendaryear
+                                        ? { value: formData.Calendaryear, label: formData.Calendaryear.toString() }
+                                        : null
+                                }
+                                onChange={(selected) =>
+                                    setFormData((prev) => ({ ...prev, Calendaryear: selected.value }))
+                                }
+                                placeholder="Select Year"
+                            />
+                        </div>
+                    )}
+
+                    {formData.reportingYear === "fiscal" && (
+                        <div className="flex-1">
+                            <label className="field-label">Fiscal Year</label>
+                            <input
+                                type="date"
+                                name="fiscalyear"
+                                value={formData.fiscalyear}
+                                onChange={handleInputChange}
+                                className="border-[2px] w-full h-10 p-2 rounded-md"
+                            />
+                        </div>
+                    )}
+
+                    {formData.reportingYear === "custom" && (
+                        <div className="flex-1">
+                            <label className="field-label">Custom Year</label>
+                            <input
+                                type="date"
+                                name="customyear"
+                                value={formData.customyear}
+                                onChange={handleInputChange}
+                                className="border-[2px] w-full h-10 p-2 rounded-md"
+                            />
+                        </div>
+                    )}
+
 
                     {/* Boundary */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Boundary *</label>
-                        <input
-                            type="text"
+                        <label className="field-label">Boundary *</label>
+                        <Select
                             name="boundary"
-                            value={formData.boundary}
-                            onChange={handleChange}
-                            className={`input ${errors.boundary ? "border-red-500" : "border-[3px] h-10 w-[100%] mb-3 p-2"}`}
-                            placeholder="Enter boundary"
+                            options={boundaryOptions}
+                            value={boundaryOptions.find((option) => option.value === formData.boundary) || null}
+                            onChange={(selectedOption) =>
+                                setFormData((prev) => ({ ...prev, boundary: selectedOption.value }))
+                            }
+                            placeholder="Select boundary"
+                            classNamePrefix="react-select"
+                            className={`w-full ${errors.boundary ? "border border-red-500 rounded-md" : ""}`}
                         />
                         {errors.boundary && <p className="text-red-500">{errors.boundary}</p>}
                     </div>
 
                     {/* Country */}
-                    <div className="">
-                        <label className="block font-semibold mb-1">Country *</label>
-                        <select
-                            name="country"
-                            value={formData.country}
-                            onChange={handleChange}
-                            className={`border-[3px] h-10 w-full mb-3 p-2 ${errors.country ? "border-red-500" : ""}`}
-                        >
-                            <option value="">Select Country</option>
-                            {countries.map((country, index) => (
-                                <option key={index} value={country}>{country}</option>
-                            ))}
-                        </select>
-                        {errors.country && <p className="text-red-500">{errors.country}</p>}
+                    <div>
+                        <label className="field-label">Country Of Operation *</label>
+                        <Select
+                            options={countries}
+                            value={countries.find((c) => c.value === formData.country) || null}
+                            onChange={(selectedOption) =>
+                                setFormData((prev) => ({ ...prev, country: selectedOption?.value || "" }))
+                            }
+                            placeholder="Select Country"
+                        />
                     </div>
                     {/* Province */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Province</label>
+                        <label className="field-label">Province / territroy</label>
                         <input
                             type="text"
                             name="province"
                             value={formData.province}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter province"
                         />
                     </div>
 
                     {/* Base Year */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Base Year</label>
+                        <label className="field-label">Is This A Base Year ?</label>
                         <input
                             type="checkbox"
                             name="baseyear"
@@ -303,8 +417,8 @@ const CompanyProfileForm = () => {
                         />
                     </div>
 
-                    <div className="mb-2">
-                        <label className="flex items-center gap-2 font-medium">
+                    {/* <div className="mb-2">
+                        <label className="flex items-center gap-2 field-label">
                             <input
                                 type="checkbox"
                                 name="showCalendar"
@@ -313,11 +427,11 @@ const CompanyProfileForm = () => {
                             />
                             Show Calendar Year
                         </label>
-                    </div>
+                    </div> */}
 
                     {/* Fiscal Year Checkbox */}
-                    <div className="mb-2">
-                        <label className="flex items-center gap-2 font-medium">
+                    {/* <div className="mb-2">
+                        <label className="flex items-center gap-2 field-label">
                             <input
                                 type="checkbox"
                                 name="showFiscal"
@@ -326,11 +440,11 @@ const CompanyProfileForm = () => {
                             />
                             Show Fiscal Year
                         </label>
-                    </div>
+                    </div> */}
 
                     {/* Custom Year Checkbox */}
-                    <div className="">
-                        <label className="flex items-center gap-2 font-medium">
+                    {/* <div className="">
+                        <label className="flex items-center gap-2 field-label">
                             <input
                                 type="checkbox"
                                 name="showCustom"
@@ -339,13 +453,13 @@ const CompanyProfileForm = () => {
                             />
                             Show Custom Year
                         </label>
-                    </div>
+                    </div> */}
 
                     {/* Calendar Year Input */}
-                    {showFields.showCalendar && (
+                    {/* {showFields.showCalendar && (
                         <div className="">
-                            <label className="block font-semibold mb-1">Calendar Year</label>
-                            <select
+                            <label className="field-label">Calendar Year</label>
+                            <Select
                                 name="Calendaryear"
                                 value={formData.Calendaryear}
                                 onChange={handleInputChange}
@@ -360,14 +474,14 @@ const CompanyProfileForm = () => {
                                         </option>
                                     );
                                 })}
-                            </select>
+                            </Select>
                         </div>
-                    )}
+                    )} */}
 
                     {/* Fiscal Year Input */}
-                    {showFields.showFiscal && (
+                    {/* {showFields.showFiscal && (
                         <div className="">
-                            <label className="block font-semibold mb-1">Fiscal Year</label>
+                            <label className="field-label">Fiscal Year</label>
                             <input
                                 type="date"
                                 name="fiscalyear"
@@ -377,12 +491,67 @@ const CompanyProfileForm = () => {
                                 placeholder="Enter fiscal year"
                             />
                         </div>
-                    )}
+                    )} */}
+                    {/* calender year new */}
+                    {/* <div>
+                        <label className="field-label">Calendar Year</label>
+                        <Switch
+                            value={showFields.showCalendar}
+                            onChange={() => handleSwitchChange("showCalendar")}
+                        />
+                        {showFields.showCalendar && (
+                            <Select
+                                options={yearOptions}
+                                value={yearOptions.find((y) => y.value === formData.Calendaryear) || null}
+                                onChange={(selectedOption) =>
+                                    setFormData((prev) => ({ ...prev, Calendaryear: selectedOption.value }))
+                                }
+                                placeholder="Select Calendar Year"
+                            />
+                        )}
+                    </div> */}
+                    {/* fiscal year new*/}
+                    {/* <div>
+                        <label className="field-label">Fiscal Year</label>
+                        <Switch
+                            value={showFields.showFiscal}
+                            onChange={() => handleSwitchChange("showFiscal")}
+                        />
+                        {showFields.showFiscal && (
+                            <input
+                                type="date"
+                                name="fiscalyear"
+                                value={formData.fiscalyear}
+                                onChange={handleInputChange}
+                                className="border-[2px] w-full h-10 p-2 rounded-md mt-2"
+                                placeholder="Select Fiscal Year"
+                            />
+                        )}
+                    </div> */}
+
+                    {/* Custom Year new */}
+                    {/* <div>
+                        <label className="field-label">Custom Year</label>
+                        <Switch
+                            value={showFields.showCustom}
+                            onChange={() => handleSwitchChange("showCustom")}
+                        />
+                        {showFields.showCustom && (
+                            <input
+                                type="date"
+                                name="customyear"
+                                value={formData.customyear}
+                                onChange={handleInputChange}
+                                className="border-[2px] w-full h-10 p-2 rounded-md mt-2"
+                                placeholder="Select Custom Year"
+                            />
+                        )}
+                    </div> */}
 
                     {/* Custom Year Input */}
-                    {showFields.showCustom && (
+                    {/* {showFields.showCustom && (
                         <div className="">
-                            <label className="block font-semibold mb-1">Custom Year</label>
+                            <label className="field-label">Custom Year</label>
                             <input
                                 type="date"
                                 name="customyear"
@@ -392,207 +561,197 @@ const CompanyProfileForm = () => {
                                 placeholder="Enter custom year"
                             />
                         </div>
-                    )}
+                    )} */}
 
                     {/* Address */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Address</label>
+                        <label className="field-label">Address</label>
                         <input
                             type="text"
                             name="address"
                             value={formData.address}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter address"
                         />
                     </div>
 
                     {/* Total Employees */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Total Employees *</label>
+                        <label className="field-label">Total Employees *</label>
                         <input
                             type="number"
                             name="totalEmployees"
                             value={formData.totalEmployees}
                             onChange={handleChange}
-                            className={`input ${errors.totalEmployees ? "border-red-500" : "border-[3px] h-10 w-[100%] mb-3 p-2"}`}
+                            className={`input ${errors.totalEmployees ? "border-red-500" : "border-[2px] w-full h-10 p-2 rounded-md"}`}
                             placeholder="Enter total employees"
                         />
                         {errors.totalEmployees && <p className="text-red-500">{errors.totalEmployees}</p>}
                     </div>
 
                     {/* Currency */}
-                    {/* Currency */}
-                    <div className="">
-                        <label className="block font-semibold mb-1">Currency *</label>
-
-                        <select
-                            name="currency"
-                            value={formData.currency}
-                            onChange={handleChange}
-                            className={`border-[3px] h-10 w-full mb-3 p-2 ${errors.currency ? "border-red-500" : ""
-                                }`}
-                        >
-                            <option value="">Select Currency</option>
-                            {currencies.map((item) => (
-                                <option key={item.code} value={item.code}>
-                                    {item.code} - {item.rate.toFixed(2)}
-                                </option>
-                            ))}
-                        </select>
-
-                        {errors.currency && <p className="text-red-500">{errors.currency}</p>}
+                    <div>
+                        <label className="field-label">Currency *</label>
+                        <Select
+                            options={currencies}
+                            value={currencies.find((c) => c.value === formData.currency) || null}
+                            onChange={(selectedOption) =>
+                                setFormData((prev) => ({ ...prev, currency: selectedOption.value }))
+                            }
+                            placeholder="Select Currency"
+                        />
                     </div>
 
                     {/* Headquarter Location */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Headquarter Location</label>
+                        <label className="field-label">Headquarter Location</label>
                         <input
                             type="text"
                             name="headquarterLocation"
                             value={formData.headquarterLocation}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter headquarter location"
                         />
                     </div>
 
                     {/* Total Sites */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Total Sites</label>
+                        <label className="field-label">Total Sites / Building</label>
                         <input
                             type="number"
                             name="totalSites"
                             value={formData.totalSites}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
-                            placeholder="Enter total sites"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
+                            placeholder="Enter total sites or buildings"
                         />
                     </div>
 
                     {/* Total Area Sq M */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Total Area (Sq M)</label>
+                        <label className="field-label">Total Area (Sq M)</label>
                         <input
                             type="number"
                             name="totalAreaSqM"
                             value={formData.totalAreaSqM}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter total area in square meters"
                         />
                     </div>
 
                     {/* Units Manufactured Per Month */}
-                    <div className="">
-                        <label className="block font-semibold mb-1">Units Manufactured Per Month</label>
+                    {/* <div className="">
+                        <label className="field-label">Units Manufactured Per Month</label>
                         <input
                             type="number"
                             name="unitsManufacturedPerMonth"
                             value={formData.unitsManufacturedPerMonth}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter units manufactured per month"
                         />
-                    </div>
+                    </div> */}
 
                     {/* Units Manufactured Per Annum */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Units Manufactured Per Annum</label>
+                        <label className="field-label">No. Of Units Manufactured Per Annum</label>
                         <input
                             type="number"
                             name="unitsManufacturedPerAnnum"
                             value={formData.unitsManufacturedPerAnnum}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter units manufactured per annum"
                         />
                     </div>
 
                     {/* Production Volume Tonne Per Annum */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Production Volume (Tonne Per Annum)</label>
+                        <label className="field-label">Production Volume (Tonne Per Annum)</label>
                         <input
                             type="number"
                             name="productionVolumeTonnePerAnnum"
                             value={formData.productionVolumeTonnePerAnnum}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter production volume in tonnes per annum"
                         />
                     </div>
 
                     {/* Units Sold Per Annum */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Units Sold Per Annum</label>
+                        <label className="field-label">No. Of Units Sold Per Annum</label>
                         <input
                             type="number"
                             name="unitsSoldPerAnnum"
                             value={formData.unitsSoldPerAnnum}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter units sold per annum"
                         />
                     </div>
 
                     {/* Electricity Generated MWh Per Annum */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Electricity Generated (MWh Per Annum)</label>
+                        <label className="field-label">Electricity Generated (MWh Per Annum)</label>
                         <input
                             type="number"
                             name="electricityGeneratedMWhPerAnnum"
                             value={formData.electricityGeneratedMWhPerAnnum}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter electricity generated in MWh per annum"
                         />
                     </div>
 
                     {/* Energy Generated GJ Per Annum */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Energy Generated (GJ Per Annum)</label>
+                        <label className="field-label">Energy Generated (GJ Per Annum)</label>
                         <input
                             type="number"
                             name="energyGeneratedGJPerAnnum"
                             value={formData.energyGeneratedGJPerAnnum}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter energy generated in GJ per annum"
                         />
                     </div>
 
                     {/* Revenue Per Annum */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Revenue Per Annum</label>
+                        <label className="field-label">Revenue Per Annum</label>
                         <input
                             type="number"
                             name="revenuePerAnnum"
                             value={formData.revenuePerAnnum}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter revenue per annum"
                         />
                     </div>
 
                     {/* Total Man Hours Per Annum */}
                     <div className="">
-                        <label className="block font-semibold mb-1">Total Man Hours Per Annum</label>
+                        <label className="field-label">Total Man Hours Per Annum</label>
                         <input
                             type="number"
                             name="totalManHoursPerAnnum"
                             value={formData.totalManHoursPerAnnum}
                             onChange={handleChange}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter total man hours per annum"
                         />
                     </div>
 
                     {/* Sector Dropdown */}
                     {/* <div className="">
-                        <label className="block font-semibold mb-1">Sector *</label>
-                        <select
+                        <label className="field-label">Sector *</label>
+                        <Select
                             value={formData.sectorId}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             onChange={(e) =>
                                 setFormData({ ...formData, sectorId: e.target.value, industryId: "" })
                             }
@@ -603,16 +762,16 @@ const CompanyProfileForm = () => {
                                     {sector.name}
                                 </option>
                             ))}
-                        </select>
+                        </Select>
                         {errors.sectorId && <p className="text-red-500">{errors.sectorId}</p>}
                     </div> */}
 
                     {/* Industry Dropdown */}
                     {/* <div className="">
-                        <label className="block font-semibold mb-1">Industry *</label>
-                        <select
+                        <label className="field-label">Industry *</label>
+                        <Select
                             value={formData.industryId}
-                            className="border-[3px] h-10 w-[100%] mb-3 p-2"
+                            className="border-[2px] w-full h-10 p-2 rounded-md"
                             onChange={(e) => setFormData({ ...formData, industryId: e.target.value })}
                             disabled={!formData.sectorId || industries.length === 0}
                         >
@@ -622,7 +781,7 @@ const CompanyProfileForm = () => {
                                     {industry.name}
                                 </option>
                             ))}
-                        </select>
+                        </Select>
                         {errors.industryId && <p className="text-red-500">{errors.industryId}</p>}
                     </div> */}
 
