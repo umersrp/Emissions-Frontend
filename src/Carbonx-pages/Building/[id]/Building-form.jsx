@@ -131,6 +131,9 @@ const BuildingFormPage = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   // --- Handle Switch Change ---
@@ -158,6 +161,9 @@ const BuildingFormPage = () => {
   const handleCountryChange = (selectedOption) => {
     if (isViewMode) return;
     setFormData((prev) => ({ ...prev, country: selectedOption }));
+    if (errors.country) {
+      setErrors((prev) => ({ ...prev, country: "" }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -224,6 +230,7 @@ const BuildingFormPage = () => {
     if (!formData.buildingLocation.trim()) newErrors.buildingLocation = "Location is required";
     if (!formData.buildingType) newErrors.buildingType = "Building Type is required";
     if (!formData.ownership) newErrors.ownership = "Ownership is required";
+    if (!formData.operatingHours) newErrors.operatingHours = "operatingHours is required";
     if (!formData.numberOfEmployees) newErrors.numberOfEmployees = "Number of Employees is required";
     if (!formData.buildingArea) newErrors.buildingArea = "Building Area is required";
     if (!formData.electricityConsumption) newErrors.electricityConsumption = "Electricity Consumption is required";
@@ -300,9 +307,12 @@ const BuildingFormPage = () => {
               <Select
                 options={buildingTypeOptions}
                 value={formData.buildingType}
-                onChange={(selectedOption) =>
-                  setFormData((prev) => ({ ...prev, buildingType: selectedOption }))
-                }
+                onChange={(selectedOption) => {
+                  setFormData((prev) => ({ ...prev, buildingType: selectedOption }));
+                  if (errors.buildingType) {
+                    setErrors((prev) => ({ ...prev, buildingType: "" }));
+                  }
+                }}
                 placeholder="Select Building Type"
                 isDisabled={isViewMode}
               />
@@ -317,9 +327,12 @@ const BuildingFormPage = () => {
               <Select
                 options={ownershipOptions}
                 value={formData.ownership}
-                onChange={(selectedOption) =>
-                  setFormData((prev) => ({ ...prev, ownership: selectedOption }))
-                }
+                onChange={(selectedOption) => {
+                  setFormData((prev) => ({ ...prev, ownership: selectedOption }));
+                  if (errors.ownership) {
+                    setErrors((prev) => ({ ...prev, ownership: "" }));
+                  }
+                }}
                 placeholder="Select Ownership"
                 isDisabled={isViewMode}
               />
@@ -339,7 +352,7 @@ const BuildingFormPage = () => {
                   }`}
                 readOnly={isViewMode}
               />
-                            {errors.numberOfEmployees && <p className="text-red-500 text-sm mt-1">{errors.numberOfEmployees}</p>}
+              {errors.numberOfEmployees && <p className="text-red-500 text-sm mt-1">{errors.numberOfEmployees}</p>}
             </div>
 
             {/* --- Operating Hours --- */}
@@ -360,7 +373,7 @@ const BuildingFormPage = () => {
 
             {/* --- Building Area --- */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Building Area (sq ft)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Building Area (m2)</label>
               <input
                 type="number"
                 name="buildingArea"
@@ -387,7 +400,7 @@ const BuildingFormPage = () => {
                   }`}
                 readOnly={isViewMode}
               />
-         {errors.electricityConsumption && <p className="text-red-500 text-sm mt-1">{errors.electricityConsumption}</p>}
+              {errors.electricityConsumption && <p className="text-red-500 text-sm mt-1">{errors.electricityConsumption}</p>}
             </div>
           </div>
           <p className="field-label text-black-500">
@@ -414,7 +427,7 @@ const BuildingFormPage = () => {
                   readOnly={isViewMode}
                 />
               )}
-             {errors.heatingType && <p className="text-red-500 text-sm mt-1">{errors.heatingType}</p>}
+              {errors.heatingType && <p className="text-red-500 text-sm mt-1">{errors.heatingType}</p>}
             </div>
 
             {/* --- Cooling --- */}
@@ -437,7 +450,7 @@ const BuildingFormPage = () => {
                   readOnly={isViewMode}
                 />
               )}
-                           {errors.coolingType && <p className="text-red-500 text-sm mt-1">{errors.coolingType}</p>}
+              {errors.coolingType && <p className="text-red-500 text-sm mt-1">{errors.coolingType}</p>}
             </div>
 
             {/* --- Steam Used --- */}
@@ -451,7 +464,7 @@ const BuildingFormPage = () => {
                 disabled={isViewMode}
                 className="h-5 w-5"
               />
-              
+
             </div>
           </div>
 
@@ -459,8 +472,8 @@ const BuildingFormPage = () => {
           {/* --- Buttons --- */}
           <div className="flex justify-end gap-4 pt-6">
             <Button
-              text="Cancel"
-              className="btn-light"
+              text={isViewMode ? "Back" : "Cancel"}
+              className={isViewMode ? "btn-primary" : "btn-light"}
               type="button"
               onClick={() => navigate("/Building")}
             />
