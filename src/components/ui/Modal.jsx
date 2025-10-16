@@ -59,7 +59,7 @@ const Modal = ({
                   leaveFrom={noFade ? "" : "opacity-100"}
                   leaveTo={noFade ? "" : "opacity-0"}
                 >
-                  <div className="fixed inset-0 bg-slate-900/50 backdrop-filter backdrop-blur-sm" />
+                  <div className="fixed inset-0 bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] backdrop-filter backdrop-blur-sm" />
                 </Transition.Child>
               )}
 
@@ -80,7 +80,7 @@ const Modal = ({
                   >
                     <Dialog.Panel
                       className={`w-full transform overflow-hidden rounded-md
-                 bg-white dark:bg-slate-800 text-left align-middle shadow-xl transition-alll ${className}`}
+                 bg-white  text-left align-middle shadow-xl transition-alll ${className}`}
                     >
                       <div
                         className={`relative overflow-hidden py-4 px-5 text-white flex justify-between  ${themeClass}`}

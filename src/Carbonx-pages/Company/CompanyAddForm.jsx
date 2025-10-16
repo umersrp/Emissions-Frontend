@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import Switch from "@/components/ui/Switch";
 import Select from "@/components/ui/Select";
 
 const boundaryOptions = [
@@ -164,36 +163,38 @@ const CompanyProfileForm = () => {
 
 
     // Simple validation before submit
-// 1. Update your validate function to include all fields
-const validate = () => {
-  const errors = {};
-  if (!formData.companyName) errors.companyName = "Company name is required";
-  if (!formData.reportingYear) errors.reportingYear = "Reporting year is required";
-  if (!formData.boundary) errors.boundary = "Boundary is required";
-  if (!formData.country) errors.country = "Country is required";
-  if (!formData.totalEmployees) errors.totalEmployees = "Total employees is required";
-  if (!formData.currency) errors.currency = "Currency is required";
-  if (!formData.headquarterLocation) errors.headquarterLocation = "Headquarter location is required";
-  if (!formData.totalSites) errors.totalSites = "Total sites/buildings are required";
-  if (!formData.totalAreaSqM) errors.totalAreaSqM = "Total area is required";
-  if (!formData.unitsManufacturedPerAnnum) errors.unitsManufacturedPerAnnum = "Units manufactured per annum is required";
-  if (!formData.productionVolumeTonnePerAnnum) errors.productionVolumeTonnePerAnnum = "Production volume is required";
-  if (!formData.unitsSoldPerAnnum) errors.unitsSoldPerAnnum = "Units sold per annum is required";
-  if (!formData.electricityGeneratedMWhPerAnnum) errors.electricityGeneratedMWhPerAnnum = "Electricity generated is required";
-  if (!formData.energyGeneratedGJPerAnnum) errors.energyGeneratedGJPerAnnum = "Energy generated is required";
-  if (!formData.revenuePerAnnum) errors.revenuePerAnnum = "Revenue is required";
-  if (!formData.totalManHoursPerAnnum) errors.totalManHoursPerAnnum = "Total man hours are required";
+    // 1. Update your validate function to include all fields
+    const validate = () => {
+        const errors = {};
+        if (!formData.companyName) errors.companyName = "Company name is required";
+        if (!formData.reportingYear) errors.reportingYear = "Reporting year is required";
+        if (!formData.boundary) errors.boundary = "Boundary is required";
+        if (!formData.country) errors.country = "Country is required";
+        if (!formData.address) errors.address = "Address is required";
+        if (!formData.province) errors.province = "Province is required";
+        if (!formData.totalEmployees) errors.totalEmployees = "Total employees is required";
+        if (!formData.currency) errors.currency = "Currency is required";
+        if (!formData.headquarterLocation) errors.headquarterLocation = "Headquarter location is required";
+        if (!formData.totalSites) errors.totalSites = "Total sites/buildings are required";
+        if (!formData.totalAreaSqM) errors.totalAreaSqM = "Total area is required";
+        if (!formData.unitsManufacturedPerAnnum) errors.unitsManufacturedPerAnnum = "Units manufactured per annum is required";
+        if (!formData.productionVolumeTonnePerAnnum) errors.productionVolumeTonnePerAnnum = "Production volume is required";
+        if (!formData.unitsSoldPerAnnum) errors.unitsSoldPerAnnum = "Units sold per annum is required";
+        if (!formData.electricityGeneratedMWhPerAnnum) errors.electricityGeneratedMWhPerAnnum = "Electricity generated is required";
+        if (!formData.energyGeneratedGJPerAnnum) errors.energyGeneratedGJPerAnnum = "Energy generated is required";
+        if (!formData.revenuePerAnnum) errors.revenuePerAnnum = "Revenue is required";
+        if (!formData.totalManHoursPerAnnum) errors.totalManHoursPerAnnum = "Total man hours are required";
 
-  // Add validation for reportingYear subfields
-  if (formData.reportingYear === "calendar" && !formData.Calendaryear)
-    errors.Calendaryear = "Calendar year is required";
-  if (formData.reportingYear === "fiscal" && !formData.fiscalyear)
-    errors.fiscalyear = "Fiscal year is required";
-  if (formData.reportingYear === "custom" && !formData.customyear)
-    errors.customyear = "Custom year is required";
+        // Add validation for reportingYear subfields
+        if (formData.reportingYear === "calendar" && !formData.Calendaryear)
+            errors.Calendaryear = "Calendar year is required";
+        if (formData.reportingYear === "fiscal" && !formData.fiscalyear)
+            errors.fiscalyear = "Fiscal year is required";
+        if (formData.reportingYear === "custom" && !formData.customyear)
+            errors.customyear = "Custom year is required";
 
-  return errors;
-};
+        return errors;
+    };
 
 
     const [errors, setErrors] = useState({});
@@ -249,6 +250,10 @@ const validate = () => {
         setFormData((prev) => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
+        }));
+        setErrors((prev) => ({
+            ...prev,
+            [name]: null,
         }));
     };
 
@@ -309,7 +314,7 @@ const validate = () => {
                                     }
                                     : null
                             }
-                            onChange={(selected) =>
+                            onChange={(selected) => {
                                 setFormData((prev) => ({
                                     ...prev,
                                     reportingYear: selected?.value || "",
@@ -317,9 +322,15 @@ const validate = () => {
                                     fiscalyear: "",
                                     customyear: "",
                                 }))
-                            }
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    reportingYear: null,
+                                }));
+                            }}
                             placeholder="Select Reporting Year Type"
                         />
+                        {errors.reportingYear && <p className="text-red-500">{errors.reportingYear}</p>}
+
                     </div>
 
                     {/* Show the corresponding input beside it */}
@@ -336,11 +347,17 @@ const validate = () => {
                                         ? { value: formData.Calendaryear, label: formData.Calendaryear.toString() }
                                         : null
                                 }
-                                onChange={(selected) =>
+                                onChange={(selected) => {
                                     setFormData((prev) => ({ ...prev, Calendaryear: selected.value }))
-                                }
+                                    setErrors((prev) => ({
+                                        ...prev,
+                                        Calendaryear: null,
+                                    }));
+                                }}
                                 placeholder="Select Year"
                             />
+                            {errors.Calendaryear && <p className="text-red-500">{errors.Calendaryear}</p>}
+
                         </div>
                     )}
 
@@ -351,9 +368,18 @@ const validate = () => {
                                 type="date"
                                 name="fiscalyear"
                                 value={formData.fiscalyear}
-                                onChange={handleInputChange}
+                                onChange={(e) => {
+                                    handleInputChange(e); 
+                                    setErrors((prev) => ({
+                                        ...prev,
+                                        fiscalyear: null,
+                                    }));
+                                }}
                                 className="border-[2px] w-full h-10 p-2 rounded-md"
                             />
+                            {errors.fiscalyear && (
+                                <p className="text-red-500">{errors.fiscalyear}</p>
+                            )}
                         </div>
                     )}
 
@@ -364,9 +390,16 @@ const validate = () => {
                                 type="date"
                                 name="customyear"
                                 value={formData.customyear}
-                                onChange={handleInputChange}
+                                 onChange={(e) => {
+                                    handleInputChange(e); 
+                                    setErrors((prev) => ({
+                                        ...prev,
+                                        customyear: null,
+                                    }));
+                                }}
                                 className="border-[2px] w-full h-10 p-2 rounded-md"
                             />
+                            {errors.customyear && <p className="text-red-500">{errors.customyear}</p>}
                         </div>
                     )}
 
@@ -378,9 +411,13 @@ const validate = () => {
                             name="boundary"
                             options={boundaryOptions}
                             value={boundaryOptions.find((option) => option.value === formData.boundary) || null}
-                            onChange={(selectedOption) =>
-                                setFormData((prev) => ({ ...prev, boundary: selectedOption.value }))
-                            }
+                            onChange={(selectedOption) =>{
+                                setFormData((prev) => ({ ...prev, boundary: selectedOption.value }));
+                                setErrors((prev) => ({
+                                        ...prev,
+                                        boundary: null,
+                                    }));
+                            }}
                             placeholder="Select boundary"
                             classNamePrefix="react-select"
                             className={`w-full ${errors.boundary ? "border border-red-500 rounded-md" : ""}`}
@@ -394,11 +431,16 @@ const validate = () => {
                         <Select
                             options={countries}
                             value={countries.find((c) => c.value === formData.country) || null}
-                            onChange={(selectedOption) =>
-                                setFormData((prev) => ({ ...prev, country: selectedOption?.value || "" }))
-                            }
+                            onChange={(selectedOption) =>{
+                                setFormData((prev) => ({ ...prev, country: selectedOption?.value || "" }));
+                                setErrors((prev) => ({
+                                        ...prev,
+                                        country: null,
+                                    }));
+                            }}
                             placeholder="Select Country"
                         />
+                        {errors.country && <p className="text-red-500">{errors.country}</p>}
                     </div>
                     {/* Province */}
                     <div className="">
@@ -411,6 +453,7 @@ const validate = () => {
                             className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter province"
                         />
+                        {errors.province && <p className="text-red-500">{errors.province}</p>}
                     </div>
 
                     {/* Base Year */}
@@ -436,6 +479,7 @@ const validate = () => {
                             className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter address"
                         />
+                        {errors.address && <p className="text-red-500">{errors.address}</p>}
                     </div>
 
                     {/* Total Employees */}
@@ -458,11 +502,16 @@ const validate = () => {
                         <Select
                             options={currencies}
                             value={currencies.find((c) => c.value === formData.currency) || null}
-                            onChange={(selectedOption) =>
-                                setFormData((prev) => ({ ...prev, currency: selectedOption.value }))
-                            }
+                            onChange={(selectedOption) =>{
+                                setFormData((prev) => ({ ...prev, currency: selectedOption.value }));
+                                 setErrors((prev) => ({
+                                        ...prev,
+                                        currency: null,
+                                    }));
+                            }}
                             placeholder="Select Currency"
                         />
+                        {errors.currency && <p className="text-red-500">{errors.currency}</p>}
                     </div>
 
                     {/* Headquarter Location */}
@@ -476,6 +525,7 @@ const validate = () => {
                             className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter headquarter location"
                         />
+                        {errors.headquarterLocation && <p className="text-red-500">{errors.headquarterLocation}</p>}
                     </div>
 
                     {/* Total Sites */}
@@ -489,6 +539,7 @@ const validate = () => {
                             className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter sites/buildings"
                         />
+                        {errors.totalSites && <p className="text-red-500">{errors.totalSites}</p>}
                     </div>
 
                     {/* Total Area Sq M */}
@@ -502,6 +553,7 @@ const validate = () => {
                             className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter area in sq m"
                         />
+                        {errors.totalAreaSqM && <p className="text-red-500">{errors.totalAreaSqM}</p>}
                     </div>
 
 
@@ -516,6 +568,7 @@ const validate = () => {
                             className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter Manufactured units "
                         />
+                        {errors.unitsManufacturedPerAnnum && <p className="text-red-500">{errors.unitsManufacturedPerAnnum}</p>}
                     </div>
 
                     {/* Production Volume Tonne Per Annum */}
@@ -529,6 +582,7 @@ const validate = () => {
                             className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter production volume "
                         />
+                        {errors.productionVolumeTonnePerAnnum && <p className="text-red-500">{errors.productionVolumeTonnePerAnnum}</p>}
                     </div>
 
                     {/* Units Sold Per Annum */}
@@ -542,6 +596,7 @@ const validate = () => {
                             className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter Sold units "
                         />
+                        {errors.unitsSoldPerAnnum && <p className="text-red-500">{errors.unitsSoldPerAnnum}</p>}
                     </div>
 
                     {/* Electricity Generated MWh Per Annum */}
@@ -555,6 +610,7 @@ const validate = () => {
                             className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter electricity generated"
                         />
+                        {errors.electricityGeneratedMWhPerAnnum && <p className="text-red-500">{errors.electricityGeneratedMWhPerAnnum}</p>}
                     </div>
 
                     {/* Energy Generated GJ Per Annum */}
@@ -568,6 +624,7 @@ const validate = () => {
                             className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter energy generated"
                         />
+                        {errors.energyGeneratedGJPerAnnum && <p className="text-red-500">{errors.energyGeneratedGJPerAnnum}</p>}
                     </div>
 
                     {/* Revenue Per Annum */}
@@ -581,6 +638,7 @@ const validate = () => {
                             className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter revenue"
                         />
+                        {errors.revenuePerAnnum && <p className="text-red-500">{errors.revenuePerAnnum}</p>}
                     </div>
 
                     {/* Total Man Hours Per Annum */}
@@ -594,6 +652,7 @@ const validate = () => {
                             className="border-[2px] w-full h-10 p-2 rounded-md"
                             placeholder="Enter total man"
                         />
+                        {errors.totalManHoursPerAnnum && <p className="text-red-500">{errors.totalManHoursPerAnnum}</p>}
                     </div>
 
                     {/* Sector Dropdown */}

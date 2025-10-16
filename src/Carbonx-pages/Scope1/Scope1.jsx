@@ -29,14 +29,14 @@ const Scope1 = () => {
         </Card>
 
         {/* Sub-Task Cards Section */}
-        <div className="grid sm:grid-cols-2 gap-6 ">
+        <div className="grid sm:grid-cols-4 gap-8 ">
           {categories.map((cat, index) => (
             <div
               key={index}
               onClick={() => navigate(cat.path)}
-              className="h-20 flex items-center justify-center rounded-xl border border-gray-200 shadow-md hover:shadow-lg hover:scale-[1.03] transition-all duration-300 bg-primary-50 cursor-pointer"
+              className="h-40 flex items-center justify-center rounded-xl border border-gray-200 shadow-md hover:shadow-lg hover:scale-[1.03] transition-all duration-300 bg-white cursor-pointer"
             >
-              <h3 className="text-lg font-semibold text-center text-slate-600 ">{cat.title}</h3>
+              <h3 className="text-lg font-semibold text-center text-slate-600 p-10 ">{cat.title}</h3>
             </div>
           ))}
         </div>
