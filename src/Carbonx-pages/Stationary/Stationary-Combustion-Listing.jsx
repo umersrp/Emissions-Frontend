@@ -47,10 +47,10 @@ const StationaryCombustionListing = () => {
         }
       );
 
-      const data = res.data?.data?.stationary || [];
-      const pagination = res.data?.data?.pagination || {};
-      setRecords(data);
-      setPageCount(pagination.totalPages || 1);
+      // const pagination = res.data?.data?.pagination || {};
+       const data = res.data?.data || [];
+    setRecords(data);
+    setPageCount(1);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch records");

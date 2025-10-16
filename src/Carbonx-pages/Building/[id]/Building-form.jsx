@@ -37,7 +37,7 @@ const BuildingFormPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-
+  const [errors, setErrors] = useState({});
   const mode = location.state?.mode || "add";
   const isViewMode = mode === "view";
   const isEditMode = mode === "edit";
@@ -163,6 +163,7 @@ const BuildingFormPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isViewMode) return;
+    if (!validateFields()) return;
 
     try {
       const trimmedData = {
@@ -215,6 +216,26 @@ const BuildingFormPage = () => {
     }
   };
 
+  const validateFields = () => {
+    const newErrors = {};
+
+    if (!formData.buildingName.trim()) newErrors.buildingName = "Building Name is required";
+    if (!formData.country) newErrors.country = "Country is required";
+    if (!formData.buildingLocation.trim()) newErrors.buildingLocation = "Location is required";
+    if (!formData.buildingType) newErrors.buildingType = "Building Type is required";
+    if (!formData.ownership) newErrors.ownership = "Ownership is required";
+    if (!formData.numberOfEmployees) newErrors.numberOfEmployees = "Number of Employees is required";
+    if (!formData.buildingArea) newErrors.buildingArea = "Building Area is required";
+    if (!formData.electricityConsumption) newErrors.electricityConsumption = "Electricity Consumption is required";
+    if (formData.heatingUsed && !formData.heatingType.trim()) newErrors.heatingType = "Heating Type is required";
+    if (formData.coolingUsed && !formData.coolingType.trim()) newErrors.coolingType = "Cooling Type is required";
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0; // return true if no errors
+  };
+
+
   if (loading) return <p>Loading building data...</p>;
 
   return (
@@ -239,6 +260,7 @@ const BuildingFormPage = () => {
                   }`}
                 readOnly={isViewMode}
               />
+              {errors.buildingName && <p className="text-red-500 text-sm mt-1">{errors.buildingName}</p>}
             </div>
 
             {/* --- Country --- */}
@@ -251,6 +273,7 @@ const BuildingFormPage = () => {
                 placeholder="Select Country"
                 isDisabled={isViewMode}
               />
+              {errors.country && <p className="text-red-500 text-sm mt-1">{errors.country}</p>}
             </div>
 
             {/* --- Location --- */}
@@ -266,6 +289,7 @@ const BuildingFormPage = () => {
                   }`}
                 readOnly={isViewMode}
               />
+              {errors.buildingLocation && <p className="text-red-500 text-sm mt-1">{errors.buildingLocation}</p>}
             </div>
 
             {/* --- Building Type --- */}
@@ -282,7 +306,7 @@ const BuildingFormPage = () => {
                 placeholder="Select Building Type"
                 isDisabled={isViewMode}
               />
-
+              {errors.buildingType && <p className="text-red-500 text-sm mt-1">{errors.buildingType}</p>}
             </div>
 
             {/* --- Ownership --- */}
@@ -299,7 +323,7 @@ const BuildingFormPage = () => {
                 placeholder="Select Ownership"
                 isDisabled={isViewMode}
               />
-
+              {errors.ownership && <p className="text-red-500 text-sm mt-1">{errors.ownership}</p>}
             </div>
 
             {/* --- Number of Employees --- */}
@@ -315,6 +339,7 @@ const BuildingFormPage = () => {
                   }`}
                 readOnly={isViewMode}
               />
+                            {errors.numberOfEmployees && <p className="text-red-500 text-sm mt-1">{errors.numberOfEmployees}</p>}
             </div>
 
             {/* --- Operating Hours --- */}
@@ -330,8 +355,9 @@ const BuildingFormPage = () => {
                   }`}
                 readOnly={isViewMode}
               />
+              {errors.operatingHours && <p className="text-red-500 text-sm mt-1">{errors.operatingHours}</p>}
             </div>
-           
+
             {/* --- Building Area --- */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Building Area (sq ft)</label>
@@ -345,6 +371,7 @@ const BuildingFormPage = () => {
                   }`}
                 readOnly={isViewMode}
               />
+              {errors.buildingArea && <p className="text-red-500 text-sm mt-1">{errors.buildingArea}</p>}
             </div>
 
             {/* --- Electricity Consumption --- */}
@@ -360,12 +387,13 @@ const BuildingFormPage = () => {
                   }`}
                 readOnly={isViewMode}
               />
+         {errors.electricityConsumption && <p className="text-red-500 text-sm mt-1">{errors.electricityConsumption}</p>}
             </div>
-            </div>
-             <p className="field-label text-black-500">
-              Are The Following Used In This Building?
-              </p>
-            <div className="lg:grid-cols-3 grid gap-8 grid-cols-1 mt-2">
+          </div>
+          <p className="field-label text-black-500">
+            Are The Following Used In This Building?
+          </p>
+          <div className="lg:grid-cols-3 grid gap-8 grid-cols-1 mt-2">
             {/* --- Heating --- */}
             <div>
               <label className="field-label">Heating</label>
@@ -386,6 +414,7 @@ const BuildingFormPage = () => {
                   readOnly={isViewMode}
                 />
               )}
+             {errors.heatingType && <p className="text-red-500 text-sm mt-1">{errors.heatingType}</p>}
             </div>
 
             {/* --- Cooling --- */}
@@ -408,6 +437,7 @@ const BuildingFormPage = () => {
                   readOnly={isViewMode}
                 />
               )}
+                           {errors.coolingType && <p className="text-red-500 text-sm mt-1">{errors.coolingType}</p>}
             </div>
 
             {/* --- Steam Used --- */}
@@ -421,9 +451,10 @@ const BuildingFormPage = () => {
                 disabled={isViewMode}
                 className="h-5 w-5"
               />
+              
             </div>
           </div>
-          
+
 
           {/* --- Buttons --- */}
           <div className="flex justify-end gap-4 pt-6">

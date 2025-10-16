@@ -164,16 +164,37 @@ const CompanyProfileForm = () => {
 
 
     // Simple validation before submit
-    const validate = () => {
-        const errors = {};
-        if (!formData.companyName) errors.companyName = "Company name is required";
-        if (!formData.reportingYear) errors.reportingYear = "Reporting year is required";
-        if (!formData.boundary) errors.boundary = "Boundary is required";
-        if (!formData.country) errors.country = "Country is required";
-        if (!formData.totalEmployees) errors.totalEmployees = "Total employees is required";
-        if (!formData.currency) errors.currency = "Currency is required";
-        return errors;
-    };
+// 1. Update your validate function to include all fields
+const validate = () => {
+  const errors = {};
+  if (!formData.companyName) errors.companyName = "Company name is required";
+  if (!formData.reportingYear) errors.reportingYear = "Reporting year is required";
+  if (!formData.boundary) errors.boundary = "Boundary is required";
+  if (!formData.country) errors.country = "Country is required";
+  if (!formData.totalEmployees) errors.totalEmployees = "Total employees is required";
+  if (!formData.currency) errors.currency = "Currency is required";
+  if (!formData.headquarterLocation) errors.headquarterLocation = "Headquarter location is required";
+  if (!formData.totalSites) errors.totalSites = "Total sites/buildings are required";
+  if (!formData.totalAreaSqM) errors.totalAreaSqM = "Total area is required";
+  if (!formData.unitsManufacturedPerAnnum) errors.unitsManufacturedPerAnnum = "Units manufactured per annum is required";
+  if (!formData.productionVolumeTonnePerAnnum) errors.productionVolumeTonnePerAnnum = "Production volume is required";
+  if (!formData.unitsSoldPerAnnum) errors.unitsSoldPerAnnum = "Units sold per annum is required";
+  if (!formData.electricityGeneratedMWhPerAnnum) errors.electricityGeneratedMWhPerAnnum = "Electricity generated is required";
+  if (!formData.energyGeneratedGJPerAnnum) errors.energyGeneratedGJPerAnnum = "Energy generated is required";
+  if (!formData.revenuePerAnnum) errors.revenuePerAnnum = "Revenue is required";
+  if (!formData.totalManHoursPerAnnum) errors.totalManHoursPerAnnum = "Total man hours are required";
+
+  // Add validation for reportingYear subfields
+  if (formData.reportingYear === "calendar" && !formData.Calendaryear)
+    errors.Calendaryear = "Calendar year is required";
+  if (formData.reportingYear === "fiscal" && !formData.fiscalyear)
+    errors.fiscalyear = "Fiscal year is required";
+  if (formData.reportingYear === "custom" && !formData.customyear)
+    errors.customyear = "Custom year is required";
+
+  return errors;
+};
+
 
     const [errors, setErrors] = useState({});
 
@@ -260,25 +281,12 @@ const CompanyProfileForm = () => {
                             name="companyName"
                             value={formData.companyName}
                             onChange={handleChange}
-                            className={`input ${errors.companyName ? "border-red-500" : "border-[2px] w-full h-10 p-2 rounded-md"}`}
+                            className={"border-[2px] w-full h-10 p-2 rounded-md"}
                             placeholder="Enter company name"
                         />
                         {errors.companyName && <p className="text-red-500">{errors.companyName}</p>}
                     </div>
 
-                    {/* Reporting Year */}
-                    {/* <div className="">
-                        <label className="field-label">Reporting Year *</label>
-                        <input
-                            type="number"
-                            name="reportingYear"
-                            value={formData.reportingYear}
-                            onChange={handleChange}
-                            className={`input ${errors.reportingYear ? "border-red-500" : "border-[2px] w-full h-10 p-2 rounded-md"}`}
-                            placeholder="Enter reporting year"
-                        />
-                        {errors.reportingYear && <p className="text-red-500">{errors.reportingYear}</p>}
-                    </div> */}
                     {/* Reporting Year Type */}
                     <div className="flex-1">
                         <label className="field-label">Reporting Year Type *</label>
@@ -417,152 +425,6 @@ const CompanyProfileForm = () => {
                         />
                     </div>
 
-                    {/* <div className="mb-2">
-                        <label className="flex items-center gap-2 field-label">
-                            <input
-                                type="checkbox"
-                                name="showCalendar"
-                                checked={showFields.showCalendar}
-                                onChange={handleCheckboxChange}
-                            />
-                            Show Calendar Year
-                        </label>
-                    </div> */}
-
-                    {/* Fiscal Year Checkbox */}
-                    {/* <div className="mb-2">
-                        <label className="flex items-center gap-2 field-label">
-                            <input
-                                type="checkbox"
-                                name="showFiscal"
-                                checked={showFields.showFiscal}
-                                onChange={handleCheckboxChange}
-                            />
-                            Show Fiscal Year
-                        </label>
-                    </div> */}
-
-                    {/* Custom Year Checkbox */}
-                    {/* <div className="">
-                        <label className="flex items-center gap-2 field-label">
-                            <input
-                                type="checkbox"
-                                name="showCustom"
-                                checked={showFields.showCustom}
-                                onChange={handleCheckboxChange}
-                            />
-                            Show Custom Year
-                        </label>
-                    </div> */}
-
-                    {/* Calendar Year Input */}
-                    {/* {showFields.showCalendar && (
-                        <div className="">
-                            <label className="field-label">Calendar Year</label>
-                            <Select
-                                name="Calendaryear"
-                                value={formData.Calendaryear}
-                                onChange={handleInputChange}
-                                className="border-[3px] h-10 w-full mb-3 p-2"
-                            >
-                                <option value="">Select Year</option>
-                                {Array.from({ length: 50 }, (_, i) => {
-                                    const year = 2000 + i;
-                                    return (
-                                        <option key={year} value={year}>
-                                            {year}
-                                        </option>
-                                    );
-                                })}
-                            </Select>
-                        </div>
-                    )} */}
-
-                    {/* Fiscal Year Input */}
-                    {/* {showFields.showFiscal && (
-                        <div className="">
-                            <label className="field-label">Fiscal Year</label>
-                            <input
-                                type="date"
-                                name="fiscalyear"
-                                value={formData.fiscalyear}
-                                onChange={handleInputChange}
-                                className="border-[3px] h-10 w-full mb-3 p-2"
-                                placeholder="Enter fiscal year"
-                            />
-                        </div>
-                    )} */}
-                    {/* calender year new */}
-                    {/* <div>
-                        <label className="field-label">Calendar Year</label>
-                        <Switch
-                            value={showFields.showCalendar}
-                            onChange={() => handleSwitchChange("showCalendar")}
-                        />
-                        {showFields.showCalendar && (
-                            <Select
-                                options={yearOptions}
-                                value={yearOptions.find((y) => y.value === formData.Calendaryear) || null}
-                                onChange={(selectedOption) =>
-                                    setFormData((prev) => ({ ...prev, Calendaryear: selectedOption.value }))
-                                }
-                                placeholder="Select Calendar Year"
-                            />
-                        )}
-                    </div> */}
-                    {/* fiscal year new*/}
-                    {/* <div>
-                        <label className="field-label">Fiscal Year</label>
-                        <Switch
-                            value={showFields.showFiscal}
-                            onChange={() => handleSwitchChange("showFiscal")}
-                        />
-                        {showFields.showFiscal && (
-                            <input
-                                type="date"
-                                name="fiscalyear"
-                                value={formData.fiscalyear}
-                                onChange={handleInputChange}
-                                className="border-[2px] w-full h-10 p-2 rounded-md mt-2"
-                                placeholder="Select Fiscal Year"
-                            />
-                        )}
-                    </div> */}
-
-                    {/* Custom Year new */}
-                    {/* <div>
-                        <label className="field-label">Custom Year</label>
-                        <Switch
-                            value={showFields.showCustom}
-                            onChange={() => handleSwitchChange("showCustom")}
-                        />
-                        {showFields.showCustom && (
-                            <input
-                                type="date"
-                                name="customyear"
-                                value={formData.customyear}
-                                onChange={handleInputChange}
-                                className="border-[2px] w-full h-10 p-2 rounded-md mt-2"
-                                placeholder="Select Custom Year"
-                            />
-                        )}
-                    </div> */}
-
-                    {/* Custom Year Input */}
-                    {/* {showFields.showCustom && (
-                        <div className="">
-                            <label className="field-label">Custom Year</label>
-                            <input
-                                type="date"
-                                name="customyear"
-                                value={formData.customyear}
-                                onChange={handleInputChange}
-                                className="border-[3px] h-10 w-full mb-3 p-2"
-                                placeholder="Enter custom year"
-                            />
-                        </div>
-                    )} */}
-
                     {/* Address */}
                     <div className="">
                         <label className="field-label">Address</label>
@@ -584,7 +446,7 @@ const CompanyProfileForm = () => {
                             name="totalEmployees"
                             value={formData.totalEmployees}
                             onChange={handleChange}
-                            className={`input ${errors.totalEmployees ? "border-red-500" : "border-[2px] w-full h-10 p-2 rounded-md"}`}
+                            className={"border-[2px] w-full h-10 p-2 rounded-md"}
                             placeholder="Enter total employees"
                         />
                         {errors.totalEmployees && <p className="text-red-500">{errors.totalEmployees}</p>}
@@ -625,7 +487,7 @@ const CompanyProfileForm = () => {
                             value={formData.totalSites}
                             onChange={handleChange}
                             className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter total sites or buildings"
+                            placeholder="Enter sites/buildings"
                         />
                     </div>
 
@@ -638,22 +500,10 @@ const CompanyProfileForm = () => {
                             value={formData.totalAreaSqM}
                             onChange={handleChange}
                             className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter total area in square meters"
+                            placeholder="Enter area in sq m"
                         />
                     </div>
 
-                    {/* Units Manufactured Per Month */}
-                    {/* <div className="">
-                        <label className="field-label">Units Manufactured Per Month</label>
-                        <input
-                            type="number"
-                            name="unitsManufacturedPerMonth"
-                            value={formData.unitsManufacturedPerMonth}
-                            onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter units manufactured per month"
-                        />
-                    </div> */}
 
                     {/* Units Manufactured Per Annum */}
                     <div className="">
@@ -664,7 +514,7 @@ const CompanyProfileForm = () => {
                             value={formData.unitsManufacturedPerAnnum}
                             onChange={handleChange}
                             className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter units manufactured per annum"
+                            placeholder="Enter Manufactured units "
                         />
                     </div>
 
@@ -677,7 +527,7 @@ const CompanyProfileForm = () => {
                             value={formData.productionVolumeTonnePerAnnum}
                             onChange={handleChange}
                             className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter production volume in tonnes per annum"
+                            placeholder="Enter production volume "
                         />
                     </div>
 
@@ -690,7 +540,7 @@ const CompanyProfileForm = () => {
                             value={formData.unitsSoldPerAnnum}
                             onChange={handleChange}
                             className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter units sold per annum"
+                            placeholder="Enter Sold units "
                         />
                     </div>
 
@@ -703,7 +553,7 @@ const CompanyProfileForm = () => {
                             value={formData.electricityGeneratedMWhPerAnnum}
                             onChange={handleChange}
                             className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter electricity generated in MWh per annum"
+                            placeholder="Enter electricity generated"
                         />
                     </div>
 
@@ -716,7 +566,7 @@ const CompanyProfileForm = () => {
                             value={formData.energyGeneratedGJPerAnnum}
                             onChange={handleChange}
                             className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter energy generated in GJ per annum"
+                            placeholder="Enter energy generated"
                         />
                     </div>
 
@@ -729,7 +579,7 @@ const CompanyProfileForm = () => {
                             value={formData.revenuePerAnnum}
                             onChange={handleChange}
                             className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter revenue per annum"
+                            placeholder="Enter revenue"
                         />
                     </div>
 
@@ -742,7 +592,7 @@ const CompanyProfileForm = () => {
                             value={formData.totalManHoursPerAnnum}
                             onChange={handleChange}
                             className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter total man hours per annum"
+                            placeholder="Enter total man"
                         />
                     </div>
 

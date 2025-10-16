@@ -23,15 +23,15 @@ const profileLabel = () => {
           />
         </div>
       </div>
-      <div className="flex-none text-slate-600 dark:text-white text-sm font-normal items-center lg:flex hidden overflow-hidden text-ellipsis whitespace-nowrap">
-      <span className="inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-blue-400 text-blue-600 bg-opacity-25">
-  <span className="overflow-hidden text-ellipsis whitespace-nowrap w-[85px] inline-block align-middle">
-    {userType}
-  </span>
-</span>
+      <div className="flex-none bg-primary-50 p-1 rounded-full text-slate-600 dark:text-white text-sm font-normal items-center lg:flex hidden overflow-hidden text-ellipsis whitespace-nowrap">
+        <span className="inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-primary-700 text-white bg-opacity-25">
+          <span className="overflow-hidden text-ellipsis whitespace-nowrap w-[85px] inline-block align-middle">
+            {userType}
+          </span>
+        </span>
 
-        <span className="text-base inline-block ltr:ml-[10px] rtl:mr-[10px]">
-          <Icon icon="heroicons-outline:chevron-down"></Icon>
+        <span className="text-base inline-block ltr:ml-[10px] rtl:mr-[10px] pr-1">
+          <Icon icon="heroicons-outline:chevron-down" color="white"></Icon>
         </span>
       </div>
     </div>
@@ -162,12 +162,12 @@ const Profile = () => {
   const ProfileMenu = [
     // ... your menu items
     {
-            label: "Logout",
-            icon: "heroicons-outline:login",
-            action: () => {
-              dispatch(handleLogout);
-            },
-          },
+      label: "Logout",
+      icon: "heroicons-outline:login",
+      action: () => {
+        dispatch(handleLogout);
+      },
+    },
   ];
 
   return (
@@ -177,15 +177,13 @@ const Profile = () => {
           {({ active }) => (
             <div
               onClick={() => item.action()}
-              className={`${
-                active
+              className={`${active
                   ? "bg-slate-100 text-slate-900 dark:bg-slate-600 dark:text-slate-300 dark:bg-opacity-50"
                   : "text-slate-600 dark:text-slate-300"
-              } block     ${
-                item.hasDivider
+                } block     ${item.hasDivider
                   ? "border-t border-slate-100 dark:border-slate-700"
                   : ""
-              }`}
+                }`}
             >
               <div className={`block cursor-pointer px-4 py-2`}>
                 <div className="flex items-center">

@@ -165,12 +165,6 @@ export const menuItems = [
     isHeadr: true,
     title: "Pages",
   },
-   {
-    title: "Scope 1",
-    isHide: true,
-    icon: "heroicons:globe-alt",
-    link: "Scope-1"
-  },
   // {
   //   title: "Sectors",
   //   isHide: true,
@@ -197,6 +191,12 @@ export const menuItems = [
     isHide: true,
     icon: "heroicons:home-modern",
     link: "Building"
+  },
+    {
+    title: "Scope 1",
+    isHide: true,
+    icon: "heroicons:globe-alt",
+    link: "Scope-1"
   },
   {
     title: "Stationary",

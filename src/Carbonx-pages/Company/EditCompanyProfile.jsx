@@ -150,8 +150,8 @@ const EditCompanyProfile = () => {
         if (!formData.reportingYear) errors.reportingYear = "Reporting year is required";
         if (!formData.country) errors.country = "Country is required";
         if (!formData.currency) errors.currency = "Currency is required";
-        // if (!formData.sectorId) errors.sectorId = "Sector is required";
-        // if (!formData.industryId) errors.industryId = "Industry is required";
+         if (!formData.sectorId) errors.sectorId = "Sector is required";
+         if (!formData.industryId) errors.industryId = "Industry is required";
         return errors;
     };
 

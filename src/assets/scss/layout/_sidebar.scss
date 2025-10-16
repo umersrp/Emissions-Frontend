@@ -122,16 +122,17 @@
 // active menu
 .item-has-children {
   .parent_active {
-    @apply bg-secondary-500 bg-opacity-20;
-
+    @apply  bg-opacity-20;
+    background-image: linear-gradient(to right, #3AB89D, #3A90B8);
     .icon-box,
     .menu-icon,
     .text-box {
-      @apply text-slate-700 dark:text-slate-200;
+      @apply text-white dark:text-slate-200;
+      
     }
-
     .menu-arrow {
-      @apply bg-secondary-500 text-slate-600 text-opacity-70 bg-opacity-30 dark:text-white;
+      @apply  text-white text-opacity-70 bg-opacity-30 dark:text-white;
+      background-image: linear-gradient(to right, #3AB89D, #3A90B8);
     }
   }
 }
