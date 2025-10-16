@@ -104,8 +104,7 @@ const BuildingTable = () => {
                 accessor: "heatingUsed",
                 Cell: ({ cell }) => (cell.value ? "Yes" : "No"),
             },
-            { Header: "Opening Time", accessor: "operatingHours.opening" },
-            { Header: "Closing Time", accessor: "operatingHours.closing" },
+            { Header: "Operating Hours", accessor: "operatingHours" },
             {
                 Header: "Created By",
                 accessor: "createdBy.email",

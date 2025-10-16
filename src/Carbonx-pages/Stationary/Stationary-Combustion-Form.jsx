@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
-import Select from "react-select";
+import Select from "@/components/ui/Select";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
@@ -321,9 +321,7 @@ console.log("🔥 StationaryCombustionFormPage re-rendered");
               value={formData.fuelConsumption}
               onChange={handleInputChange}
               placeholder="Enter value"
-              className={`border-[2px] w-full h-10 p-2 rounded-md ${
-                errors.fuelConsumption ? "border-red-500" : ""
-              }`}
+              className={"border-[2px] w-full h-10 p-2 rounded-md"}
               disabled={isView}
             />
             {errors.fuelConsumption && (
@@ -374,7 +372,7 @@ console.log("🔥 StationaryCombustionFormPage re-rendered");
               onChange={handleInputChange}
               placeholder="Any remarks..."
               rows={3}
-              className="border-[2px] w-full h-10 p-2 rounded-md"
+              className="border-[2px] w-full p-2 rounded-md"
               disabled={isView}
             />
           </div>

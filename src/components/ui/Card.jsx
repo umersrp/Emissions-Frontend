@@ -16,7 +16,7 @@ const Card = ({
   return (
     <div
       className={`
-        card rounded-md bg-white dark:bg-slate-800   ${skin === "bordered"
+        card !rounded-2xl bg-white dark:bg-slate-800   ${skin === "bordered"
           ? " border border-slate-200 dark:border-slate-700"
           : "shadow-base"
         }
@@ -25,7 +25,7 @@ const Card = ({
         `}
     >
       {(title || subtitle) && (
-        <header className={`card-header  dark:bg-slate-800 ${noborder ? "no-border" : ""}`}>
+        <header className={`card-header !rounded-t-2xl dark:bg-slate-800 ${noborder ? "no-border" : ""}`}>
           <div>
             {title && <div className={`card-title  ${titleClass}`}>{title}</div>}
             {subtitle && <div className="card-subtitle">{subtitle}</div>}
