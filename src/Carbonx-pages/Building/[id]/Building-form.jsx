@@ -10,24 +10,24 @@ import Select from "@/components/ui/Select";
 const buildingTypeOptions = [
   { value: "office", label: "Office" },
   { value: "warehouse", label: "Warehouse" },
-  { value: "cold_storage_facility", label: "Cold Storage Facility" },
-  { value: "data_center", label: "Data Center" },
+  { value: "cold storage facility", label: "Cold Storage Facility" },
+  { value: "data center", label: "Data Center" },
   { value: "hospital", label: "Hospital" },
   { value: "retail", label: "Retail" },
-  { value: "mixed_use", label: "Mixed-Use" },
+  { value: "mixed use", label: "Mixed-Use" },
   { value: "manufacturing", label: "Manufacturing" },
   { value: "commercial", label: "Commercial" },
   { value: "finishing", label: "Finishing" },
   { value: "processing", label: "Processing" },
-  { value: "service_building", label: "Service Building" },
-  { value: "public_institutional", label: "Public/Institutional" },
-  { value: "utility_infrastructure", label: "Utility & Infrastructure" },
-  { value: "residential_building", label: "Residential Building" },
+  { value: "service building", label: "Service Building" },
+  { value: "public institutional", label: "Public/Institutional" },
+  { value: "utility and infrastructure", label: "Utility & Infrastructure" },
+  { value: "residential building", label: "Residential Building" },
 ];
 
 const ownershipOptions = [
   { value: "owned", label: "Owned" },
-  { value: "partially Owned", label: "Partially Owned" },
+  { value: "partially owned", label: "Partially Owned" },
   { value: "rented", label: "Rented" },
   { value: "partially rented", label: "Partially (Some Part) Rented" },
 
