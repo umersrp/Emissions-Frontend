@@ -165,6 +165,16 @@ const CompanyTable = () => {
             Header: "Headquarter Location",
             accessor: "headquarterLocation",
         },
+         {
+            Header: "Sector",
+            accessor: "sectorId.name",
+            Cell: ({ cell }) => cell.value || "-",
+        },
+        {
+            Header: "Industry",
+            accessor: "industryId.name",
+            Cell: ({ cell }) => cell.value || "-",
+        },
         {
             Header: "Total Sites",
             accessor: "totalSites",
@@ -205,16 +215,6 @@ const CompanyTable = () => {
             Header: "Total Man Hours Per Annum",
             accessor: "totalManHoursPerAnnum",
         },
-        // {
-        //     Header: "Sector",
-        //     accessor: "sectorId.name",
-        //     Cell: ({ cell }) => cell.value || "-",
-        // },
-        // {
-        //     Header: "Industry",
-        //     accessor: "industryId.name",
-        //     Cell: ({ cell }) => cell.value || "-",
-        // },
         {
             Header: "Created By",
             accessor: "createdBy.name",

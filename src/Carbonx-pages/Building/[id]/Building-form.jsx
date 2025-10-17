@@ -29,7 +29,7 @@ const ownershipOptions = [
   { value: "owned", label: "Owned" },
   { value: "partially Owned", label: "Partially Owned" },
   { value: "rented", label: "Rented" },
-  { value: "partially (Some Part) rented", label: "Partially (Some Part) Rented" },
+  { value: "partially rented", label: "Partially (Some Part) Rented" },
 
 ];
 

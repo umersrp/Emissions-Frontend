@@ -79,7 +79,7 @@ const CompanyProfileForm = () => {
     //     fetchSectors();
     // }, []);
 
-    // Fetch industries when sectorId changes
+    //  Fetch industries when sectorId changes
     // useEffect(() => {
     //     if (!formData.sectorId) {
     //         setIndustries([]);
@@ -286,7 +286,7 @@ const CompanyProfileForm = () => {
                             name="companyName"
                             value={formData.companyName}
                             onChange={handleChange}
-                            className={"border-[2px] w-full h-10 p-2 rounded-md"}
+                            className={"input-field"}
                             placeholder="Enter company name"
                         />
                         {errors.companyName && <p className="text-red-500">{errors.companyName}</p>}
@@ -369,13 +369,13 @@ const CompanyProfileForm = () => {
                                 name="fiscalyear"
                                 value={formData.fiscalyear}
                                 onChange={(e) => {
-                                    handleInputChange(e); 
+                                    handleInputChange(e);
                                     setErrors((prev) => ({
                                         ...prev,
                                         fiscalyear: null,
                                     }));
                                 }}
-                                className="border-[2px] w-full h-10 p-2 rounded-md"
+                                className="input-field"
                             />
                             {errors.fiscalyear && (
                                 <p className="text-red-500">{errors.fiscalyear}</p>
@@ -390,14 +390,14 @@ const CompanyProfileForm = () => {
                                 type="date"
                                 name="customyear"
                                 value={formData.customyear}
-                                 onChange={(e) => {
-                                    handleInputChange(e); 
+                                onChange={(e) => {
+                                    handleInputChange(e);
                                     setErrors((prev) => ({
                                         ...prev,
                                         customyear: null,
                                     }));
                                 }}
-                                className="border-[2px] w-full h-10 p-2 rounded-md"
+                                className="input-field"
                             />
                             {errors.customyear && <p className="text-red-500">{errors.customyear}</p>}
                         </div>
@@ -411,12 +411,12 @@ const CompanyProfileForm = () => {
                             name="boundary"
                             options={boundaryOptions}
                             value={boundaryOptions.find((option) => option.value === formData.boundary) || null}
-                            onChange={(selectedOption) =>{
+                            onChange={(selectedOption) => {
                                 setFormData((prev) => ({ ...prev, boundary: selectedOption.value }));
                                 setErrors((prev) => ({
-                                        ...prev,
-                                        boundary: null,
-                                    }));
+                                    ...prev,
+                                    boundary: null,
+                                }));
                             }}
                             placeholder="Select boundary"
                             classNamePrefix="react-select"
@@ -431,12 +431,12 @@ const CompanyProfileForm = () => {
                         <Select
                             options={countries}
                             value={countries.find((c) => c.value === formData.country) || null}
-                            onChange={(selectedOption) =>{
+                            onChange={(selectedOption) => {
                                 setFormData((prev) => ({ ...prev, country: selectedOption?.value || "" }));
                                 setErrors((prev) => ({
-                                        ...prev,
-                                        country: null,
-                                    }));
+                                    ...prev,
+                                    country: null,
+                                }));
                             }}
                             placeholder="Select Country"
                         />
@@ -450,7 +450,7 @@ const CompanyProfileForm = () => {
                             name="province"
                             value={formData.province}
                             onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
+                            className="input-field"
                             placeholder="Enter province"
                         />
                         {errors.province && <p className="text-red-500">{errors.province}</p>}
@@ -476,7 +476,7 @@ const CompanyProfileForm = () => {
                             name="address"
                             value={formData.address}
                             onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
+                            className="input-field"
                             placeholder="Enter address"
                         />
                         {errors.address && <p className="text-red-500">{errors.address}</p>}
@@ -490,7 +490,7 @@ const CompanyProfileForm = () => {
                             name="totalEmployees"
                             value={formData.totalEmployees}
                             onChange={handleChange}
-                            className={"border-[2px] w-full h-10 p-2 rounded-md"}
+                            className={"input-field"}
                             placeholder="Enter total employees"
                         />
                         {errors.totalEmployees && <p className="text-red-500">{errors.totalEmployees}</p>}
@@ -502,12 +502,12 @@ const CompanyProfileForm = () => {
                         <Select
                             options={currencies}
                             value={currencies.find((c) => c.value === formData.currency) || null}
-                            onChange={(selectedOption) =>{
+                            onChange={(selectedOption) => {
                                 setFormData((prev) => ({ ...prev, currency: selectedOption.value }));
-                                 setErrors((prev) => ({
-                                        ...prev,
-                                        currency: null,
-                                    }));
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    currency: null,
+                                }));
                             }}
                             placeholder="Select Currency"
                         />
@@ -522,137 +522,10 @@ const CompanyProfileForm = () => {
                             name="headquarterLocation"
                             value={formData.headquarterLocation}
                             onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
+                            className="input-field"
                             placeholder="Enter headquarter location"
                         />
                         {errors.headquarterLocation && <p className="text-red-500">{errors.headquarterLocation}</p>}
-                    </div>
-
-                    {/* Total Sites */}
-                    <div className="">
-                        <label className="field-label">Total Sites / Building</label>
-                        <input
-                            type="number"
-                            name="totalSites"
-                            value={formData.totalSites}
-                            onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter sites/buildings"
-                        />
-                        {errors.totalSites && <p className="text-red-500">{errors.totalSites}</p>}
-                    </div>
-
-                    {/* Total Area Sq M */}
-                    <div className="">
-                        <label className="field-label">Total Area (Sq M)</label>
-                        <input
-                            type="number"
-                            name="totalAreaSqM"
-                            value={formData.totalAreaSqM}
-                            onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter area in sq m"
-                        />
-                        {errors.totalAreaSqM && <p className="text-red-500">{errors.totalAreaSqM}</p>}
-                    </div>
-
-
-                    {/* Units Manufactured Per Annum */}
-                    <div className="">
-                        <label className="field-label">No. Of Units Manufactured Per Annum</label>
-                        <input
-                            type="number"
-                            name="unitsManufacturedPerAnnum"
-                            value={formData.unitsManufacturedPerAnnum}
-                            onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter Manufactured units "
-                        />
-                        {errors.unitsManufacturedPerAnnum && <p className="text-red-500">{errors.unitsManufacturedPerAnnum}</p>}
-                    </div>
-
-                    {/* Production Volume Tonne Per Annum */}
-                    <div className="">
-                        <label className="field-label">Production Volume (Tonne Per Annum)</label>
-                        <input
-                            type="number"
-                            name="productionVolumeTonnePerAnnum"
-                            value={formData.productionVolumeTonnePerAnnum}
-                            onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter production volume "
-                        />
-                        {errors.productionVolumeTonnePerAnnum && <p className="text-red-500">{errors.productionVolumeTonnePerAnnum}</p>}
-                    </div>
-
-                    {/* Units Sold Per Annum */}
-                    <div className="">
-                        <label className="field-label">No. Of Units Sold Per Annum</label>
-                        <input
-                            type="number"
-                            name="unitsSoldPerAnnum"
-                            value={formData.unitsSoldPerAnnum}
-                            onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter Sold units "
-                        />
-                        {errors.unitsSoldPerAnnum && <p className="text-red-500">{errors.unitsSoldPerAnnum}</p>}
-                    </div>
-
-                    {/* Electricity Generated MWh Per Annum */}
-                    <div className="">
-                        <label className="field-label">Electricity Generated (MWh Per Annum)</label>
-                        <input
-                            type="number"
-                            name="electricityGeneratedMWhPerAnnum"
-                            value={formData.electricityGeneratedMWhPerAnnum}
-                            onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter electricity generated"
-                        />
-                        {errors.electricityGeneratedMWhPerAnnum && <p className="text-red-500">{errors.electricityGeneratedMWhPerAnnum}</p>}
-                    </div>
-
-                    {/* Energy Generated GJ Per Annum */}
-                    <div className="">
-                        <label className="field-label">Energy Generated (GJ Per Annum)</label>
-                        <input
-                            type="number"
-                            name="energyGeneratedGJPerAnnum"
-                            value={formData.energyGeneratedGJPerAnnum}
-                            onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter energy generated"
-                        />
-                        {errors.energyGeneratedGJPerAnnum && <p className="text-red-500">{errors.energyGeneratedGJPerAnnum}</p>}
-                    </div>
-
-                    {/* Revenue Per Annum */}
-                    <div className="">
-                        <label className="field-label">Revenue Per Annum</label>
-                        <input
-                            type="number"
-                            name="revenuePerAnnum"
-                            value={formData.revenuePerAnnum}
-                            onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter revenue"
-                        />
-                        {errors.revenuePerAnnum && <p className="text-red-500">{errors.revenuePerAnnum}</p>}
-                    </div>
-
-                    {/* Total Man Hours Per Annum */}
-                    <div className="">
-                        <label className="field-label">Total Man Hours Per Annum</label>
-                        <input
-                            type="number"
-                            name="totalManHoursPerAnnum"
-                            value={formData.totalManHoursPerAnnum}
-                            onChange={handleChange}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
-                            placeholder="Enter total man"
-                        />
-                        {errors.totalManHoursPerAnnum && <p className="text-red-500">{errors.totalManHoursPerAnnum}</p>}
                     </div>
 
                     {/* Sector Dropdown */}
@@ -660,7 +533,7 @@ const CompanyProfileForm = () => {
                         <label className="field-label">Sector *</label>
                         <Select
                             value={formData.sectorId}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
+                            readOnly
                             onChange={(e) =>
                                 setFormData({ ...formData, sectorId: e.target.value, industryId: "" })
                             }
@@ -680,7 +553,7 @@ const CompanyProfileForm = () => {
                         <label className="field-label">Industry *</label>
                         <Select
                             value={formData.industryId}
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
+                            readOnly
                             onChange={(e) => setFormData({ ...formData, industryId: e.target.value })}
                             disabled={!formData.sectorId || industries.length === 0}
                         >
@@ -693,6 +566,157 @@ const CompanyProfileForm = () => {
                         </Select>
                         {errors.industryId && <p className="text-red-500">{errors.industryId}</p>}
                     </div> */}
+                    {/* Sector (read-only) */}
+                    <div className="">
+                        <label className="field-label">Sector *</label>
+                        <input
+                            type="text"
+                            name="sector"
+                            value={formData.sectorName || "Manufacturing"} // <-- replace with actual value or keep dynamic
+                            readOnly
+                            className="input-field bg-gray-100 cursor-not-allowed"
+                        />
+                    </div>
+
+                    {/* Industry (read-only) */}
+                    <div className="">
+                        <label className="field-label">Industry *</label>
+                        <input
+                            type="text"
+                            name="industry"
+                            value={formData.industryName || "Textiles"} // <-- replace with actual value
+                            readOnly
+                            className="input-field bg-gray-100 cursor-not-allowed"
+                        />
+                    </div>
+
+                    {/* Total Sites */}
+                    <div className="">
+                        <label className="field-label">Total Sites / Building</label>
+                        <input
+                            type="number"
+                            name="totalSites"
+                            value={formData.totalSites}
+                            onChange={handleChange}
+                            className="input-field"
+                            placeholder="Enter sites/buildings"
+                        />
+                        {errors.totalSites && <p className="text-red-500">{errors.totalSites}</p>}
+                    </div>
+
+                    {/* Total Area Sq M */}
+                    <div className="">
+                        <label className="field-label">Total Area (Sq M)</label>
+                        <input
+                            type="number"
+                            name="totalAreaSqM"
+                            value={formData.totalAreaSqM}
+                            onChange={handleChange}
+                            className="input-field"
+                            placeholder="Enter area in sq m"
+                        />
+                        {errors.totalAreaSqM && <p className="text-red-500">{errors.totalAreaSqM}</p>}
+                    </div>
+
+
+                    {/* Units Manufactured Per Annum */}
+                    <div className="">
+                        <label className="field-label">No. Of Units Manufactured Per Annum</label>
+                        <input
+                            type="number"
+                            name="unitsManufacturedPerAnnum"
+                            value={formData.unitsManufacturedPerAnnum}
+                            onChange={handleChange}
+                            className="input-field"
+                            placeholder="Enter Manufactured units "
+                        />
+                        {errors.unitsManufacturedPerAnnum && <p className="text-red-500">{errors.unitsManufacturedPerAnnum}</p>}
+                    </div>
+
+                    {/* Production Volume Tonne Per Annum */}
+                    <div className="">
+                        <label className="field-label">Production Volume (Tonne Per Annum)</label>
+                        <input
+                            type="number"
+                            name="productionVolumeTonnePerAnnum"
+                            value={formData.productionVolumeTonnePerAnnum}
+                            onChange={handleChange}
+                            className="input-field"
+                            placeholder="Enter production volume "
+                        />
+                        {errors.productionVolumeTonnePerAnnum && <p className="text-red-500">{errors.productionVolumeTonnePerAnnum}</p>}
+                    </div>
+
+                    {/* Units Sold Per Annum */}
+                    <div className="">
+                        <label className="field-label">No. Of Units Sold Per Annum</label>
+                        <input
+                            type="number"
+                            name="unitsSoldPerAnnum"
+                            value={formData.unitsSoldPerAnnum}
+                            onChange={handleChange}
+                            className="input-field"
+                            placeholder="Enter Sold units "
+                        />
+                        {errors.unitsSoldPerAnnum && <p className="text-red-500">{errors.unitsSoldPerAnnum}</p>}
+                    </div>
+
+                    {/* Electricity Generated MWh Per Annum */}
+                    <div className="">
+                        <label className="field-label">Electricity Generated (MWh Per Annum)</label>
+                        <input
+                            type="number"
+                            name="electricityGeneratedMWhPerAnnum"
+                            value={formData.electricityGeneratedMWhPerAnnum}
+                            onChange={handleChange}
+                            className="input-field"
+                            placeholder="Enter electricity generated"
+                        />
+                        {errors.electricityGeneratedMWhPerAnnum && <p className="text-red-500">{errors.electricityGeneratedMWhPerAnnum}</p>}
+                    </div>
+
+                    {/* Energy Generated GJ Per Annum */}
+                    <div className="">
+                        <label className="field-label">Energy Generated (GJ Per Annum)</label>
+                        <input
+                            type="number"
+                            name="energyGeneratedGJPerAnnum"
+                            value={formData.energyGeneratedGJPerAnnum}
+                            onChange={handleChange}
+                            className="input-field"
+                            placeholder="Enter energy generated"
+                        />
+                        {errors.energyGeneratedGJPerAnnum && <p className="text-red-500">{errors.energyGeneratedGJPerAnnum}</p>}
+                    </div>
+
+                    {/* Revenue Per Annum */}
+                    <div className="">
+                        <label className="field-label">Revenue Per Annum</label>
+                        <input
+                            type="number"
+                            name="revenuePerAnnum"
+                            value={formData.revenuePerAnnum}
+                            onChange={handleChange}
+                            className="input-field"
+                            placeholder="Enter revenue"
+                        />
+                        {errors.revenuePerAnnum && <p className="text-red-500">{errors.revenuePerAnnum}</p>}
+                    </div>
+
+                    {/* Total Man Hours Per Annum */}
+                    <div className="">
+                        <label className="field-label">Total Man Hours Per Annum</label>
+                        <input
+                            type="number"
+                            name="totalManHoursPerAnnum"
+                            value={formData.totalManHoursPerAnnum}
+                            onChange={handleChange}
+                            className="input-field"
+                            placeholder="Enter total man"
+                        />
+                        {errors.totalManHoursPerAnnum && <p className="text-red-500">{errors.totalManHoursPerAnnum}</p>}
+                    </div>
+
 
                     {/* Submit Button */}
                 </form>

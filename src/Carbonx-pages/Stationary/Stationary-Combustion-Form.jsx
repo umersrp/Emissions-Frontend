@@ -230,10 +230,15 @@ console.log("🔥 StationaryCombustionFormPage re-rendered");
             : "Add Stationary Combustion Record"
         }
       >
+        <div className="mb-6 bg-gray-100 p-2 pl-4 m-4 rounded justify-center">
+          <p className="text-gray-700 items-center ">
+            Stationary Combustion refers to the direct greenhouse gas (GHG) emissions from burning of fuels in stationary equipment at a facility, such as boilers, furnaces, or generators that are owned or controlled by the organization.</p>
+        </div>
         <form
           onSubmit={handleSubmit}
           className="p-6 grid gap-6"
         >
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* --- Building --- */}
           <div>
@@ -272,7 +277,8 @@ console.log("🔥 StationaryCombustionFormPage re-rendered");
               name="equipmentType"
               options={equipmentTypeOptions}
               value={formData.equipmentType}
-              onChange={handleSelectChange}
+              // onChange={handleSelectChange}
+              onChange={(newValue) => handleSelectChange(newValue, { name: "equipmentType" })}
               placeholder="Select or type equipment"
               className={`w-full ${errors.equipmentType ? "border border-red-500 rounded" : ""}`}
               isDisabled={isView}
