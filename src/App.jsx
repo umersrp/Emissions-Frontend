@@ -94,7 +94,7 @@ const UnderConstructionPage = lazy(() =>
 const BlogPage = lazy(() => import("./pages/utility/blog"));
 const BlogDetailsPage = lazy(() => import("./pages/utility/blog/blog-details"));
 const FaqPage = lazy(() => import("./pages/utility/faq"));
-const Settings = lazy(() => import("./pages/utility/settings"));
+// const Settings = lazy(() => import("./pages/utility/settings"));
 const Profile = lazy(() => import("./pages/utility/profile"));
 const IconPage = lazy(() => import("./pages/icons"));
 const NotificationPage = lazy(() => import("./pages/utility/notifications"));
@@ -321,7 +321,7 @@ function App() {
           <Route path="blog" element={<BlogPage />} />
           <Route path="blog-details" element={<BlogDetailsPage />} />
           <Route path="faq" element={<FaqPage />} />
-          <Route path="settings" element={<Settings />} />
+          {/* <Route path="settings" element={<Settings />} /> */}
           <Route path="profile" element={<Profile />} />
           <Route path="basic" element={<BasicWidget />} />
           <Route path="statistic" element={<StatisticWidget />} />

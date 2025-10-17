@@ -386,8 +386,8 @@ console.log("🔥 StationaryCombustionFormPage re-rendered");
           {/* --- Buttons --- */}
           <div className="col-span-full flex justify-end gap-4 pt-6">
             <Button
-              text="Back"
-              className="btn-light"
+              text={isView ? "Back" : "Cancel"}
+              className={isView ? "btn-primary" : "btn-light"}
               type="button"
               onClick={() => navigate("/Stationary-Combustion")}
             />
