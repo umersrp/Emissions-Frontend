@@ -1,14 +1,3 @@
-// import React from 'react'
-
-// function Discounttable() {
-//   return (
-//     <div>Discount-table</div>
-//   )
-// }
-
-// export default Discounttable
-
-
 import React, { useState, useMemo, useEffect } from "react";
 import Card from "@/components/ui/Card";
 import Icon from "@/components/ui/Icon";
@@ -17,7 +6,7 @@ import Button from "@/components/ui/Button";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import Logo from "../assets/images/logo/SrpLogo.png"
+import Logo from "@/assets/images/logo/SrpLogo.png"
 
 import Tippy from '@tippyjs/react';
 
