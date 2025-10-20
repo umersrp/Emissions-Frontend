@@ -12,12 +12,7 @@ const EditCompanyProfile = () => {
     const [countries, setCountries] = useState([]);
     const [currencies, setCurrencies] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [showFields, setShowFields] = useState({
-        showCalendar: false,
-        showFiscal: false,
-        showCustom: false,
-    });
-    const [sectors, setSectors] = useState([]);        // add this
+    const [sectors, setSectors] = useState([]);        
     const [industries, setIndustries] = useState([]);
 
     const [formData, setFormData] = useState({
@@ -126,21 +121,6 @@ const EditCompanyProfile = () => {
         setFormData((prev) => ({
             ...prev,
             [name]: type === "checkbox" ? checked : value,
-        }));
-    };
-
-    const handleCheckboxChange = (e) => {
-        const { name, checked } = e.target;
-        setShowFields((prev) => ({
-            ...prev,
-            [name]: checked,
-        }));
-    };
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
         }));
     };
 
@@ -334,18 +314,6 @@ const EditCompanyProfile = () => {
                     {/* Country */}
                     <div className="">
                         <label className="field-label">Country *</label>
-                        {/* <select
-                            name="country"
-                            value={formData.country}
-                            onChange={handleChange}
-                            className={`border-[3px] h-10 w-full mb-3 p-2 ${errors.country ? "border-red-500" : ""}`}
-                        >
-                            <option value="">Select Country</option>
-                            {countries.map((country, index) => (
-                                <option key={index} value={country}>{country}</option>
-                            ))}
-                        </select>
-                        {errors.country && <p className="text-red-500">{errors.country}</p>} */}
                         <Select
                             options={countries.map((c) => ({ value: c, label: c }))}
                             value={formData.country ? { value: formData.country, label: formData.country } : null}
@@ -383,97 +351,6 @@ const EditCompanyProfile = () => {
                             className="h-5 w-5 mt-2"
                         />
                     </div>
-                    {/* Calendar Year Checkbox */}
-                    {/* <div className="mb-2">
-                        <label className="flex items-center gap-2 font-medium">
-                            <input
-                                type="checkbox"
-                                name="showCalendar"
-                                checked={showFields.showCalendar}
-                                onChange={handleCheckboxChange}
-                            />
-                            Show Calendar Year
-                        </label>
-                    </div> */}
-
-                    {/* Fiscal Year Checkbox */}
-                    {/* <div className="mb-2">
-                        <label className="flex items-center gap-2 font-medium">
-                            <input
-                                type="checkbox"
-                                name="showFiscal"
-                                checked={showFields.showFiscal}
-                                onChange={handleCheckboxChange}
-                            />
-                            Show Fiscal Year
-                        </label>
-                    </div> */}
-
-                    {/* Custom Year Checkbox */}
-                    {/* <div className="">
-                        <label className="flex items-center gap-2 font-medium">
-                            <input
-                                type="checkbox"
-                                name="showCustom"
-                                checked={showFields.showCustom}
-                                onChange={handleCheckboxChange}
-                            />
-                            Show Custom Year
-                        </label>
-                    </div> */}
-
-                    {/* Calendar Year Input */}
-                    {/* {showFields.showCalendar && (
-                        <div className="">
-                            <label className="field-label">Calendar Year</label>
-                            <select
-                                name="Calendaryear"
-                                value={formData.Calendaryear}
-                                onChange={handleInputChange}
-                                className="border-[3px] h-10 w-full mb-3 p-2"
-                            >
-                                <option value="">Select Year</option>
-                                {Array.from({ length: 50 }, (_, i) => {
-                                    const year = 2000 + i;
-                                    return (
-                                        <option key={year} value={year}>
-                                            {year}
-                                        </option>
-                                    );
-                                })}
-                            </select>
-                        </div>
-                    )} */}
-
-                    {/* Fiscal Year Input */}
-                    {/* {showFields.showFiscal && (
-                        <div className="">
-                            <label className="field-label">Fiscal Year</label>
-                            <input
-                                type="date"
-                                name="fiscalyear"
-                                value={formData.fiscalyear ? formData.fiscalyear.split("T")[0] : ""}
-                                onChange={handleInputChange}
-                                className="border-[3px] h-10 w-full mb-3 p-2"
-                                placeholder="Enter fiscal year"
-                            />
-                        </div>
-                    )} */}
-
-                    {/* Custom Year Input */}
-                    {/* {showFields.showCustom && (
-                        <div className="">
-                            <label className="field-label">Custom Year</label>
-                            <input
-                                type="date"
-                                name="customyear"
-                                value={formData.customyear ? formData.customyear.split("T")[0] : ""}
-                                onChange={handleInputChange}
-                                className="border-[3px] h-10 w-full mb-3 p-2"
-                                placeholder="Enter custom year"
-                            />
-                        </div>
-                    )} */}
 
                     {/* Address */}
                     <div className="">

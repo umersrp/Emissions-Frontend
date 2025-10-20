@@ -16,13 +16,9 @@ const CompanyProfileForm = () => {
     const navigate = useNavigate();
     const [countries, setCountries] = useState([]);
     const [currencies, setCurrencies] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     // Form state
-    const [showFields, setShowFields] = useState({
-        showCalendar: false,
-        showFiscal: false,
-        showCustom: false,
-    });
     const [formData, setFormData] = useState({
         companyName: "",
         reportingYear: "",
@@ -54,9 +50,6 @@ const CompanyProfileForm = () => {
     // // Dropdown options
     // const [sectors, setSectors] = useState([]);
     // const [industries, setIndustries] = useState([]);
-
-    // Loading state
-    const [loading, setLoading] = useState(false);
 
     // Fetch sectors on mount
     // useEffect(() => {
@@ -118,10 +111,8 @@ const CompanyProfileForm = () => {
                     .map((c) => ({ value: c.name.common, label: c.name.common }))
                     .sort((a, b) => a.label.localeCompare(b.label));
                 setCountries(countryList);
-
                 //  Fetch currencies from Open Exchange Rate API (no key needed)
                 const currencyRes = await axios.get("https://open.er-api.com/v6/latest/USD");
-
                 // The API gives rates in key-value format like { "USD": 1, "PKR": 278.6, ... }
                 const currencyList = Object.keys(currencyRes.data.rates).map((code) => ({
                     value: code,
@@ -137,33 +128,7 @@ const CompanyProfileForm = () => {
         fetchData();
     }, []);
 
-
-    // Switch handlers
-    const handleSwitchChange = (field) => {
-        setShowFields((prev) => ({
-            ...prev,
-            [field]: !prev[field],
-        }));
-    };
-    const handleCountryChange = (selectedOption) =>
-        setFormData((prev) => ({ ...prev, country: selectedOption }));
-
-    const handleCurrencyChange = (selectedOption) =>
-        setFormData((prev) => ({ ...prev, currency: selectedOption }));
-
-    const handleCalendarChange = (selectedOption) =>
-        setFormData((prev) => ({ ...prev, Calendaryear: selectedOption }));
-
-
-    const yearOptions = Array.from({ length: 50 }, (_, i) => {
-        const y = 2000 + i;
-        return { value: y, label: y.toString() };
-    });
-
-
-
-    // Simple validation before submit
-    // 1. Update your validate function to include all fields
+  
     const validate = () => {
         const errors = {};
         if (!formData.companyName) errors.companyName = "Company name is required";
@@ -184,15 +149,12 @@ const CompanyProfileForm = () => {
         if (!formData.energyGeneratedGJPerAnnum) errors.energyGeneratedGJPerAnnum = "Energy generated is required";
         if (!formData.revenuePerAnnum) errors.revenuePerAnnum = "Revenue is required";
         if (!formData.totalManHoursPerAnnum) errors.totalManHoursPerAnnum = "Total man hours are required";
-
-        // Add validation for reportingYear subfields
         if (formData.reportingYear === "calendar" && !formData.Calendaryear)
             errors.Calendaryear = "Calendar year is required";
         if (formData.reportingYear === "fiscal" && !formData.fiscalyear)
             errors.fiscalyear = "Fiscal year is required";
         if (formData.reportingYear === "custom" && !formData.customyear)
             errors.customyear = "Custom year is required";
-
         return errors;
     };
 
@@ -230,20 +192,10 @@ const CompanyProfileForm = () => {
         }
     };
 
-    // Controlled input change handler
-    // const handleChange = (e) => {
-    //     const { name, value } = e.target;
-    //     setFormData((prev) => ({
-    //         ...prev,
-    //         [name]: value,
-    //     }));
-    //     setErrors((prev) => ({ ...prev, [name]: null }));
-    // };
+ 
     const handleCancel = () => {
         navigate("/Company");
     };
-
-
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -257,15 +209,6 @@ const CompanyProfileForm = () => {
         }));
     };
 
-    const handleCheckboxChange = (e) => {
-        const { name, checked } = e.target;
-        setShowFields((prev) => ({
-            ...prev,
-            [name]: checked,
-        }));
-    };
-    // Generate years from 2000 to current year + 10
-    const years = Array.from({ length: 30 }, (_, i) => 2000 + i);
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({

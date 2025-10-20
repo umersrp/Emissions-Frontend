@@ -26,20 +26,21 @@ const Scope1 = () => {
             </span>{" "}
             Direct CO₂ emissions from the combustion of biomass shall not be included in scope 1 but reported separately.
           </p>
-        </Card>
-
-        {/* Sub-Task Cards Section */}
-        <div className="grid sm:grid-cols-4 gap-8 ">
+           {/* Sub-Task Cards Section */}
+           <label className="font-bold text-slate-700 pb-8 ">SCOPE 1 CATEGORIES:</label>
+        <div className="grid sm:grid-cols-2 gap-10 pl-20 pr-20 pb-10">
           {categories.map((cat, index) => (
             <div
               key={index}
               onClick={() => navigate(cat.path)}
-              className="h-40 flex items-center justify-center rounded-xl border border-gray-200 shadow-md hover:shadow-lg hover:scale-[1.03] transition-all duration-300 bg-white cursor-pointer"
+              className="h-40 flex items-center justify-center rounded-xl border border-gray-200 shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 bg-slate-50 hover:bg-gradient-to-r from-[#6ebea7] to-[#83cedfac] cursor-pointer"
             >
-              <h3 className="text-lg font-semibold text-center text-slate-600 p-10 ">{cat.title}</h3>
+              <h3 className="text-lg font-semibold text-center text-slate-600 hover:text-white p-10 ">{cat.title}</h3>
             </div>
           ))}
         </div>
+        </Card>
+
       </div>
     </div>
   );
