@@ -230,7 +230,7 @@ console.log("🔥 StationaryCombustionFormPage re-rendered");
             : "Add Stationary Combustion Record"
         }
       >
-        <div className="mb-6 bg-gray-100 p-2 pl-4 m-4 rounded justify-center">
+        <div className="text-slate-700 leading-relaxed mb-6 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 justify-center">
           <p className="text-gray-700 items-center ">
             Stationary Combustion refers to the direct greenhouse gas (GHG) emissions from burning of fuels in stationary equipment at a facility, such as boilers, furnaces, or generators that are owned or controlled by the organization.</p>
         </div>
