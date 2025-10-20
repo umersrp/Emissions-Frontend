@@ -64,9 +64,9 @@ const Modal = ({
               <Dialog.Panel
                 className={`w-full transform overflow-hidden rounded-xl bg-white dark:bg-slate-800 text-left align-middle shadow-2xl transition-all ${className}`}
               >
-                {/* 🔹 Header */}
+                {/*  Header */}
                 <div
-                  className={`relative py-3 px-5 text-white flex justify-between items-center ${themeClass}`}
+                  className={`relative py-3 px-4 text-white flex justify-between  ${themeClass}`}
                 >
                   <h2 className="capitalize leading-6 tracking-wider font-medium text-base text-white">
                     {title}

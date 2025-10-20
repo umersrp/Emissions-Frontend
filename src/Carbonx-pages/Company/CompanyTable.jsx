@@ -525,7 +525,7 @@ const CompanyTable = () => {
                 }
             >
                 <p className="text-gray-700 text-center">
-                    Are you sure you want to delete this building? This action cannot be undone.
+                    Are you sure you want to delete this Company? This action cannot be undone.
                 </p>
             </Modal>
 

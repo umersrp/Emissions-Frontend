@@ -14,14 +14,14 @@ const buildingTypeOptions = [
   { value: "data center", label: "Data Center" },
   { value: "hospital", label: "Hospital" },
   { value: "retail", label: "Retail" },
-  { value: "mixed use", label: "Mixed-Use" },
+  { value: "mixed-use", label: "Mixed Use" },
   { value: "manufacturing", label: "Manufacturing" },
   { value: "commercial", label: "Commercial" },
   { value: "finishing", label: "Finishing" },
   { value: "processing", label: "Processing" },
   { value: "service building", label: "Service Building" },
-  { value: "public institutional", label: "Public/Institutional" },
-  { value: "utility and infrastructure", label: "Utility & Infrastructure" },
+  { value: "public/institutional", label: "Public/Institutional" },
+  { value: "utility & infrastructure", label: "Utility & Infrastructure" },
   { value: "residential building", label: "Residential Building" },
 ];
 

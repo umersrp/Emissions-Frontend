@@ -321,7 +321,7 @@ setPageCount(pagination.totalPages || 1);
             </select>
           </div>
         </div> */}
-        {/* ✅ Enhanced Pagination (same as CompanyTable) */}
+        {/* Enhanced Pagination (same as CompanyTable) */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
           {/* Go to page + current info */}
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
@@ -448,7 +448,7 @@ setPageCount(pagination.totalPages || 1);
         }
       >
         <p className="text-gray-700 text-center">
-          Are you sure you want to delete this building? This action cannot be undone.
+          Are you sure you want to delete this Stationary? This action cannot be undone.
         </p>
       </Modal>
     </>
