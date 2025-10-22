@@ -6,6 +6,7 @@ export const apiSlice = createApi({
     baseUrl: `${process.env.REACT_APP_BASE_URL}/auth/login`,
     prepareHeaders: (headers, { getState }) => {
       headers.set("x-mock-disable", "true");
+      
       return headers;
     },
   }),

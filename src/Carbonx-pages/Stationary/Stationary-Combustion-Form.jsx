@@ -125,7 +125,7 @@ console.log("🔥 StationaryCombustionFormPage re-rendered");
       if (name === "fuelType") {
         updated = { ...updated, fuelName: null, consumptionUnit: null };
       } else if (name === "fuelName") {
-        updated = { ...updated, consumptionUnit: value ? prev.consumptionUnit : null };
+       updated = { ...updated, consumptionUnit: null };
       }
 
       return updated;
@@ -278,6 +278,7 @@ console.log("🔥 StationaryCombustionFormPage re-rendered");
               options={equipmentTypeOptions}
               value={formData.equipmentType}
               // onChange={handleSelectChange}
+              allowCustomInput
               onChange={(newValue) => handleSelectChange(newValue, { name: "equipmentType" })}
               placeholder="Select or type equipment"
               className={`w-full ${errors.equipmentType ? "border border-red-500 rounded" : ""}`}

@@ -199,10 +199,22 @@ export const menuItems = [
     link: "Scope-1"
   },
   {
-    title: "Stationary",
+    title: "Stationary Combustion",
     isHide: true,
     icon: "heroicons:fire",
     link: "Stationary-Combustion"
+  },
+   {
+    title: "Fugitive Emissions",
+    isHide: true,
+    icon: "heroicons:fire",
+    link: "Fugitive-Combustion"
+  },
+   {
+    title: "Mobile Combustion",
+    isHide: true,
+    icon: "heroicons:fire",
+    link: "Mobile-Combustion"
   },
   // {
   //   title: "Authentication",
