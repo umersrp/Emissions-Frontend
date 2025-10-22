@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
+import Datepicker from "react-tailwindcss-datepicker";
+
 
 const boundaryOptions = [
     { value: "operational control", label: "Operational Control" },
@@ -17,6 +19,14 @@ const CompanyProfileForm = () => {
     const [countries, setCountries] = useState([]);
     const [currencies, setCurrencies] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [fiscalRange, setFiscalRange] = useState({
+        startDate: null,
+        endDate: null,
+    });
+    const [customRange, setCustomRange] = useState({
+        startDate: null,
+        endDate: null,
+    });
 
     // Form state
     const [formData, setFormData] = useState({
@@ -128,7 +138,7 @@ const CompanyProfileForm = () => {
         fetchData();
     }, []);
 
-  
+
     const validate = () => {
         const errors = {};
         if (!formData.companyName) errors.companyName = "Company name is required";
@@ -151,10 +161,16 @@ const CompanyProfileForm = () => {
         if (!formData.totalManHoursPerAnnum) errors.totalManHoursPerAnnum = "Total man hours are required";
         if (formData.reportingYear === "calendar" && !formData.Calendaryear)
             errors.Calendaryear = "Calendar year is required";
-        if (formData.reportingYear === "fiscal" && !formData.fiscalyear)
-            errors.fiscalyear = "Fiscal year is required";
-        if (formData.reportingYear === "custom" && !formData.customyear)
-            errors.customyear = "Custom year is required";
+        // if (formData.reportingYear === "fiscal" && !formData.fiscalyear)
+        //     errors.fiscalyear = "Fiscal year is required";
+        // if (formData.reportingYear === "custom" && !formData.customyear)
+        //     errors.customyear = "Custom year is required";
+        if (formData.reportingYear === "fiscal" &&
+            (!formData.fiscalyear?.startDate || !formData.fiscalyear?.endDate))
+            errors.fiscalyear = "Both start and end date are required for fiscal year";
+        if (formData.reportingYear === "custom" &&
+            (!formData.customyear?.startDate || !formData.customyear?.endDate))
+            errors.customyear = "Both start and end date are required for custom year";
         return errors;
     };
 
@@ -192,7 +208,7 @@ const CompanyProfileForm = () => {
         }
     };
 
- 
+
     const handleCancel = () => {
         navigate("/Company");
     };
@@ -218,7 +234,7 @@ const CompanyProfileForm = () => {
     };
 
     return (
-        <Card title="Create Company Profile">
+        <Card title="Create Company Profile "  >
             <div className="w-full mx-auto p-6">
                 <form className="lg:grid-cols-3 grid gap-8 grid-cols-1">
                     {/* Company Name */}
@@ -276,6 +292,28 @@ const CompanyProfileForm = () => {
 
                     </div>
 
+
+                    {/* Boundary */}
+                    <div className="">
+                        <label className="field-label">Boundary *</label>
+                        <Select
+                            name="boundary"
+                            options={boundaryOptions}
+                            value={boundaryOptions.find((option) => option.value === formData.boundary) || null}
+                            onChange={(selectedOption) => {
+                                setFormData((prev) => ({ ...prev, boundary: selectedOption.value }));
+                                setErrors((prev) => ({
+                                    ...prev,
+                                    boundary: null,
+                                }));
+                            }}
+                            placeholder="Select boundary"
+                            classNamePrefix="react-select"
+                            className={`w-full ${errors.boundary ? "border border-red-500 rounded-md" : ""}`}
+                        />
+                        {errors.boundary && <p className="text-red-500">{errors.boundary}</p>}
+                    </div>
+
                     {/* Show the corresponding input beside it */}
                     {formData.reportingYear === "calendar" && (
                         <div className="flex-1">
@@ -304,70 +342,104 @@ const CompanyProfileForm = () => {
                         </div>
                     )}
 
+                    {/* Fiscal Year */}
                     {formData.reportingYear === "fiscal" && (
-                        <div className="flex-1">
-                            <label className="field-label">Fiscal Year</label>
-                            <input
-                                type="date"
-                                name="fiscalyear"
-                                value={formData.fiscalyear}
-                                onChange={(e) => {
-                                    handleInputChange(e);
+                        <div className="flex-1 relative z-[9999]">
+                            <label className="field-label">Fiscal Year (Start & End Date)</label>
+                            <Datepicker
+                                value={fiscalRange}
+                                onChange={(newValue) => {
+                                    setFiscalRange(newValue);
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        fiscalyear: {
+                                            startDate: newValue.startDate,
+                                            endDate: newValue.endDate,
+                                        },
+                                    }));
                                     setErrors((prev) => ({
                                         ...prev,
                                         fiscalyear: null,
                                     }));
                                 }}
-                                className="input-field"
+                                inputClassName="w-full border border-slate-300 dark:border-slate-600 input-field rounded-md text-sm bg-white dark:bg-slate-800 dark:text-white"
+                                containerClassName="container-class "
+                                popperPlacement="bottom-start"
+                                popperModifiers={[
+                                    {
+                                        name: "flip",
+                                        enabled: true, // 👈 prevent it from flipping to top
+                                    },
+                                    {
+                                        name: "preventOverflow",
+                                        options: {
+                                            altBoundary: false,
+                                            rootBoundary: "viewport",
+                                            tether: true, // ✅ prevents weird repositioning
+                                        },
+                                    },
+                                   
+                                ]}
                             />
+                            <style jsx global>{`
+                                        .react-datepicker__calendar-icon {
+                                        top: 0.5rem !important; /* top-2 */
+                              }
+                            `}</style>
+
+                            {/* 👇 inline style to control popper position */}
+
                             {errors.fiscalyear && (
                                 <p className="text-red-500">{errors.fiscalyear}</p>
                             )}
                         </div>
                     )}
 
+                    {/* Custom Year */}
                     {formData.reportingYear === "custom" && (
-                        <div className="flex-1">
-                            <label className="field-label">Custom Year</label>
-                            <input
-                                type="date"
-                                name="customyear"
-                                value={formData.customyear}
-                                onChange={(e) => {
-                                    handleInputChange(e);
+                        <div className="flex-1 overflow-visible relative z-[100]">
+                            <label className="field-label">Custom Year (Start & End Date)</label>
+                            <Datepicker
+                                value={customRange}
+                                onChange={(newValue) => {
+                                    setCustomRange(newValue);
+                                    setFormData((prev) => ({
+                                        ...prev,
+                                        customyear: {
+                                            startDate: newValue.startDate,
+                                            endDate: newValue.endDate,
+                                        },
+                                    }));
                                     setErrors((prev) => ({
                                         ...prev,
                                         customyear: null,
                                     }));
                                 }}
-                                className="input-field"
+                                inputClassName="w-full border border-slate-300 dark:border-slate-600 px-3 py-2 rounded-md text-sm bg-white dark:bg-slate-800 dark:text-white"
+                                containerClassName="container-class"
+                                popperPlacement="bottom-start"
+                                popperModifiers={[
+                                    {
+                                        name: "flip",
+                                        enabled: true, // 👈 prevent it from flipping to top
+                                    },
+                                    {
+                                        name: "preventOverflow",
+                                        options: {
+                                            altBoundary: false,
+                                            rootBoundary: "viewport",
+                                            tether: true, // ✅ prevents weird repositioning
+                                        },
+                                    },
+                                    
+                                ]}
                             />
-                            {errors.customyear && <p className="text-red-500">{errors.customyear}</p>}
+                            {/* 👇 inline style to control popper position */}
+                            {errors.customyear && (
+                                <p className="text-red-500">{errors.customyear}</p>
+                            )}
                         </div>
                     )}
-
-
-                    {/* Boundary */}
-                    <div className="">
-                        <label className="field-label">Boundary *</label>
-                        <Select
-                            name="boundary"
-                            options={boundaryOptions}
-                            value={boundaryOptions.find((option) => option.value === formData.boundary) || null}
-                            onChange={(selectedOption) => {
-                                setFormData((prev) => ({ ...prev, boundary: selectedOption.value }));
-                                setErrors((prev) => ({
-                                    ...prev,
-                                    boundary: null,
-                                }));
-                            }}
-                            placeholder="Select boundary"
-                            classNamePrefix="react-select"
-                            className={`w-full ${errors.boundary ? "border border-red-500 rounded-md" : ""}`}
-                        />
-                        {errors.boundary && <p className="text-red-500">{errors.boundary}</p>}
-                    </div>
-
                     {/* Country */}
                     <div>
                         <label className="field-label">Country Of Operation *</label>

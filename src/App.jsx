@@ -207,6 +207,10 @@ import BuildingTable from "./Carbonx-pages/Building/Buidingtable";
 import StationaryCombustionFormPage from "@/Carbonx-pages/Stationary/Stationary-Combustion-Form";
 import StationaryCombustionListing from "@/Carbonx-pages/Stationary/Stationary-Combustion-Listing";
 import Scope1 from "./Carbonx-pages/Scope1/Scope1";
+import FugitiveCombustionFormPage from "@/Carbonx-pages/Fugitive/Fugitive-Combustion-Form";
+import FugitiveCombustionListing from "@/Carbonx-pages/Fugitive/Fugitive-Combustion-Listing";
+import MobileCombustionFormPage from "./Carbonx-pages/Mobile/Mobile-Combustion-Form";
+import MobileCombustionListing from "./Carbonx-pages/Mobile/Mobile-Combustion-Listing";
 
 
 function App() {
@@ -392,23 +396,37 @@ function App() {
           <Route path="booking-view" element={<BookingView />} />
           <Route path="Notification" element={<SendNotificationForm />} />
           <Route path="Notification-table" element={<NotificationTable />} />
+
           <Route path="Sector-table" element={<SectorTable />} />
           <Route path="Add-Sector-Form" element={<SectorAddForm />} />
           <Route path="Add-Sector-Edit/:id" element={<SectorEdit />} />
           <Route path="Sector-View/:id" element={<SectorView />} />
+
           <Route path="Industry" element={<Industry />} />
           <Route path="Industry-Add" element={<IndustryAddFrom />} />
+
           <Route path="Company-Add" element={<CompanyProfileForm />} />
           <Route path="Company-Edit/:id" element={<EditCompanyProfile />} />
           <Route path="Company-View/:id" element={<ViewCompanyProfile />} />
           <Route path="Company" element={<CompanyTable />} />
+
           <Route path="Building-Form/add" element={<BuildingFormPage />} />
           <Route path="Building-Form/:id" element={<BuildingFormPage />} />
           <Route path="Building" element={<BuildingTable />} />
+
+          <Route path="Scope-1" element={<Scope1 />} />
+
           <Route path="Stationary-Combustion-Form/add" element={<StationaryCombustionFormPage />} />
           <Route path="Stationary-Combustion-Form/:id" element={<StationaryCombustionFormPage />} />
           <Route path="Stationary-Combustion" element={<StationaryCombustionListing />} />
-          <Route path="Scope-1" element={<Scope1/>} />
+
+          <Route path="Fugitive-Combustion-Form/add" element={<FugitiveCombustionFormPage />} />
+          <Route path="Fugitive-Combustion-Form/:id" element={<FugitiveCombustionFormPage />} />
+          <Route path="Fugitive-Combustion" element={<FugitiveCombustionListing />} />
+
+          <Route path="Mobile-Combustion-Form/add" element={<MobileCombustionFormPage />} />
+          <Route path="Mobile-Combustion-Form/:id" element={<MobileCombustionFormPage/>} />
+          <Route path="Mobile-Combustion" element={<MobileCombustionListing/>} />
 
 
           <Route path="Coach-edit" element={<CoachEditPage />} />
