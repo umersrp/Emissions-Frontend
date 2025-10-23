@@ -114,7 +114,7 @@ setPageCount(pagination.totalPages || 1);
             <button
               className="action-btn"
               onClick={() =>
-                navigate(`/Fugitive-Combustion-Form/${cell.value}`, {
+                navigate(`/Fugitive-Emissions-Form/${cell.value}`, {
                   state: { mode: "view" },
                 })
               }
@@ -126,7 +126,7 @@ setPageCount(pagination.totalPages || 1);
             <button
               className="action-btn"
               onClick={() =>
-                navigate(`/Fugitive-Combustion-Form/${cell.value}`, {
+                navigate(`/Fugitive-Emissions-Form/${cell.value}`, {
                   state: { mode: "edit" },
                 })
               }
@@ -201,7 +201,7 @@ setPageCount(pagination.totalPages || 1);
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0 mb-3">Fugitve Emissions Records</h6>
+          <h6 className="flex-1 md:mb-0 ">Fugitive Emissions Records</h6>
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             <Button
@@ -209,7 +209,7 @@ setPageCount(pagination.totalPages || 1);
               text="Add Record"
               className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
               iconClass="text-lg"
-              onClick={() => navigate("/Fugitive-Combustion-Form/Add")}
+              onClick={() => navigate("/Fugitive-Emissions-Form/add")}
             />
           </div>
         </div>
@@ -448,7 +448,7 @@ setPageCount(pagination.totalPages || 1);
         }
       >
         <p className="text-gray-700 text-center">
-          Are you sure you want to delete this Stationary? This action cannot be undone.
+          Are you sure you want to delete this Fugitive? This action cannot be undone.
         </p>
       </Modal>
     </>

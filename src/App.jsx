@@ -211,6 +211,8 @@ import FugitiveCombustionFormPage from "@/Carbonx-pages/Fugitive/Fugitive-Combus
 import FugitiveCombustionListing from "@/Carbonx-pages/Fugitive/Fugitive-Combustion-Listing";
 import MobileCombustionFormPage from "./Carbonx-pages/Mobile/Mobile-Combustion-Form";
 import MobileCombustionListing from "./Carbonx-pages/Mobile/Mobile-Combustion-Listing";
+import ProcessEmissionsFormPage from "./Carbonx-pages/Process/Process-Emissions-Form";
+import ProcessEmissionsListing from "./Carbonx-pages/Process/Process-Emissions-Listing";
 
 
 function App() {
@@ -420,13 +422,17 @@ function App() {
           <Route path="Stationary-Combustion-Form/:id" element={<StationaryCombustionFormPage />} />
           <Route path="Stationary-Combustion" element={<StationaryCombustionListing />} />
 
-          <Route path="Fugitive-Combustion-Form/add" element={<FugitiveCombustionFormPage />} />
-          <Route path="Fugitive-Combustion-Form/:id" element={<FugitiveCombustionFormPage />} />
-          <Route path="Fugitive-Combustion" element={<FugitiveCombustionListing />} />
+          <Route path="Fugitive-Emissions-Form/add" element={<FugitiveCombustionFormPage />} />
+          <Route path="Fugitive-Emissions-Form/:id" element={<FugitiveCombustionFormPage />} />
+          <Route path="Fugitive-Emissions" element={<FugitiveCombustionListing />} />
 
           <Route path="Mobile-Combustion-Form/add" element={<MobileCombustionFormPage />} />
           <Route path="Mobile-Combustion-Form/:id" element={<MobileCombustionFormPage/>} />
           <Route path="Mobile-Combustion" element={<MobileCombustionListing/>} />
+    
+          <Route path="Process-Emissions-Form/add" element={<ProcessEmissionsFormPage />} />
+          <Route path="Process-Emissions-Form/:id" element={<ProcessEmissionsFormPage/>} />
+          <Route path="Process-Emissions" element={<ProcessEmissionsListing/>} />
 
 
           <Route path="Coach-edit" element={<CoachEditPage />} />

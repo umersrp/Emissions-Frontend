@@ -165,7 +165,7 @@ const FugitiveCombustionFormPage = () => {
         );
         toast.success("Record added successfully!");
       }
-      navigate("/Fugitive-Combustion");
+      navigate("/Fugitive-Emissions");
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong");
     }
@@ -173,7 +173,7 @@ const FugitiveCombustionFormPage = () => {
 
   return (
     <div>
-      <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Fugitive Combustion Record`}>
+      <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Fugitive Emissions Record`}>
         <form onSubmit={handleSubmit} className="p-6 grid gap-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -303,7 +303,7 @@ const FugitiveCombustionFormPage = () => {
               text={isView ? "Back" : "Cancel"}
               className={isView ? "btn-primary" : "btn-light"}
               type="button"
-              onClick={() => navigate("/Fugitive-Combustion")}
+              onClick={() => navigate("/Fugitive-Emissions")}
             />
             {!isView && (
               <Button text={isEdit ? "Update" : "Add"} className="btn-primary" type="submit" />

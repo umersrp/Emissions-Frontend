@@ -201,7 +201,7 @@ setPageCount(pagination.totalPages || 1);
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0 mb-3">Mobile Combustion Records</h6>
+          <h6 className="flex-1 md:mb-0 ">Mobile Combustion Records</h6>
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             <Button
@@ -448,7 +448,7 @@ setPageCount(pagination.totalPages || 1);
         }
       >
         <p className="text-gray-700 text-center">
-          Are you sure you want to delete this Stationary? This action cannot be undone.
+          Are you sure you want to delete this Mobile? This action cannot be undone.
         </p>
       </Modal>
     </>

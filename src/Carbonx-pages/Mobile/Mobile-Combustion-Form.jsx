@@ -63,15 +63,15 @@ const MobileCombustionFormPage = () => {
   // Dependent options
   const vehicleTypeOptions =
     formData.vehicleClassification?.value &&
-    vehicleTypeOptionsByClassification[formData.vehicleClassification.value]
+      vehicleTypeOptionsByClassification[formData.vehicleClassification.value]
       ? vehicleTypeOptionsByClassification[formData.vehicleClassification.value]
       : [];
 
   const fuelNameOptions =
-  formData.vehicleClassification?.value &&
-  fuelNameOptionsByClassification[formData.vehicleClassification.value]
-    ? fuelNameOptionsByClassification[formData.vehicleClassification.value]
-    : [];
+    formData.vehicleClassification?.value &&
+      fuelNameOptionsByClassification[formData.vehicleClassification.value]
+      ? fuelNameOptionsByClassification[formData.vehicleClassification.value]
+      : [];
 
   const handleSelectChange = (value, { name }) => {
     if (isView) return;
@@ -98,82 +98,140 @@ const MobileCombustionFormPage = () => {
     setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault(); // prevent page reload
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // prevent page reload
 
-  // Simple validation example
-  const newErrors = {};
-  if (!formData.buildingId) newErrors.buildingId = "Building is required";
-  if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder is required";
-  // ... add other required validations
+    // Simple validation example
+    const newErrors = {};
+    if (!formData.buildingId) newErrors.buildingId = "Building is required";
+    if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder is required";
+    if (!formData.vehicleClassification) newErrors.vehicleClassification = "Vehicle Classification is required";
+    if (!formData.vehicleType) newErrors.vehicleType = "Vehicle Type is required";
+    if (!formData.fuelName) newErrors.fuelName = "Fuel Name is required";
+    if (!formData.distanceTraveled) newErrors.distanceTraveled = "Distance Traveled is required";
+    if (!formData.distanceUnit) newErrors.distanceUnit = "Distance Unit is required";
+    if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
 
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
-    toast.error("Please fill all required fields");
-    return;
-  }
 
-  try {
-    if (isEdit) {
-      await axios.put(`${process.env.REACT_APP_BASE_URL}/mobile-combustion/${id}`, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      toast.success("Record updated successfully");
-    } else {
-      await axios.post(`${process.env.REACT_APP_BASE_URL}/mobile-combustion`, formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      toast.success("Record added successfully");
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Please fill all required fields");
+      return;
     }
-    navigate("/Mobile-Combustion"); // go back to list
-  } catch (err) {
-    toast.error("Something went wrong");
-    console.error(err);
-  }
-};
 
+    try {
+      if (isEdit) {
+        await axios.put(`${process.env.REACT_APP_BASE_URL}/mobile-combustion/${id}`, formData, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        toast.success("Record updated successfully");
+      } else {
+        await axios.post(`${process.env.REACT_APP_BASE_URL}/mobile-combustion`, formData, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        toast.success("Record added successfully");
+      }
+      navigate("/Mobile-Combustion"); // go back to list
+    } catch (err) {
+      toast.error("Something went wrong");
+      console.error(err);
+    }
+  };
 
   return (
     <div>
-      <Card title="Add / Edit Mobile Combustion Record">
+      <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Mobile Combustion Record`}>
+        <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 justify-center">
+          <p className="text-gray-700 items-center ">
+            Mobile Combustion refers to direct greenhouse gas (GHG) emissions from the combustion of fuels in mobile equipment or vehicles that are owned or controlled by an organization.
+          </p>
+        </div>
         <form onSubmit={handleSubmit} className="p-6 grid gap-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
             {/* 1. Building */}
-            <Select name="buildingId" value={formData.buildingId} options={buildingOptions} onChange={handleSelectChange} placeholder="Select Building" isDisabled={isView} />
-
+            <div>
+              <label className="field-label">Site / Building Name</label>
+              <Select name="buildingId" value={formData.buildingId} options={buildingOptions} onChange={handleSelectChange} placeholder="Select Building" isDisabled={isView} />
+              {errors.buildingId && <p className="text-red-500 text-sm mt-1">{errors.buildingId}</p>}
+            </div>
             {/* 2. Stakeholder */}
-            <Select name="stakeholder" value={formData.stakeholder} options={stakeholderOptions} onChange={handleSelectChange} placeholder="Select Department" isDisabled={isView} />
-
+            <div>
+              <label className="field-label">Stakeholder / Department</label>
+              <Select name="stakeholder" value={formData.stakeholder} options={stakeholderOptions} onChange={handleSelectChange} placeholder="Select or Type Department" isDisabled={isView} allowCustomInput />
+              {errors.stakeholder && <p className="text-red-500 text-sm mt-1">{errors.stakeholder}</p>}
+            </div>
             {/* 3. Vehicle Classification */}
-            <Select name="vehicleClassification" value={formData.vehicleClassification} options={vehicleClassificationOptions} onChange={handleSelectChange} placeholder="Select Vehicle Classification" isDisabled={isView} />
-
+            <div>
+              <label className="field-label">Vehicle Classification</label>
+              <Select name="vehicleClassification" value={formData.vehicleClassification} options={vehicleClassificationOptions} onChange={handleSelectChange} placeholder="Select Vehicle Classification" isDisabled={isView} />
+              {errors.vehicleClassification && <p className="text-red-500 text-sm mt-1">{errors.vehicleClassification}</p>}
+            </div>
             {/* 4. Vehicle Type */}
-            <Select name="vehicleType" value={formData.vehicleType} options={vehicleTypeOptions} onChange={handleSelectChange} placeholder="Select Vehicle Type" isDisabled={isView} />
-
+            <div>
+              <label className="field-label">Vehicle Type</label>
+              <Select name="vehicleType" value={formData.vehicleType} options={vehicleTypeOptions} onChange={handleSelectChange} placeholder="Select Vehicle Type" isDisabled={isView} />
+              {errors.vehicleClassification && <p className="text-red-500 text-sm mt-1">{errors.vehicleClassification}</p>}
+            </div>
             {/* 5. Fuel Name */}
-            <Select name="fuelName" value={formData.fuelName} options={fuelNameOptions} onChange={handleSelectChange} placeholder="Select Fuel Name" isDisabled={isView} />
+            <div>
+              <label className="field-label">Fuel Name</label>
+              <Select name="fuelName" value={formData.fuelName} options={fuelNameOptions} onChange={handleSelectChange} placeholder="Select Fuel Name" isDisabled={isView} />
+              {errors.buildingId && <p className="text-red-500 text-sm mt-1">{errors.buildingId}</p>}
+            </div>
 
             {/* 6. Distance Traveled */}
-            <input type="number" name="distanceTraveled" value={formData.distanceTraveled} onChange={handleInputChange} placeholder="Enter distance" className="input-field" disabled={isView} />
-
+            <div>
+              <label className="field-label">Distance Travelled</label>
+            <input type="number" name="distanceTraveled" value={formData.distanceTraveled} onChange={handleInputChange} placeholder="Enter distance travelled" className="input-field" disabled={isView} />
+              {errors.distanceTraveled && <p className="text-red-500 text-sm mt-1">{errors.distanceTraveled}</p>}
+            </div>
             {/* 7. Units */}
-            <Select name="distanceUnit" value={formData.distanceUnit} options={distanceUnitOptions} onChange={handleSelectChange} placeholder="Select Unit" isDisabled={isView} />
-
+            <div>
+              <label className="field-label">Distance Unit</label>
+              <Select name="distanceUnit" value={formData.distanceUnit} options={distanceUnitOptions} onChange={handleSelectChange} placeholder="Select Unit" isDisabled={isView} />
+              {errors.distanceUnit && <p className="text-red-500 text-sm mt-1">{errors.distanceUnit}</p>}
+            </div>
             {/* 8. Quality Control */}
-            <Select name="qualityControl" value={formData.qualityControl} options={qualityControlOptions} onChange={handleSelectChange} placeholder="Select Quality" isDisabled={isView} />
-
-            {/* 9. Weight Loaded */}
-            <Select name="weightLoaded" value={formData.weightLoaded} options={weightLoadedOptions} onChange={handleSelectChange} placeholder="Select Weight" isDisabled={isView} />
+            <div>
+              <label className="field-label">Quality Control</label>
+              <Select name="qualityControl" value={formData.qualityControl} options={qualityControlOptions} onChange={handleSelectChange} placeholder="Select Quality" isDisabled={isView} />
+              {errors.qualityControl && <p className="text-red-500 text-sm mt-1">{errors.qualityControl}</p>}
+            </div>
+            {/* 9. Weight Loaded — show only for specific vehicle classifications */}
+            {["Heavy Good Vehicles (HGVs All Diesel)", "Heavy Good Vehicles (Refrigerated HGVs All Diesel)"].includes(formData.vehicleClassification?.value) && (
+              <div>
+                <label className="field-label">Weight Loaded</label>
+                <Select
+                  name="weightLoaded"
+                  value={formData.weightLoaded}
+                  options={weightLoadedOptions}
+                  onChange={handleSelectChange}
+                  placeholder="Select Weight"
+                  isDisabled={isView}
+                />
+                {errors.weightLoaded && <p className="text-red-500 text-sm mt-1">{errors.weightLoaded}</p>}
+              </div>
+            )}
           </div>
 
           {/* 10. Remarks */}
-          <textarea name="remarks" value={formData.remarks} onChange={handleInputChange} rows={3} placeholder="Remarks..." className="border p-2 rounded-md" disabled={isView} />
+          <div>
+            <label className="field-label">Remark</label>
+            <textarea name="remarks" value={formData.remarks} onChange={handleInputChange} rows={3} placeholder="Remarks..." className="border p-2 rounded-md w-full" disabled={isView} />
+          </div>
 
-          {/* Buttons */}
-          <div className="flex justify-end gap-4 pt-6">
-            <Button text={isView ? "Back" : "Cancel"} type="button" onClick={() => navigate("/Mobile-Combustion")} />
-            {!isView && <Button text={isEdit ? "Update" : "Add"} type="submit" />}
+          {/* --- Buttons --- */}
+          <div className="col-span-full flex justify-end gap-4 pt-6">
+            <Button
+              text={isView ? "Back" : "Cancel"}
+              className={isView ? "btn-primary" : "btn-light"}
+              type="button"
+              onClick={() => navigate("/Mobile-Combustion")}
+            />
+            {!isView && (
+              <Button text={isEdit ? "Update" : "Add"} className="btn-primary" type="submit" />
+            )}
           </div>
         </form>
       </Card>

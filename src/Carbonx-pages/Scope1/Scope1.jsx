@@ -7,9 +7,9 @@ const Scope1 = () => {
 
   const categories = [
     { title: "Stationary Combustion", path: "/Stationary-Combustion" },
-    { title: "Mobile Combustion", path: "/scope1/mobile" },
-    { title: "Fugitive Emissions", path: "/scope1/fugitive" },
-    { title: "Process Emissions", path: "/scope1/process" },
+    { title: "Mobile Combustion", path: "/Mobile-Combustion" },
+    { title: "Fugitive Emissions", path: "/Fugitive-Emissions" },
+    { title: "Process Emissions", path: "/Process-Emissions" },
   ];
 
   return (
@@ -33,7 +33,7 @@ const Scope1 = () => {
             <div
               key={index}
               onClick={() => navigate(cat.path)}
-              className="h-40 flex items-center justify-center rounded-xl border border-gray-200 shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 bg-slate-50 hover:bg-gradient-to-r from-[#6ebea7] to-[#83cedfac] cursor-pointer"
+              className="h-40 flex items-center justify-center rounded-xl border  border-white   shadow-md hover:shadow-lg hover:scale-[1.05] transition-all  duration-300 bg-slate-50 hover:bg-gradient-to-r from-[#bcebdd] to-[#c6e4ebac] cursor-pointer"
             >
               <h3 className="text-lg font-semibold text-center text-slate-600 hover:text-white p-10 ">{cat.title}</h3>
             </div>

@@ -82,7 +82,9 @@ const Sidebar = () => {
               </div>
             </div>
           )} */}
+            <div className="px-5 py-5"></div>
         </SimpleBar>
+      
       </div>
     </div>
   );
