@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
-import { data } from 'autoprefixer';
+// import { data } from 'autoprefixer';
 import Card from '@/components/ui/Card';
 import { useSelector } from 'react-redux';
-
 
 
 function Productview() {
