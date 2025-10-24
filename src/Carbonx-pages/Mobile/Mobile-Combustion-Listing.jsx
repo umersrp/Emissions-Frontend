@@ -42,7 +42,7 @@ const MobileCombustionListing = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/stationary/Get-All`,
+        `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           params: { page: pageIndex + 1, limit: pageSize, search },
@@ -72,7 +72,7 @@ setPageCount(pagination.totalPages || 1);
   //  Delete Record
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/AutoMobile/Delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Record deleted successfully");
@@ -85,73 +85,81 @@ setPageCount(pagination.totalPages || 1);
 
   //  Table Columns
   const COLUMNS = useMemo(
-    () => [
-      {
-        Header: "Sr No",
-        id: "serialNo",
-        Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
-      },
-      { Header: "Building", accessor: "buildingId.buildingName" },
-      { Header: "Stakeholder", accessor: "stakeholder" },
-      { Header: "Equipment Type", accessor: "equipmentType" },
-      { Header: "Fuel Type", accessor: "fuelType" },
-      { Header: "Fuel Name", accessor: "fuelName" },
-      { Header: "Fuel Consumption", accessor: "fuelConsumption" },
-      { Header: "Consumption Unit", accessor: "consumptionUnit" },
-      { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Remarks", accessor: "remarks" },
-      {
-        Header: "Created At",
-        accessor: "createdAt",
-        Cell: ({ cell }) =>
-          cell.value ? new Date(cell.value).toLocaleDateString() : "-",
-      },
-      {
-        Header: "Actions",
-        accessor: "_id",
-        Cell: ({ cell }) => (
-          <div className="flex space-x-3 rtl:space-x-reverse">
-            <Tippy content="View">
-              <button
-                className="action-btn"
-                onClick={() =>
-                  navigate(`/Mobile-Combustion-Form/${cell.value}`, {
-                    state: { mode: "view" },
-                  })
-                }
-              >
-                <Icon icon="heroicons:eye" className="text-green-600" />
-              </button>
-            </Tippy>
-            <Tippy content="Edit">
-              <button
-                className="action-btn"
-                onClick={() =>
-                  navigate(`/Mobile-Combustion-Form/${cell.value}`, {
-                    state: { mode: "edit" },
-                  })
-                }
-              >
-                <Icon icon="heroicons:pencil-square" className="text-blue-600" />
-              </button>
-            </Tippy>
-            <Tippy content="Delete">
-              <button
-                className="action-btn"
-                onClick={() => {
-                  setSelectedBuildingId(cell.value);
-                  setDeleteModalOpen(true);
-                }}
-              >
-                <Icon icon="heroicons:trash" className="text-red-600" />
-              </button>
-            </Tippy>
-          </div>
-        ),
-      },
-    ],
-    [pageIndex, pageSize]
-  );
+  () => [
+    {
+      Header: "Sr No",
+      id: "serialNo",
+      Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
+    },
+    {
+      Header: "Building",
+      accessor: (row) => row.buildingId?.buildingName || "-",
+    },
+    { Header: "Stakeholder", accessor: "stakeholder" },
+    { Header: "Vehicle Classification", accessor: "vehicleClassification" },
+    { Header: "Vehicle Type", accessor: "vehicleType" },
+    { Header: "Fuel Name", accessor: "fuelName" },
+    { Header: "Distance Traveled", accessor: "distanceTraveled" },
+    { Header: "Distance Unit", accessor: "distanceUnit" },
+    { Header: "Quality Control", accessor: "qualityControl" },
+    { Header: "Weight Loaded (kg)", accessor: "weightLoaded" },
+    { Header: "Remarks", accessor: "remarks" },
+    {
+      Header: "Created At",
+      accessor: "createdAt",
+      Cell: ({ cell }) =>
+        cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+    },
+    {
+      Header: "Actions",
+      accessor: "_id",
+      Cell: ({ cell }) => (
+        <div className="flex space-x-3 rtl:space-x-reverse">
+          <Tippy content="View">
+            <button
+              className="action-btn"
+              onClick={() =>
+                navigate(`/Mobile-Combustion-Form/${cell.value}`, {
+                  state: { mode: "view" },
+                })
+              }
+            >
+              <Icon icon="heroicons:eye" className="text-green-600" />
+            </button>
+          </Tippy>
+
+          <Tippy content="Edit">
+            <button
+              className="action-btn"
+              onClick={() =>
+                navigate(`/Mobile-Combustion-Form/${cell.value}`, {
+                  state: { mode: "edit" },
+                })
+              }
+            >
+              <Icon icon="heroicons:pencil-square" className="text-blue-600" />
+            </button>
+          </Tippy>
+
+          <Tippy content="Delete">
+            <button
+              className="action-btn"
+              onClick={() => {
+                setSelectedBuildingId(cell.value);
+                setDeleteModalOpen(true);
+              }}
+            >
+              <Icon icon="heroicons:trash" className="text-red-600" />
+            </button>
+          </Tippy>
+        </div>
+      ),
+    },
+  ],
+  [pageIndex, pageSize]
+);
+
+
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
   const data = useMemo(() => records, [records]);
