@@ -131,7 +131,7 @@ const CompanyTable = () => {
                 cell.value ? new Date(cell.value).toLocaleDateString() : "-",
         },
         {
-            Header: "Calendar Year",
+            Header: "Calendar Years",
             accessor: "Calendaryear",
 
         },
