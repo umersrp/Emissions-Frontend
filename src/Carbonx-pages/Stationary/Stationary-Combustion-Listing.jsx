@@ -201,7 +201,7 @@ setPageCount(pagination.totalPages || 1);
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0 mb-3">Stationary Combustion Records</h6>
+          <h6 className="flex-1 md:mb-0 ">Stationary Combustion Records</h6>
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             <Button

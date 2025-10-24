@@ -204,18 +204,25 @@ export const menuItems = [
     icon: "heroicons:fire",
     link: "Stationary-Combustion"
   },
+  {
+    title: "Mobile Combustion",
+    isHide: true,
+    icon: "heroicons:truck",
+    link: "Mobile-Combustion"
+  },
    {
     title: "Fugitive Emissions",
     isHide: true,
-    icon: "heroicons:fire",
-    link: "Fugitive-Combustion"
+    icon: "heroicons:cloud",
+    link: "Fugitive-Emissions"
   },
-   {
-    title: "Mobile Combustion",
-    isHide: true,
-    icon: "heroicons:fire",
-    link: "Mobile-Combustion"
-  },
+  // {
+  //   title: "Process Emissions",
+  //   isHide: true,
+  //   icon: "heroicons:cog-6-tooth",
+  //   link: "Process-Emissions"
+  // },
+  
   // {
   //   title: "Authentication",
   //   icon: "heroicons-outline:lock-closed",

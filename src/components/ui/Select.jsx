@@ -23,8 +23,22 @@ const customStyles = {
     ...base,
     zIndex: 9999,
   }),
-  
+  option: (base, state) => ({
+    ...base,
+    backgroundColor:
+      state.isSelected
+        ? "#4098ab" // keep this color for selected
+        : state.isFocused && state.isHovered
+        ? "#e5f4f7" // only hover color
+        : "transparent",
+    color: state.isSelected ? "#fff" : "#000",
+    "&:hover": {
+      backgroundColor: "#e5f4f7",
+      color: "#000",
+    },
+  }),
 };
+
 
 const DropdownIndicator = (props) => (
   <components.DropdownIndicator {...props}>
