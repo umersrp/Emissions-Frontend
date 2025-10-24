@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from "react";
-import { Routes, Route, Navigate, Router } from "react-router-dom";
+import { Routes, Route, Navigate,  } from "react-router-dom";
 import PrivateRoute from "./store/api/Privateroute";
 
 // home pages  & dashboard
@@ -217,7 +217,6 @@ import ProcessEmissionsListing from "./Carbonx-pages/Process/Process-Emissions-L
 
 function App() {
   return (
-
     <main className="App  relative">
 
       <Routes>
@@ -467,6 +466,7 @@ function App() {
       </Routes>
 
     </main>
+    
   );
 }
 
