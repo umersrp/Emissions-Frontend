@@ -94,7 +94,7 @@ const UnderConstructionPage = lazy(() =>
 const BlogPage = lazy(() => import("./pages/utility/blog"));
 const BlogDetailsPage = lazy(() => import("./pages/utility/blog/blog-details"));
 const FaqPage = lazy(() => import("./pages/utility/faq"));
-const Settings = lazy(() => import("./pages/utility/settings"));
+// const Settings = lazy(() => import("./pages/utility/settings"));
 const Profile = lazy(() => import("./pages/utility/profile"));
 const IconPage = lazy(() => import("./pages/icons"));
 const NotificationPage = lazy(() => import("./pages/utility/notifications"));
@@ -192,10 +192,10 @@ import Venueview from "./pages/utility/Venue-view";
 import BookingView from "./pages/utility/Booking-view";
 import SendNotificationForm from "./pages/utility/Notification";
 import NotificationTable from "./pages/utility/Notification-Table";
-import SectorTable from "./Carbonx-pages/Sectors-table";
-import SectorAddForm from "./Carbonx-pages/SectorsAdd";
-import SectorEdit from "./Carbonx-pages/SectorEdit";
-import SectorView from "./Carbonx-pages/SectorView";
+import SectorTable from "./Carbonx-pages/Sector/Sectors-table";
+import SectorAddForm from "./Carbonx-pages/Sector/SectorsAdd";
+import SectorEdit from "./Carbonx-pages/Sector/SectorEdit";
+import SectorView from "./Carbonx-pages/Sector/SectorView";
 import Industry from "./Carbonx-pages/Industry/Industry";
 import IndustryAddFrom from "./Carbonx-pages/Industry/IndustryAdd";
 import CompanyProfileForm from "./Carbonx-pages/Company/CompanyAddForm";
@@ -204,6 +204,15 @@ import EditCompanyProfile from "./Carbonx-pages/Company/EditCompanyProfile";
 import ViewCompanyProfile from "./Carbonx-pages/Company/ViewComapyProfile";
 import BuildingFormPage from "./Carbonx-pages/Building/[id]/Building-form";
 import BuildingTable from "./Carbonx-pages/Building/Buidingtable";
+import StationaryCombustionFormPage from "@/Carbonx-pages/Stationary/Stationary-Combustion-Form";
+import StationaryCombustionListing from "@/Carbonx-pages/Stationary/Stationary-Combustion-Listing";
+import Scope1 from "./Carbonx-pages/Scope1/Scope1";
+import FugitiveCombustionFormPage from "@/Carbonx-pages/Fugitive/Fugitive-Combustion-Form";
+import FugitiveCombustionListing from "@/Carbonx-pages/Fugitive/Fugitive-Combustion-Listing";
+import MobileCombustionFormPage from "./Carbonx-pages/Mobile/Mobile-Combustion-Form";
+import MobileCombustionListing from "./Carbonx-pages/Mobile/Mobile-Combustion-Listing";
+import ProcessEmissionsFormPage from "./Carbonx-pages/Process/Process-Emissions-Form";
+import ProcessEmissionsListing from "./Carbonx-pages/Process/Process-Emissions-Listing";
 
 
 function App() {
@@ -318,7 +327,7 @@ function App() {
           <Route path="blog" element={<BlogPage />} />
           <Route path="blog-details" element={<BlogDetailsPage />} />
           <Route path="faq" element={<FaqPage />} />
-          <Route path="settings" element={<Settings />} />
+          {/* <Route path="settings" element={<Settings />} /> */}
           <Route path="profile" element={<Profile />} />
           <Route path="basic" element={<BasicWidget />} />
           <Route path="statistic" element={<StatisticWidget />} />
@@ -389,45 +398,44 @@ function App() {
           <Route path="booking-view" element={<BookingView />} />
           <Route path="Notification" element={<SendNotificationForm />} />
           <Route path="Notification-table" element={<NotificationTable />} />
+
           <Route path="Sector-table" element={<SectorTable />} />
           <Route path="Add-Sector-Form" element={<SectorAddForm />} />
           <Route path="Add-Sector-Edit/:id" element={<SectorEdit />} />
           <Route path="Sector-View/:id" element={<SectorView />} />
+
           <Route path="Industry" element={<Industry />} />
           <Route path="Industry-Add" element={<IndustryAddFrom />} />
+
           <Route path="Company-Add" element={<CompanyProfileForm />} />
           <Route path="Company-Edit/:id" element={<EditCompanyProfile />} />
-          <Route path="Company-View/:id" element={<ViewCompanyProfile/>} />
+          <Route path="Company-View/:id" element={<ViewCompanyProfile />} />
           <Route path="Company" element={<CompanyTable />} />
+
           <Route path="Building-Form/add" element={<BuildingFormPage />} />
-          <Route path="Building-Form/:id" element={<BuildingFormPage/>} />
+          <Route path="Building-Form/:id" element={<BuildingFormPage />} />
           <Route path="Building" element={<BuildingTable />} />
 
+          <Route path="Scope-1" element={<Scope1 />} />
 
+          <Route path="Stationary-Combustion-Form/add" element={<StationaryCombustionFormPage />} />
+          <Route path="Stationary-Combustion-Form/:id" element={<StationaryCombustionFormPage />} />
+          <Route path="Stationary-Combustion" element={<StationaryCombustionListing />} />
 
+          <Route path="Fugitive-Emissions-Form/add" element={<FugitiveCombustionFormPage />} />
+          <Route path="Fugitive-Emissions-Form/:id" element={<FugitiveCombustionFormPage />} />
+          <Route path="Fugitive-Emissions" element={<FugitiveCombustionListing />} />
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+          <Route path="Mobile-Combustion-Form/add" element={<MobileCombustionFormPage />} />
+          <Route path="Mobile-Combustion-Form/:id" element={<MobileCombustionFormPage/>} />
+          <Route path="Mobile-Combustion" element={<MobileCombustionListing/>} />
+    
+          <Route path="Process-Emissions-Form/add" element={<ProcessEmissionsFormPage />} />
+          <Route path="Process-Emissions-Form/:id" element={<ProcessEmissionsFormPage/>} />
+          <Route path="Process-Emissions" element={<ProcessEmissionsListing/>} />
 
 
           <Route path="Coach-edit" element={<CoachEditPage />} />
-
-
-
-
 
 
           <Route path="*" element={<Navigate to="/404" />} />

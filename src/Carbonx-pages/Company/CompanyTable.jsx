@@ -20,6 +20,7 @@ import { useSelector } from "react-redux";
 import Icons from "@/components/ui/Icon";
 import Header from "@/components/partials/header";
 import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
+import Modal from "@/components/ui/Modal";
 
 const IndeterminateCheckbox = React.forwardRef(
     ({ indeterminate, ...rest }, ref) => {
@@ -44,7 +45,6 @@ const IndeterminateCheckbox = React.forwardRef(
 );
 
 
-
 const CompanyTable = () => {
     const navigate = useNavigate();
     const [userData, setUserData] = useState([]);
@@ -53,6 +53,8 @@ const CompanyTable = () => {
     const [loading, setLoading] = useState(false);
     const [pageCount, setPageCount] = useState(0);
     const user = useSelector((state) => state.auth.user);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
     const fetchData = async () => {
         setLoading(true);
@@ -91,11 +93,11 @@ const CompanyTable = () => {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
             });
-            toast.success("Sector deleted successfully");
+            toast.success("Company deleted successfully");
             fetchData(pageIndex, pageSize);
         } catch (error) {
             console.log(error);
-            toast.error("Failed to delete Sector");
+            toast.error("Failed to delete Comapny");
         }
     };
     const COLUMNS = [
@@ -133,7 +135,7 @@ const CompanyTable = () => {
         {
             Header: "Calendar Years",
             accessor: "Calendaryear",
-
+            Cell: ({ value }) => (value ? new Date(value).getFullYear() : "-"),
         },
         {
             Header: "Fiscal Year",
@@ -162,6 +164,16 @@ const CompanyTable = () => {
         {
             Header: "Headquarter Location",
             accessor: "headquarterLocation",
+        },
+         {
+            Header: "Sector",
+            accessor: "sectorId.name",
+            Cell: ({ cell }) => cell.value || "-",
+        },
+        {
+            Header: "Industry",
+            accessor: "industryId.name",
+            Cell: ({ cell }) => cell.value || "-",
         },
         {
             Header: "Total Sites",
@@ -203,16 +215,6 @@ const CompanyTable = () => {
             Header: "Total Man Hours Per Annum",
             accessor: "totalManHoursPerAnnum",
         },
-        // {
-        //     Header: "Sector",
-        //     accessor: "sectorId.name",
-        //     Cell: ({ cell }) => cell.value || "-",
-        // },
-        // {
-        //     Header: "Industry",
-        //     accessor: "industryId.name",
-        //     Cell: ({ cell }) => cell.value || "-",
-        // },
         {
             Header: "Created By",
             accessor: "createdBy.name",
@@ -251,14 +253,17 @@ const CompanyTable = () => {
                             <Icon className="text-blue-600" icon="heroicons:pencil-square" />
                         </button>
                     </Tippy>
-                    <Tippy content="Delete">
-                        <button
-                            className="action-btn"
-                            onClick={() => handleDelete(cell.value)}
-                        >
-                            <Icon className="text-red-700" icon="heroicons:trash" />
-                        </button>
-                    </Tippy>
+                     <Tippy content="Delete">
+                            <button
+                                className="action-btn"
+                                onClick={() => {
+                                    setSelectedBuildingId(cell.value);
+                                    setDeleteModalOpen(true);
+                                }}
+                            >
+                                <Icon icon="heroicons:trash" className="text-red-600" />
+                            </button>
+                        </Tippy>
                 </div>
             ),
         },
@@ -266,7 +271,6 @@ const CompanyTable = () => {
 
     const columns = useMemo(() => COLUMNS, []);
     const data = useMemo(() => userData, [userData]);
-
     const tableInstance = useTable(
         {
             columns,
@@ -330,7 +334,7 @@ const CompanyTable = () => {
         <>
             <Card noborder>
                 <div className="md:flex pb-6 items-center">
-                    <h6 className="flex-1 md:mb-0 mb-3">Company</h6>
+                    <h6 className="flex-1 md:mb-0 ">Company</h6>
                     <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
                         <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} />
 
@@ -495,6 +499,35 @@ const CompanyTable = () => {
                     </div>
                 </div>
             </Card>
+            <Modal
+                activeModal={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                title="Confirm Delete"
+                themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+                centered
+                footerContent={
+                    <>
+                        <Button
+                            text="Cancel"
+                            className="btn-light"
+                            onClick={() => setDeleteModalOpen(false)}
+                        />
+                        <Button
+                            text="Delete"
+                            className="btn-danger"
+                            onClick={async () => {
+                                await handleDelete(selectedBuildingId);
+                                setDeleteModalOpen(false);
+                            }}
+                        />
+                    </>
+                }
+            >
+                <p className="text-gray-700 text-center">
+                    Are you sure you want to delete this Company? This action cannot be undone.
+                </p>
+            </Modal>
+
 
         </>
     );

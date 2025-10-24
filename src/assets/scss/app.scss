@@ -185,6 +185,16 @@
   @import "components/print.scss";
   @import "~font-awesome/css/font-awesome.min.css";
 
+   /* Reusable label class */
+  .field-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  /* Reusable input/select field class */
+  .input-field {
+    @apply border-[2px] w-full h-10 p-2 rounded-md;
+  }
+
 
 }
 @layer utilities {

@@ -16,16 +16,16 @@ const Footer = ({ className = "custom-class" }) => {
   return (
     <footer className={className + " " + footerclassName()}>
       <div className="site-footer px-6 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 py-4">
-        <div className="grid md:grid-cols-2 grid-cols-1 md:gap-5">
-          <div className="text-center ltr:md:text-start rtl:md:text-right text-sm">
+        <div className="flex flex-col md:flex-row items-center justify-between text-sm">
+          <div className="text-center md:text-left">
             COPYRIGHT &copy; 2024 Srptechs, All rights Reserved
           </div>
-          <div className="ltr:md:text-right rtl:md:text-end text-center text-sm">
-             Made by{" "}
+          <div className="text-center md:text-right mt-2 md:mt-0">
+            Made by{" "}
             <a
               href="https://srptechs.com"
               target="_blank"
-              className="text-green-500 font-semibold"
+              className="text-primary-900 font-semibold"
             >
               srptechs
             </a>

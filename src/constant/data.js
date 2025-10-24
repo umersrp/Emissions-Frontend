@@ -165,142 +165,172 @@ export const menuItems = [
     isHeadr: true,
     title: "Pages",
   },
+  // {
+  //   title: "Sectors",
+  //   isHide: true,
+  //   icon: "heroicons-outline:building-library",
+  //   link: "Sector-table",
+  // },
 
-  {
-    title: "Sectors",
-    isHide: true,
-    icon: "heroicons-outline:building-library",
-    link: "Sector-table",
-  },
+  // {
+  //   title: "Industry",
+  //   isHide: true,
+  //   icon: "heroicons-outline:home-modern",
+  //   link: "Industry"
 
-  {
-    title: "Industry",
-    isHide: true,
-    icon: "heroicons-outline:home-modern",
-    link: "Industry"
-
-  },
+  // },
 
   {
     title: "Company",
     isHide: true,
-    icon: "heroicons-outline:table-cells",
+    icon: "heroicons:building-office",
     link: "Company"
   },
   {
     title: "Building",
     isHide: true,
-    icon: "heroicons-outline:table-cells",
+    icon: "heroicons:home-modern",
     link: "Building"
   },
-  {
-    title: "Authentication",
-    icon: "heroicons-outline:lock-closed",
-    link: "#",
-    child: [
-      {
-        childtitle: "Signin One",
-        childlink: "/",
-      },
-      {
-        childtitle: "Signin Two",
-        childlink: "/login2",
-      },
-      {
-        childtitle: "Signin Three",
-        childlink: "/login3",
-      },
-      {
-        childtitle: "Signup One",
-        childlink: "/reg",
-      },
-      {
-        childtitle: "Signup Two",
-        childlink: "/reg2",
-      },
-      {
-        childtitle: "Signup Three",
-        childlink: "/reg3",
-      },
-      {
-        childtitle: "Forget Password One",
-        childlink: "/forgot-password",
-      },
-      {
-        childtitle: "Forget Password Two",
-        childlink: "/forgot-password2",
-      },
-      {
-        childtitle: "Forget Password Three",
-        childlink: "/forgot-password3",
-      },
-      {
-        childtitle: "Lock Screen One",
-        childlink: "/lock-screen",
-      },
-      {
-        childtitle: "Lock Screen Two",
-        childlink: "/lock-screen2",
-      },
-      {
-        childtitle: "Lock Screen Three",
-        childlink: "/lock-screen3",
-      },
-    ],
+    {
+    title: "Scope 1",
+    isHide: true,
+    icon: "heroicons:globe-alt",
+    link: "Scope-1"
   },
   {
-    title: "Utility",
-    icon: "heroicons-outline:view-boards",
-    link: "#",
-    isHide: false,
-    child: [
-      {
-        childtitle: "Invoice",
-        childlink: "invoice",
-      },
-      {
-        childtitle: "Pricing",
-        childlink: "pricing",
-      },
-      // {
-      //   childtitle: "Testimonial",
-      //   childlink: "testimonial",
-      // },
-      {
-        childtitle: "FAQ",
-        childlink: "faq",
-      },
-      {
-        childtitle: "Blog",
-        childlink: "blog",
-      },
-      {
-        childtitle: "Blank page",
-        childlink: "blank-page",
-      },
-      {
-        childtitle: "Prfoile",
-        childlink: "profile",
-      },
-      {
-        childtitle: "Settings",
-        childlink: "settings",
-      },
-      {
-        childtitle: "404 page",
-        childlink: "/404",
-      },
+    title: "Stationary Combustion",
+    isHide: true,
+    icon: "heroicons:fire",
+    link: "Stationary-Combustion"
+  },
+  {
+    title: "Mobile Combustion",
+    isHide: true,
+    icon: "heroicons:truck",
+    link: "Mobile-Combustion"
+  },
+   {
+    title: "Fugitive Emissions",
+    isHide: true,
+    icon: "heroicons:cloud",
+    link: "Fugitive-Emissions"
+  },
+  // {
+  //   title: "Process Emissions",
+  //   isHide: true,
+  //   icon: "heroicons:cog-6-tooth",
+  //   link: "Process-Emissions"
+  // },
+  
+  // {
+  //   title: "Authentication",
+  //   icon: "heroicons-outline:lock-closed",
+  //   link: "#",
+  //   child: [
+  //     {
+  //       childtitle: "Signin One",
+  //       childlink: "/",
+  //     },
+  //     {
+  //       childtitle: "Signin Two",
+  //       childlink: "/login2",
+  //     },
+  //     {
+  //       childtitle: "Signin Three",
+  //       childlink: "/login3",
+  //     },
+  //     {
+  //       childtitle: "Signup One",
+  //       childlink: "/reg",
+  //     },
+  //     {
+  //       childtitle: "Signup Two",
+  //       childlink: "/reg2",
+  //     },
+  //     {
+  //       childtitle: "Signup Three",
+  //       childlink: "/reg3",
+  //     },
+  //     {
+  //       childtitle: "Forget Password One",
+  //       childlink: "/forgot-password",
+  //     },
+  //     {
+  //       childtitle: "Forget Password Two",
+  //       childlink: "/forgot-password2",
+  //     },
+  //     {
+  //       childtitle: "Forget Password Three",
+  //       childlink: "/forgot-password3",
+  //     },
+  //     {
+  //       childtitle: "Lock Screen One",
+  //       childlink: "/lock-screen",
+  //     },
+  //     {
+  //       childtitle: "Lock Screen Two",
+  //       childlink: "/lock-screen2",
+  //     },
+  //     {
+  //       childtitle: "Lock Screen Three",
+  //       childlink: "/lock-screen3",
+  //     },
+  //   ],
+  // },
+  // {
+  //   title: "Utility",
+  //   icon: "heroicons-outline:view-boards",
+  //   link: "#",
+  //   isHide: false,
+  //   child: [
+  //     {
+  //       childtitle: "Invoice",
+  //       childlink: "invoice",
+  //     },
+  //     {
+  //       childtitle: "Pricing",
+  //       childlink: "pricing",
+  //     },
+  //     // {
+  //     //   childtitle: "Testimonial",
+  //     //   childlink: "testimonial",
+  //     // },
+  //     {
+  //       childtitle: "FAQ",
+  //       childlink: "faq",
+  //     },
+  //     {
+  //       childtitle: "Blog",
+  //       childlink: "blog",
+  //     },
+  //     {
+  //       childtitle: "Blank page",
+  //       childlink: "blank-page",
+  //     },
+  //     {
+  //       childtitle: "Prfoile",
+  //       childlink: "profile",
+  //     },
+  //     {
+  //       childtitle: "Settings",
+  //       childlink: "settings",
+  //     },
+  //     {
+  //       childtitle: "404 page",
+  //       childlink: "/404",
+  //     },
 
-      {
-        childtitle: "Coming Soon",
-        childlink: "/coming-soon",
-      },
-      {
-        childtitle: "Under Maintanance page",
-        childlink: "/under-construction",
-      },
-    ],
-  },
+  //     {
+  //       childtitle: "Coming Soon",
+  //       childlink: "/coming-soon",
+  //     },
+  //     {
+  //       childtitle: "Under Maintanance page",
+  //       childlink: "/under-construction",
+  //     },
+  //   ],
+  // },
 
 
   // {
