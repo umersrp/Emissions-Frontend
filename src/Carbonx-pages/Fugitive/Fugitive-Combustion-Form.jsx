@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
-  stakeholderOptions,
+  FugitiveAndMobileStakeholderOptions ,
   FugitiveEquipmentTypeOptions,
   materialRefrigerantOptions,
   qualityControlOptions,
@@ -17,7 +17,7 @@ const FugitiveCombustionFormPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
-
+  const [globalFilterValue, setGlobalFilterValue] = useState("");
   const mode = location.state?.mode || "add";
   const isView = mode === "view";
   const isEdit = mode === "edit";
@@ -196,7 +196,7 @@ const FugitiveCombustionFormPage = () => {
               <label className="field-label">Stakeholder / Department</label>
               <CustomSelect
                 name="stakeholder"
-                options={stakeholderOptions}
+                options={FugitiveAndMobileStakeholderOptions }
                 value={formData.stakeholder}
                 onChange={(value) => handleSelectChange("stakeholder", value)}
                 placeholder="Select or type department"
