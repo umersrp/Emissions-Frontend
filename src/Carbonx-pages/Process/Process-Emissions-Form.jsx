@@ -2,16 +2,14 @@ import React, { useState, useEffect } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
-import { toast } from "react-toastify";
 import axios from "axios";
+import { toast } from "react-toastify";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
-  stakeholderOptions,
-  equipmentTypeOptions,
-  fuelNameOptionsByType,
-  fuelTypeOptions,
-  qualityControlOptions,
-  fuelUnitOptionsByName,
+  stakeholderDepartmentOptions,
+  activityTypeOptions,
+  activityMetadata,
+  processQualityControlOptions,
 } from "@/constant/options";
 
 const ProcessEmissionsFormPage = () => {
@@ -26,29 +24,32 @@ const ProcessEmissionsFormPage = () => {
 
   const [formData, setFormData] = useState({
     buildingId: null,
-    stakeholder: null,
-    equipmentType: null,
-    fuelType: null,
-    fuelName: null,
-    fuelConsumption: "",
+    stakeholderDepartment: null,
+    activityType: null,
+    gasEmitted: "",
+    amountOfEmissions: "",
+    unit: "",
     qualityControl: null,
-    consumptionUnit: null,
     remarks: "",
   });
-console.log("🔥 ProcessEmissionsFormPage re-rendered");
-  const [buildingOptions, setBuildingOptions] = useState([]);
-  const [errors, setErrors] = useState({});
 
-  // --- Fetch Buildings ---
+  const [errors, setErrors] = useState({});
+  const [buildingOptions, setBuildingOptions] = useState([]);
+
+  // Fetch all buildings for dropdown
   useEffect(() => {
     const fetchBuildings = async () => {
       try {
         const res = await axios.get(
           `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings`,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
         const formatted =
-          (res.data?.data?.buildings || []).map((b) => ({
+          res.data?.data?.buildings?.map((b) => ({
             value: b._id,
             label: b.buildingName,
           })) || [];
@@ -60,42 +61,46 @@ console.log("🔥 ProcessEmissionsFormPage re-rendered");
     fetchBuildings();
   }, []);
 
-  // --- Fetch Record by ID (for edit/view) ---
+  // Fetch record by ID (Edit / View)
   useEffect(() => {
-    if (!id || isAdd) return;
-
-    const fetchRecord = async () => {
+    const fetchById = async () => {
+      if (!id || isAdd) return;
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/stationary/stationary/${id}`,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+          `${process.env.REACT_APP_BASE_URL}/Process-Emissions/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
 
         const data = res.data?.data;
-        if (!data) return;
-
-        const buildingOption = data.buildingId
-          ? {
-              value: data.buildingId._id,
-              label: data.buildingId.buildingName || "Unnamed Building",
-            }
-          : null;
-
         setFormData({
-          buildingId: buildingOption,
-          stakeholder: stakeholderOptions.find((s) => s.value === data.stakeholder) || null,
-          equipmentType: equipmentTypeOptions.find((e) => e.value === data.equipmentType) || null,
-          fuelType: fuelTypeOptions.find((f) => f.value === data.fuelType) || null,
-          fuelName:
-            fuelNameOptionsByType[data.fuelType]?.find(
-              (fn) => fn.value === data.fuelName
-            ) || null,
+          buildingId:
+            buildingOptions.find((b) => b.value === data.buildingId?._id) || {
+              label: data.buildingId?.buildingName || "",
+              value: data.buildingId?._id || "",
+            },
+          stakeholderDepartment:
+            stakeholderDepartmentOptions.find(
+              (s) => s.value === data.stakeholderDepartment
+            ) || {
+              label: data.stakeholderDepartment,
+              value: data.stakeholderDepartment,
+            },
+          activityType:
+            activityTypeOptions.find((a) => a.value === data.activityType) || {
+              label: data.activityType,
+              value: data.activityType,
+            },
+          gasEmitted: data.gasEmitted || "",
+          amountOfEmissions: data.amountOfEmissions || "",
+          unit: data.unit || "",
           qualityControl:
-            qualityControlOptions.find((q) => q.value === data.qualityControl) || null,
-          consumptionUnit: data.consumptionUnit
-            ? { value: data.consumptionUnit, label: data.consumptionUnit }
-            : null,
-          fuelConsumption: data.fuelConsumption || "",
+            processQualityControlOptions.find(
+              (q) => q.value === data.qualityControl
+            ) || { label: data.qualityControl, value: data.qualityControl },
           remarks: data.remarks || "",
         });
       } catch (err) {
@@ -103,82 +108,54 @@ console.log("🔥 ProcessEmissionsFormPage re-rendered");
         toast.error("Failed to fetch record details");
       }
     };
+    fetchById();
+  }, [id, isAdd, buildingOptions]);
 
-    fetchRecord();
-  }, [id, isAdd]);
-
-  // --- Handle Input Change ---
-  const handleInputChange = (e) => {
-    if (isView) return;
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
-  };
-
-  // --- Handle Select Change with Dependency Logic ---
+  // Handle dropdowns
   const handleSelectChange = (value, { name }) => {
     if (isView) return;
 
-    setFormData((prev) => {
-      let updated = { ...prev, [name]: value };
+    let updated = { ...formData, [name]: value };
 
-      // Reset dependent fields
-      if (name === "fuelType") {
-        updated = { ...updated, fuelName: null, consumptionUnit: null };
-      } else if (name === "fuelName") {
-       updated = { ...updated, consumptionUnit: null };
-      }
+    if (name === "activityType") {
+      const meta = activityMetadata[value?.value] || {};
+      updated.gasEmitted = meta.gasEmitted || "";
+      updated.unit = meta.unit || "";
+    }
 
-      return updated;
-    });
-
+    setFormData(updated);
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // --- Dynamic Dropdown Options ---
-  const fuelNameOptions =
-    formData.fuelType?.value && fuelNameOptionsByType[formData.fuelType.value]
-      ? fuelNameOptionsByType[formData.fuelType.value]
-      : [];
+  // Handle input
+  const handleInputChange = (e) => {
+    if (isView) return;
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
 
-  const unitOptions =
-    formData.fuelName?.value && fuelUnitOptionsByName[formData.fuelName.value]
-      ? [
-          ...new Set([
-            ...fuelUnitOptionsByName.default,
-            ...fuelUnitOptionsByName[formData.fuelName.value],
-          ]),
-        ].map((u) => ({ value: u, label: u }))
-      : fuelUnitOptionsByName.default.map((u) => ({ value: u, label: u }));
-
-  // --- Validation ---
+  // Validation
   const validate = () => {
     const newErrors = {};
-    const requiredFields = [
-      "buildingId",
-      "stakeholder",
-      "equipmentType",
-      "fuelType",
-      "fuelName",
-      "fuelConsumption",
-      "qualityControl",
-      "consumptionUnit",
-    ];
-
-    requiredFields.forEach((f) => {
-      if (!formData[f] || (typeof formData[f] === "string" && !formData[f].trim())) {
-        newErrors[f] = "This field is required";
-      }
-    });
+    if (!formData.buildingId) newErrors.buildingId = "Building is required";
+    if (!formData.stakeholderDepartment)
+      newErrors.stakeholderDepartment = "Department is required";
+    if (!formData.activityType)
+      newErrors.activityType = "Activity Type is required";
+    if (!formData.amountOfEmissions)
+      newErrors.amountOfEmissions = "Amount of Emissions is required";
+    if (!formData.qualityControl)
+      newErrors.qualityControl = "Quality Control is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // --- Submit ---
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isView) return;
-
     if (!validate()) {
       toast.error("Please fill all required fields");
       return;
@@ -186,214 +163,197 @@ console.log("🔥 ProcessEmissionsFormPage re-rendered");
 
     const payload = {
       buildingId: formData.buildingId?.value,
-      stakeholder: formData.stakeholder?.value,
-      equipmentType: formData.equipmentType?.value,
-      fuelType: formData.fuelType?.value,
-      fuelName: formData.fuelName?.value,
+      stakeholderDepartment: formData.stakeholderDepartment?.value,
+      activityType: formData.activityType?.value,
+      gasEmitted: formData.gasEmitted,
+      amountOfEmissions: formData.amountOfEmissions,
+      unit: formData.unit,
       qualityControl: formData.qualityControl?.value,
-      consumptionUnit: formData.consumptionUnit?.value,
-      fuelConsumption: formData.fuelConsumption,
       remarks: formData.remarks,
     };
 
     try {
       if (isEdit) {
         await axios.put(
-          `${process.env.REACT_APP_BASE_URL}/stationary/update/${id}`,
+          `${process.env.REACT_APP_BASE_URL}/Process-Emissions/${id}`,
           payload,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
         toast.success("Record updated successfully!");
       } else {
         await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/stationary/create`,
+          `${process.env.REACT_APP_BASE_URL}/Process-Emissions/Create`,
           payload,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
         toast.success("Record added successfully!");
       }
-      navigate("/Stationary-Combustion");
+      navigate("/Process-Emissions");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong");
+      console.error(err);
+      toast.error(err.response?.data?.message || "Error saving record");
     }
   };
 
-  // --- Render ---
   return (
     <div>
       <Card
-        title={
-          isView
-            ? "View Process Emissions Record"
-            : isEdit
-            ? "Edit Process Emissions Record"
-            : "Add Process Emissions Record"
-        }
+        title={`${isView ? "View" : isEdit ? "Edit" : "Add"
+          } Process Emission Record`}
       >
-        <div className="text-slate-700 leading-relaxed mb-6 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 justify-center">
-          <p className="text-gray-700 items-center ">
-            Process Emissions refers to the direct greenhouse gas (GHG) emissions from burning of fuels in stationary equipment at a facility, such as boilers, furnaces, or generators that are owned or controlled by the organization.</p>
+        <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 justify-center">
+          <p className="text-gray-700">
+            Process Emissions are direct greenhouse gas (GHG) emissions that result from chemical or physical processes occurring within an organization’s owned or controlled operations, not related to fuel combustion or fugitive leaks.
+          </p>
         </div>
-        <form
-          onSubmit={handleSubmit}
-          className="p-6 grid gap-6"
-        >
 
+        <form onSubmit={handleSubmit} className="p-6 grid gap-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* --- Building --- */}
-          <div>
-            <label className="block font-semibold mb-1">Site / Building Name</label>
-            <Select
-              name="buildingId"
-              options={buildingOptions}
-              value={formData.buildingId}
-              onChange={handleSelectChange}
-              placeholder="Select Building"
-              className={`w-full ${errors.buildingId ? "border border-red-500 rounded" : ""}`}
-              isDisabled={isView}
-            />
-            {errors.buildingId && <p className="text-red-500 text-sm mt-1">{errors.buildingId}</p>}
-          </div>
-
-          {/* --- Stakeholder --- */}
-          <div>
-            <label className="block font-semibold mb-1">Stakeholder / Department</label>
-            <Select
-              name="stakeholder"
-              options={stakeholderOptions}
-              value={formData.stakeholder}
-              onChange={handleSelectChange}
-              placeholder="Select department"
-              className={`w-full ${errors.stakeholder ? "border border-red-500 rounded" : ""}`}
-              isDisabled={isView}
-            />
-            {errors.stakeholder && <p className="text-red-500 text-sm mt-1">{errors.stakeholder}</p>}
-          </div>
-
-          {/* --- Equipment Type --- */}
-          <div>
-            <label className="block font-semibold mb-1">Equipment Type</label>
-            <Select
-              name="equipmentType"
-              options={equipmentTypeOptions}
-              value={formData.equipmentType}
-              // onChange={handleSelectChange}
-              allowCustomInput
-              onChange={(newValue) => handleSelectChange(newValue, { name: "equipmentType" })}
-              placeholder="Select or type equipment"
-              className={`w-full ${errors.equipmentType ? "border border-red-500 rounded" : ""}`}
-              isDisabled={isView}
-            />
-            {errors.equipmentType && (
-              <p className="text-red-500 text-sm mt-1">{errors.equipmentType}</p>
-            )}
-          </div>
-
-          {/* --- Fuel Type --- */}
-          <div>
-            <label className="block font-semibold mb-1">Fuel Type</label>
-            <Select
-              name="fuelType"
-              options={fuelTypeOptions}
-              value={formData.fuelType}
-              onChange={handleSelectChange}
-              placeholder="Select fuel type"
-              className={`w-full ${errors.fuelType ? "border border-red-500 rounded" : ""}`}
-              isDisabled={isView}
-            />
-            {errors.fuelType && <p className="text-red-500 text-sm mt-1">{errors.fuelType}</p>}
-          </div>
-
-          {/* --- Fuel Name --- */}
-          <div>
-            <label className="block font-semibold mb-1">Fuel Name</label>
-            <Select
-              name="fuelName"
-              options={fuelNameOptions}
-              value={formData.fuelName}
-              onChange={handleSelectChange}
-              placeholder="Select fuel name"
-              className={`w-full ${errors.fuelName ? "border border-red-500 rounded" : ""}`}
-              isDisabled={isView}
-            />
-            {errors.fuelName && <p className="text-red-500 text-sm mt-1">{errors.fuelName}</p>}
-          </div>
-
-          {/* --- Fuel Consumption --- */}
-          <div>
-            <label className="block font-semibold mb-1">Fuel Consumption Value</label>
-            <input
-              type="number"
-              name="fuelConsumption"
-              value={formData.fuelConsumption}
-              onChange={handleInputChange}
-              placeholder="Enter value"
-              className={"border-[2px] w-full h-10 p-2 rounded-md"}
-              disabled={isView}
-            />
-            {errors.fuelConsumption && (
-              <p className="text-red-500 text-sm mt-1">{errors.fuelConsumption}</p>
-            )}
-          </div>
-
-          {/* --- Quality Control --- */}
-          <div>
-            <label className="block font-semibold mb-1">Quality Control</label>
-            <Select
-              name="qualityControl"
-              options={qualityControlOptions}
-              value={formData.qualityControl}
-              onChange={handleSelectChange}
-              placeholder="Select Quality"
-              className={`w-full ${errors.qualityControl ? "border border-red-500 rounded" : ""}`}
-              isDisabled={isView}
-            />
-            {errors.qualityControl && (
-              <p className="text-red-500 text-sm mt-1">{errors.qualityControl}</p>
-            )}
-          </div>
-
-          {/* --- Consumption Unit --- */}
-          <div>
-            <label className="block font-semibold mb-1">Consumption Unit</label>
-            <Select
-              name="consumptionUnit"
-              options={unitOptions}
-              value={formData.consumptionUnit}
-              onChange={handleSelectChange}
-              placeholder="Select unit"
-              className={`w-full ${errors.consumptionUnit ? "border border-red-500 rounded" : ""}`}
-              isDisabled={isView}
-            />
-            {errors.consumptionUnit && (
-              <p className="text-red-500 text-sm mt-1">{errors.consumptionUnit}</p>
-            )}
-          </div>
+            {/* Building */}
+            <div>
+              <label className="field-label">Site / Building Name</label>
+              <Select
+                name="buildingId"
+                value={formData.buildingId}
+                options={buildingOptions}
+                onChange={handleSelectChange}
+                placeholder="Select Building"
+                isDisabled={isView}
+              />
+              {errors.buildingId && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.buildingId}
+                </p>
+              )}
             </div>
-          {/* --- Remarks --- */}
-          <div className="col-span-full">
-            <label className="block font-semibold mb-1">Remarks (Optional)</label>
+
+            {/* Department */}
+            <div>
+              <label className="field-label">Stakeholder / Department</label>
+              <Select
+                name="stakeholderDepartment"
+                value={formData.stakeholderDepartment}
+                options={stakeholderDepartmentOptions}
+                onChange={handleSelectChange}
+                placeholder="Select Department"
+                isDisabled={isView}
+                allowCustomInput
+              />
+              {errors.stakeholderDepartment && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.stakeholderDepartment}
+                </p>
+              )}
+            </div>
+
+            {/* Activity Type */}
+            <div>
+              <label className="field-label">Type of Activity / Process</label>
+              <Select
+                name="activityType"
+                value={formData.activityType}
+                options={activityTypeOptions}
+                onChange={handleSelectChange}
+                placeholder="Select Activity"
+                isDisabled={isView}
+              />
+              {errors.activityType && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.activityType}
+                </p>
+              )}
+            </div>
+
+            {/* Gas Emitted */}
+            <div>
+              <label className="field-label">Gas Emitted</label>
+              <input
+                type="text"
+                name="gasEmitted"
+                value={formData.gasEmitted}
+                readOnly
+                className="input-field bg-gray-100"
+              />
+            </div>
+
+            {/* Amount of Emissions */}
+            <div>
+              <label className="field-label">Amount of Emissions</label>
+              <input
+                type="number"
+                name="amountOfEmissions"
+                value={formData.amountOfEmissions}
+                onChange={handleInputChange}
+                placeholder="Enter amount"
+                className="input-field"
+                disabled={isView}
+              />
+              {errors.amountOfEmissions && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.amountOfEmissions}
+                </p>
+              )}
+            </div>
+
+            {/* Unit */}
+            <div>
+              <label className="field-label">Unit</label>
+              <input
+                type="text"
+                name="unit"
+                value={formData.unit}
+                readOnly
+                className="input-field bg-gray-100"
+              />
+            </div>
+
+            {/* Quality Control */}
+            <div>
+              <label className="field-label">Quality Control</label>
+              <Select
+                name="qualityControl"
+                value={formData.qualityControl}
+                options={processQualityControlOptions}
+                onChange={handleSelectChange}
+                placeholder="Select Quality"
+                isDisabled={isView}
+              />
+              {errors.qualityControl && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.qualityControl}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Remarks */}
+          <div>
+            <label className="field-label">Remarks</label>
             <textarea
               name="remarks"
               value={formData.remarks}
               onChange={handleInputChange}
-              placeholder="Any remarks..."
               rows={3}
-              className="border-[2px] w-full p-2 rounded-md"
+              placeholder="Enter remarks..."
+              className="border p-2 rounded-md w-full"
               disabled={isView}
             />
           </div>
 
-          {/* --- Buttons --- */}
+          {/* Buttons */}
           <div className="col-span-full flex justify-end gap-4 pt-6">
             <Button
               text={isView ? "Back" : "Cancel"}
               className={isView ? "btn-primary" : "btn-light"}
               type="button"
-              onClick={() => navigate("/Stationary-Combustion")}
+              onClick={() => navigate("/Process-Emissions")}
             />
             {!isView && (
-              <Button text={isEdit ? "Update" : "Add"} className="btn-primary" type="submit" />
+              <Button
+                text={isEdit ? "Update" : "Add"}
+                className="btn-primary"
+                type="submit"
+              />
             )}
           </div>
         </form>

@@ -77,7 +77,14 @@ const MobileCombustionFormPage = () => {
 
         // Set dropdown compatible values
         setFormData({
-          buildingId: buildingOptions.find((b) => b.value === data.buildingId) || null,
+          buildingId:
+            data.buildingId && typeof data.buildingId === "object"
+              ? {
+                label: data.buildingId.buildingName,
+                value: data.buildingId._id,
+              }
+              : buildingOptions.find((b) => b.value === data.buildingId) ||
+              { label: "Unknown", value: data.buildingId },
           stakeholder: stakeholderOptions.find((s) => s.value === data.stakeholder) || { label: data.stakeholder, value: data.stakeholder },
           vehicleClassification: vehicleClassificationOptions.find((v) => v.value === data.vehicleClassification) || { label: data.vehicleClassification, value: data.vehicleClassification },
           vehicleType: { label: data.vehicleType, value: data.vehicleType },
@@ -85,7 +92,9 @@ const MobileCombustionFormPage = () => {
           distanceTraveled: data.distanceTraveled || "",
           distanceUnit: distanceUnitOptions.find((u) => u.value === data.distanceUnit) || { label: data.distanceUnit, value: data.distanceUnit },
           qualityControl: qualityControlOptions.find((q) => q.value === data.qualityControl) || { label: data.qualityControl, value: data.qualityControl },
-          weightLoaded: data.weightLoaded || null,
+          weightLoaded: data.weightLoaded
+            ? weightLoadedOptions.find((w) => w.value === data.weightLoaded) || null
+            : null,
           remarks: data.remarks || "",
         });
       } catch (err) {
@@ -100,13 +109,13 @@ const MobileCombustionFormPage = () => {
   // Dynamic dependent dropdowns
   const vehicleTypeOptions =
     formData.vehicleClassification?.value &&
-    vehicleTypeOptionsByClassification[formData.vehicleClassification.value]
+      vehicleTypeOptionsByClassification[formData.vehicleClassification.value]
       ? vehicleTypeOptionsByClassification[formData.vehicleClassification.value]
       : [];
 
   const fuelNameOptions =
     formData.vehicleClassification?.value &&
-    fuelNameOptionsByClassification[formData.vehicleClassification.value]
+      fuelNameOptionsByClassification[formData.vehicleClassification.value]
       ? fuelNameOptionsByClassification[formData.vehicleClassification.value]
       : [];
 
@@ -166,7 +175,9 @@ const MobileCombustionFormPage = () => {
       distanceTraveled: formData.distanceTraveled,
       distanceUnit: formData.distanceUnit?.value || formData.distanceUnit,
       qualityControl: formData.qualityControl?.value || formData.qualityControl,
-      weightLoaded: formData.weightLoaded ? Number(formData.weightLoaded.value || formData.weightLoaded) : null,
+      weightLoaded: formData.weightLoaded
+        ? formData.weightLoaded.value || formData.weightLoaded
+        : null,
       remarks: formData.remarks,
     };
 

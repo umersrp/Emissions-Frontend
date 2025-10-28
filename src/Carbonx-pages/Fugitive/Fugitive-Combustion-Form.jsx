@@ -17,7 +17,7 @@ const FugitiveCombustionFormPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
-
+  const [globalFilterValue, setGlobalFilterValue] = useState("");
   const mode = location.state?.mode || "add";
   const isView = mode === "view";
   const isEdit = mode === "edit";

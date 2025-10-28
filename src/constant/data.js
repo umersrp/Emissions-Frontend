@@ -216,12 +216,12 @@ export const menuItems = [
     icon: "heroicons:cloud",
     link: "Fugitive-Emissions"
   },
-  // {
-  //   title: "Process Emissions",
-  //   isHide: true,
-  //   icon: "heroicons:cog-6-tooth",
-  //   link: "Process-Emissions"
-  // },
+  {
+    title: "Process Emissions",
+    isHide: true,
+    icon: "heroicons:cog-6-tooth",
+    link: "Process-Emissions"
+  },
   
   // {
   //   title: "Authentication",

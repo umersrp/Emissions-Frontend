@@ -42,18 +42,18 @@ const ProcessEmissionsListing = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/stationary/Get-All`,
+        `${process.env.REACT_APP_BASE_URL}/Process-Emissions/Get-All`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
           params: { page: pageIndex + 1, limit: pageSize, search },
         }
       );
 
-   const data = res.data?.data?.records || res.data?.data || [];
-const pagination = res.data?.data?.pagination || {};
+      const data = res.data?.data?.records || res.data?.data || [];
+      const pagination = res.data?.data?.pagination || {};
 
-setRecords(data);
-setPageCount(pagination.totalPages || 1);
+      setRecords(data);
+      setPageCount(pagination.totalPages || 1);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch records");
@@ -72,7 +72,7 @@ setPageCount(pagination.totalPages || 1);
   //  Delete Record
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/Process-Emissions/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Record deleted successfully");
@@ -92,12 +92,11 @@ setPageCount(pagination.totalPages || 1);
         Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
       },
       { Header: "Building", accessor: "buildingId.buildingName" },
-      { Header: "Stakeholder", accessor: "stakeholder" },
-      { Header: "Equipment Type", accessor: "equipmentType" },
-      { Header: "Fuel Type", accessor: "fuelType" },
-      { Header: "Fuel Name", accessor: "fuelName" },
-      { Header: "Fuel Consumption", accessor: "fuelConsumption" },
-      { Header: "Consumption Unit", accessor: "consumptionUnit" },
+      { Header: "Stakeholder Department", accessor: "stakeholderDepartment" },
+      { Header: "Activity Type", accessor: "activityType" },
+      { Header: "Gas Emitted", accessor: "gasEmitted" },
+      { Header: "Amount of Emissions", accessor: "amountOfEmissions" },
+      { Header: "Unit", accessor: "unit" },
       { Header: "Quality Control", accessor: "qualityControl" },
       { Header: "Remarks", accessor: "remarks" },
       {
@@ -115,7 +114,7 @@ setPageCount(pagination.totalPages || 1);
               <button
                 className="action-btn"
                 onClick={() =>
-                  navigate(`/Stationary-Combustion-Form/${cell.value}`, {
+                  navigate(`/Process-Emissions-Form/${cell.value}`, {
                     state: { mode: "view" },
                   })
                 }
@@ -127,7 +126,7 @@ setPageCount(pagination.totalPages || 1);
               <button
                 className="action-btn"
                 onClick={() =>
-                  navigate(`/Stationary-Combustion-Form/${cell.value}`, {
+                  navigate(`/Process-Emissions-Form/${cell.value}`, {
                     state: { mode: "edit" },
                   })
                 }
@@ -152,6 +151,7 @@ setPageCount(pagination.totalPages || 1);
     ],
     [pageIndex, pageSize]
   );
+
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
   const data = useMemo(() => records, [records]);
@@ -209,7 +209,7 @@ setPageCount(pagination.totalPages || 1);
               text="Add Record"
               className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
               iconClass="text-lg"
-              onClick={() => navigate("/Stationary-Combustion-Form/Add")}
+              onClick={() => navigate("/Process-Emissions-Form/Add")}
             />
           </div>
         </div>
@@ -373,8 +373,8 @@ setPageCount(pagination.totalPages || 1);
               <li key={idx}>
                 <button
                   className={`${idx === pageIndex
-                      ? "bg-slate-900 text-white font-medium"
-                      : "bg-slate-100 text-slate-900 font-normal"
+                    ? "bg-slate-900 text-white font-medium"
+                    : "bg-slate-100 text-slate-900 font-normal"
                     } text-sm rounded h-6 w-6 flex items-center justify-center`}
                   onClick={() => {
                     tableInstance.gotoPage(idx);
