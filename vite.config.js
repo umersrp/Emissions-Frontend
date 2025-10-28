@@ -21,8 +21,8 @@ export default defineConfig({
       values: {
         __DEV__: JSON.stringify(true),
         "process.env.NODE_ENV": JSON.stringify("development"),
-       // "process.env.REACT_APP_BASE_URL": JSON.stringify("https://carbonx.srptechs.com/api"),
-        "process.env.REACT_APP_BASE_URL": JSON.stringify("https://ksvvmxbk-4000.inc1.devtunnels.ms/api"),
+        "process.env.REACT_APP_BASE_URL": JSON.stringify("https://carbonx.srptechs.com/api"),
+       // "process.env.REACT_APP_BASE_URL": JSON.stringify("https://ksvvmxbk-4000.inc1.devtunnels.ms/api"),
       },
     }),
     react(),
