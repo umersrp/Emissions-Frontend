@@ -38,22 +38,18 @@ const MobileCombustionListing = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
   // Fetch Stationary Combustion Data
-  const fetchStationaryRecords = async (search = "") => {
+  const fetchStationaryRecords = async () => {
     setLoading(true);
     try {
       const res = await axios.get(
         `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-          params: { page: pageIndex + 1, limit: pageSize, search },
         }
       );
 
-   const data = res.data?.data?.records || res.data?.data || [];
-const pagination = res.data?.data?.pagination || {};
-
-setRecords(data);
-setPageCount(pagination.totalPages || 1);
+      const data = res.data?.data?.records || res.data?.data || [];
+      setRecords(data);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch records");
@@ -63,11 +59,8 @@ setPageCount(pagination.totalPages || 1);
   };
 
   useEffect(() => {
-    const delay = setTimeout(() => {
-      fetchStationaryRecords(globalFilterValue);
-    }, 400);
-    return () => clearTimeout(delay);
-  }, [globalFilterValue, pageIndex, pageSize]);
+    fetchStationaryRecords();
+  }, []);
 
   //  Delete Record
   const handleDelete = async (id) => {
@@ -85,91 +78,118 @@ setPageCount(pagination.totalPages || 1);
 
   //  Table Columns
   const COLUMNS = useMemo(
-  () => [
-    {
-      Header: "Sr No",
-      id: "serialNo",
-      Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
-    },
-    {
-      Header: "Building",
-      accessor: (row) => row.buildingId?.buildingName || "-",
-    },
-    { Header: "Stakeholder", accessor: "stakeholder" },
-    { Header: "Vehicle Classification", accessor: "vehicleClassification" },
-    { Header: "Vehicle Type", accessor: "vehicleType" },
-    { Header: "Fuel Name", accessor: "fuelName" },
-    { Header: "Distance Traveled", accessor: "distanceTraveled" },
-    { Header: "Distance Unit", accessor: "distanceUnit" },
-    { Header: "Quality Control", accessor: "qualityControl" },
-    { Header: "Weight Loaded (kg)", accessor: "weightLoaded" },
-    { Header: "Remarks", accessor: "remarks" },
-    {
-      Header: "Created At",
-      accessor: "createdAt",
-      Cell: ({ cell }) =>
-        cell.value ? new Date(cell.value).toLocaleDateString() : "-",
-    },
-    {
-      Header: "Actions",
-      accessor: "_id",
-      Cell: ({ cell }) => (
-        <div className="flex space-x-3 rtl:space-x-reverse">
-          <Tippy content="View">
-            <button
-              className="action-btn"
-              onClick={() =>
-                navigate(`/Mobile-Combustion-Form/${cell.value}`, {
-                  state: { mode: "view" },
-                })
-              }
-            >
-              <Icon icon="heroicons:eye" className="text-green-600" />
-            </button>
-          </Tippy>
+    () => [
+      {
+        Header: "Sr No",
+        id: "serialNo",
+        Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
+      },
+      {
+        Header: "Building",
+        accessor: (row) => row.buildingId?.buildingName || "-",
+      },
+      { Header: "Stakeholder", accessor: "stakeholder" },
+      { Header: "Vehicle Classification", accessor: "vehicleClassification" },
+      {
+        Header: "Vehicle Type",
+        accessor: "vehicleType",
+        Cell: ({ value }) => (
+          <span title={value}>
+            {value?.length > 50 ? value.slice(0, 50) + "..." : value || "-"}
+          </span>
+        ),
+      },
+      { Header: "Fuel Name", accessor: "fuelName" },
+      { Header: "Distance Traveled", accessor: "distanceTraveled" },
+      { Header: "Distance Unit", accessor: "distanceUnit" },
+      { Header: "Quality Control", accessor: "qualityControl" },
+      { Header: "Weight Loaded (kg)", accessor: "weightLoaded" },
+      {
+        Header: "Remarks",
+        accessor: "remarks",
+        Cell: ({ value }) => (
+          <span title={value}>
+            {value?.length > 20 ? value.slice(0, 20) + "..." : value || "-"}
+          </span>
+        ),
+      }, {
+        Header: "Created At",
+        accessor: "createdAt",
+        Cell: ({ cell }) =>
+          cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+      },
+      {
+        Header: "Actions",
+        accessor: "_id",
+        Cell: ({ cell }) => (
+          <div className="flex space-x-3 rtl:space-x-reverse">
+            <Tippy content="View">
+              <button
+                className="action-btn"
+                onClick={() =>
+                  navigate(`/Mobile-Combustion-Form/${cell.value}`, {
+                    state: { mode: "view" },
+                  })
+                }
+              >
+                <Icon icon="heroicons:eye" className="text-green-600" />
+              </button>
+            </Tippy>
 
-          <Tippy content="Edit">
-            <button
-              className="action-btn"
-              onClick={() =>
-                navigate(`/Mobile-Combustion-Form/${cell.value}`, {
-                  state: { mode: "edit" },
-                })
-              }
-            >
-              <Icon icon="heroicons:pencil-square" className="text-blue-600" />
-            </button>
-          </Tippy>
+            <Tippy content="Edit">
+              <button
+                className="action-btn"
+                onClick={() =>
+                  navigate(`/Mobile-Combustion-Form/${cell.value}`, {
+                    state: { mode: "edit" },
+                  })
+                }
+              >
+                <Icon icon="heroicons:pencil-square" className="text-blue-600" />
+              </button>
+            </Tippy>
 
-          <Tippy content="Delete">
-            <button
-              className="action-btn"
-              onClick={() => {
-                setSelectedBuildingId(cell.value);
-                setDeleteModalOpen(true);
-              }}
-            >
-              <Icon icon="heroicons:trash" className="text-red-600" />
-            </button>
-          </Tippy>
-        </div>
-      ),
-    },
-  ],
-  [pageIndex, pageSize]
-);
+            <Tippy content="Delete">
+              <button
+                className="action-btn"
+                onClick={() => {
+                  setSelectedBuildingId(cell.value);
+                  setDeleteModalOpen(true);
+                }}
+              >
+                <Icon icon="heroicons:trash" className="text-red-600" />
+              </button>
+            </Tippy>
+          </div>
+        ),
+      },
+    ],
+    [pageIndex, pageSize]
+  );
 
 
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
-  const data = useMemo(() => records, [records]);
+  const data = useMemo(() => {
+    if (!globalFilterValue) return records;
+    return records.filter((item) => {
+      const search = globalFilterValue.toLowerCase();
+      return (
+        item.buildingId?.buildingName?.toLowerCase().includes(search) ||
+        item.stakeholder?.toLowerCase().includes(search) ||
+        item.vehicleClassification?.toLowerCase().includes(search) ||
+        item.vehicleType?.toLowerCase().includes(search) ||
+        item.fuelName?.toLowerCase().includes(search) ||
+        item.remarks?.toLowerCase().includes(search)
+      );
+    });
+  }, [records, globalFilterValue]);
+
 
   const tableInstance = useTable(
     {
       columns,
       data,
-      manualPagination: true,
-      pageCount,
       initialState: { pageIndex: 0, pageSize: 10 },
     },
     useSortBy,
@@ -188,6 +208,7 @@ setPageCount(pagination.totalPages || 1);
       ]);
     }
   );
+
 
   const {
     getTableProps,
@@ -381,8 +402,8 @@ setPageCount(pagination.totalPages || 1);
               <li key={idx}>
                 <button
                   className={`${idx === pageIndex
-                      ? "bg-slate-900 text-white font-medium"
-                      : "bg-slate-100 text-slate-900 font-normal"
+                    ? "bg-slate-900 text-white font-medium"
+                    : "bg-slate-100 text-slate-900 font-normal"
                     } text-sm rounded h-6 w-6 flex items-center justify-center`}
                   onClick={() => {
                     tableInstance.gotoPage(idx);

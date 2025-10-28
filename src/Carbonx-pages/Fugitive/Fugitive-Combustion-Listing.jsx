@@ -33,27 +33,20 @@ const FugitiveCombustionListing = () => {
   const [loading, setLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
-  const [pageCount, setPageCount] = useState(0);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
-  // Fetch Stationary Combustion Data
-  const fetchStationaryRecords = async (search = "") => {
+
+  // ✅ Fetch All Fugitive Emission Records (once)
+  const fetchStationaryRecords = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/Fugitive/get-All`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-          params: { page: pageIndex + 1, limit: pageSize, search },
-        }
-      );
+      const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/Fugitive/get-All`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
 
-   const data = res.data?.data?.records || res.data?.data || [];
-const pagination = res.data?.data?.pagination || {};
-
-setRecords(data);
-setPageCount(pagination.totalPages || 1);
+      const data = res.data?.data?.records || res.data?.data || [];
+      setRecords(data);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch records");
@@ -63,13 +56,26 @@ setPageCount(pagination.totalPages || 1);
   };
 
   useEffect(() => {
-    const delay = setTimeout(() => {
-      fetchStationaryRecords(globalFilterValue);
-    }, 400);
-    return () => clearTimeout(delay);
-  }, [globalFilterValue, pageIndex, pageSize]);
+    fetchStationaryRecords();
+  }, []);
 
-  //  Delete Record
+  // ✅ Client-side filtering
+  const filteredRecords = useMemo(() => {
+    if (!globalFilterValue.trim()) return records;
+    const search = globalFilterValue.toLowerCase();
+
+    return records.filter((item) => {
+      return (
+        item?.buildingId?.buildingName?.toLowerCase().includes(search) ||
+        item?.stakeholder?.toLowerCase().includes(search) ||
+        item?.equipmentType?.toLowerCase().includes(search) ||
+        item?.materialRefrigerant?.toLowerCase().includes(search) ||
+        item?.remarks?.toLowerCase().includes(search)
+      );
+    });
+  }, [records, globalFilterValue]);
+
+  // ✅ Delete Record
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/Fugitive/delete/${id}`, {
@@ -83,85 +89,82 @@ setPageCount(pagination.totalPages || 1);
     }
   };
 
-  //  Table Columns
- const COLUMNS = useMemo(
-  () => [
-    {
-      Header: "Sr No",
-      id: "serialNo",
-      Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
-    },
-    { Header: "Building", accessor: "buildingId.buildingName" },
-    { Header: "Stakeholder", accessor: "stakeholder" },
-    { Header: "Equipment Type", accessor: "equipmentType" },
-    { Header: "Material / Refrigerant", accessor: "materialRefrigerant" },
-    { Header: "Leakage Value", accessor: "leakageValue" },
-    { Header: "Consumption Unit", accessor: "consumptionUnit" },
-    { Header: "Quality Control", accessor: "qualityControl" },
-    { Header: "Remarks", accessor: "remarks" },
-    {
-      Header: "Created At",
-      accessor: "createdAt",
-      Cell: ({ cell }) =>
-        cell.value ? new Date(cell.value).toLocaleDateString() : "-",
-    },
-    {
-      Header: "Actions",
-      accessor: "_id",
-      Cell: ({ cell }) => (
-        <div className="flex space-x-3 rtl:space-x-reverse">
-          <Tippy content="View">
-            <button
-              className="action-btn"
-              onClick={() =>
-                navigate(`/Fugitive-Emissions-Form/${cell.value}`, {
-                  state: { mode: "view" },
-                })
-              }
-            >
-              <Icon icon="heroicons:eye" className="text-green-600" />
-            </button>
-          </Tippy>
-          <Tippy content="Edit">
-            <button
-              className="action-btn"
-              onClick={() =>
-                navigate(`/Fugitive-Emissions-Form/${cell.value}`, {
-                  state: { mode: "edit" },
-                })
-              }
-            >
-              <Icon icon="heroicons:pencil-square" className="text-blue-600" />
-            </button>
-          </Tippy>
-          <Tippy content="Delete">
-            <button
-              className="action-btn"
-              onClick={() => {
-                setSelectedBuildingId(cell.value);
-                setDeleteModalOpen(true);
-              }}
-            >
-              <Icon icon="heroicons:trash" className="text-red-600" />
-            </button>
-          </Tippy>
-        </div>
-      ),
-    },
-  ],
-  [pageIndex, pageSize]
-);
-
+  // ✅ Table Columns
+  const COLUMNS = useMemo(
+    () => [
+      {
+        Header: "Sr No",
+        id: "serialNo",
+        Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
+      },
+      { Header: "Building", accessor: "buildingId.buildingName" },
+      { Header: "Stakeholder", accessor: "stakeholder" },
+      { Header: "Equipment Type", accessor: "equipmentType" },
+      { Header: "Material / Refrigerant", accessor: "materialRefrigerant" },
+      { Header: "Leakage Value", accessor: "leakageValue" },
+      { Header: "Consumption Unit", accessor: "consumptionUnit" },
+      { Header: "Quality Control", accessor: "qualityControl" },
+      { Header: "Remarks", accessor: "remarks" },
+      {
+        Header: "Created At",
+        accessor: "createdAt",
+        Cell: ({ cell }) =>
+          cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+      },
+      {
+        Header: "Actions",
+        accessor: "_id",
+        Cell: ({ cell }) => (
+          <div className="flex space-x-3 rtl:space-x-reverse">
+            <Tippy content="View">
+              <button
+                className="action-btn"
+                onClick={() =>
+                  navigate(`/Fugitive-Emissions-Form/${cell.value}`, {
+                    state: { mode: "view" },
+                  })
+                }
+              >
+                <Icon icon="heroicons:eye" className="text-green-600" />
+              </button>
+            </Tippy>
+            <Tippy content="Edit">
+              <button
+                className="action-btn"
+                onClick={() =>
+                  navigate(`/Fugitive-Emissions-Form/${cell.value}`, {
+                    state: { mode: "edit" },
+                  })
+                }
+              >
+                <Icon icon="heroicons:pencil-square" className="text-blue-600" />
+              </button>
+            </Tippy>
+            <Tippy content="Delete">
+              <button
+                className="action-btn"
+                onClick={() => {
+                  setSelectedBuildingId(cell.value);
+                  setDeleteModalOpen(true);
+                }}
+              >
+                <Icon icon="heroicons:trash" className="text-red-600" />
+              </button>
+            </Tippy>
+          </div>
+        ),
+      },
+    ],
+    [pageIndex, pageSize]
+  );
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
-  const data = useMemo(() => records, [records]);
+  const data = useMemo(() => filteredRecords, [filteredRecords]);
 
   const tableInstance = useTable(
     {
       columns,
       data,
-      manualPagination: true,
-      pageCount,
       initialState: { pageIndex: 0, pageSize: 10 },
     },
     useSortBy,
@@ -192,6 +195,7 @@ setPageCount(pagination.totalPages || 1);
     canNextPage,
     canPreviousPage,
     pageOptions,
+    gotoPage,
     state,
   } = tableInstance;
 
@@ -222,19 +226,12 @@ setPageCount(pagination.totalPages || 1);
                   <img src={Logo} alt="Loading..." className="w-52 h-24" />
                 </div>
               ) : (
-                <table
-                  className="min-w-full divide-y divide-slate-100 table-fixed"
-                  {...getTableProps()}
-                >
+                <table className="min-w-full divide-y divide-slate-100 table-fixed" {...getTableProps()}>
                   <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]">
                     {headerGroups.map((headerGroup, index) => (
                       <tr {...headerGroup.getHeaderGroupProps()} key={index}>
                         {headerGroup.headers.map((column) => (
-                          <th
-                            {...column.getHeaderProps(column.getSortByToggleProps())}
-                            className="table-th text-white"
-                            key={column.id}
-                          >
+                          <th {...column.getHeaderProps(column.getSortByToggleProps())} className="table-th text-white" key={column.id}>
                             {column.render("Header")}
                             <span>
                               {column.isSorted
@@ -261,10 +258,7 @@ setPageCount(pagination.totalPages || 1);
                         return (
                           <tr {...row.getRowProps()} className="even:bg-gray-50">
                             {row.cells.map((cell) => (
-                              <td
-                                {...cell.getCellProps()}
-                                className="px-6 py-4 whitespace-nowrap"
-                              >
+                              <td {...cell.getCellProps()} className="px-6 py-4 whitespace-nowrap">
                                 {cell.render("Cell")}
                               </td>
                             ))}
@@ -279,150 +273,29 @@ setPageCount(pagination.totalPages || 1);
           </div>
         </div>
 
-        {/* Pagination */}
-        {/* <div className="md:flex justify-between items-center mt-6">
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-slate-600">
-              Page <span>{currentPageIndex + 1} of {pageOptions.length}</span>
-            </span>
-          </div>
-          <ul className="flex items-center space-x-3">
-            <li>
-              <button
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-                className={`${!canPreviousPage ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                Prev
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => nextPage()}
-                disabled={!canNextPage}
-                className={`${!canNextPage ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                Next
-              </button>
-            </li>
-          </ul>
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-slate-600">Show</span>
-            <select
-              value={pageSize}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              className="form-select py-2"
-            >
-              {[10, 20, 30, 50].map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div> */}
-        {/* Enhanced Pagination (same as CompanyTable) */}
+        {/* ✅ Pagination */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
-          {/* Go to page + current info */}
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <span className="flex space-x-2 rtl:space-x-reverse items-center">
-              <span className="text-sm font-medium text-slate-600">Go</span>
-              <span>
-                <input
-                  type="number"
-                  className="form-control py-2"
-                  defaultValue={pageIndex + 1}
-                  onChange={(e) => {
-                    const pageNumber = e.target.value ? Number(e.target.value) - 1 : 0;
-                    if (pageNumber >= 0 && pageNumber < pageOptions.length) {
-                      tableInstance.gotoPage(pageNumber);
-                      setPageIndex(pageNumber);
-                    }
-                  }}
-                  style={{ width: "50px" }}
-                />
-              </span>
-            </span>
             <span className="text-sm font-medium text-slate-600">
-              Page <span>{pageIndex + 1} of {pageOptions.length || 1}</span>
+              Page {currentPageIndex + 1} of {pageOptions.length || 1}
             </span>
           </div>
-
-          {/* Pagination buttons */}
           <ul className="flex items-center space-x-3 rtl:space-x-reverse">
-            <li className="text-xl leading-4 text-slate-900">
-              <button
-                className={`${!tableInstance.canPreviousPage ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={() => tableInstance.gotoPage(0)}
-                disabled={!tableInstance.canPreviousPage}
-              >
-                <Icon icon="heroicons:chevron-double-left-solid" />
-              </button>
-            </li>
-            <li className="text-sm">
-              <button
-                className={`${!tableInstance.canPreviousPage ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={() => tableInstance.previousPage()}
-                disabled={!tableInstance.canPreviousPage}
-              >
+            <li>
+              <button onClick={() => previousPage()} disabled={!canPreviousPage}>
                 Prev
               </button>
             </li>
-
-            {pageOptions.map((pageNum, idx) => (
-              <li key={idx}>
-                <button
-                  className={`${idx === pageIndex
-                      ? "bg-slate-900 text-white font-medium"
-                      : "bg-slate-100 text-slate-900 font-normal"
-                    } text-sm rounded h-6 w-6 flex items-center justify-center`}
-                  onClick={() => {
-                    tableInstance.gotoPage(idx);
-                    setPageIndex(idx);
-                  }}
-                >
-                  {pageNum + 1}
-                </button>
-              </li>
-            ))}
-
-            <li className="text-sm">
-              <button
-                className={`${!tableInstance.canNextPage ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={() => tableInstance.nextPage()}
-                disabled={!tableInstance.canNextPage}
-              >
+            <li>
+              <button onClick={() => nextPage()} disabled={!canNextPage}>
                 Next
               </button>
             </li>
-            <li className="text-xl leading-4 text-slate-900">
-              <button
-                onClick={() => tableInstance.gotoPage(pageCount - 1)}
-                disabled={!tableInstance.canNextPage}
-                className={`${!tableInstance.canNextPage ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                <Icon icon="heroicons:chevron-double-right-solid" />
-              </button>
-            </li>
           </ul>
-
-          {/* Show entries dropdown */}
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-slate-600">Show</span>
-            <select
-              value={pageSize}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              className="form-select py-2"
-            >
-              {[10].map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
       </Card>
+
+      {/* ✅ Delete Confirmation Modal */}
       <Modal
         activeModal={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
@@ -431,11 +304,7 @@ setPageCount(pagination.totalPages || 1);
         centered
         footerContent={
           <>
-            <Button
-              text="Cancel"
-              className="btn-light"
-              onClick={() => setDeleteModalOpen(false)}
-            />
+            <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
             <Button
               text="Delete"
               className="btn-danger"

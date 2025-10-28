@@ -67,7 +67,7 @@ const Header = ({ className = "custom-class" }) => {
              }
         `}
       >
-        <div className="flex justify-between items-center h-full">
+        <div className="flex justify-between items-center h-full w-full ">
           {/* For Vertical  */}
 
           {menuType === "vertical" && (
@@ -86,17 +86,17 @@ const Header = ({ className = "custom-class" }) => {
               )}
               {width < breakpoints.xl && <Logo />}
               {/* open mobile menu handlaer*/}
-              {width < breakpoints.xl && width >= breakpoints.md && (
+               {/* {width < breakpoints.xl && width >= breakpoints.md && (
                 <div
                   className="cursor-pointer text-slate-900 dark:text-white text-2xl"
                   onClick={handleOpenMobileMenu}
                 >
                   <Icon icon="heroicons-outline:menu-alt-3" />
                 </div>
-              )}
-              <SearchModal />
+              )} */}
+              {/* <SearchModal /> */}
             </div>
-          )}
+          )} 
           {/* For Horizontal  */}
           {menuType === "horizontal" && (
             <div className="flex items-center space-x-4 rtl:space-x-reverse">

@@ -7,10 +7,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
-  stakeholderOptions,
+   FugitiveAndMobileStakeholderOptions ,
   qualityControlOptions,
-} from "@/constant/options";
-import {
   vehicleClassificationOptions,
   vehicleTypeOptionsByClassification,
   fuelNameOptionsByClassification,
@@ -85,7 +83,7 @@ const MobileCombustionFormPage = () => {
               }
               : buildingOptions.find((b) => b.value === data.buildingId) ||
               { label: "Unknown", value: data.buildingId },
-          stakeholder: stakeholderOptions.find((s) => s.value === data.stakeholder) || { label: data.stakeholder, value: data.stakeholder },
+          stakeholder: FugitiveAndMobileStakeholderOptions .find((s) => s.value === data.stakeholder) || { label: data.stakeholder, value: data.stakeholder },
           vehicleClassification: vehicleClassificationOptions.find((v) => v.value === data.vehicleClassification) || { label: data.vehicleClassification, value: data.vehicleClassification },
           vehicleType: { label: data.vehicleType, value: data.vehicleType },
           fuelName: { label: data.fuelName, value: data.fuelName },
@@ -225,7 +223,7 @@ const MobileCombustionFormPage = () => {
             {/* Stakeholder */}
             <div>
               <label className="field-label">Stakeholder / Department</label>
-              <Select name="stakeholder" value={formData.stakeholder} options={stakeholderOptions} onChange={handleSelectChange} placeholder="Select or Type Department" isDisabled={isView} allowCustomInput />
+              <Select name="stakeholder" value={formData.stakeholder} options={FugitiveAndMobileStakeholderOptions } onChange={handleSelectChange} placeholder="Select or Type Department" isDisabled={isView} allowCustomInput />
               {errors.stakeholder && <p className="text-red-500 text-sm mt-1">{errors.stakeholder}</p>}
             </div>
 

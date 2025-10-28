@@ -1,3 +1,4 @@
+//Stationary
 export const equipmentTypeOptions = [
   { value: "additive_blending_line_heaters", label: "Additive Blending Line Heaters" },
   { value: "adhesive_curing_oven", label: "Adhesive Curing Oven" },
@@ -334,7 +335,6 @@ export const stakeholderOptions = [
 ];
 
 
-
 export const qualityControlOptions = [
   { value: "Highly Uncertain", label: "Highly Uncertain" },
   { value: "Uncertain", label: "Uncertain" },
@@ -484,7 +484,7 @@ export const fuelUnitOptionsByName = {
 
 //Fugitive
 // --- Stakeholder / Department Options ---
-export const FugitiveStakeholderOptions = [
+export const FugitiveAndMobileStakeholderOptions = [
   { value: "Assembly", label: "Assembly" },
   { value: "Asset Integrity / Technical Integrity", label: "Asset Integrity / Technical Integrity" },
   { value: "Biostatistics / Statistical Programming", label: "Biostatistics / Statistical Programming" },
@@ -905,17 +905,17 @@ export const vehicleClassificationOptions = [
 export const vehicleTypeOptionsByClassification = {
   "By Market Segment": [
     { value: "Mini - City or A-Segment Passenger Cars (600 cc - 1200 cc)", label: "Mini - City or A-Segment Passenger Cars (600 cc - 1200 cc)" },
-    { value: "Supermini", label: "Supermini - Small or B-Segment Passenger Cars (1000 cc - 1600 cc)" },
-    { value: "Lower medium", label: "Lower medium - Compact or C-Segment Passenger Cars (1300 cc - 2000 cc)" },
-    { value: "Upper medium", label: "Upper medium - Larger or D-Segment Passenger Cars (1500cc - 2700cc)" },
-    { value: "Executive", label: "Executive - Large Executive or E-Segment Passenger Cars (2000cc - 3500cc+)" },
-    { value: "Luxury", label: "Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000cc - 6000cc)" },
-    { value: "Sports", label: "Sports - High Performance (2000cc - 4000cc+)" },
-    { value: "Dual purpose 4X4", label: "Dual purpose 4X4 - SUVs 4WD or AWD (1500cc - 6000cc)" },
-    { value: "MPV", label: "MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace,Suzuki APV, Vans etc.)  - Passenger or Transport Vehicle (1200 cc - 2000 cc)" },
+    { value: "Supermini - Small or B-Segment Passenger Cars (1000 cc - 1600 cc)", label: "Supermini - Small or B-Segment Passenger Cars (1000 cc - 1600 cc)" },
+    { value: "Lower medium - Compact or C-Segment Passenger Cars (1300 cc - 2000 cc)", label: "Lower medium - Compact or C-Segment Passenger Cars (1300 cc - 2000 cc)" },
+    { value: "Upper medium - Larger or D-Segment Passenger Cars (1500cc - 2700cc)", label: "Upper medium - Larger or D-Segment Passenger Cars (1500cc - 2700cc)" },
+    { value: "Executive - Large Executive or E-Segment Passenger Cars (2000cc - 3500cc+)", label: "Executive - Large Executive or E-Segment Passenger Cars (2000cc - 3500cc+)" },
+    { value: "Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000cc - 6000cc)", label: "Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000cc - 6000cc)" },
+    { value: "Sports - High Performance (2000cc - 4000cc+)", label: "Sports - High Performance (2000cc - 4000cc+)" },
+    { value: "Dual purpose 4X4 - SUVs 4WD or AWD (1500cc - 6000cc)", label: "Dual purpose 4X4 - SUVs 4WD or AWD (1500cc - 6000cc)" },
+    { value: "MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace,Suzuki APV, Vans etc.)  - Passenger or Transport Vehicle (1200 cc - 2000 cc)", label: "MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace,Suzuki APV, Vans etc.)  - Passenger or Transport Vehicle (1200 cc - 2000 cc)" },
   ],
   "By Size": [
-    { value: "Small car - Petrol/LPG/CNG - up to a 1.4-litre engine. Diesel - up to a 1.7-litre engine. Others - vehicles models of a similar size (i.e. market segment A or B)", label: "Small car" },
+    { value: "Small car - Petrol/LPG/CNG - up to a 1.4-litre engine. Diesel - up to a 1.7-litre engine. Others - vehicles models of a similar size (i.e. market segment A or B)", label: "Small car - Petrol/LPG/CNG - up to a 1.4-litre engine. Diesel - up to a 1.7-litre engine. Others - vehicles models of a similar size (i.e. market segment A or B)" },
     { value: "Medium car - Petrol/LPG/CNG - from 1.4-litre to 2.0-litre engine. Diesel - from 1.7-litre to 2.0-litre engine. Others - vehicles models of a similar size (i.e. generally market segment C)", label: "Medium car - Petrol/LPG/CNG - from 1.4-litre to 2.0-litre engine. Diesel - from 1.7-litre to 2.0-litre engine. Others - vehicles models of a similar size (i.e. generally market segment C)" },
     { value: "Large car - Petrol/LPG/CNG - 2.0-litre engine (+) . Diesel - 2.0-litre engine (+). Others - vehicles models of a similar size (i.e. generally market segment D and above)", label: "Large car - Petrol/LPG/CNG - 2.0-litre engine (+) . Diesel - 2.0-litre engine (+). Others - vehicles models of a similar size (i.e. generally market segment D and above)" },
     { value: "Average car - Unknown engine size.", label: "Average car - Unknown engine size." },
@@ -977,9 +977,9 @@ export const fuelNameOptionsByClassification = {
 
   "By Market Segment": commonFuelOptions,
 
-  "By Size": commonFuelOptions,
+  "Delivery Vans (Large Goods Vehicles)": commonFuelOptions,
 
-  "Delivery Vans (Large Goods Vehicles)": [
+  "By Size": [
     ...commonFuelOptions,
     { value: "Hybrid", label: "Hybrid" },
   ],
