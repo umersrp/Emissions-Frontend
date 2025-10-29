@@ -110,7 +110,12 @@ const BuildingTable = () => {
             { Header: "Operating Hours", accessor: "operatingHours" },
             {
                 Header: "Created By",
-                accessor: "createdBy.email",
+                accessor: "createdBy.name",
+                Cell: ({ cell }) => cell.value || "-",
+            },
+             {
+                Header: "Updated By",
+                accessor: "updatedBy.name",
                 Cell: ({ cell }) => cell.value || "-",
             },
             {

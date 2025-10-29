@@ -35,7 +35,7 @@ const StationaryCombustionFormPage = () => {
     consumptionUnit: null,
     remarks: "",
   });
-console.log("🔥 StationaryCombustionFormPage re-rendered");
+console.log("StationaryCombustionFormPage re-rendered");
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
 
@@ -263,9 +263,10 @@ console.log("🔥 StationaryCombustionFormPage re-rendered");
               options={stakeholderOptions}
               value={formData.stakeholder}
               onChange={handleSelectChange}
-              placeholder="Select department"
+              placeholder="Select or Type department"
               className={`w-full ${errors.stakeholder ? "border border-red-500 rounded" : ""}`}
               isDisabled={isView}
+              allowCustomInput
             />
             {errors.stakeholder && <p className="text-red-500 text-sm mt-1">{errors.stakeholder}</p>}
           </div>

@@ -1,13 +1,3 @@
-// import React from 'react'
-
-// function Discounttable() {
-//   return (
-//     <div>Discount-table</div>
-//   )
-// }
-
-// export default Discounttable
-
 
 import React, { useState, useMemo, useEffect } from "react";
 import Card from "@/components/ui/Card";

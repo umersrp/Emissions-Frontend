@@ -204,15 +204,16 @@ import EditCompanyProfile from "./Carbonx-pages/Company/EditCompanyProfile";
 import ViewCompanyProfile from "./Carbonx-pages/Company/ViewComapyProfile";
 import BuildingFormPage from "./Carbonx-pages/Building/[id]/Building-form";
 import BuildingTable from "./Carbonx-pages/Building/Buidingtable";
-import StationaryCombustionFormPage from "@/Carbonx-pages/Stationary/Stationary-Combustion-Form";
-import StationaryCombustionListing from "@/Carbonx-pages/Stationary/Stationary-Combustion-Listing";
-import Scope1 from "./Carbonx-pages/Scope1/Scope1";
-import FugitiveCombustionFormPage from "@/Carbonx-pages/Fugitive/Fugitive-Combustion-Form";
-import FugitiveCombustionListing from "@/Carbonx-pages/Fugitive/Fugitive-Combustion-Listing";
-import MobileCombustionFormPage from "./Carbonx-pages/Mobile/Mobile-Combustion-Form";
-import MobileCombustionListing from "./Carbonx-pages/Mobile/Mobile-Combustion-Listing";
-import ProcessEmissionsFormPage from "./Carbonx-pages/Process/Process-Emissions-Form";
-import ProcessEmissionsListing from "./Carbonx-pages/Process/Process-Emissions-Listing";
+import StationaryCombustionFormPage from "@/Carbonx-pages/ScopeOne/Stationary/Stationary-Combustion-Form";
+import StationaryCombustionListing from "@/Carbonx-pages/ScopeOne/Stationary/Stationary-Combustion-Listing";
+import Scope1 from "./Carbonx-pages/ScopeOne/Scope1/Scope1";
+import FugitiveCombustionFormPage from "@/Carbonx-pages/ScopeOne/Fugitive/Fugitive-Combustion-Form";
+import FugitiveCombustionListing from "@/Carbonx-pages/ScopeOne/Fugitive/Fugitive-Combustion-Listing";
+import MobileCombustionFormPage from "./Carbonx-pages/ScopeOne/Mobile/Mobile-Combustion-Form";
+import MobileCombustionListing from "./Carbonx-pages/ScopeOne/Mobile/Mobile-Combustion-Listing";
+import ProcessEmissionsFormPage from "./Carbonx-pages/ScopeOne/Process/Process-Emissions-Form";
+import ProcessEmissionsListing from "./Carbonx-pages/ScopeOne/Process/Process-Emissions-Listing";
+import MyCompany from "./Carbonx-pages/Company/MyCompany";
 
 
 function App() {
@@ -239,7 +240,7 @@ function App() {
           <Route path="dashboard" element={
             <PrivateRoute
               element={Dashboard}
-              requiredAuthTypes={["admin", "vendor"]}
+              requiredAuthTypes={["company","admin", "vendor"]}
             />
           } />
           {/* <Route path="discountt" element={
@@ -409,7 +410,8 @@ function App() {
           <Route path="Company-Add" element={<CompanyProfileForm />} />
           <Route path="Company-Edit/:id" element={<EditCompanyProfile />} />
           <Route path="Company-View/:id" element={<ViewCompanyProfile />} />
-          <Route path="Company" element={<CompanyTable />} />
+          <Route path="Company" element={<CompanyTable/>} />
+          <Route path="Company/:id" element={<MyCompany/>} />
 
           <Route path="Building-Form/add" element={<BuildingFormPage />} />
           <Route path="Building-Form/:id" element={<BuildingFormPage />} />

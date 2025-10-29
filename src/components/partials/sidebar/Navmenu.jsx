@@ -78,11 +78,15 @@ const Navmenu = ({ menus }) => {
 
   // Filter menus based on user type
   const filteredMenus = menus.filter((menu) => {
-    if (user?.type === "admin") {
-      return true; // Show all menus for admin
-    } else if (user?.type === "vendor") {
+    if (user?.type === "company") {
+      return menu.link !== "Sector-table" && menu.link !== "Industry" && menu.link !== "Company";
+    } else if (user?.type === "admin") {
       // Show only Venue, Orders, and Rider for vendor
-      return menu.title === "Venue" || menu.title === "Booking"  ;
+      return (
+      menu.link === "Sector-table" ||
+      menu.link === "Industry" ||
+      menu.link === "Company"
+    );
     } else if (user?.type === "user") {
       // Show only Venue, Vendor, and Rider for regular users
       return menu.title === "Venue" || menu.title === "Booking" || menu.title === "Rider";

@@ -165,26 +165,29 @@ export const menuItems = [
     isHeadr: true,
     title: "Pages",
   },
-  // {
-  //   title: "Sectors",
-  //   isHide: true,
-  //   icon: "heroicons-outline:building-library",
-  //   link: "Sector-table",
-  // },
-
-  // {
-  //   title: "Industry",
-  //   isHide: true,
-  //   icon: "heroicons-outline:home-modern",
-  //   link: "Industry"
-
-  // },
-
+  {
+    title: "Sectors",
+    isHide: true,
+    icon: "heroicons-outline:building-library",
+    link: "Sector-table",
+  },
+  {
+    title: "Industry",
+    isHide: true,
+    icon: "heroicons-outline:home-modern",
+    link: "Industry"
+  },
   {
     title: "Company",
     isHide: true,
     icon: "heroicons:building-office",
     link: "Company"
+  },
+   {
+    title: "Company",
+    isHide: true,
+    icon: "heroicons:building-office",
+    link: "Company/:id"
   },
   {
     title: "Building",

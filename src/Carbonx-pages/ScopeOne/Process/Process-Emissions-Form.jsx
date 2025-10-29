@@ -235,7 +235,7 @@ const ProcessEmissionsFormPage = () => {
                 value={formData.stakeholderDepartment}
                 options={stakeholderDepartmentOptions}
                 onChange={handleSelectChange}
-                placeholder="Select Department"
+                placeholder="Select or Type Department"
                 isDisabled={isView}
                 allowCustomInput
               />

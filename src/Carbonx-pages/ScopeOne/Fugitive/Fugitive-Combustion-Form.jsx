@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
-  FugitiveAndMobileStakeholderOptions ,
+  FugitiveAndMobileStakeholderOptions,
   FugitiveEquipmentTypeOptions,
   materialRefrigerantOptions,
   qualityControlOptions,
@@ -138,6 +138,14 @@ const FugitiveCombustionFormPage = () => {
       return;
     }
 
+    const userId = localStorage.getItem("userId");
+console.log("User ID before creating building:", userId);
+
+    if (!userId) {
+      toast.error("User not found. Please log in again.");
+      return;
+    }
+
     const payload = {
       buildingId: formData.buildingId?.value,
       stakeholder: formData.stakeholder?.value || formData.stakeholder?.label,
@@ -147,7 +155,11 @@ const FugitiveCombustionFormPage = () => {
       consumptionUnit: formData.consumptionUnit?.value,
       qualityControl: formData.qualityControl?.value,
       remarks: formData.remarks,
+      createdBy: userId,
+      updatedBy: userId,
     };
+
+
 
     try {
       if (isEdit) {
@@ -174,6 +186,10 @@ const FugitiveCombustionFormPage = () => {
   return (
     <div>
       <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Fugitive Emissions Record`}>
+        <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 justify-center">
+          <p className="text-gray-700 items-center ">
+            Fugitive emissions are unintended greenhouse gas (GHG) releases from equipment or systems owned or controlled by an organization, such as leaks from refrigeration units, gas pipelines, or storage tanks.          </p>
+        </div>
         <form onSubmit={handleSubmit} className="p-6 grid gap-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -196,7 +212,7 @@ const FugitiveCombustionFormPage = () => {
               <label className="field-label">Stakeholder / Department</label>
               <CustomSelect
                 name="stakeholder"
-                options={FugitiveAndMobileStakeholderOptions }
+                options={FugitiveAndMobileStakeholderOptions}
                 value={formData.stakeholder}
                 onChange={(value) => handleSelectChange("stakeholder", value)}
                 placeholder="Select or type department"
@@ -237,7 +253,7 @@ const FugitiveCombustionFormPage = () => {
               )}
             </div>
 
-            {/* --- Consumption Value --- */}
+            {/* --- Leakage Value --- */}
             <div>
               <label className="field-label">Leakage Value</label>
               <input
@@ -256,7 +272,7 @@ const FugitiveCombustionFormPage = () => {
 
             {/* --- Consumption Unit --- */}
             <div>
-              <label className="field-label">Consumption Unit</label>
+              <label className="field-label">Unit</label>
               <CustomSelect
                 name="consumptionUnit"
                 options={consumptionUnitOptions}
