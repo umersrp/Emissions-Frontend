@@ -106,7 +106,8 @@ const CustomSelect = ({
     classNamePrefix: "custom-select",
     isClearable: true,
     filterOption,
-    menuPlacement: "auto",
+    // menuPlacement: "auto",
+    menuPlacement: "bottom",
     theme: (theme) => ({
       ...theme,
       colors: {

@@ -166,61 +166,81 @@ const BuildingFormPage = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isViewMode) return;
-    if (!validateFields()) return;
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (isViewMode) return;
+  if (!validateFields()) return;
 
-    try {
-      const trimmedData = {
-        ...formData,
-        buildingName: formData.buildingName.trim(),
-        country: formData.country?.value || "",
-        buildingLocation: formData.buildingLocation.trim(),
-        buildingType: formData.buildingType?.value || "",
-        ownership: formData.ownership?.value || "",
-        heatingType: formData.heatingType.trim(),
-        coolingType: formData.coolingType.trim(),
-        operatingHours: formData.operatingHours.trim(),
-      };
+  try {
+    const trimmedData = {
+      ...formData,
+      buildingName: formData.buildingName.trim(),
+      country: formData.country?.value || "",
+      buildingLocation: formData.buildingLocation.trim(),
+      buildingType: formData.buildingType?.value || "",
+      ownership: formData.ownership?.value || "",
+      heatingType: formData.heatingType.trim(),
+      coolingType: formData.coolingType.trim(),
+      operatingHours: formData.operatingHours.trim(),
+    };
 
-      const numericData = {
-        buildingArea: Number(trimmedData.buildingArea),
-        numberOfEmployees: Number(trimmedData.numberOfEmployees),
-        electricityConsumption: Number(trimmedData.electricityConsumption),
-      };
+    const numericData = {
+      buildingArea: Number(trimmedData.buildingArea),
+      numberOfEmployees: Number(trimmedData.numberOfEmployees),
+      electricityConsumption: Number(trimmedData.electricityConsumption),
+    };
 
-      if (trimmedData.heatingUsed && !trimmedData.heatingType)
-        return toast.error("Please enter heating type");
-      if (trimmedData.coolingUsed && !trimmedData.coolingType)
-        return toast.error("Please enter cooling type");
+    if (trimmedData.heatingUsed && !trimmedData.heatingType)
+      return toast.error("Please enter heating type");
+    if (trimmedData.coolingUsed && !trimmedData.coolingType)
+      return toast.error("Please enter cooling type");
 
-      const payload = {
-        ...trimmedData,
-        ...numericData,
-      };
+    // ✅ Safely get userId from localStorage or token decode fallback
+    const userId = localStorage.getItem("userId");
+    console.log("User ID before creating building:", userId);
 
-      if (isEditMode) {
-        await axios.put(
-          `${process.env.REACT_APP_BASE_URL}/building/building/${id}`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        toast.success("Building updated successfully!");
-      } else {
-        await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/building/building`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        toast.success("Building created successfully!");
-      }
-
-      setTimeout(() => navigate("/building"), 1200);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "All fields are required");
+    if (!userId) {
+      toast.error("User not found. Please log in again.");
+      return;
     }
-  };
+
+    const payload = {
+      ...trimmedData,
+      ...numericData,
+      createdBy: userId,
+      updatedBy: userId,
+    };
+
+    console.log("Payload before submit:", payload);
+
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+
+    if (isEditMode) {
+      await axios.put(
+        `${process.env.REACT_APP_BASE_URL}/building/building/${id}`,
+        payload,
+        config
+      );
+      toast.success("Building updated successfully!");
+    } else {
+      await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/building/building`,
+        payload,
+        config
+      );
+      toast.success("Building created successfully!");
+    }
+
+    setTimeout(() => navigate("/building"), 1200);
+  } catch (error) {
+    console.error("Error creating/updating building:", error);
+    toast.error(error.response?.data?.message || "All fields are required");
+  }
+};
+
 
   const validateFields = () => {
     const newErrors = {};
@@ -359,7 +379,7 @@ const BuildingFormPage = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Operating Hours</label>
               <input
-                type="text"
+                type="Number"
                 name="operatingHours"
                 value={formData.operatingHours}
                 onChange={handleInputChange}

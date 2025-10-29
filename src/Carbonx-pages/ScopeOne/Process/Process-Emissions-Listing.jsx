@@ -13,7 +13,7 @@ import {
   usePagination,
 } from "react-table";
 import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
-import Logo from "../../assets/images/logo/SrpLogo.png";
+import Logo from "@/assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {

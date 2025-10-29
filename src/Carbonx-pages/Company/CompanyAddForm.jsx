@@ -16,6 +16,8 @@ const boundaryOptions = [
 
 const CompanyProfileForm = () => {
     const navigate = useNavigate();
+    const [sectors, setSectors] = useState([]);
+    const [industries, setIndustries] = useState([]);
     const [countries, setCountries] = useState([]);
     const [currencies, setCurrencies] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -53,8 +55,10 @@ const CompanyProfileForm = () => {
         energyGeneratedGJPerAnnum: "",
         revenuePerAnnum: "",
         totalManHoursPerAnnum: "",
-        // sectorId: "",
-        // industryId: "",
+        sectorId: "",
+        industryId: "",
+        email: "",
+        password: ""
     });
 
     // // Dropdown options
@@ -81,6 +85,35 @@ const CompanyProfileForm = () => {
     //     };
     //     fetchSectors();
     // }, []);
+   useEffect(() => {
+  const fetchDropdownData = async () => {
+    try {
+      const [sectorRes, industryRes] = await Promise.all([
+        axios.get(`${process.env.REACT_APP_BASE_URL}/sector/Get-All`),
+        axios.get(`${process.env.REACT_APP_BASE_URL}/industry/get-All-Industry`),
+      ]);
+
+      const sectorOptions = sectorRes.data.data.map((item) => ({
+        value: item._id,
+        label: item.name,
+      }));
+
+      const industryOptions = industryRes.data.data.map((item) => ({
+        value: item._id,
+        label: item.name,
+      }));
+
+      setSectors(sectorOptions);
+      setIndustries(industryOptions);
+    } catch (error) {
+      console.error("Error fetching dropdown data:", error);
+    }
+  };
+
+  fetchDropdownData();
+}, []);
+
+
 
     //  Fetch industries when sectorId changes
     // useEffect(() => {
@@ -378,7 +411,7 @@ const CompanyProfileForm = () => {
                                             tether: true, // ✅ prevents weird repositioning
                                         },
                                     },
-                                   
+
                                 ]}
                             />
                             <style jsx global>{`
@@ -431,7 +464,7 @@ const CompanyProfileForm = () => {
                                             tether: true, // ✅ prevents weird repositioning
                                         },
                                     },
-                                    
+
                                 ]}
                             />
                             {/* 👇 inline style to control popper position */}
@@ -582,7 +615,7 @@ const CompanyProfileForm = () => {
                         {errors.industryId && <p className="text-red-500">{errors.industryId}</p>}
                     </div> */}
                     {/* Sector (read-only) */}
-                    <div className="">
+                    {/* <div className="">
                         <label className="field-label">Sector *</label>
                         <input
                             type="text"
@@ -591,10 +624,10 @@ const CompanyProfileForm = () => {
                             readOnly
                             className="input-field bg-gray-100 cursor-not-allowed"
                         />
-                    </div>
+                    </div> */}
 
                     {/* Industry (read-only) */}
-                    <div className="">
+                    {/* <div className="">
                         <label className="field-label">Industry *</label>
                         <input
                             type="text"
@@ -603,6 +636,35 @@ const CompanyProfileForm = () => {
                             readOnly
                             className="input-field bg-gray-100 cursor-not-allowed"
                         />
+                    </div> */}
+                    {/* Sector Dropdown */}
+                    <div>
+                        <label className="field-label">Select Sector *</label>
+                        <Select
+                            options={sectors}
+                            value={sectors.find((opt) => opt.value === formData.sectorId) || null}
+                            onChange={(selected) =>
+                                setFormData({ ...formData, sectorId: selected?.value || "" })
+                            }
+                            placeholder="Choose a sector"
+                            className="react-select"
+                        />
+                        {errors.sectorId && <p className="text-red-500">{errors.sectorId}</p>}
+                    </div>
+
+                    {/* Industry Dropdown */}
+                    <div>
+                        <label className="field-label">Select Industry *</label>
+                        <Select
+                            options={industries}
+                            value={industries.find((opt) => opt.value === formData.industryId) || null}
+                            onChange={(selected) =>
+                                setFormData({ ...formData, industryId: selected?.value || "" })
+                            }
+                            placeholder="Choose an industry"
+                            className="react-select"
+                        />
+                        {errors.industryId && <p className="text-red-500">{errors.industryId}</p>}
                     </div>
 
                     {/* Total Sites */}
@@ -731,6 +793,35 @@ const CompanyProfileForm = () => {
                         />
                         {errors.totalManHoursPerAnnum && <p className="text-red-500">{errors.totalManHoursPerAnnum}</p>}
                     </div>
+
+                    {/* email */}
+                    <div>
+                        <label className="field-label">Email *</label>
+                        <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            className="input-field"
+                            placeholder="Enter company email"
+                        />
+                        {errors.email && <p className="text-red-500">{errors.email}</p>}
+                    </div>
+
+                    {/* password */}
+                    <div>
+                        <label className="field-label">Password *</label>
+                        <input
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            className="input-field"
+                            placeholder="Enter password"
+                        />
+                        {errors.password && <p className="text-red-500">{errors.password}</p>}
+                    </div>
+
 
 
                     {/* Submit Button */}
