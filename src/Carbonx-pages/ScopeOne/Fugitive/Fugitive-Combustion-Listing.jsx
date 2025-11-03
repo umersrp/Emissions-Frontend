@@ -37,7 +37,7 @@ const FugitiveCombustionListing = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
-  // ✅ Fetch All Fugitive Emission Records (once)
+  //  Fetch All Fugitive Emission Records (once)
   const fetchStationaryRecords = async () => {
     setLoading(true);
     try {
@@ -59,7 +59,7 @@ const FugitiveCombustionListing = () => {
     fetchStationaryRecords();
   }, []);
 
-  // ✅ Client-side filtering
+  //  Client-side filtering
   const filteredRecords = useMemo(() => {
     if (!globalFilterValue.trim()) return records;
     const search = globalFilterValue.toLowerCase();
@@ -75,7 +75,7 @@ const FugitiveCombustionListing = () => {
     });
   }, [records, globalFilterValue]);
 
-  // ✅ Delete Record
+  //  Delete Record
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/Fugitive/delete/${id}`, {
@@ -89,7 +89,7 @@ const FugitiveCombustionListing = () => {
     }
   };
 
-  // ✅ Table Columns
+  //  Table Columns
   const COLUMNS = useMemo(
     () => [
       {
@@ -105,6 +105,16 @@ const FugitiveCombustionListing = () => {
       { Header: "Consumption Unit", accessor: "consumptionUnit" },
       { Header: "Quality Control", accessor: "qualityControl" },
       { Header: "Remarks", accessor: "remarks" },
+      {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "-",
+      },
+      {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "-",
+      },
       {
         Header: "Created At",
         accessor: "createdAt",
@@ -273,7 +283,7 @@ const FugitiveCombustionListing = () => {
           </div>
         </div>
 
-        {/* ✅ Pagination */}
+        {/*  Pagination */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <span className="text-sm font-medium text-slate-600">
@@ -295,7 +305,7 @@ const FugitiveCombustionListing = () => {
         </div>
       </Card>
 
-      {/* ✅ Delete Confirmation Modal */}
+      {/*  Delete Confirmation Modal */}
       <Modal
         activeModal={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}

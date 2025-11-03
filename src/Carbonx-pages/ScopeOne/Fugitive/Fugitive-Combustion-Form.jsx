@@ -139,7 +139,7 @@ const FugitiveCombustionFormPage = () => {
     }
 
     const userId = localStorage.getItem("userId");
-console.log("User ID before creating building:", userId);
+    console.log("User ID before creating building:", userId);
 
     if (!userId) {
       toast.error("User not found. Please log in again.");

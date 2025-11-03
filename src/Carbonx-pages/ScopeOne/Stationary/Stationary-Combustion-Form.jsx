@@ -12,7 +12,8 @@ import {
   fuelTypeOptions,
   qualityControlOptions,
   fuelUnitOptionsByName,
-} from "@/constant/options";
+} from "@/constant/stationary-data";
+import { calculateStationaryEmissions } from "@/utils/calculate-stationary-emissions";
 
 const StationaryCombustionFormPage = () => {
   const navigate = useNavigate();
@@ -38,6 +39,13 @@ const StationaryCombustionFormPage = () => {
 console.log("StationaryCombustionFormPage re-rendered");
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
+
+  const formatNumber = (value) => {
+  if (value === null || value === undefined) return "-";
+  return Math.abs(value) < 0.001
+    ? value.toExponential(6) // show small values like 5.951980e-6
+    : value.toFixed(4);      // normal readable values
+};
 
   // --- Fetch Buildings ---
   useEffect(() => {
@@ -218,7 +226,77 @@ console.log("StationaryCombustionFormPage re-rendered");
     }
   };
 
+// useEffect(() => {
+//   if (
+//     formData.fuelName?.value &&
+//     formData.fuelConsumption &&
+//     formData.consumptionUnit?.value
+//   ) {
+//     const result = calculateStationaryEmissions(
+//       formData.fuelName.value,
+//       Number(formData.fuelConsumption),
+//       formData.consumptionUnit.value
+//     );
+
+//     if (result) {
+//       console.log("Emission Calculation:", result);
+//       toast.info(`Total Emission: ${result.z.toFixed(2)} kg CO₂e`);
+//     }
+//   }
+// }, [formData.fuelName, formData.fuelConsumption, formData.consumptionUnit]);
+
+
+
   // --- Render ---
+useEffect(() => {
+  console.log("useEffect triggered with data:", formData);
+
+  if (
+    formData.fuelName?.value &&
+    formData.fuelConsumption &&
+    formData.consumptionUnit?.value
+  ) {
+    console.log("All form fields available, calculating...");
+    const result = calculateStationaryEmissions(
+      formData.fuelName.value,
+      Number(formData.fuelConsumption),
+      formData.consumptionUnit.value
+    );
+
+    console.log("Result from calculateStationaryEmissions:", result);
+
+    if (result) {
+      toast.info(
+  // `Converted: ${formatNumber(result.convertedValue)} ${result.unitUsed}\n` +
+  // `Emission Factor: ${formatNumber(result.emissionFactor)}\n` +
+  // `Total Emission: ${formatNumber(result.totalEmission)} kg CO₂e\n` +
+  // `Total Emission (tCO₂e): ${formatNumber(result.totalEmission / 1000)} t CO₂e`
+);
+      // const totalKgCO2e = result.totalEmission?.toFixed(4);
+      // const totalTCO2e = (result.totalEmission / 1000).toFixed(4);
+
+      // toast.info(
+      //   `Converted: ${result.convertedValue?.toFixed(2)} ${result.unitUsed}\n` +
+      //     `Emission Factor: ${result.emissionFactor}\n` +
+      //     `Total Emission kgCO₂e: ${totalKgCO2e} kgCO₂e`+
+      //     `Total Emission tCO₂e:${totalTCO2e} tCO₂e`
+      // );
+    } else {
+      console.warn(
+        "No result returned — likely missing emission factor or unit mapping"
+      );
+    }
+  } else {
+    console.warn("Some formData fields missing:", {
+      fuelName: formData.fuelName?.value,
+      fuelConsumption: formData.fuelConsumption,
+      consumptionUnit: formData.consumptionUnit?.value,
+    });
+  }
+}, [formData.fuelName, formData.fuelConsumption, formData.consumptionUnit]);
+
+
+
   return (
     <div>
       <Card

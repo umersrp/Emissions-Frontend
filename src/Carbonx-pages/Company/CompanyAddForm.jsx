@@ -219,7 +219,21 @@ const CompanyProfileForm = () => {
             setErrors(validationErrors);
             return;
         }
-
+          let payload = { ...formData };
+          
+         if (formData.reportingYear === "calendar") {
+            payload.Calendaryear = formData.Calendaryear;
+            payload.fiscalyear = null;
+            payload.customyear = null;
+        } else if (formData.reportingYear === "fiscal") {
+            payload.Calendaryear = null;
+            payload.fiscalyear = formData.fiscalyear?.endDate || null;
+            payload.customyear = null;
+        } else if (formData.reportingYear === "custom") {
+            payload.Calendaryear = null;
+            payload.fiscalyear = null;
+            payload.customyear = formData.customyear?.endDate || null;
+        }
         setLoading(true);
         try {
             const response = await axios.post(

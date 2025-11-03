@@ -889,8 +889,8 @@ const MyCompany = () => {
                     energyGeneratedGJPerAnnum: data.energyGeneratedGJPerAnnum || "",
                     revenuePerAnnum: data.revenuePerAnnum || "",
                     totalManHoursPerAnnum: data.totalManHoursPerAnnum || "",
-                    sector: data.sector || "Manufacturing",
-                    industry: data.industry || "Textiles",
+                    sector: data.sector || "No Industry Assinged",
+                    industry: data.industry || "No Industry Assinged",
                 });
 
                 if (data.fiscalyear) setFiscalRange(data.fiscalyear);

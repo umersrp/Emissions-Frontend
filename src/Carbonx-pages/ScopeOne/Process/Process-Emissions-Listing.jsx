@@ -30,7 +30,7 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref)
 const ProcessEmissionsListing = () => {
   const navigate = useNavigate();
   const [records, setRecords] = useState([]);
-  const [filteredRecords, setFilteredRecords] = useState([]); // 🟩 For client-side search
+  const [filteredRecords, setFilteredRecords] = useState([]); //  For client-side search
   const [loading, setLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
@@ -51,7 +51,7 @@ const ProcessEmissionsListing = () => {
       );
       const data = res.data?.data?.records || res.data?.data || [];
       setRecords(data);
-      setFilteredRecords(data); // 🟩 store both
+      setFilteredRecords(data); //  store both
       setPageCount(Math.ceil(data.length / pageSize));
     } catch (err) {
       console.error(err);
@@ -65,20 +65,20 @@ const ProcessEmissionsListing = () => {
     fetchStationaryRecords();
   }, []);
 
-  // 🟩 Handle client-side search
+  //  Handle client-side search
   useEffect(() => {
     if (!globalFilterValue) {
       setFilteredRecords(records);
     } else {
       const search = globalFilterValue.toLowerCase();
-     const filtered = records.filter((item) => {
-  const buildingName = item.buildingId?.buildingName?.toLowerCase() || "";
-  const allValues = Object.values(item).join(" ").toLowerCase();
-  return (
-    buildingName.includes(search) ||
-    allValues.includes(search)
-  );
-});
+      const filtered = records.filter((item) => {
+        const buildingName = item.buildingId?.buildingName?.toLowerCase() || "";
+        const allValues = Object.values(item).join(" ").toLowerCase();
+        return (
+          buildingName.includes(search) ||
+          allValues.includes(search)
+        );
+      });
       setFilteredRecords(filtered);
     }
     setPageCount(Math.ceil(filteredRecords.length / pageSize));
@@ -114,6 +114,16 @@ const ProcessEmissionsListing = () => {
       { Header: "Amount of Emissions", accessor: "amountOfEmissions" },
       { Header: "Unit", accessor: "unit" },
       { Header: "Quality Control", accessor: "qualityControl" },
+      {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "-",
+      },
+      {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "-",
+      },
       { Header: "Remarks", accessor: "remarks" },
       {
         Header: "Created At",
@@ -170,7 +180,7 @@ const ProcessEmissionsListing = () => {
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
 
-  // 🟩 Apply pagination on filtered data
+  //  Apply pagination on filtered data
   const paginatedData = useMemo(() => {
     const start = pageIndex * pageSize;
     return filteredRecords.slice(start, start + pageSize);
@@ -221,7 +231,7 @@ const ProcessEmissionsListing = () => {
 
   return (
     <>
-      {/* 🟩 No UI change below */}
+      {/*  No UI change below */}
       <Card noborder>
         <div className="md:flex pb-6 items-center">
           <h6 className="flex-1 md:mb-0 ">Process Emissions Records</h6>
