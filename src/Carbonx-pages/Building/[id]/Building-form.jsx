@@ -195,7 +195,7 @@ const BuildingFormPage = () => {
     if (trimmedData.coolingUsed && !trimmedData.coolingType)
       return toast.error("Please enter cooling type");
 
-    // ✅ Safely get userId from localStorage or token decode fallback
+    //  Safely get userId from localStorage or token decode fallback
     const userId = localStorage.getItem("userId");
     console.log("User ID before creating building:", userId);
 
@@ -442,9 +442,9 @@ const BuildingFormPage = () => {
                   value={formData.heatingType}
                   onChange={handleInputChange}
                   placeholder="Heating Type"
-                  className={`border-[2px] w-full h-10 p-2 rounded-md mt-2${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
-                    }`}
-                  readOnly={isViewMode}
+                  className={`border-[2px] w-full h-10 p-2 mt-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
+                  }`}
+                readOnly={isViewMode}
                 />
               )}
               {errors.heatingType && <p className="text-red-500 text-sm mt-1">{errors.heatingType}</p>}
@@ -465,9 +465,9 @@ const BuildingFormPage = () => {
                   value={formData.coolingType}
                   onChange={handleInputChange}
                   placeholder="Cooling Type"
-                  className={`border-[2px] w-full h-10 p-2 rounded-md mt-2 ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
-                    }`}
-                  readOnly={isViewMode}
+                   className={`border-[2px] w-full h-10 p-2 mt-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed " : ""
+                  }`}
+                readOnly={isViewMode}
                 />
               )}
               {errors.coolingType && <p className="text-red-500 text-sm mt-1">{errors.coolingType}</p>}

@@ -1,3 +1,138 @@
+// import React, { useState, useEffect } from "react";
+// import Select from "react-select";
+// import CreatableSelect from "react-select/creatable";
+// import { components } from "react-select";
+
+// const primary500 = "#4098ab";
+// const primary900 = "#4097ab7a";
+
+// const customStyles = {
+//   control: (base, state) => ({
+//     ...base,
+//     minHeight: "40px",
+//     borderRadius: "8px",
+//     padding: "0 4px",
+//     fontSize: "14px",
+//     borderWidth: "2px",
+//     borderColor: state.isFocused ? "#000000" : "#d1d5db",
+//     boxShadow: "none",
+//     backgroundColor: state.isDisabled ? "#f3f4f6" : "white", // 🩶 light gray when disabled
+//     color: state.isDisabled ? "#9ca3af" : "#000", // 🩶 text gray
+//     cursor: state.isDisabled ? "not-allowed" : "default",
+//     "&:hover": { borderColor: "#000000" },
+//     backgroundColor: "white",
+//   }),
+//   menu: (base) => ({
+//     ...base,
+//     zIndex: 9999,
+//   }),
+//   option: (base, state) => ({
+//     ...base,
+//     backgroundColor:
+//       state.isSelected
+//         ? "#4098ab" // keep this color for selected
+//         : state.isFocused && state.isHovered
+//           ? "#e5f4f7" // only hover color
+//           : "transparent",
+//     color: state.isSelected ? "#fff" : "#000",
+//     "&:hover": {
+//       backgroundColor: "#e5f4f7",
+//       color: "#000",
+//     },
+//   }),
+// };
+
+
+// const DropdownIndicator = (props) => (
+//   <components.DropdownIndicator {...props}>
+//     <svg
+//       width="16"
+//       height="16"
+//       viewBox="0 0 24 24"
+//       fill="none"
+//       stroke="#6dacbaff"
+//       strokeWidth="4"
+//       strokeLinecap="round"
+//       strokeLinejoin="round"
+//     >
+//       <polyline points="6 9 12 15 18 9" />
+//     </svg>
+//   </components.DropdownIndicator>
+// );
+
+// const CustomSelect = ({
+//   options = [],
+//   value,
+//   onChange,
+//   placeholder,
+//   name,
+//   isDisabled = false,
+//   allowCustomInput = false, // 👈 only when true → allow "Create" option
+// }) => {
+//   const [localOptions, setLocalOptions] = useState(options);
+
+//   useEffect(() => {
+//     setLocalOptions(options);
+//   }, [options]);
+
+//   const handleChange = (selectedOption) => {
+//     onChange?.(selectedOption, { name });
+//   };
+
+//   const handleCreate = (inputValue) => {
+//     const newOption = { label: inputValue, value: inputValue };
+//     setLocalOptions((prev) => {
+//       const exists = prev.some((opt) => opt.value === inputValue);
+//       return exists ? prev : [...prev, newOption];
+//     });
+//     onChange?.(newOption, { name });
+//   };
+
+//   const filterOption = (option, rawInput) => {
+//     if (!rawInput) return true;
+//     const search = rawInput.toLowerCase();
+//     return (
+//       option.label?.toLowerCase().startsWith(search) ||
+//       option.value?.toLowerCase().startsWith(search)
+//     );
+//   };
+
+//   const commonProps = {
+//     name,
+//     options: localOptions,
+//     value,
+//     onChange: handleChange,
+//     placeholder: placeholder || "Select...",
+//     styles: customStyles,
+//     isDisabled,
+//     components: { DropdownIndicator },
+//     classNamePrefix: "custom-select",
+//     isClearable: true,
+//     filterOption,
+//     // menuPlacement: "auto",
+//     menuPlacement: "bottom",
+//     theme: (theme) => ({
+//       ...theme,
+//       colors: {
+//         ...theme.colors,
+//         primary25: primary500,
+//         primary50: primary500,
+//         primary75: primary900,
+//         primary: primary900,
+//       },
+//     }),
+//   };
+
+//   return allowCustomInput ? (
+//     <CreatableSelect {...commonProps} onCreateOption={handleCreate} />
+//   ) : (
+//     <Select {...commonProps} />
+//   );
+// };
+
+// export default CustomSelect;
+
+
 import React, { useState, useEffect } from "react";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
@@ -14,10 +149,18 @@ const customStyles = {
     padding: "0 4px",
     fontSize: "14px",
     borderWidth: "2px",
-    borderColor: state.isFocused ? "#000000" : "#d1d5db",
+    borderColor: state.isDisabled
+      ? "#e5e7eb" // gray border like input
+      : state.isFocused
+      ? "#000000"
+      : "#d1d5db",
     boxShadow: "none",
-    "&:hover": { borderColor: "#000000" },
-    backgroundColor: "white",
+    backgroundColor: state.isDisabled ? "#f3f4f6" : "white", // match disabled input
+    color: state.isDisabled ? "#9ca3af" : "#000",
+    cursor: state.isDisabled ? "not-allowed" : "default",
+    "&:hover": {
+      borderColor: state.isDisabled ? "#e5e7eb" : "#000000",
+    },
   }),
   menu: (base) => ({
     ...base,
@@ -25,37 +168,47 @@ const customStyles = {
   }),
   option: (base, state) => ({
     ...base,
-    backgroundColor:
-      state.isSelected
-        ? "#4098ab" // keep this color for selected
-        : state.isFocused && state.isHovered
-        ? "#e5f4f7" // only hover color
-        : "transparent",
+    backgroundColor: state.isSelected
+      ? "#4098ab"
+      : state.isFocused && state.isHovered
+      ? "#e5f4f7"
+      : "transparent",
     color: state.isSelected ? "#fff" : "#000",
     "&:hover": {
       backgroundColor: "#e5f4f7",
       color: "#000",
     },
   }),
+  singleValue: (base, state) => ({
+    ...base,
+    color: state.isDisabled ? "#000000" : "#000", // gray text when disabled
+  }),
+  placeholder: (base, state) => ({
+    ...base,
+    color: state.isDisabled ? "#9ca3af" : "#6b7280", // gray placeholder when disabled
+  }),
 };
 
-
-const DropdownIndicator = (props) => (
-  <components.DropdownIndicator {...props}>
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#6dacbaff"
-      strokeWidth="4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <polyline points="6 9 12 15 18 9" />
-    </svg>
-  </components.DropdownIndicator>
-);
+// 👇 dropdown arrow that turns gray when disabled
+const DropdownIndicator = (props) => {
+  const color = props.selectProps.isDisabled ? "#9ca3af" : "#6dacbaff";
+  return (
+    <components.DropdownIndicator {...props}>
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={color}
+        strokeWidth="4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polyline points="6 9 12 15 18 9" />
+      </svg>
+    </components.DropdownIndicator>
+  );
+};
 
 const CustomSelect = ({
   options = [],
@@ -64,7 +217,7 @@ const CustomSelect = ({
   placeholder,
   name,
   isDisabled = false,
-  allowCustomInput = false, // 👈 only when true → allow "Create" option
+  allowCustomInput = false,
 }) => {
   const [localOptions, setLocalOptions] = useState(options);
 
@@ -85,14 +238,31 @@ const CustomSelect = ({
     onChange?.(newOption, { name });
   };
 
+  // const filterOption = (option, rawInput) => {
+  //   if (!rawInput) return true;
+  //   const search = rawInput.toLowerCase();
+  //   return (
+  //     option.label?.toLowerCase().startsWith(search) ||
+  //     option.value?.toLowerCase().startsWith(search)
+  //   );
+  // };
   const filterOption = (option, rawInput) => {
-    if (!rawInput) return true;
-    const search = rawInput.toLowerCase();
-    return (
-      option.label?.toLowerCase().startsWith(search) ||
-      option.value?.toLowerCase().startsWith(search)
-    );
-  };
+  if (!rawInput) return true;
+  const search = rawInput.toLowerCase();
+
+  const label =
+    typeof option.label === "string"
+      ? option.label.toLowerCase()
+      : option.label?.toString().toLowerCase() || "";
+
+  const value =
+    typeof option.value === "string"
+      ? option.value.toLowerCase()
+      : option.value?.toString?.().toLowerCase?.() || "";
+
+  return label.startsWith(search) || value.startsWith(search);
+};
+
 
   const commonProps = {
     name,
@@ -106,7 +276,6 @@ const CustomSelect = ({
     classNamePrefix: "custom-select",
     isClearable: true,
     filterOption,
-    // menuPlacement: "auto",
     menuPlacement: "bottom",
     theme: (theme) => ({
       ...theme,

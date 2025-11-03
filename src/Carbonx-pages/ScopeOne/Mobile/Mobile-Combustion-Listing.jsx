@@ -105,6 +105,16 @@ const MobileCombustionListing = () => {
       { Header: "Quality Control", accessor: "qualityControl" },
       { Header: "Weight Loaded (kg)", accessor: "weightLoaded" },
       {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "-",
+      },
+      {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "-",
+      },
+      {
         Header: "Remarks",
         accessor: "remarks",
         Cell: ({ value }) => (
