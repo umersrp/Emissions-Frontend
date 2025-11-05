@@ -214,7 +214,8 @@ import MobileCombustionListing from "./Carbonx-pages/ScopeOne/Mobile/Mobile-Comb
 import ProcessEmissionsFormPage from "./Carbonx-pages/ScopeOne/Process/Process-Emissions-Form";
 import ProcessEmissionsListing from "./Carbonx-pages/ScopeOne/Process/Process-Emissions-Listing";
 import MyCompany from "./Carbonx-pages/Company/MyCompany";
-import ScopeOneReport from "./Carbonx-pages/ScopeOne/ScopeOneReport/scope-one-report";
+import ScopeOneReport from "./Carbonx-pages/ScopeOne/ScopeOneReport/Scope-One-Report";
+
 
 
 function App() {
@@ -416,7 +417,7 @@ function App() {
           <Route path="Building" element={<BuildingTable />} />
 
           <Route path="Scope-1" element={<Scope1 />} />
-          ScopeOneReport
+          
           <Route path="Scope-One-Report" element={<ScopeOneReport/>} />
 
           <Route path="Stationary-Combustion-Form/add" element={<StationaryCombustionFormPage />} />

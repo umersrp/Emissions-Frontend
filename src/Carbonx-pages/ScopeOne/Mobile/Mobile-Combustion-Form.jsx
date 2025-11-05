@@ -7,7 +7,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
-   FugitiveAndMobileStakeholderOptions ,
+  FugitiveAndMobileStakeholderOptions,
   qualityControlOptions,
   vehicleClassificationOptions,
   vehicleTypeOptionsByClassification,
@@ -15,6 +15,8 @@ import {
   distanceUnitOptions,
   weightLoadedOptions,
 } from "@/constant/options";
+import { calculateMobileCombustion } from "@/utils/calculate-mobile-combuction";
+
 
 const MobileCombustionFormPage = () => {
   const navigate = useNavigate();
@@ -83,7 +85,7 @@ const MobileCombustionFormPage = () => {
               }
               : buildingOptions.find((b) => b.value === data.buildingId) ||
               { label: "Unknown", value: data.buildingId },
-          stakeholder: FugitiveAndMobileStakeholderOptions .find((s) => s.value === data.stakeholder) || { label: data.stakeholder, value: data.stakeholder },
+          stakeholder: FugitiveAndMobileStakeholderOptions.find((s) => s.value === data.stakeholder) || { label: data.stakeholder, value: data.stakeholder },
           vehicleClassification: vehicleClassificationOptions.find((v) => v.value === data.vehicleClassification) || { label: data.vehicleClassification, value: data.vehicleClassification },
           vehicleType: { label: data.vehicleType, value: data.vehicleType },
           fuelName: { label: data.fuelName, value: data.fuelName },
@@ -132,6 +134,30 @@ const MobileCombustionFormPage = () => {
 
       return updated;
     });
+    // After setFormData, calculate and show result if possible
+    if (["fuelName", "distanceUnit", "vehicleType"].includes(name)) {
+      const { vehicleType, fuelName, distanceUnit, distanceTraveled } = {
+        ...formData,
+        [name]: value,
+      };
+
+      if (vehicleType && fuelName && distanceUnit && distanceTraveled) {
+        const result = calculateMobileCombustion(
+          formData.fuelName?.value || formData.fuelName,
+          formData.distanceTraveled,
+          formData.distanceUnit?.value || formData.distanceUnit,
+          formData.vehicleType?.value || "default"
+        );
+
+        if (result) {
+          toast.info(
+            `Emission = ${result.distance} × ${result.emissionFactor} = ${result.totalEmissionKg.toFixed(5)} kgCO₂e (${result.totalEmissionTonnes.toFixed(5)} tCO₂e)`
+          );
+        }
+
+      }
+    }
+
 
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
@@ -202,6 +228,24 @@ const MobileCombustionFormPage = () => {
     }
   };
 
+  // Auto calculate and show result when unit, fuel, or distance changes
+  useEffect(() => {
+    if (!formData.fuelName || !formData.distanceUnit || !formData.distanceTraveled) return;
+
+    const result = calculateMobileCombustion(
+      formData.fuelName?.value || formData.fuelName,
+      formData.distanceTraveled,
+      formData.distanceUnit?.value || formData.distanceUnit
+    );
+
+    if (result) {
+      toast.info(
+        `Emission = ${result.distanceTraveled} × ${result.emissionFactor} = ${result.totalEmission.toFixed(5)} (kg CO₂e)`
+      );
+    }
+  }, [formData.fuelName, formData.distanceUnit, formData.distanceTraveled]);
+
+
   return (
     <div>
       <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Mobile Combustion Record`}>
@@ -223,7 +267,7 @@ const MobileCombustionFormPage = () => {
             {/* Stakeholder */}
             <div>
               <label className="field-label">Stakeholder / Department</label>
-              <Select name="stakeholder" value={formData.stakeholder} options={FugitiveAndMobileStakeholderOptions } onChange={handleSelectChange} placeholder="Select or Type Department" isDisabled={isView} allowCustomInput />
+              <Select name="stakeholder" value={formData.stakeholder} options={FugitiveAndMobileStakeholderOptions} onChange={handleSelectChange} placeholder="Select or Type Department" isDisabled={isView} allowCustomInput />
               {errors.stakeholder && <p className="text-red-500 text-sm mt-1">{errors.stakeholder}</p>}
             </div>
 
