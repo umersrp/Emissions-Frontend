@@ -40,7 +40,7 @@ const MobileCombustionFormPage = () => {
   const [errors, setErrors] = useState({});
   const [buildingOptions, setBuildingOptions] = useState([]);
 
-  // Fetch all buildings for dropdown
+  // Fetch all buildings for dropdown  
   useEffect(() => {
     const fetchBuildings = async () => {
       try {

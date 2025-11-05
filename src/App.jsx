@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from "react";
-import { Routes, Route, Navigate,  } from "react-router-dom";
+import { Routes, Route, Navigate, } from "react-router-dom";
 import PrivateRoute from "./store/api/Privateroute";
 
 // home pages  & dashboard
@@ -214,6 +214,7 @@ import MobileCombustionListing from "./Carbonx-pages/ScopeOne/Mobile/Mobile-Comb
 import ProcessEmissionsFormPage from "./Carbonx-pages/ScopeOne/Process/Process-Emissions-Form";
 import ProcessEmissionsListing from "./Carbonx-pages/ScopeOne/Process/Process-Emissions-Listing";
 import MyCompany from "./Carbonx-pages/Company/MyCompany";
+import ScopeOneReport from "./Carbonx-pages/ScopeOne/ScopeOneReport/scope-one-report";
 
 
 function App() {
@@ -240,7 +241,7 @@ function App() {
           <Route path="dashboard" element={
             <PrivateRoute
               element={Dashboard}
-              requiredAuthTypes={["company","admin", "vendor"]}
+              requiredAuthTypes={["company", "admin", "vendor"]}
             />
           } />
           {/* <Route path="discountt" element={
@@ -384,9 +385,6 @@ function App() {
           <Route path="Booking-add" element={<Bookingadd />} />
 
 
-
-
-
           <Route path="Located-add" element={<Locatedadd />} />
           <Route path="Located-edit/:id" element={<Locationedit />} />
           <Route path="amenities" element={<Amenities />} />
@@ -410,14 +408,16 @@ function App() {
           <Route path="Company-Add" element={<CompanyProfileForm />} />
           <Route path="Company-Edit/:id" element={<EditCompanyProfile />} />
           <Route path="Company-View/:id" element={<ViewCompanyProfile />} />
-          <Route path="Company" element={<CompanyTable/>} />
-          <Route path="Company/:id" element={<MyCompany/>} />
+          <Route path="Company" element={<CompanyTable />} />
+          <Route path="Company/:id" element={<MyCompany />} />
 
           <Route path="Building-Form/add" element={<BuildingFormPage />} />
           <Route path="Building-Form/:id" element={<BuildingFormPage />} />
           <Route path="Building" element={<BuildingTable />} />
 
           <Route path="Scope-1" element={<Scope1 />} />
+          ScopeOneReport
+          <Route path="Scope-One-Report" element={<ScopeOneReport/>} />
 
           <Route path="Stationary-Combustion-Form/add" element={<StationaryCombustionFormPage />} />
           <Route path="Stationary-Combustion-Form/:id" element={<StationaryCombustionFormPage />} />
@@ -428,12 +428,12 @@ function App() {
           <Route path="Fugitive-Emissions" element={<FugitiveCombustionListing />} />
 
           <Route path="Mobile-Combustion-Form/add" element={<MobileCombustionFormPage />} />
-          <Route path="Mobile-Combustion-Form/:id" element={<MobileCombustionFormPage/>} />
-          <Route path="Mobile-Combustion" element={<MobileCombustionListing/>} />
-    
+          <Route path="Mobile-Combustion-Form/:id" element={<MobileCombustionFormPage />} />
+          <Route path="Mobile-Combustion" element={<MobileCombustionListing />} />
+
           <Route path="Process-Emissions-Form/add" element={<ProcessEmissionsFormPage />} />
-          <Route path="Process-Emissions-Form/:id" element={<ProcessEmissionsFormPage/>} />
-          <Route path="Process-Emissions" element={<ProcessEmissionsListing/>} />
+          <Route path="Process-Emissions-Form/:id" element={<ProcessEmissionsFormPage />} />
+          <Route path="Process-Emissions" element={<ProcessEmissionsListing />} />
 
 
           <Route path="Coach-edit" element={<CoachEditPage />} />
@@ -468,7 +468,7 @@ function App() {
       </Routes>
 
     </main>
-    
+
   );
 }
 

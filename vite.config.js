@@ -15,6 +15,7 @@ export default defineConfig({
       },
     ],
   },
+  
   plugins: [
     rollupReplace({
       preventAssignment: true,
@@ -25,6 +26,7 @@ export default defineConfig({
        //"process.env.REACT_APP_BASE_URL": JSON.stringify("https://ksvvmxbk-4000.inc1.devtunnels.ms/api"),
       },
     }),
+    
     react(),
     reactRefresh(),
   ],
