@@ -17,7 +17,7 @@ const formatNumber = (num) => {
   return value.toLocaleString(undefined, { maximumFractionDigits: 5 });
 };
 
-const ScopeOneReportTable = () => {
+const ScopeOneReport = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [emissionType, setEmissionType] = useState("stationary");
@@ -254,4 +254,4 @@ const ScopeOneReportTable = () => {
   );
 };
 
-export default ScopeOneReportTable;
+export default ScopeOneReport;
