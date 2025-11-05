@@ -9,6 +9,7 @@ export const menuItems = [
     icon: "heroicons-outline:home",
     isOpen: true,
     isHide: true,
+    link: "dashboard",
     child: [
       {
         childtitle: "Analytics Dashboard",
@@ -32,17 +33,17 @@ export const menuItems = [
       // },
     ],
   },
-  {
-    title: "changelog",
-    icon: "heroicons:arrow-trending-up",
-    link: "changelog",
-    isHide: false,
-    badge: "1.0.0",
-  },
-  {
-    isHeadr: true,
-    title: "apps",
-  },
+  // {
+  //   title: "changelog",
+  //   icon: "heroicons:arrow-trending-up",
+  //   link: "changelog",
+  //   isHide: false,
+  //   badge: "1.0.0",
+  // },
+  // {
+  //   isHeadr: true,
+  //   title: "apps",
+  // },
 
   // {
   //   title: "Chat",
@@ -51,12 +52,12 @@ export const menuItems = [
   //   link: "chat",
   // },
 
-  {
-    title: "Email",
-    isHide: true,
-    icon: "heroicons-outline:mail",
-    link: "email",
-  },
+  // {
+  //   title: "Email",
+  //   isHide: true,
+  //   icon: "heroicons-outline:mail",
+  //   link: "email",
+  // },
 
   // {
   //   title: "Kanban",
@@ -161,10 +162,10 @@ export const menuItems = [
   //     },
   //   ],
   // },
-  {
-    isHeadr: true,
-    title: "Pages",
-  },
+  // {
+  //   isHeadr: true,
+  //   title: "Pages",
+  // },
   {
     title: "Sectors",
     isHide: true,
@@ -195,36 +196,69 @@ export const menuItems = [
     icon: "heroicons:home-modern",
     link: "Building"
   },
-    {
-    title: "Scope 1",
+   {
+    title: "Scope One",
+    icon: "heroicons-outline:home",
+    isOpen: true,
     isHide: true,
     icon: "heroicons:globe-alt",
-    link: "Scope-1"
+    link: "Scope-1",
+    child: [
+      
+        {
+        childtitle: "Scope One Report",
+        childlink: "Scope-One-Report",
+      },
+      {
+        childtitle: "Stationary Combustion",
+        childlink: "Stationary-Combustion",
+      },
+      {
+        childtitle: "Fugitve Emissions",
+        childlink: "Fugitive-Emissions",
+      },
+      {
+        childtitle: "Mobile Combustion",
+        childlink: "Mobile-Combustion",
+      },
+      {
+        childtitle: "Process Emission",
+        childlink: "Process-Emissions",
+      },
+    
+    ]
+  
   },
-  {
-    title: "Stationary Combustion",
-    isHide: true,
-    icon: "heroicons:fire",
-    link: "Stationary-Combustion"
-  },
-  {
-    title: "Mobile Combustion",
-    isHide: true,
-    icon: "heroicons:truck",
-    link: "Mobile-Combustion"
-  },
-   {
-    title: "Fugitive Emissions",
-    isHide: true,
-    icon: "heroicons:cloud",
-    link: "Fugitive-Emissions"
-  },
-  {
-    title: "Process Emissions",
-    isHide: true,
-    icon: "heroicons:cog-6-tooth",
-    link: "Process-Emissions"
-  },
+  //   {
+  //   title: "Scope one",
+  //   isHide: true,
+  //   icon: "heroicons:globe-alt",
+  //   link: "Scope-1"
+  // },
+  // {
+  //   title: "Stationary Combustion",
+  //   isHide: true,
+  //   icon: "heroicons:fire",
+  //   link: "Stationary-Combustion"
+  // },
+  // {
+  //   title: "Mobile Combustion",
+  //   isHide: true,
+  //   icon: "heroicons:truck",
+  //   link: "Mobile-Combustion"
+  // },
+  //  {
+  //   title: "Fugitive Emissions",
+  //   isHide: true,
+  //   icon: "heroicons:cloud",
+  //   link: "Fugitive-Emissions"
+  // },
+  // {
+  //   title: "Process Emissions",
+  //   isHide: true,
+  //   icon: "heroicons:cog-6-tooth",
+  //   link: "Process-Emissions"
+  // },
   
   // {
   //   title: "Authentication",

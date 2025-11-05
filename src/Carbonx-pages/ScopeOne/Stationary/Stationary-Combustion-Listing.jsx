@@ -119,59 +119,8 @@ const StationaryCombustionListing = () => {
       { Header: "Fuel Consumption", accessor: "fuelConsumption" },
       { Header: "Consumption Unit", accessor: "consumptionUnit" },
       { Header: "Quality Control", accessor: "qualityControl" },
-//     {
-//   Header: "Total Emission (kg CO₂e)",
-//   id: "totalEmissionKg",
-//   Cell: ({ row }) => {
-//     const { fuelName, fuelConsumption, consumptionUnit } = row.original;
-
-//     try {
-//       const result = calculateStationaryEmissions(
-//         fuelName,
-//         Number(fuelConsumption),
-//         consumptionUnit
-//       );
-
-//       if (!result || isNaN(result.totalEmission)) return "-";
-
-//       const val = result.totalEmission;
-
-//       // Display in exponential form if less than 0.001, otherwise fixed
-//       return val < 0.001 ? val.toExponential(6) : val.toFixed(4);
-//     } catch (err) {
-//       console.error("Emission calc error:", err);
-//       return "-";
-//     }
-//   },
-// },
-// {
-//   Header: "Total Emission (t CO₂e)",
-//   id: "totalEmissionT",
-//   Cell: ({ row }) => {
-//     const { fuelName, fuelConsumption, consumptionUnit } = row.original;
-
-//     try {
-//       const result = calculateStationaryEmissions(
-//         fuelName,
-//         Number(fuelConsumption),
-//         consumptionUnit
-//       );
-
-//       if (!result || isNaN(result.totalEmission)) return "-";
-
-//       const totalTCO2e = result.totalEmission / 1000;
-
-//       // Display in exponential form if less than 0.001, otherwise fixed
-//       return totalTCO2e < 0.001
-//         ? totalTCO2e.toExponential(6)
-//         : totalTCO2e.toFixed(6);
-//     } catch (err) {
-//       console.error("Emission calc error:", err);
-//       return "-";
-//     }
-//   },
-// },
-
+      { Header: "Calculated Emission (kg CO₂e)", accessor: "calculatedEmissionKgCo2e" },
+      { Header: "Calculated Emission (t CO₂e)", accessor: "calculatedEmissionTCo2e" },
       {
         Header: "Created By",
         accessor: "createdBy.name",
