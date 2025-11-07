@@ -422,7 +422,7 @@ export const vehicleClassificationOptions = [
   { value: "By Market Segment", label: "By Market Segment" },
   { value: "By Size", label: "By Size" },
   { value: "Motorbike", label: "Motorbike" },
-  { value: "Delivery Vans (Large Goods Vehicles)", label: "Delivery Vans (Large Goods Vehicles)" },
+  { value: "Delivery Vans (Large Good Vehicles)", label: "Delivery Vans (Large Good Vehicles)" },
   { value: "Heavy Good Vehicles (HGVs All Diesel)", label: "Heavy Good Vehicles (HGVs All Diesel)" },
   { value: "Heavy Good Vehicles (Refrigerated HGVs All Diesel)", label: "Heavy Good Vehicles (Refrigerated HGVs All Diesel)" },
 ];
@@ -452,7 +452,7 @@ export const vehicleTypeOptionsByClassification = {
     { value: "Large", label: "Large" },
     { value: "Average", label: "Average" },
   ],
-  "Delivery Vans (Large Goods Vehicles)": [
+  "Delivery Vans (Large Good Vehicles)": [
     { value: "Class I (up to 1.305 tonnes)", label: "Class I (up to 1.305 tonnes)" },
     { value: "Class II (1.305 to 1.74 tonnes)", label: "Class II (1.305 to 1.74 tonnes)" },
     { value: "Class III (1.74 to 3.5 tonnes)", label: "Class III (1.74 to 3.5 tonnes)" },
@@ -503,7 +503,7 @@ export const fuelNameOptionsByClassification = {
 
   "By Market Segment": commonFuelOptions,
 
-  "Delivery Vans (Large Goods Vehicles)": commonFuelOptions,
+  "Delivery Vans (Large Good Vehicles)": commonFuelOptions,
 
   "By Size": [
     ...commonFuelOptions,

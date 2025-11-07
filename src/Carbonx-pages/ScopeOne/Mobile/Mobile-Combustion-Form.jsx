@@ -15,7 +15,7 @@ import {
   distanceUnitOptions,
   weightLoadedOptions,
 } from "@/constant/options";
-// import { calculateMobileCombustion } from "@/utils/calculate-mobile-combuction";
+import { calculateMobileCombustion } from "@/utils/calculate-mobile-combuction";
 
 
 const MobileCombustionFormPage = () => {
@@ -37,6 +37,8 @@ const MobileCombustionFormPage = () => {
     distanceUnit: null,
     qualityControl: null,
     weightLoaded: null,
+    calculatedEmissionKgCo2e: "",
+    calculatedEmissionTCo2e: "",
     remarks: "",
   });
   const [errors, setErrors] = useState({});
@@ -134,30 +136,38 @@ const MobileCombustionFormPage = () => {
 
       return updated;
     });
-    // After setFormData, calculate and show result if possible
-    // if (["fuelName", "distanceUnit", "vehicleType"].includes(name)) {
-    //   const { vehicleType, fuelName, distanceUnit, distanceTraveled } = {
-    //     ...formData,
-    //     [name]: value,
-    //   };
 
-    //   if (vehicleType && fuelName && distanceUnit && distanceTraveled) {
-    //     const result = calculateMobileCombustion(
-    //       formData.fuelName?.value || formData.fuelName,
-    //       formData.distanceTraveled,
-    //       formData.distanceUnit?.value || formData.distanceUnit,
-    //       formData.vehicleType?.value || "default"
-    //     );
+    // Recalculate emission when relevant dropdown changes
+    const updatedForm = { ...formData, [name]: value };
+    const {
+      vehicleClassification,
+      vehicleType,
+      fuelName,
+      distanceTraveled,
+      distanceUnit,
+      weightLoaded,
+    } = updatedForm;
 
-    //     if (result) {
-    //       toast.info(
-    //         `Emission = ${result.distance} × ${result.emissionFactor} = ${result.totalEmissionKg.toFixed(5)} kgCO₂e (${result.totalEmissionTonnes.toFixed(5)} tCO₂e)`
-    //       );
-    //     }
+    if (vehicleClassification && vehicleType && distanceTraveled && distanceUnit) {
+      const isHGV =
+        vehicleClassification.value === "Heavy Good Vehicles (HGVs All Diesel)" ||
+        vehicleClassification.value === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
 
-    //   }
-    // }
+      const result = calculateMobileCombustion(
+        isHGV ? null : fuelName?.value || fuelName,
+        distanceTraveled,
+        distanceUnit?.value || distanceUnit,
+        vehicleType?.value || vehicleType,
+        vehicleClassification?.value || vehicleClassification,
+        isHGV ? weightLoaded?.value || weightLoaded : null
+      );
 
+      if (result) {
+        toast.info(
+          `Emission = ${result.totalEmissionKg.toFixed(5)} kgCO₂e (${result.totalEmissionTonnes.toFixed(5)} tCO₂e)`
+        );
+      }
+    }
 
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
@@ -170,63 +180,139 @@ const MobileCombustionFormPage = () => {
   };
 
   // Handle submit for Add / Edit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
 
-    const newErrors = {};
-    if (!formData.buildingId) newErrors.buildingId = "Building is required";
-    if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder is required";
-    if (!formData.vehicleClassification) newErrors.vehicleClassification = "Vehicle Classification is required";
-    if (!formData.vehicleType) newErrors.vehicleType = "Vehicle Type is required";
-    if (!formData.fuelName) newErrors.fuelName = "Fuel Name is required";
-    if (!formData.distanceTraveled) newErrors.distanceTraveled = "Distance Traveled is required";
-    if (!formData.distanceUnit) newErrors.distanceUnit = "Distance Unit is required";
-    if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
+  //   const newErrors = {};
+  //   if (!formData.buildingId) newErrors.buildingId = "Building is required";
+  //   if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder is required";
+  //   if (!formData.vehicleClassification) newErrors.vehicleClassification = "Vehicle Classification is required";
+  //   if (!formData.vehicleType) newErrors.vehicleType = "Vehicle Type is required";
+  //   if (!formData.fuelName) newErrors.fuelName = "Fuel Name is required";
+  //   if (!formData.distanceTraveled) newErrors.distanceTraveled = "Distance Traveled is required";
+  //   if (!formData.distanceUnit) newErrors.distanceUnit = "Distance Unit is required";
+  //   if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      toast.error("Please fill all required fields");
-      return;
-    }
+  //   if (Object.keys(newErrors).length > 0) {
+  //     setErrors(newErrors);
+  //     toast.error("Please fill all required fields");
+  //     return;
+  //   }
 
-    // Prepare API-ready payload
-    const payload = {
-      buildingId: formData.buildingId?.value || formData.buildingId,
-      stakeholder: formData.stakeholder?.value || formData.stakeholder,
-      vehicleClassification: formData.vehicleClassification?.value || formData.vehicleClassification,
-      vehicleType: formData.vehicleType?.value || formData.vehicleType,
-      fuelName: formData.fuelName?.value || formData.fuelName,
-      distanceTraveled: formData.distanceTraveled,
-      distanceUnit: formData.distanceUnit?.value || formData.distanceUnit,
-      qualityControl: formData.qualityControl?.value || formData.qualityControl,
-      weightLoaded: formData.weightLoaded
-        ? formData.weightLoaded.value || formData.weightLoaded
-        : null,
-      remarks: formData.remarks,
-    };
+  //   // Prepare API-ready payload
+  //   const payload = {
+  //     buildingId: formData.buildingId?.value || formData.buildingId,
+  //     stakeholder: formData.stakeholder?.value || formData.stakeholder,
+  //     vehicleClassification: formData.vehicleClassification?.value || formData.vehicleClassification,
+  //     vehicleType: formData.vehicleType?.value || formData.vehicleType,
+  //     fuelName: formData.fuelName?.value || formData.fuelName,
+  //     distanceTraveled: formData.distanceTraveled,
+  //     distanceUnit: formData.distanceUnit?.value || formData.distanceUnit,
+  //     qualityControl: formData.qualityControl?.value || formData.qualityControl,
+  //     weightLoaded: formData.weightLoaded
+  //       ? formData.weightLoaded.value || formData.weightLoaded
+  //       : null,
+  //     calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e,
+  //     calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
+  //     remarks: formData.remarks,
+  //   };
 
-    try {
-      if (isEdit) {
-        await axios.put(
-          `${process.env.REACT_APP_BASE_URL}/AutoMobile/update/${id}`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        toast.success("Record updated successfully");
-      } else {
-        await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/AutoMobile/Create`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        toast.success("Record added successfully");
-      }
-      navigate("/Mobile-Combustion");
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong");
-      console.error(err);
-    }
+  //   try {
+  //     if (isEdit) {
+  //       await axios.put(
+  //         `${process.env.REACT_APP_BASE_URL}/AutoMobile/update/${id}`,
+  //         payload,
+  //         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+  //       );
+  //       toast.success("Record updated successfully");
+  //     } else {
+  //       await axios.post(
+  //         `${process.env.REACT_APP_BASE_URL}/AutoMobile/Create`,
+  //         payload,
+  //         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+  //       );
+  //       toast.success("Record added successfully");
+  //     }
+  //     navigate("/Mobile-Combustion");
+  //   } catch (err) {
+  //     toast.error(err.response?.data?.message || "Something went wrong");
+  //     console.error(err);
+  //   }
+  // };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const newErrors = {};
+  if (!formData.buildingId) newErrors.buildingId = "Building is required";
+  if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder is required";
+  if (!formData.vehicleClassification) newErrors.vehicleClassification = "Vehicle Classification is required";
+  if (!formData.vehicleType) newErrors.vehicleType = "Vehicle Type is required";
+  if (!formData.fuelName) newErrors.fuelName = "Fuel Name is required";
+  if (!formData.distanceTraveled) newErrors.distanceTraveled = "Distance Traveled is required";
+  if (!formData.distanceUnit) newErrors.distanceUnit = "Distance Unit is required";
+  if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
+
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    toast.error("Please fill all required fields");
+    return;
+  }
+
+  // ✅ Always recalculate before submission
+  const isHGV =
+    formData.vehicleClassification?.value === "Heavy Good Vehicles (HGVs All Diesel)" ||
+    formData.vehicleClassification?.value === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
+
+  const result = calculateMobileCombustion(
+    isHGV ? null : formData.fuelName?.value || formData.fuelName,
+    formData.distanceTraveled,
+    formData.distanceUnit?.value || formData.distanceUnit,
+    formData.vehicleType?.value || formData.vehicleType,
+    formData.vehicleClassification?.value || formData.vehicleClassification,
+    isHGV ? formData.weightLoaded?.value || formData.weightLoaded : null
+  );
+
+  const calculatedEmissionKgCo2e = result ? Number(result.totalEmissionKg.toFixed(5)) : 0;
+  const calculatedEmissionTCo2e = result ? Number(result.totalEmissionTonnes.toFixed(5)) : 0;
+
+  // ✅ Merge updated values into formData before sending
+  const payload = {
+    buildingId: formData.buildingId?.value || formData.buildingId,
+    stakeholder: formData.stakeholder?.value || formData.stakeholder,
+    vehicleClassification: formData.vehicleClassification?.value || formData.vehicleClassification,
+    vehicleType: formData.vehicleType?.value || formData.vehicleType,
+    fuelName: formData.fuelName?.value || formData.fuelName,
+    distanceTraveled: formData.distanceTraveled,
+    distanceUnit: formData.distanceUnit?.value || formData.distanceUnit,
+    qualityControl: formData.qualityControl?.value || formData.qualityControl,
+    weightLoaded: formData.weightLoaded ? formData.weightLoaded.value || formData.weightLoaded : null,
+    calculatedEmissionKgCo2e,
+    calculatedEmissionTCo2e,
+    remarks: formData.remarks,
   };
+
+  try {
+    const url = isEdit
+      ? `${process.env.REACT_APP_BASE_URL}/AutoMobile/update/${id}`
+      : `${process.env.REACT_APP_BASE_URL}/AutoMobile/Create`;
+
+    const method = isEdit ? axios.put : axios.post;
+
+    await method(url, payload, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+
+    toast.success(
+      `${isEdit ? "Record updated" : "Record added"} successfully)`
+    );
+
+    navigate("/Mobile-Combustion");
+  } catch (err) {
+    console.error(err);
+    toast.error(err.response?.data?.message || "Something went wrong");
+  }
+};
+
 
   // Auto calculate and show result when unit, fuel, or distance changes
   // useEffect(() => {
@@ -244,7 +330,60 @@ const MobileCombustionFormPage = () => {
   //     );
   //   }
   // }, [formData.fuelName, formData.distanceUnit, formData.distanceTraveled]);
+  useEffect(() => {
+    const {
+      vehicleClassification,
+      vehicleType,
+      fuelName,
+      distanceTraveled,
+      distanceUnit,
+      weightLoaded,
+    } = formData;
 
+    // if (!vehicleClassification || !vehicleType || !distanceTraveled || !distanceUnit) return;
+    if (
+  !vehicleClassification ||
+  !vehicleType ||
+  !distanceTraveled ||
+  !distanceUnit ||
+  (!fuelName && vehicleClassification?.value !== "Heavy Good Vehicles (HGVs All Diesel)" &&
+   vehicleClassification?.value !== "Heavy Good Vehicles (Refrigerated HGVs All Diesel)")
+) return;
+
+
+    const isHGV =
+      vehicleClassification?.value === "Heavy Good Vehicles (HGVs All Diesel)" ||
+      vehicleClassification?.value === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
+
+    const result = calculateMobileCombustion(
+      isHGV ? null : fuelName?.value || fuelName,
+      distanceTraveled,
+      distanceUnit?.value || distanceUnit,
+      vehicleType?.value || vehicleType,
+      vehicleClassification?.value || vehicleClassification,
+      isHGV ? weightLoaded?.value || weightLoaded : null
+    );
+
+    // if (result) {
+    //   toast.info(
+    //     `Emission = ${result.totalEmissionKg.toFixed(5)} kgCO₂e (${result.totalEmissionTonnes.toFixed(5)} tCO₂e)`
+    //   );
+    // }
+    if (result) {
+      //  Update formData with calculated emissions
+      setFormData((prev) => ({
+        ...prev,
+        calculatedEmissionKgCo2e: parseFloat(result.totalEmissionKg.toFixed(5)),
+        calculatedEmissionTCo2e: parseFloat(result.totalEmissionTonnes.toFixed(5)),
+      }));
+
+      //  Show formatted toast
+      toast.info(
+        `Total Emission: ${result.totalEmissionKg.toFixed(2)} KgCO₂e (${result.totalEmissionTonnes.toFixed(4)} tCO₂e)`,
+        { position: "top-right", autoClose: 4000 }
+      );
+    }
+  }, [formData.vehicleClassification, formData.vehicleType, formData.fuelName, formData.distanceTraveled, formData.distanceUnit, formData.weightLoaded]);
 
   return (
     <div>
