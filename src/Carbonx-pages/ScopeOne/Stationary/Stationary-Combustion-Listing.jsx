@@ -375,21 +375,17 @@ import {
   useTable,
   useRowSelect,
   useSortBy,
-  usePagination,
 } from "react-table";
 import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
 import Logo from "@/assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
 
-// ✅ Checkbox component
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
   const resolvedRef = ref || defaultRef;
-
   React.useEffect(() => {
     resolvedRef.current.indeterminate = indeterminate;
   }, [resolvedRef, indeterminate]);
-
   return <input type="checkbox" ref={resolvedRef} {...rest} className="table-checkbox" />;
 });
 
@@ -398,72 +394,118 @@ const StationaryCombustionListing = () => {
 
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [pageIndex, setPageIndex] = useState(0);
+  // const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [pageCount, setPageCount] = useState(0);
-  const [totalRecords, setTotalRecords] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalCount: 0,
+    limit: 10,
+    hasNextPage: false,
+    hasPrevPage: false,
+    nextPage: null,
+    prevPage: null,
+  });
 
-  // 🧭 Fetch paginated data
-  const fetchStationaryRecords = async (page = 1, limit = 10, search = "") => {
-    setLoading(true);
-    try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/stationary/Get-All?page=${page}&limit=${limit}&search=${search}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
+  // 🚀 Fetch paginated data from server
+  // const fetchStationaryRecords = async (page = 1, search = "") => {
+  //   setLoading(true);
+  //   try {
+  //     const res = await axios.get(
+  //       `${process.env.REACT_APP_BASE_URL}/stationary/Get-All?page=${page}&limit=${pageSize}&search=${search}`,
+  //       {
+  //         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  //       }
+  //     );
 
-      const data = res.data?.data || [];
-      const meta = res.data?.meta || {};
+  //     // Adjust this based on your backend structure
+  //     const responseData = res.data?.data || [];
+  //     setRecords(responseData);
+  //     setTotalPages(res.data?.totalPages || 1);
+  //     setTotalCount(res.data?.totalCount || responseData.length);
+  //     setPageIndex(res.data?.currentPage || page);
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to fetch records");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+ const fetchStationaryRecords = async (page = 1, search = "") => {
+  setLoading(true);
+  try {
+    const res = await axios.get(
+      `${process.env.REACT_APP_BASE_URL}/stationary/Get-All?page=${page}&limit=${pagination.limit}&search=${search}`,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
 
-      setRecords(Array.isArray(data) ? data : []);
-      setPageCount(meta.totalPages || 1);
-      setTotalRecords(meta.totalRecords || data.length);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch records");
-    } finally {
-      setLoading(false);
-    }
-  };
+    // ✅ your data is inside res.data.data
+    setRecords(res.data.data || []);
 
+    // ✅ pagination info is inside res.data.meta
+    const meta = res.data.meta || {};
+
+    setPagination({
+      currentPage: meta.currentPage || 1,
+      totalPages: meta.totalPages || 1,
+      totalCount: meta.totalRecords || 0,
+      limit: meta.limit || 10,
+      hasNextPage: meta.currentPage < meta.totalPages,
+      hasPrevPage: meta.currentPage > 1,
+      nextPage: meta.currentPage < meta.totalPages ? meta.currentPage + 1 : null,
+      prevPage: meta.currentPage > 1 ? meta.currentPage - 1 : null,
+    });
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to fetch records");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+  // initial load
   useEffect(() => {
-    fetchStationaryRecords(pageIndex + 1, pageSize, globalFilterValue);
-  }, [pageIndex, pageSize]);
+    fetchStationaryRecords(pagination.currentPage, globalFilterValue);
+  }, [pagination.currentPage, pageSize]);
 
-  // 🔍 Debounced Search
+  // handle search
   useEffect(() => {
-    const delay = setTimeout(() => {
-      fetchStationaryRecords(1, pageSize, globalFilterValue);
-      setPageIndex(0);
-    }, 500);
-    return () => clearTimeout(delay);
+    const delayDebounce = setTimeout(() => {
+      fetchStationaryRecords(1, globalFilterValue);
+    }, 600);
+    return () => clearTimeout(delayDebounce);
   }, [globalFilterValue]);
 
-  // 🗑️ Delete Record
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Record deleted successfully");
-      fetchStationaryRecords(pageIndex + 1, pageSize, globalFilterValue);
+      fetchStationaryRecords(pagination.currentPage);
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete record");
     }
   };
 
-  // 📊 Columns
-  const columns = useMemo(
+  // 🧾 Columns
+  const COLUMNS = useMemo(
     () => [
       {
         Header: "Sr No",
         id: "serialNo",
         Cell: ({ row }) => (
-          <span>{row.index + 1 + pageIndex * pageSize}</span>
+          <span>{(pagination.currentPage - 1) * pageSize + row.index + 1}</span>
         ),
       },
       { Header: "Building", accessor: "buildingId.buildingName" },
@@ -474,8 +516,18 @@ const StationaryCombustionListing = () => {
       { Header: "Fuel Consumption", accessor: "fuelConsumption" },
       { Header: "Consumption Unit", accessor: "consumptionUnit" },
       { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Emission (kg CO₂e)", accessor: "calculatedEmissionKgCo2e" },
-      { Header: "Emission (t CO₂e)", accessor: "calculatedEmissionTCo2e" },
+      { Header: "Calculated Emission (kg CO₂e)", accessor: "calculatedEmissionKgCo2e" },
+      { Header: "Calculated Emission (t CO₂e)", accessor: "calculatedEmissionTCo2e" },
+      {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "-",
+      },
+      {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "-",
+      },
       { Header: "Remarks", accessor: "remarks" },
       {
         Header: "Created At",
@@ -486,7 +538,6 @@ const StationaryCombustionListing = () => {
       {
         Header: "Actions",
         accessor: "_id",
-        disableSortBy: true,
         Cell: ({ cell }) => (
           <div className="flex space-x-3 rtl:space-x-reverse">
             <Tippy content="View">
@@ -528,36 +579,28 @@ const StationaryCombustionListing = () => {
         ),
       },
     ],
-    [pageIndex, pageSize]
+    [pagination.currentPage, pageSize]
   );
 
-  // ✅ React Table setup
   const tableInstance = useTable(
     {
-      columns,
+      columns: COLUMNS,
       data: records,
       manualPagination: true,
-      pageCount,
-      initialState: { pageIndex: 0, pageSize: 10 },
     },
     useSortBy,
-    usePagination,
     useRowSelect,
     (hooks) => {
-      if (hooks.visibleColumns) {
-        hooks.visibleColumns.push((cols) => [
-          {
-            id: "selection",
-            Header: ({ getToggleAllRowsSelectedProps }) => (
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-            ),
-            Cell: ({ row }) => (
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            ),
-          },
-          ...cols,
-        ]);
-      }
+      hooks.visibleColumns.push((columns) => [
+        {
+          id: "selection",
+          Header: ({ getToggleAllRowsSelectedProps }) => (
+            <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+          ),
+          Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
+        },
+        ...columns,
+      ]);
     }
   );
 
@@ -566,7 +609,6 @@ const StationaryCombustionListing = () => {
   return (
     <>
       <Card noborder>
-        {/* 🔹 Header */}
         <div className="md:flex pb-6 items-center">
           <h6 className="flex-1 md:mb-0">Stationary Combustion Records</h6>
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
@@ -581,7 +623,6 @@ const StationaryCombustionListing = () => {
           </div>
         </div>
 
-        {/* 🔹 Table */}
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
             <div className="overflow-hidden">
@@ -590,7 +631,10 @@ const StationaryCombustionListing = () => {
                   <img src={Logo} alt="Loading..." className="w-52 h-24" />
                 </div>
               ) : (
-                <table className="min-w-full divide-y divide-slate-100 table-fixed" {...getTableProps()}>
+                <table
+                  className="min-w-full divide-y divide-slate-100 table-fixed"
+                  {...getTableProps()}
+                >
                   <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]">
                     {headerGroups.map((headerGroup, index) => (
                       <tr {...headerGroup.getHeaderGroupProps()} key={index}>
@@ -601,16 +645,22 @@ const StationaryCombustionListing = () => {
                             key={column.id}
                           >
                             {column.render("Header")}
-                            <span>{column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}</span>
+                            <span>
+                              {column.isSorted
+                                ? column.isSortedDesc
+                                  ? " 🔽"
+                                  : " 🔼"
+                                : ""}
+                            </span>
                           </th>
                         ))}
                       </tr>
                     ))}
                   </thead>
                   <tbody {...getTableBodyProps()}>
-                    {records.length === 0 ? (
+                    {rows.length === 0 ? (
                       <tr>
-                        <td colSpan={columns.length + 1} className="text-center py-4">
+                        <td colSpan={COLUMNS.length + 1} className="text-center py-4">
                           No data available.
                         </td>
                       </tr>
@@ -635,106 +685,34 @@ const StationaryCombustionListing = () => {
           </div>
         </div>
 
-        {/* 🔹 Pagination (same style as Mobile Combustion) */}
-        <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
-          {/* Go to page + current info */}
-          <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <span className="flex space-x-2 rtl:space-x-reverse items-center">
-              <span className="text-sm font-medium text-slate-600">Go</span>
-              <span>
-                <input
-                  type="number"
-                  className="form-control py-2"
-                  defaultValue={pageIndex + 1}
-                  onChange={(e) => {
-                    const pageNumber = e.target.value ? Number(e.target.value) - 1 : 0;
-                    if (pageNumber >= 0 && pageNumber < pageCount) {
-                      setPageIndex(pageNumber);
-                    }
-                  }}
-                  style={{ width: "50px" }}
-                />
-              </span>
-            </span>
-            <span className="text-sm font-medium text-slate-600">
-              Page <span>{pageIndex + 1} of {pageCount || 1}</span>
-            </span>
+        {/* Pagination */}
+        <div className="flex justify-between items-center mt-6">
+          <div className="text-sm text-gray-600">
+            Showing page {pagination.currentPage} of {totalPages} — Total records: {totalCount}
           </div>
-
-          {/* Page buttons */}
-          <ul className="flex items-center space-x-3 rtl:space-x-reverse">
-            <li>
-              <button
-                onClick={() => setPageIndex(0)}
-                disabled={pageIndex === 0}
-                className={`${pageIndex === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                <Icon icon="heroicons:chevron-double-left-solid" />
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => setPageIndex((prev) => Math.max(prev - 1, 0))}
-                disabled={pageIndex === 0}
-                className={`${pageIndex === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                Prev
-              </button>
-            </li>
-
-            {Array.from({ length: pageCount }, (_, idx) => (
-              <li key={idx}>
-                <button
-                  className={`${idx === pageIndex
-                    ? "bg-slate-900 text-white font-medium"
-                    : "bg-slate-100 text-slate-900 font-normal"
-                    } text-sm rounded h-6 w-6 flex items-center justify-center`}
-                  onClick={() => setPageIndex(idx)}
-                >
-                  {idx + 1}
-                </button>
-              </li>
-            ))}
-
-            <li>
-              <button
-                onClick={() => setPageIndex((prev) => Math.min(prev + 1, pageCount - 1))}
-                disabled={pageIndex + 1 >= pageCount}
-                className={`${pageIndex + 1 >= pageCount ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                Next
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => setPageIndex(pageCount - 1)}
-                disabled={pageIndex + 1 >= pageCount}
-                className={`${pageIndex + 1 >= pageCount ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                <Icon icon="heroicons:chevron-double-right-solid" />
-              </button>
-            </li>
-          </ul>
-
-          {/* Show entries dropdown */}
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-slate-600">Show</span>
-            <select
-              value={pageSize}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              className="form-select py-2"
-            >
-              {[10, 20, 50].map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
+          <div className="flex space-x-2">
+            <Button
+              text="Prev"
+              className="btn-light btn-sm"
+              disabled={!pagination.hasPrevPage}
+              onClick={() =>
+                pagination.hasPrevPage &&
+                setPagination((p) => ({ ...p, currentPage: p.prevPage }))
+              }
+            />
+            <Button
+              text="Next"
+              className="btn-light btn-sm"
+              disabled={!pagination.hasNextPage}
+              onClick={() =>
+                pagination.hasNextPage &&
+                setPagination((p) => ({ ...p, currentPage: p.nextPage }))
+              }
+            />
           </div>
         </div>
       </Card>
 
-      {/* Delete Modal */}
       <Modal
         activeModal={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
@@ -756,7 +734,7 @@ const StationaryCombustionListing = () => {
         }
       >
         <p className="text-gray-700 text-center">
-          Are you sure you want to delete this record? This action cannot be undone.
+          Are you sure you want to delete this Stationary? This action cannot be undone.
         </p>
       </Modal>
     </>
