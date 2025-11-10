@@ -10,7 +10,6 @@ import {
   useTable,
   useRowSelect,
   useSortBy,
-  usePagination,
 } from "react-table";
 import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
 import Logo from "@/assets/images/logo/SrpLogo.png";
@@ -31,25 +30,33 @@ const MobileCombustionListing = () => {
   const navigate = useNavigate();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [pageIndex, setPageIndex] = useState(0);
+  const [pageIndex, setPageIndex] = useState(1); // server-side starts at 1
   const [pageSize, setPageSize] = useState(10);
-  const [pageCount, setPageCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalRecords, setTotalRecords] = useState(0);
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
-  // Fetch Stationary Combustion Data
-  const fetchStationaryRecords = async () => {
+
+  // 🔹 Fetch records with server-side pagination
+  const fetchRecords = async (page = 1, limit = 10) => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All`,
+        `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All?page=${page}&limit=${limit}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
 
-      const data = res.data?.data?.records || res.data?.data || [];
+      const data = res.data?.data || [];
+      const meta = res.data?.meta || {};
+
       setRecords(data);
+      setTotalRecords(meta.totalRecords || 0);
+      setTotalPages(meta.totalPages || 1);
+      setPageIndex(meta.currentPage || 1);
+      setPageSize(meta.limit || 10);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch records");
@@ -59,17 +66,17 @@ const MobileCombustionListing = () => {
   };
 
   useEffect(() => {
-    fetchStationaryRecords();
-  }, []);
+    fetchRecords(pageIndex, pageSize);
+  }, [pageIndex, pageSize]);
 
-  //  Delete Record
+  // 🔹 Delete Record
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/AutoMobile/Delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Record deleted successfully");
-      fetchStationaryRecords();
+      fetchRecords(pageIndex, pageSize);
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete record");
@@ -82,7 +89,9 @@ const MobileCombustionListing = () => {
       {
         Header: "Sr No",
         id: "serialNo",
-        Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
+        Cell: ({ row }) => (
+          <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
+        ),
       },
       {
         Header: "Building",
@@ -104,9 +113,14 @@ const MobileCombustionListing = () => {
       { Header: "Distance Unit", accessor: "distanceUnit" },
       { Header: "Quality Control", accessor: "qualityControl" },
       { Header: "Weight Loaded (kg)", accessor: "weightLoaded" },
-      { Header: "Calculated Emission (kg CO₂e)", accessor: "calculatedEmissionKgCo2e" },
-      { Header: "Calculated Emission (t CO₂e)", accessor: "calculatedEmissionTCo2e" },
-
+      {
+        Header: "Calculated Emission (kg CO₂e)", accessor: "calculatedEmissionKgCo2e",
+        className: "normal-case",
+      },
+      {
+        Header: "Calculated Emission (t CO₂e)", accessor: "calculatedEmissionTCo2e",
+        className: "normal-case",
+      },
       {
         Header: "Created By",
         accessor: "createdBy.name",
@@ -125,7 +139,8 @@ const MobileCombustionListing = () => {
             {value?.length > 20 ? value.slice(0, 20) + "..." : value || "-"}
           </span>
         ),
-      }, {
+      },
+      {
         Header: "Created At",
         accessor: "createdAt",
         Cell: ({ cell }) =>
@@ -180,33 +195,10 @@ const MobileCombustionListing = () => {
     [pageIndex, pageSize]
   );
 
-
-
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
-  const data = useMemo(() => {
-    if (!globalFilterValue) return records;
-    return records.filter((item) => {
-      const search = globalFilterValue.toLowerCase();
-      return (
-        item.buildingId?.buildingName?.toLowerCase().includes(search) ||
-        item.stakeholder?.toLowerCase().includes(search) ||
-        item.vehicleClassification?.toLowerCase().includes(search) ||
-        item.vehicleType?.toLowerCase().includes(search) ||
-        item.fuelName?.toLowerCase().includes(search) ||
-        item.remarks?.toLowerCase().includes(search)
-      );
-    });
-  }, [records, globalFilterValue]);
-
-
   const tableInstance = useTable(
-    {
-      columns,
-      data,
-      initialState: { pageIndex: 0, pageSize: 10 },
-    },
+    { columns, data: records },
     useSortBy,
-    usePagination,
     useRowSelect,
     (hooks) => {
       hooks.visibleColumns.push((columns) => [
@@ -215,29 +207,28 @@ const MobileCombustionListing = () => {
           Header: ({ getToggleAllRowsSelectedProps }) => (
             <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
           ),
-          Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
+          Cell: ({ row }) => (
+            <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+          ),
         },
         ...columns,
       ]);
     }
   );
 
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    tableInstance;
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    page,
-    prepareRow,
-    nextPage,
-    previousPage,
-    canNextPage,
-    canPreviousPage,
-    pageOptions,
-    state,
-  } = tableInstance;
-
-  const { pageIndex: currentPageIndex } = state;
+  // 🔹 Handle Pagination
+  const handleNextPage = () => {
+    if (pageIndex < totalPages) setPageIndex((prev) => prev + 1);
+  };
+  const handlePrevPage = () => {
+    if (pageIndex > 1) setPageIndex((prev) => prev - 1);
+  };
+  const handleGoToPage = (num) => {
+    if (num >= 1 && num <= totalPages) setPageIndex(num);
+  };
 
   return (
     <>
@@ -258,197 +249,137 @@ const MobileCombustionListing = () => {
 
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden">
-              {loading ? (
-                <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
-                </div>
-              ) : (
-                <table
-                  className="min-w-full divide-y divide-slate-100 table-fixed"
-                  {...getTableProps()}
-                >
-                  <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]">
-                    {headerGroups.map((headerGroup, index) => (
-                      <tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                        {headerGroup.headers.map((column) => (
-                          <th
-                            {...column.getHeaderProps(column.getSortByToggleProps())}
-                            className="table-th text-white"
-                            key={column.id}
-                          >
-                            {column.render("Header")}
-                            <span>
-                              {column.isSorted
-                                ? column.isSortedDesc
-                                  ? " 🔽"
-                                  : " 🔼"
-                                : ""}
-                            </span>
-                          </th>
-                        ))}
-                      </tr>
-                    ))}
-                  </thead>
-                  <tbody {...getTableBodyProps()}>
-                    {page.length === 0 ? (
-                      <tr>
-                        <td colSpan={columns.length + 1} className="text-center py-4">
-                          No data available.
-                        </td>
-                      </tr>
-                    ) : (
-                      page.map((row) => {
-                        prepareRow(row);
-                        return (
-                          <tr {...row.getRowProps()} className="even:bg-gray-50">
-                            {row.cells.map((cell) => (
-                              <td
-                                {...cell.getCellProps()}
-                                className="px-6 py-4 whitespace-nowrap"
-                              >
-                                {cell.render("Cell")}
-                              </td>
-                            ))}
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              )}
+            {/* Set fixed height and enable vertical scroll */}
+            <div className="overflow-y-auto max-h-[500px] overflow-x-auto">
+              <table
+                className="min-w-full divide-y divide-slate-100 table-fixed"
+                {...getTableProps()}
+              >
+                <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
+                  {headerGroups.map((headerGroup, index) => (
+                    <tr {...headerGroup.getHeaderGroupProps()} key={index}>
+                      {headerGroup.headers.map((column) => (
+                        <th
+                          {...column.getHeaderProps(column.getSortByToggleProps())}
+                          className="table-th text-white"
+                          key={column.id}
+                        >
+                          {column.render("Header")}
+                          <span>
+                            {column.isSorted
+                              ? column.isSortedDesc
+                                ? " 🔽"
+                                : " 🔼"
+                              : ""}
+                          </span>
+                        </th>
+                      ))}
+                    </tr>
+                  ))}
+                </thead>
+                <tbody {...getTableBodyProps()}>
+                  {records.length === 0 ? (
+                    <tr>
+                      <td colSpan={columns.length + 1} className="text-center py-4">
+                        No data available.
+                      </td>
+                    </tr>
+                  ) : (
+                    rows.map((row) => {
+                      prepareRow(row);
+                      return (
+                        <tr {...row.getRowProps()} className="even:bg-gray-50">
+                          {row.cells.map((cell) => (
+                            <td
+                              {...cell.getCellProps()}
+                              className="px-6 py-4 whitespace-nowrap"
+                            >
+                              {cell.render("Cell")}
+                            </td>
+                          ))}
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
 
-        {/* Pagination */}
-        {/* <div className="md:flex justify-between items-center mt-6">
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-slate-600">
-              Page <span>{currentPageIndex + 1} of {pageOptions.length}</span>
-            </span>
-          </div>
-          <ul className="flex items-center space-x-3">
-            <li>
-              <button
-                onClick={() => previousPage()}
-                disabled={!canPreviousPage}
-                className={`${!canPreviousPage ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                Prev
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => nextPage()}
-                disabled={!canNextPage}
-                className={`${!canNextPage ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                Next
-              </button>
-            </li>
-          </ul>
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-slate-600">Show</span>
-            <select
-              value={pageSize}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              className="form-select py-2"
-            >
-              {[10, 20, 30, 50].map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div> */}
-        {/* Enhanced Pagination (same as CompanyTable) */}
+
+        {/*   Server-side Pagination (same UI, dynamic values) */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
-          {/* Go to page + current info */}
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <span className="flex space-x-2 rtl:space-x-reverse items-center">
+            <span className="flex space-x-2 items-center">
               <span className="text-sm font-medium text-slate-600">Go</span>
-              <span>
-                <input
-                  type="number"
-                  className="form-control py-2"
-                  defaultValue={pageIndex + 1}
-                  onChange={(e) => {
-                    const pageNumber = e.target.value ? Number(e.target.value) - 1 : 0;
-                    if (pageNumber >= 0 && pageNumber < pageOptions.length) {
-                      tableInstance.gotoPage(pageNumber);
-                      setPageIndex(pageNumber);
-                    }
-                  }}
-                  style={{ width: "50px" }}
-                />
-              </span>
+              <input
+                type="number"
+                className="form-control py-2"
+                defaultValue={pageIndex}
+                onChange={(e) => handleGoToPage(Number(e.target.value))}
+                style={{ width: "50px" }}
+              />
             </span>
             <span className="text-sm font-medium text-slate-600">
-              Page <span>{pageIndex + 1} of {pageOptions.length || 1}</span>
+              Page {pageIndex} of {totalPages}
             </span>
           </div>
 
-          {/* Pagination buttons */}
           <ul className="flex items-center space-x-3 rtl:space-x-reverse">
-            <li className="text-xl leading-4 text-slate-900">
+            <li>
               <button
-                className={`${!tableInstance.canPreviousPage ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={() => tableInstance.gotoPage(0)}
-                disabled={!tableInstance.canPreviousPage}
+                onClick={() => handleGoToPage(1)}
+                disabled={pageIndex === 1}
+                className={`${pageIndex === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <Icon icon="heroicons:chevron-double-left-solid" />
               </button>
             </li>
-            <li className="text-sm">
+            <li>
               <button
-                className={`${!tableInstance.canPreviousPage ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={() => tableInstance.previousPage()}
-                disabled={!tableInstance.canPreviousPage}
+                onClick={handlePrevPage}
+                disabled={pageIndex === 1}
+                className={`${pageIndex === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Prev
               </button>
             </li>
 
-            {pageOptions.map((pageNum, idx) => (
+            {[...Array(totalPages)].map((_, idx) => (
               <li key={idx}>
                 <button
-                  className={`${idx === pageIndex
+                  className={`${idx + 1 === pageIndex
                     ? "bg-slate-900 text-white font-medium"
                     : "bg-slate-100 text-slate-900 font-normal"
                     } text-sm rounded h-6 w-6 flex items-center justify-center`}
-                  onClick={() => {
-                    tableInstance.gotoPage(idx);
-                    setPageIndex(idx);
-                  }}
+                  onClick={() => handleGoToPage(idx + 1)}
                 >
-                  {pageNum + 1}
+                  {idx + 1}
                 </button>
               </li>
             ))}
 
-            <li className="text-sm">
+            <li>
               <button
-                className={`${!tableInstance.canNextPage ? "opacity-50 cursor-not-allowed" : ""}`}
-                onClick={() => tableInstance.nextPage()}
-                disabled={!tableInstance.canNextPage}
+                onClick={handleNextPage}
+                disabled={pageIndex === totalPages}
+                className={`${pageIndex === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Next
               </button>
             </li>
-            <li className="text-xl leading-4 text-slate-900">
+            <li>
               <button
-                onClick={() => tableInstance.gotoPage(pageCount - 1)}
-                disabled={!tableInstance.canNextPage}
-                className={`${!tableInstance.canNextPage ? "opacity-50 cursor-not-allowed" : ""}`}
+                onClick={() => handleGoToPage(totalPages)}
+                disabled={pageIndex === totalPages}
+                className={`${pageIndex === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <Icon icon="heroicons:chevron-double-right-solid" />
               </button>
             </li>
           </ul>
 
-          {/* Show entries dropdown */}
           <div className="flex items-center space-x-3">
             <span className="text-sm font-medium text-slate-600">Show</span>
             <select
@@ -456,7 +387,7 @@ const MobileCombustionListing = () => {
               onChange={(e) => setPageSize(Number(e.target.value))}
               className="form-select py-2"
             >
-              {[10].map((size) => (
+              {[10, 20, 50].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
@@ -465,6 +396,7 @@ const MobileCombustionListing = () => {
           </div>
         </div>
       </Card>
+
       <Modal
         activeModal={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
@@ -473,11 +405,7 @@ const MobileCombustionListing = () => {
         centered
         footerContent={
           <>
-            <Button
-              text="Cancel"
-              className="btn-light"
-              onClick={() => setDeleteModalOpen(false)}
-            />
+            <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
             <Button
               text="Delete"
               className="btn-danger"

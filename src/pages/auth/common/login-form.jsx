@@ -83,7 +83,7 @@ const onSubmit = async (data) => {
     }
 
     const userData = response?.data?.data; // actual user object
-    const companyId = userData?.companyId; // ✅ extract user ID
+    const companyId = userData?.companyId; //   extract user ID
     const userId = userData?._id;
 
     if (!userData?.token) {
@@ -94,11 +94,11 @@ const onSubmit = async (data) => {
       throw new Error("Invalid credentials");
     }
 
-    // ✅ Save user, token, and userId properly
+    //   Save user, token, and userId properly
     dispatch(setUser(userData));
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", userData.token);
-    localStorage.setItem("companyId", companyId); // ✅ added line
+    localStorage.setItem("companyId", companyId); //   added line
     localStorage.setItem("userId", userId); 
 
     toast.success("Login Successful");
@@ -225,7 +225,7 @@ export default LoginForm;
 //         throw new Error("Invalid credentials");
 //       } 
 
-//       // ✅ Save user and token
+//       //   Save user and token
 //       dispatch(setUser(userData));
 //       localStorage.setItem("user", JSON.stringify(userData));
 //       localStorage.setItem("token", userData.token);

@@ -34,8 +34,8 @@ const SectorEdit = () => {
 
                 if (response.data) {
                     setFormData({
-                        name: response.data.data.name || "",         // ✅ add name
-                        description: response.data.data.description || "", // ✅ add description
+                        name: response.data.data.name || "",         //   add name
+                        description: response.data.data.description || "", //   add description
                     });
 
                 } else {
@@ -60,7 +60,7 @@ const SectorEdit = () => {
                 `${process.env.REACT_APP_BASE_URL}/sector/update/${id}`,
                 {
                     name: formdata.name,
-                    description: formdata.description, // ✅ Sending array of selected sports
+                    description: formdata.description, //   Sending array of selected sports
                 },
                 {
                     headers: {

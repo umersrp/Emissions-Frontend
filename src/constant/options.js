@@ -491,6 +491,8 @@ const commonFuelOptions = [
   { value: "LPG (Liquefied Petroleum Gas)", label: "LPG (Liquefied Petroleum Gas)" },
   { value: "Bio Diesel", label: "Bio Diesel" },
   { value: "Bio Ethanol", label: "Bio Ethanol" },
+  { value: "Battery Electric Vehicle", label: "Battery Electric Vehicle" },
+
 ];
 
 // --- Fuel Name depends on Vehicle Type ---
@@ -501,8 +503,11 @@ export const fuelNameOptionsByClassification = {
 
   "Heavy Good Vehicles (Refrigerated HGVs All Diesel)": [{ value: "Diesel", label: "Diesel" }],
 
-  "By Market Segment": commonFuelOptions,
-
+  "By Market Segment":[ 
+    ...commonFuelOptions,
+    { value: "Hybrid", label: "Hybrid" },
+  ],
+  
   "Delivery Vans (Large Good Vehicles)": commonFuelOptions,
 
   "By Size": [

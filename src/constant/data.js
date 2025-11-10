@@ -214,12 +214,12 @@ export const menuItems = [
         childlink: "Stationary-Combustion",
       },
       {
-        childtitle: "Fugitve Emissions",
-        childlink: "Fugitive-Emissions",
-      },
-      {
         childtitle: "Mobile Combustion",
         childlink: "Mobile-Combustion",
+      },
+      {
+        childtitle: "Fugitve Emissions",
+        childlink: "Fugitive-Emissions",
       },
       {
         childtitle: "Process Emission",

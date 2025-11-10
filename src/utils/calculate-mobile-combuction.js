@@ -58,7 +58,7 @@ export const calculateMobileCombustion = (
   distanceUnit,
   vehicleType,
   vehicleClassification,
-  weightLoaded = null // ✅ optional param for HGVs
+  weightLoaded = null //   optional param for HGVs
 ) => {
   if (!distanceTraveled || !distanceUnit || !vehicleClassification) return null;
 
@@ -85,7 +85,7 @@ export const calculateMobileCombustion = (
     return null;
   }
 
-  // ✅ Special condition for HGVs
+  //   Special condition for HGVs
   const isHGV =
     vehicleClassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
     vehicleClassification === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";

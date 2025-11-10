@@ -422,7 +422,7 @@ const CompanyProfileForm = () => {
                                         options: {
                                             altBoundary: false,
                                             rootBoundary: "viewport",
-                                            tether: true, // ✅ prevents weird repositioning
+                                            tether: true, //   prevents weird repositioning
                                         },
                                     },
 
@@ -475,7 +475,7 @@ const CompanyProfileForm = () => {
                                         options: {
                                             altBoundary: false,
                                             rootBoundary: "viewport",
-                                            tether: true, // ✅ prevents weird repositioning
+                                            tether: true, //   prevents weird repositioning
                                         },
                                     },
 

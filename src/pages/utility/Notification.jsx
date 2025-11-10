@@ -32,7 +32,7 @@ const SendNotificationForm = () => {
                 }
             );
 
-            alert("✅ Notification sent!");
+            alert("  Notification sent!");
             setTitle("");
             setMessage("");
         } catch (err) {

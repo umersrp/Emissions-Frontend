@@ -375,7 +375,7 @@
 //                                         options: {
 //                                             altBoundary: false,
 //                                             rootBoundary: "viewport",
-//                                             tether: true, // ✅ prevents weird repositioning
+//                                             tether: true, //   prevents weird repositioning
 //                                         },
 //                                     },
                                    
@@ -428,7 +428,7 @@
 //                                         options: {
 //                                             altBoundary: false,
 //                                             rootBoundary: "viewport",
-//                                             tether: true, // ✅ prevents weird repositioning
+//                                             tether: true, //   prevents weird repositioning
 //                                         },
 //                                     },
                                     
@@ -812,7 +812,7 @@ const MyCompany = () => {
 
     const [errors, setErrors] = useState({});
 
-    // ✅ Fetch countries and currencies
+    //   Fetch countries and currencies
     useEffect(() => {
         const fetchDropdownData = async () => {
             try {
@@ -836,7 +836,7 @@ const MyCompany = () => {
         fetchDropdownData();
     }, []);
 
-    // ✅ Fetch company by logged-in user ID
+    //   Fetch company by logged-in user ID
     useEffect(() => {
         const fetchCompanyData = async () => {
             try {
@@ -935,7 +935,7 @@ const MyCompany = () => {
         return errors;
     };
 
-    // ✅ Update company
+    //   Update company
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -1122,7 +1122,7 @@ const MyCompany = () => {
                                         options: {
                                             altBoundary: false,
                                             rootBoundary: "viewport",
-                                            tether: true, // ✅ prevents weird repositioning
+                                            tether: true, //   prevents weird repositioning
                                         },
                                     },
                                    
@@ -1175,7 +1175,7 @@ const MyCompany = () => {
                                         options: {
                                             altBoundary: false,
                                             rootBoundary: "viewport",
-                                            tether: true, // ✅ prevents weird repositioning
+                                            tether: true, //   prevents weird repositioning
                                         },
                                     },
                                     

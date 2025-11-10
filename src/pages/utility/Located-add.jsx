@@ -16,7 +16,7 @@ function Locatedadd() {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
 
-  // ✅ Fetch sports list
+  //   Fetch sports list
   useEffect(() => {
     const fetchSports = async () => {
       try {
@@ -45,7 +45,7 @@ function Locatedadd() {
     fetchSports();
   }, [user.type]);
 
-  // ✅ Validation
+  //   Validation
   const validate = () => {
     const errors = {};
     if (!formData.location) errors.location = "Location is required";
@@ -53,7 +53,7 @@ function Locatedadd() {
     return errors;
   };
 
-  // ✅ Handle form submission
+  //   Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
@@ -67,7 +67,7 @@ function Locatedadd() {
 
       const dataToSend = {
         location: formData.location,
-        sports: formData.sports, // ✅ send array
+        sports: formData.sports, //   send array
       };
 
       const response = await axios.post(
@@ -115,7 +115,7 @@ function Locatedadd() {
           {errors.location && <div className="error">{errors.location}</div>}
         </div>
 
-        {/* ✅ Multi-Select Sports Dropdown */}
+        {/*   Multi-Select Sports Dropdown */}
         <div>
           <label className="form-label">Select Sports</label>
           <Select

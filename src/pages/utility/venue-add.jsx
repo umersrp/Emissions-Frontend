@@ -223,7 +223,7 @@ const VenueAddPage = () => {
 
       const formDataTOSubmit = new FormData();
       if (selectedImage) {
-        formDataTOSubmit.append("image", selectedImage); // ✅ attach image
+        formDataTOSubmit.append("image", selectedImage); //   attach image
       }
 
       formDataTOSubmit.append("name", formData.name);
