@@ -113,14 +113,8 @@ const MobileCombustionListing = () => {
       { Header: "Distance Unit", accessor: "distanceUnit" },
       { Header: "Quality Control", accessor: "qualityControl" },
       { Header: "Weight Loaded (kg)", accessor: "weightLoaded" },
-      {
-        Header: "Calculated Emission (kg CO₂e)", accessor: "calculatedEmissionKgCo2e",
-        className: "normal-case",
-      },
-      {
-        Header: "Calculated Emission (t CO₂e)", accessor: "calculatedEmissionTCo2e",
-        className: "normal-case",
-      },
+      { Header: "Calculated Emission (kg CO₂e)", accessor: "calculatedEmissionKgCo2e",},
+      { Header: "Calculated Emission (t CO₂e)", accessor: "calculatedEmissionTCo2e",},
       {
         Header: "Created By",
         accessor: "createdBy.name",
