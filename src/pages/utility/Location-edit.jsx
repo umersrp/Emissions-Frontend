@@ -13,14 +13,14 @@ const Locationedit = () => {
   const { id } = useParams();
   const [location, setLocation] = useState({
     location: "",
-    sports: [], // ✅ Changed to array for multi-select
+    sports: [], //   Changed to array for multi-select
   });
   const [sports, setSports] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const user = useSelector((state) => state.auth.user);
 
-  // ✅ Fetch location by ID directly
+  //   Fetch location by ID directly
   useEffect(() => {
     const fetchLocationById = async () => {
       try {
@@ -54,7 +54,7 @@ const Locationedit = () => {
     fetchLocationById();
   }, [id, user.type]);
 
-  // ✅ Fetch sports list
+  //   Fetch sports list
   useEffect(() => {
     const fetchSports = async () => {
       try {
@@ -89,7 +89,7 @@ const Locationedit = () => {
         `${process.env.REACT_APP_BASE_URL}/${user.type}/location/update-locations/${id}`,
         {
           location: location.location,
-          sports: location.sports, // ✅ Sending array of selected sports
+          sports: location.sports, //   Sending array of selected sports
         },
         {
           headers: {
@@ -134,7 +134,7 @@ const Locationedit = () => {
           />
         </div>
 
-        {/* ✅ Multi-Select Sports Dropdown */}
+        {/*   Multi-Select Sports Dropdown */}
         <div>
           <label className="form-label">Select Sports</label>
           <Select

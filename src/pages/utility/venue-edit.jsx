@@ -107,14 +107,14 @@ const VenueEditPage = () => {
         setUploadingData(true);
 
         const updatedForm = new FormData();
-        updatedForm.append("data", JSON.stringify(formData)); // ✅ send structured data
+        updatedForm.append("data", JSON.stringify(formData)); //   send structured data
         if (selectedImage) {
-          updatedForm.append("image", selectedImage); // ✅ attach image
+          updatedForm.append("image", selectedImage); //   attach image
         }
 
         const response = await axios.put(
           `${process.env.REACT_APP_BASE_URL}/${user.type}/venue/update-venue/${userId}`,
-          updatedForm, // ✅ send FormData, not plain object
+          updatedForm, //   send FormData, not plain object
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

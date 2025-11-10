@@ -162,11 +162,11 @@ const MobileCombustionFormPage = () => {
         isHGV ? weightLoaded?.value || weightLoaded : null
       );
 
-      if (result) {
-        toast.info(
-          `Emission = ${result.totalEmissionKg.toFixed(5)} kgCO₂e (${result.totalEmissionTonnes.toFixed(5)} tCO₂e)`
-        );
-      }
+      // if (result) {
+      //   toast.info(
+      //     `Emission = ${result.totalEmissionKg.toFixed(5)} kgCO₂e (${result.totalEmissionTonnes.toFixed(5)} tCO₂e)`
+      //   );
+      // }
     }
 
     setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -179,157 +179,80 @@ const MobileCombustionFormPage = () => {
     setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
   };
 
-  // Handle submit for Add / Edit
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  //   const newErrors = {};
-  //   if (!formData.buildingId) newErrors.buildingId = "Building is required";
-  //   if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder is required";
-  //   if (!formData.vehicleClassification) newErrors.vehicleClassification = "Vehicle Classification is required";
-  //   if (!formData.vehicleType) newErrors.vehicleType = "Vehicle Type is required";
-  //   if (!formData.fuelName) newErrors.fuelName = "Fuel Name is required";
-  //   if (!formData.distanceTraveled) newErrors.distanceTraveled = "Distance Traveled is required";
-  //   if (!formData.distanceUnit) newErrors.distanceUnit = "Distance Unit is required";
-  //   if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
+    const newErrors = {};
+    if (!formData.buildingId) newErrors.buildingId = "Building is required";
+    if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder is required";
+    if (!formData.vehicleClassification) newErrors.vehicleClassification = "Vehicle Classification is required";
+    if (!formData.vehicleType) newErrors.vehicleType = "Vehicle Type is required";
+    if (!formData.fuelName) newErrors.fuelName = "Fuel Name is required";
+    if (!formData.distanceTraveled) newErrors.distanceTraveled = "Distance Traveled is required";
+    if (!formData.distanceUnit) newErrors.distanceUnit = "Distance Unit is required";
+    if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
 
-  //   if (Object.keys(newErrors).length > 0) {
-  //     setErrors(newErrors);
-  //     toast.error("Please fill all required fields");
-  //     return;
-  //   }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      toast.error("Please fill all required fields");
+      return;
+    }
 
-  //   // Prepare API-ready payload
-  //   const payload = {
-  //     buildingId: formData.buildingId?.value || formData.buildingId,
-  //     stakeholder: formData.stakeholder?.value || formData.stakeholder,
-  //     vehicleClassification: formData.vehicleClassification?.value || formData.vehicleClassification,
-  //     vehicleType: formData.vehicleType?.value || formData.vehicleType,
-  //     fuelName: formData.fuelName?.value || formData.fuelName,
-  //     distanceTraveled: formData.distanceTraveled,
-  //     distanceUnit: formData.distanceUnit?.value || formData.distanceUnit,
-  //     qualityControl: formData.qualityControl?.value || formData.qualityControl,
-  //     weightLoaded: formData.weightLoaded
-  //       ? formData.weightLoaded.value || formData.weightLoaded
-  //       : null,
-  //     calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e,
-  //     calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
-  //     remarks: formData.remarks,
-  //   };
+    //   Always recalculate before submission
+    const isHGV =
+      formData.vehicleClassification?.value === "Heavy Good Vehicles (HGVs All Diesel)" ||
+      formData.vehicleClassification?.value === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
 
-  //   try {
-  //     if (isEdit) {
-  //       await axios.put(
-  //         `${process.env.REACT_APP_BASE_URL}/AutoMobile/update/${id}`,
-  //         payload,
-  //         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-  //       );
-  //       toast.success("Record updated successfully");
-  //     } else {
-  //       await axios.post(
-  //         `${process.env.REACT_APP_BASE_URL}/AutoMobile/Create`,
-  //         payload,
-  //         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-  //       );
-  //       toast.success("Record added successfully");
-  //     }
-  //     navigate("/Mobile-Combustion");
-  //   } catch (err) {
-  //     toast.error(err.response?.data?.message || "Something went wrong");
-  //     console.error(err);
-  //   }
-  // };
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  const newErrors = {};
-  if (!formData.buildingId) newErrors.buildingId = "Building is required";
-  if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder is required";
-  if (!formData.vehicleClassification) newErrors.vehicleClassification = "Vehicle Classification is required";
-  if (!formData.vehicleType) newErrors.vehicleType = "Vehicle Type is required";
-  if (!formData.fuelName) newErrors.fuelName = "Fuel Name is required";
-  if (!formData.distanceTraveled) newErrors.distanceTraveled = "Distance Traveled is required";
-  if (!formData.distanceUnit) newErrors.distanceUnit = "Distance Unit is required";
-  if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
-
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
-    toast.error("Please fill all required fields");
-    return;
-  }
-
-  // ✅ Always recalculate before submission
-  const isHGV =
-    formData.vehicleClassification?.value === "Heavy Good Vehicles (HGVs All Diesel)" ||
-    formData.vehicleClassification?.value === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
-
-  const result = calculateMobileCombustion(
-    isHGV ? null : formData.fuelName?.value || formData.fuelName,
-    formData.distanceTraveled,
-    formData.distanceUnit?.value || formData.distanceUnit,
-    formData.vehicleType?.value || formData.vehicleType,
-    formData.vehicleClassification?.value || formData.vehicleClassification,
-    isHGV ? formData.weightLoaded?.value || formData.weightLoaded : null
-  );
-
-  const calculatedEmissionKgCo2e = result ? Number(result.totalEmissionKg.toFixed(5)) : 0;
-  const calculatedEmissionTCo2e = result ? Number(result.totalEmissionTonnes.toFixed(5)) : 0;
-
-  // ✅ Merge updated values into formData before sending
-  const payload = {
-    buildingId: formData.buildingId?.value || formData.buildingId,
-    stakeholder: formData.stakeholder?.value || formData.stakeholder,
-    vehicleClassification: formData.vehicleClassification?.value || formData.vehicleClassification,
-    vehicleType: formData.vehicleType?.value || formData.vehicleType,
-    fuelName: formData.fuelName?.value || formData.fuelName,
-    distanceTraveled: formData.distanceTraveled,
-    distanceUnit: formData.distanceUnit?.value || formData.distanceUnit,
-    qualityControl: formData.qualityControl?.value || formData.qualityControl,
-    weightLoaded: formData.weightLoaded ? formData.weightLoaded.value || formData.weightLoaded : null,
-    calculatedEmissionKgCo2e,
-    calculatedEmissionTCo2e,
-    remarks: formData.remarks,
-  };
-
-  try {
-    const url = isEdit
-      ? `${process.env.REACT_APP_BASE_URL}/AutoMobile/update/${id}`
-      : `${process.env.REACT_APP_BASE_URL}/AutoMobile/Create`;
-
-    const method = isEdit ? axios.put : axios.post;
-
-    await method(url, payload, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-
-    toast.success(
-      `${isEdit ? "Record updated" : "Record added"} successfully)`
+    const result = calculateMobileCombustion(
+      isHGV ? null : formData.fuelName?.value || formData.fuelName,
+      formData.distanceTraveled,
+      formData.distanceUnit?.value || formData.distanceUnit,
+      formData.vehicleType?.value || formData.vehicleType,
+      formData.vehicleClassification?.value || formData.vehicleClassification,
+      isHGV ? formData.weightLoaded?.value || formData.weightLoaded : null
     );
 
-    navigate("/Mobile-Combustion");
-  } catch (err) {
-    console.error(err);
-    toast.error(err.response?.data?.message || "Something went wrong");
-  }
-};
+    const calculatedEmissionKgCo2e = result ? Number(result.totalEmissionKg.toFixed(5)) : 0;
+    const calculatedEmissionTCo2e = result ? Number(result.totalEmissionTonnes.toFixed(5)) : 0;
 
+    //   Merge updated values into formData before sending
+    const payload = {
+      buildingId: formData.buildingId?.value || formData.buildingId,
+      stakeholder: formData.stakeholder?.value || formData.stakeholder,
+      vehicleClassification: formData.vehicleClassification?.value || formData.vehicleClassification,
+      vehicleType: formData.vehicleType?.value || formData.vehicleType,
+      fuelName: formData.fuelName?.value || formData.fuelName,
+      distanceTraveled: formData.distanceTraveled,
+      distanceUnit: formData.distanceUnit?.value || formData.distanceUnit,
+      qualityControl: formData.qualityControl?.value || formData.qualityControl,
+      weightLoaded: formData.weightLoaded ? formData.weightLoaded.value || formData.weightLoaded : null,
+      calculatedEmissionKgCo2e,
+      calculatedEmissionTCo2e,
+      remarks: formData.remarks,
+    };
 
-  // Auto calculate and show result when unit, fuel, or distance changes
-  // useEffect(() => {
-  //   if (!formData.fuelName || !formData.distanceUnit || !formData.distanceTraveled) return;
+    try {
+      const url = isEdit
+        ? `${process.env.REACT_APP_BASE_URL}/AutoMobile/update/${id}`
+        : `${process.env.REACT_APP_BASE_URL}/AutoMobile/Create`;
 
-  //   const result = calculateMobileCombustion(
-  //     formData.fuelName?.value || formData.fuelName,
-  //     formData.distanceTraveled,
-  //     formData.distanceUnit?.value || formData.distanceUnit
-  //   );
+      const method = isEdit ? axios.put : axios.post;
 
-  //   if (result) {
-  //     toast.info(
-  //       `Emission = ${result.distanceTraveled} × ${result.emissionFactor} = ${result.totalEmission.toFixed(5)} (kg CO₂e)`
-  //     );
-  //   }
-  // }, [formData.fuelName, formData.distanceUnit, formData.distanceTraveled]);
+      await method(url, payload, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+
+      toast.success(
+        `${isEdit ? "Record updated" : "Record added"} successfully)`
+      );
+
+      navigate("/Mobile-Combustion");
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Something went wrong");
+    }
+  };
+
   useEffect(() => {
     const {
       vehicleClassification,
@@ -340,15 +263,14 @@ const handleSubmit = async (e) => {
       weightLoaded,
     } = formData;
 
-    // if (!vehicleClassification || !vehicleType || !distanceTraveled || !distanceUnit) return;
     if (
-  !vehicleClassification ||
-  !vehicleType ||
-  !distanceTraveled ||
-  !distanceUnit ||
-  (!fuelName && vehicleClassification?.value !== "Heavy Good Vehicles (HGVs All Diesel)" &&
-   vehicleClassification?.value !== "Heavy Good Vehicles (Refrigerated HGVs All Diesel)")
-) return;
+      !vehicleClassification ||
+      !vehicleType ||
+      !distanceTraveled ||
+      !distanceUnit ||
+      (!fuelName && vehicleClassification?.value !== "Heavy Good Vehicles (HGVs All Diesel)" &&
+        vehicleClassification?.value !== "Heavy Good Vehicles (Refrigerated HGVs All Diesel)")
+    ) return;
 
 
     const isHGV =
@@ -364,11 +286,7 @@ const handleSubmit = async (e) => {
       isHGV ? weightLoaded?.value || weightLoaded : null
     );
 
-    // if (result) {
-    //   toast.info(
-    //     `Emission = ${result.totalEmissionKg.toFixed(5)} kgCO₂e (${result.totalEmissionTonnes.toFixed(5)} tCO₂e)`
-    //   );
-    // }
+
     if (result) {
       //  Update formData with calculated emissions
       setFormData((prev) => ({
@@ -378,10 +296,10 @@ const handleSubmit = async (e) => {
       }));
 
       //  Show formatted toast
-      toast.info(
-        `Total Emission: ${result.totalEmissionKg.toFixed(2)} KgCO₂e (${result.totalEmissionTonnes.toFixed(4)} tCO₂e)`,
-        { position: "top-right", autoClose: 4000 }
-      );
+      // toast.info(
+      //   `Total Emission: ${result.totalEmissionKg.toFixed(5)} KgCO₂e (${result.totalEmissionTonnes.toFixed(4)} tCO₂e)`,
+      //   { position: "top-right", autoClose: 4000 }
+      // );
     }
   }, [formData.vehicleClassification, formData.vehicleType, formData.fuelName, formData.distanceTraveled, formData.distanceUnit, formData.weightLoaded]);
 

@@ -234,26 +234,6 @@ const StationaryCombustionFormPage = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (
-  //     formData.fuelName?.value &&
-  //     formData.fuelConsumption &&
-  //     formData.consumptionUnit?.value
-  //   ) {
-  //     const result = calculateStationaryEmissions(
-  //       formData.fuelName.value,
-  //       Number(formData.fuelConsumption),
-  //       formData.consumptionUnit.value
-  //     );
-
-  //     if (result) {
-  //       console.log("Emission Calculation:", result);
-  //       toast.info(`Total Emission: ${result.z.toFixed(2)} kg CO₂e`);
-  //     }
-  //   }
-  // }, [formData.fuelName, formData.fuelConsumption, formData.consumptionUnit]);
-
-
 
   // --- Render ---
   useEffect(() => {
@@ -273,13 +253,7 @@ const StationaryCombustionFormPage = () => {
 
       console.log("Result from calculateStationaryEmissions:", result);
 
-      // if (result) {
-      //   toast.info(
-      //     `Converted: ${formatNumber(result.convertedValue)} ${result.unitUsed}\n` +
-      //     `Emission Factor: ${formatNumber(result.emissionFactor)}\n` +
-      //     `Total Emission: ${formatNumber(result.totalEmission)} kg CO₂e\n` +
-      //     `Total Emission (tCO₂e): ${formatNumber(result.totalEmission / 1000)} t CO₂e`
-      //   );
+   
       if (result) {
         const emissionKg = formatNumber(result.totalEmission);
         const emissionT = formatNumber(result.totalEmission / 1000);
@@ -291,12 +265,12 @@ const StationaryCombustionFormPage = () => {
           calculatedEmissionTCo2e: emissionT,
         }));
 
-        toast.info(
-          `Converted: ${formatNumber(result.convertedValue)} ${result.unitUsed}\n` +
-          `Emission Factor: ${formatNumber(result.emissionFactor)}\n` +
-          `Total Emission: ${emissionKg} kg CO₂e\n` +
-          `Total Emission (tCO₂e): ${emissionT} t CO₂e`
-        );
+        // toast.info(
+        //   `Converted: ${formatNumber(result.convertedValue)} ${result.unitUsed}\n` +
+        //   `Emission Factor: ${formatNumber(result.emissionFactor)}\n` +
+        //   `Total Emission: ${emissionKg} kg CO₂e\n` +
+        //   `Total Emission (tCO₂e): ${emissionT} t CO₂e`
+        // );
 
       } else {
         console.warn(
