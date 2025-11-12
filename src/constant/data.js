@@ -230,7 +230,7 @@ export const menuItems = [
   
   },
    {
-    title: "Out of Scope / Other Gases GHG Emissions",
+    title: "Out of Scope / Other Air Emissions",
     isHide: true,
     icon: "heroicons:no-symbol",
     link: "Air-Emission-Report-Page"
