@@ -180,7 +180,7 @@ const NotificationTable = () => {
 
     //   const COLUMNS = [
     //     {
-    //       Header: "Sr no",
+    //        Header: "SR NO",
     //       accessor: "id",
     //       Cell: ({ row, flatRows }) => (
     //         <span>{flatRows.indexOf(row) + 1}</span>
@@ -308,7 +308,7 @@ const NotificationTable = () => {
     //   ];
     const COLUMNS = [
         {
-            Header: "Sr No",
+             Header: "SR NO",
             accessor: "sr",
             Cell: ({ row, flatRows }) => (
                 <span>{flatRows.indexOf(row) + 1}</span>

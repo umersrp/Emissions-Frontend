@@ -12,6 +12,7 @@ import {
   qualityControlOptions,
   consumptionUnitOptions,
 } from "@/constant/options";
+import { calculateFugitiveEmission } from "@/utils/calculate-fugitive-emission";
 
 const FugitiveCombustionFormPage = () => {
   const navigate = useNavigate();
@@ -91,19 +92,69 @@ const FugitiveCombustionFormPage = () => {
   }, [id, isEdit, isView]);
 
   // --- Handle Input Change ---
+  // const handleInputChange = (e) => {
+  //   if (isView) return;
+  //   const { name, value } = e.target;
+  //   setFormData((prev) => ({ ...prev, [name]: value }));
+  //   setErrors((prev) => ({ ...prev, [name]: "" }));
+  // };
+
+  // --- Handle Select Change ---
+  // const handleSelectChange = (name, value) => {
+  //   if (isView) return;
+  //   setFormData((prev) => ({ ...prev, [name]: value }));
+  //   setErrors((prev) => ({ ...prev, [name]: "" }));
+  // };
+  // --- Handle select change for materialRefrigerant ---
+
   const handleInputChange = (e) => {
     if (isView) return;
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
+
+    // --- Calculate emission on leakageValue input ---
+    if (name === "leakageValue" && formData.materialRefrigerant?.value) {
+      const kgEmission = calculateFugitiveEmission(formData.materialRefrigerant.value, value);
+      const tEmission = kgEmission / 1000;
+
+      if (kgEmission !== null) {
+        toast.info(
+          `Calculated Emission: ${kgEmission.toFixed(2)} kg CO₂e (${tEmission.toFixed(4)} tCO₂e)`
+        );
+        setFormData((prev) => ({
+          ...prev,
+          calculatedEmissionKgCo2e: kgEmission.toFixed(2),
+          calculatedEmissionTCo2e: tEmission.toFixed(4),
+        }));
+      }
+    }
   };
 
-  // --- Handle Select Change ---
   const handleSelectChange = (name, value) => {
     if (isView) return;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
+
+    // --- Calculate emission when refrigerant changes ---
+    if (name === "materialRefrigerant" && formData.leakageValue) {
+      const kgEmission = calculateFugitiveEmission(value.value, formData.leakageValue);
+      const tEmission = kgEmission / 1000;
+
+      if (kgEmission !== null) {
+        toast.info(
+          `Calculated Emission: ${kgEmission.toFixed(2)} kg CO₂e (${tEmission.toFixed(4)} tCO₂e)`
+        );
+        setFormData((prev) => ({
+          ...prev,
+          calculatedEmissionKgCo2e: kgEmission.toFixed(2),
+          calculatedEmissionTCo2e: tEmission.toFixed(4),
+        }));
+      }
+    }
   };
+
+
 
   // --- Validation ---
   const validate = () => {
@@ -146,6 +197,7 @@ const FugitiveCombustionFormPage = () => {
       return;
     }
 
+
     const payload = {
       buildingId: formData.buildingId?.value,
       stakeholder: formData.stakeholder?.value || formData.stakeholder?.label,
@@ -154,6 +206,8 @@ const FugitiveCombustionFormPage = () => {
       leakageValue: formData.leakageValue,
       consumptionUnit: formData.consumptionUnit?.value,
       qualityControl: formData.qualityControl?.value,
+      calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e || 0,
+      calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e || 0,
       remarks: formData.remarks,
       createdBy: userId,
       updatedBy: userId,
@@ -255,7 +309,7 @@ const FugitiveCombustionFormPage = () => {
 
             {/* --- Leakage Value --- */}
             <div>
-              <label className="field-label">Leakage Value</label>
+              <label className="field-label">Leakage Value / Recharge Value</label>
               <input
                 type="number"
                 name="leakageValue"

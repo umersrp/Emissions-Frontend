@@ -109,41 +109,43 @@ const StationaryCombustionListing = () => {
   const COLUMNS = useMemo(
     () => [
       {
-        Header: "Sr No",
+         Header: "SR NO",
         id: "serialNo",
         Cell: ({ row }) => (
           <span>{(pagination.currentPage - 1) * pagination.limit + row.index + 1}</span>
         ),
       },
-      { Header: "Building", accessor: "buildingId.buildingName" },
-      { Header: "Stakeholder", accessor: "stakeholder" },
-      { Header: "Equipment Type", accessor: "equipmentType" },
-      { Header: "Fuel Type", accessor: "fuelType" },
-      { Header: "Fuel Name", accessor: "fuelName" },
-      { Header: "Fuel Consumption", accessor: "fuelConsumption" },
-      { Header: "Consumption Unit", accessor: "consumptionUnit" },
-      { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Calculated Emission (kg CO₂e)", accessor: "calculatedEmissionKgCo2e" },
-      { Header: "Calculated Emission (t CO₂e)", accessor: "calculatedEmissionTCo2e" },
+      { Header: "BUILDING", accessor: "buildingId.buildingName" },
+      { Header: "STAKEHOLDER", accessor: "stakeholder" },
+      { Header: "EQUIPMENT TYPE", accessor: "equipmentType" },
+      { Header: "FUEL TYPE", accessor: "fuelType" },
+      { Header: "FUEL NAME", accessor: "fuelName" },
+      { Header: "FEUL CONSUMPTION", accessor: "fuelConsumption" },
+      { Header: "CONSUMPTION UNIT", accessor: "consumptionUnit" },
+      { Header: "QUALITY CONTROL", accessor: "qualityControl" },
+      { Header: "CALCULATED EMISSIONS (kg CO₂e)", accessor: "calculatedEmissionKgCo2e" },
+      { Header: "CALCULATED EMISSIONS (t CO₂e)", accessor: "calculatedEmissionTCo2e" },
+      //{ Header: "CALCULATED BIO EMISSIONS (kg CO₂e)", accessor: "calculatedBioEmissionKgCo2e" },
+      //{ Header: "CALCULATED BIO EMISSIONS (t CO₂e)", accessor: "calculatedBioEmissionTCo2e" },
       {
-        Header: "Created By",
+        Header: "CREATED BY",
         accessor: "createdBy.name",
         Cell: ({ cell }) => cell.value || "-",
       },
       {
-        Header: "Updated By",
+        Header: "UPDATED BY",
         accessor: "updatedBy.name",
         Cell: ({ cell }) => cell.value || "-",
       },
-      { Header: "Remarks", accessor: "remarks" },
+      { Header: "REMARKS", accessor: "remarks" },
       {
-        Header: "Created At",
+        Header: "CREATED AT",
         accessor: "createdAt",
         Cell: ({ cell }) =>
           cell.value ? new Date(cell.value).toLocaleDateString() : "-",
       },
       {
-        Header: "Actions",
+        Header: "ACTIONS",
         accessor: "_id",
         Cell: ({ cell }) => (
           <div className="flex space-x-3 rtl:space-x-reverse">
@@ -232,7 +234,7 @@ const StationaryCombustionListing = () => {
 
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            {/* 🔹 Set fixed height for vertical scroll */}
+            {/*  Set fixed height for vertical scroll */}
             <div className="overflow-y-auto max-h-[500px] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
@@ -409,7 +411,7 @@ const StationaryCombustionListing = () => {
               }
               className="form-select py-2"
             >
-              {[10, 20, 50].map((size) => (
+              {[5, 10, 20, 50].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>

@@ -7,7 +7,6 @@ export const qualityControlOptions = [
   { value: "Exact", label: "Exact" },
 ];
 
-
 //Fugitive
 // --- Stakeholder / Department Options ---
 export const FugitiveAndMobileStakeholderOptions = [
@@ -136,7 +135,6 @@ export const FugitiveAndMobileStakeholderOptions = [
   { value: "Well Services / Well Intervention", label: "Well Services / Well Intervention" },
 ];
 
-
 // --- Equipment Type Options ---
 export const FugitiveEquipmentTypeOptions = [
   { value: "Absorption Chillers", label: "Absorption Chillers" },
@@ -231,7 +229,6 @@ export const FugitiveEquipmentTypeOptions = [
   { value: "Wellheads", label: "Wellheads" },
   { value: "Window ACs", label: "Window ACs" },
 ];
-
 
 // --- Material / Refrigerant Options ---
 export const materialRefrigerantOptions = [
@@ -402,7 +399,6 @@ export const materialRefrigerantOptions = [
   { value: "R1234yf*", label: "R1234yf*" },
   { value: "R1234ze*", label: "R1234ze*" },
 ];
-
 
 // --- Quality Control Options ---
 export const FugitiveQualityControlOptions = [

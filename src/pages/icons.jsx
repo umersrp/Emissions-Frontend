@@ -106,6 +106,7 @@ const icons = [
     name: "heroicons:pencil-square",
   },
   { name: "heroicons:globe-alt", label: "Scope" },
+  { name: "heroicons:no-symbol", label: "Out of Scope" },
   { name: "heroicons:building-office", label: "Company" },
   { name: "heroicons:home-modern", label: "Building" },
   { name: "heroicons:fire", label: "Stationary Combustion" },

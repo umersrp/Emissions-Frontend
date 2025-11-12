@@ -84,7 +84,7 @@ const BuildingTable = () => {
     const COLUMNS = useMemo(
         () => [
             {
-                Header: "Sr No",
+                Header: "SR NO",
                 id: "serialNo",
                 Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
             },
@@ -109,17 +109,17 @@ const BuildingTable = () => {
             },
             { Header: "Operating Hours", accessor: "operatingHours" },
             {
-                Header: "Created By",
+                Header: "CREATED BY",
                 accessor: "createdBy.name",
                 Cell: ({ cell }) => cell.value || "-",
             },
-             {
-                Header: "Updated By",
+            {
+                Header: "UPDATED BY",
                 accessor: "updatedBy.name",
                 Cell: ({ cell }) => cell.value || "-",
             },
             {
-                Header: "Created At",
+                Header: "CREATED AT",
                 accessor: "createdAt",
                 Cell: ({ cell }) =>
                     cell.value ? new Date(cell.value).toLocaleDateString() : "-",
@@ -131,7 +131,7 @@ const BuildingTable = () => {
                     cell.value ? new Date(cell.value).toLocaleDateString() : "-",
             },
             {
-                Header: "Actions",
+                Header: "ACTIONS",
                 accessor: "_id",
                 Cell: ({ cell }) => (
                     <div className="flex space-x-3 rtl:space-x-reverse">

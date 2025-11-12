@@ -103,11 +103,11 @@ const ProcessEmissionsListing = () => {
   const COLUMNS = useMemo(
     () => [
       {
-        Header: "Sr No",
+         Header: "SR NO",
         id: "serialNo",
         Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
       },
-      { Header: "Building", accessor: "buildingId.buildingName" },
+      { Header: "BUILDING", accessor: "buildingId.buildingName" },
       { Header: "Stakeholder Department", accessor: "stakeholderDepartment" },
       { Header: "Activity Type", accessor: "activityType" },
       { Header: "Gas Emitted", accessor: "gasEmitted" },
@@ -115,24 +115,24 @@ const ProcessEmissionsListing = () => {
       { Header: "Unit", accessor: "unit" },
       { Header: "Quality Control", accessor: "qualityControl" },
       {
-        Header: "Created By",
+        Header: "CREATED BY",
         accessor: "createdBy.name",
         Cell: ({ cell }) => cell.value || "-",
       },
       {
-        Header: "Updated By",
+        Header: "UPDATED BY",
         accessor: "updatedBy.name",
         Cell: ({ cell }) => cell.value || "-",
       },
-      { Header: "Remarks", accessor: "remarks" },
+      { Header: "REMARKS", accessor: "remarks" },
       {
-        Header: "Created At",
+        Header: "CREATED AT",
         accessor: "createdAt",
         Cell: ({ cell }) =>
           cell.value ? new Date(cell.value).toLocaleDateString() : "-",
       },
       {
-        Header: "Actions",
+        Header: "ACTIONS",
         accessor: "_id",
         Cell: ({ cell }) => (
           <div className="flex space-x-3 rtl:space-x-reverse">

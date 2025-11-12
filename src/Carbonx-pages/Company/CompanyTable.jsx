@@ -102,7 +102,7 @@ const CompanyTable = () => {
     };
     const COLUMNS = [
         {
-            Header: "Sr no",
+             Header: "SR NO",
             accessor: "id",
             Cell: ({ row, flatRows }) => <span>{flatRows.indexOf(row) + 1}</span>,
         },
@@ -216,12 +216,12 @@ const CompanyTable = () => {
             accessor: "totalManHoursPerAnnum",
         },
         {
-            Header: "Created By",
+            Header: "CREATED BY",
             accessor: "createdBy.name",
             Cell: ({ cell }) => cell.value || "-",
         },
         {
-            Header: "Created At",
+            Header: "CREATED AT",
             accessor: "createdAt",
             Cell: ({ cell }) =>
                 cell.value ? new Date(cell.value).toLocaleDateString() : "-",
@@ -233,7 +233,7 @@ const CompanyTable = () => {
                 cell.value ? new Date(cell.value).toLocaleDateString() : "-",
         },
         {
-            Header: "Actions",
+            Header: "ACTIONS",
             accessor: "_id",
             Cell: ({ cell }) => (
                 <div className="flex space-x-3 rtl:space-x-reverse">
