@@ -38,7 +38,7 @@ const MobileCombustionListing = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
-  // 🔹 Fetch records with server-side pagination
+  //  Fetch records with server-side pagination
   const fetchRecords = async (page = 1, limit = 10) => {
     setLoading(true);
     try {
@@ -69,7 +69,7 @@ const MobileCombustionListing = () => {
     fetchRecords(pageIndex, pageSize);
   }, [pageIndex, pageSize]);
 
-  // 🔹 Delete Record
+  //  Delete Record
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/AutoMobile/Delete/${id}`, {
@@ -87,20 +87,20 @@ const MobileCombustionListing = () => {
   const COLUMNS = useMemo(
     () => [
       {
-        Header: "Sr No",
+         Header: "SR NO",
         id: "serialNo",
         Cell: ({ row }) => (
           <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
         ),
       },
       {
-        Header: "Building",
+        Header: "BUILDING",
         accessor: (row) => row.buildingId?.buildingName || "-",
       },
-      { Header: "Stakeholder", accessor: "stakeholder" },
+      { Header: "STAKEHOLDER", accessor: "stakeholder" },
       { Header: "Vehicle Classification", accessor: "vehicleClassification" },
       {
-        Header: "Vehicle Type",
+        Header: "VEHICLE TYPE",
         accessor: "vehicleType",
         Cell: ({ value }) => (
           <span title={value}>
@@ -108,25 +108,25 @@ const MobileCombustionListing = () => {
           </span>
         ),
       },
-      { Header: "Fuel Name", accessor: "fuelName" },
-      { Header: "Distance Traveled", accessor: "distanceTraveled" },
-      { Header: "Distance Unit", accessor: "distanceUnit" },
-      { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Weight Loaded (kg)", accessor: "weightLoaded" },
-      { Header: "Calculated Emission (kg CO₂e)", accessor: "calculatedEmissionKgCo2e",},
-      { Header: "Calculated Emission (t CO₂e)", accessor: "calculatedEmissionTCo2e",},
+      { Header: "FUEL NAME", accessor: "fuelName" },
+      { Header: "DISTANCE TRAVELED", accessor: "distanceTraveled" },
+      { Header: "DISTANCE UNIT", accessor: "distanceUnit" },
+      { Header: "QUALITY CONTROL", accessor: "qualityControl" },
+      { Header: "WEIGHT LOADED (kg)", accessor: "weightLoaded" },
+      { Header: "CALCULATED EMISSIONS (kg CO₂e)", accessor: "calculatedEmissionKgCo2e", },
+      { Header: "CALCULATED EMISSIONS (t CO₂e)", accessor: "calculatedEmissionTCo2e", },
       {
-        Header: "Created By",
+        Header: "CREATED BY",
         accessor: "createdBy.name",
         Cell: ({ cell }) => cell.value || "-",
       },
       {
-        Header: "Updated By",
+        Header: "UPDATED BY",
         accessor: "updatedBy.name",
         Cell: ({ cell }) => cell.value || "-",
       },
       {
-        Header: "Remarks",
+        Header: "REMARK",
         accessor: "remarks",
         Cell: ({ value }) => (
           <span title={value}>
@@ -135,13 +135,13 @@ const MobileCombustionListing = () => {
         ),
       },
       {
-        Header: "Created At",
+        Header: "CREATED AT",
         accessor: "createdAt",
         Cell: ({ cell }) =>
           cell.value ? new Date(cell.value).toLocaleDateString() : "-",
       },
       {
-        Header: "Actions",
+        Header: "ACTIONS",
         accessor: "_id",
         Cell: ({ cell }) => (
           <div className="flex space-x-3 rtl:space-x-reverse">
@@ -213,7 +213,7 @@ const MobileCombustionListing = () => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
 
-  // 🔹 Handle Pagination
+  //  Handle Pagination
   const handleNextPage = () => {
     if (pageIndex < totalPages) setPageIndex((prev) => prev + 1);
   };
@@ -243,63 +243,74 @@ const MobileCombustionListing = () => {
 
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            {/* Set fixed height and enable vertical scroll */}
             <div className="overflow-y-auto max-h-[500px] overflow-x-auto">
-              <table
-                className="min-w-full divide-y divide-slate-100 table-fixed"
-                {...getTableProps()}
-              >
-                <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
-                  {headerGroups.map((headerGroup, index) => (
-                    <tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                      {headerGroup.headers.map((column) => (
-                        <th
-                          {...column.getHeaderProps(column.getSortByToggleProps())}
-                          className="table-th text-white"
-                          key={column.id}
-                        >
-                          {column.render("Header")}
-                          <span>
-                            {column.isSorted
-                              ? column.isSortedDesc
-                                ? " 🔽"
-                                : " 🔼"
-                              : ""}
-                          </span>
-                        </th>
-                      ))}
-                    </tr>
-                  ))}
-                </thead>
-                <tbody {...getTableBodyProps()}>
-                  {records.length === 0 ? (
-                    <tr>
-                      <td colSpan={columns.length + 1} className="text-center py-4">
-                        No data available.
-                      </td>
-                    </tr>
-                  ) : (
-                    rows.map((row) => {
-                      prepareRow(row);
-                      return (
-                        <tr {...row.getRowProps()} className="even:bg-gray-50">
-                          {row.cells.map((cell) => (
-                            <td
-                              {...cell.getCellProps()}
-                              className="px-6 py-4 whitespace-nowrap"
-                            >
-                              {cell.render("Cell")}
-                            </td>
-                          ))}
-                        </tr>
-                      );
-                    })
-                  )}
-                </tbody>
-              </table>
+              {loading ? (
+                <div className="flex justify-center items-center h-[300px]">
+                  <img src={Logo} alt="Loading..." className="w-52 h-24 opacity-80" />
+                </div>
+              ) : (
+                <table
+                  className="min-w-full divide-y divide-slate-100 table-fixed"
+                  {...getTableProps()}
+                >
+                  <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
+                    {headerGroups.map((headerGroup, index) => (
+                      <tr {...headerGroup.getHeaderGroupProps()} key={index}>
+                        {headerGroup.headers.map((column) => (
+                          <th
+                            {...column.getHeaderProps(column.getSortByToggleProps())}
+                            className="table-th text-white"
+                            key={column.id}
+                          >
+                            {column.render("Header")}
+                            <span>
+                              {column.isSorted
+                                ? column.isSortedDesc
+                                  ? " 🔽"
+                                  : " 🔼"
+                                : ""}
+                            </span>
+                          </th>
+                        ))}
+                      </tr>
+                    ))}
+                  </thead>
+
+                  <tbody {...getTableBodyProps()}>
+                    {records.length === 0 ? (
+                      <tr>
+                        <td colSpan={columns.length + 1}>
+                          <div className="flex justify-center items-center py-16">
+                            <span className="text-gray-500 text-lg font-medium">
+                              No data available.
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      rows.map((row) => {
+                        prepareRow(row);
+                        return (
+                          <tr {...row.getRowProps()} className="even:bg-gray-50">
+                            {row.cells.map((cell) => (
+                              <td
+                                {...cell.getCellProps()}
+                                className="px-6 py-4 whitespace-nowrap"
+                              >
+                                {cell.render("Cell")}
+                              </td>
+                            ))}
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>
+
 
 
         {/*   Server-side Pagination (same UI, dynamic values) */}
@@ -381,7 +392,7 @@ const MobileCombustionListing = () => {
               onChange={(e) => setPageSize(Number(e.target.value))}
               className="form-select py-2"
             >
-              {[10, 20, 50].map((size) => (
+              {[5, 10, 20, 50].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>

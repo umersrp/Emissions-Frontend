@@ -215,6 +215,7 @@ import ProcessEmissionsFormPage from "./Carbonx-pages/ScopeOne/Process/Process-E
 import ProcessEmissionsListing from "./Carbonx-pages/ScopeOne/Process/Process-Emissions-Listing";
 import MyCompany from "./Carbonx-pages/Company/MyCompany";
 import ScopeOneReport from "./Carbonx-pages/ScopeOne/ScopeOneReport/Scope-One-Report";
+import EmissionsReportPage from "./Carbonx-pages/AirEmissions/Air-Emissions-Report-Page";
 
 
 
@@ -419,6 +420,7 @@ function App() {
           <Route path="Scope-1" element={<Scope1 />} />
           
           <Route path="Scope-One-Report" element={<ScopeOneReport/>} />
+          <Route path="Air-Emission-Report-Page" element={<EmissionsReportPage/>} />
 
           <Route path="Stationary-Combustion-Form/add" element={<StationaryCombustionFormPage />} />
           <Route path="Stationary-Combustion-Form/:id" element={<StationaryCombustionFormPage />} />
@@ -431,7 +433,7 @@ function App() {
           <Route path="Mobile-Combustion-Form/add" element={<MobileCombustionFormPage />} />
           <Route path="Mobile-Combustion-Form/:id" element={<MobileCombustionFormPage />} />
           <Route path="Mobile-Combustion" element={<MobileCombustionListing />} />
-
+          
           <Route path="Process-Emissions-Form/add" element={<ProcessEmissionsFormPage />} />
           <Route path="Process-Emissions-Form/:id" element={<ProcessEmissionsFormPage />} />
           <Route path="Process-Emissions" element={<ProcessEmissionsListing />} />

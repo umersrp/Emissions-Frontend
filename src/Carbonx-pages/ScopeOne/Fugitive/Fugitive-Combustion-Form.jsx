@@ -309,7 +309,7 @@ const FugitiveCombustionFormPage = () => {
 
             {/* --- Leakage Value --- */}
             <div>
-              <label className="field-label">Leakage Value</label>
+              <label className="field-label">Leakage Value / Recharge Value</label>
               <input
                 type="number"
                 name="leakageValue"

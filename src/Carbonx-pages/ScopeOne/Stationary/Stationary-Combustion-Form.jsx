@@ -37,6 +37,8 @@ const StationaryCombustionFormPage = () => {
     remarks: "",
     calculatedEmissionKgCo2e: "",
     calculatedEmissionTCo2e: "",
+    calculatedBioEmissionKgCo2e: "",  
+    calculatedBioEmissionTCo2e: "",
   });
   console.log("StationaryCombustionFormPage re-rendered");
   const [buildingOptions, setBuildingOptions] = useState([]);
@@ -210,6 +212,8 @@ const StationaryCombustionFormPage = () => {
       remarks: formData.remarks,
       calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e, 
       calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
+      calculatedBioEmissionKgCo2e: formData.calculatedBioEmissionKgCo2e,
+      calculatedBioEmissionTCo2e: formData.calculatedBioEmissionTCo2e,
     };
 
     try {
@@ -236,55 +240,75 @@ const StationaryCombustionFormPage = () => {
 
 
   // --- Render ---
-  useEffect(() => {
-    console.log("useEffect triggered with data:", formData);
+  // useEffect(() => {
+  //   console.log("useEffect triggered with data:", formData);
 
-    if (
-      formData.fuelName?.value &&
-      formData.fuelConsumption &&
-      formData.consumptionUnit?.value
-    ) {
-      console.log("All form fields available, calculating...");
-      const result = calculateStationaryEmissions(
-        formData.fuelName.value,
-        Number(formData.fuelConsumption),
-        formData.consumptionUnit.value
-      );
+  //   if (
+  //     formData.fuelName?.value &&
+  //     formData.fuelConsumption &&
+  //     formData.consumptionUnit?.value
+  //   ) {
+  //     console.log("All form fields available, calculating...");
+  //     const result = calculateStationaryEmissions(
+  //       formData.fuelName.value,
+  //       Number(formData.fuelConsumption),
+  //       formData.consumptionUnit.value
+  //     );
 
-      console.log("Result from calculateStationaryEmissions:", result);
+  //     console.log("Result from calculateStationaryEmissions:", result);
 
    
-      if (result) {
-        const emissionKg = formatNumber(result.totalEmission);
-        const emissionT = formatNumber(result.totalEmission / 1000);
+  //     if (result) {
+  //       const emissionKg = formatNumber(result.totalEmission);
+  //       const emissionT = formatNumber(result.totalEmission / 1000);
 
-        //  Update the formData state
-        setFormData((prev) => ({
-          ...prev,
-          calculatedEmissionKgCo2e: emissionKg,
-          calculatedEmissionTCo2e: emissionT,
-        }));
+  //       //  Update the formData state
+  //       setFormData((prev) => ({
+  //         ...prev,
+  //         calculatedEmissionKgCo2e: emissionKg,
+  //         calculatedEmissionTCo2e: emissionT,
+  //       }));
 
-        // toast.info(
-        //   `Converted: ${formatNumber(result.convertedValue)} ${result.unitUsed}\n` +
-        //   `Emission Factor: ${formatNumber(result.emissionFactor)}\n` +
-        //   `Total Emission: ${emissionKg} kg CO₂e\n` +
-        //   `Total Emission (tCO₂e): ${emissionT} t CO₂e`
-        // );
+  //     } else {
+  //       console.warn(
+  //         "No result returned — likely missing emission factor or unit mapping"
+  //       );
+  //     }
+  //   } else {
+  //     console.warn("Some formData fields missing:", {
+  //       fuelName: formData.fuelName?.value,
+  //       fuelConsumption: formData.fuelConsumption,
+  //       consumptionUnit: formData.consumptionUnit?.value,
+  //     });
+  //   }
+  // }, [formData.fuelName, formData.fuelConsumption, formData.consumptionUnit]);
+useEffect(() => {
+  if (formData.fuelName?.value && formData.fuelConsumption && formData.consumptionUnit?.value) {
+    const result = calculateStationaryEmissions(
+      formData.fuelName.value,
+      Number(formData.fuelConsumption),
+      formData.consumptionUnit.value
+    );
 
-      } else {
-        console.warn(
-          "No result returned — likely missing emission factor or unit mapping"
-        );
-      }
-    } else {
-      console.warn("Some formData fields missing:", {
-        fuelName: formData.fuelName?.value,
-        fuelConsumption: formData.fuelConsumption,
-        consumptionUnit: formData.consumptionUnit?.value,
-      });
+    if (result) {
+      setFormData((prev) => ({
+        ...prev,
+        calculatedEmissionKgCo2e: result.totalEmissionInScope
+          ? parseFloat(result.totalEmissionInScope.toFixed(5))
+          : "",
+        calculatedEmissionTCo2e: result.totalEmissionInScope
+          ? parseFloat((result.totalEmissionInScope / 1000).toFixed(5))
+          : "",
+        calculatedBioEmissionKgCo2e: result.totalEmissionOutScope
+          ? parseFloat(result.totalEmissionOutScope.toFixed(5))
+          : "",
+        calculatedBioEmissionTCo2e: result.totalEmissionOutScope
+          ? parseFloat((result.totalEmissionOutScope / 1000).toFixed(5))
+          : "",
+      }));
     }
-  }, [formData.fuelName, formData.fuelConsumption, formData.consumptionUnit]);
+  }
+}, [formData.fuelName, formData.fuelConsumption, formData.consumptionUnit]);
 
 
 

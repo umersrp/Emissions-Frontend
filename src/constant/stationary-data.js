@@ -334,7 +334,6 @@ export const stakeholderOptions = [
   { value: "well_services", label: "Well Services / Well Intervention" },
 ];
 
-
 export const qualityControlOptions = [
   { value: "Highly Uncertain", label: "Highly Uncertain" },
   { value: "Uncertain", label: "Uncertain" },
@@ -342,7 +341,6 @@ export const qualityControlOptions = [
   { value: "Good", label: "Good" },
   { value: "Exact", label: "Exact" },
 ];
-
 
 // --- Fuel Type Options ---
 export const fuelTypeOptions = [
@@ -423,7 +421,6 @@ export const fuelNameOptionsByType = {
   ],
 };
 
-
 // --- Fuel Consumption Units by Fuel Name ---
 export const fuelUnitOptionsByName = {
   // common units (since all have these)
@@ -477,7 +474,5 @@ export const fuelUnitOptionsByName = {
   "Off road biodiesel": ["Litres", "Gallons"],
   "Methanol (bio)": ["Litres", "Gallons"],
   "Avtur (renewable)": ["Litres", "Gallons"],
-  "Bioethanol": ["Litres", "Gallons"],
-  "Biogas": ["Litres", "Gallons"],
-  "Landfill gas": ["Litres", "Gallons"],
+  "Bioethanol": ["Litres", "Gallons"]
 };

@@ -280,7 +280,7 @@ const Orders = () => {
   
   const COLUMNS = [
     {
-      Header: "Sr no",
+       Header: "SR NO",
       accessor: "_id",
       Cell: ({ row, flatRows }) => {
           return <span>{flatRows.indexOf(row) + 1}</span>;

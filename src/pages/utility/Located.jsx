@@ -104,7 +104,7 @@ const Located = () => {
 
   const COLUMNS = [
     {
-      Header: "Sr no",
+       Header: "SR NO",
       accessor: "id",
       Cell: ({ row, flatRows }) => <span>{flatRows.indexOf(row) + 1}</span>,
     },

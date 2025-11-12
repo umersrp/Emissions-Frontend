@@ -197,7 +197,7 @@ export const menuItems = [
     link: "Building"
   },
    {
-    title: "Scope One",
+    title: "Scope 1",
     icon: "heroicons-outline:home",
     isOpen: true,
     isHide: true,
@@ -205,8 +205,8 @@ export const menuItems = [
     link: "Scope-1",
     child: [
       
-        {
-        childtitle: "Scope One Report",
+      {
+        childtitle: "Scope 1 Report",
         childlink: "Scope-One-Report",
       },
       {
@@ -222,12 +222,18 @@ export const menuItems = [
         childlink: "Fugitive-Emissions",
       },
       {
-        childtitle: "Process Emission",
+        childtitle: "Process Emissions",
         childlink: "Process-Emissions",
       },
     
     ]
   
+  },
+   {
+    title: "Out of Scope / Other Gases GHG Emissions",
+    isHide: true,
+    icon: "heroicons:no-symbol",
+    link: "Air-Emission-Report-Page"
   },
   //   {
   //   title: "Scope one",

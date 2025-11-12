@@ -37,56 +37,6 @@ export const unitConversion = {
   "in3": { factor: 1.63871e-5, to: "m3" },
 };
 
-
-// --- Volume Conversions ---
-// Converts various volume units to litres or m3 as needed
-// export const volumeConversions = {
-//   Gallons: 4.54609, // litres
-//   ft3: 0.0283168, // m3
-//   SCF: 0.0283168, // m3
-//   in3: 1.63871e-5, // m3
-// };
-
-// --- Emission Factors (kg CO₂e per unit) ---
-// Only a subset for demonstration — you can extend later
-// export const emissionFactors = {
-//   "Aviation spirit": {
-//     "tonnes": 3193.69480,
-//     "litres": 2.33116,
-//     "kwh": 0.24382,
-//   },
-//   "Aviation turbine fuel": {
-//     "tonnes": 3178.36520,
-//     "litres": 2.54269,
-//     "kwh": 0.24758,
-//   },
-//   "Burning oil": {
-//     "tonnes": 3165.04181,
-//     "litres": 2.54016,
-//     "kwh": 0.24677,
-//   },
-//   "Diesel (average biofuel blend)": {
-//     "tonnes": 3087.94462,
-//     "litres": 2.57082,
-//     "kwh": 0.24411,
-//   },
-//   "Diesel (100% mineral diesel)": {
-//     "tonnes": 3203.91143,
-//     "litres": 2.66155,
-//     "kwh": 0.25199,
-//   },
-//   "Fuel oil": {
-//     "tonnes": 3228.89019,
-//     "litres": 3.17492,
-//     "kwh": 0.26813,
-//   },
-//   "Gas oil": {
-//     "tonnes": 3226.57859,
-//     "litres": 2.75541,
-//     "kwh": 0.25650,
-//   },
-//   // Add more later...
-// };
 export const emissionFactors = {
   //GASEOUS FUELS
   "Butane": {
@@ -337,3 +287,104 @@ export const emissionFactors = {
   },
 };
 
+export const outOfScopeEmissionFactors = {
+  // LIQUID FUELS
+  "Diesel (average biofuel blend)": {
+    "tonnes": 163.17,
+    "litres": 0.14,
+    "kwh": 0.01,
+  },
+  "Petrol (average biofuel blend)": {
+    "tonnes": 177.88,
+    "litres": 0.13,
+    "kwh": 0.01,
+  },
+
+  // BIOFUELS
+  "Bioethanol": {
+    "tonnes": 1.52,
+    "litres": 0.25693,
+    "kwh": 1910.0,
+  },
+  "Biodiesel ME": {
+    "tonnes": 2.39,
+    "litres": 0.25977,
+    "kwh": 2680.0,
+  },
+  "Biomethane (compressed)": {
+    "litres": 0.19901,
+    "kwh": 2710.0,
+  },
+  "Biodiesel ME (from used cooking oil)": {
+    "tonnes": 2.39,
+    "litres": 0.25977,
+    "kwh": 2680.0,
+  },
+  "Biodiesel ME (from tallow)": {
+    "tonnes": 2.39,
+    "litres": 0.25977,
+    "kwh": 2680.0,
+  },
+  "Biodiesel HVO": {
+    "tonnes": 2.43,
+    "litres": 0.25499,
+    "kwh": 3120.0,
+  },
+  "Biopropane": {
+    "tonnes": 1.54,
+    "litres": 0.23223,
+    "kwh": 2990.0,
+  },
+  "Development diesel": {
+    "tonnes": 2.33,
+    "litres": 0.25275,
+    "kwh": 3130.0,
+  },
+  "Off road biodiesel": {
+    "tonnes": 2.39,
+    "litres": 0.25977,
+    "kwh": 2680.0,
+  },
+  "Biomethane (liquified)": {
+    "litres": 0.20448,
+    "kwh": 2780.0,
+  },
+  "Methanol (bio)": {
+    "tonnes": 1.09,
+    "litres": 0.24811,
+    "kwh": 1370.0,
+  },
+  "Avtur (renewable)": {
+    "tonnes": 2.51,
+    "litres": 0.25826,
+    "kwh": 3150.0,
+  },
+
+  // BIOMASS
+  "Wood logs": {
+    "tonnes": 1436.23,
+    "kwh": 0.35,
+  },
+  "Wood chips": {
+    "tonnes": 1335.71,
+    "kwh": 0.35,
+  },
+  "Wood pellets": {
+    "tonnes": 1677.18,
+    "kwh": 0.35,
+  },
+  "Grass/straw": {
+    "tonnes": 1287.25,
+    "kwh": 0.35,
+  },
+
+  // BIOGAS
+  "Biogas": {
+    "tonnes": 1105.6695,
+    "kwh": 0.19902,
+  },
+  "Landfill gas": {
+    "tonnes": 679.98674,
+    "kwh": 0.19902,
+  },
+};

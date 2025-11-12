@@ -47,7 +47,7 @@ const Modal = ({
           </Transition.Child>
         )}
 
-        {/* 🔹 Modal Content */}
+        {/*  Modal Content */}
         <div className="fixed inset-0 overflow-y-auto">
           <div
             className={`flex min-h-full justify-center items-center text-center p-4`}
@@ -76,7 +76,7 @@ const Modal = ({
                   </button>
                 </div>
 
-                {/* 🔹 Body */}
+                {/*  Body */}
                 <div
                   className={`px-6 py-6 flex flex-col items-center text-center ${scrollContent ? "overflow-y-auto max-h-[400px]" : ""
                     }`}
@@ -84,7 +84,7 @@ const Modal = ({
                   {children}
                 </div>
 
-                {/* 🔹 Footer */}
+                {/*  Footer */}
                 {footerContent && (
                   <div className="px-4 py-3 flex justify-between items-center border-t border-slate-100 dark:border-slate-700">
                     {footerContent}

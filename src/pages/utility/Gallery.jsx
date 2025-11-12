@@ -156,7 +156,7 @@ const Gallery = () => {
 
   const COLUMNS = [
     {
-      Header: "Sr no",
+       Header: "SR NO",
       accessor: "id",
       Cell: ({ row, flatRows }) => {
           return <span>{flatRows.indexOf(row) + 1}</span>;
