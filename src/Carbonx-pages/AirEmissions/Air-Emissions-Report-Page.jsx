@@ -208,10 +208,10 @@ const navigate = useNavigate();
                   Building
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">
-                  TOTAL EMISSION (kg CO₂e)
+                  TOTAL EMISSIONS (kg CO₂e)
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">
-                  TOTAL EMISSION (t CO₂e)
+                  TOTAL EMISSIONS (t CO₂e)
                 </th>
               </tr>
             </thead>
