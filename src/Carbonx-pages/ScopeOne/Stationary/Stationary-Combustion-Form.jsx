@@ -240,6 +240,7 @@ const StationaryCombustionFormPage = () => {
 
 
   // --- Render ---
+
   // useEffect(() => {
   //   console.log("useEffect triggered with data:", formData);
 
@@ -282,8 +283,41 @@ const StationaryCombustionFormPage = () => {
   //     });
   //   }
   // }, [formData.fuelName, formData.fuelConsumption, formData.consumptionUnit]);
+
+// useEffect(() => {
+//   if (formData.fuelName?.value && formData.fuelConsumption && formData.consumptionUnit?.value) {
+//     const result = calculateStationaryEmissions(
+//       formData.fuelName.value,
+//       Number(formData.fuelConsumption),
+//       formData.consumptionUnit.value
+//     );
+
+//     if (result) {
+//       setFormData((prev) => ({
+//         ...prev,
+//         calculatedEmissionKgCo2e: result.totalEmissionInScope
+//           ? parseFloat(result.totalEmissionInScope.toFixed(5))
+//           : "",
+//         calculatedEmissionTCo2e: result.totalEmissionInScope
+//           ? parseFloat((result.totalEmissionInScope / 1000).toFixed(5))
+//           : "",
+//         calculatedBioEmissionKgCo2e: result.totalEmissionOutScope
+//           ? parseFloat(result.totalEmissionOutScope.toFixed(5))
+//           : "",
+//         calculatedBioEmissionTCo2e: result.totalEmissionOutScope
+//           ? parseFloat((result.totalEmissionOutScope / 1000).toFixed(5))
+//           : "",
+//       }));
+//     }
+//   }
+// }, [formData.fuelName, formData.fuelConsumption, formData.consumptionUnit]);
+
 useEffect(() => {
-  if (formData.fuelName?.value && formData.fuelConsumption && formData.consumptionUnit?.value) {
+  if (
+    formData.fuelName?.value &&
+    formData.fuelConsumption &&
+    formData.consumptionUnit?.value
+  ) {
     const result = calculateStationaryEmissions(
       formData.fuelName.value,
       Number(formData.fuelConsumption),
@@ -294,23 +328,22 @@ useEffect(() => {
       setFormData((prev) => ({
         ...prev,
         calculatedEmissionKgCo2e: result.totalEmissionInScope
-          ? parseFloat(result.totalEmissionInScope.toFixed(5))
+          ? formatNumber(result.totalEmissionInScope)
           : "",
         calculatedEmissionTCo2e: result.totalEmissionInScope
-          ? parseFloat((result.totalEmissionInScope / 1000).toFixed(5))
+          ? formatNumber(result.totalEmissionInScope / 1000)
           : "",
         calculatedBioEmissionKgCo2e: result.totalEmissionOutScope
-          ? parseFloat(result.totalEmissionOutScope.toFixed(5))
+          ? formatNumber(result.totalEmissionOutScope)
           : "",
         calculatedBioEmissionTCo2e: result.totalEmissionOutScope
-          ? parseFloat((result.totalEmissionOutScope / 1000).toFixed(5))
+          ? formatNumber(result.totalEmissionOutScope / 1000)
           : "",
       }));
     }
   }
 }, [formData.fuelName, formData.fuelConsumption, formData.consumptionUnit]);
-
-
+  
 
   return (
     <div>
