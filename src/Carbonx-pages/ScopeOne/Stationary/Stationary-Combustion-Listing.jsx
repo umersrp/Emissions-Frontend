@@ -125,8 +125,8 @@ const StationaryCombustionListing = () => {
       { Header: "QUALITY CONTROL", accessor: "qualityControl" },
       { Header: "CALCULATED EMISSIONS (kg CO₂e)", accessor: "calculatedEmissionKgCo2e" },
       { Header: "CALCULATED EMISSIONS (t CO₂e)", accessor: "calculatedEmissionTCo2e" },
-      //{ Header: "CALCULATED BIO EMISSIONS (kg CO₂e)", accessor: "calculatedBioEmissionKgCo2e" },
-      //{ Header: "CALCULATED BIO EMISSIONS (t CO₂e)", accessor: "calculatedBioEmissionTCo2e" },
+      // { Header: "CALCULATED BIO EMISSIONS (kg CO₂e)", accessor: "calculatedBioEmissionKgCo2e" },
+      // { Header: "CALCULATED BIO EMISSIONS (t CO₂e)", accessor: "calculatedBioEmissionTCo2e" },
       {
         Header: "CREATED BY",
         accessor: "createdBy.name",
