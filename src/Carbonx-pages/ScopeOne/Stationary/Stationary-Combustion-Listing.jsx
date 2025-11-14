@@ -109,7 +109,7 @@ const StationaryCombustionListing = () => {
   const COLUMNS = useMemo(
     () => [
       {
-         Header: "SR NO",
+         Header: "Sr.No",
         id: "serialNo",
         Cell: ({ row }) => (
           <span>{(pagination.currentPage - 1) * pagination.limit + row.index + 1}</span>
@@ -120,13 +120,13 @@ const StationaryCombustionListing = () => {
       { Header: "EQUIPMENT TYPE", accessor: "equipmentType" },
       { Header: "FUEL TYPE", accessor: "fuelType" },
       { Header: "FUEL NAME", accessor: "fuelName" },
-      { Header: "FEUL CONSUMPTION", accessor: "fuelConsumption" },
+      { Header: "FUEL CONSUMPTION", accessor: "fuelConsumption" },
       { Header: "CONSUMPTION UNIT", accessor: "consumptionUnit" },
       { Header: "QUALITY CONTROL", accessor: "qualityControl" },
-      { Header: "CALCULATED EMISSIONS (kg CO₂e)", accessor: "calculatedEmissionKgCo2e" },
-      { Header: "CALCULATED EMISSIONS (t CO₂e)", accessor: "calculatedEmissionTCo2e" },
-      // { Header: "CALCULATED BIO EMISSIONS (kg CO₂e)", accessor: "calculatedBioEmissionKgCo2e" },
-      // { Header: "CALCULATED BIO EMISSIONS (t CO₂e)", accessor: "calculatedBioEmissionTCo2e" },
+      { Header: "CALCULATED EMISSIONS (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
+      { Header: "CALCULATED EMISSIONS (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
+      { Header: "CALCULATED BIO EMISSIONS (kg CO₂e)", accessor: "calculatedBioEmissionKgCo2e" },
+      { Header: "CALCULATED BIO EMISSIONS (t CO₂e)", accessor: "calculatedBioEmissionTCo2e" },
       {
         Header: "CREATED BY",
         accessor: "createdBy.name",
@@ -235,7 +235,8 @@ const StationaryCombustionListing = () => {
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
             {/*  Set fixed height for vertical scroll */}
-            <div className="overflow-y-auto max-h-[500px] overflow-x-auto">
+            {/* <div className="overflow-y-auto max-h-[500px] overflow-x-auto"> */}
+            <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
                   <img src={Logo} alt="Loading..." className="w-52 h-24" />

@@ -159,7 +159,7 @@ const VendorPage = () => {
 
   const COLUMNS = [
     {
-       Header: "SR NO",
+       Header: "Sr.No",
       accessor: "id",
       Cell: ({ row, flatRows }) => (
         <span>{flatRows.indexOf(row) + 1}</span>

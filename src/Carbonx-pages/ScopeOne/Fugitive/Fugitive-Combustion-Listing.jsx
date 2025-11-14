@@ -38,29 +38,58 @@ const FugitiveCombustionListing = () => {
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
   //  Fetch Fugitive Records with Pagination
-  const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
-    setLoading(true);
-    try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/Fugitive/get-All?page=${page}&limit=${limit}&search=${search}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
+  // const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
+  //   setLoading(true);
+  //   try {
+  //     const res = await axios.get(
+  //       `${process.env.REACT_APP_BASE_URL}/Fugitive/get-All?page=${page}&limit=${limit}&search=${search}`,
+  //       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+  //     );
 
-      const data = res.data?.data || [];
-      const meta = res.data?.meta || {};
+  //     const data = res.data?.data || [];
+  //     const meta = res.data?.meta || {};
 
-      setRecords(data);
-      setPageIndex(meta.currentPage || 1);
-      setTotalPages(meta.totalPages || 1);
-      setTotalRecords(meta.totalRecords || 0);
-      setPageSize(meta.limit || 10);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch records");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setRecords(data);
+  //     setPageIndex(meta.currentPage || 1);
+  //     setTotalPages(meta.totalPages || 1);
+  //     setTotalRecords(meta.totalRecords || 0);
+  //     setPageSize(meta.limit || 10);
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to fetch records");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  // ✅ Fetch Fugitive Records with Pagination + Search
+const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
+  setLoading(true);
+  try {
+    const res = await axios.get(
+      `${process.env.REACT_APP_BASE_URL}/Fugitive/get-All?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    const data = Array.isArray(res.data?.data) ? res.data.data : [];
+    const meta = res.data?.meta || {};
+
+    setRecords(data);
+    setPageIndex(meta.currentPage || 1);
+    setTotalPages(meta.totalPages || 1);
+    setTotalRecords(meta.totalRecords || 0);
+    setPageSize(meta.limit || 10);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to fetch records");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchFugitiveRecords(pageIndex, pageSize, globalFilterValue);
@@ -83,16 +112,16 @@ const FugitiveCombustionListing = () => {
   //  Table Columns
   const COLUMNS = useMemo(
     () => [
-      {  Header: "SR NO", id: "serialNo", Cell: ({ row }) => <span>{row.index + 1 + (pageIndex - 1) * pageSize}</span> },
+      {  Header: "Sr.No", id: "serialNo", Cell: ({ row }) => <span>{row.index + 1 + (pageIndex - 1) * pageSize}</span> },
       { Header: "BUILDING", accessor: "buildingId.buildingName" },
       { Header: "STAKEHOLDER", accessor: "stakeholder" },
       { Header: "EQUIPMENT TYPE", accessor: "equipmentType" },
       { Header: "MATERIAL / REFRIGERANT", accessor: "materialRefrigerant" },
-      { Header: "LEAKAGE VALUE", accessor: "leakageValue" },
+      { Header: "LEAKAGE VALUE / RECHARGE VALUE", accessor: "leakageValue" },
       { Header: "CONSUMPTION UNIT", accessor: "consumptionUnit" },
       { Header: "QUALITY CONTROL", accessor: "qualityControl" },
-      { Header: "CALCULATED EMISSIONS (kg CO₂e)", accessor: "calculatedEmissionKgCo2e",},
-      { Header: "CALCULATED EMISSIONS (t CO₂e)", accessor: "calculatedEmissionTCo2e",},
+      { Header: "CALCULATED EMISSIONS (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",},
+      { Header: "CALCULATED EMISSIONS (tCO₂e)", accessor: "calculatedEmissionTCo2e",},
       { Header: "REMARKS", accessor: "remarks" },
       { Header: "CREATED BY", accessor: "createdBy.name", Cell: ({ cell }) => cell.value || "-" },
       { Header: "UPDATED BY", accessor: "updatedBy.name", Cell: ({ cell }) => cell.value || "-" },

@@ -197,7 +197,6 @@ const BuildingFormPage = () => {
 
     //  Safely get userId from localStorage or token decode fallback
     const userId = localStorage.getItem("userId");
-    console.log("User ID before creating building:", userId);
 
     if (!userId) {
       toast.error("User not found. Please log in again.");

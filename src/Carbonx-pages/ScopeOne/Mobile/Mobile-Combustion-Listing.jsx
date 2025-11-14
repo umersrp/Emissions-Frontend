@@ -39,35 +39,65 @@ const MobileCombustionListing = () => {
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
   //  Fetch records with server-side pagination
-  const fetchRecords = async (page = 1, limit = 10) => {
-    setLoading(true);
-    try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All?page=${page}&limit=${limit}`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
+  // const fetchRecords = async (page = 1, limit = 10) => {
+  //   setLoading(true);
+  //   try {
+  //     const res = await axios.get(
+  //       `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All?page=${page}&limit=${limit}`,
+  //       {
+  //         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  //       }
+  //     );
 
-      const data = res.data?.data || [];
-      const meta = res.data?.meta || {};
+  //     const data = res.data?.data || [];
+  //     const meta = res.data?.meta || {};
 
-      setRecords(data);
-      setTotalRecords(meta.totalRecords || 0);
-      setTotalPages(meta.totalPages || 1);
-      setPageIndex(meta.currentPage || 1);
-      setPageSize(meta.limit || 10);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch records");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setRecords(data);
+  //     setTotalRecords(meta.totalRecords || 0);
+  //     setTotalPages(meta.totalPages || 1);
+  //     setPageIndex(meta.currentPage || 1);
+  //     setPageSize(meta.limit || 10);
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to fetch records");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  const fetchRecords = async (page = 1, limit = 10, search = "") => {
+  setLoading(true);
+  try {
+    const res = await axios.get(
+      `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All?page=${page}&limit=${limit}&search=${search}`,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
 
+    const data = res.data?.data || [];
+    const meta = res.data?.meta || {};
+
+    setRecords(data);
+    setTotalRecords(meta.totalRecords || 0);
+    setTotalPages(meta.totalPages || 1);
+    setPageIndex(meta.currentPage || 1);
+    setPageSize(meta.limit || 10);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to fetch records");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  // useEffect(() => {
+  //   fetchRecords(pageIndex, pageSize);
+  // }, [pageIndex, pageSize]);
   useEffect(() => {
-    fetchRecords(pageIndex, pageSize);
-  }, [pageIndex, pageSize]);
+  fetchRecords(pageIndex, pageSize, globalFilterValue);
+}, [pageIndex, pageSize, globalFilterValue]);
+
 
   //  Delete Record
   const handleDelete = async (id) => {
@@ -87,7 +117,7 @@ const MobileCombustionListing = () => {
   const COLUMNS = useMemo(
     () => [
       {
-         Header: "SR NO",
+         Header: "Sr.No",
         id: "serialNo",
         Cell: ({ row }) => (
           <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
@@ -98,7 +128,7 @@ const MobileCombustionListing = () => {
         accessor: (row) => row.buildingId?.buildingName || "-",
       },
       { Header: "STAKEHOLDER", accessor: "stakeholder" },
-      { Header: "Vehicle Classification", accessor: "vehicleClassification" },
+      { Header: "VEHICLE CLASSIFICATION", accessor: "vehicleClassification" },
       {
         Header: "VEHICLE TYPE",
         accessor: "vehicleType",
@@ -113,8 +143,8 @@ const MobileCombustionListing = () => {
       { Header: "DISTANCE UNIT", accessor: "distanceUnit" },
       { Header: "QUALITY CONTROL", accessor: "qualityControl" },
       { Header: "WEIGHT LOADED (kg)", accessor: "weightLoaded" },
-      { Header: "CALCULATED EMISSIONS (kg CO₂e)", accessor: "calculatedEmissionKgCo2e", },
-      { Header: "CALCULATED EMISSIONS (t CO₂e)", accessor: "calculatedEmissionTCo2e", },
+      { Header: "CALCULATED EMISSIONS (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
+      { Header: "CALCULATED EMISSIONS (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
       {
         Header: "CREATED BY",
         accessor: "createdBy.name",
@@ -240,10 +270,9 @@ const MobileCombustionListing = () => {
             />
           </div>
         </div>
-
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            <div className="overflow-y-auto max-h-[500px] overflow-x-auto">
+            <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center h-[300px]">
                   <img src={Logo} alt="Loading..." className="w-52 h-24 opacity-80" />
@@ -253,13 +282,13 @@ const MobileCombustionListing = () => {
                   className="min-w-full divide-y divide-slate-100 table-fixed"
                   {...getTableProps()}
                 >
-                  <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
+                  <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10 ">
                     {headerGroups.map((headerGroup, index) => (
                       <tr {...headerGroup.getHeaderGroupProps()} key={index}>
                         {headerGroup.headers.map((column) => (
                           <th
                             {...column.getHeaderProps(column.getSortByToggleProps())}
-                            className="table-th text-white"
+                            className="table-th text-white "
                             key={column.id}
                           >
                             {column.render("Header")}

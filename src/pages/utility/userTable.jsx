@@ -163,7 +163,7 @@ const UserPage = () => {
 
   const COLUMNS = [
     {
-       Header: "SR NO",
+       Header: "Sr.No",
       accessor: "id",
       Cell: ({ row, flatRows }) => {
           return <span>{flatRows.indexOf(row) + 1}</span>;

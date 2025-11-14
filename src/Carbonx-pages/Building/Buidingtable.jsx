@@ -84,7 +84,7 @@ const BuildingTable = () => {
     const COLUMNS = useMemo(
         () => [
             {
-                Header: "SR NO",
+                Header: "Sr.No",
                 id: "serialNo",
                 Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
             },
