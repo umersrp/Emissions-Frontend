@@ -72,7 +72,7 @@ const Attendence = () => {
     const exportData = userData.map((item, index) => {
       const attendance = item.attendance?.[item.attendance.length - 1] || {};
       return {
-        "Sr No": index + 1,
+        "Sr.N0": index + 1,
         Name: item.user?.name || "N/A",
         Email: item.user?.email || "N/A",
         Group: item.schedules?.group || "N/A",
@@ -306,7 +306,7 @@ const Attendence = () => {
 
   const COLUMNS = [
     {
-       Header: "SR NO",
+       Header: "Sr.No",
       accessor: "id",
       Cell: ({ row, flatRows }) => {
         return <span>{flatRows.indexOf(row) + 1}</span>;

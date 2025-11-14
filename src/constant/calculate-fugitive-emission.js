@@ -119,8 +119,8 @@ export const fugitiveEmissionFactors = {
   "R506": 3857.0,
   "R510A": 1.24,
   //20
-  "CFC-11": 4660.0, // Trichlorofluoromethane (R11)
-  "CFC-12": 10200.0, // Dichlorodifluoromethane (R12)
+  "CFC-11/R11 = trichlorofluoromethane": 4660.0, // Trichlorofluoromethane (R11)
+  "CFC-12/R12 = dichlorodifluoromethane": 10200.0, // Dichlorodifluoromethane (R12)
   "CFC-13": 13900.0,
   "CFC-113": 5820.0,
   "CFC-114": 8590.0,
@@ -131,7 +131,7 @@ export const fugitiveEmissionFactors = {
   "Carbon tetrachloride": 1730.0,
   "Methyl bromide": 2.0,
   "Methyl chloroform": 160.0,
-  "HCFC-22": 1760.0, // R22
+  "HCFC-22/R22 = chlorodifluoromethane": 1760.0, // R22
   "HCFC-123": 79.0,
   "HCFC-124": 527.0,
   "HCFC-141b": 782.0,
@@ -150,24 +150,24 @@ export const fugitiveEmissionFactors = {
   "HFE-347mcc3": 530.0,
   "HFE-347pcf2": 889.0,
   "HFE-356pcc3": 413.0,
-  "HFE-449sl": 421.0,       // HFE-7100
-  "HFE-569sf2": 57.0,       // HFE-7200
-  "HFE-43-10pccc124": 2820.0, // H-Galden1040x
-  "HFE-236ca12": 5350.0,      // HG-10
-  "HFE-338pcc13": 2910.0,     // HG-01
+  "HFE-449sl (HFE-7100)": 421.0,       // HFE-7100
+  "HFE-569sf2 (HFE-7200)": 57.0,       // HFE-7200
+  "HFE-43-10pccc124 (H-Galden1040x)": 2820.0, // H-Galden1040x
+  "HFE-236ca12 (HG-10)": 5350.0,      // HG-10
+  "HFE-338pcc13 (HG-01)": 2910.0,     // HG-01
 //14
   "Trifluoromethyl sulphur pentafluoride": 17400.0,
   "PFPMIE": 9710.0,
   "Dimethylether": 1.0,
   "Methylene chloride": 9.0,
   "Methyl chloride": 12.0,
-  "R290": 0.06,       // propane
-  "R600A": 3.0,       // isobutane
-  "R600": 0.006,      // butane
-  "R601": 5.0,        // n-pentane
-  "R601A": 5.0,       // isopentane
-  "R170": 0.437,      // ethane
-  "R1270": 2.0,       // propylene
+  "R290 = propane": 0.06,       // propane
+  "R600A = isobutane": 3.0,       // isobutane
+  "R600 = butane": 0.006,      // butane
+  "R601 = n-pentane": 5.0,        // n-pentane
+  "R601A = isopentane": 5.0,       // isopentane
+  "R170 = ethane": 0.437,      // ethane
+  "R1270 = propylene": 2.0,       // propylene
   "R1234yf*": 1.0,
   "R1234ze*": 1.0
 };

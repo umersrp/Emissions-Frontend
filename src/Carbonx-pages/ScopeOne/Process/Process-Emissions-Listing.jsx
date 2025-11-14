@@ -103,7 +103,7 @@ const ProcessEmissionsListing = () => {
   const COLUMNS = useMemo(
     () => [
       {
-         Header: "SR NO",
+         Header: "Sr.No",
         id: "serialNo",
         Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
       },
@@ -112,8 +112,9 @@ const ProcessEmissionsListing = () => {
       { Header: "Activity Type", accessor: "activityType" },
       { Header: "Gas Emitted", accessor: "gasEmitted" },
       { Header: "Amount of Emissions", accessor: "amountOfEmissions" },
-      { Header: "Unit", accessor: "unit" },
       { Header: "Quality Control", accessor: "qualityControl" },
+      // { Header: "CALCULATED EMISSIONS (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
+      // { Header: "CALCULATED EMISSIONS (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
       {
         Header: "CREATED BY",
         accessor: "createdBy.name",

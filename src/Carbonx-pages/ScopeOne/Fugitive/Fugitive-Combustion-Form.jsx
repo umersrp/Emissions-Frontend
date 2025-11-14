@@ -91,21 +91,6 @@ const FugitiveCombustionFormPage = () => {
     }
   }, [id, isEdit, isView]);
 
-  // --- Handle Input Change ---
-  // const handleInputChange = (e) => {
-  //   if (isView) return;
-  //   const { name, value } = e.target;
-  //   setFormData((prev) => ({ ...prev, [name]: value }));
-  //   setErrors((prev) => ({ ...prev, [name]: "" }));
-  // };
-
-  // --- Handle Select Change ---
-  // const handleSelectChange = (name, value) => {
-  //   if (isView) return;
-  //   setFormData((prev) => ({ ...prev, [name]: value }));
-  //   setErrors((prev) => ({ ...prev, [name]: "" }));
-  // };
-  // --- Handle select change for materialRefrigerant ---
 
   const handleInputChange = (e) => {
     if (isView) return;
@@ -119,13 +104,13 @@ const FugitiveCombustionFormPage = () => {
       const tEmission = kgEmission / 1000;
 
       if (kgEmission !== null) {
-        toast.info(
-          `Calculated Emission: ${kgEmission.toFixed(2)} kg CO₂e (${tEmission.toFixed(4)} tCO₂e)`
-        );
+        // toast.info(
+        //   `Calculated Emission: ${kgEmission.toFixed(2)} kg CO₂e (${tEmission.toFixed(4)} tCO₂e)`
+        // );
         setFormData((prev) => ({
           ...prev,
-          calculatedEmissionKgCo2e: kgEmission.toFixed(2),
-          calculatedEmissionTCo2e: tEmission.toFixed(4),
+          calculatedEmissionKgCo2e: kgEmission.toFixed(5),
+          calculatedEmissionTCo2e: tEmission.toFixed(5),
         }));
       }
     }
@@ -190,7 +175,6 @@ const FugitiveCombustionFormPage = () => {
     }
 
     const userId = localStorage.getItem("userId");
-    console.log("User ID before creating building:", userId);
 
     if (!userId) {
       toast.error("User not found. Please log in again.");

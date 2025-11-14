@@ -11,6 +11,7 @@ import {
   activityMetadata,
   processQualityControlOptions,
 } from "@/constant/options";
+import { calculateProcessEmission } from "@/utils/calculate-process-emission"
 
 const ProcessEmissionsFormPage = () => {
   const navigate = useNavigate();
@@ -28,11 +29,13 @@ const ProcessEmissionsFormPage = () => {
     activityType: null,
     gasEmitted: "",
     amountOfEmissions: "",
-    unit: "",
     qualityControl: null,
     remarks: "",
+    calculatedEmissionKgCo2e: "",      // new
+    calculatedEmissionTCo2e: "", 
   });
 
+  const [amountLabel, setAmountLabel] = useState("Amount of Emissions"); // dynamic label
   const [errors, setErrors] = useState({});
   const [buildingOptions, setBuildingOptions] = useState([]);
 
@@ -76,6 +79,9 @@ const ProcessEmissionsFormPage = () => {
         );
 
         const data = res.data?.data;
+        const activityMeta = activityMetadata[data.activityType] || {};
+        setAmountLabel(activityMeta.amountLabel || "Amount of Emissions");
+
         setFormData({
           buildingId:
             buildingOptions.find((b) => b.value === data.buildingId?._id) || {
@@ -96,7 +102,6 @@ const ProcessEmissionsFormPage = () => {
             },
           gasEmitted: data.gasEmitted || "",
           amountOfEmissions: data.amountOfEmissions || "",
-          unit: data.unit || "",
           qualityControl:
             processQualityControlOptions.find(
               (q) => q.value === data.qualityControl
@@ -120,7 +125,7 @@ const ProcessEmissionsFormPage = () => {
     if (name === "activityType") {
       const meta = activityMetadata[value?.value] || {};
       updated.gasEmitted = meta.gasEmitted || "";
-      updated.unit = meta.unit || "";
+      setAmountLabel(meta.amountLabel || "Amount of Emissions");
     }
 
     setFormData(updated);
@@ -128,12 +133,49 @@ const ProcessEmissionsFormPage = () => {
   };
 
   // Handle input
-  const handleInputChange = (e) => {
-    if (isView) return;
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
+  // const handleInputChange = (e) => {
+  //   if (isView) return;
+  //   const { name, value } = e.target;
+  //   setFormData((prev) => ({ ...prev, [name]: value }));
+  //   setErrors((prev) => ({ ...prev, [name]: "" }));
+  // };
+const handleInputChange = (e) => {
+  if (isView) return;
+  const { name, value } = e.target;
+
+  // Update local state
+  setFormData((prev) => {
+    const updated = { ...prev, [name]: value };
+
+    // Trigger calculation when amountOfEmissions changes
+    if (name === "amountOfEmissions" && updated.activityType?.value) {
+      const result = calculateProcessEmission({
+        activityType: updated.activityType.value,
+        amountOfEmissions: value,
+      });
+
+      if (result) {
+        const kg = result.calculatedEmissionKgCo2e;
+        const t = kg / 1000;
+
+        // Update calculated values
+        updated.calculatedEmissionKgCo2e = kg;
+        updated.calculatedEmissionTCo2e = t;
+
+        // toast.info(
+        //   `Calculated: ${kg.toFixed(2)} kgCO₂e / ${t.toFixed(5)} tCO₂e`
+        // );
+      }
+    }
+
+    return updated;
+  });
+
+  // Clear validation error
+  setErrors((prev) => ({ ...prev, [name]: "" }));
+};
+
+
 
   // Validation
   const validate = () => {
@@ -167,9 +209,10 @@ const ProcessEmissionsFormPage = () => {
       activityType: formData.activityType?.value,
       gasEmitted: formData.gasEmitted,
       amountOfEmissions: formData.amountOfEmissions,
-      unit: formData.unit,
       qualityControl: formData.qualityControl?.value,
       remarks: formData.remarks,
+      calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e,  // added
+      calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,   
     };
 
     try {
@@ -198,8 +241,7 @@ const ProcessEmissionsFormPage = () => {
   return (
     <div>
       <Card
-        title={`${isView ? "View" : isEdit ? "Edit" : "Add"
-          } Process Emission Record`}
+        title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Process Emission Record`}
       >
         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 justify-center">
           <p className="text-gray-700">
@@ -221,9 +263,7 @@ const ProcessEmissionsFormPage = () => {
                 isDisabled={isView}
               />
               {errors.buildingId && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.buildingId}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.buildingId}</p>
               )}
             </div>
 
@@ -240,9 +280,7 @@ const ProcessEmissionsFormPage = () => {
                 allowCustomInput
               />
               {errors.stakeholderDepartment && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.stakeholderDepartment}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.stakeholderDepartment}</p>
               )}
             </div>
 
@@ -258,9 +296,7 @@ const ProcessEmissionsFormPage = () => {
                 isDisabled={isView}
               />
               {errors.activityType && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.activityType}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.activityType}</p>
               )}
             </div>
 
@@ -278,33 +314,19 @@ const ProcessEmissionsFormPage = () => {
 
             {/* Amount of Emissions */}
             <div>
-              <label className="field-label">Amount of Emissions</label>
+              <label className="field-label">{amountLabel}</label>
               <input
                 type="number"
                 name="amountOfEmissions"
                 value={formData.amountOfEmissions}
                 onChange={handleInputChange}
-                placeholder="Enter amount"
+                placeholder={amountLabel}
                 className="input-field"
                 disabled={isView}
               />
               {errors.amountOfEmissions && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.amountOfEmissions}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.amountOfEmissions}</p>
               )}
-            </div>
-
-            {/* Unit */}
-            <div>
-              <label className="field-label">Unit</label>
-              <input
-                type="text"
-                name="unit"
-                value={formData.unit}
-                readOnly
-                className="input-field bg-gray-100"
-              />
             </div>
 
             {/* Quality Control */}
@@ -319,9 +341,7 @@ const ProcessEmissionsFormPage = () => {
                 isDisabled={isView}
               />
               {errors.qualityControl && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.qualityControl}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.qualityControl}</p>
               )}
             </div>
           </div>
