@@ -775,7 +775,7 @@ const AirEmissionReportPage = () => {
     return [
       {
         key: "nonKyoto",
-        name: "Non Kyoto protocol / Other Gases Emissions",
+        name: "Non Kyoto Protocol / Other Gases Emission",
         kg: nonKyotoTotal,
         t: nonKyotoTotal / 1000,
         bg: "bg-cyan-50",
