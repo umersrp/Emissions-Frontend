@@ -655,7 +655,7 @@ const AirEmissionReportPage = () => {
     // { value: "nonKyoto", label: "Non Kyoto Gases" },
     { value: "nonKyotoCombined", label: "Non Kyoto Protocol Gases" },
     { value: "vocs", label: "VOCs" },
-    { value: "biogenic", label: "Biogenic CO2 Emissions" },
+    { value: "biogenic", label: "Biogenic CO₂ Emissions" },
   ];
 
   // Fetch Fugitive (Non-Kyoto)
@@ -796,7 +796,7 @@ const AirEmissionReportPage = () => {
       },
       {
         key: "biogenic",
-        name: "Biogenic CO2 Emissions",
+        name: "Biogenic CO₂ Emissions",
         kg: biogenicTotal,
         t: biogenicTotal / 1000,
         bg: "bg-green-50",
