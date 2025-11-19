@@ -653,7 +653,7 @@ const AirEmissionReportPage = () => {
   const emissionOptions = [
     { value: "all", label: "All Out-of-Scope" },
     // { value: "nonKyoto", label: "Non Kyoto Gases" },
-    { value: "nonKyotoCombined", label: "Non Kyoto Protocol Gases" },
+    { value: "nonKyotoCombined", label: "Non Kyoto protocol / Other Gases Emissions" },
     { value: "vocs", label: "VOCs" },
     { value: "biogenic", label: "Biogenic CO₂ Emissions" },
   ];
@@ -775,7 +775,7 @@ const AirEmissionReportPage = () => {
     return [
       {
         key: "nonKyoto",
-        name: "Non Kyoto Protocol Gases / Other Gases Emission",
+        name: "Non Kyoto Protocol / Other Gases Emission",
         kg: nonKyotoTotal,
         t: nonKyotoTotal / 1000,
         bg: "bg-cyan-50",
@@ -796,7 +796,7 @@ const AirEmissionReportPage = () => {
       },
       {
         key: "biogenic",
-        name: "Biogenic CO2 Emissions",
+        name: "Biogenic CO₂ Emissions",
         kg: biogenicTotal,
         t: biogenicTotal / 1000,
         bg: "bg-green-50",

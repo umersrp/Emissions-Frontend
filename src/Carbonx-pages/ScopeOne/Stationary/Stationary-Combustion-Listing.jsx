@@ -252,7 +252,7 @@ const StationaryCombustionListing = () => {
                         {headerGroup.headers.map((column) => (
                           <th
                             {...column.getHeaderProps(column.getSortByToggleProps())}
-                            className="table-th text-white"
+                            className="table-th text-white whitespace-nowrap"
                             key={column.id}
                           >
                             {column.render("Header")}

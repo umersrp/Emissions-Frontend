@@ -49,6 +49,7 @@ export const fugitiveEmissionFactors = {
   "R407D": 1487.0,
   "R407E": 1425.0,
   "R407F": 1674.0,
+  "R407A": 1923.0,
   "R408A": 2430.0,
   "R410A": 1924.0,
   "R410B": 2048.0,
