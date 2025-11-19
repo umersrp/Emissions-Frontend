@@ -655,7 +655,7 @@ const AirEmissionReportPage = () => {
     // { value: "nonKyoto", label: "Non Kyoto Gases" },
     { value: "nonKyotoCombined", label: "Non Kyoto Protocol Gases" },
     { value: "vocs", label: "VOCs" },
-    { value: "biogenic", label: "Biogenic CO2 Emissions" },
+    { value: "biogenic", label: "Biogenic CO₂ Emissions" },
   ];
 
   // Fetch Fugitive (Non-Kyoto)
@@ -775,7 +775,7 @@ const AirEmissionReportPage = () => {
     return [
       {
         key: "nonKyoto",
-        name: "Non Kyoto Protocol Gases",
+        name: "Non Kyoto Protocol Gases / Other Gases Emission",
         kg: nonKyotoTotal,
         t: nonKyotoTotal / 1000,
         bg: "bg-cyan-50",
@@ -891,10 +891,10 @@ const AirEmissionReportPage = () => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
       >
-        <h2 className="text-2xl font-semibold mb-2 text-white">Total Emissions</h2>
-        <p className="text-xl font-bold text-white">
+        <h2 className="text-2xl font-semibold mb-2 text-white">Total Out of Scope/ Other Air Emission</h2>
+        {/* <p className="text-xl font-bold text-white">
           {loading ? "Loading..." : `${formatNumber(totalEmission.kg)} kg CO₂e | ${formatNumber(totalEmission.t)} t CO₂e`}
-        </p>
+        </p> */}
       </motion.div>
 
       {/* Individual Summary Cards */}

@@ -160,8 +160,8 @@ export const GHG_ACTIVITIES = [
   "Ethylene Oxide / Ethylene Glycol Production",
   "Ammonia / Urea Production",
   "Methanol Synthesis",
-  "Other GHG Emission Process",
-  "Non Kyoto protocol / Other Gases Emissions", // this will be removed from GHG and added to Non-Kyoto
+  "Other GHG Emission Process Activities",
+  "Non Kyoto protocol / Other Non GHG Emissions", // this will be removed from GHG and added to Non-Kyoto
   "Other GHG Emission Process (Biogenic)" // will be removed and added to Biogenic
 ];
 
