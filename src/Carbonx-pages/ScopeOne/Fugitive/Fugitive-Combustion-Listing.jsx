@@ -113,21 +113,21 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
   const COLUMNS = useMemo(
     () => [
       {  Header: "Sr.No", id: "serialNo", Cell: ({ row }) => <span>{row.index + 1 + (pageIndex - 1) * pageSize}</span> },
-      { Header: "BUILDING", accessor: "buildingId.buildingName" },
-      { Header: "STAKEHOLDER", accessor: "stakeholder" },
-      { Header: "EQUIPMENT TYPE", accessor: "equipmentType" },
-      { Header: "MATERIAL / REFRIGERANT", accessor: "materialRefrigerant" },
-      { Header: "LEAKAGE VALUE / RECHARGE VALUE", accessor: "leakageValue" },
-      { Header: "CONSUMPTION UNIT", accessor: "consumptionUnit" },
-      { Header: "QUALITY CONTROL", accessor: "qualityControl" },
-      { Header: "CALCULATED EMISSIONS (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",},
-      { Header: "CALCULATED EMISSIONS (tCO₂e)", accessor: "calculatedEmissionTCo2e",},
-      { Header: "REMARKS", accessor: "remarks" },
-      { Header: "CREATED BY", accessor: "createdBy.name", Cell: ({ cell }) => cell.value || "-" },
-      { Header: "UPDATED BY", accessor: "updatedBy.name", Cell: ({ cell }) => cell.value || "-" },
-      { Header: "CREATED AT", accessor: "createdAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-") },
+      { Header: "Building", accessor: "buildingId.buildingName" },
+      { Header: "Stakeholder", accessor: "stakeholder" },
+      { Header: "Equipment Type", accessor: "equipmentType" },
+      { Header: "Material / Refrigerant", accessor: "materialRefrigerant" },
+      { Header: "Leakage Value / Recharge Value", accessor: "leakageValue" },
+      { Header: "Consumption Unit", accessor: "consumptionUnit" },
+      { Header: "Quality Control", accessor: "qualityControl" },
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",},
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",},
+      { Header: "Remarks", accessor: "remarks" },
+      { Header: "Created By", accessor: "createdBy.name", Cell: ({ cell }) => cell.value || "-" },
+      { Header: "Updated By", accessor: "updatedBy.name", Cell: ({ cell }) => cell.value || "-" },
+      { Header: "Created At", accessor: "createdAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-") },
       {
-        Header: "ACTIONS",
+        Header: "Actions",
         accessor: "_id",
         Cell: ({ cell }) => (
           <div className="flex space-x-3 rtl:space-x-reverse">
@@ -218,7 +218,7 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
                         {headerGroup.headers.map((column) => (
                           <th
                             {...column.getHeaderProps(column.getSortByToggleProps())}
-                            className="table-th text-white"
+                            className="table-th text-white whitespace-nowrap"
                             key={column.id}
                           >
                             {column.render("Header")}

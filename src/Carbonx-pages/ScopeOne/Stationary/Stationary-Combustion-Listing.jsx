@@ -115,37 +115,37 @@ const StationaryCombustionListing = () => {
           <span>{(pagination.currentPage - 1) * pagination.limit + row.index + 1}</span>
         ),
       },
-      { Header: "BUILDING", accessor: "buildingId.buildingName" },
-      { Header: "STAKEHOLDER", accessor: "stakeholder" },
-      { Header: "EQUIPMENT TYPE", accessor: "equipmentType" },
-      { Header: "FUEL TYPE", accessor: "fuelType" },
-      { Header: "FUEL NAME", accessor: "fuelName" },
-      { Header: "FUEL CONSUMPTION", accessor: "fuelConsumption" },
-      { Header: "CONSUMPTION UNIT", accessor: "consumptionUnit" },
-      { Header: "QUALITY CONTROL", accessor: "qualityControl" },
-      { Header: "CALCULATED EMISSIONS (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
-      { Header: "CALCULATED EMISSIONS (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
-      { Header: "CALCULATED BIO EMISSIONS (kg CO₂e)", accessor: "calculatedBioEmissionKgCo2e" },
-      { Header: "CALCULATED BIO EMISSIONS (t CO₂e)", accessor: "calculatedBioEmissionTCo2e" },
+      { Header: "Building", accessor: "buildingId.buildingName" },
+      { Header: "Stakeholder", accessor: "stakeholder" },
+      { Header: "Equipment Type", accessor: "equipmentType" },
+      { Header: "Fuel Type", accessor: "fuelType" },
+      { Header: "Fuel Name", accessor: "fuelName" },
+      { Header: "Fuel Consumption", accessor: "fuelConsumption" },
+      { Header: "Consumption Unit", accessor: "consumptionUnit" },
+      { Header: "Quality Control", accessor: "qualityControl" },
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
+      { Header: "Calculated Bio Emissions (kgCO₂e)", accessor: "calculatedBioEmissionKgCo2e" },
+      { Header: "Calculated Bio Emissions (tCO₂e)", accessor: "calculatedBioEmissionTCo2e" },
       {
-        Header: "CREATED BY",
+        Header: "Created By",
         accessor: "createdBy.name",
         Cell: ({ cell }) => cell.value || "-",
       },
       {
-        Header: "UPDATED BY",
+        Header: "Updated By",
         accessor: "updatedBy.name",
         Cell: ({ cell }) => cell.value || "-",
       },
-      { Header: "REMARKS", accessor: "remarks" },
+      { Header: "Remarks", accessor: "remarks" },
       {
-        Header: "CREATED AT",
+        Header: "Created At",
         accessor: "createdAt",
         Cell: ({ cell }) =>
           cell.value ? new Date(cell.value).toLocaleDateString() : "-",
       },
       {
-        Header: "ACTIONS",
+        Header: "Actions",
         accessor: "_id",
         Cell: ({ cell }) => (
           <div className="flex space-x-3 rtl:space-x-reverse">
@@ -252,7 +252,7 @@ const StationaryCombustionListing = () => {
                         {headerGroup.headers.map((column) => (
                           <th
                             {...column.getHeaderProps(column.getSortByToggleProps())}
-                            className="table-th text-white"
+                            className="table-th text-white whitespace-nowrap"
                             key={column.id}
                           >
                             {column.render("Header")}

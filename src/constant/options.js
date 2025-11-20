@@ -777,7 +777,7 @@ export const activityMetadata = {
   "Silicon production": { gasEmitted: "CO, CO₂, SiF₄ emissions", amountLabel: "How many tonnes of silicon are produced?" },
   "Ferroalloy production": { gasEmitted: "CO, CO₂ emissions", amountLabel: "How many tonnes of ferroalloy are produced?" },
   "Ammonia production": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of ammonia are produced?" },
-  "Urea production": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of urea are produced?" },
+  "Urea production": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of urea are produced?" },
   "Methanol production": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of methanol are produced?" },
   "Hydrogen production (SMR – Steam Methane Reforming)": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of Hydrogen are produced?" },
   "Amine-based gas sweetening (acid gas removal)": { gasEmitted: "CO₂ emissions", amountLabel: "How many Nm³ (normal cubic meters) of acid gas is treated?" },

@@ -124,13 +124,13 @@ const MobileCombustionListing = () => {
         ),
       },
       {
-        Header: "BUILDING",
+        Header: "Building",
         accessor: (row) => row.buildingId?.buildingName || "-",
       },
-      { Header: "STAKEHOLDER", accessor: "stakeholder" },
-      { Header: "VEHICLE CLASSIFICATION", accessor: "vehicleClassification" },
+      { Header: "Stakeholder", accessor: "stakeholder" },
+      { Header: "Vehicle Classification", accessor: "vehicleClassification" },
       {
-        Header: "VEHICLE TYPE",
+        Header: "Vehicle Type",
         accessor: "vehicleType",
         Cell: ({ value }) => (
           <span title={value}>
@@ -138,25 +138,25 @@ const MobileCombustionListing = () => {
           </span>
         ),
       },
-      { Header: "FUEL NAME", accessor: "fuelName" },
-      { Header: "DISTANCE TRAVELED", accessor: "distanceTraveled" },
-      { Header: "DISTANCE UNIT", accessor: "distanceUnit" },
-      { Header: "QUALITY CONTROL", accessor: "qualityControl" },
-      { Header: "WEIGHT LOADED (kg)", accessor: "weightLoaded" },
-      { Header: "CALCULATED EMISSIONS (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
-      { Header: "CALCULATED EMISSIONS (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
+      { Header: "Fuel Name", accessor: "fuelName" },
+      { Header: "Distance Traveled", accessor: "distanceTraveled" },
+      { Header: "Distance Unit", accessor: "distanceUnit" },
+      { Header: "Quality Control", accessor: "qualityControl" },
+      { Header: "Weight Loaded (kg)", accessor: "weightLoaded" },
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
       {
-        Header: "CREATED BY",
+        Header: "Created By",
         accessor: "createdBy.name",
         Cell: ({ cell }) => cell.value || "-",
       },
       {
-        Header: "UPDATED BY",
+        Header: "Updated By",
         accessor: "updatedBy.name",
         Cell: ({ cell }) => cell.value || "-",
       },
       {
-        Header: "REMARK",
+        Header: "Remarks",
         accessor: "remarks",
         Cell: ({ value }) => (
           <span title={value}>
@@ -165,13 +165,13 @@ const MobileCombustionListing = () => {
         ),
       },
       {
-        Header: "CREATED AT",
+        Header: "Created At",
         accessor: "createdAt",
         Cell: ({ cell }) =>
           cell.value ? new Date(cell.value).toLocaleDateString() : "-",
       },
       {
-        Header: "ACTIONS",
+        Header: "Actions",
         accessor: "_id",
         Cell: ({ cell }) => (
           <div className="flex space-x-3 rtl:space-x-reverse">
@@ -288,7 +288,7 @@ const MobileCombustionListing = () => {
                         {headerGroup.headers.map((column) => (
                           <th
                             {...column.getHeaderProps(column.getSortByToggleProps())}
-                            className="table-th text-white "
+                            className="table-th text-white whitespace-nowrap"
                             key={column.id}
                           >
                             {column.render("Header")}
