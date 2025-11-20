@@ -218,6 +218,7 @@ export const KYOTO_GASES = [
   "R403B",
   "R404A",
   "R405A",
+  "R407A",
   "R407B",
   "R407C",
   "R407D",

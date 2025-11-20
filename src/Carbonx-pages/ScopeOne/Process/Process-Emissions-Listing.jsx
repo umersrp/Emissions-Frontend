@@ -107,33 +107,33 @@
 //         id: "serialNo",
 //         Cell: ({ row }) => <span>{row.index + 1 + pageIndex * pageSize}</span>,
 //       },
-//       { Header: "BUILDING", accessor: "buildingId.buildingName" },
+//       { Header: "Building", accessor: "buildingId.buildingName" },
 //       { Header: "Stakeholder Department", accessor: "stakeholderDepartment" },
 //       { Header: "Activity Type", accessor: "activityType" },
 //       { Header: "Gas Emitted", accessor: "gasEmitted" },
 //       { Header: "Amount of Emissions", accessor: "amountOfEmissions" },
 //       { Header: "Quality Control", accessor: "qualityControl" },
-//       // { Header: "CALCULATED EMISSIONS (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
-//       // { Header: "CALCULATED EMISSIONS (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
+//       // { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
+//       // { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
 //       {
-//         Header: "CREATED BY",
+//         Header: "Created By",
 //         accessor: "createdBy.name",
 //         Cell: ({ cell }) => cell.value || "-",
 //       },
 //       {
-//         Header: "UPDATED BY",
+//         Header: "Updated By",
 //         accessor: "updatedBy.name",
 //         Cell: ({ cell }) => cell.value || "-",
 //       },
-//       { Header: "REMARKS", accessor: "remarks" },
+//       { Header: "Remarks", accessor: "remarks" },
 //       {
-//         Header: "CREATED AT",
+//         Header: "Created At",
 //         accessor: "createdAt",
 //         Cell: ({ cell }) =>
 //           cell.value ? new Date(cell.value).toLocaleDateString() : "-",
 //       },
 //       {
-//         Header: "ACTIONS",
+//         Header: "Actions",
 //         accessor: "_id",
 //         Cell: ({ cell }) => (
 //           <div className="flex space-x-3 rtl:space-x-reverse">
@@ -455,33 +455,33 @@ const ProcessEmissionsListing = () => {
         id: "serialNo",
         Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
       },
-      { Header: "BUILDING", accessor: "buildingId.buildingName" },
-      { Header: "STAKEHOLDER", accessor: "stakeholderDepartment" },
-      { Header: "ACTIVITY TYPE", accessor: "activityType" },
-      { Header: "GAS EMITTED", accessor: "gasEmitted" },
-      { Header: "AMOUNT OF EMISSIONS", accessor: "amountOfEmissions" },
+      { Header: "Building", accessor: "buildingId.buildingName" },
+      { Header: "Stakeholder", accessor: "stakeholderDepartment" },
+      { Header: "Activity Type", accessor: "activityType" },
+      { Header: "Gas Emitted", accessor: "gasEmitted" },
+      { Header: "Amount Of Emissions", accessor: "amountOfEmissions" },
       { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "CALCULATED EMISSIONS (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
-      { Header: "CALCULATED EMISSIONS (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
       {
-        Header: "CREATED BY",
+        Header: "Created By",
         accessor: "createdBy.name",
         Cell: ({ cell }) => cell.value || "-",
       },
       {
-        Header: "UPDATED BY",
+        Header: "Updated By",
         accessor: "updatedBy.name",
         Cell: ({ cell }) => cell.value || "-",
       },
-      { Header: "REMARKS", accessor: "remarks" },
+      { Header: "Remarks", accessor: "remarks" },
       {
-        Header: "CREATED AT",
+        Header: "Created At",
         accessor: "createdAt",
         Cell: ({ cell }) =>
           cell.value ? new Date(cell.value).toLocaleDateString() : "-",
       },
       {
-        Header: "ACTIONS",
+        Header: "Actions",
         accessor: "_id",
         Cell: ({ cell }) => (
           <div className="flex space-x-3 rtl:space-x-reverse">
@@ -600,7 +600,7 @@ const ProcessEmissionsListing = () => {
                                {headerGroup.headers.map((column) => (
                                  <th
                                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                                   className="table-th text-white"
+                                   className="table-th text-white whitespace-nowrap"
                                    key={column.id}
                                  >
                                    {column.render("Header")}

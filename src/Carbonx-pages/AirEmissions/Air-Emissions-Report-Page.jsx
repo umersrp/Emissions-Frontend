@@ -131,7 +131,7 @@
 //   return (
 //     <Card>
 //        <h2 className="text-2xl font-semibold text-gray-700 mb-4">Out of Scope/Air Emissions</h2>
-       
+
 //       {/* Total Non-Kyoto */}
 //       <motion.div
 //         className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl p-6 mb-8"
@@ -804,11 +804,11 @@ const AirEmissionReportPage = () => {
     ];
   }, [fugitiveData, bioData, processData]);
 
-  const totalEmission = useMemo(() => {
-    const kg = summaryCards.reduce((sum, c) => sum + Number(c.kg || 0), 0);
-    const t = summaryCards.reduce((sum, c) => sum + Number(c.t || 0), 0);
-    return { kg, t };
-  }, [summaryCards]);
+  // const totalEmission = useMemo(() => {
+  //   const kg = summaryCards.reduce((sum, c) => sum + Number(c.kg || 0), 0);
+  //   const t = summaryCards.reduce((sum, c) => sum + Number(c.t || 0), 0);
+  //   return { kg, t };
+  // }, [summaryCards]);
 
   // --- Building-wise data filtered for dropdown ---
   const buildingData = useMemo(() => {
@@ -906,7 +906,8 @@ const AirEmissionReportPage = () => {
               <h2 className="text-xl font-semibold mb-1 text-gray-700">{item.name}</h2>
             </div>
             <p className="text-[13px] font-medium text-gray-600 flex flex-col pl-8">
-              <span>{formatNumber(item.kg)} kg CO₂e</span>
+              {/* <span>{formatNumber(item.kg)} kg CO₂e</span> */}
+              <span>{formatNumber(item.kg)} {item.key === "vocs" ? "kg" : "kg CO₂e"}</span>
               <span>{formatNumber(item.t)} t CO₂e</span>
             </p>
           </div>
@@ -937,9 +938,12 @@ const AirEmissionReportPage = () => {
             <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Sr.No</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Building</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">TOTAL EMISSIONS (kgCO₂e)</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">TOTAL EMISSIONS (tCO₂e)</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Building</th>
+                {/* <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">TOTAL EMISSIONS (kgCO₂e)</th> */}
+                <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">
+                  Total Emissions ({tableFilter === "vocs" ? "kg" : "kgCO₂e"})
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">Total Emissions (tCO₂e)</th>
               </tr>
             </thead>
             <tbody>
@@ -1019,7 +1023,7 @@ const AirEmissionReportPage = () => {
           <div className="flex items-center space-x-3">
             <span className="text-sm font-medium text-slate-600">Show</span>
             <select value={pagination.limit} onChange={(e) => setPagination(p => ({ ...p, limit: Number(e.target.value), currentPage: 1 }))} className="form-select py-2">
-              {[5,10,20,50].map(size => <option key={size} value={size}>{size}</option>)}
+              {[5, 10, 20, 50].map(size => <option key={size} value={size}>{size}</option>)}
             </select>
           </div>
         </div>

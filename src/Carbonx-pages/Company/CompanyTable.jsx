@@ -102,7 +102,7 @@ const CompanyTable = () => {
     };
     const COLUMNS = [
         {
-             Header: "Sr.No",
+            Header: "Sr.No",
             accessor: "id",
             Cell: ({ row, flatRows }) => <span>{flatRows.indexOf(row) + 1}</span>,
         },
@@ -165,7 +165,7 @@ const CompanyTable = () => {
             Header: "Headquarter Location",
             accessor: "headquarterLocation",
         },
-         {
+        {
             Header: "Sector",
             accessor: "sectorId.name",
             Cell: ({ cell }) => cell.value || "-",
@@ -216,12 +216,12 @@ const CompanyTable = () => {
             accessor: "totalManHoursPerAnnum",
         },
         {
-            Header: "CREATED BY",
+            Header: "Created By",
             accessor: "createdBy.name",
             Cell: ({ cell }) => cell.value || "-",
         },
         {
-            Header: "CREATED AT",
+            Header: "Created At",
             accessor: "createdAt",
             Cell: ({ cell }) =>
                 cell.value ? new Date(cell.value).toLocaleDateString() : "-",
@@ -233,7 +233,7 @@ const CompanyTable = () => {
                 cell.value ? new Date(cell.value).toLocaleDateString() : "-",
         },
         {
-            Header: "ACTIONS",
+            Header: "Actions",
             accessor: "_id",
             Cell: ({ cell }) => (
                 <div className="flex space-x-3 rtl:space-x-reverse">
@@ -253,17 +253,17 @@ const CompanyTable = () => {
                             <Icon className="text-blue-600" icon="heroicons:pencil-square" />
                         </button>
                     </Tippy>
-                     <Tippy content="Delete">
-                            <button
-                                className="action-btn"
-                                onClick={() => {
-                                    setSelectedBuildingId(cell.value);
-                                    setDeleteModalOpen(true);
-                                }}
-                            >
-                                <Icon icon="heroicons:trash" className="text-red-600" />
-                            </button>
-                        </Tippy>
+                    <Tippy content="Delete">
+                        <button
+                            className="action-btn"
+                            onClick={() => {
+                                setSelectedBuildingId(cell.value);
+                                setDeleteModalOpen(true);
+                            }}
+                        >
+                            <Icon icon="heroicons:trash" className="text-red-600" />
+                        </button>
+                    </Tippy>
                 </div>
             ),
         },
@@ -368,7 +368,7 @@ const CompanyTable = () => {
                                                     <th
                                                         {...column.getHeaderProps(column.getSortByToggleProps())}
                                                         scope="col"
-                                                        className="table-th text-white"
+                                                        className="table-th text-white whitespace-nowrap"
                                                         key={column.id}
                                                     >
                                                         {column.render("Header")}

@@ -109,17 +109,17 @@ const BuildingTable = () => {
             },
             { Header: "Operating Hours", accessor: "operatingHours" },
             {
-                Header: "CREATED BY",
+                Header: "Created By",
                 accessor: "createdBy.name",
                 Cell: ({ cell }) => cell.value || "-",
             },
             {
-                Header: "UPDATED BY",
+                Header: "Updated By",
                 accessor: "updatedBy.name",
                 Cell: ({ cell }) => cell.value || "-",
             },
             {
-                Header: "CREATED AT",
+                Header: "Created At",
                 accessor: "createdAt",
                 Cell: ({ cell }) =>
                     cell.value ? new Date(cell.value).toLocaleDateString() : "-",
@@ -131,7 +131,7 @@ const BuildingTable = () => {
                     cell.value ? new Date(cell.value).toLocaleDateString() : "-",
             },
             {
-                Header: "ACTIONS",
+                Header: "Actions",
                 accessor: "_id",
                 Cell: ({ cell }) => (
                     <div className="flex space-x-3 rtl:space-x-reverse">
@@ -255,7 +255,7 @@ const BuildingTable = () => {
                                                 {headerGroup.headers.map((column) => (
                                                     <th
                                                         {...column.getHeaderProps(column.getSortByToggleProps())}
-                                                        className="table-th text-white"
+                                                        className="table-th text-white whitespace-nowrap"
                                                         key={column.id}
                                                     >
                                                         {column.render("Header")}

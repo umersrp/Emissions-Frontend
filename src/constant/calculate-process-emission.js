@@ -162,7 +162,7 @@ export const GHG_ACTIVITIES = [
   "Methanol Synthesis",
   "Other GHG Emission Process Activities",
   "Non Kyoto protocol / Other Non GHG Emissions", // this will be removed from GHG and added to Non-Kyoto
-  "Other GHG Emission Process (Biogenic)" // will be removed and added to Biogenic
+  "Other Biogenic GHG Emission Process Activities" // will be removed and added to Biogenic
 ];
 
 // Non-Kyoto activities
