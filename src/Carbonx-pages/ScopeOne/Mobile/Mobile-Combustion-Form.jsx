@@ -14,7 +14,7 @@ import {
   fuelNameOptionsByClassification,
   distanceUnitOptions,
   weightLoadedOptions,
-} from "@/constant/options";
+} from "@/constant/scope1/options";
 import { calculateMobileCombustion } from "@/utils/calculate-mobile-combuction";
 
 

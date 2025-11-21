@@ -74,39 +74,39 @@ const LoginForm = () => {
   //     toast.error(error.message);
   //   }
   // };
-const onSubmit = async (data) => {
-  try {
-    const response = await login(data);
-   
-    if (response?.error) {
-      throw new Error(response.error.data?.message || "Something went wrong");
+  const onSubmit = async (data) => {
+    try {
+      const response = await login(data);
+
+      if (response?.error) {
+        throw new Error(response.error.data?.message || "Something went wrong");
+      }
+
+      const userData = response?.data?.data; // actual user object
+      const companyId = userData?.companyId; //   extract user ID
+      const userId = userData?._id;
+
+      if (!userData?.token) {
+        throw new Error("Invalid credentials");
+      }
+
+      if (userData?.type === "user") {
+        throw new Error("Invalid credentials");
+      }
+
+      //   Save user, token, and userId properly
+      dispatch(setUser(userData));
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("token", userData.token);
+      localStorage.setItem("companyId", companyId); //   added line
+      localStorage.setItem("userId", userId);
+
+      toast.success("Login Successful");
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error(error.message);
     }
-
-    const userData = response?.data?.data; // actual user object
-    const companyId = userData?.companyId; //   extract user ID
-    const userId = userData?._id;
-
-    if (!userData?.token) {
-      throw new Error("Invalid credentials");
-    }
-
-    if (userData?.type === "user") {
-      throw new Error("Invalid credentials");
-    }
-
-    //   Save user, token, and userId properly
-    dispatch(setUser(userData));
-    localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("token", userData.token);
-    localStorage.setItem("companyId", companyId); //   added line
-    localStorage.setItem("userId", userId); 
-
-    toast.success("Login Successful");
-    navigate("/dashboard");
-  } catch (error) {
-    toast.error(error.message);
-  }
-};
+  };
 
 
   const [checked, setChecked] = useState(false);
@@ -128,6 +128,12 @@ const onSubmit = async (data) => {
         register={register}
         error={errors.password}
         className="h-[48px]"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            handleSubmit(onSubmit)();
+          }
+        }}
       />
       <div className="flex justify-between">
         <Checkbox
@@ -223,7 +229,7 @@ export default LoginForm;
 //       // But userData is the user object itself
 //       if (userData?.type !== "company") {
 //         throw new Error("Invalid credentials");
-//       } 
+//       }
 
 //       //   Save user and token
 //       dispatch(setUser(userData));

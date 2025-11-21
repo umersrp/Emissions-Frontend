@@ -11,7 +11,7 @@ import {
   materialRefrigerantOptions,
   qualityControlOptions,
   consumptionUnitOptions,
-} from "@/constant/options";
+} from "@/constant/scope1/options";
 import { calculateFugitiveEmission } from "@/utils/calculate-fugitive-emission";
 
 const FugitiveCombustionFormPage = () => {

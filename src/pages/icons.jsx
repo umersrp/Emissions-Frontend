@@ -113,6 +113,18 @@ const icons = [
   { name: "heroicons:cloud", label: "Fugitive Emissions" },
   { name: "heroicons:truck", label: "Mobile Combustion" },
   { name: "heroicons:cog-6-tooth", label: "Process Emissions" },
+  {
+  name: "heroicons:bolt" // Electricity
+},
+{
+  name: "heroicons:fire" // Heating
+},
+{
+  name: "heroicons:snowflake" // Cooling
+},
+{
+  name: "heroicons:cloud" // Steam
+},
   { name: "heroicons:rectangle-stack" },
   { name: "heroicons:rocket-launch" },
   { name: "heroicons:window" },

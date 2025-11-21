@@ -41,7 +41,7 @@
 //   };
 // };
 
-import { unitConversion, emissionFactors, outOfScopeEmissionFactors } from "@/constant/calculate-stationary-emissions";
+import { unitConversion, emissionFactors, outOfScopeEmissionFactors } from "@/constant/scope1/calculate-stationary-emissions";
 
 // export const calculateStationaryEmissions = (fuelName, fuelConsumption, consumptionUnit) => {
 //   if (!fuelName || !fuelConsumption || !consumptionUnit) return null;

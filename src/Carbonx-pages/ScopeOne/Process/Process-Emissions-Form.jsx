@@ -10,7 +10,7 @@ import {
   activityTypeOptions,
   activityMetadata,
   processQualityControlOptions,
-} from "@/constant/options";
+} from "@/constant/scope1/options";
 import { calculateProcessEmission } from "@/utils/calculate-process-emission"
 
 const ProcessEmissionsFormPage = () => {

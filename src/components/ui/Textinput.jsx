@@ -66,6 +66,7 @@ const Textinput = ({
             disabled={disabled}
             id={id}
             onChange={onChange}
+            onKeyDown={rest.onKeyDown}
           />
         )}
         {!name && !isMask && (
@@ -78,6 +79,7 @@ const Textinput = ({
             defaultValue={defaultValue}
             onChange={onChange}
             id={id}
+            onKeyDown={rest.onKeyDown}
           />
         )}
         {name && isMask && (
@@ -94,6 +96,7 @@ const Textinput = ({
             readOnly={readonly}
             disabled={disabled}
             onChange={onChange}
+            onKeyDown={rest.onKeyDown}
           />
         )}
         {!name && isMask && (
@@ -108,6 +111,7 @@ const Textinput = ({
             readOnly={readonly}
             disabled={disabled}
             onChange={onChange}
+            onKeyDown={rest.onKeyDown}
           />
         )}
         {/* icon */}
