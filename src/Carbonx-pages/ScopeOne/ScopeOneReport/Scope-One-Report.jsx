@@ -423,8 +423,8 @@ import { toast } from "react-toastify";
 import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
 import { Icon } from "@iconify/react";
-import { KYOTO_GASES } from "@/constant/calculate-fugitive-emission";
-import { GHG_ACTIVITIES } from "@/constant/calculate-process-emission"
+import { KYOTO_GASES } from "@/constant/scope1/calculate-fugitive-emission";
+import { GHG_ACTIVITIES } from "@/constant/scope1/calculate-process-emission"
 import { useNavigate } from "react-router-dom";
 
 // Utility for formatting numbers

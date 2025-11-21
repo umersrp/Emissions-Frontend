@@ -1,4 +1,4 @@
-import { fugitiveEmissionFactors } from "@/constant/calculate-fugitive-emission";
+import { fugitiveEmissionFactors } from "@/constant/scope1/calculate-fugitive-emission";
 
 export const calculateFugitiveEmission = (material, leakageValue) => {
   if (!material || !leakageValue) return null;

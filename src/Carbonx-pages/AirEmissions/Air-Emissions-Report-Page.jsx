@@ -627,12 +627,12 @@ import { toast } from "react-toastify";
 import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
 import { Icon } from "@iconify/react";
-import { NON_KYOTO_GASES } from "@/constant/calculate-fugitive-emission";
+import { NON_KYOTO_GASES } from "@/constant/scope1/calculate-fugitive-emission";
 import {
   NON_KYOTO_ACTIVITIES,
   VO_ACTIVITIES,
   BIOGENIC_ACTIVITIES,
-} from "@/constant/calculate-process-emission";
+} from "@/constant/scope1/calculate-process-emission";
 
 const formatNumber = (num) => {
   if (num === null || num === undefined || Number.isNaN(Number(num))) return "-";
@@ -775,7 +775,7 @@ const AirEmissionReportPage = () => {
     return [
       {
         key: "nonKyoto",
-        name: "Non Kyoto Protocol / Other Gases Emission",
+        name: "Non Kyoto Protocol /Other Gases Emission",
         kg: nonKyotoTotal,
         t: nonKyotoTotal / 1000,
         bg: "bg-cyan-50",
@@ -901,10 +901,21 @@ const AirEmissionReportPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
         {summaryCards.map((item, idx) => (
           <div key={idx} className={`${item.bg} rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 p-3`}>
-            <div className="flex items-center gap-2 mb-1">
-              <Icon icon="heroicons:cloud" className="text-gray-700 text-2xl" />
+            {/* <div className="flex  gap-2 mb-1 ">
+              <Icon icon="heroicons:cloud" className="text-gray-700 text-2xl pr-2 " />
               <h2 className="text-xl font-semibold mb-1 text-gray-700">{item.name}</h2>
+            </div> */}
+            <div className="flex gap-2 mb-1">
+              <Icon
+                icon="heroicons:cloud"
+                className="text-gray-700 text-2xl flex-none"
+              />
+
+              <h2 className="text-xl font-semibold text-gray-700 leading-tight">
+                {item.name}
+              </h2>
             </div>
+
             <p className="text-[13px] font-medium text-gray-600 flex flex-col pl-8">
               {/* <span>{formatNumber(item.kg)} kg CO₂e</span> */}
               <span>{formatNumber(item.kg)} {item.key === "vocs" ? "kg" : "kg CO₂e"}</span>

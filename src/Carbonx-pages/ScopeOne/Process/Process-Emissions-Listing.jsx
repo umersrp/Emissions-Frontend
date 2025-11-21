@@ -643,7 +643,7 @@ const ProcessEmissionsListing = () => {
                      )}
                    </div>
                  </div>
-               </div>
+          </div>
 
         {/* CUSTOM PAGINATION UI (SERVER SIDE) */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">

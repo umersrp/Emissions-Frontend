@@ -50,7 +50,7 @@
 //     totalEmissionTonnes,
 //   };
 // };
-import { mobileEmissionFactors } from "@/constant/calculate-mobile-combustion";
+import { mobileEmissionFactors } from "@/constant/scope1/calculate-mobile-combustion";
 
 export const calculateMobileCombustion = (
   fuelName,

@@ -12,7 +12,7 @@ import {
   fuelTypeOptions,
   qualityControlOptions,
   fuelUnitOptionsByName,
-} from "@/constant/stationary-data";
+} from "@/constant/scope1/stationary-data";
 import { calculateStationaryEmissions } from "@/utils/calculate-stationary-emissions";
 
 const StationaryCombustionFormPage = () => {

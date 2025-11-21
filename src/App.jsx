@@ -216,6 +216,11 @@ import ProcessEmissionsListing from "./Carbonx-pages/ScopeOne/Process/Process-Em
 import MyCompany from "./Carbonx-pages/Company/MyCompany";
 import ScopeOneReport from "./Carbonx-pages/ScopeOne/ScopeOneReport/Scope-One-Report";
 import EmissionsReportPage from "./Carbonx-pages/AirEmissions/Air-Emissions-Report-Page";
+import Scope2 from "./Carbonx-pages/ScopeTwo/Scope2/Scope2";
+import PurchasedCoolingFormPage from "./Carbonx-pages/ScopeTwo/PurchasedElectricity/Purchased-Electricity-Form";
+import PurchasedCoolingListing from "./Carbonx-pages/ScopeTwo/PurchasedElectricity/Purchased-Electricity-Listing";
+import PurchasedElectricityFormPage from "./Carbonx-pages/ScopeTwo/PurchasedElectricity/Purchased-Electricity-Form";
+import PurchasedElectricityListing from "./Carbonx-pages/ScopeTwo/PurchasedElectricity/Purchased-Electricity-Listing";
 
 
 
@@ -437,6 +442,13 @@ function App() {
           <Route path="Process-Emissions-Form/add" element={<ProcessEmissionsFormPage />} />
           <Route path="Process-Emissions-Form/:id" element={<ProcessEmissionsFormPage />} />
           <Route path="Process-Emissions" element={<ProcessEmissionsListing />} />
+
+
+          <Route path="Scope-2" element={<Scope2 />} />
+
+          <Route path="Purchased-Electricity-Form/add" element={<PurchasedElectricityFormPage />} />
+          <Route path="Purchased-Electricity-Form/:id" element={<PurchasedElectricityFormPage />} />
+          <Route path="Purchased-Electricity" element={<PurchasedElectricityListing/>} />
 
 
           <Route path="Coach-edit" element={<CoachEditPage />} />

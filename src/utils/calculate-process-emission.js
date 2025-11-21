@@ -1,4 +1,4 @@
-import { processEmissionFactors } from "@/constant/calculate-process-emission"; // adjust path
+import { processEmissionFactors } from "@/constant/scope1/calculate-process-emission"; // adjust path
 
 export const calculateProcessEmission = (data) => {
   if (!data?.activityType || !data?.amountOfEmissions) return null;
