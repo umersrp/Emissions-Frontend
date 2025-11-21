@@ -653,7 +653,7 @@ const AirEmissionReportPage = () => {
   const emissionOptions = [
     { value: "all", label: "All Out-of-Scope" },
     // { value: "nonKyoto", label: "Non Kyoto Gases" },
-    { value: "nonKyotoCombined", label: "Non Kyoto Protocol Gases" },
+    { value: "nonKyotoCombined", label: "Non Kyoto protocol / Other Gases Emissions" },
     { value: "vocs", label: "VOCs" },
     { value: "biogenic", label: "Biogenic CO₂ Emissions" },
   ];

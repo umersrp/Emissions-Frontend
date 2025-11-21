@@ -127,9 +127,9 @@ const FugitiveCombustionFormPage = () => {
       const tEmission = kgEmission / 1000;
 
       if (kgEmission !== null) {
-        toast.info(
-          `Calculated Emission: ${kgEmission.toFixed(2)} kg CO₂e (${tEmission.toFixed(4)} tCO₂e)`
-        );
+        // toast.info(
+        //   `Calculated Emission: ${kgEmission.toFixed(2)} kg CO₂e (${tEmission.toFixed(4)} tCO₂e)`
+        // );
         setFormData((prev) => ({
           ...prev,
           calculatedEmissionKgCo2e: kgEmission.toFixed(2),
