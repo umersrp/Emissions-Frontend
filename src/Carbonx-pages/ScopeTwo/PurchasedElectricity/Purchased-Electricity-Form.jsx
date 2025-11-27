@@ -7,6 +7,8 @@ import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { qualityControlOptions } from "@/constant/scope1/options";
 import { gridStationOptions, unitOptions } from "@/constant/scope2/options";
+import { calculatePurchasedElectricity } from "@/utils/scope2/calculate-purchased-electricity";
+import { GridStationEmissionFactors } from "@/constant/scope2/purchased-electricity"
 
 const PurchasedElectricityFormPage = () => {
   const navigate = useNavigate();
@@ -15,79 +17,65 @@ const PurchasedElectricityFormPage = () => {
   const mode = location.state?.mode || "add";
   const isView = mode === "view";
   const isEdit = mode === "edit";
-  const isAdd = mode === "add";
 
-  // Method selection options
   const methodOptions = [
     { value: "location_based", label: "Location Based Method" },
     { value: "market_based", label: "Market Based Method" },
   ];
 
   const [formData, setFormData] = useState({
-    // Common fields
     method: null,
     buildingId: null,
     unit: { value: "kWh", label: "kWh" },
-
-    // Location Based Method fields
     totalElectricity: "",
     totalGrossElectricityGrid: "",
     gridStation: null,
     totalOtherSupplierElectricity: "",
     qualityControl: null,
     remarks: "",
-
-    // Market Based Method fields
     totalPurchasedElectricity: "",
     totalGrossElectricityGridMarket: "",
     gridStationMarket: null,
-
-    // Toggle states for Market Based Method
     hasSolarPanels: false,
     purchasesSupplierSpecific: false,
     hasPPA: false,
     hasRenewableAttributes: false,
-
-    // Solar panels fields (Toggle 1)
     totalOnsiteSolarConsumption: "",
     solarRetainedUnderRECs: "",
     solarConsumedButSold: "",
-
-    // Supplier specific fields (Toggle 2)
     supplierSpecificElectricity: "",
     hasSupplierEmissionFactor: false,
     dontHaveSupplierEmissionFactor: false,
     supplierEmissionFactor: "",
-
-    // PPA fields (Toggle 3)
     ppaElectricity: "",
     hasPPAEmissionFactor: false,
     hasPPAValidInstruments: false,
     ppaEmissionFactor: "",
-
-    // Renewable attributes fields (Toggle 4)
     renewableAttributesElectricity: "",
+    calculatedEmissionKgCo2e: "",
+    calculatedEmissionTCo2e: "",
+    calculatedEmissionMarketKgCo2e: "",
+    calculatedEmissionMarketTCo2e: "",
   });
 
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
+  const formatEmission = (num) => {
+    const rounded = Number(num.toFixed(5));
+    if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
+      return rounded.toExponential(5);
+    }
+    return rounded;
+  };
 
-  // Fetch Buildings
+
   useEffect(() => {
     const fetchBuildings = async () => {
       try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings`,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-
-        const formatted =
-          res.data?.data?.buildings?.map((b) => ({
-            value: b._id,
-            label: b.buildingName,
-          })) || [];
-
-        setBuildingOptions(formatted);
+        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        setBuildingOptions(res.data?.data?.buildings?.map((b) => ({ value: b._id, label: b.buildingName })) || []);
       } catch {
         toast.error("Failed to load buildings");
       }
@@ -95,63 +83,118 @@ const PurchasedElectricityFormPage = () => {
     fetchBuildings();
   }, []);
 
-  // Fetch record for Edit/View mode
   useEffect(() => {
     if (isEdit || isView) {
       const fetchRecord = async () => {
         try {
-          const res = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}/purchased-electricity/get/${id}`,
-            { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-          );
+          const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get/${id}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          });
           const data = res.data?.data;
           if (data) {
             setFormData({
-              method: { value: data.method, label: data.method },
-              buildingId: { value: data.buildingId?._id, label: data.buildingId?.buildingName },
-              unit: { value: data.unit, label: data.unit },
-              
+              method: data.method ? { value: data.method, label: data.method } : null,
+              buildingId: data.buildingId ? { value: data.buildingId._id, label: data.buildingId.buildingName } : null,
+              unit: { value: data.unit || "kWh", label: data.unit || "kWh" },
               totalElectricity: data.totalElectricity || "",
               totalGrossElectricityGrid: data.totalGrossElectricityGrid || "",
               gridStation: data.gridStation ? { value: data.gridStation, label: data.gridStation } : null,
               totalOtherSupplierElectricity: data.totalOtherSupplierElectricity || "",
               qualityControl: data.qualityControl ? { value: data.qualityControl, label: data.qualityControl } : null,
               remarks: data.remarks || "",
-              
               totalPurchasedElectricity: data.totalPurchasedElectricity || "",
               totalGrossElectricityGridMarket: data.totalGrossElectricityGridMarket || "",
               gridStationMarket: data.gridStationMarket ? { value: data.gridStationMarket, label: data.gridStationMarket } : null,
-              
               hasSolarPanels: data.hasSolarPanels || false,
               purchasesSupplierSpecific: data.purchasesSupplierSpecific || false,
               hasPPA: data.hasPPA || false,
               hasRenewableAttributes: data.hasRenewableAttributes || false,
-              
               totalOnsiteSolarConsumption: data.totalOnsiteSolarConsumption || "",
               solarRetainedUnderRECs: data.solarRetainedUnderRECs || "",
               solarConsumedButSold: data.solarConsumedButSold || "",
-              
               supplierSpecificElectricity: data.supplierSpecificElectricity || "",
               hasSupplierEmissionFactor: data.hasSupplierEmissionFactor || false,
               dontHaveSupplierEmissionFactor: data.dontHaveSupplierEmissionFactor || false,
               supplierEmissionFactor: data.supplierEmissionFactor || "",
-              
               ppaElectricity: data.ppaElectricity || "",
               hasPPAEmissionFactor: data.hasPPAEmissionFactor || false,
               hasPPAValidInstruments: data.hasPPAValidInstruments || false,
               ppaEmissionFactor: data.ppaEmissionFactor || "",
-              
               renewableAttributesElectricity: data.renewableAttributesElectricity || "",
+              calculatedEmissionKgCo2e: data.calculatedEmissionKgCo2e || "",
+              calculatedEmissionTCo2e: data.calculatedEmissionTCo2e || "",
+              calculatedEmissionMarketKgCo2e: data.calculatedEmissionMarketKgCo2e || "",
+              calculatedEmissionMarketTCo2e: data.calculatedEmissionMarketTCo2e || "",
             });
           }
-        } catch (err) {
+        } catch {
           toast.error("Failed to fetch record details");
         }
       };
       fetchRecord();
     }
   }, [id, isEdit, isView]);
+  // Add this useEffect after your existing useEffects
+  useEffect(() => {
+    // Only calculate if we have the minimum required data
+    if (formData.method) {
+      triggerCalculation();
+    }
+  }, [
+    formData.method,
+    formData.unit,
+    formData.totalElectricity,
+    formData.totalGrossElectricityGrid,
+    formData.totalOtherSupplierElectricity,
+    formData.gridStation,
+    formData.totalPurchasedElectricity,
+    formData.totalGrossElectricityGridMarket,
+    formData.gridStationMarket,
+    formData.solarRetainedUnderRECs,
+    formData.solarConsumedButSold,
+    formData.supplierSpecificElectricity,
+    formData.supplierEmissionFactor,
+    formData.hasSupplierEmissionFactor,
+    formData.ppaElectricity,
+    formData.ppaEmissionFactor,
+    formData.hasPPAEmissionFactor,
+    formData.renewableAttributesElectricity,
+  ]);
 
+  const triggerCalculation = () => {
+    // Pass the actual method value, not the object
+    const calculationData = {
+      ...formData,
+      method: formData.method?.value,
+      unit: formData.unit?.value || "kWh",
+      gridStation: formData.gridStation?.value,
+      // gridStationMarket: formData.gridStationMarket?.value,
+    };
+
+    const result = calculatePurchasedElectricity(calculationData, GridStationEmissionFactors);
+
+    if (result) {
+      const formattedKg = formatEmission(result.calculatedEmissionKgCo2e);
+      const formattedT = formatEmission(result.calculatedEmissionTCo2e);
+      const formattedMarketKg = result.calculatedEmissionMarketKgCo2e
+        ? formatEmission(result.calculatedEmissionMarketKgCo2e)
+        : null;
+       const formattedMarketT = result.calculatedEmissionMarketTCo2e
+        ? formatEmission(result.calculatedEmissionMarketTCo2e)
+        : null;
+
+      setFormData((prev) => ({
+        ...prev,
+        calculatedEmissionKgCo2e: formattedKg,
+        calculatedEmissionTCo2e: formattedT,
+        calculatedEmissionMarketKgCo2e: formattedMarketKg,
+         calculatedEmissionMarketTCo2e: formattedMarketT,
+      }));
+
+      toast.info(`Calculated Emissions (location_based): ${formattedKg} kg CO₂e (${formattedT} t CO₂e)
+                  Calculated Emissions (Market_based): ${formattedMarketKg} kg CO₂e (${formattedMarketT} t CO₂e)`);
+    }
+  };
   const handleInputChange = (e) => {
     if (isView) return;
     const { name, value } = e.target;
@@ -164,7 +207,6 @@ const PurchasedElectricityFormPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
-
   const handleToggleChange = (name) => {
     if (isView) return;
     setFormData((prev) => ({ ...prev, [name]: !prev[name] }));
@@ -174,29 +216,19 @@ const PurchasedElectricityFormPage = () => {
     if (isView) return;
     setFormData((prev) => {
       const newState = { ...prev, [name]: !prev[name] };
-      // Uncheck other checkboxes in the same group
       exclusiveGroup.forEach((field) => {
-        if (field !== name) {
-          newState[field] = false;
-        }
+        if (field !== name) newState[field] = false;
       });
       return newState;
     });
   };
 
-  // Validation
   const validate = () => {
     const newErrors = {};
-    
-    if (!formData.method) {
-      newErrors.method = "Please select a method";
-    }
-    
+    if (!formData.method) newErrors.method = "Please select a method";
+    if (!formData.buildingId) newErrors.buildingId = "Building is required";
 
     if (formData.method?.value === "location_based") {
-       if (!formData.buildingId) {
-      newErrors.buildingId = "Building is required";
-    }
       if (!formData.totalElectricity) newErrors.totalElectricity = "Required";
       if (!formData.totalGrossElectricityGrid) newErrors.totalGrossElectricityGrid = "Required";
       if (!formData.gridStation) newErrors.gridStation = "Required";
@@ -206,46 +238,33 @@ const PurchasedElectricityFormPage = () => {
 
     if (formData.method?.value === "market_based") {
       if (!formData.totalPurchasedElectricity) newErrors.totalPurchasedElectricity = "Required";
-      if (!formData.totalGrossElectricityGridMarket) newErrors.totalGrossElectricityGridMarket = "Required";
-      if (!formData.gridStationMarket) newErrors.gridStationMarket = "Required";
+      if (!formData.totalGrossElectricityGrid) newErrors.totalGrossElectricityGrid = "Required";
+      if (!formData.gridStation) newErrors.gridStation = "Required";
 
-      // Validate conditional fields based on toggles
       if (formData.hasSolarPanels) {
         if (!formData.totalOnsiteSolarConsumption) newErrors.totalOnsiteSolarConsumption = "Required";
         if (!formData.solarRetainedUnderRECs) newErrors.solarRetainedUnderRECs = "Required";
         if (!formData.solarConsumedButSold) newErrors.solarConsumedButSold = "Required";
       }
-
       if (formData.purchasesSupplierSpecific) {
         if (!formData.supplierSpecificElectricity) newErrors.supplierSpecificElectricity = "Required";
-        if (formData.hasSupplierEmissionFactor && !formData.supplierEmissionFactor) {
-          newErrors.supplierEmissionFactor = "Required";
-        }
+        if (formData.hasSupplierEmissionFactor && !formData.supplierEmissionFactor) newErrors.supplierEmissionFactor = "Required";
       }
-
       if (formData.hasPPA) {
         if (!formData.ppaElectricity) newErrors.ppaElectricity = "Required";
-        if (formData.hasPPAEmissionFactor && !formData.ppaEmissionFactor) {
-          newErrors.ppaEmissionFactor = "Required";
-        }
+        if (formData.hasPPAEmissionFactor && !formData.ppaEmissionFactor) newErrors.ppaEmissionFactor = "Required";
       }
-
-      if (formData.hasRenewableAttributes && !formData.renewableAttributesElectricity) {
-        newErrors.renewableAttributesElectricity = "Required";
-      }
+      if (formData.hasRenewableAttributes && !formData.renewableAttributesElectricity) newErrors.renewableAttributesElectricity = "Required";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isView) return;
-
-    if (!validate()) {
-      toast.error("Please fill all required fields");
+    if (isView || !validate()) {
+      if (!isView) toast.error("Please fill all required fields");
       return;
     }
 
@@ -256,82 +275,53 @@ const PurchasedElectricityFormPage = () => {
     }
 
     const payload = {
-      method: formData.method?.value,
-      // buildingId: formData.buildingId?.value,
-      unit: formData.unit?.value,
+      method: formData.method?.value || null,
+      buildingId: formData.buildingId?.value || null,
+      unit: formData.unit?.value || null,
+      totalElectricity: formData.totalElectricity || null,
+      totalGrossElectricityGrid: formData.totalGrossElectricityGrid || null,
+      gridStation: formData.gridStation?.value || null,
+      totalOtherSupplierElectricity: formData.totalOtherSupplierElectricity || null,
+      qualityControl: formData.qualityControl?.value || null,
+      remarks: formData.remarks || null,
+      totalPurchasedElectricity: formData.totalPurchasedElectricity || null,
+      totalGrossElectricityGridMarket: formData.totalGrossElectricityGridMarket || null,
+      gridStationMarket: formData.gridStationMarket?.value || null,
+      hasSolarPanels: formData.hasSolarPanels || false,
+      purchasesSupplierSpecific: formData.purchasesSupplierSpecific || false,
+      hasPPA: formData.hasPPA || false,
+      hasRenewableAttributes: formData.hasRenewableAttributes || false,
+      totalOnsiteSolarConsumption: formData.totalOnsiteSolarConsumption || null,
+      solarRetainedUnderRECs: formData.solarRetainedUnderRECs || null,
+      solarConsumedButSold: formData.solarConsumedButSold || null,
+      supplierSpecificElectricity: formData.supplierSpecificElectricity || null,
+      hasSupplierEmissionFactor: formData.hasSupplierEmissionFactor || false,
+      dontHaveSupplierEmissionFactor: formData.dontHaveSupplierEmissionFactor || false,
+      supplierEmissionFactor: formData.supplierEmissionFactor || null,
+      ppaElectricity: formData.ppaElectricity || null,
+      hasPPAEmissionFactor: formData.hasPPAEmissionFactor || false,
+      hasPPAValidInstruments: formData.hasPPAValidInstruments || false,
+      ppaEmissionFactor: formData.ppaEmissionFactor || null,
+      renewableAttributesElectricity: formData.renewableAttributesElectricity || null,
       createdBy: userId,
       updatedBy: userId,
+      calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e || null,
+      calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e || null,
+      calculatedEmissionMarketKgCo2e: formData.calculatedEmissionMarketKgCo2e || null,
+      calculatedEmissionMarketTCo2e: formData.calculatedEmissionMarketTCo2e || null,
+
     };
 
-    // Add fields based on selected method
-    if (formData.method?.value === "location_based") {
-      payload.buildingId= formData.buildingId?.value,
-      payload.totalElectricity = formData.totalElectricity;
-      payload.totalGrossElectricityGrid = formData.totalGrossElectricityGrid;
-      payload.gridStation = formData.gridStation?.value;
-      payload.totalOtherSupplierElectricity = formData.totalOtherSupplierElectricity;
-      payload.qualityControl = formData.qualityControl?.value;
-      payload.remarks = formData.remarks;
-    }
-
-    if (formData.method?.value === "market_based") {
-      payload.buildingId= formData.buildingId?.value,
-      payload.totalPurchasedElectricity = formData.totalPurchasedElectricity;
-      payload.totalGrossElectricityGridMarket = formData.totalGrossElectricityGridMarket;
-      payload.gridStationMarket = formData.gridStationMarket?.value;
-      
-      payload.hasSolarPanels = formData.hasSolarPanels;
-      payload.purchasesSupplierSpecific = formData.purchasesSupplierSpecific;
-      payload.hasPPA = formData.hasPPA;
-      payload.hasRenewableAttributes = formData.hasRenewableAttributes;
-
-      if (formData.hasSolarPanels) {
-        payload.totalOnsiteSolarConsumption = formData.totalOnsiteSolarConsumption;
-        payload.solarRetainedUnderRECs = formData.solarRetainedUnderRECs;
-        payload.solarConsumedButSold = formData.solarConsumedButSold;
-      }
-
-      if (formData.purchasesSupplierSpecific) {
-        payload.supplierSpecificElectricity = formData.supplierSpecificElectricity;
-        payload.hasSupplierEmissionFactor = formData.hasSupplierEmissionFactor;
-        payload.dontHaveSupplierEmissionFactor = formData.dontHaveSupplierEmissionFactor;
-        if (formData.hasSupplierEmissionFactor) {
-          payload.supplierEmissionFactor = formData.supplierEmissionFactor;
-        }
-      }
-
-      if (formData.hasPPA) {
-        payload.ppaElectricity = formData.ppaElectricity;
-        payload.hasPPAEmissionFactor = formData.hasPPAEmissionFactor;
-        payload.hasPPAValidInstruments = formData.hasPPAValidInstruments;
-        if (formData.hasPPAEmissionFactor) {
-          payload.ppaEmissionFactor = formData.ppaEmissionFactor;
-        }
-      }
-
-      if (formData.hasRenewableAttributes) {
-        payload.renewableAttributesElectricity = formData.renewableAttributesElectricity;
-      }
-    }
-
-    console.log("Payload to send:", payload);
-
     try {
-      if (isEdit) {
-        await axios.put(
-          `${process.env.REACT_APP_BASE_URL}/purchased-electricity/update/${id}`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        toast.success("Record updated successfully!");
-      } else {
-        await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/purchased-electricity/create`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        toast.success("Record added successfully!");
-      }
+      const url = isEdit
+        ? `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/update/${id}`
+        : `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/Create`;
+
+      await axios[isEdit ? 'put' : 'post'](url, payload, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+
+      toast.success(`Record ${isEdit ? 'updated' : 'added'} successfully!`);
       navigate("/Purchased-Electricity");
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong");
@@ -340,6 +330,7 @@ const PurchasedElectricityFormPage = () => {
 
   const selectedMethod = formData.method?.value;
   const selectedUnit = formData.unit?.label || "kWh";
+
 
   return (
     <div>
@@ -522,29 +513,29 @@ const PurchasedElectricityFormPage = () => {
                   <label className="field-label">Total Gross Electricity Purchased from Grid Station ({selectedUnit}) *</label>
                   <input
                     type="number"
-                    name="totalGrossElectricityGridMarket"
-                    value={formData.totalGrossElectricityGridMarket}
+                    name="totalGrossElectricityGrid"
+                    value={formData.totalGrossElectricityGrid}
                     onChange={handleInputChange}
                     placeholder="Enter value"
                     className="border-[2px] w-full h-10 p-2 rounded-md"
                     disabled={isView}
                   />
-                  {errors.totalGrossElectricityGridMarket && (
-                    <p className="text-red-500 text-sm">{errors.totalGrossElectricityGridMarket}</p>
+                  {errors.totalGrossElectricityGrid && (
+                    <p className="text-red-500 text-sm">{errors.totalGrossElectricityGrid}</p>
                   )}
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="field-label">Grid Station *</label>
                   <CustomSelect
-                    name="gridStationMarket"
+                    name="gridStation"
                     options={gridStationOptions}
-                    value={formData.gridStationMarket}
-                    onChange={(value) => handleSelectChange("gridStationMarket", value)}
+                    value={formData.gridStation}
+                    onChange={(value) => handleSelectChange("gridStation", value)}
                     placeholder="Select Grid Station"
                     isDisabled={isView}
                   />
-                  {errors.gridStationMarket && <p className="text-red-500 text-sm">{errors.gridStationMarket}</p>}
+                  {errors.gridStation && <p className="text-red-500 text-sm">{errors.gridStation}</p>}
                 </div>
               </div>
 
@@ -765,7 +756,6 @@ const PurchasedElectricityFormPage = () => {
                           )}
                         </div>
                       )}
-
                       <div className="flex items-center gap-3">
                         <input
                           type="checkbox"
@@ -780,7 +770,6 @@ const PurchasedElectricityFormPage = () => {
                   </div>
                 )}
               </div>
-
               {/* TOGGLE 4: Renewable Attributes */}
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
@@ -798,7 +787,6 @@ const PurchasedElectricityFormPage = () => {
                     Do you have any other types of renewable energy attributes, market-based instruments or renewable energy certificates (RECs) that are separate from power purchase agreements (PPA) and from those covering on-site renewable electricity generation?
                   </span>
                 </div>
-
                 {formData.hasRenewableAttributes && (
                   <div className="ml-8 mt-4">
                     <div>
@@ -821,7 +809,6 @@ const PurchasedElectricityFormPage = () => {
               </div>
             </>
           )}
-
           {/* Buttons */}
           <div className="col-span-full flex justify-end gap-4 pt-6 border-t">
             <Button
@@ -839,5 +826,4 @@ const PurchasedElectricityFormPage = () => {
     </div>
   );
 };
-
 export default PurchasedElectricityFormPage;

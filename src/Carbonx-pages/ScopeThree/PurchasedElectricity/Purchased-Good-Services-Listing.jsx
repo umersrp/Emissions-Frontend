@@ -6,7 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Tippy from "@tippyjs/react";
-import { useTable, useRowSelect, useSortBy } from "react-table";
+import { useTable, useSortBy, useRowSelect } from "react-table";
 import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
 import Logo from "@/assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
@@ -14,102 +14,95 @@ import Modal from "@/components/ui/Modal";
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
   const resolvedRef = ref || defaultRef;
-
   React.useEffect(() => {
     resolvedRef.current.indeterminate = indeterminate;
   }, [resolvedRef, indeterminate]);
-
   return <input type="checkbox" ref={resolvedRef} {...rest} className="table-checkbox" />;
 });
 
-const PurchasedElectricityListing = () => {
+const PurchasedGoodServicesListing = () => {
   const navigate = useNavigate();
 
+  //  States
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [globalFilterValue, setGlobalFilterValue] = useState("");
+
+  //  Pagination states
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [globalFilterValue, setGlobalFilterValue] = useState("");
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState(null);
-  const [goToValue, setGoToValue] = useState(pageIndex);
+  const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
-  // Fetch data from Purchased-Electricity API
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get-All`,
-        {
-          params: {
-            page: pageIndex,
-            limit: pageSize,
-            search: globalFilterValue || "",
-          },
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
+  
+  // ✅ Fetch Fugitive Records with Pagination + Search
+const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
+  setLoading(true);
+  try {
+    const res = await axios.get(
+      `${process.env.REACT_APP_BASE_URL}/Fugitive/get-All?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
 
-      const data = res.data?.data || [];
-      const meta = res.data?.meta || {};
+    const data = Array.isArray(res.data?.data) ? res.data.data : [];
+    const meta = res.data?.meta || {};
 
-      setRecords(data);
-      setTotalPages(meta.totalPages || 1);
-      setTotalRecords(meta.totalRecords || 0);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch records");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setRecords(data);
+    setPageIndex(meta.currentPage || 1);
+    setTotalPages(meta.totalPages || 1);
+    setTotalRecords(meta.totalRecords || 0);
+    setPageSize(meta.limit || 10);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to fetch records");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
-    fetchData();
+    fetchFugitiveRecords(pageIndex, pageSize, globalFilterValue);
   }, [pageIndex, pageSize, globalFilterValue]);
 
-  // Delete Record
+  //  Delete Record
   const handleDelete = async (id) => {
     try {
-      await axios.delete(
-        `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${id}`,
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/Fugitive/delete/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
       toast.success("Record deleted successfully");
-      fetchData();
+      fetchFugitiveRecords(pageIndex, pageSize);
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete record");
     }
   };
 
-  // Columns based on your response
+  //  Table Columns
   const COLUMNS = useMemo(
     () => [
-      { Header: "Sr.No", id: "serialNo", Cell: ({ row }) => (pageIndex - 1) * pageSize + row.index + 1 },
-      { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ cell }) => cell.value || "-" },
-      { Header: "Method", accessor: "method" },
-      { Header: "Total Electricity Comsumption", accessor: "totalElectricity" },
-      { Header: "Total Purchased Electricity", accessor: "totalPurchasedElectricity" },
-      { Header: "Total Gross Electricity Grid", accessor: "totalGrossElectricityGrid" },
-      { Header: "Grid Station", accessor: "gridStation" },
-      { Header: "Total Other Supplier Electricity", accessor: "totalOtherSupplierElectricity" },
-      { Header: "Has Solar Panels", accessor: "hasSolarPanels", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
-      { Header: "PPA Electricity", accessor: "ppaElectricity" },
-      { Header: "Renewable Attributes Electricity", accessor: "renewableAttributesElectricity" },
-      { Header: "Calculated Location Based Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
-      { Header: "Calculated Location Based Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
-      { Header: "Calculated Market Based Emissions (kgCO₂e)", accessor: "calculatedEmissionMarketKgCo2e" },
-      { Header: "Calculated Market Based Emissions (tCO₂e)", accessor: "calculatedEmissionMarketTCo2e" },
+      {  Header: "Sr.No", id: "serialNo", Cell: ({ row }) => <span>{row.index + 1 + (pageIndex - 1) * pageSize}</span> },
+      { Header: "Building", accessor: "buildingId.buildingName" },
+      { Header: "Stakeholder", accessor: "stakeholder" },
+      { Header: "Equipment Type", accessor: "equipmentType" },
+      { Header: "Material / Refrigerant", accessor: "materialRefrigerant" },
+      { Header: "Leakage Value / Recharge Value", accessor: "leakageValue" },
+      { Header: "Consumption Unit", accessor: "consumptionUnit" },
       { Header: "Quality Control", accessor: "qualityControl" },
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",},
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",},
       { Header: "Remarks", accessor: "remarks" },
-      {
-        Header: "Created At",
-        accessor: "createdAt",
-        Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-"),
-      },
+      { Header: "Created By", accessor: "createdBy.name", Cell: ({ cell }) => cell.value || "-" },
+      { Header: "Updated By", accessor: "updatedBy.name", Cell: ({ cell }) => cell.value || "-" },
+      { Header: "Created At", accessor: "createdAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-") },
       {
         Header: "Actions",
         accessor: "_id",
@@ -118,7 +111,9 @@ const PurchasedElectricityListing = () => {
             <Tippy content="View">
               <button
                 className="action-btn"
-                onClick={() => navigate(`/Purchased-Electricity-Form/${cell.value}`, { state: { mode: "view" } })}
+                onClick={() =>
+                  navigate(`/Fugitive-Emissions-Form/${cell.value}`, { state: { mode: "view" } })
+                }
               >
                 <Icon icon="heroicons:eye" className="text-green-600" />
               </button>
@@ -126,7 +121,9 @@ const PurchasedElectricityListing = () => {
             <Tippy content="Edit">
               <button
                 className="action-btn"
-                onClick={() => navigate(`/Purchased-Electricity-Form/${cell.value}`, { state: { mode: "edit" } })}
+                onClick={() =>
+                  navigate(`/Fugitive-Emissions-Form/${cell.value}`, { state: { mode: "edit" } })
+                }
               >
                 <Icon icon="heroicons:pencil-square" className="text-blue-600" />
               </button>
@@ -135,7 +132,7 @@ const PurchasedElectricityListing = () => {
               <button
                 className="action-btn"
                 onClick={() => {
-                  setSelectedId(cell.value);
+                  setSelectedBuildingId(cell.value);
                   setDeleteModalOpen(true);
                 }}
               >
@@ -150,48 +147,39 @@ const PurchasedElectricityListing = () => {
   );
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
-  const data = useMemo(() => records, [records]);
-
-  const tableInstance = useTable({ columns, data }, useSortBy, useRowSelect, (hooks) => {
-    hooks.visibleColumns.push((columns) => [
-      {
-        id: "selection",
-        Header: ({ getToggleAllRowsSelectedProps }) => (
-          <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-        ),
-        Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
-      },
-      ...columns,
-    ]);
-  });
+  const tableInstance = useTable({ columns, data: records }, useSortBy, useRowSelect);
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
 
-  const handleGoToPage = (page) => {
-    if (page < 1) page = 1;
-    if (page > totalPages) page = totalPages;
-    setPageIndex(page);
+  //  Pagination Handlers
+  const handleNextPage = () => {
+    if (pageIndex < totalPages) setPageIndex((prev) => prev + 1);
   };
-  const handlePrevPage = () => handleGoToPage(pageIndex - 1);
-  const handleNextPage = () => handleGoToPage(pageIndex + 1);
+  const handlePrevPage = () => {
+    if (pageIndex > 1) setPageIndex((prev) => prev - 1);
+  };
+  const handleGoToPage = (page) => {
+    if (page >= 1 && page <= totalPages) setPageIndex(page);
+  };
 
   return (
     <>
       <Card noborder>
+        {/* Header */}
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0">Purchased Electricity Records</h6>
-          <div className="md:flex md:space-x-3 items-center">
+          <h6 className="flex-1 md:mb-0">Purchased Good & Services Records</h6>
+          <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             <Button
               icon="heroicons-outline:plus-sm"
               text="Add Record"
               className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
-              onClick={() => navigate("/Purchased-Electricity-Form/Add")}
+              onClick={() => navigate("/Purchased-Good-Services-Form/add")}
             />
           </div>
         </div>
 
-        {/* TABLE */}
+        {/* Table */}
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
             <div className="overflow-hidden">
@@ -211,18 +199,23 @@ const PurchasedElectricityListing = () => {
                             key={column.id}
                           >
                             {column.render("Header")}
-                            <span>{column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}</span>
+                            <span>
+                              {column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}
+                            </span>
                           </th>
                         ))}
                       </tr>
                     ))}
                   </thead>
+
                   <tbody {...getTableBodyProps()}>
                     {rows.length === 0 ? (
                       <tr>
                         <td colSpan={columns.length + 1}>
                           <div className="flex justify-center items-center py-16">
-                            <span className="text-gray-500 text-lg font-medium">No data available.</span>
+                            <span className="text-gray-500 text-lg font-medium">
+                              No data available.
+                            </span>
                           </div>
                         </td>
                       </tr>
@@ -247,38 +240,17 @@ const PurchasedElectricityListing = () => {
           </div>
         </div>
 
-            {/* CUSTOM PAGINATION UI (SERVER SIDE) */}
+        {/*  Server-side Pagination UI */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
-          {/* LEFT SECTION – Go To Page */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <span className="flex space-x-2 items-center">
               <span className="text-sm font-medium text-slate-600">Go</span>
               <input
                 type="number"
                 className="form-control py-2"
-                min="1"
-                max={totalPages}
-                value={goToValue}
-                onChange={(e) => setGoToValue(e.target.value)}
-                onBlur={() => {
-                  const page = Number(goToValue);
-                  if (page >= 1 && page <= totalPages && page !== pageIndex) {
-                    handleGoToPage(page);
-                  } else {
-                    setGoToValue(pageIndex);
-                  }
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    const page = Number(goToValue);
-                    if (page >= 1 && page <= totalPages && page !== pageIndex) {
-                      handleGoToPage(page);
-                    } else {
-                      setGoToValue(pageIndex);
-                    }
-                  }
-                }}
-                style={{ width: "70px" }}
+                value={pageIndex}
+                onChange={(e) => handleGoToPage(Number(e.target.value))}
+                style={{ width: "50px" }}
               />
             </span>
             <span className="text-sm font-medium text-slate-600">
@@ -286,73 +258,46 @@ const PurchasedElectricityListing = () => {
             </span>
           </div>
 
-          {/* MIDDLE SECTION – Full Pagination */}
-          <ul className="flex items-center space-x-3">
-
-            {/* First Page */}
+          <ul className="flex items-center space-x-3 rtl:space-x-reverse">
             <li>
               <button
                 onClick={() => handleGoToPage(1)}
                 disabled={pageIndex === 1}
+                className={`${pageIndex === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <Icon icon="heroicons:chevron-double-left-solid" />
               </button>
             </li>
-
-            {/* Prev */}
             <li>
               <button
                 onClick={handlePrevPage}
                 disabled={pageIndex === 1}
+                className={`${pageIndex === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Prev
               </button>
             </li>
 
-            {/* Truncated Pagination */}
-            {(() => {
-              const showPages = [];
-              const total = totalPages;
-              const current = pageIndex;
+            {[...Array(totalPages)].map((_, idx) => (
+              <li key={idx}>
+                <button
+                  className={`${
+                    idx + 1 === pageIndex
+                      ? "bg-slate-900 text-white font-medium"
+                      : "bg-slate-100 text-slate-900 font-normal"
+                  } text-sm rounded h-6 w-6 flex items-center justify-center`}
+                  onClick={() => handleGoToPage(idx + 1)}
+                >
+                  {idx + 1}
+                </button>
+              </li>
+            ))}
 
-              if (total > 0) showPages.push(1);
-              if (total > 1) showPages.push(2);
-              if (current > 4) showPages.push("left-ellipsis");
-              if (current > 2 && current < total - 1) showPages.push(current);
-              if (current < total - 3) showPages.push("right-ellipsis");
-              if (total > 2) showPages.push(total - 1);
-              if (total > 1) showPages.push(total);
-
-              const finalPages = [...new Set(
-                showPages.filter(
-                  (p) => (typeof p === "number" && p >= 1 && p <= total) || typeof p === "string"
-                )
-              )];
-
-              return finalPages.map((p, idx) => (
-                <li key={idx}>
-                  {p === "left-ellipsis" || p === "right-ellipsis" ? (
-                    <span className="text-slate-500 px-1">...</span>
-                  ) : (
-                    <button
-                      className={`${p === current
-                        ? "bg-slate-900 text-white font-medium"
-                        : "bg-slate-100 text-slate-900"
-                        } text-sm rounded h-6 w-6 flex items-center justify-center`}
-                      onClick={() => handleGoToPage(p)}
-                    >
-                      {p}
-                    </button>
-                  )}
-                </li>
-              ));
-            })()}
-
-            {/* Next */}
             <li>
               <button
                 onClick={handleNextPage}
                 disabled={pageIndex === totalPages}
+                className={`${pageIndex === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Next
               </button>
@@ -361,14 +306,13 @@ const PurchasedElectricityListing = () => {
               <button
                 onClick={() => handleGoToPage(totalPages)}
                 disabled={pageIndex === totalPages}
+                className={`${pageIndex === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <Icon icon="heroicons:chevron-double-right-solid" />
               </button>
             </li>
-
           </ul>
 
-          {/* RIGHT SECTION – Show page size */}
           <div className="flex items-center space-x-3">
             <span className="text-sm font-medium text-slate-600">Show</span>
             <select
@@ -384,10 +328,9 @@ const PurchasedElectricityListing = () => {
             </select>
           </div>
         </div>
-
       </Card>
 
-      {/* DELETE MODAL */}
+      {/*  Delete Confirmation Modal */}
       <Modal
         activeModal={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
@@ -401,7 +344,7 @@ const PurchasedElectricityListing = () => {
               text="Delete"
               className="btn-danger"
               onClick={async () => {
-                await handleDelete(selectedId);
+                await handleDelete(selectedBuildingId);
                 setDeleteModalOpen(false);
               }}
             />
@@ -409,11 +352,11 @@ const PurchasedElectricityListing = () => {
         }
       >
         <p className="text-gray-700 text-center">
-          Are you sure you want to delete this record? This action cannot be undone.
+          Are you sure you want to delete this Fugitive? This action cannot be undone.
         </p>
       </Modal>
     </>
   );
 };
 
-export default PurchasedElectricityListing;
+export default PurchasedGoodServicesListing;

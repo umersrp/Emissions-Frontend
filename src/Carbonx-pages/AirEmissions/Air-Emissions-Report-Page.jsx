@@ -951,10 +951,10 @@ const AirEmissionReportPage = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Sr.No</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Building</th>
                 {/* <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">TOTAL EMISSIONS (kgCO₂e)</th> */}
-                <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
                   Total Emissions ({tableFilter === "vocs" ? "kg" : "kgCO₂e"})
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">Total Emissions (tCO₂e)</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">Total Emissions (tCO₂e)</th>
               </tr>
             </thead>
             <tbody>

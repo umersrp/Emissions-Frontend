@@ -37,6 +37,8 @@ const MobileCombustionListing = () => {
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
+  const [goToValue, setGoToValue] = useState(pageIndex);
+
 
   //  Fetch records with server-side pagination
   // const fetchRecords = async (page = 1, limit = 10) => {
@@ -65,38 +67,38 @@ const MobileCombustionListing = () => {
   //   }
   // };
   const fetchRecords = async (page = 1, limit = 10, search = "") => {
-  setLoading(true);
-  try {
-    const res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All?page=${page}&limit=${limit}&search=${search}`,
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      }
-    );
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All?page=${page}&limit=${limit}&search=${search}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
 
-    const data = res.data?.data || [];
-    const meta = res.data?.meta || {};
+      const data = res.data?.data || [];
+      const meta = res.data?.meta || {};
 
-    setRecords(data);
-    setTotalRecords(meta.totalRecords || 0);
-    setTotalPages(meta.totalPages || 1);
-    setPageIndex(meta.currentPage || 1);
-    setPageSize(meta.limit || 10);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to fetch records");
-  } finally {
-    setLoading(false);
-  }
-};
+      setRecords(data);
+      setTotalRecords(meta.totalRecords || 0);
+      setTotalPages(meta.totalPages || 1);
+      setPageIndex(meta.currentPage || 1);
+      setPageSize(meta.limit || 10);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch records");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   // useEffect(() => {
   //   fetchRecords(pageIndex, pageSize);
   // }, [pageIndex, pageSize]);
   useEffect(() => {
-  fetchRecords(pageIndex, pageSize, globalFilterValue);
-}, [pageIndex, pageSize, globalFilterValue]);
+    fetchRecords(pageIndex, pageSize, globalFilterValue);
+  }, [pageIndex, pageSize, globalFilterValue]);
 
 
   //  Delete Record
@@ -117,7 +119,7 @@ const MobileCombustionListing = () => {
   const COLUMNS = useMemo(
     () => [
       {
-         Header: "Sr.No",
+        Header: "Sr.No",
         id: "serialNo",
         Cell: ({ row }) => (
           <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
@@ -272,7 +274,7 @@ const MobileCombustionListing = () => {
         </div>
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
+            <div className="overflow-hidden">
               {loading ? (
                 <div className="flex justify-center items-center h-[300px]">
                   <img src={Logo} alt="Loading..." className="w-52 h-24 opacity-80" />
@@ -347,13 +349,40 @@ const MobileCombustionListing = () => {
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <span className="flex space-x-2 items-center">
               <span className="text-sm font-medium text-slate-600">Go</span>
-              <input
+              {/* <input
                 type="number"
                 className="form-control py-2"
                 defaultValue={pageIndex}
                 onChange={(e) => handleGoToPage(Number(e.target.value))}
                 style={{ width: "50px" }}
+              /> */}
+              <input
+                type="number"
+                className="form-control py-2"
+                value={goToValue}
+                onChange={(e) => setGoToValue(e.target.value)}
+                onBlur={() => {
+                  const value = Number(goToValue);
+                  if (value >= 1 && value <= totalPages && value !== pageIndex) {
+                    handleGoToPage(value);
+                  } else {
+                    // reset input if invalid
+                    setGoToValue(pageIndex);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const value = Number(goToValue);
+                    if (value >= 1 && value <= totalPages && value !== pageIndex) {
+                      handleGoToPage(value);
+                    } else {
+                      setGoToValue(pageIndex);
+                    }
+                  }
+                }}
+                style={{ width: "70px" }}
               />
+
             </span>
             <span className="text-sm font-medium text-slate-600">
               Page {pageIndex} of {totalPages}
@@ -380,7 +409,7 @@ const MobileCombustionListing = () => {
               </button>
             </li>
 
-            {[...Array(totalPages)].map((_, idx) => (
+            {/* {[...Array(totalPages)].map((_, idx) => (
               <li key={idx}>
                 <button
                   className={`${idx + 1 === pageIndex
@@ -392,7 +421,52 @@ const MobileCombustionListing = () => {
                   {idx + 1}
                 </button>
               </li>
-            ))}
+            ))} */}
+            {(() => {
+              const pages = [];
+              const showPages = [];
+
+              const total = totalPages;
+              const current = pageIndex;
+
+              // Always show first 2 pages
+              if (total > 0) showPages.push(1);
+              if (total > 1) showPages.push(2);
+
+              // Determine when to show left ellipsis (... before current)
+              if (current > 4) showPages.push("left-ellipsis");
+
+              // Always show current page (if not near start or end)
+              if (current > 2 && current < total - 1) showPages.push(current);
+
+              // Determine when to show right ellipsis (... after current)
+              if (current < total - 3) showPages.push("right-ellipsis");
+
+              // Always show last 2 pages
+              if (total > 2) showPages.push(total - 1);
+              if (total > 1) showPages.push(total);
+
+              // Remove duplicates & invalid numbers
+              const finalPages = [...new Set(showPages.filter((p) => p >= 1 && p <= total || typeof p === "string"))];
+
+              return finalPages.map((p, idx) => (
+                <li key={idx}>
+                  {p === "left-ellipsis" || p === "right-ellipsis" ? (
+                    <span className="text-slate-500 px-1">...</span>
+                  ) : (
+                    <button
+                      className={`${p === current
+                        ? "bg-slate-900 text-white font-medium"
+                        : "bg-slate-100 text-slate-900 font-normal"
+                        } text-sm rounded h-6 w-6 flex items-center justify-center`}
+                      onClick={() => handleGoToPage(p)}
+                    >
+                      {p}
+                    </button>
+                  )}
+                </li>
+              ));
+            })()}
 
             <li>
               <button

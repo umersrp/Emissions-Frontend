@@ -2,21 +2,24 @@
 
 
 export const gridStationOptions = [
-  { value: "Assembly", label: "Assembly" },
-  { value: "Asset Integrity / Technical Integrity", label: "Asset Integrity / Technical Integrity" },
-  { value: "Biostatistics / Statistical Programming", label: "Biostatistics / Statistical Programming" },
-  { value: "Blow Molding / Extrusion Trials Unit", label: "Blow Molding / Extrusion Trials Unit" },
-  { value: "Boiler Operations", label: "Boiler Operations" },
-  { value: "Carbon Accounting", label: "Carbon Accounting" },
-  { value: "Catalyst & Additives Handling (Petrochem Focus)", label: "Catalyst & Additives Handling (Petrochem Focus)" },
-  { value: "Catalyst Management", label: "Catalyst Management" },
-  { value: "Change Management", label: "Change Management" },
-  { value: "Chemical Operations (Olefins, Aromatics, Polymers)", label: "Chemical Operations (Olefins, Aromatics, Polymers)" },
-]
+  { value: "Faisalabad Electric Supply Company (FESCO)", label: "Faisalabad Electric Supply Company (FESCO)" },
+  { value: "Gujranwala Electric Power Company (GEPCO)", label: "Gujranwala Electric Power Company (GEPCO)" },
+  { value: "Hazara Electric Supply Company (HAZECO)", label: "Hazara Electric Supply Company (HAZECO)" },
+  { value: "Hyderabad Electric Supply Company (HESCO)", label: "Hyderabad Electric Supply Company (HESCO)" },
+  { value: "Islamabad Electric Supply Company (IESCO)", label: "Islamabad Electric Supply Company (IESCO)" },
+  { value: "Lahore Electric Supply Company (LESCO)", label: "Lahore Electric Supply Company (LESCO)" },
+  { value: "Multan Electric Power Company (MEPCO)", label: "Multan Electric Power Company (MEPCO)" },
+  { value: "Peshawar Electric Supply Company (PESCO)", label: "Peshawar Electric Supply Company (PESCO)" },
+  { value: "Quetta Electric Supply Company (QESCO)", label: "Quetta Electric Supply Company (QESCO)" },
+  { value: "Sukkur Electric Supply Company (SEPCO)", label: "Sukkur Electric Supply Company (SEPCO)" },
+  { value: "Tribal Electric Supply Company (TESCO)", label: "Tribal Electric Supply Company (TESCO)" },
+  { value: "K-Electric (KE)", label: "K-Electric (KE)" },
+  { value: "Others", label: "Others" }
+];
  
 export const unitOptions = [
-     { value: "kwh", label: "kwh" },
-      { value: "mgw", label: "mgw" }
+     { value: "kwh", label: "kWh" },
+      { value: "MWh", label: "MWh" }
 ]
 export const processQualityControlOptions = [
   { value: "Highly Uncertain", label: "Highly Uncertain" },

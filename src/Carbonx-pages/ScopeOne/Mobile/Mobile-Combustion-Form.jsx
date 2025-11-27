@@ -15,7 +15,7 @@ import {
   distanceUnitOptions,
   weightLoadedOptions,
 } from "@/constant/scope1/options";
-import { calculateMobileCombustion } from "@/utils/calculate-mobile-combuction";
+import { calculateMobileCombustion } from "@/utils/scope1/calculate-mobile-combuction";
 
 
 const MobileCombustionFormPage = () => {

@@ -14,9 +14,11 @@ import Modal from "@/components/ui/Modal";
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
   const resolvedRef = ref || defaultRef;
+
   React.useEffect(() => {
     resolvedRef.current.indeterminate = indeterminate;
   }, [resolvedRef, indeterminate]);
+
   return <input type="checkbox" ref={resolvedRef} {...rest} className="table-checkbox" />;
 });
 
@@ -33,7 +35,7 @@ const FugitiveCombustionListing = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
-
+  const [goToValue, setGoToValue] = useState(pageIndex);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
@@ -62,33 +64,33 @@ const FugitiveCombustionListing = () => {
   //   }
   // };
   // ✅ Fetch Fugitive Records with Pagination + Search
-const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
-  setLoading(true);
-  try {
-    const res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/Fugitive/get-All?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+  const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/Fugitive/get-All?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-    const data = Array.isArray(res.data?.data) ? res.data.data : [];
-    const meta = res.data?.meta || {};
+      const data = Array.isArray(res.data?.data) ? res.data.data : [];
+      const meta = res.data?.meta || {};
 
-    setRecords(data);
-    setPageIndex(meta.currentPage || 1);
-    setTotalPages(meta.totalPages || 1);
-    setTotalRecords(meta.totalRecords || 0);
-    setPageSize(meta.limit || 10);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to fetch records");
-  } finally {
-    setLoading(false);
-  }
-};
+      setRecords(data);
+      setPageIndex(meta.currentPage || 1);
+      setTotalPages(meta.totalPages || 1);
+      setTotalRecords(meta.totalRecords || 0);
+      setPageSize(meta.limit || 10);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch records");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   useEffect(() => {
@@ -112,7 +114,7 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
   //  Table Columns
   const COLUMNS = useMemo(
     () => [
-      {  Header: "Sr.No", id: "serialNo", Cell: ({ row }) => <span>{row.index + 1 + (pageIndex - 1) * pageSize}</span> },
+      { Header: "Sr.No", id: "serialNo", Cell: ({ row }) => <span>{row.index + 1 + (pageIndex - 1) * pageSize}</span> },
       { Header: "Building", accessor: "buildingId.buildingName" },
       { Header: "Stakeholder", accessor: "stakeholder" },
       { Header: "Equipment Type", accessor: "equipmentType" },
@@ -120,8 +122,8 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
       { Header: "Leakage Value / Recharge Value", accessor: "leakageValue" },
       { Header: "Consumption Unit", accessor: "consumptionUnit" },
       { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",},
-      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",},
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
       { Header: "Remarks", accessor: "remarks" },
       { Header: "Created By", accessor: "createdBy.name", Cell: ({ cell }) => cell.value || "-" },
       { Header: "Updated By", accessor: "updatedBy.name", Cell: ({ cell }) => cell.value || "-" },
@@ -170,7 +172,27 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
   );
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
-  const tableInstance = useTable({ columns, data: records }, useSortBy, useRowSelect);
+
+  const tableInstance = useTable(
+    {
+      columns,
+      data: records,
+    },
+    useSortBy,
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [
+        {
+          id: "selection",
+          Header: ({ getToggleAllRowsSelectedProps }) => (
+            <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+          ),
+          Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
+        },
+        ...columns,
+      ]);
+    }
+  );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
 
@@ -268,12 +290,37 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <span className="flex space-x-2 items-center">
               <span className="text-sm font-medium text-slate-600">Go</span>
-              <input
+              {/* <input
                 type="number"
                 className="form-control py-2"
                 value={pageIndex}
                 onChange={(e) => handleGoToPage(Number(e.target.value))}
                 style={{ width: "50px" }}
+              /> */}
+              <input
+                type="number"
+                className="form-control py-2"
+                value={goToValue}
+                onChange={(e) => setGoToValue(e.target.value)}
+                onBlur={() => {
+                  const value = Number(goToValue);
+                  if (value >= 1 && value <= totalPages && value !== pageIndex) {
+                    handleGoToPage(value);
+                  } else {
+                    setGoToValue(pageIndex);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const value = Number(goToValue);
+                    if (value >= 1 && value <= totalPages && value !== pageIndex) {
+                      handleGoToPage(value);
+                    } else {
+                      setGoToValue(pageIndex);
+                    }
+                  }
+                }}
+                style={{ width: "70px" }}
               />
             </span>
             <span className="text-sm font-medium text-slate-600">
@@ -301,7 +348,7 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
               </button>
             </li>
 
-            {[...Array(totalPages)].map((_, idx) => (
+            {/* {[...Array(totalPages)].map((_, idx) => (
               <li key={idx}>
                 <button
                   className={`${
@@ -314,7 +361,52 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
                   {idx + 1}
                 </button>
               </li>
-            ))}
+            ))} */}
+            {/* --- SMART TRUNCATED PAGINATION --- */}
+            {(() => {
+              const total = totalPages;
+              const current = pageIndex;
+
+              const showPages = [];
+
+              // Always show first 2 pages
+              if (total > 0) showPages.push(1);
+              if (total > 1) showPages.push(2);
+
+              // Left ellipsis
+              if (current > 4) showPages.push("left-ellipsis");
+
+              // Current page (only if not near edges)
+              if (current > 2 && current < total - 1) showPages.push(current);
+
+              // Right ellipsis
+              if (current < total - 3) showPages.push("right-ellipsis");
+
+              // Last 2 pages
+              if (total > 2) showPages.push(total - 1);
+              if (total > 1) showPages.push(total);
+
+              // Clean duplicates
+              const finalPages = [...new Set(showPages.filter((p) => p >= 1 && p <= total || typeof p === "string"))];
+
+              return finalPages.map((p, idx) => (
+                <li key={idx}>
+                  {p === "left-ellipsis" || p === "right-ellipsis" ? (
+                    <span className="text-slate-500 px-1">...</span>
+                  ) : (
+                    <button
+                      className={`${p === current
+                        ? "bg-slate-900 text-white font-medium"
+                        : "bg-slate-100 text-slate-900 font-normal"
+                        } text-sm rounded h-6 w-6 flex items-center justify-center`}
+                      onClick={() => handleGoToPage(p)}
+                    >
+                      {p}
+                    </button>
+                  )}
+                </li>
+              ));
+            })()}
 
             <li>
               <button

@@ -16,22 +16,22 @@ const Scope2 = () => {
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
     },
     { 
-      title: "Purchased Electricity", 
-      path: "/Mobile-Combustion",
+      title: "Purchased Steam", 
+      path: "/",
       icon: "heroicons:truck", 
       bg: "bg-red-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
     },
     { 
       title: "Purchased Heating", 
-      path: "/Fugitive-Emissions",
+      path: "/",
       icon: "heroicons:cloud", 
       bg: "bg-purple-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#d8bbf7] to-[#a66ee0]"
     },
     { 
       title: "Purchased Cooling", 
-      path: "/Purchased-Cooling",
+      path: "/",
       icon: "heroicons:cog-6-tooth", 
       bg: "bg-green-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebc0] to-[#6fcf97]"
@@ -43,7 +43,7 @@ const Scope2 = () => {
       {/* Header Section */}
       <Card title={"Scope 1: Direct GHG Emissions"}>
         <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
-         Scope 2 accounts for GHG emissions from the generation of purchased electricity, steam, heating and colling or consumed by the company. Purchased energy is defined as electricity, steam, heating and cooling that is purchased or otherwise brought into the organizational boundary of the company. Scope 2 emissions physically occur at the facility.        </p>
+         Scope 2 accounts for GHG emissions from the generation of purchased electricity, steam, heating and cooling or consumed by the company. Purchased energy is defined as electricity, steam, heating and cooling that is purchased or otherwise brought into the organizational boundary of the company. Scope 2 emissions physically occur at the facility.        </p>
         {/* <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
           <span className="font-semibold ">Note:</span> Direct CO₂ emissions from the combustion of biomass shall not be included in scope 1 but reported separately.
         </p> */}
