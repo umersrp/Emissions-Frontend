@@ -77,7 +77,11 @@ const StationaryCombustionListing = () => {
     }
   };
 
+  const [goToValue, setGoToValue] = useState(pagination.currentPage);
 
+useEffect(() => {
+  setGoToValue(pagination.currentPage); // keep input in sync with current page
+}, [pagination.currentPage]);
 
   // initial load
   useEffect(() => {
@@ -109,7 +113,7 @@ const StationaryCombustionListing = () => {
   const COLUMNS = useMemo(
     () => [
       {
-         Header: "Sr.No",
+        Header: "Sr.No",
         id: "serialNo",
         Cell: ({ row }) => (
           <span>{(pagination.currentPage - 1) * pagination.limit + row.index + 1}</span>
@@ -235,8 +239,8 @@ const StationaryCombustionListing = () => {
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
             {/*  Set fixed height for vertical scroll */}
-            {/* <div className="overflow-y-auto max-h-[500px] overflow-x-auto"> */}
-            <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
+            {/* <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto"> */}
+            <div className="overflow-hidden">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
                   <img src={Logo} alt="Loading..." className="w-52 h-24" />
@@ -268,7 +272,6 @@ const StationaryCombustionListing = () => {
                       </tr>
                     ))}
                   </thead>
-
                   <tbody {...getTableBodyProps()}>
                     {rows.length === 0 ? (
                       <tr>
@@ -306,120 +309,155 @@ const StationaryCombustionListing = () => {
 
 
         {/*   Pagination */}
-        <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
-          {/* Left side: Go to page + Page info */}
-          <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <span className="flex space-x-2 items-center">
-              <span className="text-sm font-medium text-slate-600">Go</span>
-              <input
-                type="number"
-                className="form-control py-2"
-                min="1"
-                max={pagination.totalPages}
-                defaultValue={pagination.currentPage}
-                onChange={(e) => {
-                  const page = Number(e.target.value);
-                  if (page >= 1 && page <= pagination.totalPages) {
-                    setPagination((prev) => ({ ...prev, currentPage: page }));
-                  }
-                }}
-                style={{ width: "50px" }}
-              />
-            </span>
-            <span className="text-sm font-medium text-slate-600">
-              Page {pagination.currentPage} of {pagination.totalPages}
-            </span>
-          </div>
+      <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
+  {/* Left side: Go to page + Page info */}
+  <div className="flex items-center space-x-3 rtl:space-x-reverse">
+    <span className="flex space-x-2 items-center">
+      <span className="text-sm font-medium text-slate-600">Go</span>
+      <input
+        type="number"
+        className="form-control py-2"
+        min="1"
+        max={pagination.totalPages}
+        value={goToValue}
+        onChange={(e) => setGoToValue(e.target.value)}
+        onBlur={() => {
+          const page = Number(goToValue);
+          if (page >= 1 && page <= pagination.totalPages && page !== pagination.currentPage) {
+            setPagination((prev) => ({ ...prev, currentPage: page }));
+          } else {
+            setGoToValue(pagination.currentPage);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            const page = Number(goToValue);
+            if (page >= 1 && page <= pagination.totalPages && page !== pagination.currentPage) {
+              setPagination((prev) => ({ ...prev, currentPage: page }));
+            } else {
+              setGoToValue(pagination.currentPage);
+            }
+          }
+        }}
+        style={{ width: "50px" }}
+      />
+    </span>
+    <span className="text-sm font-medium text-slate-600">
+      Page {pagination.currentPage} of {pagination.totalPages}
+    </span>
+  </div>
 
-          {/* Middle: Pagination buttons */}
-          <ul className="flex items-center space-x-3 rtl:space-x-reverse">
-            {/* First Page */}
-            <li>
-              <button
-                onClick={() => setPagination((p) => ({ ...p, currentPage: 1 }))}
-                disabled={pagination.currentPage === 1}
-                className={`${pagination.currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                <Icon icon="heroicons:chevron-double-left-solid" />
-              </button>
-            </li>
+  {/* Middle: Pagination buttons */}
+  <ul className="flex items-center space-x-3 rtl:space-x-reverse">
+    {/* First Page */}
+    <li>
+      <button
+        onClick={() => setPagination((p) => ({ ...p, currentPage: 1 }))}
+        disabled={pagination.currentPage === 1}
+        className={`${pagination.currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+      >
+        <Icon icon="heroicons:chevron-double-left-solid" />
+      </button>
+    </li>
 
-            {/* Prev */}
-            <li>
-              <button
-                onClick={() =>
-                  pagination.hasPrevPage &&
-                  setPagination((p) => ({ ...p, currentPage: p.prevPage }))
-                }
-                disabled={!pagination.hasPrevPage}
-                className={`${!pagination.hasPrevPage ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                Prev
-              </button>
-            </li>
+    {/* Prev */}
+    <li>
+      <button
+        onClick={() =>
+          pagination.hasPrevPage &&
+          setPagination((p) => ({ ...p, currentPage: p.prevPage }))
+        }
+        disabled={!pagination.hasPrevPage}
+        className={`${!pagination.hasPrevPage ? "opacity-50 cursor-not-allowed" : ""}`}
+      >
+        Prev
+      </button>
+    </li>
 
-            {/* Page numbers */}
-            {Array.from({ length: pagination.totalPages }, (_, idx) => (
-              <li key={idx}>
-                <button
-                  className={`${idx + 1 === pagination.currentPage
-                    ? "bg-slate-900 text-white font-medium"
-                    : "bg-slate-100 text-slate-900 font-normal"
-                    } text-sm rounded h-6 w-6 flex items-center justify-center`}
-                  onClick={() => setPagination((p) => ({ ...p, currentPage: idx + 1 }))}
-                >
-                  {idx + 1}
-                </button>
-              </li>
-            ))}
+    {/* Smart pagination numbers */}
+    {(() => {
+      const total = pagination.totalPages;
+      const current = pagination.currentPage;
+      const showPages = [];
 
-            {/* Next */}
-            <li>
-              <button
-                onClick={() =>
-                  pagination.hasNextPage &&
-                  setPagination((p) => ({ ...p, currentPage: p.nextPage }))
-                }
-                disabled={!pagination.hasNextPage}
-                className={`${!pagination.hasNextPage ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                Next
-              </button>
-            </li>
+      if (total > 0) showPages.push(1);
+      if (total > 1) showPages.push(2);
+      if (current > 4) showPages.push("left-ellipsis");
+      if (current > 2 && current < total - 1) showPages.push(current);
+      if (current < total - 3) showPages.push("right-ellipsis");
+      if (total > 2) showPages.push(total - 1);
+      if (total > 1) showPages.push(total);
 
-            {/* Last Page */}
-            <li>
-              <button
-                onClick={() => setPagination((p) => ({ ...p, currentPage: pagination.totalPages }))}
-                disabled={pagination.currentPage === pagination.totalPages}
-                className={`${pagination.currentPage === pagination.totalPages
-                  ? "opacity-50 cursor-not-allowed"
-                  : ""
-                  }`}
-              >
-                <Icon icon="heroicons:chevron-double-right-solid" />
-              </button>
-            </li>
-          </ul>
+      const finalPages = [...new Set(showPages.filter((p) => p >= 1 && p <= total || typeof p === "string"))];
 
-          {/* Right side: Page size selector */}
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-slate-600">Show</span>
-            <select
-              value={pagination.limit}
-              onChange={(e) =>
-                setPagination((p) => ({ ...p, limit: Number(e.target.value), currentPage: 1 }))
+      return finalPages.map((p, idx) => (
+        <li key={idx}>
+          {typeof p === "string" ? (
+            <span className="text-slate-500 px-1">...</span>
+          ) : (
+            <button
+              className={`${p === current
+                ? "bg-slate-900 text-white font-medium"
+                : "bg-slate-100 text-slate-900 font-normal"
+                } text-sm rounded h-6 w-6 flex items-center justify-center`}
+              onClick={() =>
+                setPagination((prev) => ({ ...prev, currentPage: p }))
               }
-              className="form-select py-2"
             >
-              {[5, 10, 20, 50].map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+              {p}
+            </button>
+          )}
+        </li>
+      ));
+    })()}
+
+    {/* Next */}
+    <li>
+      <button
+        onClick={() =>
+          pagination.hasNextPage &&
+          setPagination((p) => ({ ...p, currentPage: p.nextPage }))
+        }
+        disabled={!pagination.hasNextPage}
+        className={`${!pagination.hasNextPage ? "opacity-50 cursor-not-allowed" : ""}`}
+      >
+        Next
+      </button>
+    </li>
+
+    {/* Last Page */}
+    <li>
+      <button
+        onClick={() => setPagination((p) => ({ ...p, currentPage: pagination.totalPages }))}
+        disabled={pagination.currentPage === pagination.totalPages}
+        className={`${pagination.currentPage === pagination.totalPages
+          ? "opacity-50 cursor-not-allowed"
+          : ""
+          }`}
+      >
+        <Icon icon="heroicons:chevron-double-right-solid" />
+      </button>
+    </li>
+  </ul>
+
+  {/* Right side: Page size selector */}
+  <div className="flex items-center space-x-3">
+    <span className="text-sm font-medium text-slate-600">Show</span>
+    <select
+      value={pagination.limit}
+      onChange={(e) =>
+        setPagination((p) => ({ ...p, limit: Number(e.target.value), currentPage: 1 }))
+      }
+      className="form-select py-2"
+    >
+      {[5, 10, 20, 50].map((size) => (
+        <option key={size} value={size}>
+          {size}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
 
       </Card>
 

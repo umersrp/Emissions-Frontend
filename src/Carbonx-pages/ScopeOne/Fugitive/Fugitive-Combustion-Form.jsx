@@ -12,7 +12,7 @@ import {
   qualityControlOptions,
   consumptionUnitOptions,
 } from "@/constant/scope1/options";
-import { calculateFugitiveEmission } from "@/utils/calculate-fugitive-emission";
+import { calculateFugitiveEmission } from "@/utils/scope1/calculate-fugitive-emission";
 
 const FugitiveCombustionFormPage = () => {
   const navigate = useNavigate();

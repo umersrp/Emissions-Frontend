@@ -11,7 +11,7 @@ import {
   activityMetadata,
   processQualityControlOptions,
 } from "@/constant/scope1/options";
-import { calculateProcessEmission } from "@/utils/calculate-process-emission"
+import { calculateProcessEmission } from "@/utils/scope1/calculate-process-emission"
 
 const ProcessEmissionsFormPage = () => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ const ProcessEmissionsFormPage = () => {
     qualityControl: null,
     remarks: "",
     calculatedEmissionKgCo2e: "",      // new
-    calculatedEmissionTCo2e: "", 
+    calculatedEmissionTCo2e: "",
   });
 
   const [amountLabel, setAmountLabel] = useState("Amount of Emissions"); // dynamic label
@@ -132,50 +132,48 @@ const ProcessEmissionsFormPage = () => {
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  // Handle input
-  // const handleInputChange = (e) => {
-  //   if (isView) return;
-  //   const { name, value } = e.target;
-  //   setFormData((prev) => ({ ...prev, [name]: value }));
-  //   setErrors((prev) => ({ ...prev, [name]: "" }));
-  // };
-const handleInputChange = (e) => {
-  if (isView) return;
-  const { name, value } = e.target;
 
-  // Update local state
-  setFormData((prev) => {
-    const updated = { ...prev, [name]: value };
+  const handleInputChange = (e) => {
+    if (isView) return;
+    const { name, value } = e.target;
 
-    // Trigger calculation when amountOfEmissions changes
-    if (name === "amountOfEmissions" && updated.activityType?.value) {
-      const result = calculateProcessEmission({
-        activityType: updated.activityType.value,
-        amountOfEmissions: value,
-      });
+    // Update local state
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+      const formatEmission = (num) => {
+        const rounded = Number(num.toFixed(5));
+        if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
+          return rounded.toExponential(5);
+        }
+        return rounded;
+      };
 
-      if (result) {
-        const kg = result.calculatedEmissionKgCo2e;
-        const t = kg / 1000;
+      // Trigger calculation when amountOfEmissions changes
+      if (name === "amountOfEmissions" && updated.activityType?.value) {
+        const result = calculateProcessEmission({
+          activityType: updated.activityType.value,
+          amountOfEmissions: value,
+        });
 
-        // Update calculated values
-        updated.calculatedEmissionKgCo2e = kg;
-        updated.calculatedEmissionTCo2e = t;
+        if (result) {
+          const kg = result.calculatedEmissionKgCo2e;
+          const t = kg / 1000;
 
-        // toast.info(
-        //   `Calculated: ${kg.toFixed(2)} kgCO₂e / ${t.toFixed(5)} tCO₂e`
-        // );
+          updated.calculatedEmissionKgCo2e = formatEmission(kg);
+          updated.calculatedEmissionTCo2e = formatEmission(t);
+          
+        }
+            toast.info(
+          `Emissions Calculated: ${updated.calculatedEmissionKgCo2e} kg CO2e / ${updated.calculatedEmissionTCo2e} t CO2e`
+        );
       }
-    }
 
-    return updated;
-  });
+      return updated;
+    });
 
-  // Clear validation error
-  setErrors((prev) => ({ ...prev, [name]: "" }));
-};
-
-
+    // Clear validation error
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
 
   // Validation
   const validate = () => {
@@ -212,7 +210,7 @@ const handleInputChange = (e) => {
       qualityControl: formData.qualityControl?.value,
       remarks: formData.remarks,
       calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e,  // added
-      calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,   
+      calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
     };
 
     try {
@@ -301,14 +299,14 @@ const handleInputChange = (e) => {
             </div>
 
             {/* Gas Emitted */}
-            <div>
+            <div className="overflow-x-auto">
               <label className="field-label">Gas Emitted</label>
               <input
                 type="text"
                 name="gasEmitted"
                 value={formData.gasEmitted}
                 readOnly
-                className="input-field bg-gray-100"
+                className="input-field bg-gray-100 whitespace-nowrap overflow-visible block leading-[1.4] "
               />
             </div>
 
@@ -320,7 +318,7 @@ const handleInputChange = (e) => {
                 name="amountOfEmissions"
                 value={formData.amountOfEmissions}
                 onChange={handleInputChange}
-                placeholder={amountLabel}
+                placeholder="Enter Value"
                 className="input-field"
                 disabled={isView}
               />

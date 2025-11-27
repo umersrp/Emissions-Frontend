@@ -221,6 +221,10 @@ import PurchasedCoolingFormPage from "./Carbonx-pages/ScopeTwo/PurchasedElectric
 import PurchasedCoolingListing from "./Carbonx-pages/ScopeTwo/PurchasedElectricity/Purchased-Electricity-Listing";
 import PurchasedElectricityFormPage from "./Carbonx-pages/ScopeTwo/PurchasedElectricity/Purchased-Electricity-Form";
 import PurchasedElectricityListing from "./Carbonx-pages/ScopeTwo/PurchasedElectricity/Purchased-Electricity-Listing";
+import Scope3 from "./Carbonx-pages/ScopeThree/Scope3/Scope3";
+import PurchasedGoodServicesFormPage from "./Carbonx-pages/ScopeThree/PurchasedElectricity/Purchased-Good-Services-Form";
+import PurchasedGoodServicesListing from "./Carbonx-pages/ScopeThree/PurchasedElectricity/Purchased-Good-Services-Listing";
+import ScopeTwoReport from "./Carbonx-pages/ScopeTwo/ScopeTwoReport/Scope-Two-Report";
 
 
 
@@ -445,10 +449,17 @@ function App() {
 
 
           <Route path="Scope-2" element={<Scope2 />} />
+          <Route path="Scope-Two-Report" element={<ScopeTwoReport/>} />
 
           <Route path="Purchased-Electricity-Form/add" element={<PurchasedElectricityFormPage />} />
           <Route path="Purchased-Electricity-Form/:id" element={<PurchasedElectricityFormPage />} />
           <Route path="Purchased-Electricity" element={<PurchasedElectricityListing/>} />
+
+          <Route path="Scope-3" element={<Scope3/>} />
+
+          <Route path="Purchased-Good-Services-Form/add" element={<PurchasedGoodServicesFormPage />} />
+          <Route path="Purchased-Good-Services-Form/:id" element={<PurchasedGoodServicesFormPage />} />
+          <Route path="Purchased-Good-Services" element={<PurchasedGoodServicesListing/>} />
 
 
           <Route path="Coach-edit" element={<CoachEditPage />} />
