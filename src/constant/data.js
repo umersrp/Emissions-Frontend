@@ -271,7 +271,7 @@ export const menuItems = [
   // },
    {
     title: "Out of Scope / Other Air Emissions",
-    isHide: true,
+    isHide: true, 
     icon: "heroicons:no-symbol",
     link: "Air-Emission-Report-Page"
   },
