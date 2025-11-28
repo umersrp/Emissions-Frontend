@@ -191,8 +191,8 @@ const PurchasedElectricityFormPage = () => {
          calculatedEmissionMarketTCo2e: formattedMarketT,
       }));
 
-      toast.info(`Calculated Emissions (location_based): ${formattedKg} kg CO₂e (${formattedT} t CO₂e)
-                  Calculated Emissions (Market_based): ${formattedMarketKg} kg CO₂e (${formattedMarketT} t CO₂e)`);
+      // toast.info(`Calculated Emissions (location_based): ${formattedKg} kg CO₂e (${formattedT} t CO₂e)
+      //             Calculated Emissions (Market_based): ${formattedMarketKg} kg CO₂e (${formattedMarketT} t CO₂e)`);
     }
   };
   const handleInputChange = (e) => {
