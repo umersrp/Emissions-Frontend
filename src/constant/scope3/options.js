@@ -266,14 +266,14 @@ export const purchasedGoodsServicesTypes = {
     { value: "Creative, arts and entertainment services", label: "Creative, arts and entertainment services" },
     { value: "Public administration and defence services; compulsory social security services", label: "Public administration and defence services; compulsory social security services" },
     { value: "Libraries, archives, museums and other cultural services", label: "Libraries, archives, museums and other cultural services" },
-    { value: "Motion picture, video and TV programme production services, sound recording & music publishing", label:"Motion picture, video and TV programme production services, sound recording & music publishing"},
-    { value:"Education services", label:"Education services"}
+    { value: "Motion picture, video and TV programme production services, sound recording & music publishing", label: "Motion picture, video and TV programme production services, sound recording & music publishing" },
+    { value: "Education services", label: "Education services" }
   ],
   "Finance": [
     { value: "Insurance, reinsurance and pension funding services, except compulsory social security", label: "Insurance, reinsurance and pension funding services, except compulsory social security" },
     { value: "Financial services, except insurance and pension funding", label: "Financial services, except insurance and pension funding" },
     { value: "Services auxiliary to financial services and insurance services", label: "Services auxiliary to financial services and insurance services" }
-    
+
   ],
   "Primary Industries": [
     { value: "Products of agriculture, hunting and related services", label: "Products of agriculture, hunting and related services" },
@@ -315,3 +315,202 @@ export const purchasedGoodsServicesTypes = {
 export const currencyUnitOptions = [
   { value: "USD", label: "Dollar (USD)" }
 ];
+
+// Fuel & Energy data
+
+export const fuelEnergyTypes = [
+  { value: "Gaseous Fuel", label: "Gaseous Fuel" },
+  { value: "Bio Gaseous Fuel", label: "Bio Gaseous Fuel" },
+  { value: "Liquid Fuel", label: "Liquid Fuel" },
+  { value: "Bio Liquid Fuel", label: "Bio Liquid Fuel" },
+  { value: "Solid Fuel", label: "Solid Fuel" },
+  { value: "Biomass Fuel", label: "Biomass Fuel" }
+];
+
+export const fuelEnergyTypesChildTypes = {
+  "Gaseous Fuel": [
+    { value: "Butane", label: "Butane" },
+    { value: "CNG", label: "CNG" },
+    { value: "LPG", label: "LPG" },
+    { value: "Natural gas", label: "Natural gas" },
+    { value: "Natural gas (100% mineral blend)", label: "Natural gas (100% mineral blend)" },
+    { value: "LNG", label: "LNG" },
+    { value: "Other petroleum gas", label: "Other petroleum gas" },
+    { value: "Propane", label: "Propane" }
+  ],
+
+  "Bio Gaseous Fuel": [
+    { value: "Biogas", label: "Biogas" },
+    { value: "Landfill gas", label: "Landfill gas" }
+  ],
+
+  "Liquid Fuel": [
+    { value: "Aviation spirit", label: "Aviation spirit" },
+    { value: "Aviation turbine fuel", label: "Aviation turbine fuel" },
+    { value: "Burning oil", label: "Burning oil" },
+    { value: "Diesel (average biofuel blend)", label: "Diesel (average biofuel blend)" },
+    { value: "Diesel (100% mineral diesel)", label: "Diesel (100% mineral diesel)" },
+    { value: "Fuel oil", label: "Fuel oil" },
+    { value: "Gas oil", label: "Gas oil" },
+    { value: "Lubricants", label: "Lubricants" },
+    { value: "Naphtha", label: "Naphtha" },
+    { value: "Petrol (average biofuel blend)", label: "Petrol (average biofuel blend)" },
+    { value: "Petrol (100% mineral petrol)", label: "Petrol (100% mineral petrol)" },
+    { value: "Processed fuel oils - residual oil", label: "Processed fuel oils - residual oil" },
+    { value: "Processed fuel oils - distillate oil", label: "Processed fuel oils - distillate oil" },
+    { value: "Refinery miscellaneous", label: "Refinery miscellaneous" },
+    { value: "Waste oils", label: "Waste oils" },
+    { value: "Marine gas oil", label: "Marine gas oil" },
+    { value: "Marine fuel oil", label: "Marine fuel oil" }
+  ],
+
+  "Bio Liquid Fuel": [
+    { value: "Bioethanol", label: "Bioethanol" },
+    { value: "Biodiesel ME", label: "Biodiesel ME" },
+    { value: "Biodiesel ME (from used cooking oil)", label: "Biodiesel ME (from used cooking oil)" },
+    { value: "Biodiesel ME (from tallow)", label: "Biodiesel ME (from tallow)" },
+    { value: "Biodiesel HVO", label: "Biodiesel HVO" },
+    { value: "Biopropane", label: "Biopropane" },
+    { value: "Development diesel", label: "Development diesel" },
+    { value: "Development petrol", label: "Development petrol" },
+    { value: "Off road biodiesel", label: "Off road biodiesel" },
+    { value: "Biomethane (liquified)", label: "Biomethane (liquified)" },
+    { value: "Methanol (bio)", label: "Methanol (bio)" },
+    { value: "Avtur (renewable)", label: "Avtur (renewable)" }
+  ],
+
+  "Solid Fuel": [
+    { value: "Coal (industrial)", label: "Coal (industrial)" },
+    { value: "Coal (electricity generation)", label: "Coal (electricity generation)" },
+    { value: "Coal (domestic)", label: "Coal (domestic)" },
+    { value: "Coking coal", label: "Coking coal" },
+    { value: "Petroleum coke", label: "Petroleum coke" },
+    { value: "Coal (electricity generation - home produced coal only)", label: "Coal (electricity generation - home produced coal only)" }
+  ],
+  "Biomass Fuel": [
+    { value: "Wood logs", label: "Wood logs" },
+    { value: "Wood chips", label: "Wood chips" },
+    { value: "Wood pellets", label: "Wood pellets" },
+    { value: "Grass/straw", label: "Grass/straw" }
+  ]
+};
+
+export const fuelConsumptionUnits = [
+  { value: "Tonnes", label: "Tonnes" },
+  { value: "kg", label: "kg" },
+  { value: "lb", label: "lb" },
+  { value: "KWh", label: "KWh" },
+  { value: "MWh", label: "MWh" },
+  { value: "GWh", label: "GWh" },
+  { value: "Joules", label: "Joules" },
+  { value: "Gj", label: "Gj" },
+  { value: "Mj", label: "Mj" },
+  { value: "Tj", label: "Tj" },
+  { value: "Btu", label: "Btu" },
+  { value: "MMBtu", label: "MMBtu" },
+  { value: "Litres", label: "Litres" },
+  { value: "Gallons", label: "Gallons" },
+  { value: "m3", label: "m3" },
+  { value: "ft3", label: "ft3" },
+  { value: "in3", label: "in3" },
+  { value: "SCF", label: "SCF" }
+];
+
+export const units = [
+  { value: "kWh", label: "kWh" },
+  { value: "MWh", label: "MWh" }
+]
+
+export const emissionFactors = {
+  "Gaseous Fuel": {
+    "Butane": 2.90,
+    "CNG": 2.74,
+    "LPG": 1.51,
+    "Natural gas": 2.02,
+    "Natural gas (100% mineral blend)": 2.02,
+    "LNG": 2.75,
+    "Other petroleum gas": 2.70,
+    "Propane": 1.51
+  },
+  "Bio Gaseous Fuel": {
+    "Biogas": 0,                // biogenic
+    "Landfill gas": 0           // biogenic
+  },
+  "Liquid Fuel": {
+    "Aviation spirit": 3.10,
+    "Aviation turbine fuel": 3.16,
+    "Burning oil": 2.52,
+    "Diesel (average biofuel blend)": 2.68,
+    "Diesel (100% mineral diesel)": 3.18,
+    "Fuel oil": 3.26,
+    "Gas oil": 2.90,
+    "Lubricants": 2.90,
+    "Naphtha": 2.41,
+    "Petrol (average biofuel blend)": 2.31,
+    "Petrol (100% mineral petrol)": 2.37,
+    "Processed fuel oils - residual oil": 3.50,
+    "Processed fuel oils - distillate oil": 3.05,
+    "Refinery miscellaneous": 3.00,
+    "Waste oils": 2.80,
+    "Marine gas oil": 3.15,
+    "Marine fuel oil": 3.50
+  },
+  "Bio Liquid Fuel": {
+    "Bioethanol": 0,
+    "Biodiesel ME": 0,
+    "Biodiesel ME (from used cooking oil)": 0,
+    "Biodiesel ME (from tallow)": 0,
+    "Biodiesel HVO": 0,
+    "Biopropane": 0,
+    "Development diesel": 0,
+    "Development petrol": 0,
+    "Off road biodiesel": 0,
+    "Biomethane (liquified)": 0,
+    "Methanol (bio)": 0,
+    "Avtur (renewable)": 0
+  },
+  "Solid Fuel": {
+    "Coal (industrial)": 2.42,
+    "Coal (electricity generation)": 2.42,
+    "Coal (domestic)": 2.42,
+    "Coking coal": 2.20,
+    "Petroleum coke": 3.10,
+    "Coal (electricity generation - home produced coal only)": 2.42
+  },
+  "Biomass Fuel": {
+    "Wood logs": 0,
+    "Wood chips": 0,
+    "Wood pellets": 0,
+    "Grass/straw": 0
+  },
+  // Add Electricity factors at root
+  "Electricity": {
+    "kWh": 0.82,
+    "MWh": 820,
+    "GWh": 820000
+  }
+};
+
+export const unitConversion = {
+  // Mass
+  "kg": (v) => v,
+  "Tonnes": (v) => v * 1000,
+  "lb": (v) => v * 0.453592,
+  // Volume (Liquids / Gases)
+  "Litres": (v) => v,
+  "Gallons": (v) => v * 3.78541,
+  "m3": (v) => v,
+  "ft3": (v) => v * 0.0283168,
+  "in3": (v) => v * 0.000016387,
+  "SCF": (v) => v * 0.0283168,
+  // Energy
+  "KWh": (v) => v,
+  "MWh": (v) => v * 1000,
+  "GWh": (v) => v * 1_000_000,
+  "Joules": (v) => v / 3_600_000,
+  "Gj": (v) => v * 277.778,
+  "Mj": (v) => v / 3.6,
+  "Tj": (v) => v * 277_777.778,
+  "Btu": (v) => v * 0.000293071,
+  "MMBtu": (v) => v * 293.071
+};
