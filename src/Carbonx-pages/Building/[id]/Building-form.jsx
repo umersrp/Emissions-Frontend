@@ -60,6 +60,11 @@ const BuildingFormPage = () => {
     steamUsed: false,
   });
 
+  const capitalizeFirstLetter = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
   const [loading, setLoading] = useState(isViewMode || isEditMode);
   const capitalizeLabel = (value) =>
     value
@@ -166,79 +171,79 @@ const BuildingFormPage = () => {
     }
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (isViewMode) return;
-  if (!validateFields()) return;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isViewMode) return;
+    if (!validateFields()) return;
 
-  try {
-    const trimmedData = {
-      ...formData,
-      buildingName: formData.buildingName.trim(),
-      country: formData.country?.value || "",
-      buildingLocation: formData.buildingLocation.trim(),
-      buildingType: formData.buildingType?.value || "",
-      ownership: formData.ownership?.value || "",
-      heatingType: formData.heatingType.trim(),
-      coolingType: formData.coolingType.trim(),
-      operatingHours: formData.operatingHours.trim(),
-    };
+    try {
+      const trimmedData = {
+        ...formData,
+        buildingName: capitalizeFirstLetter(formData.buildingName.trim()),
+        country: formData.country?.value || "",
+        buildingLocation: capitalizeFirstLetter(formData.buildingLocation.trim()),
+        buildingType: formData.buildingType?.value || "",
+        ownership: formData.ownership?.value || "",
+        heatingType: capitalizeFirstLetter(formData.heatingType.trim()),
+        coolingType: capitalizeFirstLetter(formData.coolingType.trim()),
+        operatingHours: formData.operatingHours.trim(),
+      };
 
-    const numericData = {
-      buildingArea: Number(trimmedData.buildingArea),
-      numberOfEmployees: Number(trimmedData.numberOfEmployees),
-      electricityConsumption: Number(trimmedData.electricityConsumption),
-    };
+      const numericData = {
+        buildingArea: Number(trimmedData.buildingArea),
+        numberOfEmployees: Number(trimmedData.numberOfEmployees),
+        electricityConsumption: Number(trimmedData.electricityConsumption),
+      };
 
-    if (trimmedData.heatingUsed && !trimmedData.heatingType)
-      return toast.error("Please enter heating type");
-    if (trimmedData.coolingUsed && !trimmedData.coolingType)
-      return toast.error("Please enter cooling type");
+      if (trimmedData.heatingUsed && !trimmedData.heatingType)
+        return toast.error("Please enter heating type");
+      if (trimmedData.coolingUsed && !trimmedData.coolingType)
+        return toast.error("Please enter cooling type");
 
-    //  Safely get userId from localStorage or token decode fallback
-    const userId = localStorage.getItem("userId");
+      //  Safely get userId from localStorage or token decode fallback
+      const userId = localStorage.getItem("userId");
 
-    if (!userId) {
-      toast.error("User not found. Please log in again.");
-      return;
+      if (!userId) {
+        toast.error("User not found. Please log in again.");
+        return;
+      }
+
+      const payload = {
+        ...trimmedData,
+        ...numericData,
+        createdBy: userId,
+        updatedBy: userId,
+      };
+
+      console.log("Payload before submit:", payload);
+
+      const token = localStorage.getItem("token");
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+
+      if (isEditMode) {
+        await axios.put(
+          `${process.env.REACT_APP_BASE_URL}/building/building/${id}`,
+          payload,
+          config
+        );
+        toast.success("Building updated successfully!");
+      } else {
+        await axios.post(
+          `${process.env.REACT_APP_BASE_URL}/building/building`,
+          payload,
+          config
+        );
+        toast.success("Building created successfully!");
+      }
+
+      setTimeout(() => navigate("/building"), 1200);
+    } catch (error) {
+      console.error("Error creating/updating building:", error);
+      toast.error(error.response?.data?.message || "All fields are required");
     }
-
-    const payload = {
-      ...trimmedData,
-      ...numericData,
-      createdBy: userId,
-      updatedBy: userId,
-    };
-
-    console.log("Payload before submit:", payload);
-
-    const token = localStorage.getItem("token");
-    const config = {
-      headers: { Authorization: `Bearer ${token}` },
-    };
-
-    if (isEditMode) {
-      await axios.put(
-        `${process.env.REACT_APP_BASE_URL}/building/building/${id}`,
-        payload,
-        config
-      );
-      toast.success("Building updated successfully!");
-    } else {
-      await axios.post(
-        `${process.env.REACT_APP_BASE_URL}/building/building`,
-        payload,
-        config
-      );
-      toast.success("Building created successfully!");
-    }
-
-    setTimeout(() => navigate("/building"), 1200);
-  } catch (error) {
-    console.error("Error creating/updating building:", error);
-    toast.error(error.response?.data?.message || "All fields are required");
-  }
-};
+  };
 
 
   const validateFields = () => {
@@ -442,8 +447,8 @@ const BuildingFormPage = () => {
                   onChange={handleInputChange}
                   placeholder="Heating Type"
                   className={`border-[2px] w-full h-10 p-2 mt-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
-                  }`}
-                readOnly={isViewMode}
+                    }`}
+                  readOnly={isViewMode}
                 />
               )}
               {errors.heatingType && <p className="text-red-500 text-sm mt-1">{errors.heatingType}</p>}
@@ -464,9 +469,9 @@ const BuildingFormPage = () => {
                   value={formData.coolingType}
                   onChange={handleInputChange}
                   placeholder="Cooling Type"
-                   className={`border-[2px] w-full h-10 p-2 mt-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed " : ""
-                  }`}
-                readOnly={isViewMode}
+                  className={`border-[2px] w-full h-10 p-2 mt-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed " : ""
+                    }`}
+                  readOnly={isViewMode}
                 />
               )}
               {errors.coolingType && <p className="text-red-500 text-sm mt-1">{errors.coolingType}</p>}

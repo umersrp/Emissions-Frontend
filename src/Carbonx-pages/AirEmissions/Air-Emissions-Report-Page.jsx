@@ -658,6 +658,7 @@ const AirEmissionReportPage = () => {
     { value: "biogenic", label: "Biogenic CO₂ Emissions" },
   ];
 
+
   // Fetch Fugitive (Non-Kyoto)
   useEffect(() => {
     const fetchFugitive = async () => {
@@ -873,13 +874,28 @@ const AirEmissionReportPage = () => {
     }));
   }, [fugitiveData, bioData, processData, tableFilter]);
 
+  // const paginatedData = useMemo(() => {
+  //   const totalPages = Math.max(1, Math.ceil(buildingData.length / pagination.limit));
+  //   const startIndex = (pagination.currentPage - 1) * pagination.limit;
+  //   const endIndex = startIndex + pagination.limit;
+  //   return {
+  //     data: buildingData.slice(startIndex, endIndex),
+  //     totalPages,
+  //   };
+  // }, [buildingData, pagination.currentPage, pagination.limit]);
   const paginatedData = useMemo(() => {
     const totalPages = Math.max(1, Math.ceil(buildingData.length / pagination.limit));
-    const startIndex = (pagination.currentPage - 1) * pagination.limit;
+
+    // Fix invalid page when filter changes
+    const safePage = Math.min(pagination.currentPage, totalPages);
+
+    const startIndex = (safePage - 1) * pagination.limit;
     const endIndex = startIndex + pagination.limit;
+
     return {
       data: buildingData.slice(startIndex, endIndex),
       totalPages,
+      safePage,
     };
   }, [buildingData, pagination.currentPage, pagination.limit]);
 
@@ -950,7 +966,6 @@ const AirEmissionReportPage = () => {
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Sr.No</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Building</th>
-                {/* <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">TOTAL EMISSIONS (kgCO₂e)</th> */}
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
                   Total Emissions ({tableFilter === "vocs" ? "kg" : "kgCO₂e"})
                 </th>
@@ -977,7 +992,7 @@ const AirEmissionReportPage = () => {
         </div>
 
         {/* Pagination Controls */}
-        <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
+        {/* <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <span className="flex space-x-2 items-center">
               <span className="text-sm font-medium text-slate-600">Go</span>
@@ -1037,7 +1052,116 @@ const AirEmissionReportPage = () => {
               {[5, 10, 20, 50].map(size => <option key={size} value={size}>{size}</option>)}
             </select>
           </div>
+        </div> */}
+        <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
+          {/* Go to Page */}
+          <div className="flex items-center space-x-3">
+            <span className="flex space-x-2 items-center">
+              <span className="text-sm font-medium text-slate-600">Go</span>
+              <input
+                type="number"
+                min="1"
+                max={paginatedData.totalPages}
+                className="form-control py-2"
+                value={pagination.currentPage}
+                onChange={(e) => {
+                  let page = Number(e.target.value);
+                  if (page < 1) page = 1;
+                  if (page > paginatedData.totalPages) page = paginatedData.totalPages;
+                  setPagination((p) => ({ ...p, currentPage: page }));
+                }}
+                style={{ width: "60px" }}
+              />
+            </span>
+
+            <span className="text-sm font-medium text-slate-600">
+              Page {paginatedData.safePage} of {paginatedData.totalPages}
+            </span>
+          </div>
+
+          {/* Pagination Buttons */}
+          <ul className="flex items-center space-x-3">
+            <li>
+              <button
+                onClick={() => setPagination((p) => ({ ...p, currentPage: 1 }))}
+                disabled={paginatedData.safePage === 1}
+              >
+                <Icon icon="heroicons:chevron-double-left-solid" />
+              </button>
+            </li>
+
+            <li>
+              <button
+                onClick={() =>
+                  setPagination((p) => ({ ...p, currentPage: p.currentPage - 1 }))
+                }
+                disabled={paginatedData.safePage === 1}
+              >
+                Prev
+              </button>
+            </li>
+
+            {Array.from({ length: paginatedData.totalPages }, (_, idx) => (
+              <li key={idx}>
+                <button
+                  className={`${idx + 1 === paginatedData.safePage
+                      ? "bg-slate-900 text-white"
+                      : "bg-slate-100 text-slate-900"
+                    } text-sm rounded h-6 w-6 flex items-center justify-center`}
+                  onClick={() =>
+                    setPagination((p) => ({ ...p, currentPage: idx + 1 }))
+                  }
+                >
+                  {idx + 1}
+                </button>
+              </li>
+            ))}
+
+            <li>
+              <button
+                onClick={() =>
+                  setPagination((p) => ({ ...p, currentPage: p.currentPage + 1 }))
+                }
+                disabled={paginatedData.safePage === paginatedData.totalPages}
+              >
+                Next
+              </button>
+            </li>
+
+            <li>
+              <button
+                onClick={() =>
+                  setPagination((p) => ({
+                    ...p,
+                    currentPage: paginatedData.totalPages,
+                  }))
+                }
+                disabled={paginatedData.safePage === paginatedData.totalPages}
+              >
+                <Icon icon="heroicons:chevron-double-right-solid" />
+              </button>
+            </li>
+          </ul>
+
+          {/* Limit Selector */}
+          <div className="flex items-center space-x-3">
+            <span className="text-sm font-medium text-slate-600">Show</span>
+            <select
+              value={pagination.limit}
+              onChange={(e) =>
+                setPagination({ currentPage: 1, limit: Number(e.target.value) })
+              }
+              className="form-select py-2"
+            >
+              {[5, 10, 20, 50].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
       </Card>
     </Card>
   );
