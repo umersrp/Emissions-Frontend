@@ -229,25 +229,45 @@ export const menuItems = [
     ]
 
   },
-  //   {
-  //   title: "Scope 2",
+    {
+    title: "Scope 2",
+    icon: "heroicons-outline:home",
+    isOpen: true,
+    isHide: true,
+    icon: "heroicons:globe-alt",
+    link: "Scope-2",
+    child: [
+      
+      // {
+      //   childtitle: "Scope 2 Report",
+      //   childlink: "Scope-Two-Report",
+      // },
+      {
+        childtitle: "Purchased Electricity",
+        childlink: "Purchased-Electricity",
+      },
+    ]
+  
+  },
+  //    {
+  //   title: "Scope 3",
   //   icon: "heroicons-outline:home",
   //   isOpen: true,
   //   isHide: true,
   //   icon: "heroicons:globe-alt",
-  //   link: "Scope-2",
+  //   link: "Scope-3",
   //   child: [
-
+      
+  //     // {
+  //     //   childtitle: "Scope 1 Report",
+  //     //   childlink: "Scope-One-Report",
+  //     // },
   //     {
-  //       childtitle: "Scope 2 Report",
-  //       childlink: "Scope-Two-Report",
-  //     },
-  //     {
-  //       childtitle: "Purchased Electricity",
-  //       childlink: "Purchased-Electricity",
+  //       childtitle: "Purchase Good & Services",
+  //       childlink: "Purchased-Good-Services",
   //     },
   //   ]
-
+  
   // },
   {
     title: "Scope 3",
@@ -275,7 +295,7 @@ export const menuItems = [
   },
   {
     title: "Out of Scope / Other Air Emissions",
-    isHide: true,
+    isHide: true, 
     icon: "heroicons:no-symbol",
     link: "Air-Emission-Report-Page"
   },

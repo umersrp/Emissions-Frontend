@@ -162,7 +162,7 @@ export const purchasedGoodsServicesTypes = {
     { value: "Alcoholic beverages", label: "Alcoholic beverages" },
     { value: "Bakery and farinaceous products", label: "Bakery and farinaceous products" },
     { value: "Dairy products", label: "Dairy products" },
-    { value: "Grain mill products, starches and starch products", label: "Grain mill products, starches and starch products" },
+    { value: "Grain mill products, starches and starch products ", label: "Grain mill products, starches and starch products" },
     { value: "Other food products", label: "Other food products" },
     { value: "Prepared animal feeds", label: "Prepared animal feeds" },
     { value: "Preserved meat and meat products", label: "Preserved meat and meat products" },
