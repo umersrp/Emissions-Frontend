@@ -17,21 +17,50 @@ const Scope3 = () => {
     },
     { 
       title: "Capital Goods", 
-      path: "/",
+      path: "",
       icon: "heroicons:truck", 
       bg: "bg-red-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
     },
     { 
-      title: "Purchased Heating", 
-      path: "/",
+      title: "Fuel and Energy Related Activities", 
+      path: "/fuel-energy",
       icon: "heroicons:cloud", 
       bg: "bg-purple-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#d8bbf7] to-[#a66ee0]"
     },
     { 
-      title: "Purchased Cooling", 
-      path: "/",
+      title: "Upstream Transportation & Distribution", 
+      path: "",
+      icon: "heroicons:cog-6-tooth", 
+      bg: "bg-green-50",
+      hoverGradient: "hover:bg-gradient-to-r from-[#bcebc0] to-[#6fcf97]"
+    },
+
+     { 
+      title: "Waste Generated in Operations", 
+      path: "",
+      icon: "heroicons:fire", 
+      bg: "bg-cyan-50",
+      hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
+    },
+    { 
+      title: "Business Travel", 
+      path: "",
+      icon: "heroicons:truck", 
+      bg: "bg-red-50",
+      hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
+    },
+    { 
+      title: "Employee Commuting", 
+      path: "",
+      icon: "heroicons:cloud", 
+      bg: "bg-purple-50",
+      hoverGradient: "hover:bg-gradient-to-r from-[#d8bbf7] to-[#a66ee0]"
+    },
+    { 
+      title: "Upstream Leased Assets", 
+      path: "",
       icon: "heroicons:cog-6-tooth", 
       bg: "bg-green-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebc0] to-[#6fcf97]"
@@ -40,32 +69,53 @@ const Scope3 = () => {
 
    const downstream_categories = [
     { 
-      title: "Purchased Electricity", 
-      path: "/",
+      title: "Downstream Transportation & Distribution", 
+      path: "",
       icon: "heroicons:fire", 
       bg: "bg-cyan-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
     },
     { 
-      title: "Purchased Electricity", 
-      path: "/",
+      title: "Processing of Sold Products", 
+      path: "",
       icon: "heroicons:truck", 
       bg: "bg-red-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
     },
     { 
-      title: "Purchased Heating", 
-      path: "/",
+      title: "Use of Sold Products", 
+      path: "",
       icon: "heroicons:cloud", 
       bg: "bg-purple-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#d8bbf7] to-[#a66ee0]"
     },
     { 
-      title: "Purchased Cooling", 
-      path: "/",
+      title: "End-of-Life Treatment of Sold Products", 
+      path: "",
       icon: "heroicons:cog-6-tooth", 
       bg: "bg-green-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebc0] to-[#6fcf97]"
+    },
+    { 
+      title: "Downstream Leased Assets", 
+      path: "",
+      icon: "heroicons:fire", 
+      bg: "bg-cyan-50",
+      hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
+    },
+    { 
+      title: "Franchises", 
+      path: "",
+      icon: "heroicons:truck", 
+      bg: "bg-red-50",
+      hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
+    },
+    { 
+      title: " Investments", 
+      path: "",
+      icon: "heroicons:cloud", 
+      bg: "bg-purple-50",
+      hoverGradient: "hover:bg-gradient-to-r from-[#d8bbf7] to-[#a66ee0]"
     },
   ];
 

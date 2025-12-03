@@ -272,19 +272,23 @@ const MobileCombustionListing = () => {
             />
           </div>
         </div>
+
+        {/* table */}
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden">
+            {/*  Set fixed height for vertical scroll */}
+            <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
+              {/* <div className="overflow-hidden"> */}
               {loading ? (
-                <div className="flex justify-center items-center h-[300px]">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24 opacity-80" />
+                <div className="flex justify-center items-center py-8">
+                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
                 </div>
               ) : (
                 <table
                   className="min-w-full divide-y divide-slate-100 table-fixed"
                   {...getTableProps()}
                 >
-                  <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10 ">
+                  <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
                     {headerGroups.map((headerGroup, index) => (
                       <tr {...headerGroup.getHeaderGroupProps()} key={index}>
                         {headerGroup.headers.map((column) => (
@@ -306,11 +310,10 @@ const MobileCombustionListing = () => {
                       </tr>
                     ))}
                   </thead>
-
                   <tbody {...getTableBodyProps()}>
-                    {records.length === 0 ? (
+                    {rows.length === 0 ? (
                       <tr>
-                        <td colSpan={columns.length + 1}>
+                        <td colSpan={COLUMNS.length + 1}>
                           <div className="flex justify-center items-center py-16">
                             <span className="text-gray-500 text-lg font-medium">
                               No data available.
@@ -342,20 +345,11 @@ const MobileCombustionListing = () => {
           </div>
         </div>
 
-
-
-        {/*   Server-side Pagination (same UI, dynamic values) */}
+        {/*   Server-side Pagination */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <span className="flex space-x-2 items-center">
               <span className="text-sm font-medium text-slate-600">Go</span>
-              {/* <input
-                type="number"
-                className="form-control py-2"
-                defaultValue={pageIndex}
-                onChange={(e) => handleGoToPage(Number(e.target.value))}
-                style={{ width: "50px" }}
-              /> */}
               <input
                 type="number"
                 className="form-control py-2"
