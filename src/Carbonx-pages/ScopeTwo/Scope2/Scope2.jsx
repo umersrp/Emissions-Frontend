@@ -41,7 +41,7 @@ const Scope2 = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-8">
       {/* Header Section */}
-      <Card title={"Scope 1: Direct GHG Emissions"}>
+      <Card title={"Scope 2: Direct GHG Emissions"}>
         <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
          Scope 2 accounts for GHG emissions from the generation of purchased electricity, steam, heating and cooling or consumed by the company. Purchased energy is defined as electricity, steam, heating and cooling that is purchased or otherwise brought into the organizational boundary of the company. Scope 2 emissions physically occur at the facility.        </p>
         {/* <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">

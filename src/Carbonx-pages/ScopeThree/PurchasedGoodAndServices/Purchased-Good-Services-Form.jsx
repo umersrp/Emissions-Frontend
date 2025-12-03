@@ -41,6 +41,12 @@ const PurchasedGoodServicesFormPage = () => {
   const [goodsServicesTypeOptions, setGoodsServicesTypeOptions] = useState([]);
   const [errors, setErrors] = useState({});
 
+     const capitalizeFirstLetter = (text) => {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
+
   // Fetch Buildings
   useEffect(() => {
     const fetchBuildings = async () => {
@@ -193,7 +199,7 @@ const PurchasedGoodServicesFormPage = () => {
       amountSpent: formData.amountSpent,
       unit: formData.unit?.value,
       qualityControl: formData.qualityControl?.value,
-      remarks: formData.remarks,
+      remarks: capitalizeFirstLetter(formData.remarks),
       createdBy: userId,
       updatedBy: userId,
     };

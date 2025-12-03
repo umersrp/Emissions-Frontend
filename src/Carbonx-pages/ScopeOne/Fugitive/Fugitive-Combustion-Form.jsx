@@ -38,6 +38,11 @@ const FugitiveCombustionFormPage = () => {
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
 
+    const capitalizeFirstLetter = (text) => {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
   // --- Fetch Buildings ---
   useEffect(() => {
     const fetchBuildings = async () => {
@@ -192,7 +197,7 @@ const FugitiveCombustionFormPage = () => {
       qualityControl: formData.qualityControl?.value,
       calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e || 0,
       calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e || 0,
-      remarks: formData.remarks,
+      remarks: capitalizeFirstLetter(formData.remarks),
       createdBy: userId,
       updatedBy: userId,
     };

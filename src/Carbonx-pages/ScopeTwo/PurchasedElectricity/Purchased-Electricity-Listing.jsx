@@ -36,6 +36,14 @@ const PurchasedElectricityListing = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
 
+  const formatSnakeCase = (value) => {
+    if (!value) return "";
+    return value
+      .split("_")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   // Fetch data from Purchased-Electricity API
   const fetchData = async () => {
     setLoading(true);
@@ -90,7 +98,7 @@ const PurchasedElectricityListing = () => {
     () => [
       { Header: "Sr.No", id: "serialNo", Cell: ({ row }) => (pageIndex - 1) * pageSize + row.index + 1 },
       { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ cell }) => cell.value || "-" },
-      { Header: "Method", accessor: "method" },
+      { Header: "Method", accessor: "method", Cell: ({ value }) => formatSnakeCase(value), },
       { Header: "Total Electricity Comsumption", accessor: "totalElectricity" },
       { Header: "Total Purchased Electricity", accessor: "totalPurchasedElectricity" },
       { Header: "Total Gross Electricity Grid", accessor: "totalGrossElectricityGrid" },
@@ -194,13 +202,18 @@ const PurchasedElectricityListing = () => {
         {/* TABLE */}
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden">
+            {/*  Set fixed height for vertical scroll */}
+            <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
+              {/* <div className="overflow-hidden"> */}
               {loading ? (
                 <div className="flex justify-center items-center py-8">
                   <img src={Logo} alt="Loading..." className="w-52 h-24" />
                 </div>
               ) : (
-                <table className="min-w-full divide-y divide-slate-100 table-fixed" {...getTableProps()}>
+                <table
+                  className="min-w-full divide-y divide-slate-100 table-fixed"
+                  {...getTableProps()}
+                >
                   <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
                     {headerGroups.map((headerGroup, index) => (
                       <tr {...headerGroup.getHeaderGroupProps()} key={index}>
@@ -211,7 +224,13 @@ const PurchasedElectricityListing = () => {
                             key={column.id}
                           >
                             {column.render("Header")}
-                            <span>{column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}</span>
+                            <span>
+                              {column.isSorted
+                                ? column.isSortedDesc
+                                  ? " 🔽"
+                                  : " 🔼"
+                                : ""}
+                            </span>
                           </th>
                         ))}
                       </tr>
@@ -220,9 +239,11 @@ const PurchasedElectricityListing = () => {
                   <tbody {...getTableBodyProps()}>
                     {rows.length === 0 ? (
                       <tr>
-                        <td colSpan={columns.length + 1}>
+                        <td colSpan={COLUMNS.length + 1}>
                           <div className="flex justify-center items-center py-16">
-                            <span className="text-gray-500 text-lg font-medium">No data available.</span>
+                            <span className="text-gray-500 text-lg font-medium">
+                              No data available.
+                            </span>
                           </div>
                         </td>
                       </tr>
@@ -232,7 +253,10 @@ const PurchasedElectricityListing = () => {
                         return (
                           <tr {...row.getRowProps()} className="even:bg-gray-50">
                             {row.cells.map((cell) => (
-                              <td {...cell.getCellProps()} className="px-6 py-4 whitespace-nowrap">
+                              <td
+                                {...cell.getCellProps()}
+                                className="px-6 py-4 whitespace-nowrap"
+                              >
                                 {cell.render("Cell")}
                               </td>
                             ))}
@@ -247,7 +271,7 @@ const PurchasedElectricityListing = () => {
           </div>
         </div>
 
-            {/* CUSTOM PAGINATION UI (SERVER SIDE) */}
+        {/* CUSTOM PAGINATION UI (SERVER SIDE) */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
           {/* LEFT SECTION – Go To Page */}
           <div className="flex items-center space-x-3">

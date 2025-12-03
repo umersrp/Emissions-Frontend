@@ -39,6 +39,11 @@ const ProcessEmissionsFormPage = () => {
   const [errors, setErrors] = useState({});
   const [buildingOptions, setBuildingOptions] = useState([]);
 
+   const capitalizeFirstLetter = (text) => {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
   // Fetch all buildings for dropdown
   useEffect(() => {
     const fetchBuildings = async () => {
@@ -163,9 +168,9 @@ const ProcessEmissionsFormPage = () => {
           updated.calculatedEmissionTCo2e = formatEmission(t);
           
         }
-            toast.info(
-          `Emissions Calculated: ${updated.calculatedEmissionKgCo2e} kg CO2e / ${updated.calculatedEmissionTCo2e} t CO2e`
-        );
+        //     toast.info(
+        //   `Emissions Calculated: ${updated.calculatedEmissionKgCo2e} kg CO2e / ${updated.calculatedEmissionTCo2e} t CO2e`
+        // );
       }
 
       return updated;
@@ -208,7 +213,7 @@ const ProcessEmissionsFormPage = () => {
       gasEmitted: formData.gasEmitted,
       amountOfEmissions: formData.amountOfEmissions,
       qualityControl: formData.qualityControl?.value,
-      remarks: formData.remarks,
+      remarks: capitalizeFirstLetter(formData.remarks),
       calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e,  // added
       calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
     };

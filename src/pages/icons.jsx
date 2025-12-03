@@ -105,6 +105,10 @@ const icons = [
   {
     name: "heroicons:pencil-square",
   },
+  { name: "mdi:factory", label: "Scope 1" },
+  { name: "mdi:power-plug", label: "Scope 2" },
+  { name: "mdi:share-variant", label: "Scope 3" },
+  
   { name: "heroicons:globe-alt", label: "Scope" },
   { name: "heroicons:no-symbol", label: "Out of Scope" },
   { name: "heroicons:building-office", label: "Company" },

@@ -184,7 +184,7 @@ export const menuItems = [
     icon: "heroicons:building-office",
     link: "Company"
   },
-   {
+  {
     title: "Company",
     isHide: true,
     icon: "heroicons:building-office",
@@ -196,15 +196,15 @@ export const menuItems = [
     icon: "heroicons:home-modern",
     link: "Building"
   },
-   {
+  {
     title: "Scope 1",
     icon: "heroicons-outline:home",
     isOpen: true,
     isHide: true,
-    icon: "heroicons:globe-alt",
+    icon: "mdi:factory",
     link: "Scope-1",
     child: [
-      
+
       {
         childtitle: "Scope 1 Report",
         childlink: "Scope-One-Report",
@@ -225,16 +225,16 @@ export const menuItems = [
         childtitle: "Process Emissions",
         childlink: "Process-Emissions",
       },
-    
+
     ]
-  
+
   },
     {
     title: "Scope 2",
     icon: "heroicons-outline:home",
     isOpen: true,
     isHide: true,
-    icon: "heroicons:globe-alt",
+    icon: "mdi:power-plug",
     link: "Scope-2",
     child: [
       
@@ -269,7 +269,31 @@ export const menuItems = [
   //   ]
   
   // },
-   {
+  {
+    title: "Scope 3",
+    icon: "heroicons-outline:home",
+    isOpen: true,
+    isHide: true,
+    icon: "mdi:share-variant",
+    link: "Scope-3",
+    child: [
+
+      // {
+      //   childtitle: "Scope 1 Report",
+      //   childlink: "Scope-One-Report",
+      // },
+      {
+        childtitle: "Purchase Good & Services",
+        childlink: "Purchased-Good-Services",
+      },
+      {
+        childtitle: "Fuel and Energy",
+        childlink: "fuel-energy",
+      },
+    ]
+
+  },
+  {
     title: "Out of Scope / Other Air Emissions",
     isHide: true, 
     icon: "heroicons:no-symbol",
@@ -305,7 +329,7 @@ export const menuItems = [
   //   icon: "heroicons:cog-6-tooth",
   //   link: "Process-Emissions"
   // },
-  
+
   // {
   //   title: "Authentication",
   //   icon: "heroicons-outline:lock-closed",

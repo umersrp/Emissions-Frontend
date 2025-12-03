@@ -22,7 +22,7 @@ export const processEmissionFactors = {
   "Silicon production": 2200,
   "Ferroalloy production": 1000,
   "Ammonia production": 1500,
-  "Urea production": 200,
+  "Urea Production": 200,
   "Methanol production": 800,
   "Hydrogen production (SMR – Steam Methane Reforming)": 10,
   "Amine-based gas sweetening (acid gas removal)": 1.5,
@@ -57,7 +57,7 @@ export const processEmissionFactors = {
   "Coke Production from Residuum": 1000,
   "Carbonate Treatment in Drilling Muds": 440,
   "Catalyst Regeneration (FCC Units)": 250,
-  "Calcination in Catalyst Preparation / Regeneration": 440,
+  "Calcination in Catalyst Preparation / Regeneration ( if CaCO₃ decomposed )": 440,
   "Coke Calcination (Anode-grade Coke)": 500,
   "LNG Liquefaction / Regasification (Chemical Side)": 67.5,
   "Coal Carbonization / Coking": 1150,
@@ -65,25 +65,26 @@ export const processEmissionFactors = {
   "Coal Gasification / Liquefaction": 3000,
   "Limestone / Dolomite Use in Flue Gas Desulphurization (FGD)": 440,
   "Carbonate Decomposition in Fluidized Bed Boilers": 440,
-  "Fuel Cell Electrochemical Processes (Reforming Fuel Cells)": 1,
+  "Fuel Cell Electrochemical Processes (Natural Gas Reforming Fuel Cells)": 9000,
   "Biomass Gasification or Pyrolysis": 1200,
   "Bioethanol Fermentation": 1100,
   "Hydrogen from Electrolysis (if carbonates used)": 440,
   "Carbonate / Bicarbonate Neutralization in API Synthesis": 440,
-  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes": 30,
+  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (biogenic)": 1,
   "Neutralization or Buffer Preparation Using Carbonates": 440,
-  "Lyophilization or Freeze-Drying Using CO₂ Refrigerants": 440,
-  "Anaerobic Wastewater or Biowaste Treatment (On-site)": 1,
+  "Lyophilization or Freeze-Drying Using CO₂ Refrigerants": 30,
+  "Anaerobic Wastewater or Biowaste Treatment (On-site)": 13.44,
   "Use of Nitrous Oxide in Sterilization or Anaesthesia": 273,
   "Catalyst Regeneration with Carbonates or Acids": 440,
-  "Neutralization of Waste Streams (Carbonate Reactions)": 440,
-  "Steam Cracking of Naphtha / Ethane": 1.73,
+  "Neutralization of Waste Streams (Carbonate Reactions)": 0.44,
+  "Steam Cracking of Naphtha": 1.73,
+  "Steam Cracking of Ethane": 0.95,
   "Ethylene Oxide / Ethylene Glycol Production": 0.7,
-  "Ammonia / Urea Production": 0.733,
+  "Urea Production (kg)": 0.733,
   "Methanol Synthesis": 0.5,
-  "Other GHG Emission Process": 1,
-  "Non Kyoto protocol / Other Gases Emissions": 1,
-  "Other GHG Emission Process (Biogenic)": 1
+  "Other GHG Emission Process Activities": 1,
+  "Non Kyoto protocol / Other Non GHG Emissions": 1,
+  "Other Biogenic GHG Emission Process Activities": 1
 };
 
 // All Kyoto/standard GHG processes (everything except Non-Kyoto, VOs, Biogenic)
@@ -104,7 +105,7 @@ export const GHG_ACTIVITIES = [
   "Silicon production",
   "Ferroalloy production",
   "Ammonia production",
-  "Urea production",
+  "Urea Production (kg)",
   "Methanol production",
   "Hydrogen production (SMR – Steam Methane Reforming)",
   "Amine-based gas sweetening (acid gas removal)",
@@ -139,7 +140,7 @@ export const GHG_ACTIVITIES = [
   "Coke Production from Residuum",
   "Carbonate Treatment in Drilling Muds",
   "Catalyst Regeneration (FCC Units)",
-  "Calcination in Catalyst Preparation / Regeneration",
+  "Calcination in Catalyst Preparation / Regeneration ( if CaCO₃ decomposed )",
   "Coke Calcination (Anode-grade Coke)",
   "LNG Liquefaction / Regasification (Chemical Side)",
   "Coal Carbonization / Coking",
@@ -147,7 +148,7 @@ export const GHG_ACTIVITIES = [
   "Coal Gasification / Liquefaction",
   "Limestone / Dolomite Use in Flue Gas Desulphurization (FGD)",
   "Carbonate Decomposition in Fluidized Bed Boilers",
-  "Fuel Cell Electrochemical Processes (Reforming Fuel Cells)",
+  "Fuel Cell Electrochemical Processes (Natural Gas Reforming Fuel Cells)",
   "Hydrogen from Electrolysis (if carbonates used)",
   "Carbonate / Bicarbonate Neutralization in API Synthesis",
   "Neutralization or Buffer Preparation Using Carbonates",
@@ -156,18 +157,17 @@ export const GHG_ACTIVITIES = [
   "Use of Nitrous Oxide in Sterilization or Anaesthesia",
   "Catalyst Regeneration with Carbonates or Acids",
   "Neutralization of Waste Streams (Carbonate Reactions)",
-  "Steam Cracking of Naphtha / Ethane",
+  "Steam Cracking of Naphtha",
+  "Steam Cracking of Ethane",
   "Ethylene Oxide / Ethylene Glycol Production",
   "Ammonia / Urea Production",
   "Methanol Synthesis",
   "Other GHG Emission Process Activities",
-  "Non Kyoto protocol / Other Non GHG Emissions", // this will be removed from GHG and added to Non-Kyoto
-  "Other Biogenic GHG Emission Process Activities" // will be removed and added to Biogenic
 ];
 
 // Non-Kyoto activities
 export const NON_KYOTO_ACTIVITIES = [
-  "Non Kyoto protocol / Other Gases Emissions",
+  "Non Kyoto protocol / Other Non GHG Emissions",
 ];
 
 // Volatile Organic Substances (VOs)
@@ -185,6 +185,6 @@ export const VO_ACTIVITIES = [
 export const BIOGENIC_ACTIVITIES = [
   "Biomass Gasification or Pyrolysis",
   "Bioethanol Fermentation",
-  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes",
-  "Other GHG Emission Process (Biogenic)",
+  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (biogenic)",
+  "Other Biogenic GHG Emission Process Activities",
 ];
