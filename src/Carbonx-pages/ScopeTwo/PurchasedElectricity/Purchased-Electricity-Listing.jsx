@@ -102,9 +102,21 @@ const PurchasedElectricityListing = () => {
       { Header: "Total Electricity Comsumption", accessor: "totalElectricity" },
       { Header: "Total Purchased Electricity", accessor: "totalPurchasedElectricity" },
       { Header: "Total Gross Electricity Grid", accessor: "totalGrossElectricityGrid" },
+      { Header: "Unit", accessor: "unit" },
       { Header: "Grid Station", accessor: "gridStation" },
       { Header: "Total Other Supplier Electricity", accessor: "totalOtherSupplierElectricity" },
-      { Header: "Has Solar Panels", accessor: "hasSolarPanels", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+      { Header: "Has Solar Panels", accessor: "hasSolarPanels", Cell: ({ cell }) => cell.value ? "Yes" : "" },
+      { Header: "Purchases Supplier Specific", accessor: "purchasesSupplierSpecific", Cell: ({ cell }) => cell.value ? "Yes" : "" },
+      { Header: "Has PPA", accessor: "hasPPA", Cell: ({ cell }) => cell.value ? "Yes" : "" },
+
+      { Header: "Has Renewable Attribute", accessor: "hasRenewableAttribute", Cell: ({ cell }) => cell.value ? "Yes" : "" },
+      { Header: "Total OnsiteSolar Consumption", accessor: "totalOnsiteSolarConsumption" },
+      { Header: "Solar Retained Under RECs", accessor: "solarRetainedUnderRECs" },
+      { Header: "solar Consumed But Sold", accessor: "solarConsumedButSold" },
+
+      { Header: "Supplier Specific Electricity", accessor: "supplierSpecificElectricity" },
+
+
       { Header: "PPA Electricity", accessor: "ppaElectricity" },
       { Header: "Renewable Attributes Electricity", accessor: "renewableAttributesElectricity" },
       { Header: "Calculated Location Based Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
