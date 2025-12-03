@@ -238,10 +238,10 @@ export const menuItems = [
     link: "Scope-2",
     child: [
       
-      // {
-      //   childtitle: "Scope 2 Report",
-      //   childlink: "Scope-Two-Report",
-      // },
+      {
+        childtitle: "Scope 2 Report",
+        childlink: "Scope-Two-Report",
+      },
       {
         childtitle: "Purchased Electricity",
         childlink: "Purchased-Electricity",
