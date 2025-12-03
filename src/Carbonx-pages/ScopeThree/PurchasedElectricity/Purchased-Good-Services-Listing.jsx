@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -6,7 +7,11 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import Tippy from "@tippyjs/react";
-import { useTable, useSortBy, useRowSelect } from "react-table";
+import {
+  useTable,
+  useRowSelect,
+  useSortBy,
+} from "react-table";
 import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
 import Logo from "@/assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
@@ -14,95 +19,119 @@ import Modal from "@/components/ui/Modal";
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
   const resolvedRef = ref || defaultRef;
+
   React.useEffect(() => {
     resolvedRef.current.indeterminate = indeterminate;
   }, [resolvedRef, indeterminate]);
+
   return <input type="checkbox" ref={resolvedRef} {...rest} className="table-checkbox" />;
 });
 
 const PurchasedGoodServicesListing = () => {
   const navigate = useNavigate();
 
-  //  States
+  // Server-side states
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [globalFilterValue, setGlobalFilterValue] = useState("");
 
-  //  Pagination states
-  const [pageIndex, setPageIndex] = useState(1);
+  const [pageIndex, setPageIndex] = useState(1); // server-based pages start at 1
   const [pageSize, setPageSize] = useState(10);
+
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
 
+  const [globalFilterValue, setGlobalFilterValue] = useState("");
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedBuildingId, setSelectedBuildingId] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
+  const [goToValue, setGoToValue] = useState(pageIndex);
 
-  
-  // ✅ Fetch Fugitive Records with Pagination + Search
-const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
-  setLoading(true);
-  try {
-    const res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/Fugitive/get-All?page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
 
-    const data = Array.isArray(res.data?.data) ? res.data.data : [];
-    const meta = res.data?.meta || {};
+  // Fetch data from server with pagination
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/Process-Emissions/Get-All`,
+        {
+          params: {
+            page: pageIndex,
+            limit: pageSize,
+            search: globalFilterValue || "",
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-    setRecords(data);
-    setPageIndex(meta.currentPage || 1);
-    setTotalPages(meta.totalPages || 1);
-    setTotalRecords(meta.totalRecords || 0);
-    setPageSize(meta.limit || 10);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to fetch records");
-  } finally {
-    setLoading(false);
-  }
-};
+      const data = res.data?.data || [];
+      const meta = res.data?.meta || {};
 
+      setRecords(data);
+      setTotalPages(meta.totalPages || 1);
+      setTotalRecords(meta.totalRecords || 0);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch records");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    fetchFugitiveRecords(pageIndex, pageSize, globalFilterValue);
+    fetchData();
   }, [pageIndex, pageSize, globalFilterValue]);
 
-  //  Delete Record
+
+
+  // Delete Record
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/Fugitive/delete/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/Process-Emissions/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Record deleted successfully");
-      fetchFugitiveRecords(pageIndex, pageSize);
+      fetchData();
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete record");
     }
   };
 
-  //  Table Columns
+  // Columns
   const COLUMNS = useMemo(
     () => [
-      {  Header: "Sr.No", id: "serialNo", Cell: ({ row }) => <span>{row.index + 1 + (pageIndex - 1) * pageSize}</span> },
+      {
+        Header: "Sr.No",
+        id: "serialNo",
+        Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
+      },
       { Header: "Building", accessor: "buildingId.buildingName" },
-      { Header: "Stakeholder", accessor: "stakeholder" },
-      { Header: "Equipment Type", accessor: "equipmentType" },
-      { Header: "Material / Refrigerant", accessor: "materialRefrigerant" },
-      { Header: "Leakage Value / Recharge Value", accessor: "leakageValue" },
-      { Header: "Consumption Unit", accessor: "consumptionUnit" },
+      { Header: "Stakeholder", accessor: "stakeholderDepartment" },
+      { Header: "Activity Type", accessor: "activityType" },
+      { Header: "Gas Emitted", accessor: "gasEmitted" },
+      { Header: "Amount Of Emissions", accessor: "amountOfEmissions" },
       { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",},
-      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",},
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
+      {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "-",
+      },
+      {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "-",
+      },
       { Header: "Remarks", accessor: "remarks" },
-      { Header: "Created By", accessor: "createdBy.name", Cell: ({ cell }) => cell.value || "-" },
-      { Header: "Updated By", accessor: "updatedBy.name", Cell: ({ cell }) => cell.value || "-" },
-      { Header: "Created At", accessor: "createdAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-") },
+      {
+        Header: "Created At",
+        accessor: "createdAt",
+        Cell: ({ cell }) =>
+          cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+      },
       {
         Header: "Actions",
         accessor: "_id",
@@ -112,27 +141,33 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
               <button
                 className="action-btn"
                 onClick={() =>
-                  navigate(`/Fugitive-Emissions-Form/${cell.value}`, { state: { mode: "view" } })
+                  navigate(`/Process-Emissions-Form/${cell.value}`, {
+                    state: { mode: "view" },
+                  })
                 }
               >
                 <Icon icon="heroicons:eye" className="text-green-600" />
               </button>
             </Tippy>
+
             <Tippy content="Edit">
               <button
                 className="action-btn"
                 onClick={() =>
-                  navigate(`/Fugitive-Emissions-Form/${cell.value}`, { state: { mode: "edit" } })
+                  navigate(`/Process-Emissions-Form/${cell.value}`, {
+                    state: { mode: "edit" },
+                  })
                 }
               >
                 <Icon icon="heroicons:pencil-square" className="text-blue-600" />
               </button>
             </Tippy>
+
             <Tippy content="Delete">
               <button
                 className="action-btn"
                 onClick={() => {
-                  setSelectedBuildingId(cell.value);
+                  setSelectedId(cell.value);
                   setDeleteModalOpen(true);
                 }}
               >
@@ -147,29 +182,51 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
   );
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
-  const tableInstance = useTable({ columns, data: records }, useSortBy, useRowSelect);
+  const data = useMemo(() => records, [records]);
 
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
+  const tableInstance = useTable(
+    {
+      columns,
+      data,
+    },
+    useSortBy,
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [
+        {
+          id: "selection",
+          Header: ({ getToggleAllRowsSelectedProps }) => (
+            <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+          ),
+          Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
+        },
+        ...columns,
+      ]);
+    }
+  );
 
-  //  Pagination Handlers
-  const handleNextPage = () => {
-    if (pageIndex < totalPages) setPageIndex((prev) => prev + 1);
-  };
-  const handlePrevPage = () => {
-    if (pageIndex > 1) setPageIndex((prev) => prev - 1);
-  };
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    tableInstance;
+
+  // Pagination handlers
   const handleGoToPage = (page) => {
-    if (page >= 1 && page <= totalPages) setPageIndex(page);
+    if (page < 1) page = 1;
+    if (page > totalPages) page = totalPages;
+    setPageIndex(page);
   };
+
+  const handlePrevPage = () => handleGoToPage(pageIndex - 1);
+  const handleNextPage = () => handleGoToPage(pageIndex + 1);
 
   return (
     <>
       <Card noborder>
-        {/* Header */}
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0">Purchased Good & Services Records</h6>
-          <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
+          <h6 className="flex-1 md:mb-0 ">Purchase Goods Services Records</h6>
+
+          <div className="md:flex md:space-x-3 items-center">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
+
             <Button
               icon="heroicons-outline:plus-sm"
               text="Add Record"
@@ -179,7 +236,7 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
           </div>
         </div>
 
-        {/* Table */}
+        {/* TABLE */}
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
             <div className="overflow-hidden">
@@ -240,9 +297,9 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
           </div>
         </div>
 
-        {/*  Server-side Pagination UI */}
-        <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
-          <div className="flex items-center space-x-3 rtl:space-x-reverse">
+        {/* CUSTOM PAGINATION UI (SERVER SIDE) */}
+        {/* <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
+          <div className="flex items-center space-x-3">
             <span className="flex space-x-2 items-center">
               <span className="text-sm font-medium text-slate-600">Go</span>
               <input
@@ -258,21 +315,20 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
             </span>
           </div>
 
-          <ul className="flex items-center space-x-3 rtl:space-x-reverse">
+          <ul className="flex items-center space-x-3">
             <li>
               <button
                 onClick={() => handleGoToPage(1)}
                 disabled={pageIndex === 1}
-                className={`${pageIndex === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <Icon icon="heroicons:chevron-double-left-solid" />
               </button>
             </li>
+
             <li>
               <button
                 onClick={handlePrevPage}
                 disabled={pageIndex === 1}
-                className={`${pageIndex === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Prev
               </button>
@@ -284,7 +340,7 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
                   className={`${
                     idx + 1 === pageIndex
                       ? "bg-slate-900 text-white font-medium"
-                      : "bg-slate-100 text-slate-900 font-normal"
+                      : "bg-slate-100 text-slate-900"
                   } text-sm rounded h-6 w-6 flex items-center justify-center`}
                   onClick={() => handleGoToPage(idx + 1)}
                 >
@@ -297,16 +353,15 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
               <button
                 onClick={handleNextPage}
                 disabled={pageIndex === totalPages}
-                className={`${pageIndex === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 Next
               </button>
             </li>
+
             <li>
               <button
                 onClick={() => handleGoToPage(totalPages)}
                 disabled={pageIndex === totalPages}
-                className={`${pageIndex === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
               >
                 <Icon icon="heroicons:chevron-double-right-solid" />
               </button>
@@ -327,10 +382,167 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
               ))}
             </select>
           </div>
+        </div> */}
+        <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
+          {/* LEFT SECTION – Go To Page */}
+          <div className="flex items-center space-x-3">
+            <span className="flex space-x-2 items-center">
+              <span className="text-sm font-medium text-slate-600">Go</span>
+              {/* <input
+                type="number"
+                className="form-control py-2"
+                value={pageIndex}
+                onChange={(e) => handleGoToPage(Number(e.target.value))}
+                style={{ width: "50px" }}
+              /> */}
+              <input
+                type="number"
+                className="form-control py-2"
+                min="1"
+                max={totalPages}
+                value={goToValue}
+                onChange={(e) => setGoToValue(e.target.value)}
+                onBlur={() => {
+                  const page = Number(goToValue);
+                  if (page >= 1 && page <= totalPages && page !== pageIndex) {
+                    handleGoToPage(page);
+                  } else {
+                    setGoToValue(pageIndex);
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const page = Number(goToValue);
+                    if (page >= 1 && page <= totalPages && page !== pageIndex) {
+                      handleGoToPage(page);
+                    } else {
+                      setGoToValue(pageIndex);
+                    }
+                  }
+                }}
+                style={{ width: "70px" }}
+              />
+            </span>
+            <span className="text-sm font-medium text-slate-600">
+              Page {pageIndex} of {totalPages}
+            </span>
+          </div>
+
+          {/* MIDDLE SECTION – Full Pagination */}
+          <ul className="flex items-center space-x-3">
+
+            {/* First Page */}
+            <li>
+              <button
+                onClick={() => handleGoToPage(1)}
+                disabled={pageIndex === 1}
+              >
+                <Icon icon="heroicons:chevron-double-left-solid" />
+              </button>
+            </li>
+
+            {/* Prev */}
+            <li>
+              <button
+                onClick={handlePrevPage}
+                disabled={pageIndex === 1}
+              >
+                Prev
+              </button>
+            </li>
+
+            {/* Truncated Pagination */}
+            {(() => {
+              const showPages = [];
+              const total = totalPages;
+              const current = pageIndex;
+
+              // Always show first 2 pages
+              if (total > 0) showPages.push(1);
+              if (total > 1) showPages.push(2);
+
+              // Left ellipsis (... before current page)
+              if (current > 4) showPages.push("left-ellipsis");
+
+              // Current page
+              if (current > 2 && current < total - 1) showPages.push(current);
+
+              // Right ellipsis (... after current page)
+              if (current < total - 3) showPages.push("right-ellipsis");
+
+              // Always show last 2 pages
+              if (total > 2) showPages.push(total - 1);
+              if (total > 1) showPages.push(total);
+
+              // Remove duplicates + keep valid entries
+              const finalPages = [...new Set(
+                showPages.filter(
+                  (p) => (typeof p === "number" && p >= 1 && p <= total) || typeof p === "string"
+                )
+              )];
+
+              // Render pages
+              return finalPages.map((p, idx) => (
+                <li key={idx}>
+                  {p === "left-ellipsis" || p === "right-ellipsis" ? (
+                    <span className="text-slate-500 px-1">...</span>
+                  ) : (
+                    <button
+                      className={`${p === current
+                        ? "bg-slate-900 text-white font-medium"
+                        : "bg-slate-100 text-slate-900"
+                        } text-sm rounded h-6 w-6 flex items-center justify-center`}
+                      onClick={() => handleGoToPage(p)}
+                    >
+                      {p}
+                    </button>
+                  )}
+                </li>
+              ));
+            })()}
+
+            {/* Next */}
+            <li>
+              <button
+                onClick={handleNextPage}
+                disabled={pageIndex === totalPages}
+              >
+                Next
+              </button>
+            </li>
+
+            {/* Last Page */}
+            <li>
+              <button
+                onClick={() => handleGoToPage(totalPages)}
+                disabled={pageIndex === totalPages}
+              >
+                <Icon icon="heroicons:chevron-double-right-solid" />
+              </button>
+            </li>
+
+          </ul>
+
+          {/* RIGHT SECTION – Show page size */}
+          <div className="flex items-center space-x-3">
+            <span className="text-sm font-medium text-slate-600">Show</span>
+            <select
+              value={pageSize}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+              className="form-select py-2"
+            >
+              {[10, 20, 50].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
       </Card>
 
-      {/*  Delete Confirmation Modal */}
+      {/* DELETE MODAL */}
       <Modal
         activeModal={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
@@ -340,11 +552,12 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
         footerContent={
           <>
             <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
+
             <Button
               text="Delete"
               className="btn-danger"
               onClick={async () => {
-                await handleDelete(selectedBuildingId);
+                await handleDelete(selectedId);
                 setDeleteModalOpen(false);
               }}
             />
@@ -352,7 +565,7 @@ const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
         }
       >
         <p className="text-gray-700 text-center">
-          Are you sure you want to delete this Fugitive? This action cannot be undone.
+          Are you sure you want to delete this Process? This action cannot be undone.
         </p>
       </Modal>
     </>
