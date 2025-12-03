@@ -163,9 +163,9 @@ const ProcessEmissionsFormPage = () => {
           updated.calculatedEmissionTCo2e = formatEmission(t);
           
         }
-            toast.info(
-          `Emissions Calculated: ${updated.calculatedEmissionKgCo2e} kg CO2e / ${updated.calculatedEmissionTCo2e} t CO2e`
-        );
+        //     toast.info(
+        //   `Emissions Calculated: ${updated.calculatedEmissionKgCo2e} kg CO2e / ${updated.calculatedEmissionTCo2e} t CO2e`
+        // );
       }
 
       return updated;

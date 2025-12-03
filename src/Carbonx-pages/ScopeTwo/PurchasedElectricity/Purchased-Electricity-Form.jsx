@@ -289,7 +289,7 @@ const PurchasedElectricityFormPage = () => {
         formData.hasRenewableAttributes;
 
       if (!hasAtLeastOneToggle) {
-        newErrors.toggleRequired = "Please select at least one option (Solar Panels, Supplier Specific, PPA, or Renewable Attributes)";
+        newErrors.toggleRequired = "Please select at least one option from below or choose the location based method instead.";
       }
 
       if (formData.hasSolarPanels) {

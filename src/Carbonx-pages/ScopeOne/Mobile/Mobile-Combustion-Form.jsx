@@ -44,6 +44,12 @@ const MobileCombustionFormPage = () => {
   const [errors, setErrors] = useState({});
   const [buildingOptions, setBuildingOptions] = useState([]);
 
+  const capitalizeFirstLetter = (text) => {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
+
   // Fetch all buildings for dropdown  
   useEffect(() => {
     const fetchBuildings = async () => {
@@ -228,7 +234,7 @@ const MobileCombustionFormPage = () => {
       weightLoaded: formData.weightLoaded ? formData.weightLoaded.value || formData.weightLoaded : null,
       calculatedEmissionKgCo2e,
       calculatedEmissionTCo2e,
-      remarks: formData.remarks,
+      remarks: capitalizeFirstLetter(formData.remarks),
     };
 
     try {

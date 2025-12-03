@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -239,9 +238,9 @@ const ProcessEmissionsListing = () => {
         {/* TABLE */}
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden">
+            <div className="overflow-y-auto max-h-[70vh] overflow-x-auto">
               {loading ? (
-                <div className="flex justify-center items-center py-8">
+                <div className="flex justify-center items-center ">
                   <img src={Logo} alt="Loading..." className="w-52 h-24" />
                 </div>
               ) : (
@@ -298,103 +297,11 @@ const ProcessEmissionsListing = () => {
         </div>
 
         {/* CUSTOM PAGINATION UI (SERVER SIDE) */}
-        {/* <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
-          <div className="flex items-center space-x-3">
-            <span className="flex space-x-2 items-center">
-              <span className="text-sm font-medium text-slate-600">Go</span>
-              <input
-                type="number"
-                className="form-control py-2"
-                value={pageIndex}
-                onChange={(e) => handleGoToPage(Number(e.target.value))}
-                style={{ width: "50px" }}
-              />
-            </span>
-            <span className="text-sm font-medium text-slate-600">
-              Page {pageIndex} of {totalPages}
-            </span>
-          </div>
-
-          <ul className="flex items-center space-x-3">
-            <li>
-              <button
-                onClick={() => handleGoToPage(1)}
-                disabled={pageIndex === 1}
-              >
-                <Icon icon="heroicons:chevron-double-left-solid" />
-              </button>
-            </li>
-
-            <li>
-              <button
-                onClick={handlePrevPage}
-                disabled={pageIndex === 1}
-              >
-                Prev
-              </button>
-            </li>
-
-            {[...Array(totalPages)].map((_, idx) => (
-              <li key={idx}>
-                <button
-                  className={`${
-                    idx + 1 === pageIndex
-                      ? "bg-slate-900 text-white font-medium"
-                      : "bg-slate-100 text-slate-900"
-                  } text-sm rounded h-6 w-6 flex items-center justify-center`}
-                  onClick={() => handleGoToPage(idx + 1)}
-                >
-                  {idx + 1}
-                </button>
-              </li>
-            ))}
-
-            <li>
-              <button
-                onClick={handleNextPage}
-                disabled={pageIndex === totalPages}
-              >
-                Next
-              </button>
-            </li>
-
-            <li>
-              <button
-                onClick={() => handleGoToPage(totalPages)}
-                disabled={pageIndex === totalPages}
-              >
-                <Icon icon="heroicons:chevron-double-right-solid" />
-              </button>
-            </li>
-          </ul>
-
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-slate-600">Show</span>
-            <select
-              value={pageSize}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              className="form-select py-2"
-            >
-              {[10, 20, 50].map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div> */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
           {/* LEFT SECTION – Go To Page */}
           <div className="flex items-center space-x-3">
             <span className="flex space-x-2 items-center">
               <span className="text-sm font-medium text-slate-600">Go</span>
-              {/* <input
-                type="number"
-                className="form-control py-2"
-                value={pageIndex}
-                onChange={(e) => handleGoToPage(Number(e.target.value))}
-                style={{ width: "50px" }}
-              /> */}
               <input
                 type="number"
                 className="form-control py-2"
@@ -460,20 +367,15 @@ const ProcessEmissionsListing = () => {
               // Always show first 2 pages
               if (total > 0) showPages.push(1);
               if (total > 1) showPages.push(2);
-
               // Left ellipsis (... before current page)
               if (current > 4) showPages.push("left-ellipsis");
-
               // Current page
               if (current > 2 && current < total - 1) showPages.push(current);
-
               // Right ellipsis (... after current page)
               if (current < total - 3) showPages.push("right-ellipsis");
-
               // Always show last 2 pages
               if (total > 2) showPages.push(total - 1);
               if (total > 1) showPages.push(total);
-
               // Remove duplicates + keep valid entries
               const finalPages = [...new Set(
                 showPages.filter(
@@ -503,24 +405,17 @@ const ProcessEmissionsListing = () => {
 
             {/* Next */}
             <li>
-              <button
-                onClick={handleNextPage}
-                disabled={pageIndex === totalPages}
-              >
+              <button onClick={handleNextPage}  disabled={pageIndex === totalPages}>
                 Next
               </button>
             </li>
 
             {/* Last Page */}
             <li>
-              <button
-                onClick={() => handleGoToPage(totalPages)}
-                disabled={pageIndex === totalPages}
-              >
+              <button  onClick={() => handleGoToPage(totalPages)} disabled={pageIndex === totalPages}>
                 <Icon icon="heroicons:chevron-double-right-solid" />
               </button>
             </li>
-
           </ul>
 
           {/* RIGHT SECTION – Show page size */}
@@ -552,7 +447,6 @@ const ProcessEmissionsListing = () => {
         footerContent={
           <>
             <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
-
             <Button
               text="Delete"
               className="btn-danger"
