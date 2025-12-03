@@ -201,7 +201,7 @@ export const menuItems = [
     icon: "heroicons-outline:home",
     isOpen: true,
     isHide: true,
-    icon: "heroicons:globe-alt",
+    icon: "mdi:factory",
     link: "Scope-1",
     child: [
 
@@ -234,7 +234,7 @@ export const menuItems = [
     icon: "heroicons-outline:home",
     isOpen: true,
     isHide: true,
-    icon: "heroicons:globe-alt",
+    icon: "mdi:power-plug",
     link: "Scope-2",
     child: [
       
@@ -274,7 +274,7 @@ export const menuItems = [
     icon: "heroicons-outline:home",
     isOpen: true,
     isHide: true,
-    icon: "heroicons:globe-alt",
+    icon: "mdi:share-variant",
     link: "Scope-3",
     child: [
 

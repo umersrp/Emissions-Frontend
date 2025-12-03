@@ -39,6 +39,11 @@ const ProcessEmissionsFormPage = () => {
   const [errors, setErrors] = useState({});
   const [buildingOptions, setBuildingOptions] = useState([]);
 
+   const capitalizeFirstLetter = (text) => {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
   // Fetch all buildings for dropdown
   useEffect(() => {
     const fetchBuildings = async () => {
@@ -208,7 +213,7 @@ const ProcessEmissionsFormPage = () => {
       gasEmitted: formData.gasEmitted,
       amountOfEmissions: formData.amountOfEmissions,
       qualityControl: formData.qualityControl?.value,
-      remarks: formData.remarks,
+      remarks: capitalizeFirstLetter(formData.remarks),
       calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e,  // added
       calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
     };

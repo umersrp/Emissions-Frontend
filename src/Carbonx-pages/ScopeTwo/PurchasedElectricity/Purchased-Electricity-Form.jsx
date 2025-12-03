@@ -60,6 +60,7 @@ const PurchasedElectricityFormPage = () => {
 
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
+  
   const formatEmission = (num) => {
     const rounded = Number(num.toFixed(5));
     if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
@@ -68,6 +69,10 @@ const PurchasedElectricityFormPage = () => {
     return rounded;
   };
 
+    const capitalizeFirstLetter = (text) => {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
 
   useEffect(() => {
     const fetchBuildings = async () => {
@@ -333,7 +338,7 @@ const PurchasedElectricityFormPage = () => {
       gridStation: formData.gridStation?.value || null,
       totalOtherSupplierElectricity: formData.totalOtherSupplierElectricity || null,
       qualityControl: formData.qualityControl?.value || null,
-      remarks: formData.remarks || null,
+      remarks: capitalizeFirstLetter(formData.remarks),
       totalPurchasedElectricity: formData.totalPurchasedElectricity || null,
       totalGrossElectricityGridMarket: formData.totalGrossElectricityGridMarket || null,
       gridStationMarket: formData.gridStationMarket?.value || null,

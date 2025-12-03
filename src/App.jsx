@@ -222,8 +222,8 @@ import PurchasedCoolingListing from "./Carbonx-pages/ScopeTwo/PurchasedElectrici
 import PurchasedElectricityFormPage from "./Carbonx-pages/ScopeTwo/PurchasedElectricity/Purchased-Electricity-Form";
 import PurchasedElectricityListing from "./Carbonx-pages/ScopeTwo/PurchasedElectricity/Purchased-Electricity-Listing";
 import Scope3 from "./Carbonx-pages/ScopeThree/Scope3/Scope3";
-import PurchasedGoodServicesFormPage from "./Carbonx-pages/ScopeThree/PurchasedElectricity/Purchased-Good-Services-Form";
-import PurchasedGoodServicesListing from "./Carbonx-pages/ScopeThree/PurchasedElectricity/Purchased-Good-Services-Listing";
+import PurchasedGoodServicesFormPage from "./Carbonx-pages/ScopeThree/PurchasedGoodAndServices/Purchased-Good-Services-Form";
+import PurchasedGoodServicesListing from "./Carbonx-pages/ScopeThree/PurchasedGoodAndServices/Purchased-Good-Services-Listing";
 import ScopeTwoReport from "./Carbonx-pages/ScopeTwo/ScopeTwoReport/Scope-Two-Report";
 import FuelFusion from "./Carbonx-pages/ScopeThree/FuelFusion/fuelFusion";
 import FuelEnergyForm from "./Carbonx-pages/ScopeThree/FuelFusion/fuelEnergyForm";

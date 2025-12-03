@@ -39,31 +39,7 @@ const FugitiveCombustionListing = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
-  //  Fetch Fugitive Records with Pagination
-  // const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
-  //   setLoading(true);
-  //   try {
-  //     const res = await axios.get(
-  //       `${process.env.REACT_APP_BASE_URL}/Fugitive/get-All?page=${page}&limit=${limit}&search=${search}`,
-  //       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-  //     );
-
-  //     const data = res.data?.data || [];
-  //     const meta = res.data?.meta || {};
-
-  //     setRecords(data);
-  //     setPageIndex(meta.currentPage || 1);
-  //     setTotalPages(meta.totalPages || 1);
-  //     setTotalRecords(meta.totalRecords || 0);
-  //     setPageSize(meta.limit || 10);
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to fetch records");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-  // ✅ Fetch Fugitive Records with Pagination + Search
+  // Fetch Fugitive Records with Pagination + Search
   const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
     setLoading(true);
     try {
@@ -227,13 +203,18 @@ const FugitiveCombustionListing = () => {
         {/* Table */}
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden">
+            {/*  Set fixed height for vertical scroll */}
+            <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
+              {/* <div className="overflow-hidden"> */}
               {loading ? (
                 <div className="flex justify-center items-center py-8">
                   <img src={Logo} alt="Loading..." className="w-52 h-24" />
                 </div>
               ) : (
-                <table className="min-w-full divide-y divide-slate-100 table-fixed" {...getTableProps()}>
+                <table
+                  className="min-w-full divide-y divide-slate-100 table-fixed"
+                  {...getTableProps()}
+                >
                   <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
                     {headerGroups.map((headerGroup, index) => (
                       <tr {...headerGroup.getHeaderGroupProps()} key={index}>
@@ -245,18 +226,21 @@ const FugitiveCombustionListing = () => {
                           >
                             {column.render("Header")}
                             <span>
-                              {column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}
+                              {column.isSorted
+                                ? column.isSortedDesc
+                                  ? " 🔽"
+                                  : " 🔼"
+                                : ""}
                             </span>
                           </th>
                         ))}
                       </tr>
                     ))}
                   </thead>
-
                   <tbody {...getTableBodyProps()}>
                     {rows.length === 0 ? (
                       <tr>
-                        <td colSpan={columns.length + 1}>
+                        <td colSpan={COLUMNS.length + 1}>
                           <div className="flex justify-center items-center py-16">
                             <span className="text-gray-500 text-lg font-medium">
                               No data available.
@@ -270,7 +254,10 @@ const FugitiveCombustionListing = () => {
                         return (
                           <tr {...row.getRowProps()} className="even:bg-gray-50">
                             {row.cells.map((cell) => (
-                              <td {...cell.getCellProps()} className="px-6 py-4 whitespace-nowrap">
+                              <td
+                                {...cell.getCellProps()}
+                                className="px-6 py-4 whitespace-nowrap"
+                              >
                                 {cell.render("Cell")}
                               </td>
                             ))}
