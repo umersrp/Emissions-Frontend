@@ -52,7 +52,7 @@ const PurchasedGoodServicesListing = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/Process-Emissions/Get-All`,
+        `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
         {
           params: {
             page: pageIndex,
@@ -88,7 +88,7 @@ const PurchasedGoodServicesListing = () => {
   // Delete Record
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/Process-Emissions/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Record deleted successfully");
@@ -100,86 +100,92 @@ const PurchasedGoodServicesListing = () => {
   };
 
   // Columns
-  const COLUMNS = useMemo(
-    () => [
-      {
-        Header: "Sr.No",
-        id: "serialNo",
-        Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
-      },
-      { Header: "Building", accessor: "buildingId.buildingName" },
-      { Header: "Stakeholder", accessor: "stakeholderDepartment" },
-      { Header: "Activity Type", accessor: "activityType" },
-      { Header: "Gas Emitted", accessor: "gasEmitted" },
-      { Header: "Amount Of Emissions", accessor: "amountOfEmissions" },
-      { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
-      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
-      {
-        Header: "Created By",
-        accessor: "createdBy.name",
-        Cell: ({ cell }) => cell.value || "-",
-      },
-      {
-        Header: "Updated By",
-        accessor: "updatedBy.name",
-        Cell: ({ cell }) => cell.value || "-",
-      },
-      { Header: "Remarks", accessor: "remarks" },
-      {
-        Header: "Created At",
-        accessor: "createdAt",
-        Cell: ({ cell }) =>
-          cell.value ? new Date(cell.value).toLocaleDateString() : "-",
-      },
-      {
-        Header: "Actions",
-        accessor: "_id",
-        Cell: ({ cell }) => (
-          <div className="flex space-x-3 rtl:space-x-reverse">
-            <Tippy content="View">
-              <button
-                className="action-btn"
-                onClick={() =>
-                  navigate(`/Process-Emissions-Form/${cell.value}`, {
-                    state: { mode: "view" },
-                  })
-                }
-              >
-                <Icon icon="heroicons:eye" className="text-green-600" />
-              </button>
-            </Tippy>
+ const COLUMNS = useMemo(
+  () => [
+    {
+      Header: "Sr.No",
+      id: "serialNo",
+      Cell: ({ row }) => (
+        <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
+      ),
+    },
 
-            <Tippy content="Edit">
-              <button
-                className="action-btn"
-                onClick={() =>
-                  navigate(`/Process-Emissions-Form/${cell.value}`, {
-                    state: { mode: "edit" },
-                  })
-                }
-              >
-                <Icon icon="heroicons:pencil-square" className="text-blue-600" />
-              </button>
-            </Tippy>
+    { Header: "Building", accessor: "buildingId.buildingName" },
+    { Header: "Stakeholder", accessor: "stakeholder" },
+    { Header: "Purchase Category", accessor: "purchaseCategory" },
+    { Header: "Purchased Activity Type", accessor: "purchasedActivityType" },
+    { Header: "Purchased Goods/Services Type", accessor: "purchasedGoodsServicesType" },
+    { Header: "Amount Spent", accessor: "amountSpent" },
+    { Header: "Unit", accessor: "unit" },
+    { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
+    { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
+    { Header: "Quality Control", accessor: "qualityControl" },
+    { Header: "Remarks", accessor: "remarks" },
+    // {
+    //   Header: "Created By",
+    //   accessor: "createdBy",
+    //   Cell: ({ cell }) => cell.value || "-",
+    // },
+    // {
+    //   Header: "Updated By",
+    //   accessor: "updatedBy",
+    //   Cell: ({ cell }) => cell.value || "-",
+    // },
+    {
+      Header: "Created At",
+      accessor: "createdAt",
+      Cell: ({ cell }) =>
+        cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+    },
 
-            <Tippy content="Delete">
-              <button
-                className="action-btn"
-                onClick={() => {
-                  setSelectedId(cell.value);
-                  setDeleteModalOpen(true);
-                }}
-              >
-                <Icon icon="heroicons:trash" className="text-red-600" />
-              </button>
-            </Tippy>
-          </div>
-        ),
-      },
-    ],
-    [pageIndex, pageSize]
-  );
+    {
+      Header: "Actions",
+      accessor: "_id",
+      Cell: ({ cell }) => (
+        <div className="flex space-x-3 rtl:space-x-reverse">
+          <Tippy content="View">
+            <button
+              className="action-btn"
+              onClick={() =>
+                navigate(`/Purchased-Good-Services-Form/${cell.value}`, {
+                  state: { mode: "view" },
+                })
+              }
+            >
+              <Icon icon="heroicons:eye" className="text-green-600" />
+            </button>
+          </Tippy>
+
+          <Tippy content="Edit">
+            <button
+              className="action-btn"
+              onClick={() =>
+                navigate(`/Purchased-Good-Services-Form/${cell.value}`, {
+                  state: { mode: "edit" },
+                })
+              }
+            >
+              <Icon icon="heroicons:pencil-square" className="text-blue-600" />
+            </button>
+          </Tippy>
+
+          <Tippy content="Delete">
+            <button
+              className="action-btn"
+              onClick={() => {
+                setSelectedId(cell.value);
+                setDeleteModalOpen(true);
+              }}
+            >
+              <Icon icon="heroicons:trash" className="text-red-600" />
+            </button>
+          </Tippy>
+        </div>
+      ),
+    },
+  ],
+  [pageIndex, pageSize]
+);
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
   const data = useMemo(() => records, [records]);
@@ -237,65 +243,6 @@ const PurchasedGoodServicesListing = () => {
         </div>
 
         {/* TABLE */}
-        {/* <div className="overflow-x-auto -mx-6">
-          <div className="inline-block min-w-full align-middle">
-            <div className="overflow-hidden">
-              {loading ? (
-                <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
-                </div>
-              ) : (
-                <table className="min-w-full divide-y divide-slate-100 table-fixed" {...getTableProps()}>
-                  <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
-                    {headerGroups.map((headerGroup, index) => (
-                      <tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                        {headerGroup.headers.map((column) => (
-                          <th
-                            {...column.getHeaderProps(column.getSortByToggleProps())}
-                            className="table-th text-white whitespace-nowrap"
-                            key={column.id}
-                          >
-                            {column.render("Header")}
-                            <span>
-                              {column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}
-                            </span>
-                          </th>
-                        ))}
-                      </tr>
-                    ))}
-                  </thead>
-
-                  <tbody {...getTableBodyProps()}>
-                    {rows.length === 0 ? (
-                      <tr>
-                        <td colSpan={columns.length + 1}>
-                          <div className="flex justify-center items-center py-16">
-                            <span className="text-gray-500 text-lg font-medium">
-                              No data available.
-                            </span>
-                          </div>
-                        </td>
-                      </tr>
-                    ) : (
-                      rows.map((row) => {
-                        prepareRow(row);
-                        return (
-                          <tr {...row.getRowProps()} className="even:bg-gray-50">
-                            {row.cells.map((cell) => (
-                              <td {...cell.getCellProps()} className="px-6 py-4 whitespace-nowrap">
-                                {cell.render("Cell")}
-                              </td>
-                            ))}
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-        </div> */}
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
             {/*  Set fixed height for vertical scroll */}
@@ -368,103 +315,11 @@ const PurchasedGoodServicesListing = () => {
         </div>
 
         {/* CUSTOM PAGINATION UI (SERVER SIDE) */}
-        {/* <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
-          <div className="flex items-center space-x-3">
-            <span className="flex space-x-2 items-center">
-              <span className="text-sm font-medium text-slate-600">Go</span>
-              <input
-                type="number"
-                className="form-control py-2"
-                value={pageIndex}
-                onChange={(e) => handleGoToPage(Number(e.target.value))}
-                style={{ width: "50px" }}
-              />
-            </span>
-            <span className="text-sm font-medium text-slate-600">
-              Page {pageIndex} of {totalPages}
-            </span>
-          </div>
-
-          <ul className="flex items-center space-x-3">
-            <li>
-              <button
-                onClick={() => handleGoToPage(1)}
-                disabled={pageIndex === 1}
-              >
-                <Icon icon="heroicons:chevron-double-left-solid" />
-              </button>
-            </li>
-
-            <li>
-              <button
-                onClick={handlePrevPage}
-                disabled={pageIndex === 1}
-              >
-                Prev
-              </button>
-            </li>
-
-            {[...Array(totalPages)].map((_, idx) => (
-              <li key={idx}>
-                <button
-                  className={`${
-                    idx + 1 === pageIndex
-                      ? "bg-slate-900 text-white font-medium"
-                      : "bg-slate-100 text-slate-900"
-                  } text-sm rounded h-6 w-6 flex items-center justify-center`}
-                  onClick={() => handleGoToPage(idx + 1)}
-                >
-                  {idx + 1}
-                </button>
-              </li>
-            ))}
-
-            <li>
-              <button
-                onClick={handleNextPage}
-                disabled={pageIndex === totalPages}
-              >
-                Next
-              </button>
-            </li>
-
-            <li>
-              <button
-                onClick={() => handleGoToPage(totalPages)}
-                disabled={pageIndex === totalPages}
-              >
-                <Icon icon="heroicons:chevron-double-right-solid" />
-              </button>
-            </li>
-          </ul>
-
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-slate-600">Show</span>
-            <select
-              value={pageSize}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              className="form-select py-2"
-            >
-              {[10, 20, 50].map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div> */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
           {/* LEFT SECTION – Go To Page */}
           <div className="flex items-center space-x-3">
             <span className="flex space-x-2 items-center">
               <span className="text-sm font-medium text-slate-600">Go</span>
-              {/* <input
-                type="number"
-                className="form-control py-2"
-                value={pageIndex}
-                onChange={(e) => handleGoToPage(Number(e.target.value))}
-                style={{ width: "50px" }}
-              /> */}
               <input
                 type="number"
                 className="form-control py-2"
@@ -609,7 +464,6 @@ const PurchasedGoodServicesListing = () => {
             </select>
           </div>
         </div>
-
       </Card>
 
       {/* DELETE MODAL */}
@@ -635,7 +489,7 @@ const PurchasedGoodServicesListing = () => {
         }
       >
         <p className="text-gray-700 text-center">
-          Are you sure you want to delete this Process? This action cannot be undone.
+          Are you sure you want to delete this Recorde? This action cannot be undone.
         </p>
       </Modal>
     </>

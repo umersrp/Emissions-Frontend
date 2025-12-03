@@ -6,13 +6,13 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { qualityControlOptions } from "@/constant/scope1/options";
-import { 
+import {
   stakeholderOptions,
-  purchaseCategoryOptions, 
-  purchasedGoodsActivityTypes, 
+  purchaseCategoryOptions,
+  purchasedGoodsActivityTypes,
   purchasedServicesActivityTypes,
   purchasedGoodsServicesTypes,
-  currencyUnitOptions 
+  currencyUnitOptions
 } from "@/constant/scope3/options";
 
 const PurchasedGoodServicesFormPage = () => {
@@ -41,7 +41,7 @@ const PurchasedGoodServicesFormPage = () => {
   const [goodsServicesTypeOptions, setGoodsServicesTypeOptions] = useState([]);
   const [errors, setErrors] = useState({});
 
-     const capitalizeFirstLetter = (text) => {
+  const capitalizeFirstLetter = (text) => {
     if (!text) return "";
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
@@ -85,7 +85,9 @@ const PurchasedGoodServicesFormPage = () => {
           if (data) {
             setFormData({
               buildingId: { value: data.buildingId?._id, label: data.buildingId?.buildingName },
-              stakeholder: { value: data.stakeholder?._id, label: data.stakeholder?.stakeholderName },
+              stakeholder: data.stakeholder
+                ? { value: data.stakeholder, label: data.stakeholder }
+                : null,
               purchaseCategory: { value: data.purchaseCategory, label: data.purchaseCategory },
               purchasedActivityType: { value: data.purchasedActivityType, label: data.purchasedActivityType },
               purchasedGoodsServicesType: { value: data.purchasedGoodsServicesType, label: data.purchasedGoodsServicesType },
@@ -111,7 +113,7 @@ const PurchasedGoodServicesFormPage = () => {
       } else if (formData.purchaseCategory.value === "Purchased Services") {
         setActivityTypeOptions(purchasedServicesActivityTypes);
       }
-      
+
       // Reset dependent fields when category changes
       if (!isView && !isEdit) {
         setFormData(prev => ({
@@ -132,7 +134,7 @@ const PurchasedGoodServicesFormPage = () => {
     if (formData.purchasedActivityType) {
       const typeOptions = purchasedGoodsServicesTypes[formData.purchasedActivityType.value] || [];
       setGoodsServicesTypeOptions(typeOptions);
-      
+
       // Reset goods/services type when activity type changes
       if (!isView && !isEdit) {
         setFormData(prev => ({
@@ -226,7 +228,7 @@ const PurchasedGoodServicesFormPage = () => {
         );
         toast.success("Record added successfully!");
       }
-      navigate("/Purchased-Goods-Services");
+      navigate("/Purchased-Good-Services");
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong");
     }
@@ -376,7 +378,7 @@ const PurchasedGoodServicesFormPage = () => {
               text={isView ? "Back" : "Cancel"}
               className={isView ? "btn-primary" : "btn-light"}
               type="button"
-              onClick={() => navigate("/Purchased-Goods-Services")}
+              onClick={() => navigate("/Purchased-Good-Services")}
             />
             {!isView && (
               <Button
