@@ -45,7 +45,21 @@ const ProcessEmissionsListing = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
 
+  const capitalizeLabel = (text) => {
+    if (!text) return "";
 
+    const exceptions = ["and", "or"];
+    return text
+      .split(" ")
+      .map((word, index) => {
+        // Always capitalize the first word
+        if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
+        // Don't capitalize exceptions
+        if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      })
+      .join(" ");
+  };
   // Fetch data from server with pagination
   const fetchData = async () => {
     setLoading(true);
@@ -108,7 +122,11 @@ const ProcessEmissionsListing = () => {
       },
       { Header: "Building", accessor: "buildingId.buildingName" },
       { Header: "Stakeholder", accessor: "stakeholderDepartment" },
-      { Header: "Activity Type", accessor: "activityType" },
+      {
+        Header: "Activity Type",
+        accessor: "activityType",
+        Cell: ({ value }) => capitalizeLabel(value), // use the function here
+      },
       { Header: "Gas Emitted", accessor: "gasEmitted" },
       { Header: "Amount Of Emissions", accessor: "amountOfEmissions" },
       { Header: "Quality Control", accessor: "qualityControl" },

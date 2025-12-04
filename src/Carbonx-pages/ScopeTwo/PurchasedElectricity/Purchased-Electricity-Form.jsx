@@ -639,6 +639,7 @@ const PurchasedElectricityFormPage = () => {
                     value={formData.unit}
                     onChange={(value) => handleSelectChange("unit", value)}
                     isDisabled={isView}
+                    disableCapitalize={true}
                   />
                 </div>
 

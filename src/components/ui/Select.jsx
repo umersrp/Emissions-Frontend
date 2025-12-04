@@ -182,10 +182,25 @@ import { components } from "react-select";
 const primary500 = "#4098ab";
 const primary900 = "#4097ab7a";
 
-// 🔠 Capitalize helper
-const capitalizeLabel = (text) => {
-  if (!text || typeof text !== "string") return text;
-  return text.charAt(0).toUpperCase() + text.slice(1);
+//  Capitalize helper
+// const capitalizeLabel = (text) => {
+//   if (!text || typeof text !== "string") return text;
+//   return text.charAt(0).toUpperCase() + text.slice(1);
+// };
+  const capitalizeLabel = (text) => {
+  if (!text) return "";
+
+  const exceptions = ["and", "or"];
+  return text
+    .split(" ")
+    .map((word, index) => {
+      // Always capitalize the first word
+      if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
+      // Don't capitalize exceptions
+      if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
 };
 
 const customStyles = {
