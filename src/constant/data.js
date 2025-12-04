@@ -269,30 +269,30 @@ export const menuItems = [
   //   ]
   
   // },
-  {
-    title: "Scope 3",
-    icon: "heroicons-outline:home",
-    isOpen: true,
-    isHide: true,
-    icon: "mdi:share-variant",
-    link: "Scope-3",
-    child: [
+  // {
+  //   title: "Scope 3",
+  //   icon: "heroicons-outline:home",
+  //   isOpen: true,
+  //   isHide: true,
+  //   icon: "mdi:share-variant",
+  //   link: "Scope-3",
+  //   child: [
 
-      // {
-      //   childtitle: "Scope 1 Report",
-      //   childlink: "Scope-One-Report",
-      // },
-      {
-        childtitle: "Purchase Good & Services",
-        childlink: "Purchased-Good-Services",
-      },
-      {
-        childtitle: "Fuel and Energy",
-        childlink: "fuel-energy",
-      },
-    ]
+  //     // {
+  //     //   childtitle: "Scope 1 Report",
+  //     //   childlink: "Scope-One-Report",
+  //     // },
+  //     {
+  //       childtitle: "Purchase Good & Services",
+  //       childlink: "Purchased-Good-Services",
+  //     },
+  //     {
+  //       childtitle: "Fuel and Energy",
+  //       childlink: "fuel-energy",
+  //     },
+  //   ]
 
-  },
+  // },
   {
     title: "Out of Scope / Other Air Emissions",
     isHide: true, 

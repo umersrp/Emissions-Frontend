@@ -87,7 +87,7 @@ const PurchasedElectricityFormPage = () => {
   useEffect(() => {
     const fetchBuildings = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings`, {
+        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
         });
         setBuildingOptions(res.data?.data?.buildings?.map((b) => ({ value: b._id, label: b.buildingName })) || []);
