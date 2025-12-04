@@ -162,7 +162,7 @@ export const purchasedGoodsServicesTypes = {
     { value: "Alcoholic beverages", label: "Alcoholic beverages" },
     { value: "Bakery and farinaceous products", label: "Bakery and farinaceous products" },
     { value: "Dairy products", label: "Dairy products" },
-    { value: "Grain mill products, starches and starch products ", label: "Grain mill products, starches and starch products" },
+    { value: "Grain mill products, starches and starch products", label: "Grain mill products, starches and starch products" },
     { value: "Other food products", label: "Other food products" },
     { value: "Prepared animal feeds", label: "Prepared animal feeds" },
     { value: "Preserved meat and meat products", label: "Preserved meat and meat products" },
@@ -233,14 +233,14 @@ export const purchasedGoodsServicesTypes = {
     { value: "Accounting, bookkeeping and auditing services; tax consulting services", label: "Accounting, bookkeeping and auditing services; tax consulting services" },
     { value: "Employment services", label: "Employment services" }
   ],
-  "Transport & Logistics": [
-    { value: "Air transport services", label: "Air transport services" },
-    { value: "Warehousing and support services for transportation", label: "Warehousing and support services for transportation" },
-    { value: "Land transport services and transport services via pipelines, excluding rail transport", label: "Land transport services and transport services via pipelines, excluding rail transport" },
-    { value: "Postal and courier services", label: "Postal and courier services" },
-    { value: "Water transport services", label: "Water transport services" },
-    { value: "Rail transport services", label: "Rail transport services" }
-  ],
+  // "Transport & Logistics": [
+  //   { value: "Air transport services", label: "Air transport services" },
+  //   { value: "Warehousing and support services for transportation", label: "Warehousing and support services for transportation" },
+  //   { value: "Land transport services and transport services via pipelines, excluding rail transport", label: "Land transport services and transport services via pipelines, excluding rail transport" },
+  //   { value: "Postal and courier services", label: "Postal and courier services" },
+  //   { value: "Water transport services", label: "Water transport services" },
+  //   { value: "Rail transport services", label: "Rail transport services" }
+  // ],
   "Construction & Real Estate": [
     { value: "Repair, Maintenance, and Installation Services (Industrial & Technical Equipment) (NACE 33.11–14, 33.17, 33.19, 33.20)", label: "Repair, Maintenance, and Installation Services (Industrial & Technical Equipment) (NACE 33.11–14, 33.17, 33.19, 33.20)" },
     { value: "Repair services of computers and personal and household goods", label: "Repair services of computers and personal and household goods" },

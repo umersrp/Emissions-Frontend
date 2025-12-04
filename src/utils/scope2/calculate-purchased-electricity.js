@@ -125,8 +125,8 @@ export const calculatePurchasedElectricity = (data, GridStationEmissionFactors) 
   if (data.method === "market_based") {
     // ---------------- 1) FIRST OUTPUT ----------------
     const purchasedKwh = toKwh(data.totalPurchasedElectricity, unit);
-    // const calcKgCo2e = purchasedKwh * AVERAGE_GRID_EF;
-    const calcKgCo2e = purchasedKwh * GridStationEmissionFactors[data.gridStation] || 0;
+    const calcKgCo2e = purchasedKwh * AVERAGE_GRID_EF;
+    // const calcKgCo2e = purchasedKwh * GridStationEmissionFactors[data.gridStation] || 0;
 
     // ---------------- 2) SECOND OUTPUT ----------------
     const grossGridKwh = toKwh(data.totalGrossElectricityGrid, unit);

@@ -70,7 +70,7 @@ export const processEmissionFactors = {
   "Bioethanol Fermentation": 1100,
   "Hydrogen from Electrolysis (if carbonates used)": 440,
   "Carbonate / Bicarbonate Neutralization in API Synthesis": 440,
-  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (biogenic)": 1,
+  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": 1,
   "Neutralization or Buffer Preparation Using Carbonates": 440,
   "Lyophilization or Freeze-Drying Using CO₂ Refrigerants": 30,
   "Anaerobic Wastewater or Biowaste Treatment (On-site)": 13.44,
@@ -185,6 +185,6 @@ export const VO_ACTIVITIES = [
 export const BIOGENIC_ACTIVITIES = [
   "Biomass Gasification or Pyrolysis",
   "Bioethanol Fermentation",
-  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (biogenic)",
+  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (Biogenic)",
   "Other Biogenic GHG Emission Process Activities",
 ];

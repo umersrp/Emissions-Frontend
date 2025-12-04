@@ -222,9 +222,9 @@ const ScopeTwoReport = () => {
   const emissionOptions = [
     { value: "all", label: "All Scope 2 (Building-wise)" },
     { value: "electricity", label: "Purchased Electricity" },
-    { value: "steam", label: "Purchased Steam" },
-    { value: "heating", label: "Purchased Heating" },
-    { value: "cooling", label: "Purchased Cooling" },
+    // { value: "steam", label: "Purchased Steam" },
+    // { value: "heating", label: "Purchased Heating" },
+    // { value: "cooling", label: "Purchased Cooling" },
   ];
 
   return (
@@ -266,24 +266,16 @@ const ScopeTwoReport = () => {
                 />
                 <h2 className="text-xl font-semibold mb-1 text-gray-700">{item.name}</h2>
               </div>
-              {/* <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
-                <span>
-                  {formatNumber(item.kg)} <span className="text-black-500">kg CO₂e</span>
-                </span>
-                <span>
-                  {formatNumber(item.t)} <span className="text-black-500">t CO₂e</span>
-                </span>
-              </p> */}
               <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
                 {item.name === "Purchased Electricity" ? (
                   <>
                   <span className="text-md font-semibold mb-1 text-gray-700">Location Based</span>
                     <span>
-                      {formatNumber(item.locationKg)} kg CO₂e, {formatNumber(item.locationT)} t
+                      {formatNumber(item.locationKg)} kg CO₂e, {formatNumber(item.locationT)} t CO₂e
                     </span>
                     <span className="text-md font-semibold mb-1 text-gray-700">Market Based</span>
                     <span>
-                      {formatNumber(item.marketKg)} kg CO₂e, {formatNumber(item.marketT)} t
+                      {formatNumber(item.marketKg)} kg CO₂e, {formatNumber(item.marketT)} t CO₂e
                     </span>
                   </>
                 ) : (
@@ -337,18 +329,18 @@ const ScopeTwoReport = () => {
                   Building
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
-                  Total Emissions (kgCO₂e)
+                  Total Location Based Emissions (kgCO₂e)
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
-                  Total Emissions (tCO₂e)
+                  Total Location Based Emissions (tCO₂e)
                 </th>
                 {(emissionType === "all" || emissionType === "electricity") && (
                   <>
                     <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
-                      Market Emissions (kgCO₂e)
+                      Total Market Based Emissions (kgCO₂e)
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
-                      Market Emissions (tCO₂e)
+                     Total Market Based Emissions (tCO₂e)
                     </th>
                   </>
                 )}
