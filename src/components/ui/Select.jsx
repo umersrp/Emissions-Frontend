@@ -6,6 +6,12 @@
 // const primary500 = "#4098ab";
 // const primary900 = "#4097ab7a";
 
+// // 🔠 Capitalize first letter helper
+// const capitalizeLabel = (text) => {
+//   if (!text || typeof text !== "string") return text;
+//   return text.charAt(0).toUpperCase() + text.slice(1);
+// };
+
 // const customStyles = {
 //   control: (base, state) => ({
 //     ...base,
@@ -15,12 +21,12 @@
 //     fontSize: "14px",
 //     borderWidth: "2px",
 //     borderColor: state.isDisabled
-//       ? "#e5e7eb" // gray border like input
+//       ? "#e5e7eb"
 //       : state.isFocused
-//       ? "#000000"
-//       : "#d1d5db",
+//         ? "#000000"
+//         : "#d1d5db",
 //     boxShadow: "none",
-//     backgroundColor: state.isDisabled ? "#f3f4f6" : "white", // match disabled input
+//     backgroundColor: state.isDisabled ? "#f3f4f6" : "white",
 //     color: state.isDisabled ? "#9ca3af" : "#000",
 //     cursor: state.isDisabled ? "not-allowed" : "default",
 //     "&:hover": {
@@ -36,8 +42,8 @@
 //     backgroundColor: state.isSelected
 //       ? "#4098ab"
 //       : state.isFocused && state.isHovered
-//       ? "#e5f4f7"
-//       : "transparent",
+//         ? "#e5f4f7"
+//         : "transparent",
 //     color: state.isSelected ? "#fff" : "#000",
 //     "&:hover": {
 //       backgroundColor: "#e5f4f7",
@@ -46,15 +52,21 @@
 //   }),
 //   singleValue: (base, state) => ({
 //     ...base,
-//     color: state.isDisabled ? "#000000" : "#000", // gray text when disabled
+//     color: state.isDisabled ? "#000000" : "#000",
+
+//     whiteSpace: "normal",
+//     overflow: "visible",
+//     textOverflow: "unset",
+//     display: "block",
+//     lineHeight: "1.4",
 //   }),
 //   placeholder: (base, state) => ({
 //     ...base,
-//     color: state.isDisabled ? "#9ca3af" : "#6b7280", // gray placeholder when disabled
+//     color: state.isDisabled ? "#9ca3af" : "#6b7280",
 //   }),
 // };
 
-// // 👇 dropdown arrow that turns gray when disabled
+// // ▼ Custom dropdown arrow
 // const DropdownIndicator = (props) => {
 //   const color = props.selectProps.isDisabled ? "#9ca3af" : "#6dacbaff";
 //   return (
@@ -84,50 +96,50 @@
 //   isDisabled = false,
 //   allowCustomInput = false,
 // }) => {
-//   const [localOptions, setLocalOptions] = useState(options);
+//   const [localOptions, setLocalOptions] = useState([]);
 
+//   // 🔠 Capitalize all incoming options
 //   useEffect(() => {
-//     setLocalOptions(options);
+//     const formatted = options.map((opt) => ({
+//       ...opt,
+//       label: capitalizeLabel(opt.label),
+//     }));
+//     setLocalOptions(formatted);
 //   }, [options]);
 
 //   const handleChange = (selectedOption) => {
 //     onChange?.(selectedOption, { name });
 //   };
 
+//   // 🔠 Capitalize new created items
 //   const handleCreate = (inputValue) => {
-//     const newOption = { label: inputValue, value: inputValue };
+//     const formatted = capitalizeLabel(inputValue);
+//     const newOption = { label: formatted, value: formatted };
+
 //     setLocalOptions((prev) => {
-//       const exists = prev.some((opt) => opt.value === inputValue);
+//       const exists = prev.some((opt) => opt.value === formatted);
 //       return exists ? prev : [...prev, newOption];
 //     });
+
 //     onChange?.(newOption, { name });
 //   };
 
-//   // const filterOption = (option, rawInput) => {
-//   //   if (!rawInput) return true;
-//   //   const search = rawInput.toLowerCase();
-//   //   return (
-//   //     option.label?.toLowerCase().startsWith(search) ||
-//   //     option.value?.toLowerCase().startsWith(search)
-//   //   );
-//   // };
 //   const filterOption = (option, rawInput) => {
-//   if (!rawInput) return true;
-//   const search = rawInput.toLowerCase();
+//     if (!rawInput) return true;
+//     const search = rawInput.toLowerCase();
 
-//   const label =
-//     typeof option.label === "string"
-//       ? option.label.toLowerCase()
-//       : option.label?.toString().toLowerCase() || "";
+//     const label =
+//       typeof option.label === "string"
+//         ? option.label.toLowerCase()
+//         : option.label?.toString().toLowerCase() || "";
 
-//   const value =
-//     typeof option.value === "string"
-//       ? option.value.toLowerCase()
-//       : option.value?.toString?.().toLowerCase?.() || "";
+//     const value =
+//       typeof option.value === "string"
+//         ? option.value.toLowerCase()
+//         : option.value?.toString?.().toLowerCase?.() || "";
 
-//   return label.startsWith(search) || value.startsWith(search);
-// };
-
+//     return label.startsWith(search) || value.startsWith(search);
+//   };
 
 //   const commonProps = {
 //     name,
@@ -170,7 +182,7 @@ import { components } from "react-select";
 const primary500 = "#4098ab";
 const primary900 = "#4097ab7a";
 
-// 🔠 Capitalize first letter helper
+// 🔠 Capitalize helper
 const capitalizeLabel = (text) => {
   if (!text || typeof text !== "string") return text;
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -187,8 +199,8 @@ const customStyles = {
     borderColor: state.isDisabled
       ? "#e5e7eb"
       : state.isFocused
-        ? "#000000"
-        : "#d1d5db",
+      ? "#000000"
+      : "#d1d5db",
     boxShadow: "none",
     backgroundColor: state.isDisabled ? "#f3f4f6" : "white",
     color: state.isDisabled ? "#9ca3af" : "#000",
@@ -205,9 +217,9 @@ const customStyles = {
     ...base,
     backgroundColor: state.isSelected
       ? "#4098ab"
-      : state.isFocused && state.isHovered
-        ? "#e5f4f7"
-        : "transparent",
+      : state.isFocused
+      ? "#e5f4f7"
+      : "transparent",
     color: state.isSelected ? "#fff" : "#000",
     "&:hover": {
       backgroundColor: "#e5f4f7",
@@ -217,7 +229,6 @@ const customStyles = {
   singleValue: (base, state) => ({
     ...base,
     color: state.isDisabled ? "#000000" : "#000",
-
     whiteSpace: "normal",
     overflow: "visible",
     textOverflow: "unset",
@@ -230,7 +241,7 @@ const customStyles = {
   }),
 };
 
-// ▼ Custom dropdown arrow
+// ▼ Custom arrow
 const DropdownIndicator = (props) => {
   const color = props.selectProps.isDisabled ? "#9ca3af" : "#6dacbaff";
   return (
@@ -259,25 +270,35 @@ const CustomSelect = ({
   name,
   isDisabled = false,
   allowCustomInput = false,
+
+  // ⭐ NEW PROP
+  disableCapitalize = false,
 }) => {
   const [localOptions, setLocalOptions] = useState([]);
 
-  // 🔠 Capitalize all incoming options
+  // ⭐ Apply capitalization conditionally
   useEffect(() => {
-    const formatted = options.map((opt) => ({
-      ...opt,
-      label: capitalizeLabel(opt.label),
-    }));
-    setLocalOptions(formatted);
-  }, [options]);
+    if (disableCapitalize) {
+      setLocalOptions(options); // keep EXACT labels
+    } else {
+      const formatted = options.map((opt) => ({
+        ...opt,
+        label: capitalizeLabel(opt.label),
+      }));
+      setLocalOptions(formatted);
+    }
+  }, [options, disableCapitalize]);
 
   const handleChange = (selectedOption) => {
     onChange?.(selectedOption, { name });
   };
 
-  // 🔠 Capitalize new created items
+  // ⭐ Create item conditionally capitalized
   const handleCreate = (inputValue) => {
-    const formatted = capitalizeLabel(inputValue);
+    const formatted = disableCapitalize
+      ? inputValue
+      : capitalizeLabel(inputValue);
+
     const newOption = { label: formatted, value: formatted };
 
     setLocalOptions((prev) => {
@@ -292,15 +313,8 @@ const CustomSelect = ({
     if (!rawInput) return true;
     const search = rawInput.toLowerCase();
 
-    const label =
-      typeof option.label === "string"
-        ? option.label.toLowerCase()
-        : option.label?.toString().toLowerCase() || "";
-
-    const value =
-      typeof option.value === "string"
-        ? option.value.toLowerCase()
-        : option.value?.toString?.().toLowerCase?.() || "";
+    const label = option.label?.toString().toLowerCase() || "";
+    const value = option.value?.toString().toLowerCase() || "";
 
     return label.startsWith(search) || value.startsWith(search);
   };

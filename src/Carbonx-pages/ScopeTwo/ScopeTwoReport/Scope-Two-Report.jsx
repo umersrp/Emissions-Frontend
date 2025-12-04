@@ -5,8 +5,6 @@ import { toast } from "react-toastify";
 import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
 import { Icon } from "@iconify/react";
-import { KYOTO_GASES } from "@/constant/scope1/calculate-fugitive-emission";
-import { GHG_ACTIVITIES } from "@/constant/scope1/calculate-process-emission"
 import { useNavigate } from "react-router-dom";
 
 // Utility for formatting numbers
@@ -20,7 +18,7 @@ const formatNumber = (num) => {
 };
 
 const ScopeTwoReport = () => {
-  const [data, setData] = useState({ stationary: [], mobile: [], fugitive: [], process: [] });
+  const [data, setData] = useState({ electricity: [], steam: [], heating: [], cooling: [] });
   const [loading, setLoading] = useState(false);
   const [emissionType, setEmissionType] = useState("all");
   const [pagination, setPagination] = useState({
@@ -39,32 +37,15 @@ const ScopeTwoReport = () => {
         setLoading(true);
         const token = localStorage.getItem("token");
 
-        const [stationaryRes, mobileRes, fugitiveRes, processRes] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_BASE_URL}/stationary/Get-All?limit=1000`, {
+        const [electricityRes, steamRes, heatingRes, coolingRes] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get-All?limit=1000`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get(`${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All?limit=1000`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${process.env.REACT_APP_BASE_URL}/Fugitive/get-All?limit=1000`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${process.env.REACT_APP_BASE_URL}/Process-Emissions/Get-All?limit=1000`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+
         ]);
 
         setData({
-          stationary: stationaryRes.data.data || [],
-          mobile: mobileRes.data.data || [],
-          fugitive:
-            fugitiveRes.data.data?.filter((item) =>
-              KYOTO_GASES.includes(item.materialRefrigerant)
-            ) || [],
-          process:
-            processRes.data.data?.filter((item) =>
-              GHG_ACTIVITIES.includes(item.activityType)
-            ) || [],
+          electricity: electricityRes.data.data || [],
         });
       } catch (err) {
         console.error(err);
@@ -81,20 +62,20 @@ const ScopeTwoReport = () => {
   const filteredData = useMemo(() => {
     if (!data) return [];
     switch (emissionType) {
-      case "stationary":
-        return data.stationary;
-      case "mobile":
-        return data.mobile;
-      case "fugitive":
-        return data.fugitive;
-      case "process":
-        return data.process;
+      case "electricity":
+        return data.electricity;
+      case "steam":
+        return data.steam;
+      case "heating":
+        return data.heating;
+      case "cooling":
+        return data.cooling;
       case "all":
         return [
-          ...(data.stationary || []),
-          ...(data.mobile || []),
-          ...(data.fugitive || []),
-          ...(data.process || []),
+          ...(data.electricity || []),
+          ...(data.steam || []),
+          ...(data.heating || []),
+          ...(data.cooling || []),
         ];
       default:
         return [];
@@ -107,13 +88,28 @@ const ScopeTwoReport = () => {
     filteredData.forEach((item) => {
       const name = item.buildingId?.buildingName || "Unknown";
       if (!map[name]) map[name] = 0;
-      map[name] += Number(item.calculatedEmissionKgCo2e || 0);
+      // map[name] += Number(item.calculatedEmissionKgCo2e || 0);
+      if (!map[name]) {
+        map[name] = { location: 0, market: 0 };
+      }
+
+      map[name].location += Number(item.calculatedEmissionKgCo2e || 0);
+      map[name].market += Number(item.calculatedEmissionMarketKgCo2e || 0);
+
     });
-    return Object.entries(map).map(([buildingName, kg]) => ({
+    // return Object.entries(map).map(([buildingName, kg]) => ({
+    //   buildingName,
+    //   totalKg: kg,
+    //   totalT: kg / 1000,
+    // }));
+    return Object.entries(map).map(([buildingName, obj]) => ({
       buildingName,
-      totalKg: kg,
-      totalT: kg / 1000,
+      totalKg: obj.location,
+      totalT: obj.location / 1000,
+      marketKg: obj.market,
+      marketT: obj.market / 1000,
     }));
+
   }, [filteredData]);
 
   // Manual pagination
@@ -131,63 +127,104 @@ const ScopeTwoReport = () => {
     };
   }, [buildingData, pagination.currentPage, pagination.limit]);
 
-  // Total Scope 1 including process
+  // Total Scope 1 including cooling
   const allTotalKg = useMemo(() => {
-    const stationaryKg = (data.stationary || []).reduce(
+    // const electricityKg = (data.electricity || []).reduce(
+    //   (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+    //   0
+    // );
+    const electricityLocationKg = (data.electricity || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    const mobileKg = (data.mobile || []).reduce(
+
+    const electricityMarketKg = (data.electricity || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionMarketKgCo2e || 0),
+      0
+    );
+    const steamKg = (data.steam || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    const fugitiveKg = (data.fugitive || []).reduce(
+    const heatingKg = (data.heating || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    const processKg = (data.process || []).reduce(
+    const coolingKg = (data.cooling || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    return stationaryKg + mobileKg + fugitiveKg + processKg;
+    return    electricityLocationKg + electricityMarketKg + steamKg + heatingKg + coolingKg;
   }, [data]);
 
   const allTotalT = allTotalKg / 1000;
 
   // Individual Summary Cards
   const summaryCards = useMemo(() => {
-    const stationaryKg = (data.stationary || []).reduce(
+    // const electricityKg = (data.electricity || []).reduce(
+    //   (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+    //   0
+    // );
+    // Purchased Electricity: Location & Market based
+    const electricityLocationKg = (data.electricity || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    const mobileKg = (data.mobile || []).reduce(
+
+    const electricityMarketKg = (data.electricity || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionMarketKgCo2e || 0),
+      0
+    );
+    const steamKg = (data.steam || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    const fugitiveKg = (data.fugitive || []).reduce(
+    const heatingKg = (data.heating || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    const processKg = (data.process || []).reduce(
+    const coolingKg = (data.cooling || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
 
     return [
-      { name: "Stationary Combustion", kg: stationaryKg, t: stationaryKg / 1000, bg: "bg-cyan-50" },
-      { name: "Mobile Combustion", kg: mobileKg, t: mobileKg / 1000, bg: "bg-red-50" },
-      { name: "Fugitive Emissions", kg: fugitiveKg, t: fugitiveKg / 1000, bg: "bg-purple-50" },
-      { name: "Process Emissions", kg: processKg, t: processKg / 1000, bg: "bg-green-50" },
+      // { name: "Purchased Electricity", kg: electricityKg, t: electricityKg / 1000, bg: "bg-cyan-50" },
+      // {
+      //   name: "Purchased Electricity Location-Based",
+      //   kg: electricityLocationKg,
+      //   t: electricityLocationKg / 1000,
+      //   bg: "bg-cyan-50",
+      // },
+      // {
+      //   name: "Purchased Electricity Market-Based",
+      //   kg: electricityMarketKg,
+      //   t: electricityMarketKg / 1000,
+      //   bg: "bg-blue-50",
+      // },
+      {
+        name: "Purchased Electricity",
+        locationKg: electricityLocationKg,
+        locationT: electricityLocationKg / 1000,
+        marketKg: electricityMarketKg,
+        marketT: electricityMarketKg / 1000,
+        totalKg: electricityLocationKg + electricityMarketKg,
+        totalT: (electricityLocationKg + electricityMarketKg) / 1000,
+        bg: "bg-cyan-50",
+      },
+      { name: "Purchased Steam", kg: steamKg, t: steamKg / 1000, bg: "bg-red-50" },
+      { name: "Purchased Heating", kg: heatingKg, t: heatingKg / 1000, bg: "bg-purple-50" },
+      { name: "Purchased Cooling", kg: coolingKg, t: coolingKg / 1000, bg: "bg-green-50" },
     ];
   }, [data]);
 
   // React Select options
   const emissionOptions = [
-    { value: "all", label: "All Scope 1 (Building-wise)" },
-    { value: "stationary", label: "Stationary Combustion" },
-    { value: "mobile", label: "Mobile Combustion" },
-    { value: "fugitive", label: "Fugitive Emission" },
-    { value: "process", label: "Process Emission" },
+    { value: "all", label: "All Scope 2 (Building-wise)" },
+    { value: "electricity", label: "Purchased Electricity" },
+    { value: "steam", label: "Purchased Steam" },
+    { value: "heating", label: "Purchased Heating" },
+    { value: "cooling", label: "Purchased Cooling" },
   ];
 
   return (
@@ -229,13 +266,32 @@ const ScopeTwoReport = () => {
                 />
                 <h2 className="text-xl font-semibold mb-1 text-gray-700">{item.name}</h2>
               </div>
-              <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
+              {/* <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
                 <span>
                   {formatNumber(item.kg)} <span className="text-black-500">kg CO₂e</span>
                 </span>
                 <span>
                   {formatNumber(item.t)} <span className="text-black-500">t CO₂e</span>
                 </span>
+              </p> */}
+              <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
+                {item.name === "Purchased Electricity" ? (
+                  <>
+                  <span className="text-md font-semibold mb-1 text-gray-700">Location Based</span>
+                    <span>
+                      {formatNumber(item.locationKg)} kg CO₂e, {formatNumber(item.locationT)} t
+                    </span>
+                    <span className="text-md font-semibold mb-1 text-gray-700">Market Based</span>
+                    <span>
+                      {formatNumber(item.marketKg)} kg CO₂e, {formatNumber(item.marketT)} t
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span>{formatNumber(item.kg)} kg CO₂e</span>
+                    <span>{formatNumber(item.t)} t CO₂e</span>
+                  </>
+                )}
               </p>
             </div>
           );
@@ -286,6 +342,16 @@ const ScopeTwoReport = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
                   Total Emissions (tCO₂e)
                 </th>
+                {(emissionType === "all" || emissionType === "electricity") && (
+                  <>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
+                      Market Emissions (kgCO₂e)
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
+                      Market Emissions (tCO₂e)
+                    </th>
+                  </>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -304,6 +370,13 @@ const ScopeTwoReport = () => {
                     <td className="px-6 py-4">{row.buildingName}</td>
                     <td className="px-6 py-4">{formatNumber(row.totalKg)}</td>
                     <td className="px-6 py-4">{formatNumber(row.totalT)}</td>
+                    {(emissionType === "all" || emissionType === "electricity") && (
+                      <>
+                        <td className="px-6 py-4">{formatNumber(row.marketKg)}</td>
+                        <td className="px-6 py-4">{formatNumber(row.marketT)}</td>
+                      </>
+                    )}
+
                   </tr>
                 ))
               )}
