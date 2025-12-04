@@ -19,14 +19,14 @@ const PurchasedElectricityFormPage = () => {
   const isEdit = mode === "edit";
 
   const methodOptions = [
-    { value: "location_based", label: "Location Based Method" },
-    { value: "market_based", label: "Market Based Method" },
+    { value: "location_based", label: "Location Based" },
+    { value: "market_based", label: "Market Based" },
   ];
 
   const [formData, setFormData] = useState({
     method: null,
     buildingId: null,
-    unit: { value: "kWh", label: "KWh" },
+    unit: { value: "kWh", label: "kWh" },
     totalElectricity: "",
     totalGrossElectricityGrid: "",
     gridStation: null,
@@ -60,7 +60,7 @@ const PurchasedElectricityFormPage = () => {
 
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
-  
+
   const formatEmission = (num) => {
     const rounded = Number(num.toFixed(5));
     if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
@@ -69,9 +69,19 @@ const PurchasedElectricityFormPage = () => {
     return rounded;
   };
 
-    const capitalizeFirstLetter = (text) => {
+  const capitalizeFirstLetter = (text) => {
     if (!text) return "";
     return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+  const getMethodLabel = (value) => {
+    switch (value) {
+      case "location_based":
+        return "Location Based";
+      case "market_based":
+        return "Market Based";
+      default:
+        return value;
+    }
   };
 
   useEffect(() => {
@@ -98,7 +108,9 @@ const PurchasedElectricityFormPage = () => {
           const data = res.data?.data;
           if (data) {
             setFormData({
-              method: data.method ? { value: data.method, label: data.method } : null,
+              method: data.method
+                ? { value: data.method, label: getMethodLabel(data.method) }
+                : null,
               buildingId: data.buildingId ? { value: data.buildingId._id, label: data.buildingId.buildingName } : null,
               unit: { value: data.unit || "kWh", label: data.unit || "kWh" },
               totalElectricity: data.totalElectricity || "",
@@ -212,9 +224,62 @@ const PurchasedElectricityFormPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
-  const handleToggleChange = (name) => {
-    if (isView) return;
-    setFormData((prev) => ({ ...prev, [name]: !prev[name] }));
+  // const handleToggleChange = (name) => {
+  //   if (isView) return;
+  //   setFormData((prev) => ({ ...prev, [name]: !prev[name] }));
+  // };
+  const handleToggleChange = (field) => {
+    setFormData((prev) => {
+      const newState = !prev[field];
+
+      // When closing toggle -> clear fields & checkboxes
+      if (!newState) {
+      if (field === "hasSolarPanels") {
+        return {
+          ...prev,
+          hasSolarPanels: false,
+          totalOnsiteSolarConsumption: "",
+          solarRetainedUnderRECs: "",
+          solarConsumedButSold: "",
+        };
+      }
+
+        if (field === "purchasesSupplierSpecific") {
+          return {
+            ...prev,
+            purchasesSupplierSpecific: false,
+            supplierSpecificElectricity: "",
+            hasSupplierEmissionFactor: false,
+            dontHaveSupplierEmissionFactor: false,
+            supplierEmissionFactor: "",
+          };
+        }
+
+        if (field === "hasPPA") {
+          return {
+            ...prev,
+            hasPPA: false,
+            ppaElectricity: "",
+            hasPPAEmissionFactor: false,
+            hasPPAValidInstruments: false,
+            ppaEmissionFactor: "",
+          };
+        }
+
+      if (field === "hasRenewableAttributes") {
+        return {
+          ...prev,
+          hasRenewableAttributes: false,
+          renewableAttributesElectricity: "",
+        };
+      }
+      }
+
+      return {
+        ...prev,
+        [field]: newState,
+      };
+    });
   };
 
   const handleCheckboxChange = (name, exclusiveGroup = []) => {
@@ -230,43 +295,6 @@ const PurchasedElectricityFormPage = () => {
   const handleNumberInputWheel = (e) => {
     e.target.blur(); // Removes focus, preventing scroll from changing value
   };
-  // const validate = () => {
-  //   const newErrors = {};
-  //   if (!formData.method) newErrors.method = "Please select a method";
-  //   if (!formData.buildingId) newErrors.buildingId = "Building is required";
-
-  //   if (formData.method?.value === "location_based") {
-  //     if (!formData.totalElectricity) newErrors.totalElectricity = "Required";
-  //     if (!formData.totalGrossElectricityGrid) newErrors.totalGrossElectricityGrid = "Required";
-  //     if (!formData.gridStation) newErrors.gridStation = "Required";
-  //     if (!formData.totalOtherSupplierElectricity) newErrors.totalOtherSupplierElectricity = "Required";
-  //     if (!formData.qualityControl) newErrors.qualityControl = "Required";
-  //   }
-
-  //   if (formData.method?.value === "market_based") {
-  //     if (!formData.totalPurchasedElectricity) newErrors.totalPurchasedElectricity = "Required";
-  //     if (!formData.totalGrossElectricityGrid) newErrors.totalGrossElectricityGrid = "Required";
-  //     if (!formData.gridStation) newErrors.gridStation = "Required";
-
-  //     if (formData.hasSolarPanels) {
-  //       if (!formData.totalOnsiteSolarConsumption) newErrors.totalOnsiteSolarConsumption = "Required";
-  //       if (!formData.solarRetainedUnderRECs) newErrors.solarRetainedUnderRECs = "Required";
-  //       if (!formData.solarConsumedButSold) newErrors.solarConsumedButSold = "Required";
-  //     }
-  //     if (formData.purchasesSupplierSpecific) {
-  //       if (!formData.supplierSpecificElectricity) newErrors.supplierSpecificElectricity = "Required";
-  //       if (formData.hasSupplierEmissionFactor && !formData.supplierEmissionFactor) newErrors.supplierEmissionFactor = "Required";
-  //     }
-  //     if (formData.hasPPA) {
-  //       if (!formData.ppaElectricity) newErrors.ppaElectricity = "Required";
-  //       if (formData.hasPPAEmissionFactor && !formData.ppaEmissionFactor) newErrors.ppaEmissionFactor = "Required";
-  //     }
-  //     if (formData.hasRenewableAttributes && !formData.renewableAttributesElectricity) newErrors.renewableAttributesElectricity = "Required";
-  //   }
-
-  //   setErrors(newErrors);
-  //   return Object.keys(newErrors).length === 0;
-  // };
 
   const validate = () => {
     const newErrors = {};
@@ -285,6 +313,27 @@ const PurchasedElectricityFormPage = () => {
       if (!formData.totalPurchasedElectricity) newErrors.totalPurchasedElectricity = "Required";
       if (!formData.totalGrossElectricityGrid) newErrors.totalGrossElectricityGrid = "Required";
       if (!formData.gridStation) newErrors.gridStation = "Required";
+      // Supplier Specific validation
+      if (formData.purchasesSupplierSpecific) {
+        if (
+          !formData.hasSupplierEmissionFactor &&
+          !formData.dontHaveSupplierEmissionFactor
+        ) {
+          newErrors.supplierFactorChoice =
+            "Please select at least one option (emission factor or no emission factor).";
+        }
+      };
+
+      if (formData.hasPPA) {
+        if (
+          !formData.hasPPAEmissionFactor &&
+          !formData.hasPPAValidInstruments
+        ) {
+          newErrors.ppaFactorChoice =
+            "Please select at least one option (factor or RECs).";
+        }
+      };
+
 
       // Check if at least one toggle is selected
       const hasAtLeastOneToggle =
@@ -392,7 +441,7 @@ const PurchasedElectricityFormPage = () => {
       <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Purchased Electricity Record`}>
         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
           <p className="text-gray-700">
-           Scope 2 Purchased Electricity refers to indirect greenhouse gas (GHG) emissions that occur from the generation of electricity that is purchased or acquired by a company for its own use.           </p>
+            Scope 2 Purchased Electricity refers to indirect greenhouse gas (GHG) emissions that occur from the generation of electricity that is purchased or acquired by a company for its own use.           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 grid gap-6">
@@ -466,7 +515,9 @@ const PurchasedElectricityFormPage = () => {
                     value={formData.unit}
                     onChange={(value) => handleSelectChange("unit", value)}
                     isDisabled={isView}
+                    disableCapitalize={true}   // ⭐ TURN OFF CAPS
                   />
+
                 </div>
 
                 <div>
@@ -783,8 +834,12 @@ const PurchasedElectricityFormPage = () => {
                         />
                         <span className="text-sm">I don't have supplier specific emission factor</span>
                       </div>
+                      {errors.supplierFactorChoice && (
+                        <p className="text-red-500 text-sm">{errors.supplierFactorChoice}</p>
+                      )}
                     </div>
                   </div>
+
                 )}
               </div>
 
@@ -865,6 +920,9 @@ const PurchasedElectricityFormPage = () => {
                         />
                         <span className="text-sm">Or do you have the valid energy instruments or renewable energy attributes (REC, REC-I) etc. under power purchased agreements (PPA)?</span>
                       </div>
+                      {errors.ppaFactorChoice && (
+                        <p className="text-red-500 text-sm">{errors.ppaFactorChoice}</p>
+                      )}
                     </div>
                   </div>
                 )}
