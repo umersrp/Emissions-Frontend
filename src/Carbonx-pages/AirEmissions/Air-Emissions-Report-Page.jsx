@@ -1153,7 +1153,7 @@ const AirEmissionReportPage = () => {
               }
               className="form-select py-2"
             >
-              {[5, 10, 20, 50].map((size) => (
+              {[3, 5, 10, 20, 50].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>

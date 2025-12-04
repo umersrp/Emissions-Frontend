@@ -14,6 +14,8 @@ import {
   purchasedGoodsServicesTypes,
   currencyUnitOptions
 } from "@/constant/scope3/options";
+import { calculatePurchasedGoodsEmission } from "@/utils/Scope3/calculatePurchasedGoodsEmission"; // adjust path
+
 
 const PurchasedGoodServicesFormPage = () => {
   const navigate = useNavigate();
@@ -46,13 +48,21 @@ const PurchasedGoodServicesFormPage = () => {
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
 
+  const formatEmission = (num) => {
+    const rounded = Number(num.toFixed(5));
+    if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
+      return rounded.toExponential(5);
+    }
+    return rounded;
+  };
+
 
   // Fetch Buildings
   useEffect(() => {
     const fetchBuildings = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings`,
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
           {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
           }
@@ -147,18 +157,83 @@ const PurchasedGoodServicesFormPage = () => {
     }
   }, [formData.purchasedActivityType, isView, isEdit]);
 
+  // const handleInputChange = (e) => {
+  //   if (isView) return;
+  //   const { name, value } = e.target;
+  //   setFormData((prev) => ({ ...prev, [name]: value }));
+  //   setErrors((prev) => ({ ...prev, [name]: "" }));
+  // };
+
+  // const handleSelectChange = (name, value) => {
+  //   if (isView) return;
+  //   setFormData((prev) => ({ ...prev, [name]: value }));
+  //   setErrors((prev) => ({ ...prev, [name]: "" }));
+  // };
   const handleInputChange = (e) => {
     if (isView) return;
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => {
+      const updatedData = { ...prev, [name]: value };
+
+      // Calculate emissions if amountSpent or type changes
+      if ((name === "amountSpent" || name === "purchasedGoodsServicesType")
+        && updatedData.amountSpent && updatedData.purchasedGoodsServicesType) {
+        const result = calculatePurchasedGoodsEmission({
+          amountSpent: updatedData.amountSpent,
+          purchasedGoodsServicesType: updatedData.purchasedGoodsServicesType.value,
+        });
+
+        if (result) {
+          const formattedKg = formatEmission(result.calculatedEmissionKgCo2e);
+          const formattedT = formatEmission(result.calculatedEmissionTCo2e);
+
+          updatedData.calculatedEmissionKgCo2e = formattedKg;
+          updatedData.calculatedEmissionTCo2e = formattedT;
+
+          // Show toast
+          toast.info(`Emissions Calculated: ${formattedKg} kgCO2e / ${formattedT} tCO2e`);
+        }
+      }
+
+      return updatedData;
+    });
+
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleSelectChange = (name, value) => {
     if (isView) return;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => {
+      const updatedData = { ...prev, [name]: value };
+
+      // Calculate emissions
+      if (updatedData.amountSpent && updatedData.purchasedGoodsServicesType) {
+        const result = calculatePurchasedGoodsEmission({
+          amountSpent: updatedData.amountSpent,
+          purchasedGoodsServicesType: updatedData.purchasedGoodsServicesType.value,
+        });
+
+        if (result) {
+          const formattedKg = formatEmission(result.calculatedEmissionKgCo2e);
+          const formattedT = formatEmission(result.calculatedEmissionTCo2e);
+
+          updatedData.calculatedEmissionKgCo2e = formattedKg;
+          updatedData.calculatedEmissionTCo2e = formattedT;
+
+          // Show toast
+          toast.info(`Emissions Calculated: ${formattedKg} kgCO2e / ${formattedT} tCO2e`);
+        }
+      }
+
+      return updatedData;
+    });
+
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
+
+
 
   // Validation
   const validate = () => {
@@ -204,6 +279,8 @@ const PurchasedGoodServicesFormPage = () => {
       remarks: capitalizeFirstLetter(formData.remarks),
       createdBy: userId,
       updatedBy: userId,
+      calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e || 0,
+      calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e || 0,
     };
 
     console.log("Payload to send:", payload);

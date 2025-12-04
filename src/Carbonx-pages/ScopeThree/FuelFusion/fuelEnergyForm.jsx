@@ -97,7 +97,7 @@ const FuelEnergyForm = () => {
         const fetchBuildings = async () => {
             try {
                 const res = await axios.get(
-                    `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings`,
+                    `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
                     {
                         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
                     }

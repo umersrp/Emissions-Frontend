@@ -48,7 +48,7 @@ const FugitiveCombustionFormPage = () => {
     const fetchBuildings = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings`,
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=10000`,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
 

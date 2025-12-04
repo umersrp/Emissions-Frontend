@@ -1,7 +1,4 @@
- 
-
-
-export const gridStationOptions = [
+ export const gridStationOptions = [
   { value: "Faisalabad Electric Supply Company (FESCO)", label: "Faisalabad Electric Supply Company (FESCO)" },
   { value: "Gujranwala Electric Power Company (GEPCO)", label: "Gujranwala Electric Power Company (GEPCO)" },
   { value: "Hazara Electric Supply Company (HAZECO)", label: "Hazara Electric Supply Company (HAZECO)" },
