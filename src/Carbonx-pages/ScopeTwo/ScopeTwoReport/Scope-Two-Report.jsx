@@ -154,7 +154,7 @@ const ScopeTwoReport = () => {
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    return    electricityLocationKg + electricityMarketKg + steamKg + heatingKg + coolingKg;
+    return electricityLocationKg + electricityMarketKg + steamKg + heatingKg + coolingKg;
   }, [data]);
 
   const allTotalT = allTotalKg / 1000;
@@ -269,7 +269,7 @@ const ScopeTwoReport = () => {
               <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
                 {item.name === "Purchased Electricity" ? (
                   <>
-                  <span className="text-md font-semibold mb-1 text-gray-700">Location Based</span>
+                    <span className="text-md font-semibold mb-1 text-gray-700">Location Based</span>
                     <span>
                       {formatNumber(item.locationKg)} kg CO₂e, {formatNumber(item.locationT)} t CO₂e
                     </span>
@@ -296,7 +296,7 @@ const ScopeTwoReport = () => {
           <h6 className="text-gray-800 font-semibold">
             Building Emissions{" "}
             {emissionType === "all"
-              ? "All Scope 1"
+              ? "All Scope 2"
               : emissionType.charAt(0).toUpperCase() + emissionType.slice(1)}
           </h6>
           <div className="w-64">
@@ -325,7 +325,7 @@ const ScopeTwoReport = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">
                   Sr.No
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-normal break-words">
                   Building
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
@@ -340,7 +340,7 @@ const ScopeTwoReport = () => {
                       Total Market Based Emissions (kgCO₂e)
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
-                     Total Market Based Emissions (tCO₂e)
+                      Total Market Based Emissions (tCO₂e)
                     </th>
                   </>
                 )}
@@ -359,8 +359,9 @@ const ScopeTwoReport = () => {
                     <td className="px-6 py-4">
                       {index + 1 + (pagination.currentPage - 1) * pagination.limit}
                     </td>
-                    <td className="px-6 py-4">{row.buildingName}</td>
-                    <td className="px-6 py-4">{formatNumber(row.totalKg)}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {row.buildingName}
+                    </td>                    <td className="px-6 py-4">{formatNumber(row.totalKg)}</td>
                     <td className="px-6 py-4">{formatNumber(row.totalT)}</td>
                     {(emissionType === "all" || emissionType === "electricity") && (
                       <>
