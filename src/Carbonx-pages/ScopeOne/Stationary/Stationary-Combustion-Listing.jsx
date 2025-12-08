@@ -129,18 +129,18 @@ const StationaryCombustionListing = () => {
       { Header: "Quality Control", accessor: "qualityControl" },
       { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
       { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
-      { Header: "Calculated Bio Emissions (kgCO₂e)", accessor: "calculatedBioEmissionKgCo2e" },
-      { Header: "Calculated Bio Emissions (tCO₂e)", accessor: "calculatedBioEmissionTCo2e" },
-      {
-        Header: "Created By",
-        accessor: "createdBy.name",
-        Cell: ({ cell }) => cell.value || "-",
-      },
-      {
-        Header: "Updated By",
-        accessor: "updatedBy.name",
-        Cell: ({ cell }) => cell.value || "-",
-      },
+      // { Header: "Calculated Bio Emissions (kgCO₂e)", accessor: "calculatedBioEmissionKgCo2e" },
+      // { Header: "Calculated Bio Emissions (tCO₂e)", accessor: "calculatedBioEmissionTCo2e" },
+      // {
+      //   Header: "Created By",
+      //   accessor: "createdBy.name",
+      //   Cell: ({ cell }) => cell.value || "-",
+      // },
+      // {
+      //   Header: "Updated By",
+      //   accessor: "updatedBy.name",
+      //   Cell: ({ cell }) => cell.value || "-",
+      // },
       { Header: "Remarks", accessor: "remarks" },
       {
         Header: "Created At",

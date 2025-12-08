@@ -514,3 +514,27 @@ export const unitConversion = {
   "Btu": (v) => v * 0.000293071,
   "MMBtu": (v) => v * 293.071
 };
+
+export const travelFields = {
+  didTravelByAir: [
+    "airPassengers",
+    "airDistanceKm",
+    "airTravelClass",
+    "airFlightType",
+  ],
+  didTravelByTaxi: [
+    "taxiPassengers",
+    "taxiDistanceKm",
+    "taxiType",
+  ],
+  didTravelByTrain: [
+    "trainPassengers",
+    "trainDistanceKm",
+    "trainType",
+  ],
+  didTravelByBus: [
+    "busPassengers",
+    "busDistanceKm",
+    "busType",
+  ],
+};
