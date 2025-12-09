@@ -391,8 +391,9 @@ const CompanyProfileForm = () => {
 
                     {/* Fiscal Year */}
                     {formData.reportingYear === "fiscal" && (
-                        <div className="flex-1 relative z-[9999]">
+                        <div className="flex-1 relative z-[9999] bg-black-700">
                             <label className="field-label">Fiscal Year (Start & End Date)</label>
+                            <div className="p-3 bg-black-500">
                             <Datepicker
                                 value={fiscalRange}
                                 onChange={(newValue) => {
@@ -428,13 +429,14 @@ const CompanyProfileForm = () => {
 
                                 ]}
                             />
+                            </div>
                             <style jsx global>{`
                                         .react-datepicker__calendar-icon {
-                                        top: 0.5rem !important; /* top-2 */
+                                        !important bg-black-500; /* top-2 */
                               }
                             `}</style>
 
-                            {/* 👇 inline style to control popper position */}
+                            {/* inline style to control popper position */}
 
                             {errors.fiscalyear && (
                                 <p className="text-red-500">{errors.fiscalyear}</p>

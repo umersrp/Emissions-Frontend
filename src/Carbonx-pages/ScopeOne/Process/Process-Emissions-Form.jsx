@@ -122,20 +122,56 @@ const ProcessEmissionsFormPage = () => {
   }, [id, isAdd, buildingOptions]);
 
   // Handle dropdowns
-  const handleSelectChange = (value, { name }) => {
-    if (isView) return;
+  // const handleSelectChange = (value, { name }) => {
+  //   if (isView) return;
+  //   let updated = { ...formData, [name]: value };
+  //   if (name === "activityType") {
+  //     const meta = activityMetadata[value?.value] || {};
+  //     updated.gasEmitted = meta.gasEmitted || "";
+  //     setAmountLabel(meta.amountLabel || "Amount of Emissions");
+  //   }
+  //   setFormData(updated);
+  //   setErrors((prev) => ({ ...prev, [name]: "" }));
+  // };
+const handleSelectChange = (value, { name }) => {
+  if (isView) return;
 
-    let updated = { ...formData, [name]: value };
+  let updated = { ...formData, [name]: value };
 
-    if (name === "activityType") {
-      const meta = activityMetadata[value?.value] || {};
-      updated.gasEmitted = meta.gasEmitted || "";
-      setAmountLabel(meta.amountLabel || "Amount of Emissions");
+  if (name === "activityType") {
+    const meta = activityMetadata[value?.value] || {};
+
+    updated.gasEmitted = meta.gasEmitted || "";
+    setAmountLabel(meta.amountLabel || "Amount of Emissions");
+
+    // **Trigger emission calculation when activityType changes**
+    if (updated.amountOfEmissions) {
+      const result = calculateProcessEmission({
+        activityType: value?.value,
+        amountOfEmissions: updated.amountOfEmissions,
+      });
+
+      if (result) {
+        const formatEmission = (num) => {
+          const rounded = Number(num.toFixed(5));
+          if (
+            rounded !== 0 &&
+            (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)
+          ) {
+            return rounded.toExponential(5);
+          }
+          return rounded;
+        };
+
+        updated.calculatedEmissionKgCo2e = formatEmission(result.calculatedEmissionKgCo2e);
+        updated.calculatedEmissionTCo2e = formatEmission(result.calculatedEmissionTCo2e);
+      }
     }
+  }
 
-    setFormData(updated);
-    setErrors((prev) => ({ ...prev, [name]: "" }));
-  };
+  setFormData(updated);
+  setErrors((prev) => ({ ...prev, [name]: "" }));
+};
 
 
   const handleInputChange = (e) => {

@@ -129,6 +129,15 @@ const icons = [
 {
   name: "heroicons:cloud" // Steam
 },
+  { name: "heroicons:shopping-bag", label: "Purchased Goods & Services" },
+  { name: "heroicons:building-office", label: "Capital Goods" },
+  { name: "heroicons:bolt", label: "Fuel & Energy Related Activities" },
+  { name: "heroicons:truck", label: "Upstream Transportation & Distribution" },
+  { name: "heroicons:trash", label: "Waste Generated in Operations" },
+  { name: "heroicons:briefcase", label: "Business Travel" },
+  { name: "heroicons:user-group", label: "Employee Commuting" },
+  { name: "heroicons:building-library", label: "Upstream Leased Assets" },
+
   { name: "heroicons:rectangle-stack" },
   { name: "heroicons:rocket-launch" },
   { name: "heroicons:window" },

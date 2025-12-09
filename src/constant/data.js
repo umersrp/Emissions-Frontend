@@ -270,6 +270,10 @@ export const menuItems = [
         childtitle: "Fuel and Energy",
         childlink: "fuel-energy",
       },
+       {
+        childtitle: "Waste Generated In Operations",
+        childlink: "Waste-Generated",
+      },
     ]
 
   },
