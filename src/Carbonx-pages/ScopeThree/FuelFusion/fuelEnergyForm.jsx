@@ -16,7 +16,7 @@ import {
     unitConversion
 } from "@/constant/scope3/options";
 import Spinner from "@/components/ui/spinner";
-import Swicth from "@/components/ui/Switch";
+import Swicth from "@/components/ui/Switch";  
 
 const FuelEnergyForm = () => {
 
