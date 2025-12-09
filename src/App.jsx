@@ -227,6 +227,8 @@ import PurchasedGoodServicesListing from "./Carbonx-pages/ScopeThree/PurchasedGo
 import ScopeTwoReport from "./Carbonx-pages/ScopeTwo/ScopeTwoReport/Scope-Two-Report";
 import FuelFusion from "./Carbonx-pages/ScopeThree/FuelFusion/fuelFusion";
 import FuelEnergyForm from "./Carbonx-pages/ScopeThree/FuelFusion/fuelEnergyForm";
+import WasteGeneratedFormPage from "./Carbonx-pages/ScopeThree/WasteGenerated/Waste-Generated-Form";
+import WasteGeneratedListing from "./Carbonx-pages/ScopeThree/WasteGenerated/Waste-Generated-Listing";
 
 
 
@@ -466,6 +468,10 @@ function App() {
           <Route path="fuel-energy-form/add" element={<FuelEnergyForm />} />
           <Route path="fuel-energy-form/:id" element={<FuelEnergyForm />} />
           <Route path="fuel-energy" element={<FuelFusion/>} />
+
+          <Route path="Waste-Generated-Form/add" element={<WasteGeneratedFormPage/>} />
+          <Route path="Waste-Generated-Form/:id" element={<WasteGeneratedFormPage/>} />
+          <Route path="Waste-Generated" element={<WasteGeneratedListing/>} />
 
 
           <Route path="Coach-edit" element={<CoachEditPage />} />

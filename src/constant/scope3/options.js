@@ -144,7 +144,7 @@ export const purchasedGoodsActivityTypes = [
 
 export const purchasedServicesActivityTypes = [
   { value: "Business and Professional Services", label: "Business and Professional Services" },
-  { value: "Transport & Logistics", label: "Transport & Logistics" },
+  // { value: "Transport & Logistics", label: "Transport & Logistics" },
   { value: "Construction & Real Estate", label: "Construction & Real Estate" },
   { value: "Information & Technology", label: "Information & Technology" },
   { value: "Public & Education Services", label: "Public & Education Services" },
@@ -295,10 +295,10 @@ export const purchasedGoodsServicesTypes = {
     { value: "Accommodation services", label: "Accommodation services" }
   ],
   "Utilities & Waste": [
-    { value: "Waste collection, treatment and disposal services; materials recovery services", label: "Waste collection, treatment and disposal services; materials recovery services" },
-    { value: "Sewerage services; sewage sludge", label: "Sewerage services; sewage sludge" },
-    { value: "Natural water; water treatment and supply services", label: "Natural water; water treatment and supply services" },
-    { value: "Remediation services and other waste management services", label: "Remediation services and other waste management services" }
+   // { value: "Waste collection, treatment and disposal services; materials recovery services", label: "Waste collection, treatment and disposal services; materials recovery services" },
+  // { value: "Sewerage services; sewage sludge", label: "Sewerage services; sewage sludge" },
+    { value: "Natural water and supply services", label: "Natural water and supply services" },
+    { value: "Remediation services", label: "Remediation services" }
   ],
   "Other Services": [
     { value: "Services of households as employers of domestic personnel", label: "Services of households as employers of domestic personnel" },
