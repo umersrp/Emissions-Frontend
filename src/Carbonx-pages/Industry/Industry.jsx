@@ -128,11 +128,11 @@ const Industry = () => {
             accessor: "updatedBy.name",
             Cell: (row) => <span>{row?.cell?.value}</span>,
         },
-        {
-            Header: "createdBy",
-            accessor: "createdBy.name",
-            Cell: (row) => <span>{row?.cell?.value}</span>,
-        },
+        // {
+        //     Header: "createdBy",
+        //     accessor: "createdBy.name",
+        //     Cell: (row) => <span>{row?.cell?.value}</span>,
+        // },
         {
             Header: "createdAt",
             accessor: "createdAt",

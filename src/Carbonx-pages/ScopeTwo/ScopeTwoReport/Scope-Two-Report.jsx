@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 const formatNumber = (num) => {
   const value = Number(num);
   // If value is null/undefined OR exactly 0 → return "–"
-  if (!num || value === 0) return "–";
+  if (!num || value === 0) return "N/A";
   // For very small non-zero numbers
   if (Math.abs(value) < 0.01) {
     return value.toExponential(2);

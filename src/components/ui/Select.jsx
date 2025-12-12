@@ -393,7 +393,7 @@ const primary900 = "#4097ab7a";
 // };
 const capitalizeLabel = (text) => {
   if (!text) return "";
-  const exceptions = ["and", "or", "in", "of"];
+  const exceptions = ["and", "or", "in", "of","from","at","to","the","a","an","for","on","with","but","by","is","it","as","be","this","that"];
   return text
     .split(" ")
     .map((word, index) => {

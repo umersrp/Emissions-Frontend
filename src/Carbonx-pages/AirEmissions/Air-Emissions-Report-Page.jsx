@@ -635,12 +635,16 @@ import {
 } from "@/constant/scope1/calculate-process-emission";
 
 const formatNumber = (num) => {
-  if (num === null || num === undefined || Number.isNaN(Number(num))) return "-";
   const value = Number(num);
-  if (value === 0) return "0";
-  if (Math.abs(value) < 0.01 && value !== 0) return value.toExponential(2);
+  // If value is null/undefined OR exactly 0 → return "–"
+  if (!num || value === 0) return "N/A";
+  // For very small non-zero numbers
+  if (Math.abs(value) < 0.01) {
+    return value.toExponential(2);
+  }
   return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
 };
+
 
 const AirEmissionReportPage = () => {
   const [fugitiveData, setFugitiveData] = useState([]);
@@ -992,67 +996,6 @@ const AirEmissionReportPage = () => {
         </div>
 
         {/* Pagination Controls */}
-        {/* <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
-          <div className="flex items-center space-x-3 rtl:space-x-reverse">
-            <span className="flex space-x-2 items-center">
-              <span className="text-sm font-medium text-slate-600">Go</span>
-              <input
-                type="number"
-                className="form-control py-2"
-                min="1"
-                max={paginatedData.totalPages}
-                value={pagination.currentPage}
-                onChange={(e) => {
-                  const page = Number(e.target.value);
-                  if (page >= 1 && page <= paginatedData.totalPages)
-                    setPagination((prev) => ({ ...prev, currentPage: page }));
-                }}
-                style={{ width: "50px" }}
-              />
-            </span>
-            <span className="text-sm font-medium text-slate-600">
-              Page {pagination.currentPage} of {paginatedData.totalPages}
-            </span>
-          </div>
-          <ul className="flex items-center space-x-3 rtl:space-x-reverse">
-            <li>
-              <button onClick={() => setPagination(p => ({ ...p, currentPage: 1 }))} disabled={pagination.currentPage === 1}>
-                <Icon icon="heroicons:chevron-double-left-solid" />
-              </button>
-            </li>
-            <li>
-              <button onClick={() => setPagination(p => ({ ...p, currentPage: Math.max(1, p.currentPage - 1) }))} disabled={pagination.currentPage === 1}>
-                Prev
-              </button>
-            </li>
-            {Array.from({ length: paginatedData.totalPages }, (_, idx) => (
-              <li key={idx}>
-                <button
-                  className={`${idx + 1 === pagination.currentPage ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-900"} text-sm rounded h-6 w-6 flex items-center justify-center`}
-                  onClick={() => setPagination(p => ({ ...p, currentPage: idx + 1 }))}
-                >
-                  {idx + 1}
-                </button>
-              </li>
-            ))}
-            <li>
-              <button onClick={() => setPagination(p => ({ ...p, currentPage: Math.min(paginatedData.totalPages, p.currentPage + 1) }))} disabled={pagination.currentPage === paginatedData.totalPages}>
-                Next
-              </button>
-            </li>
-            <li>
-              <button onClick={() => setPagination(p => ({ ...p, currentPage: paginatedData.totalPages }))} disabled={pagination.currentPage === paginatedData.totalPages}>
-                <Icon icon="heroicons:chevron-double-right-solid" />
-              </button>
-            </li>
-          </ul>
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-slate-600">Show</span>
-            <select value={pagination.limit} onChange={(e) => setPagination(p => ({ ...p, limit: Number(e.target.value), currentPage: 1 }))} className="form-select py-2">
-              {[5, 10, 20, 50].map(size => <option key={size} value={size}>{size}</option>)}
-            </select>
-          </div>
-        </div> */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
           {/* Go to Page */}
           <div className="flex items-center space-x-3">

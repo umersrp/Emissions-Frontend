@@ -147,16 +147,16 @@ const MobileCombustionListing = () => {
       { Header: "Weight Loaded (kg)", accessor: "weightLoaded" },
       { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
       { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
-      {
-        Header: "Created By",
-        accessor: "createdBy.name",
-        Cell: ({ cell }) => cell.value || "-",
-      },
-      {
-        Header: "Updated By",
-        accessor: "updatedBy.name",
-        Cell: ({ cell }) => cell.value || "-",
-      },
+      // {
+      //   Header: "Created By",
+      //   accessor: "createdBy.name",
+      //   Cell: ({ cell }) => cell.value || "-",
+      // },
+      // {
+      //   Header: "Updated By",
+      //   accessor: "updatedBy.name",
+      //   Cell: ({ cell }) => cell.value || "-",
+      // },
       {
         Header: "Remarks",
         accessor: "remarks",
