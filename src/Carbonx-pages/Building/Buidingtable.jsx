@@ -606,8 +606,8 @@ const BuildingTable = () => {
     { Header: "Heating Type", accessor: "heatingType" },
     { Header: "Heating Used", accessor: "heatingUsed", Cell: ({ cell }) => (cell.value ? "Yes" : "No") },
     { Header: "Operating Hours", accessor: "operatingHours" },
-    { Header: "Created By", accessor: "createdBy.name", Cell: ({ cell }) => cell.value || "-" },
-    { Header: "Updated By", accessor: "updatedBy.name", Cell: ({ cell }) => cell.value || "-" },
+    // { Header: "Created By", accessor: "createdBy.name", Cell: ({ cell }) => cell.value || "-" },
+    // { Header: "Updated By", accessor: "updatedBy.name", Cell: ({ cell }) => cell.value || "-" },
     { Header: "Created At", accessor: "createdAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-") },
     { Header: "Updated At", accessor: "updatedAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-") },
     {

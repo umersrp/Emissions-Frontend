@@ -215,11 +215,11 @@ const CompanyTable = () => {
             Header: "Total Man Hours Per Annum",
             accessor: "totalManHoursPerAnnum",
         },
-        {
-            Header: "Created By",
-            accessor: "createdBy.name",
-            Cell: ({ cell }) => cell.value || "-",
-        },
+        // {
+        //     Header: "Created By",
+        //     accessor: "createdBy.name",
+        //     Cell: ({ cell }) => cell.value || "-",
+        // },
         {
             Header: "Created At",
             accessor: "createdAt",
