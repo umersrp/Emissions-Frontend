@@ -31,6 +31,7 @@ const PurchasedGoodServicesFormPage = () => {
     stakeholder: null,
     purchaseCategory: null,
     purchasedActivityType: null,
+    isCapitalGoods: false,
     purchasedGoodsServicesType: null,
     amountSpent: "",
     unit: { value: "USD", label: "Dollar (USD)" },
@@ -101,6 +102,7 @@ const PurchasedGoodServicesFormPage = () => {
               purchaseCategory: { value: data.purchaseCategory, label: data.purchaseCategory },
               purchasedActivityType: { value: data.purchasedActivityType, label: data.purchasedActivityType },
               purchasedGoodsServicesType: { value: data.purchasedGoodsServicesType, label: data.purchasedGoodsServicesType },
+              isCapitalGoods: data.isCapitalGoods ?? false,
               amountSpent: data.amountSpent || "",
               unit: { value: data.unit, label: data.unit },
               qualityControl: data.qualityControl ? { value: data.qualityControl, label: data.qualityControl } : null,
@@ -273,6 +275,7 @@ const PurchasedGoodServicesFormPage = () => {
       purchaseCategory: formData.purchaseCategory?.value,
       purchasedActivityType: formData.purchasedActivityType?.value,
       purchasedGoodsServicesType: formData.purchasedGoodsServicesType?.value,
+      isCapitalGoods: formData.isCapitalGoods,
       amountSpent: formData.amountSpent,
       unit: formData.unit?.value,
       qualityControl: formData.qualityControl?.value,
@@ -391,6 +394,41 @@ const PurchasedGoodServicesFormPage = () => {
               isDisabled={isView || !formData.purchasedActivityType}
             />
             {errors.purchasedGoodsServicesType && <p className="text-red-500 text-sm">{errors.purchasedGoodsServicesType}</p>}
+          </div>
+
+          {/* Capital Goods Toggle */}
+          <div>
+            <label className="field-label">
+              Please specify whether the selected item is a capital good
+            </label>
+
+            <div className="flex items-center gap-4 mt-2">
+              <label className="inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.isCapitalGoods}
+                  onChange={(e) =>
+                    !isView &&
+                    setFormData((prev) => ({
+                      ...prev,
+                      isCapitalGoods: e.target.checked,
+                    }))
+                  }
+                  className="sr-only peer"
+                />
+
+                <div className="relative w-11 h-6 bg-gray-300 peer-focus:ring-2 peer-focus:ring-primary-300 
+          rounded-full peer dark:bg-gray-700 peer-checked:bg-primary-600 after:content-[''] 
+          after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 
+          after:border after:rounded-full after:h-5 after:w-5 after:transition-all 
+          peer-checked:after:translate-x-full">
+                </div>
+              </label>
+
+              <span className="text-sm text-gray-700">
+                {formData.isCapitalGoods ? "Yes" : "No"}
+              </span>
+            </div>
           </div>
 
           {/* Amount Spent and Unit */}

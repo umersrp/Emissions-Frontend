@@ -17,7 +17,7 @@ const Scope3 = () => {
     },
     {
       title: "Capital Goods",
-      path: "",
+      path: "/Capital-Goods",
       icon: "heroicons:building-office",
       bg: "bg-red-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
@@ -120,9 +120,10 @@ const Scope3 = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      {/* Header Section */}
-      <Card title={"Scope 3: Direct GHG Emissions"}>
+  <div className="w-full">      {/* Header Section */}
+      <Card title={"Scope 3: Direct GHG Emissions"}
+       className="w-full  flex flex-col justify-center pb-44 min-h-screen">
+          <div className="space-y-6 w-full">
         <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
           Scope 3 emissions are a consequence of the activities of the company, but occur from sources not owned or controlled by the company, it refers to indirect greenhouse gas emissions from a company's value chain that are not owned or controlled by the company itself. This broad category includes emissions from activities such as the production of purchased goods and services, employee commuting, business travel, and the use and disposal of sold products.
         </p>
@@ -154,7 +155,7 @@ const Scope3 = () => {
         <label className="w-full font-extrabold text-2xl text-slate-700 pb-8 text-center">
           Downstream Categories
         </label>
-        <div className="grid sm:grid-cols-4 gap-10 pl-10 pr-10 pb-10">
+        <div className="grid sm:grid-cols-4 gap-10 pb-10">
           {downstream_categories.map((cat, index) => (
             <div
               key={index}
@@ -167,6 +168,7 @@ const Scope3 = () => {
               </h3>
             </div>
           ))}
+        </div>
         </div>
       </Card>
     </div>

@@ -638,8 +638,8 @@ const formatNumber = (num) => {
   if (num === null || num === undefined || Number.isNaN(Number(num))) return "-";
   const value = Number(num);
   if (value === 0) return "0";
-  if (Math.abs(value) < 0.01 && value !== 0) return value.toExponential(5);
-  return value.toLocaleString(undefined, { maximumFractionDigits: 5 });
+  if (Math.abs(value) < 0.01 && value !== 0) return value.toExponential(2);
+  return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
 };
 
 const AirEmissionReportPage = () => {

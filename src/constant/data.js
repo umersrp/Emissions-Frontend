@@ -257,14 +257,17 @@ export const menuItems = [
     icon: "mdi:share-variant",
     link: "Scope-3",
     child: [
-
       // {
-      //   childtitle: "Scope 1 Report",
-      //   childlink: "Scope-One-Report",
+      //   childtitle: "Scope 3 Report",
+      //   childlink: "Scope-Three-Report",
       // },
       {
         childtitle: "Purchase Good & Services",
         childlink: "Purchased-Good-Services",
+      },
+      {
+        childtitle: "Capital Goods",
+        childlink: "Capital-Goods",
       },
       {
         childtitle: "Fuel and Energy",
@@ -273,6 +276,14 @@ export const menuItems = [
        {
         childtitle: "Waste Generated In Operations",
         childlink: "Waste-Generated",
+      },
+       {
+        childtitle: "Waste Generated In Operations",
+        childlink: "Waste-Generated",
+      },
+       {
+        childtitle: "Business Travel",
+        childlink: "Business-Travel",
       },
     ]
 

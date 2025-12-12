@@ -9,18 +9,15 @@ import { useNavigate } from "react-router-dom";
 
 // Utility for formatting numbers
 const formatNumber = (num) => {
+  if (!num && num !== 0) return "-";
   const value = Number(num);
-  // If value is null/undefined OR exactly 0 → return "–"
-  if (!num || value === 0) return "–";
-  // For very small non-zero numbers
-  if (Math.abs(value) < 0.01) {
+  if (Math.abs(value) < 0.01 && value !== 0) {
     return value.toExponential(2);
   }
   return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
 };
 
-
-const ScopeTwoReport = () => {
+const ScopeThreeReport = () => {
   const [data, setData] = useState({ electricity: [], steam: [], heating: [], cooling: [] });
   const [loading, setLoading] = useState(false);
   const [emissionType, setEmissionType] = useState("all");
@@ -131,55 +128,36 @@ const ScopeTwoReport = () => {
   }, [buildingData, pagination.currentPage, pagination.limit]);
 
   // Total Scope 1 including cooling
-  // const allTotalKg = useMemo(() => {
-  //   // const electricityKg = (data.electricity || []).reduce(
-  //   //   (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
-  //   //   0
-  //   // );
-  //   const electricityLocationKg = (data.electricity || []).reduce(
-  //     (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
-  //     0
-  //   );
-
-  //   const electricityMarketKg = (data.electricity || []).reduce(
-  //     (sum, item) => sum + Number(item.calculatedEmissionMarketKgCo2e || 0),
-  //     0
-  //   );
-  //   const steamKg = (data.steam || []).reduce(
-  //     (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
-  //     0
-  //   );
-  //   const heatingKg = (data.heating || []).reduce(
-  //     (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
-  //     0
-  //   );
-  //   const coolingKg = (data.cooling || []).reduce(
-  //     (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
-  //     0
-  //   );
-  //   return electricityLocationKg + electricityMarketKg + steamKg + heatingKg + coolingKg;
-  // }, [data]);
-
-  // const allTotalT = allTotalKg / 1000;
-
-  // Total Scope 2 (Separate Location & Market based)
-  const totalLocationKg = useMemo(() => {
-    return (data.electricity || []).reduce(
+  const allTotalKg = useMemo(() => {
+    // const electricityKg = (data.electricity || []).reduce(
+    //   (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+    //   0
+    // );
+    const electricityLocationKg = (data.electricity || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-  }, [data]);
 
-  const totalMarketKg = useMemo(() => {
-    return (data.electricity || []).reduce(
+    const electricityMarketKg = (data.electricity || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionMarketKgCo2e || 0),
       0
     );
+    const steamKg = (data.steam || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+    const heatingKg = (data.heating || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+    const coolingKg = (data.cooling || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+    return electricityLocationKg + electricityMarketKg + steamKg + heatingKg + coolingKg;
   }, [data]);
 
-  const totalLocationT = totalLocationKg / 1000;
-  const totalMarketT = totalMarketKg / 1000;
-
+  const allTotalT = allTotalKg / 1000;
 
   // Individual Summary Cards
   const summaryCards = useMemo(() => {
@@ -234,9 +212,9 @@ const ScopeTwoReport = () => {
         totalT: (electricityLocationKg + electricityMarketKg) / 1000,
         bg: "bg-cyan-50",
       },
-      //  { name: "Purchased Steam", kg: steamKg, t: steamKg / 1000, bg: "bg-red-50" },
-      //  { name: "Purchased Heating", kg: heatingKg, t: heatingKg / 1000, bg: "bg-purple-50" },
-      //  { name: "Purchased Cooling", kg: coolingKg, t: coolingKg / 1000, bg: "bg-green-50" },
+      { name: "Purchased Steam", kg: steamKg, t: steamKg / 1000, bg: "bg-red-50" },
+      { name: "Purchased Heating", kg: heatingKg, t: heatingKg / 1000, bg: "bg-purple-50" },
+      { name: "Purchased Cooling", kg: coolingKg, t: coolingKg / 1000, bg: "bg-green-50" },
     ];
   }, [data]);
 
@@ -254,48 +232,18 @@ const ScopeTwoReport = () => {
       <h2 className="text-2xl font-semibold text-gray-700 mb-4">GHG Emissions</h2>
 
       {/* Total Scope One */}
-      {/* <motion.div
+      <motion.div
         className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl p-6 mb-8"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
       >
-        <h2 className="text-2xl font-semibold mb-2 text-white">Total Scope 2 Emissions</h2>
+        <h2 className="text-2xl font-semibold mb-2 text-white">Total Scope 3 Emissions</h2>
         <p className="text-xl font-bold text-white">
           {loading
             ? "Loading..."
             : `${formatNumber(allTotalKg)} kg CO₂e | ${formatNumber(allTotalT)} t CO₂e`}
         </p>
-      </motion.div> */}
-      <div className="grid grid-cols-2 gap-6">
-      <motion.div
-        className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl p-6 mb-8"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-      >
-        <h2 className="text-2xl font-semibold mb-4 text-white">Total Location Based Emissions</h2>
-
-        <div className="space-y-2 text-white">
-          <p className="text-lg font-medium">
-             {formatNumber(totalLocationKg)} kg CO₂e |
-            {formatNumber(totalLocationT)} t CO₂e
-          </p>
-        </div>
       </motion.div>
-      <motion.div
-        className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl p-6 mb-8"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-      >
-        <h2 className="text-2xl font-semibold mb-4 text-white">Total Market Based Emissions</h2>
-
-        <div className="space-y-2 text-white">
-          <p className="text-lg font-medium">
-             {formatNumber(totalMarketKg)} kg CO₂e |
-            {formatNumber(totalMarketT)} t CO₂e
-          </p>
-        </div>
-      </motion.div>
-       </div>
 
       {/* Individual Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
@@ -532,4 +480,4 @@ const ScopeTwoReport = () => {
   );
 };
 
-export default ScopeTwoReport;
+export default ScopeThreeReport;

@@ -44,6 +44,7 @@ const ProcessEmissionsListing = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const capitalizeLabel = (text) => {
     if (!text) return "";
@@ -60,6 +61,15 @@ const ProcessEmissionsListing = () => {
       })
       .join(" ");
   };
+
+  useEffect(() => {
+  const delayDebounce = setTimeout(() => {
+    setDebouncedSearch(globalFilterValue);
+  }, 500); // 0.5 sec debounce
+
+  return () => clearTimeout(delayDebounce);
+}, [globalFilterValue]);
+
   // Fetch data from server with pagination
   const fetchData = async () => {
     setLoading(true);
@@ -70,7 +80,7 @@ const ProcessEmissionsListing = () => {
           params: {
             page: pageIndex,
             limit: pageSize,
-            search: globalFilterValue || "",
+            search: debouncedSearch  || "",
           },
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -94,7 +104,7 @@ const ProcessEmissionsListing = () => {
 
   useEffect(() => {
     fetchData();
-  }, [pageIndex, pageSize, globalFilterValue]);
+  }, [pageIndex, pageSize, debouncedSearch]);
 
 
 
