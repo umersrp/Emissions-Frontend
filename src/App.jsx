@@ -229,6 +229,10 @@ import FuelFusion from "./Carbonx-pages/ScopeThree/FuelFusion/fuelFusion";
 import FuelEnergyForm from "./Carbonx-pages/ScopeThree/FuelFusion/fuelEnergyForm";
 import WasteGeneratedFormPage from "./Carbonx-pages/ScopeThree/WasteGenerated/Waste-Generated-Form";
 import WasteGeneratedListing from "./Carbonx-pages/ScopeThree/WasteGenerated/Waste-Generated-Listing";
+import BusinessTravelFormPage from "./Carbonx-pages/ScopeThree/BusinessTravel/Business-Travel-Form-Page";
+import BusinessTravel from "./Carbonx-pages/ScopeThree/BusinessTravel/Business-Travel-Listing";
+import CapitalGoodsListing from "./Carbonx-pages/ScopeThree/CapitalGoods/Capital-Goods-Listing";
+import ScopeThreeReport from "./Carbonx-pages/ScopeThree/ScopeThreeReport/Scope-Three-Report";
 
 
 
@@ -460,10 +464,12 @@ function App() {
           <Route path="Purchased-Electricity" element={<PurchasedElectricityListing/>} />
 
           <Route path="Scope-3" element={<Scope3/>} />
+          <Route path="Scope-Three-Report" element={<ScopeThreeReport/>} />
 
           <Route path="Purchased-Good-Services-Form/add" element={<PurchasedGoodServicesFormPage />} />
           <Route path="Purchased-Good-Services-Form/:id" element={<PurchasedGoodServicesFormPage />} />
           <Route path="Purchased-Good-Services" element={<PurchasedGoodServicesListing/>} />
+          <Route path="Capital-Goods" element={<CapitalGoodsListing/>} />
 
           <Route path="fuel-energy-form/add" element={<FuelEnergyForm />} />
           <Route path="fuel-energy-form/:id" element={<FuelEnergyForm />} />
@@ -473,6 +479,9 @@ function App() {
           <Route path="Waste-Generated-Form/:id" element={<WasteGeneratedFormPage/>} />
           <Route path="Waste-Generated" element={<WasteGeneratedListing/>} />
 
+          <Route path="Business-Travel-Form/add" element={<BusinessTravelFormPage/>} />
+          <Route path="Business-Travel-Form/:id" element={<BusinessTravelFormPage/>} />
+          <Route path="Business-Travel" element={<BusinessTravel/>} />
 
           <Route path="Coach-edit" element={<CoachEditPage />} />
 

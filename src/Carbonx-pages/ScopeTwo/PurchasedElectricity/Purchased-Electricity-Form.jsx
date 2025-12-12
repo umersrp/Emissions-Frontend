@@ -224,25 +224,22 @@ const PurchasedElectricityFormPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
-  // const handleToggleChange = (name) => {
-  //   if (isView) return;
-  //   setFormData((prev) => ({ ...prev, [name]: !prev[name] }));
-  // };
+
   const handleToggleChange = (field) => {
     setFormData((prev) => {
       const newState = !prev[field];
 
       // When closing toggle -> clear fields & checkboxes
       if (!newState) {
-      if (field === "hasSolarPanels") {
-        return {
-          ...prev,
-          hasSolarPanels: false,
-          totalOnsiteSolarConsumption: "",
-          solarRetainedUnderRECs: "",
-          solarConsumedButSold: "",
-        };
-      }
+        if (field === "hasSolarPanels") {
+          return {
+            ...prev,
+            hasSolarPanels: false,
+            totalOnsiteSolarConsumption: "",
+            solarRetainedUnderRECs: "",
+            solarConsumedButSold: "",
+          };
+        }
 
         if (field === "purchasesSupplierSpecific") {
           return {
@@ -266,13 +263,13 @@ const PurchasedElectricityFormPage = () => {
           };
         }
 
-      if (field === "hasRenewableAttributes") {
-        return {
-          ...prev,
-          hasRenewableAttributes: false,
-          renewableAttributesElectricity: "",
-        };
-      }
+        if (field === "hasRenewableAttributes") {
+          return {
+            ...prev,
+            hasRenewableAttributes: false,
+            renewableAttributesElectricity: "",
+          };
+        }
       }
 
       return {
@@ -282,16 +279,42 @@ const PurchasedElectricityFormPage = () => {
     });
   };
 
+  // const handleCheckboxChange = (name, exclusiveGroup = []) => {
+  //   if (isView) return;
+  //   setFormData((prev) => {
+  //     const newState = { ...prev, [name]: !prev[name] };
+  //     exclusiveGroup.forEach((field) => {
+  //       if (field !== name) newState[field] = false;
+  //     });
+  //     return newState;
+  //   });
+  // };
   const handleCheckboxChange = (name, exclusiveGroup = []) => {
     if (isView) return;
+
     setFormData((prev) => {
-      const newState = { ...prev, [name]: !prev[name] };
+      const isCheckedNow = !prev[name];
+      const newState = { ...prev, [name]: isCheckedNow };
+      // Uncheck all others in exclusive group
       exclusiveGroup.forEach((field) => {
         if (field !== name) newState[field] = false;
       });
+      // Supplier Specific → Emission Factor Checkbox
+      if (name === "hasSupplierEmissionFactor" && !isCheckedNow) {
+        newState.supplierEmissionFactor = "";
+      }
+      // "Don't have supplier emission factor" checkbox reset (no fields but for consistency)
+      if (name === "dontHaveSupplierEmissionFactor" && !isCheckedNow) {
+        // If needed, reset related fields here
+      }
+      // PPA checkbox (if you add fields later)
+      if (name === "hasPPAEmissionFactor" && !isCheckedNow) {
+        newState.ppaEmissionFactor = "";
+      }
       return newState;
     });
   };
+
   const handleNumberInputWheel = (e) => {
     e.target.blur(); // Removes focus, preventing scroll from changing value
   };
@@ -440,46 +463,105 @@ const PurchasedElectricityFormPage = () => {
     <div>
       <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Purchased Electricity Record`}>
         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
+
           <p className="text-gray-700">
-            Scope 2 Purchased Electricity refers to indirect greenhouse gas (GHG) emissions that occur from the generation of electricity that is purchased or acquired by a company for its own use.           </p>
+            Scope 2 Purchased Electricity refers to indirect greenhouse gas (GHG) emissions that occur from the generation of electricity that is purchased or acquired by a company for its own use.</p>
+
+          {/* <p>For this method its necessary you to have Renewable Energy attributes or Contractractual instruments or PPAs that covers your electricity consumption otherwise you cannot report under this method.</p> */}
+
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 grid gap-6">
           {/* Method Selection */}
-          <div className="grid grid-cols-3  gap-6">
-            <div>
-              <label className="field-label">Method *</label>
-              <CustomSelect
-                name="method"
-                options={methodOptions}
-                value={formData.method}
-                onChange={(value) => handleSelectChange("method", value)}
-                placeholder="Select Method"
-                isDisabled={isView}
-              />
-              {errors.method && <p className="text-red-500 text-sm">{errors.method}</p>}
+          <div>
+            <label className="field-label">
+              Select Method <span className="text-red-500">*</span>
+            </label>
+
+            <div className="flex flex-col gap-3 mt-2 max-w-xs">
+              {/* Show LOCATION BASED only when:
+        → method NOT selected OR method === location_based */}
+              {(!formData.method || formData.method.value === "location_based") && (
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="method"
+                    value="location_based"
+                    checked={formData.method?.value === "location_based"}
+                    onChange={() =>
+                      handleSelectChange("method", {
+                        value: "location_based",
+                        label: "Location Based",
+                      })
+                    }
+                    disabled={isView}
+                    className="hidden"
+                  />
+
+                  <div
+                    className={`px-4 py-2 rounded w-full text-left ${formData.method?.value === "location_based"
+                        ? "bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white"
+                        : "bg-gray-200 text-gray-700"
+                      }`}
+                  >
+                    Location Based
+                  </div>
+                </label>
+              )}
+
+              {/* Show MARKET BASED only when:
+        → method NOT selected OR method === market_based */}
+              {(!formData.method || formData.method.value === "market_based") && (
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="method"
+                    value="market_based"
+                    checked={formData.method?.value === "market_based"}
+                    onChange={() =>
+                      handleSelectChange("method", {
+                        value: "market_based",
+                        label: "Market Based",
+                      })
+                    }
+                    disabled={isView}
+                    className="hidden"
+                  />
+
+                  <div
+                    className={`px-4 py-2 rounded w-full text-left ${formData.method?.value === "market_based"
+                        ? "bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white"
+                        : "bg-gray-200 text-gray-700"
+                      }`}
+                  >
+                    Market Based
+                  </div>
+                </label>
+              )}
             </div>
 
-            {/* <div>
-              <label className="field-label">Site / Building Name *</label>
-              <CustomSelect
-                name="buildingId"
-                options={buildingOptions}
-                value={formData.buildingId}
-                onChange={(value) => handleSelectChange("buildingId", value)}
-                placeholder="Select Building"
-                isDisabled={isView}
-              />
-              {errors.buildingId && <p className="text-red-500 text-sm">{errors.buildingId}</p>}
-            </div> */}
+            {/* Definition only when NO method selected */}
+            {!formData.method && (
+              <p className="text-sm mt-2 text-gray-600 max-w-2xl">
+                For this method it's necessary to have Renewable Energy attributes,
+                Contractual instruments, or PPAs that cover your electricity consumption;
+                otherwise, you cannot report under this method.
+              </p>
+            )}
+
+            {errors.method && (
+              <p className="text-red-500 text-sm mt-1">{errors.method}</p>
+            )}
           </div>
+
+
 
           {/* LOCATION BASED METHOD FIELDS */}
           {selectedMethod === "location_based" && (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div>
-                  <label className="field-label">Site / Building Name *</label>
+                  <label className="field-label">Site / Building Name  <span className="text-red-500">*</span></label>
                   <CustomSelect
                     name="buildingId"
                     options={buildingOptions}
@@ -491,7 +573,7 @@ const PurchasedElectricityFormPage = () => {
                   {errors.buildingId && <p className="text-red-500 text-sm">{errors.buildingId}</p>}
                 </div>
                 <div>
-                  <label className="field-label">Total Electricity Consumption *</label>
+                  <label className="field-label">Total Electricity Consumption  <span className="text-red-500">*</span></label>
                   <input
                     type="number"
                     onWheel={handleNumberInputWheel}
@@ -508,19 +590,20 @@ const PurchasedElectricityFormPage = () => {
                 </div>
 
                 <div>
-                  <label className="field-label">Unit *</label>
+                  <label className="field-label">Unit  <span className="text-red-500">*</span></label>
                   <CustomSelect
                     name="unit"
                     options={unitOptions}
                     value={formData.unit}
                     onChange={(value) => handleSelectChange("unit", value)}
                     isDisabled={isView}
-                    disableCapitalize={true}   // ⭐ TURN OFF CAPS
+                    disableCapitalize={true}   //  TURN OFF CAPS
                   />
 
                 </div>
-
-                <div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="col-span-2">
                   <label className="field-label">Total Gross Electricity Purchased from Grid Station ({selectedUnit}) *</label>
                   <input
                     type="number"
@@ -538,7 +621,7 @@ const PurchasedElectricityFormPage = () => {
                 </div>
 
                 <div>
-                  <label className="field-label">Grid Station *</label>
+                  <label className="field-label">Grid Station  <span className="text-red-500">*</span></label>
                   <CustomSelect
                     name="gridStation"
                     options={gridStationOptions}
@@ -549,9 +632,10 @@ const PurchasedElectricityFormPage = () => {
                   />
                   {errors.gridStation && <p className="text-red-500 text-sm">{errors.gridStation}</p>}
                 </div>
-
-                <div className="md:col-span-2">
-                  <label className="field-label">Total other supplier specific electricity purchased or purchased under Power Purchased Agreement (PPA) ({selectedUnit}) *</label>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="col-span-3">
+                  <label className="field-label">Total other supplier specific electricity purchased or purchased under Power Purchased Agreement (PPA) ({selectedUnit})  <span className="text-red-500">*</span></label>
                   <input
                     type="number"
                     onWheel={handleNumberInputWheel}
@@ -566,9 +650,8 @@ const PurchasedElectricityFormPage = () => {
                     <p className="text-red-500 text-sm">{errors.totalOtherSupplierElectricity}</p>
                   )}
                 </div>
-
                 <div>
-                  <label className="field-label">Quality Control *</label>
+                  <label className="field-label">Quality Control  <span className="text-red-500">*</span></label>
                   <CustomSelect
                     name="qualityControl"
                     options={qualityControlOptions}
@@ -603,7 +686,7 @@ const PurchasedElectricityFormPage = () => {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div>
-                  <label className="field-label">Site / Building Name *</label>
+                  <label className="field-label">Site / Building Name  <span className="text-red-500">*</span></label>
                   <CustomSelect
                     name="buildingId"
                     options={buildingOptions}
@@ -614,8 +697,8 @@ const PurchasedElectricityFormPage = () => {
                   />
                   {errors.buildingId && <p className="text-red-500 text-sm">{errors.buildingId}</p>}
                 </div>
-                <div>
-                  <label className="field-label">Total Purchased Electricity (Grid / Supplier Specific / PPA) *</label>
+                <div className="col-span-2">
+                  <label className="field-label">Total Purchased Electricity (Grid / Supplier Specific / PPA)  <span className="text-red-500">*</span></label>
                   <input
                     type="number"
                     onWheel={handleNumberInputWheel}
@@ -632,7 +715,7 @@ const PurchasedElectricityFormPage = () => {
                 </div>
 
                 <div>
-                  <label className="field-label">Unit *</label>
+                  <label className="field-label">Unit  <span className="text-red-500">*</span></label>
                   <CustomSelect
                     name="unit"
                     options={unitOptions}
@@ -643,8 +726,8 @@ const PurchasedElectricityFormPage = () => {
                   />
                 </div>
 
-                <div>
-                  <label className="field-label">Total Gross Electricity Purchased from Grid Station ({selectedUnit}) *</label>
+                <div className="col-span-2">
+                  <label className="field-label">Total Gross Electricity Purchased from Grid Station ({selectedUnit})  <span className="text-red-500">*</span></label>
                   <input
                     type="number"
                     onWheel={handleNumberInputWheel}
@@ -661,7 +744,7 @@ const PurchasedElectricityFormPage = () => {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="field-label">Grid Station *</label>
+                  <label className="field-label">Grid Station <span className="text-red-500">*</span></label>
                   <CustomSelect
                     name="gridStation"
                     options={gridStationOptions}
@@ -672,15 +755,34 @@ const PurchasedElectricityFormPage = () => {
                   />
                   {errors.gridStation && <p className="text-red-500 text-sm">{errors.gridStation}</p>}
                 </div>
+
+                <div>
+                  <label className="field-label">Quality Control  <span className="text-red-500">*</span></label>
+                  <CustomSelect
+                    name="qualityControl"
+                    options={qualityControlOptions}
+                    value={formData.qualityControl}
+                    onChange={(value) => handleSelectChange("qualityControl", value)}
+                    placeholder="Select Quality"
+                    isDisabled={isView}
+                  />
+                  {errors.qualityControl && (
+                    <p className="text-red-500 text-sm">{errors.qualityControl}</p>
+                  )}
+                </div>
               </div>
 
-              <div className="mt-6 mb-4">
-                {/* <h3 className="text-lg font-semibold mb-2">Select at least one option below *</h3> */}
-                {errors.toggleRequired && (
-                  <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-                    <p className="text-sm font-medium">{errors.toggleRequired}</p>
-                  </div>
-                )}
+              <div className="col-span-full">
+                <label className="field-label">Remarks (Optional)</label>
+                <textarea
+                  name="remarks"
+                  value={formData.remarks}
+                  onChange={handleInputChange}
+                  rows={3}
+                  placeholder="Any remarks..."
+                  className="border-[2px] w-full p-2 rounded-md"
+                  disabled={isView}
+                />
               </div>
 
               {/* TOGGLE 1: Solar Panels */}
@@ -702,9 +804,9 @@ const PurchasedElectricityFormPage = () => {
                 </div>
 
                 {formData.hasSolarPanels && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ml-8 mt-4">
+                  <div className="grid grid-cols-1  gap-6 ml-8 mt-4">
                     <div>
-                      <label className="field-label">What is the total onsite solar electricity consumption? ({selectedUnit}) *</label>
+                      <label className="field-label">What is the total onsite solar electricity consumption? ({selectedUnit})  <span className="text-red-500">*</span></label>
                       <input
                         type="number"
                         onWheel={handleNumberInputWheel}
@@ -721,7 +823,7 @@ const PurchasedElectricityFormPage = () => {
                     </div>
 
                     <div>
-                      <label className="field-label">How much solar electricity is retained by you under valid RECs or any other energy attributes? ({selectedUnit}) *</label>
+                      <label className="field-label">How much solar electricity is retained by you under valid RECs or any other energy attributes? ({selectedUnit})  <span className="text-red-500">*</span></label>
                       <input
                         type="number"
                         onWheel={handleNumberInputWheel}
@@ -738,7 +840,7 @@ const PurchasedElectricityFormPage = () => {
                     </div>
 
                     <div>
-                      <label className="field-label">How much solar electricity is consumed by you but its renewable instruments or attributes is sold by you to another entity? ({selectedUnit}) *</label>
+                      <label className="field-label">How much solar electricity is consumed by you but its renewable instruments or attributes is sold by you to another entity? ({selectedUnit})  <span className="text-red-500">*</span></label>
                       <input
                         type="number"
                         onWheel={handleNumberInputWheel}
@@ -778,7 +880,7 @@ const PurchasedElectricityFormPage = () => {
                 {formData.purchasesSupplierSpecific && (
                   <div className="ml-8 mt-4 space-y-4">
                     <div>
-                      <label className="field-label">How much electricity from total electricity consumption is purchased from specific supplier under contractual instrument? ({selectedUnit}) *</label>
+                      <label className="field-label">How much electricity from total electricity consumption is purchased from specific supplier under contractual instrument? ({selectedUnit})  <span className="text-red-500">*</span></label>
                       <input
                         type="number"
                         onWheel={handleNumberInputWheel}
@@ -808,7 +910,7 @@ const PurchasedElectricityFormPage = () => {
 
                       {formData.hasSupplierEmissionFactor && (
                         <div className="ml-7">
-                          <label className="field-label">Emission Factor (kgCO₂e/kWh) *</label>
+                          <label className="field-label">Emission Factor (kgCO₂e/kWh)  <span className="text-red-500">*</span></label>
                           <input
                             type="number"
                             onWheel={handleNumberInputWheel}
@@ -865,7 +967,7 @@ const PurchasedElectricityFormPage = () => {
                 {formData.hasPPA && (
                   <div className="ml-8 mt-4 space-y-4">
                     <div>
-                      <label className="field-label">How much electricity from total electricity consumption is purchased or covered under Power Purchase Agreement (PPA)? ({selectedUnit}) *</label>
+                      <label className="field-label">How much electricity from total electricity consumption is purchased or covered under Power Purchase Agreement (PPA)? ({selectedUnit})  <span className="text-red-500">*</span></label>
                       <input
                         type="number"
                         onWheel={handleNumberInputWheel}
@@ -895,7 +997,7 @@ const PurchasedElectricityFormPage = () => {
 
                       {formData.hasPPAEmissionFactor && (
                         <div className="ml-7">
-                          <label className="field-label">PPA Emission Factor (kgCO₂e/kWh) *</label>
+                          <label className="field-label">PPA Emission Factor (kgCO₂e/kWh)  <span className="text-red-500">*</span></label>
                           <input
                             type="number"
                             onWheel={handleNumberInputWheel}
@@ -949,7 +1051,7 @@ const PurchasedElectricityFormPage = () => {
                 {formData.hasRenewableAttributes && (
                   <div className="ml-8 mt-4">
                     <div>
-                      <label className="field-label">How much electricity from total electricity consumption (separated from that which is covered in Solar generation and PPA) is covered under valid renewable energy attributes or market based instruments? ({selectedUnit}) *</label>
+                      <label className="field-label">How much of your total electricity consumption (excluding solar generation and PPA-covered electricity) is covered by valid renewable energy attributes or market-based instruments ({selectedUnit})?<span className="text-red-500">*</span></label>
                       <input
                         type="number"
                         onWheel={handleNumberInputWheel}
@@ -970,12 +1072,33 @@ const PurchasedElectricityFormPage = () => {
             </>
           )}
           {/* Buttons */}
-          <div className="col-span-full flex justify-end gap-4 pt-6 border-t">
+          {/* <div className="col-span-full flex justify-end gap-4 pt-6 border-t">
             <Button
               text={isView ? "Back" : "Cancel"}
               className={isView ? "btn-primary" : "btn-light"}
               type="button"
               onClick={() => navigate("/Purchased-Electricity")}
+            />
+            {!isView && (
+              <Button text={isEdit ? "Update" : "Add"} className="btn-primary" type="submit" />
+            )}
+          </div> */}
+          {/* Buttons */}
+          <div className="col-span-full flex justify-end gap-4 pt-6 border-t">
+            <Button
+              text={isView ? "Back" : "Cancel"}
+              className={isView ? "btn-primary" : "btn-light"}
+              type="button"
+              onClick={() => {
+                if (isView) {
+                  navigate("/Purchased-Electricity");
+                } else if (formData.method) {
+                  // Reset method selection to show both options again
+                  handleSelectChange("method", null);
+                } else {
+                  navigate("/Purchased-Electricity");
+                }
+              }}
             />
             {!isView && (
               <Button text={isEdit ? "Update" : "Add"} className="btn-primary" type="submit" />
