@@ -61,13 +61,18 @@ const PurchasedElectricityFormPage = () => {
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
 
+
   const formatEmission = (num) => {
+    if (num === null || num === undefined) return "N/A"; // handle empty values
+    if (num === 0) return 0; // exact zero
+
     const rounded = Number(num.toFixed(5));
-    if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
+    if (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6) {
       return rounded.toExponential(5);
     }
     return rounded;
   };
+
 
   const capitalizeFirstLetter = (text) => {
     if (!text) return "";
@@ -193,10 +198,16 @@ const PurchasedElectricityFormPage = () => {
     if (result) {
       const formattedKg = formatEmission(result.calculatedEmissionKgCo2e);
       const formattedT = formatEmission(result.calculatedEmissionTCo2e);
-      const formattedMarketKg = result.calculatedEmissionMarketKgCo2e
+      // const formattedMarketKg = result.calculatedEmissionMarketKgCo2e
+      //   ? formatEmission(result.calculatedEmissionMarketKgCo2e)
+      //   : null;
+      // const formattedMarketT = result.calculatedEmissionMarketTCo2e
+      //   ? formatEmission(result.calculatedEmissionMarketTCo2e)
+      //   : null;
+      const formattedMarketKg = result.calculatedEmissionMarketKgCo2e !== null && result.calculatedEmissionMarketKgCo2e !== undefined
         ? formatEmission(result.calculatedEmissionMarketKgCo2e)
         : null;
-      const formattedMarketT = result.calculatedEmissionMarketTCo2e
+      const formattedMarketT = result.calculatedEmissionMarketTCo2e !== null && result.calculatedEmissionMarketTCo2e !== undefined
         ? formatEmission(result.calculatedEmissionMarketTCo2e)
         : null;
 
@@ -279,16 +290,7 @@ const PurchasedElectricityFormPage = () => {
     });
   };
 
-  // const handleCheckboxChange = (name, exclusiveGroup = []) => {
-  //   if (isView) return;
-  //   setFormData((prev) => {
-  //     const newState = { ...prev, [name]: !prev[name] };
-  //     exclusiveGroup.forEach((field) => {
-  //       if (field !== name) newState[field] = false;
-  //     });
-  //     return newState;
-  //   });
-  // };
+
   const handleCheckboxChange = (name, exclusiveGroup = []) => {
     if (isView) return;
 
@@ -319,75 +321,164 @@ const PurchasedElectricityFormPage = () => {
     e.target.blur(); // Removes focus, preventing scroll from changing value
   };
 
+  // const validate = () => {
+  //   const newErrors = {};
+  //   if (!formData.method) newErrors.method = "Please select a method";
+  //   if (!formData.buildingId) newErrors.buildingId = "Building is required";
+
+  //   if (formData.method?.value === "location_based") {
+  //     if (!formData.totalElectricity) newErrors.totalElectricity = "Required";
+  //     if (!formData.totalGrossElectricityGrid) newErrors.totalGrossElectricityGrid = "Required";
+  //     if (!formData.gridStation) newErrors.gridStation = "Required";
+  //     if (!formData.totalOtherSupplierElectricity) newErrors.totalOtherSupplierElectricity = "Required";
+  //     if (!formData.qualityControl) newErrors.qualityControl = "Required";
+  //   }
+
+  //   if (formData.method?.value === "market_based") {
+  //     if (!formData.totalPurchasedElectricity) newErrors.totalPurchasedElectricity = "Required";
+  //     if (!formData.totalGrossElectricityGrid) newErrors.totalGrossElectricityGrid = "Required";
+  //     if (!formData.gridStation) newErrors.gridStation = "Required";
+  //     // Supplier Specific validation
+  //     if (formData.purchasesSupplierSpecific) {
+  //       if (
+  //         !formData.hasSupplierEmissionFactor &&
+  //         !formData.dontHaveSupplierEmissionFactor
+  //       ) {
+  //         newErrors.supplierFactorChoice =
+  //           "Please select at least one option (emission factor or no emission factor).";
+  //       }
+  //     };
+
+  //     if (formData.hasPPA) {
+  //       if (
+  //         !formData.hasPPAEmissionFactor &&
+  //         !formData.hasPPAValidInstruments
+  //       ) {
+  //         newErrors.ppaFactorChoice =
+  //           "Please select at least one option (factor or RECs).";
+  //       }
+  //     };
+
+
+  //     // Check if at least one toggle is selected
+  //     const hasAtLeastOneToggle =
+  //       formData.hasSolarPanels ||
+  //       formData.purchasesSupplierSpecific ||
+  //       formData.hasPPA ||
+  //       formData.hasRenewableAttributes;
+
+  //     if (!hasAtLeastOneToggle) {
+  //       newErrors.toggleRequired = "Please select at least one option from below or choose the location based method instead.";
+  //     }
+
+  //     if (formData.hasSolarPanels) {
+  //       if (!formData.totalOnsiteSolarConsumption) newErrors.totalOnsiteSolarConsumption = "Required";
+  //       if (!formData.solarRetainedUnderRECs) newErrors.solarRetainedUnderRECs = "Required";
+  //       if (!formData.solarConsumedButSold) newErrors.solarConsumedButSold = "Required";
+  //     }
+  //     if (formData.purchasesSupplierSpecific) {
+  //       if (!formData.supplierSpecificElectricity) newErrors.supplierSpecificElectricity = "Required";
+  //       if (formData.hasSupplierEmissionFactor && !formData.supplierEmissionFactor) newErrors.supplierEmissionFactor = "Required";
+  //     }
+  //     if (formData.hasPPA) {
+  //       if (!formData.ppaElectricity) newErrors.ppaElectricity = "Required";
+  //       if (formData.hasPPAEmissionFactor && !formData.ppaEmissionFactor) newErrors.ppaEmissionFactor = "Required";
+  //     }
+  //     if (formData.hasRenewableAttributes && !formData.renewableAttributesElectricity) newErrors.renewableAttributesElectricity = "Required";
+  //   }
+
+  //   setErrors(newErrors);
+  //   return Object.keys(newErrors).length === 0;
+  // };
   const validate = () => {
-    const newErrors = {};
-    if (!formData.method) newErrors.method = "Please select a method";
-    if (!formData.buildingId) newErrors.buildingId = "Building is required";
+  const newErrors = {};
+  if (!formData.method) newErrors.method = "Please select a method";
+  if (!formData.buildingId) newErrors.buildingId = "Building is required";
 
-    if (formData.method?.value === "location_based") {
-      if (!formData.totalElectricity) newErrors.totalElectricity = "Required";
-      if (!formData.totalGrossElectricityGrid) newErrors.totalGrossElectricityGrid = "Required";
-      if (!formData.gridStation) newErrors.gridStation = "Required";
-      if (!formData.totalOtherSupplierElectricity) newErrors.totalOtherSupplierElectricity = "Required";
-      if (!formData.qualityControl) newErrors.qualityControl = "Required";
+  if (formData.method?.value === "location_based") {
+    if (!formData.totalElectricity) newErrors.totalElectricity = "Required";
+    
+  // At least one of these two fields must be filled
+if (!formData.totalGrossElectricityGrid && !formData.totalOtherSupplierElectricity) {
+  newErrors.totalGrossElectricityGrid = "Please Enter a value.";
+  newErrors.totalOtherSupplierElectricity = "Please Enter a value.";
+} else {
+  // Clear both errors when at least one field is filled
+  delete newErrors.totalGrossElectricityGrid;
+  delete newErrors.totalOtherSupplierElectricity;
+}
+    
+    if (!formData.gridStation) newErrors.gridStation = "Required";
+    if (!formData.qualityControl) newErrors.qualityControl = "Required";
+  }
+
+  if (formData.method?.value === "market_based") {
+    if (!formData.totalPurchasedElectricity) newErrors.totalPurchasedElectricity = "Required";
+    if (!formData.totalGrossElectricityGrid) newErrors.totalGrossElectricityGrid = "Required";
+    if (!formData.gridStation) newErrors.gridStation = "Required";
+    
+    // Check if at least one toggle is selected
+    const hasAtLeastOneToggle =
+      formData.hasSolarPanels ||
+      formData.purchasesSupplierSpecific ||
+      formData.hasPPA ||
+      formData.hasRenewableAttributes;
+
+    if (!hasAtLeastOneToggle) {
+      newErrors.toggleRequired = "Please select at least one option from below or choose the location based method instead.";
     }
 
-    if (formData.method?.value === "market_based") {
-      if (!formData.totalPurchasedElectricity) newErrors.totalPurchasedElectricity = "Required";
-      if (!formData.totalGrossElectricityGrid) newErrors.totalGrossElectricityGrid = "Required";
-      if (!formData.gridStation) newErrors.gridStation = "Required";
-      // Supplier Specific validation
-      if (formData.purchasesSupplierSpecific) {
-        if (
-          !formData.hasSupplierEmissionFactor &&
-          !formData.dontHaveSupplierEmissionFactor
-        ) {
-          newErrors.supplierFactorChoice =
-            "Please select at least one option (emission factor or no emission factor).";
-        }
-      };
-
-      if (formData.hasPPA) {
-        if (
-          !formData.hasPPAEmissionFactor &&
-          !formData.hasPPAValidInstruments
-        ) {
-          newErrors.ppaFactorChoice =
-            "Please select at least one option (factor or RECs).";
-        }
-      };
-
-
-      // Check if at least one toggle is selected
-      const hasAtLeastOneToggle =
-        formData.hasSolarPanels ||
-        formData.purchasesSupplierSpecific ||
-        formData.hasPPA ||
-        formData.hasRenewableAttributes;
-
-      if (!hasAtLeastOneToggle) {
-        newErrors.toggleRequired = "Please select at least one option from below or choose the location based method instead.";
-      }
-
-      if (formData.hasSolarPanels) {
-        if (!formData.totalOnsiteSolarConsumption) newErrors.totalOnsiteSolarConsumption = "Required";
-        if (!formData.solarRetainedUnderRECs) newErrors.solarRetainedUnderRECs = "Required";
-        if (!formData.solarConsumedButSold) newErrors.solarConsumedButSold = "Required";
-      }
-      if (formData.purchasesSupplierSpecific) {
-        if (!formData.supplierSpecificElectricity) newErrors.supplierSpecificElectricity = "Required";
-        if (formData.hasSupplierEmissionFactor && !formData.supplierEmissionFactor) newErrors.supplierEmissionFactor = "Required";
-      }
-      if (formData.hasPPA) {
-        if (!formData.ppaElectricity) newErrors.ppaElectricity = "Required";
-        if (formData.hasPPAEmissionFactor && !formData.ppaEmissionFactor) newErrors.ppaEmissionFactor = "Required";
-      }
-      if (formData.hasRenewableAttributes && !formData.renewableAttributesElectricity) newErrors.renewableAttributesElectricity = "Required";
+    // Only validate if toggles are active
+    if (formData.hasSolarPanels) {
+      if (!formData.totalOnsiteSolarConsumption) newErrors.totalOnsiteSolarConsumption = "Required";
+      if (!formData.solarRetainedUnderRECs) newErrors.solarRetainedUnderRECs = "Required";
+      if (!formData.solarConsumedButSold) newErrors.solarConsumedButSold = "Required";
     }
+    
+    if (formData.purchasesSupplierSpecific) {
+      if (!formData.supplierSpecificElectricity) newErrors.supplierSpecificElectricity = "Required";
+      
+      // Only validate checkbox selection if the toggle is active
+      if (
+        !formData.hasSupplierEmissionFactor &&
+        !formData.dontHaveSupplierEmissionFactor
+      ) {
+        newErrors.supplierFactorChoice =
+          "Please select at least one option (emission factor or no emission factor).";
+      }
+      
+      // Only require emission factor if the checkbox is checked
+      if (formData.hasSupplierEmissionFactor && !formData.supplierEmissionFactor) {
+        newErrors.supplierEmissionFactor = "Required";
+      }
+    }
+    
+    if (formData.hasPPA) {
+      if (!formData.ppaElectricity) newErrors.ppaElectricity = "Required";
+      
+      // Only validate checkbox selection if the toggle is active
+      if (
+        !formData.hasPPAEmissionFactor &&
+        !formData.hasPPAValidInstruments
+      ) {
+        newErrors.ppaFactorChoice =
+          "Please select at least one option (factor or RECs).";
+      }
+      
+      // Only require PPA factor if the checkbox is checked
+      if (formData.hasPPAEmissionFactor && !formData.ppaEmissionFactor) {
+        newErrors.ppaEmissionFactor = "Required";
+      }
+    }
+    
+    if (formData.hasRenewableAttributes && !formData.renewableAttributesElectricity) {
+      newErrors.renewableAttributesElectricity = "Required";
+    }
+  }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isView || !validate()) {
@@ -432,11 +523,10 @@ const PurchasedElectricityFormPage = () => {
       renewableAttributesElectricity: formData.renewableAttributesElectricity || null,
       createdBy: userId,
       updatedBy: userId,
-      calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e || null,
-      calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e || null,
-      calculatedEmissionMarketKgCo2e: formData.calculatedEmissionMarketKgCo2e || null,
-      calculatedEmissionMarketTCo2e: formData.calculatedEmissionMarketTCo2e || null,
-
+      calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e !== "" ? formData.calculatedEmissionKgCo2e : null,
+      calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e !== "" ? formData.calculatedEmissionTCo2e : null,
+      calculatedEmissionMarketKgCo2e: formData.calculatedEmissionMarketKgCo2e !== "" ? formData.calculatedEmissionMarketKgCo2e : null,
+      calculatedEmissionMarketTCo2e: formData.calculatedEmissionMarketTCo2e !== "" ? formData.calculatedEmissionMarketTCo2e : null,
     };
 
     try {
@@ -500,8 +590,8 @@ const PurchasedElectricityFormPage = () => {
 
                   <div
                     className={`px-4 py-2 rounded w-full text-left ${formData.method?.value === "location_based"
-                        ? "bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white"
-                        : "bg-gray-200 text-gray-700"
+                      ? "bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white"
+                      : "bg-gray-200 text-gray-700"
                       }`}
                   >
                     Location Based
@@ -530,8 +620,8 @@ const PurchasedElectricityFormPage = () => {
 
                   <div
                     className={`px-4 py-2 rounded w-full text-left ${formData.method?.value === "market_based"
-                        ? "bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white"
-                        : "bg-gray-200 text-gray-700"
+                      ? "bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white"
+                      : "bg-gray-200 text-gray-700"
                       }`}
                   >
                     Market Based
@@ -553,9 +643,6 @@ const PurchasedElectricityFormPage = () => {
               <p className="text-red-500 text-sm mt-1">{errors.method}</p>
             )}
           </div>
-
-
-
           {/* LOCATION BASED METHOD FIELDS */}
           {selectedMethod === "location_based" && (
             <>
@@ -604,7 +691,7 @@ const PurchasedElectricityFormPage = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="col-span-2">
-                  <label className="field-label">Total Gross Electricity Purchased from Grid Station ({selectedUnit}) *</label>
+                  <label className="field-label">Total Gross Electricity Purchased from Grid Station ({selectedUnit}) </label>
                   <input
                     type="number"
                     onWheel={handleNumberInputWheel}
@@ -635,7 +722,7 @@ const PurchasedElectricityFormPage = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="col-span-3">
-                  <label className="field-label">Total other supplier specific electricity purchased or purchased under Power Purchased Agreement (PPA) ({selectedUnit})  <span className="text-red-500">*</span></label>
+                  <label className="field-label">Total other supplier specific electricity purchased or purchased under Power Purchased Agreement (PPA) ({selectedUnit}) </label>
                   <input
                     type="number"
                     onWheel={handleNumberInputWheel}
@@ -784,6 +871,14 @@ const PurchasedElectricityFormPage = () => {
                   disabled={isView}
                 />
               </div>
+
+               {errors.toggleRequired && (
+                <div className="col-span-full">
+                  <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                    <p className="text-red-700 text-sm font-medium">{errors.toggleRequired}</p>
+                  </div>
+                </div>
+              )}
 
               {/* TOGGLE 1: Solar Panels */}
               <div className="border-t pt-6">
