@@ -85,33 +85,33 @@ const CompanyProfileForm = () => {
     //     };
     //     fetchSectors();
     // }, []);
-   useEffect(() => {
-  const fetchDropdownData = async () => {
-    try {
-      const [sectorRes, industryRes] = await Promise.all([
-        axios.get(`${process.env.REACT_APP_BASE_URL}/sector/Get-All`),
-        axios.get(`${process.env.REACT_APP_BASE_URL}/industry/get-All-Industry`),
-      ]);
+    useEffect(() => {
+        const fetchDropdownData = async () => {
+            try {
+                const [sectorRes, industryRes] = await Promise.all([
+                    axios.get(`${process.env.REACT_APP_BASE_URL}/sector/Get-All`),
+                    axios.get(`${process.env.REACT_APP_BASE_URL}/industry/get-All-Industry`),
+                ]);
 
-      const sectorOptions = sectorRes.data.data.map((item) => ({
-        value: item._id,
-        label: item.name,
-      }));
+                const sectorOptions = sectorRes.data.data.map((item) => ({
+                    value: item._id,
+                    label: item.name,
+                }));
 
-      const industryOptions = industryRes.data.data.map((item) => ({
-        value: item._id,
-        label: item.name,
-      }));
+                const industryOptions = industryRes.data.data.map((item) => ({
+                    value: item._id,
+                    label: item.name,
+                }));
 
-      setSectors(sectorOptions);
-      setIndustries(industryOptions);
-    } catch (error) {
-      console.error("Error fetching dropdown data:", error);
-    }
-  };
+                setSectors(sectorOptions);
+                setIndustries(industryOptions);
+            } catch (error) {
+                console.error("Error fetching dropdown data:", error);
+            }
+        };
 
-  fetchDropdownData();
-}, []);
+        fetchDropdownData();
+    }, []);
 
 
 
@@ -219,9 +219,9 @@ const CompanyProfileForm = () => {
             setErrors(validationErrors);
             return;
         }
-          let payload = { ...formData };
-          
-         if (formData.reportingYear === "calendar") {
+        let payload = { ...formData };
+
+        if (formData.reportingYear === "calendar") {
             payload.Calendaryear = formData.Calendaryear;
             payload.fiscalyear = null;
             payload.customyear = null;
@@ -391,49 +391,60 @@ const CompanyProfileForm = () => {
 
                     {/* Fiscal Year */}
                     {formData.reportingYear === "fiscal" && (
-                        <div className="flex-1 relative z-[9999] bg-black-700">
+                        <div className="flex-1 relative z-[9999]">
                             <label className="field-label">Fiscal Year (Start & End Date)</label>
-                            <div className="p-3 bg-black-500">
-                            <Datepicker
-                                value={fiscalRange}
-                                onChange={(newValue) => {
-                                    setFiscalRange(newValue);
-                                    setFormData((prev) => ({
-                                        ...prev,
-                                        fiscalyear: {
-                                            startDate: newValue.startDate,
-                                            endDate: newValue.endDate,
+                            <div>
+                                <Datepicker
+                                    value={fiscalRange}
+                                    onChange={(newValue) => {
+                                        setFiscalRange(newValue);
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            fiscalyear: {
+                                                startDate: newValue.startDate,
+                                                endDate: newValue.endDate,
+                                            },
+                                        }));
+                                        setErrors((prev) => ({
+                                            ...prev,
+                                            fiscalyear: null,
+                                        }));
+                                    }}
+                                    inputClassName="w-full border border-slate-300 dark:border-slate-600 input-field rounded-md text-sm bg-white dark:bg-slate-800 dark:text-white"
+                                    containerClassName="container-class "
+                                    popperPlacement="bottom-start"
+                                    popperModifiers={[
+                                        {
+                                            name: "flip",
+                                            enabled: true, // 👈 prevent it from flipping to top
                                         },
-                                    }));
-                                    setErrors((prev) => ({
-                                        ...prev,
-                                        fiscalyear: null,
-                                    }));
-                                }}
-                                inputClassName="w-full border border-slate-300 dark:border-slate-600 input-field rounded-md text-sm bg-white dark:bg-slate-800 dark:text-white"
-                                containerClassName="container-class "
-                                popperPlacement="bottom-start"
-                                popperModifiers={[
-                                    {
-                                        name: "flip",
-                                        enabled: true, // 👈 prevent it from flipping to top
-                                    },
-                                    {
-                                        name: "preventOverflow",
-                                        options: {
-                                            altBoundary: false,
-                                            rootBoundary: "viewport",
-                                            tether: true, //   prevents weird repositioning
+                                        {
+                                            name: "preventOverflow",
+                                            options: {
+                                                altBoundary: false,
+                                                rootBoundary: "viewport",
+                                                tether: true, //   prevents weird repositioning
+                                            },
                                         },
-                                    },
 
-                                ]}
-                            />
+                                    ]}
+                                />
                             </div>
                             <style jsx global>{`
-                                        .react-datepicker__calendar-icon {
-                                        !important bg-black-500; /* top-2 */
-                              }
+  /* Remove h-full and center the icon */
+  .container-class button[type="button"] {
+    height: 2.5rem !important;
+    top: 35% !important;
+    transform: translateY(-0%) !important;
+  }
+  
+  /* Adjust icon positioning */
+  .react-datepicker__calendar-icon {
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
                             `}</style>
 
                             {/* inline style to control popper position */}
@@ -483,6 +494,22 @@ const CompanyProfileForm = () => {
 
                                 ]}
                             />
+                              <style jsx global>{`
+  /* Remove h-full and center the icon */
+  .container-class button[type="button"] {
+    height: 2.5rem !important;
+    top: 35% !important;
+    transform: translateY(-0%) !important;
+  }
+  
+  /* Adjust icon positioning */
+  .react-datepicker__calendar-icon {
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+                            `}</style>
                             {/* 👇 inline style to control popper position */}
                             {errors.customyear && (
                                 <p className="text-red-500">{errors.customyear}</p>

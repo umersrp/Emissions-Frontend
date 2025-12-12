@@ -89,36 +89,53 @@ const Scope1 = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      {/* Header Section */}
-      <Card title={"Scope 1: Direct GHG Emissions"}>
-        <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
-          Scope 1 includes direct GHG emissions from owned and leased facilities under the operational control of the organisation (e.g. offices / warehouses). These are emissions resulting from the combustion of fuels, refrigerant leakage and the use of selected industrial and shielding gases. They occur from sources that are owned or controlled by the company, for example, emissions from combustion in owned or controlled boilers, furnaces, vehicles, etc.; emissions from chemical production in owned or controlled process equipment.
-        </p>
-        <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
-          <span className="font-semibold ">Note:</span> Direct CO₂ emissions from the combustion of biomass shall not be included in scope 1 but reported separately.
-        </p>
+  <div className="w-full">
+  <Card
+    title={"Scope 1: Direct GHG Emissions"}
+    className="w-full  flex flex-col justify-center pb-44 min-h-screen"
+  >
+    {/* <div className="max-w-5xl  mx-auto min-h-screen w-full space-y-8"> */}
+      <div className="space-y-6 w-full">
 
-        {/* Sub-Task Cards Section */}
-        <label className="w-full font-extrabold text-2xl text-slate-700 pb-8 text-center">
-          SCOPE 1 CATEGORIES
-        </label>
-        <div className="grid sm:grid-cols-4 gap-10 pl-10 pr-10 pb-10">
-          {categories.map((cat, index) => (
-            <div
-              key={index}
-              onClick={() => navigate(cat.path)}
-              className={`h-40 flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer ${cat.bg} ${cat.hoverGradient}`}
-            >
-              <Icon icon={cat.icon} className="text-4xl mb-3 text-gray-700 hover:text-white" />
-              <h3 className="text-lg font-semibold text-center text-gray-700 hover:text-white">
-                {cat.title}
-              </h3>
-            </div>
-          ))}
-        </div>
-      </Card>
+
+      {/* Description */}
+      <p className="text-slate-700 leading-relaxed bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
+        Scope 1 includes direct GHG emissions from owned and leased facilities 
+        under the operational control of the organisation (e.g. offices / warehouses).
+        These are emissions resulting from the combustion of fuels, refrigerant 
+        leakage and the use of selected industrial and shielding gases.
+      </p>
+
+      <p className="text-slate-700 leading-relaxed bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
+        <span className="font-semibold">Note:</span>  
+        Direct CO₂ emissions from the combustion of biomass shall not be included 
+        in scope 1 but reported separately.
+      </p>
+
+      {/* Sub-Task Cards Section */}
+      <label className="w-full font-extrabold text-2xl text-slate-700 text-center block">
+        SCOPE 1 CATEGORIES
+      </label>
+
+      <div className="grid sm:grid-cols-4 gap-10  pb-10">
+        {categories.map((cat, index) => (
+          <div
+            key={index}
+            onClick={() => navigate(cat.path)}
+            className={`h-40 flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer ${cat.bg} ${cat.hoverGradient}`}
+          >
+            <Icon icon={cat.icon} className="text-4xl mb-3 text-gray-700" />
+            <h3 className="text-lg font-semibold text-center text-gray-700">
+              {cat.title}
+            </h3>
+          </div>
+        ))}
+      </div>
+
     </div>
+  </Card>
+</div>
+
   );
 };
 

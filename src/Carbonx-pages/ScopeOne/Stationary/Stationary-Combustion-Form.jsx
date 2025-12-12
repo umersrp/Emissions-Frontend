@@ -298,7 +298,7 @@ const StationaryCombustionFormPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* --- Building --- */}
             <div>
-              <label className="block font-semibold mb-1">Site / Building Name</label>
+              <label className="field-label">Site / Building Name</label>
               <Select
                 name="buildingId"
                 options={buildingOptions}
@@ -313,7 +313,7 @@ const StationaryCombustionFormPage = () => {
 
             {/* --- Stakeholder --- */}
             <div>
-              <label className="block font-semibold mb-1">Stakeholder / Department</label>
+              <label className="field-label">Stakeholder / Department</label>
               <Select
                 name="stakeholder"
                 options={stakeholderOptions}
@@ -329,7 +329,7 @@ const StationaryCombustionFormPage = () => {
 
             {/* --- Equipment Type --- */}
             <div>
-              <label className="block font-semibold mb-1">Equipment Type</label>
+              <label className="field-label">Equipment Type</label>
               <Select
                 name="equipmentType"
                 options={equipmentTypeOptions}
@@ -348,7 +348,7 @@ const StationaryCombustionFormPage = () => {
 
             {/* --- Fuel Type --- */}
             <div>
-              <label className="block font-semibold mb-1">Fuel Type</label>
+              <label className="field-label">Fuel Type</label>
               <Select
                 name="fuelType"
                 options={fuelTypeOptions}
@@ -363,7 +363,7 @@ const StationaryCombustionFormPage = () => {
 
             {/* --- Fuel Name --- */}
             <div>
-              <label className="block font-semibold mb-1">Fuel Name</label>
+              <label className="field-label">Fuel Name</label>
               <Select
                 name="fuelName"
                 options={fuelNameOptions}
@@ -378,7 +378,7 @@ const StationaryCombustionFormPage = () => {
 
             {/* --- Fuel Consumption --- */}
             <div>
-              <label className="block font-semibold mb-1">Fuel Consumption Value</label>
+              <label className="field-label">Fuel Consumption Value</label>
               <input
                 type="number"
                 name="fuelConsumption"
@@ -395,7 +395,7 @@ const StationaryCombustionFormPage = () => {
 
             {/* --- Quality Control --- */}
             <div>
-              <label className="block font-semibold mb-1">Quality Control</label>
+              <label className="field-label">Quality Control</label>
               <Select
                 name="qualityControl"
                 options={qualityControlOptions}
@@ -412,7 +412,7 @@ const StationaryCombustionFormPage = () => {
 
             {/* --- Consumption Unit --- */}
             <div>
-              <label className="block font-semibold mb-1">Consumption Unit</label>
+              <label className="field-label">Consumption Unit</label>
               <Select
                 name="consumptionUnit"
                 options={unitOptions}
@@ -429,7 +429,7 @@ const StationaryCombustionFormPage = () => {
           </div>
           {/* --- Remarks --- */}
           <div className="col-span-full">
-            <label className="block font-semibold mb-1">Remarks (Optional)</label>
+            <label className="field-label">Remarks (Optional)</label>
             <textarea
               name="remarks"
               value={formData.remarks}

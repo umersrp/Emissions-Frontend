@@ -27,7 +27,7 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref)
   return <input type="checkbox" ref={resolvedRef} {...rest} className="table-checkbox" />;
 });
 
-const PurchasedGoodServicesListing = () => {
+const CapitalGoodsListing = () => {
   const navigate = useNavigate();
 
   // Server-side states
@@ -78,39 +78,39 @@ const PurchasedGoodServicesListing = () => {
   //     setLoading(false);
   //   }
   // };
-const fetchData = async () => {
-  setLoading(true);
-  try {
-    const res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
-      {
-        params: {
-          page: pageIndex,
-          limit: pageSize,
-          search: globalFilterValue || "",
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
-
-    let data = res.data?.data || [];
-    //  FILTER OUT CAPITAL GOODS
-    data = data.filter((item) => item.isCapitalGoods !== true);
-    // UPDATE STATE
-    setRecords(data);
-    // FIX TOTAL COUNTS ACCORDING TO FILTERED DATA
-    setTotalRecords(data.length);
-    // FIX TOTAL PAGES AFTER FILTERING
-    setTotalPages(Math.ceil(data.length / pageSize));
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to fetch records");
-  } finally {
-    setLoading(false);
-  }
-};
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
+        {
+          params: {
+            page: pageIndex,
+            limit: pageSize,
+            search: globalFilterValue || "",
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+  
+      let data = res.data?.data || [];
+      //  FILTER OUT CAPITAL GOODS
+      data = data.filter((item) => item.isCapitalGoods !== false);
+      // UPDATE STATE
+      setRecords(data);
+      // FIX TOTAL COUNTS ACCORDING TO FILTERED DATA
+      setTotalRecords(data.length);
+      // FIX TOTAL PAGES AFTER FILTERING
+      setTotalPages(Math.ceil(data.length / pageSize));
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch records");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -261,17 +261,10 @@ const fetchData = async () => {
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0 ">Purchase Goods Services Records</h6>
+          <h6 className="flex-1 md:mb-0 ">Capital Goods Records</h6>
 
           <div className="md:flex md:space-x-3 items-center">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-
-            <Button
-              icon="heroicons-outline:plus-sm"
-              text="Add Record"
-              className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
-              onClick={() => navigate("/Purchased-Good-Services-Form/add")}
-            />
           </div>
         </div>
 
@@ -529,4 +522,4 @@ const fetchData = async () => {
   );
 };
 
-export default PurchasedGoodServicesListing;
+export default CapitalGoodsListing;
