@@ -10,9 +10,7 @@ import { useNavigate } from "react-router-dom";
 // Utility for formatting numbers
 const formatNumber = (num) => {
   const value = Number(num);
-  // If value is null/undefined OR exactly 0 → return "–"
   if (!num || value === 0) return "N/A";
-  // For very small non-zero numbers
   if (Math.abs(value) < 0.01) {
     return value.toExponential(2);
   }
@@ -27,7 +25,7 @@ const ScopeTwoReport = () => {
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
-    limit: 10,
+    limit: 5,
     hasNextPage: false,
     hasPrevPage: false,
   });
@@ -65,7 +63,7 @@ const ScopeTwoReport = () => {
   const filteredData = useMemo(() => {
     if (!data) return [];
     switch (emissionType) {
-      case "electricity":
+      case "Purchased Electricity":
         return data.electricity;
       case "steam":
         return data.steam;
@@ -243,7 +241,7 @@ const ScopeTwoReport = () => {
   // React Select options
   const emissionOptions = [
     { value: "all", label: "All Scope 2 (Building-wise)" },
-    { value: "electricity", label: "Purchased Electricity" },
+    { value: "Purchased Electricity", label: "Purchased Electricity" },
     // { value: "steam", label: "Purchased Steam" },
     // { value: "heating", label: "Purchased Heating" },
     // { value: "cooling", label: "Purchased Cooling" },
@@ -298,7 +296,7 @@ const ScopeTwoReport = () => {
        </div>
 
       {/* Individual Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
         {summaryCards.map((item, idx) => {
           const iconMap = {
             "Stationary Combustion": "heroicons:fire",
@@ -346,10 +344,10 @@ const ScopeTwoReport = () => {
       <Card>
         <div className="flex justify-between items-center mb-4">
           <h6 className="text-gray-800 font-semibold">
-            Building Emissions{" "}
             {emissionType === "all"
               ? "All Scope 2"
               : emissionType.charAt(0).toUpperCase() + emissionType.slice(1)}
+              {" "} Emissions (Building-Wise)
           </h6>
           <div className="w-64">
             <Select

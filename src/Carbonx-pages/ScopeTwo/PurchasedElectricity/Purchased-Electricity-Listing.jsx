@@ -37,14 +37,15 @@ const PurchasedElectricityListing = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
 
+const formatSnakeCase = (value) => {
+  if (!value) return "";
+  return value
+    .split("_")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
 
-  const formatSnakeCase = (value) => {
-    if (!value) return "";
-    return value
-      .split("_")
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  };
+
   const renderNA = (value) => {
   return value === null || value === undefined || value === "" ? "N/A" : value;
 };
@@ -115,8 +116,11 @@ const PurchasedElectricityListing = () => {
   const COMMON_COLUMNS = [
     { Header: "Sr.No", id: "serialNo", Cell: ({ row }) => (pageIndex - 1) * pageSize + row.index + 1 },
     { Header: "Building", accessor: "buildingId.buildingName" },
-    { Header: "Method", accessor: "method" },
-  ];
+ { 
+    Header: "Method", 
+    accessor: "method",
+    Cell: ({ cell }) => formatSnakeCase(cell.value) || "-",
+  },  ];
 
   // Location-based specific columns
   const LOCATION_BASED_COLUMNS = [
@@ -137,8 +141,8 @@ const PurchasedElectricityListing = () => {
     { Header: "On-Site Solar / Renewable Electricity Generation", accessor: "hasSolarPanels", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
     { Header: "Solar Consumption with Sold Attributes", accessor: "solarConsumedButSold",Cell: ({ cell }) => renderNA(cell.value)  },
 
-    { Header: "Supplier-Specific Electricity", accessor: "supplierSpecificElectricity",Cell: ({ cell }) => renderNA(cell.value)  },
-    { Header: "Purchased Supplier Specific Electricity", accessor: "purchasesSupplierSpecific", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+    { Header: "Supplier-Specific Electricity",accessor: "purchasesSupplierSpecific", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+    { Header: "Purchased Supplier Specific Electricity", accessor: "supplierSpecificElectricity",Cell: ({ cell }) => renderNA(cell.value)  },//
    
     { Header: "Power Purchase Agreements (PPAs)", accessor: "hasPPA", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
     { Header: "Electricity Purchased / Covered Under PPAs", accessor: "ppaElectricity",Cell: ({ cell }) => renderNA(cell.value)  },

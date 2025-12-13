@@ -393,23 +393,35 @@ const primary900 = "#4097ab7a";
 // };
 const capitalizeLabel = (text) => {
   if (!text) return "";
-  const exceptions = ["and", "or", "in", "of","from","at","to","the","a","an","for","on","with","but","by","is","it","as","be","this","that"];
+
+  const exceptions = [
+    "and","or","in","of","from","at","to","the","a","an","for","on","with",
+    "but","by","is","it","as","be","this","that","these","those","such",
+    "if","e.g.,","i.e.","kg"
+  ];
+
   return text
     .split(" ")
     .map((word, index) => {
-      // Capitalize first word
-      if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
-      // Capitalize after '('
-      if (word.startsWith("(") && word.length > 1) {
-        return "(" + word.charAt(1).toUpperCase() + word.slice(2);
+      const hasParen = word.startsWith("(");
+      const cleanWord = hasParen ? word.slice(1) : word;
+      // First word always capitalized (even if exception)
+      if (index === 0) {
+        const cap = cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1);
+        return hasParen ? "(" + cap : cap;
       }
-      // Keep exceptions in lowercase
-      if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
+      
+      // Exception words ALWAYS lowercase
+      if (exceptions.includes(cleanWord.toLowerCase())) {
+        return hasParen ? "(" + cleanWord.toLowerCase() : cleanWord.toLowerCase();
+      }
       // Default capitalization
-      return word.charAt(0).toUpperCase() + word.slice(1);
+      const cap = cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1);
+      return hasParen ? "(" + cap : cap;
     })
     .join(" ");
 };
+
 
 const customStyles = {
   control: (base, state) => ({

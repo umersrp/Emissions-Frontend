@@ -592,6 +592,7 @@ const BuildingTable = () => {
     }
   };
 
+
   const COLUMNS = useMemo(() => [
     { Header: "Sr.No", id: "serialNo", Cell: ({ row }) => <span>{row.index + 1 + controlledPageIndex * controlledPageSize}</span> },
     { Header: "Name", accessor: "buildingName" },
