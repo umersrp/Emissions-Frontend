@@ -352,7 +352,7 @@ const handleSelectChange = (value, { name }) => {
             </div>
 
             {/* Amount of Emissions */}
-            <div>
+            <div className="col-span-2">
               <label className="field-label">{amountLabel}</label>
               <input
                 type="number"

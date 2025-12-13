@@ -170,6 +170,11 @@ const StationaryCombustionFormPage = () => {
       ].map((u) => ({ value: u, label: u }))
       : fuelUnitOptionsByName.default.map((u) => ({ value: u, label: u }));
 
+    const handleNumberInputWheel = (e) => {
+  e.target.blur(); 
+  e.preventDefault(); // Add this to prevent scroll changing value
+};
+
   // --- Validation ---
   const validate = () => {
     const newErrors = {};
@@ -189,6 +194,9 @@ const StationaryCombustionFormPage = () => {
         newErrors[f] = "This field is required";
       }
     });
+    if (formData.fuelConsumption && Number(formData.fuelConsumption) < 0) {
+      newErrors.fuelConsumption = "Value cannot be negative.";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -382,6 +390,7 @@ const StationaryCombustionFormPage = () => {
               <input
                 type="number"
                 name="fuelConsumption"
+                onWheel={handleNumberInputWheel}
                 value={formData.fuelConsumption}
                 onChange={handleInputChange}
                 placeholder="Enter value"

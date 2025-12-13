@@ -162,6 +162,10 @@ const BuildingFormPage = () => {
   };
 
 
+const handleNumberInputWheel = (e) => {
+  e.target.blur(); 
+  e.preventDefault(); // Add this to prevent scroll changing value
+};// onWheel={handleNumberInputWheel}
   // --- Handle Country Change ---
   const handleCountryChange = (selectedOption) => {
     if (isViewMode) return;
@@ -216,7 +220,6 @@ const BuildingFormPage = () => {
       };
 
       console.log("Payload before submit:", payload);
-
       const token = localStorage.getItem("token");
       const config = {
         headers: { Authorization: `Bearer ${token}` },
@@ -246,26 +249,34 @@ const BuildingFormPage = () => {
   };
 
 
-  const validateFields = () => {
-    const newErrors = {};
+const validateFields = () => {
+  const newErrors = {};
 
-    if (!formData.buildingName.trim()) newErrors.buildingName = "Building Name is required";
-    if (!formData.country) newErrors.country = "Country is required";
-    if (!formData.buildingLocation.trim()) newErrors.buildingLocation = "Location is required";
-    if (!formData.buildingType) newErrors.buildingType = "Building Type is required";
-    if (!formData.ownership) newErrors.ownership = "Ownership is required";
-    if (!formData.operatingHours) newErrors.operatingHours = "operatingHours is required";
-    if (!formData.numberOfEmployees) newErrors.numberOfEmployees = "Number of Employees is required";
-    if (!formData.buildingArea) newErrors.buildingArea = "Building Area is required";
-    if (!formData.electricityConsumption) newErrors.electricityConsumption = "Electricity Consumption is required";
-    if (formData.heatingUsed && !formData.heatingType.trim()) newErrors.heatingType = "Heating Type is required";
-    if (formData.coolingUsed && !formData.coolingType.trim()) newErrors.coolingType = "Cooling Type is required";
+  // Required field validations
+  if (!formData.buildingName.trim()) newErrors.buildingName = "Building Name is required";
+  if (!formData.country) newErrors.country = "Country is required";
+  if (!formData.buildingLocation.trim()) newErrors.buildingLocation = "Location is required";
+  if (!formData.buildingType) newErrors.buildingType = "Building Type is required";
+  if (!formData.ownership) newErrors.ownership = "Ownership is required";
+  if (!formData.operatingHours) newErrors.operatingHours = "Operating Hours is required";
+  if (!formData.numberOfEmployees) newErrors.numberOfEmployees = "Number of Employees is required";
+  if (!formData.buildingArea) newErrors.buildingArea = "Building Area is required";
+  if (!formData.electricityConsumption) newErrors.electricityConsumption = "Electricity Consumption is required";
+  if (formData.heatingUsed && !formData.heatingType.trim()) newErrors.heatingType = "Heating Type is required";
+  if (formData.coolingUsed && !formData.coolingType.trim()) newErrors.coolingType = "Cooling Type is required";
 
-    setErrors(newErrors);
+  // Validate for negative values (only if field has a value)
+  const numberFields = ['operatingHours', 'numberOfEmployees', 'buildingArea', 'electricityConsumption'];
+  
+  numberFields.forEach(field => {
+    if (formData[field] && Number(formData[field]) < 0) {
+      newErrors[field] = "Value cannot be negative.";
+    }
+  });
 
-    return Object.keys(newErrors).length === 0; // return true if no errors
-  };
-
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
   if (loading) return <p>Loading building data...</p>;
 
@@ -369,6 +380,7 @@ const BuildingFormPage = () => {
               <input
                 type="number"
                 name="numberOfEmployees"
+                onWheel={handleNumberInputWheel}
                 placeholder="Number of Employees"
                 value={formData.numberOfEmployees}
                 onChange={handleInputChange}
@@ -385,6 +397,8 @@ const BuildingFormPage = () => {
               <input
                 type="Number"
                 name="operatingHours"
+                
+                onWheel={handleNumberInputWheel}
                 value={formData.operatingHours}
                 onChange={handleInputChange}
                 placeholder="Enter Operating Hours"
@@ -401,6 +415,8 @@ const BuildingFormPage = () => {
               <input
                 type="number"
                 name="buildingArea"
+                 
+                 onWheel={handleNumberInputWheel}
                 placeholder="Building Area"
                 value={formData.buildingArea}
                 onChange={handleInputChange}
@@ -416,6 +432,8 @@ const BuildingFormPage = () => {
               <label className="field-label">Electricity Consumption (kWh)</label>
               <input
                 type="number"
+                 
+                 onWheel={handleNumberInputWheel}
                 name="electricityConsumption"
                 placeholder="Electricity Consumption (kWh)"
                 value={formData.electricityConsumption}
