@@ -430,9 +430,7 @@ import { useNavigate } from "react-router-dom";
 // Utility for formatting numbers
 const formatNumber = (num) => {
   const value = Number(num);
-  // If value is null/undefined OR exactly 0 → return "–"
   if (!num || value === 0) return "N/A";
-  // For very small non-zero numbers
   if (Math.abs(value) < 0.01) {
     return value.toExponential(2);
   }
@@ -446,7 +444,7 @@ const ScopeOneReport = () => {
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
-    limit: 10,
+    limit: 5,
     hasNextPage: false,
     hasPrevPage: false,
   });
@@ -498,28 +496,29 @@ const ScopeOneReport = () => {
   }, []);
 
   // Filter data based on dropdown
-  const filteredData = useMemo(() => {
-    if (!data) return [];
-    switch (emissionType) {
-      case "stationary":
-        return data.stationary;
-      case "mobile":
-        return data.mobile;
-      case "fugitive":
-        return data.fugitive;
-      case "process":
-        return data.process;
-      case "all":
-        return [
-          ...(data.stationary || []),
-          ...(data.mobile || []),
-          ...(data.fugitive || []),
-          ...(data.process || []),
-        ];
-      default:
-        return [];
-    }
-  }, [data, emissionType]);
+const filteredData = useMemo(() => {
+  if (!data) return [];
+  switch (emissionType) {
+    case "Stationary Combustion":
+      return data.stationary;
+    case "Mobile Combustion":
+      return data.mobile;
+    case "Fugitive":
+      return data.fugitive;
+    case "Process":
+      return data.process;
+    case "all":
+      return [
+        ...(data.stationary || []),
+        ...(data.mobile || []),
+        ...(data.fugitive || []),
+        ...(data.process || []),
+      ];
+    default:
+      return [];
+  }
+}, [data, emissionType]);
+
 
   // Building-wise summary
   const buildingData = useMemo(() => {
@@ -620,10 +619,10 @@ const ScopeOneReport = () => {
   // React Select options
   const emissionOptions = [
     { value: "all", label: "All Scope 1 (Building-wise)" },
-    { value: "stationary", label: "Stationary Combustion" },
-    { value: "mobile", label: "Mobile Combustion" },
-    { value: "fugitive", label: "Fugitive Emission" },
-    { value: "process", label: "Process Emission" },
+    { value: "Stationary Combustion", label: "Stationary Combustion" },
+    { value: "Mobile Combustion", label: "Mobile Combustion" },
+    { value: "Fugitive", label: "Fugitive Emission" },
+    { value: "Process", label: "Process Emission" },
   ];
 
   return (
@@ -682,10 +681,11 @@ const ScopeOneReport = () => {
       <Card>
         <div className="flex justify-between items-center mb-4">
           <h6 className="text-gray-800 font-semibold">
-            Building Emissions{" "}
+            
             {emissionType === "all"
               ? "All Scope 1"
               : emissionType.charAt(0).toUpperCase() + emissionType.slice(1)}
+              {" "} Emissions (Building-Wise) 
           </h6>
           <div className="w-64">
             <Select

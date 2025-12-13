@@ -114,6 +114,12 @@ const MobileCombustionFormPage = () => {
     fetchDataById();
   }, [id, isAdd, buildingOptions]);
 
+  const handleNumberInputWheel = (e) => {
+    e.target.blur();
+    e.preventDefault(); // Add this to prevent scroll changing value
+  };// 
+
+
   // Dynamic dependent dropdowns
   const vehicleTypeOptions =
     formData.vehicleClassification?.value &&
@@ -197,6 +203,9 @@ const MobileCombustionFormPage = () => {
     if (!formData.distanceTraveled) newErrors.distanceTraveled = "Distance Traveled is required";
     if (!formData.distanceUnit) newErrors.distanceUnit = "Distance Unit is required";
     if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
+    if (formData.distanceTraveled && Number(formData.distanceTraveled) < 0) {
+      newErrors.distanceTraveled = "Value cannot be negative.";
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -358,7 +367,7 @@ const MobileCombustionFormPage = () => {
             {/* Distance Traveled */}
             <div>
               <label className="field-label">Distance Travelled</label>
-              <input type="number" name="distanceTraveled" value={formData.distanceTraveled} onChange={handleInputChange} placeholder="Enter distance travelled" className="input-field" disabled={isView} />
+              <input type="number" name="distanceTraveled" onWheel={handleNumberInputWheel} value={formData.distanceTraveled} onChange={handleInputChange} placeholder="Enter distance travelled" className="input-field" disabled={isView} />
               {errors.distanceTraveled && <p className="text-red-500 text-sm mt-1">{errors.distanceTraveled}</p>}
             </div>
 
