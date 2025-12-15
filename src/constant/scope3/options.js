@@ -366,7 +366,8 @@ export const fuelEnergyTypesChildTypes = {
 
   "Bio Liquid Fuel": [
     { value: "Bioethanol", label: "Bioethanol" },
-    { value: "Biodiesel ME", label: "Biodiesel ME" },
+    { value: "Biodiesel ME", label: "Biodiesel ME" },//
+    { value: "Biomethane (compressed)", label: "Biomethane (compressed)" },
     { value: "Biodiesel ME (from used cooking oil)", label: "Biodiesel ME (from used cooking oil)" },
     { value: "Biodiesel ME (from tallow)", label: "Biodiesel ME (from tallow)" },
     { value: "Biodiesel HVO", label: "Biodiesel HVO" },
@@ -395,11 +396,11 @@ export const fuelEnergyTypesChildTypes = {
   ]
 };
 
-export const fuelConsumptionUnits = [
+export const ALL_UNIT_OPTIONS = [
   { value: "Tonnes", label: "Tonnes" },
   { value: "kg", label: "kg" },
   { value: "lb", label: "lb" },
-  { value: "KWh", label: "KWh" },
+  { value: "kWh", label: "kWh" },
   { value: "MWh", label: "MWh" },
   { value: "GWh", label: "GWh" },
   { value: "Joules", label: "Joules" },
@@ -415,6 +416,59 @@ export const fuelConsumptionUnits = [
   { value: "in3", label: "in3" },
   { value: "SCF", label: "SCF" }
 ];
+
+export const fuelUnitOptionsByName = {
+  default: [
+    "Tonnes",
+    "kg",
+    "lb",
+    "kWh",
+    "MWh",
+    "GWh",
+    "Joules",
+    "Gj",
+    "Mj",
+    "Tj",
+    "Btu",
+    "MMBtu"
+  ],
+
+  "Butane": ["Litres", "Gallons"],
+  "CNG": ["Litres", "Gallons"],
+  "LPG": ["Litres", "Gallons"],
+  "Natural gas": ["m3", "ft3", "in3","SCF"],
+  "Natural gas (100% mineral blend)": ["m3", "ft3", "in3", "SCF"],
+  "LNG": ["Litres", "Gallons"],
+  "Other petroleum gas": ["Litres", "Gallons"],
+  "Propane": ["Litres", "Gallons"],
+  "Aviation spirit": ["Litres", "Gallons"],
+  "Aviation turbine fuel": ["Litres", "Gallons"],
+  "Burning oil": ["Litres", "Gallons"],
+  "Diesel (average biofuel blend)": ["Litres", "Gallons"],
+  "Diesel (100% mineral diesel)": ["Litres", "Gallons"],
+  "Fuel oil": ["Litres", "Gallons"],
+  "Gas oil": ["Litres", "Gallons"],
+  "Petrol (average biofuel blend)": ["Litres", "Gallons"],
+  "Petrol (100% mineral petrol)": ["Litres", "Gallons"],
+  "Processed fuel oils - residual oil": ["Litres", "Gallons"],
+  "Processed fuel oils - distillate oil": ["Litres", "Gallons"],
+  "Marine gas oil": ["Litres", "Gallons"],
+  "Marine fuel oil": ["Litres", "Gallons"],
+  "Bioethanol": ["Litres", "Gallons"],
+  "Biodiesel ME": ["Litres", "Gallons"],
+  "Biodiesel ME (from used cooking oil)": ["Litres", "Gallons"],
+  "Biodiesel ME (from tallow)": ["Litres", "Gallons"],
+  "Biodiesel HVO": ["Litres", "Gallons"],
+  "Biopropane": ["Litres", "Gallons"],
+  "Development diesel": ["Litres", "Gallons"],
+  "Development petrol": ["Litres", "Gallons"],
+  "Off road biodiesel": ["Litres", "Gallons"],
+  "Methanol (bio)": ["Litres", "Gallons"],
+  "Avtur (renewable)": ["Litres", "Gallons"],
+  //
+  
+};
+
 
 export const units = [
   { value: "kWh", label: "kWh" },
@@ -491,30 +545,56 @@ export const emissionFactors = {
   }
 };
 
-export const unitConversion = {
-  // Mass
-  "kg": (v) => v,
-  "Tonnes": (v) => v * 1000,
-  "lb": (v) => v * 0.453592,
-  // Volume (Liquids / Gases)
-  "Litres": (v) => v,
-  "Gallons": (v) => v * 3.78541,
-  "m3": (v) => v,
-  "ft3": (v) => v * 0.0283168,
-  "in3": (v) => v * 0.000016387,
-  "SCF": (v) => v * 0.0283168,
-  // Energy
-  "KWh": (v) => v,
-  "MWh": (v) => v * 1000,
-  "GWh": (v) => v * 1_000_000,
-  "Joules": (v) => v / 3_600_000,
-  "Gj": (v) => v * 277.778,
-  "Mj": (v) => v / 3.6,
-  "Tj": (v) => v * 277_777.778,
-  "Btu": (v) => v * 0.000293071,
-  "MMBtu": (v) => v * 293.071
-};
+// export const unitConversion = {
+//   // Mass
+//   "kg": (v) => v,
+//   "Tonnes": (v) => v * 1000,
+//   "lb": (v) => v * 0.453592,
+//   // Volume (Liquids / Gases)
+//   "Litres": (v) => v,
+//   "Gallons": (v) => v * 3.78541,
+//   "m3": (v) => v,
+//   "ft3": (v) => v * 0.0283168,
+//   "in3": (v) => v * 0.000016387,
+//   "SCF": (v) => v * 0.0283168,
+//   // Energy
+//   "kWh": (v) => v,
+//   "MWh": (v) => v * 1000,
+//   "GWh": (v) => v * 1_000_000,
+//   "Joules": (v) => v / 3_600_000,
+//   "Gj": (v) => v * 277.778,
+//   "Mj": (v) => v / 3.6,
+//   "Tj": (v) => v * 277_777.778,
+//   "Btu": (v) => v * 0.000293071,
+//   "MMBtu": (v) => v * 293.071
+// };
 
+export const unitConversion = {
+  // Mass conversions → Tonnes
+  "Tonnes": { factor: 1, to: "Tonnes" },
+  "kg": { factor: 0.001, to: "Tonnes" },
+  "lb": { factor: 0.000446429, to: "Tonnes" },
+  "lb (pounds)": { factor: 0.000446429, to: "Tonnes" },
+  
+
+  // Energy conversions → kwh
+  "kwh": { factor: 1, to: "kwh" },
+  "Joules": { factor: 0.000000278, to: "kwh" },
+  "Mj": { factor: 0.2778, to: "kwh" },
+  "Gj": { factor: 277.78, to: "kwh" },
+  "Tj": { factor: 277777.78, to: "kwh" },
+  "MWh": { factor: 1000, to: "kwh" },
+  "GWh": { factor: 1000000, to: "kwh" },
+  "Btu": { factor: 0.00029307, to: "kwh" },
+  "MMBtu": { factor: 293.07, to: "kwh" },
+
+  // Volume conversions
+  "Litres": { factor: 1, to: "Litres" },
+  "Gallons": { factor: 4.54609, to: "Litres" },
+  "ft3": { factor: 0.0283168, to: "m3" },
+  "SCF": { factor: 0.0283168, to: "m3" },
+  "in3": { factor: 1.63871e-5, to: "m3" },
+};
 export const travelFields = {
   didTravelByAir: [
     "airPassengers",
@@ -537,4 +617,254 @@ export const travelFields = {
     "busDistanceKm",
     "busType",
   ],
+};
+  
+export const unitsEmissionFactors = {
+  //GASEOUS FUELS
+  "Butane": {
+    "tonnes": 3033.38067,
+    "litres": 1.74533,
+    "kwh": 0.22241,
+  },
+  "CNG": {
+    "tonnes": 2575.46441,
+    "litres": 0.45070,
+    "kwh": 0.18296,
+  },
+  "LNG": {
+    "tonnes": 2603.30441,
+    "litres": 1.17797,
+    "kwh": 0.18494,
+  },
+  "LPG": {
+    "tonnes": 2939.36095,
+    "litres": 1.55713,
+    "kwh": 0.21450,
+  },
+  "Natural gas": {
+    "tonnes": 2575.46441,
+    "m3": 2.06672,
+    "kwh": 0.18296,
+  },
+  "Natural gas (100% mineral blend)": {
+    "tonnes": 2603.30441,
+    "m3": 2.08906,
+    "kwh": 0.18494,
+  },
+  "Other petroleum gas": {
+    "tonnes": 2578.24647,
+    "litres": 0.94442,
+    "kwh": 0.18323,
+  },
+  "Propane": {
+    "tonnes": 2997.63233,
+    "litres": 1.54358,
+    "kwh": 0.21410,
+  },
+
+  //LIQUID FUELS
+  "Aviation spirit": {
+    "tonnes": 3193.69480,
+    "litres": 2.33116,
+    "kwh": 0.24382,
+  },
+  "Aviation turbine fuel": {
+    "tonnes": 3178.36520,
+    "litres": 2.54269,
+    "kwh": 0.24758,
+  },
+  "Burning oil": {
+    "tonnes": 3165.04181,
+    "litres": 2.54016,
+    "kwh": 0.24677,
+  },
+  "Diesel (average biofuel blend)": {
+    "tonnes": 3087.94462,
+    "litres": 2.57082,
+    "kwh": 0.24411,
+  },
+  "Diesel (100% mineral diesel)": {
+    "tonnes": 3203.91143,
+    "litres": 2.66155,
+    "kwh": 0.25199,
+  },
+  "Fuel oil": {
+    "tonnes": 3228.89019,
+    "litres": 3.17492,
+    "kwh": 0.26813,
+  },
+  "Gas oil": {
+    "tonnes": 3226.57859,
+    "litres": 2.75541,
+    "kwh": 0.25650,
+  },
+  "Lubricants": {
+    "tonnes": 3180.99992,
+    "litres": 2.74934,
+    "kwh": 0.26414,
+  },
+  "Naphtha": {
+    "tonnes": 3142.37890,
+    "litres": 2.11894,
+    "kwh": 0.23647,
+  },
+  "Petrol (average biofuel blend)": {
+    "tonnes": 2772.97935,
+    "litres": 2.06916,
+    "kwh": 0.21956,
+  },
+  "Petrol (100% mineral petrol)": {
+    "tonnes": 3154.08213,
+    "litres": 2.33984,
+    "kwh": 0.24159,
+  },
+  "Processed fuel oils - residual oil": {
+    "tonnes": 3228.89019,
+    "litres": 3.17492,
+    "kwh": 0.26813,
+  },
+  "Processed fuel oils - distillate oil": {
+    "tonnes": 3226.57859,
+    "litres": 2.75541,
+    "kwh": 0.25650,
+  },
+  "Refinery miscellaneous": {
+    "tonnes": 2944.32093,
+    "kwh": 0.24663,
+  },
+  "Waste oils": {
+    "tonnes": 3219.37916,
+    "litres": 2.74924,
+    "kwh": 0.25641,
+  },
+  "Marine gas oil": {
+    "tonnes": 3245.30441,
+    "litres": 2.77139,
+    "kwh": 0.25798,
+  },
+  "Marine fuel oil": {
+    "tonnes": 3154.75334,
+    "litres": 3.10202,
+    "kwh": 0.26197,
+  },
+
+  //SOLID FUELS
+  "Coal (industrial)": {
+    "tonnes": 2395.28994,
+    "kwh": 0.32246,
+  },
+  "Coal (electricity generation)": {
+    "tonnes": 2225.22448,
+    "kwh": 0.31939,
+  },
+  "Coal (domestic)": {
+    "tonnes": 2904.95234,
+    "kwh": 0.34721,
+  },
+  "Coking coal": {
+    "tonnes": 3164.65002,
+    "kwh": 0.35790,
+  },
+  "Petroleum coke": {
+    "tonnes": 3386.57168,
+    "kwh": 0.34092,
+  },
+  "Coal (electricity generation - home produced coal only)": {
+    "tonnes": 2221.74670,
+    "kwh": 0.31939,
+  },
+
+  ///bio
+   //BIOFUELS
+  "Bioethanol": {
+    "litres": 0.00901,
+    "kwh": 0.00152,
+    "tonnes": 11.35,
+  },
+  "Biodiesel ME": {
+    "litres": 0.16751,
+    "kwh": 0.01821,
+    "tonnes": 188.22,
+  },
+  "Biomethane (compressed)": {
+    "kwh": 0.00038,
+    "tonnes": 5.21,
+  },
+  "Biodiesel ME (from used cooking oil)": {
+    "litres": 0.16751,
+    "kwh": 0.01821,
+    "tonnes": 188.22,
+  },
+  "Biodiesel ME (from tallow)": {
+    "litres": 0.16751,
+    "kwh": 0.01821,
+    "tonnes": 188.22,
+  },
+  "Biodiesel HVO": {
+    "litres": 0.03558,
+    "kwh": 0.00373,
+    "tonnes": 45.62,
+  },
+  "Biopropane": {
+    "litres": 0.00213,
+    "kwh": 0.00032,
+    "tonnes": 4.15,
+  },
+  "Development diesel": {
+    "litres": 0.03705,
+    "kwh": 0.00373,
+    "tonnes": 44.61,
+  },
+  "Development petrol": {
+    "litres": 0.01402,
+    "kwh": 0.00152,
+    "tonnes": 18.9,
+  },
+  "Off road biodiesel": {
+    "litres": 0.16751,
+    "kwh": 0.01821,
+    "tonnes": 188.22,
+  },
+  "Biomethane (liquified)": {
+    "kwh": 0.00038,
+    "tonnes": 5.21,
+  },
+  "Methanol (bio)": {
+    "litres": 0.00669,
+    "kwh": 0.00152,
+    "tonnes": 8.44,
+  },
+  "Avtur (renewable)": {
+    "litres": 0.02531,
+    "kwh": 0.00260,
+    "tonnes": 31.79,
+  },
+
+  //BIOMASS
+  "Wood logs": {
+    "tonnes": 46.98508,
+    "kwh": 0.01150,
+  },
+  "Wood chips": {
+    "tonnes": 43.43964,
+    "kwh": 0.01150,
+  },
+  "Wood pellets": {
+    "tonnes": 55.19389,
+    "kwh": 0.01150,
+  },
+  "Grass/straw": {
+    "tonnes": 47.35709,
+    "kwh": 0.01273,
+  },
+
+  //BIOGAS
+  "Biogas": {
+    "tonnes": 1.24314,
+    "kwh": 0.00022,
+  },
+  "Landfill gas": {
+    "tonnes": 0.69696,
+    "kwh": 0.00020,
+  },
 };
