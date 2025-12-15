@@ -378,50 +378,79 @@ import { components } from "react-select";
 const primary500 = "#4098ab";
 const primary900 = "#4097ab7a";
 
+
 // const capitalizeLabel = (text) => {
 //   if (!text) return "";
 
-//   const exceptions = ["and", "or", "in", "of"];
+//   const exceptions = [
+//     "and","or","in","of","from","at","to","the","a","an","for","on","with",
+//     "but","by","is","it","as","be","this","that","these","those","such",
+//     "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","On-site"
+//   ];
+
 //   return text
 //     .split(" ")
 //     .map((word, index) => {
-//       if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
-//       if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
-//       return word.charAt(0).toUpperCase() + word.slice(1);
+//       const hasParen = word.startsWith("(");
+//       const cleanWord = hasParen ? word.slice(1) : word;
+//       // First word always capitalized (even if exception)
+//       if (index === 0) {
+//         const cap = cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1);
+//         return hasParen ? "(" + cap : cap;
+//       }
+      
+//       // Exception words ALWAYS lowercase
+//       if (exceptions.includes(cleanWord.toLowerCase())) {
+//         return hasParen ? "(" + cleanWord.toLowerCase() : cleanWord.toLowerCase();
+//       }
+//       // Default capitalization
+//       const cap = cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1);
+//       return hasParen ? "(" + cap : cap;
 //     })
 //     .join(" ");
 // };
+
 const capitalizeLabel = (text) => {
   if (!text) return "";
 
   const exceptions = [
     "and","or","in","of","from","at","to","the","a","an","for","on","with",
     "but","by","is","it","as","be","this","that","these","those","such",
-    "if","e.g.,","i.e.","kg"
+    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite"
   ];
 
-  return text
+  return text   
     .split(" ")
     .map((word, index) => {
-      const hasParen = word.startsWith("(");
-      const cleanWord = hasParen ? word.slice(1) : word;
-      // First word always capitalized (even if exception)
+      const hasOpenParen = word.startsWith("(");
+      const hasCloseParen = word.endsWith(")");
+
+      let coreWord = word;
+      if (hasOpenParen) coreWord = coreWord.slice(1);
+      if (hasCloseParen) coreWord = coreWord.slice(0, -1);
+
+      const lowerCore = coreWord.toLowerCase();
+
+      // First word rule
+      let result;
       if (index === 0) {
-        const cap = cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1);
-        return hasParen ? "(" + cap : cap;
+        result = exceptions.includes(lowerCore)
+          ? lowerCore
+          : coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      } else if (exceptions.includes(lowerCore)) {
+        result = lowerCore;
+      } else {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
       }
-      
-      // Exception words ALWAYS lowercase
-      if (exceptions.includes(cleanWord.toLowerCase())) {
-        return hasParen ? "(" + cleanWord.toLowerCase() : cleanWord.toLowerCase();
-      }
-      // Default capitalization
-      const cap = cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1);
-      return hasParen ? "(" + cap : cap;
+
+      // Reattach parentheses
+      if (hasOpenParen) result = "(" + result;
+      if (hasCloseParen) result = result + ")";
+
+      return result;
     })
     .join(" ");
 };
-
 
 const customStyles = {
   control: (base, state) => ({

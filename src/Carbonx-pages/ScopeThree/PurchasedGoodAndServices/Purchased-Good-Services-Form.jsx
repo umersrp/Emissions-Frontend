@@ -171,6 +171,7 @@ const PurchasedGoodServicesFormPage = () => {
   //   setFormData((prev) => ({ ...prev, [name]: value }));
   //   setErrors((prev) => ({ ...prev, [name]: "" }));
   // };
+
   const handleInputChange = (e) => {
     if (isView) return;
     const { name, value } = e.target;
@@ -194,7 +195,7 @@ const PurchasedGoodServicesFormPage = () => {
           updatedData.calculatedEmissionTCo2e = formattedT;
 
           // Show toast
-          toast.info(`Emissions Calculated: ${formattedKg} kgCO2e / ${formattedT} tCO2e`);
+          // toast.info(`Emissions Calculated: ${formattedKg} kgCO2e / ${formattedT} tCO2e`);
         }
       }
 
@@ -248,10 +249,17 @@ const PurchasedGoodServicesFormPage = () => {
     if (!formData.purchasedGoodsServicesType) newErrors.purchasedGoodsServicesType = "Purchased Goods or Services Type is required";
     if (!formData.amountSpent) newErrors.amountSpent = "Amount Spent is required";
     if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
+       if (formData.amountSpent && Number(formData.amountSpent) < 0) {
+      newErrors.amountSpent = "Value cannot be negative.";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  const handleNumberInputWheel = (e) => {
+  e.target.blur(); 
+  e.preventDefault(); // Add this to prevent scroll changing value
+};// onWheel={handleNumberInputWheel}
 
   // Submit
   const handleSubmit = async (e) => {
@@ -438,6 +446,7 @@ const PurchasedGoodServicesFormPage = () => {
               <input
                 type="number"
                 name="amountSpent"
+                onWheel={handleNumberInputWheel}
                 value={formData.amountSpent}
                 onChange={handleInputChange}
                 placeholder="Enter amount"
