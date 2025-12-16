@@ -226,7 +226,7 @@ const MyCompany = () => {
                 <form className="lg:grid-cols-3 grid gap-8 grid-cols-1">
                     {/* Company Name */}
                     <div className="">
-                        <label className="field-label">Company/Organization Name *</label>
+                        <label className="field-label">Company / Organization Name *</label>
                         <input
                             type="text"
                             name="companyName"
@@ -456,7 +456,7 @@ const MyCompany = () => {
                     )}
                     {/* Country */}
                     <div>
-                        <label className="field-label">Country Of Operation *</label>
+                        <label className="field-label">Country of Operation *</label>
                         <Select
                             options={countries}
                             value={countries.find((c) => c.value === formData.country) || null}
@@ -609,9 +609,9 @@ const MyCompany = () => {
                         {errors.totalAreaSqM && <p className="text-red-500">{errors.totalAreaSqM}</p>}
                     </div>
 
-                    {/* Units Manufactured Per Annum */}
+                    {/* Units Manufactured per Annum */}
                     <div className="">
-                        <label className="field-label">No. Of Units Manufactured Per Annum</label>
+                        <label className="field-label">No. of Units Manufactured per Annum</label>
                         <input
                             type="number"
                             name="unitsManufacturedPerAnnum"
@@ -623,9 +623,9 @@ const MyCompany = () => {
                         {errors.unitsManufacturedPerAnnum && <p className="text-red-500">{errors.unitsManufacturedPerAnnum}</p>}
                     </div>
 
-                    {/* Production Volume Tonne Per Annum */}
+                    {/* Production Volume Tonne per Annum */}
                     <div className="">
-                        <label className="field-label">Production Volume (Tonne Per Annum)</label>
+                        <label className="field-label">Production Volume (Tonne per Annum)</label>
                         <input
                             type="number"
                             name="productionVolumeTonnePerAnnum"
@@ -637,9 +637,9 @@ const MyCompany = () => {
                         {errors.productionVolumeTonnePerAnnum && <p className="text-red-500">{errors.productionVolumeTonnePerAnnum}</p>}
                     </div>
 
-                    {/* Units Sold Per Annum */}
+                    {/* Units Sold per Annum */}
                     <div className="">
-                        <label className="field-label">No. Of Units Sold Per Annum</label>
+                        <label className="field-label">No. of Units Sold per Annum</label>
                         <input
                             type="number"
                             name="unitsSoldPerAnnum"
@@ -651,9 +651,9 @@ const MyCompany = () => {
                         {errors.unitsSoldPerAnnum && <p className="text-red-500">{errors.unitsSoldPerAnnum}</p>}
                     </div>
 
-                    {/* Electricity Generated MWh Per Annum */}
+                    {/* Electricity Generated MWh per Annum */}
                     <div className="">
-                        <label className="field-label">Electricity Generated (MWh Per Annum)</label>
+                        <label className="field-label">Electricity Generated (MWh per Annum)</label>
                         <input
                             type="number"
                             name="electricityGeneratedMWhPerAnnum"
@@ -665,9 +665,9 @@ const MyCompany = () => {
                         {errors.electricityGeneratedMWhPerAnnum && <p className="text-red-500">{errors.electricityGeneratedMWhPerAnnum}</p>}
                     </div>
 
-                    {/* Energy Generated GJ Per Annum */}
+                    {/* Energy Generated GJ per Annum */}
                     <div className="">
-                        <label className="field-label">Energy Generated (GJ Per Annum)</label>
+                        <label className="field-label">Energy Generated (GJ per Annum)</label>
                         <input
                             type="number"
                             name="energyGeneratedGJPerAnnum"
@@ -679,9 +679,9 @@ const MyCompany = () => {
                         {errors.energyGeneratedGJPerAnnum && <p className="text-red-500">{errors.energyGeneratedGJPerAnnum}</p>}
                     </div>
 
-                    {/* Revenue Per Annum */}
+                    {/* Revenue per Annum */}
                     <div className="">
-                        <label className="field-label">Revenue Per Annum</label>
+                        <label className="field-label">Revenue per Annum</label>
                         <input
                             type="number"
                             name="revenuePerAnnum"
@@ -693,9 +693,9 @@ const MyCompany = () => {
                         {errors.revenuePerAnnum && <p className="text-red-500">{errors.revenuePerAnnum}</p>}
                     </div>
 
-                    {/* Total Man Hours Per Annum */}
+                    {/* Total Man Hours per Annum */}
                     <div className="">
-                        <label className="field-label">Total Man Hours Per Annum</label>
+                        <label className="field-label">Total Man Hours per Annum</label>
                         <input
                             type="number"
                             name="totalManHoursPerAnnum"

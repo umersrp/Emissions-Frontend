@@ -8,15 +8,19 @@ import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { qualityControlOptions } from "@/constant/scope1/options";
 import {
     stakeholderOptions,
-    fuelConsumptionUnits,
+    ALL_UNIT_OPTIONS,
     fuelEnergyTypes,
     fuelEnergyTypesChildTypes,
     units,
     emissionFactors,
-    unitConversion
+    unitConversion,
+    fuelUnitOptionsByName,
 } from "@/constant/scope3/options";
+import { calculateFuelAndEnergy } from "@/utils/Scope3/calculateFuelAndEnergy";
+
+
 import Spinner from "@/components/ui/spinner";
-import Swicth from "@/components/ui/Switch";  
+import Swicth from "@/components/ui/Switch";
 
 const FuelEnergyForm = () => {
 
@@ -33,13 +37,27 @@ const FuelEnergyForm = () => {
         stakeholder: null,
         fuelType: null,
         fuel: null,
-        totalFuelConsumption: null,
+
+        totalFuelConsumption: "",
         fuelConsumptionUnit: null,
-        totalGrossElectricityPurchased: null,
+
+        totalGrossElectricityPurchased: "",
         unit: null,
+
         qualityControl: null,
         remarks: "",
+
+        // Travel fields
+        airPassengers: "",
+        airDistanceKm: "",
+        taxiPassengers: "",
+        taxiDistanceKm: "",
+        busPassengers: "",
+        busDistanceKm: "",
+        trainPassengers: "",
+        trainDistanceKm: "",
     });
+
 
     const [buildingOptions, setBuildingOptions] = useState([]);
     const [fuel, setFuel] = useState([]);
@@ -47,6 +65,8 @@ const FuelEnergyForm = () => {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(false);
+    const [fuelUnitOptions, setFuelUnitOptions] = useState([]);
+
 
     const [toggleOptions, setToggleOptions] = useState({
         didTravelByAir: false,
@@ -79,11 +99,28 @@ const FuelEnergyForm = () => {
         ],
     };
 
+    const getFuelUnitOptions = (fuelName) => {
+        if (!fuelName) return [];
+
+        const allowedUnits = [
+            ...(fuelUnitOptionsByName.default || []),
+            ...(fuelUnitOptionsByName[fuelName] || [])
+        ];
+
+        return ALL_UNIT_OPTIONS.filter(unit =>
+            allowedUnits.includes(unit.value)
+        );
+    };
+
 
     const calculateEmission = (fuelType, fuelName, value, unit) => {
         const ef = emissionFactors[fuelType]?.[fuelName] || emissionFactors["Electricity"]?.[unit] || 0;
-        const convert = unitConversion[unit] || (v => v);
-        const standardizedValue = convert(Number(value));
+        const conversion = unitConversion[unit];
+
+        const standardizedValue = conversion
+            ? Number(value) * conversion.factor
+            : Number(value);
+
         const kg = standardizedValue * ef;
         const tons = kg / 1000;
         return {
@@ -151,45 +188,6 @@ const FuelEnergyForm = () => {
         }
     }, [id, isEdit, isView]);
 
-    // Update activity type options when purchase category changes
-    // useEffect(() => {
-    //     if (formData.fuelType) {
-    //         if (formData.fuelType.value === "Purchased Goods") {
-    //             setFuel(purchasedGoodsActivityTypes);
-    //         } else if (formData.fuelType.value === "Purchased Services") {
-    //             setFuel(purchasedServicesActivityTypes);
-    //         }
-    //         if (!isView && !isEdit) {
-    //             setFormData(prev => ({
-    //                 ...prev,
-    //                 purchasedActivityType: null,
-    //                 purchasedGoodsServicesType: null,
-    //             }));
-    //             setGoodsServicesTypeOptions([]);
-    //         }
-    //     } else {
-    //         setFuel([]);
-    //         setGoodsServicesTypeOptions([]);
-    //     }
-    // }, [formData.fuelType, isView, isEdit]);
-
-    // Update goods/services type options when activity type changes
-    // useEffect(() => {
-    //     if (formData.purchasedActivityType) {
-    //         const typeOptions = purchasedGoodsServicesTypes[formData.purchasedActivityType.value] || [];
-    //         setGoodsServicesTypeOptions(typeOptions);
-
-    //         // Reset goods/services type when activity type changes
-    //         if (!isView && !isEdit) {
-    //             setFormData(prev => ({
-    //                 ...prev,
-    //                 purchasedGoodsServicesType: null,
-    //             }));
-    //         }
-    //     } else {
-    //         setGoodsServicesTypeOptions([]);
-    //     }
-    // }, [formData.purchasedActivityType, isView, isEdit]);
 
     const handleInputChange = (e) => {
         if (isView) return;
@@ -257,6 +255,33 @@ const FuelEnergyForm = () => {
             emission.calculatedEmissionTCo2e += elecEmission.calculatedEmissionTCo2e;
         }
 
+        const calculationInput = {
+            // Fuel & electricity
+            totalFuelConsumption: formData.totalFuelConsumption,
+            fuelConsumptionUnit: formData.fuelConsumptionUnit?.value, // string
+            totalGrossElectricityPurchased: formData.totalGrossElectricityPurchased,
+            fuelType: formData.fuelType?.value, // "Gaseous Fuel"
+            fuel: formData.fuel?.value,         // "Natural gas"
+
+            // Travel (only values, helper handles 0 safely)
+            airPassengers: formData.airPassengers,
+            airDistanceKm: formData.airDistanceKm,
+            airTravelClass: formData.airTravelClass?.value,
+            airFlightType: formData.airFlightType?.value,
+
+            taxiPassengers: formData.taxiPassengers,
+            taxiDistanceKm: formData.taxiDistanceKm,
+            taxiType: formData.taxiType?.value,
+
+            busPassengers: formData.busPassengers,
+            busDistanceKm: formData.busDistanceKm,
+            busType: formData.busType?.value,
+
+            trainPassengers: formData.trainPassengers,
+            trainDistanceKm: formData.trainDistanceKm,
+            trainType: formData.trainType?.value,
+        };
+        const calculationResult = calculateFuelAndEnergy(calculationInput);
         const payload = {
             buildingId: formData.buildingId?.value,
             stakeholder: formData.stakeholder?.value,
@@ -268,24 +293,28 @@ const FuelEnergyForm = () => {
             unit: electricityUnit,
             qualityControl: formData.qualityControl?.value,
             remarks: formData.remarks,
-            calculatedEmissionKgCo2e: emission.calculatedEmissionKgCo2e,
-            calculatedEmissionTCo2e: emission.calculatedEmissionTCo2e,
+            calculatedEmissionKgCo2e:
+                calculationResult?.totalEmissions_KgCo2e || 0,
+
+            calculatedEmissionTCo2e:
+                calculationResult?.totalEmissions_TCo2e || 0,
         };
 
         Object.keys(toggleOptions).forEach((key) => {
             if (toggleOptions[key]) {
                 travelFields[key].forEach((field) => {
-                    if (field === "airFlightType" || field === "airTravelClass") {
-                        payload[field] = formData[field].value ?? null;
+                    const value = formData[field];
+
+                    // If value comes from CustomSelect, extract `.value`
+                    if (value && typeof value === "object" && "value" in value) {
+                        payload[field] = value.value;
                     } else {
-                        payload[field] = formData[field] ?? null;
+                        payload[field] = value ?? null;
                     }
                 });
             }
         });
-
-        console.log("Payload to send:", payload);
-
+        // console.log("Payload to send:", payload);
         try {
             setLoading(true);
             if (isEdit) {
@@ -316,31 +345,12 @@ const FuelEnergyForm = () => {
         }
 
     };
-
-    // useEffect(() => {
-    //     setFormData((prev) => {
-    //         let updated = { ...prev };
-    //         Object.keys(toggleOptions).forEach((key) => {
-    //             if (toggleOptions[key]) {
-    //                 updated = { ...updated, ...travelFields[key] };
-    //             } else {
-    //                 Object.keys(obj[key]).forEach((field) => {
-    //                     delete updated[field];
-    //                 });
-    //             }
-    //         });
-    //         return updated;
-    //     });
-    // }, [toggleOptions]);
-
-    console.log(formData);
-
     return (
         <div>
             <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Fuel & Energy Record`}>
                 <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
                     <p className="text-gray-700">
-This category includes emissions related to the production of fuels and energy purchased and consumed by the reporting company in the reporting year that ar that are not included in scope 1 or scope 2.</p>
+                        This category includes emissions related to the production of fuels and energy purchased and consumed by the reporting company in the reporting year that ar that are not included in scope 1 or scope 2.</p>
                 </div>
                 {isFetching ? (
                     <div className="flex justify-center items-center h-64">
@@ -348,9 +358,7 @@ This category includes emissions related to the production of fuels and energy p
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="p-6 grid gap-6">
-
                         {/* Building and Stakeholder */}
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="field-label">Site / Building Name *</label>
@@ -377,9 +385,7 @@ This category includes emissions related to the production of fuels and energy p
                                 {errors.stakeholder && <p className="text-red-500 text-sm mt-2">{errors.stakeholder}</p>}
                             </div>
                         </div>
-
                         {/* Purchase Category and Activity Type */}
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="field-label">Fuel Types *</label>
@@ -407,38 +413,33 @@ This category includes emissions related to the production of fuels and energy p
                                 />
                                 {errors.fuelType && <p className="text-red-500 text-sm mt-2">{errors.fuelType}</p>}
                             </div>
-
                             <div>
                                 <label className="field-label">Fuel *</label>
                                 <CustomSelect
                                     name="fuel"
                                     options={fuel}
                                     value={formData.fuel}
-                                    onChange={(value) => handleSelectChange("fuel", value)}
-                                    placeholder="Select Activity Type"
+                                    onChange={(value) => {
+                                        handleSelectChange("fuel", value);
+
+                                        // Update unit options dynamically
+                                        const units = getFuelUnitOptions(value?.value);
+                                        setFuelUnitOptions(units);
+
+                                        // Reset previously selected unit
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            fuelConsumptionUnit: null
+                                        }));
+                                    }}
+                                    placeholder="Select Fuel"
                                     isDisabled={isView}
                                 />
                                 {errors.fuel && <p className="text-red-500 text-sm mt-2">{errors.fuel}</p>}
                             </div>
                         </div>
-
                         {/* Goods/Services Type */}
-
-                        {/* <div>
-            <label className="field-label">Purchased Goods or Services Type *</label>
-            <CustomSelect
-              name="purchasedGoodsServicesType"
-              options={goodsServicesTypeOptions}
-              value={formData.purchasedGoodsServicesType}
-              onChange={(value) => handleSelectChange("purchasedGoodsServicesType", value)}
-              placeholder="Select Type"
-              isDisabled={isView || !formData.purchasedActivityType}
-            />
-            {errors.purchasedGoodsServicesType && <p className="text-red-500 text-sm mt-2">{errors.purchasedGoodsServicesType}</p>}
-          </div> */}
-
                         {/* Amount Spent and Unit */}
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="field-label">Total Fuel Consumption *</label>
@@ -456,12 +457,12 @@ This category includes emissions related to the production of fuels and energy p
                                 />
                                 {errors.totalFuelConsumption && <p className="text-red-500 text-sm mt-2">{errors.totalFuelConsumption}</p>}
                             </div>
-
                             <div>
                                 <label className="field-label">Fuel Consumption Unit *</label>
                                 <CustomSelect
                                     name="fuelConsumptionUnit"
-                                    options={fuelConsumptionUnits}
+                                    options={fuelUnitOptions}
+                                    disableCapitalize={true}
                                     value={formData.fuelConsumptionUnit}
                                     onChange={(value) => handleSelectChange("fuelConsumptionUnit", value)}
                                     isDisabled={isView}
@@ -469,7 +470,6 @@ This category includes emissions related to the production of fuels and energy p
                                 {errors.fuelConsumptionUnit && <p className="text-red-500 text-sm mt-2">{errors.fuelConsumptionUnit}</p>}
                             </div>
                         </div>
-
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="field-label">Total Gross Electricity Purchased *</label>
@@ -482,9 +482,7 @@ This category includes emissions related to the production of fuels and energy p
                                     className="border-[2px] w-full h-10 p-2 rounded-md"
                                     disabled={isView}
                                 />
-                                {errors.totalGrossElectricityPurchased && <p className="text-red-500 text-sm mt-2">{errors.totalGrossElectricityPurchased}</p>}
-                            </div>
-
+                                {errors.totalGrossElectricityPurchased && <p className="text-red-500 text-sm mt-2">{errors.totalGrossElectricityPurchased}</p>}                            </div>
                             <div>
                                 <label className="field-label">Unit *</label>
                                 <CustomSelect
@@ -497,9 +495,7 @@ This category includes emissions related to the production of fuels and energy p
                                 {errors.unit && <p className="text-red-500 text-sm mt-2">{errors.unit}</p>}
                             </div>
                         </div>
-
                         {/* Quality Control */}
-
                         <div>
                             <label className="field-label">Quality Control *</label>
                             <CustomSelect
@@ -512,9 +508,7 @@ This category includes emissions related to the production of fuels and energy p
                             />
                             {errors.qualityControl && <p className="text-red-500 text-sm mt-2">{errors.qualityControl}</p>}
                         </div>
-
                         {/* Remarks */}
-
                         <div>
                             <label className="field-label">Remarks (Optional)</label>
                             <textarea
@@ -527,20 +521,12 @@ This category includes emissions related to the production of fuels and energy p
                                 disabled={isView}
                             />
                         </div>
-
                         {/* Business Travel Section */}
                         <div className="col-span-full border-t pt-6">
                             <h3 className="text-lg font-medium text-gray-700 mb-4">Business Travel Details (Optional)</h3>
-
                             {/* Air Travel */}
                             <div className="mb-4">
                                 <label className="flex items-center gap-2">
-                                    {/* <input
-                                        type="checkbox"
-                                        checked={formData.didTravelByAir}
-                                        onChange={(e) => setToggleOptions((prev) => ({ ...prev, didTravelByAir: e.target.checked }))}
-                                        disabled={isView}
-                                    /> */}
                                     <Swicth
                                         value={toggleOptions.didTravelByAir}
                                         onChange={(e) => setToggleOptions((prev) => ({ ...prev, didTravelByAir: e.target.checked }))}
@@ -618,16 +604,9 @@ This category includes emissions related to the production of fuels and energy p
                                     </div>
                                 )}
                             </div>
-
                             {/* Taxi Travel */}
                             <div className="mb-4">
                                 <label className="flex items-center gap-2">
-                                    {/* <input
-                                        type="checkbox"
-                                        checked={formData.didTravelByTaxi}
-                                        onChange={(e) => setToggleOptions((prev) => ({ ...prev, didTravelByTaxi: e.target.checked }))}
-                                        disabled={isView}
-                                    /> */}
                                     <Swicth
                                         value={toggleOptions.didTravelByTaxi}
                                         onChange={(e) => setToggleOptions((prev) => ({ ...prev, didTravelByTaxi: e.target.checked }))}
@@ -688,7 +667,6 @@ This category includes emissions related to the production of fuels and energy p
                                     </div>
                                 )}
                             </div>
-
                             {/* Bus Travel */}
                             <div className="mb-4">
                                 <label className="flex items-center gap-2">
@@ -758,16 +736,9 @@ This category includes emissions related to the production of fuels and energy p
                                     </div>
                                 )}
                             </div>
-
                             {/* Train Travel */}
                             <div className="mb-4">
                                 <label className="flex items-center gap-2">
-                                    {/* <input
-                                        type="checkbox"
-                                        checked={formData.didTravelByTrain}
-                                        onChange={(e) => setToggleOptions((prev) => ({ ...prev, didTravelByTrain: e.target.checked }))}
-                                        disabled={isView}
-                                    /> */}
                                     <Swicth
                                         value={toggleOptions.didTravelByTrain}
                                         onChange={(e) => setToggleOptions((prev) => ({ ...prev, didTravelByTrain: e.target.checked }))}
@@ -829,9 +800,7 @@ This category includes emissions related to the production of fuels and energy p
                                 )}
                             </div>
                         </div>
-
                         {/* Buttons */}
-
                         <div className="col-span-full flex justify-end gap-4 pt-6 border-t">
                             <Button
                                 text={isView ? "Back" : "Cancel"}

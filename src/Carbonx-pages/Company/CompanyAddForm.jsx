@@ -286,7 +286,7 @@ const CompanyProfileForm = () => {
                 <form className="lg:grid-cols-3 grid gap-8 grid-cols-1">
                     {/* Company Name */}
                     <div className="">
-                        <label className="field-label">Company/Organization Name *</label>
+                        <label className="field-label">Company / Organization Name *</label>
                         <input
                             type="text"
                             name="companyName"
@@ -518,7 +518,7 @@ const CompanyProfileForm = () => {
                     )}
                     {/* Country */}
                     <div>
-                        <label className="field-label">Country Of Operation *</label>
+                        <label className="field-label">Country of Operation *</label>
                         <Select
                             options={countries}
                             value={countries.find((c) => c.value === formData.country) || null}
@@ -741,7 +741,7 @@ const CompanyProfileForm = () => {
 
                     {/* Units Manufactured Per Annum */}
                     <div className="">
-                        <label className="field-label">No. Of Units Manufactured Per Annum</label>
+                        <label className="field-label">No. of Units Manufactured Per Annum</label>
                         <input
                             type="number"
                             name="unitsManufacturedPerAnnum"
@@ -769,7 +769,7 @@ const CompanyProfileForm = () => {
 
                     {/* Units Sold Per Annum */}
                     <div className="">
-                        <label className="field-label">No. Of Units Sold Per Annum</label>
+                        <label className="field-label">No. of Units Sold per Annum</label>
                         <input
                             type="number"
                             name="unitsSoldPerAnnum"
