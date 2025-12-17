@@ -125,3 +125,57 @@ export const  carFuelTypeOptions={
     "Battery Electric Vehicle"
   ]
 }
+//calc
+  // airTravelEmissionFactors,
+  // taxiEmissionFactors,
+  // busEmissionFactors,
+  // trainEmissionFactors,
+  // motorbikeEmissionFactors,
+  // carEmissionFactors,
+
+  export const airTravelEmissionFactors = {
+    Domestic: {
+        "Average passenger": 0.0335,          // kg CO2e per passenger-km
+        "Economy class": 0.0335,
+        "Business class": 0.0335,
+        "Premium economy class": 0.0335,
+        "First class": 0.0335,
+    },
+    International: {
+        "Average passenger": 0.02162,          // kg CO2e per passenger-km
+        "Economy class": 0.01656,
+        "Business class": 0.02649,
+        "Premium economy class": 0.04802,
+        "First class": 0.06623,
+    },
+};
+
+export const taxiEmissionFactors= {
+    "Regular taxi": 0.03697,
+    "Business Class": 0.05090,
+};
+
+export const busEmissionFactors= {
+    "Local Bus": 0.03174,
+    "Intercity Bus (Non A.C)": 0.01821,
+    "Intercity Bus (A.C)": 0.02649,
+    "Green Line": 0.00656,
+};
+export const trainEmissionFactors = {
+    "National rail": 0.00897,
+    "Green Line Train": 0.00117,
+    "Metro": 0.00749,
+    "Subway (underground)": 0.00728,
+};
+export const motorbikeEmissionFactors = {
+    "National rail": 0.00897,
+    "Green Line Train": 0.00117,
+    "Metro": 0.00749,
+    "Subway (underground)": 0.00728,
+};
+export const carEmissionFactors = {
+    "National rail": 0.00897,
+    "Green Line Train": 0.00117,
+    "Metro": 0.00749,
+    "Subway (underground)": 0.00728,
+};

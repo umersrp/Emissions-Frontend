@@ -226,7 +226,7 @@ const PurchasedGoodServicesFormPage = () => {
           updatedData.calculatedEmissionTCo2e = formattedT;
 
           // Show toast
-          toast.info(`Emissions Calculated: ${formattedKg} kgCO2e / ${formattedT} tCO2e`);
+          // toast.info(`Emissions Calculated: ${formattedKg} kgCO2e / ${formattedT} tCO2e`);
         }
       }
 
@@ -249,7 +249,7 @@ const PurchasedGoodServicesFormPage = () => {
     if (!formData.purchasedGoodsServicesType) newErrors.purchasedGoodsServicesType = "Purchased Goods or Services Type is required";
     if (!formData.amountSpent) newErrors.amountSpent = "Amount Spent is required";
     if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
-       if (formData.amountSpent && Number(formData.amountSpent) < 0) {
+    if (formData.amountSpent && Number(formData.amountSpent) < 0) {
       newErrors.amountSpent = "Value cannot be negative.";
     }
 
@@ -257,9 +257,9 @@ const PurchasedGoodServicesFormPage = () => {
     return Object.keys(newErrors).length === 0;
   };
   const handleNumberInputWheel = (e) => {
-  e.target.blur(); 
-  e.preventDefault(); // Add this to prevent scroll changing value
-};// onWheel={handleNumberInputWheel}
+    e.target.blur();
+    e.preventDefault(); // Add this to prevent scroll changing value
+  };// onWheel={handleNumberInputWheel}
 
   // Submit
   const handleSubmit = async (e) => {
@@ -327,8 +327,7 @@ const PurchasedGoodServicesFormPage = () => {
       <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Purchased Goods & Services Record`}>
         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
           <p className="text-gray-700">
-            Purchased goods and services refer to products or services acquired from external suppliers for organizational operations, including raw materials, equipment, professional services, and other business-related purchases.
-          </p>
+            This category includes all upstream (i.e., cradle-to-gate) emissions from the production of products purchased or acquired by the reporting company in the reporting year. Products include both goods (tangible products) and services (intangible products).           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 grid gap-6">
