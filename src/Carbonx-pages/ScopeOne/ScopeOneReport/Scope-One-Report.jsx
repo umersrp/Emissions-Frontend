@@ -426,6 +426,7 @@ import { Icon } from "@iconify/react";
 import { KYOTO_GASES } from "@/constant/scope1/calculate-fugitive-emission";
 import { GHG_ACTIVITIES } from "@/constant/scope1/calculate-process-emission"
 import { useNavigate } from "react-router-dom";
+import { map } from "leaflet";
 
 // Utility for formatting numbers
 const formatNumber = (num) => {
@@ -521,19 +522,46 @@ const filteredData = useMemo(() => {
 
 
   // Building-wise summary
-  const buildingData = useMemo(() => {
-    const map = {};
-    filteredData.forEach((item) => {
-      const name = item.buildingId?.buildingName || "Unknown";
-      if (!map[name]) map[name] = 0;
-      map[name] += Number(item.calculatedEmissionKgCo2e || 0);
-    });
-    return Object.entries(map).map(([buildingName, kg]) => ({
-      buildingName,
-      totalKg: kg,
-      totalT: kg / 1000,
-    }));
-  }, [filteredData]);
+//   const buildingData = useMemo(() => {
+//     const map = {};
+//     filteredData.forEach((item) => {
+//       const name = item.buildingId?.buildingName || "Unknown";
+//       if (!map[name]) map[name] = 0;
+//       map[name] += Number(item.calculatedEmissionKgCo2e || 0);
+//     });
+//     return Object.entries(map).map(([buildingName, kg]) => ({
+//       buildingName,
+//       totalKg: kg,
+//       totalT: kg / 1000,
+//     }));
+//   }, [filteredData]);
+//  console.log("Building Data:", buildingData);
+
+// Building-wise summary
+const buildingData = useMemo(() => {
+  const map = {};
+  filteredData.forEach((item) => {
+    const name = item.buildingId?.buildingName || "Unknown";
+    if (!map[name]) map[name] = { totalKg: 0, count: 0 };
+    map[name].totalKg += Number(item.calculatedEmissionKgCo2e || 0);
+    map[name].count += 1; // increment record count
+  });
+
+  const entries = Object.entries(map).map(([buildingName, data]) => ({
+    buildingName,
+    totalKg: data.totalKg,
+    totalT: data.totalKg / 1000,
+    recordCount: data.count, // number of records for this building
+  }));
+
+  console.log("Building Data with record count:", entries);
+
+  return entries;
+}, [filteredData]);
+
+console.log("Building Data:", buildingData);
+// console.log("Building Count:",totalBuildings)
+
 
   // Manual pagination
   // const paginatedData = useMemo(() => {
@@ -584,6 +612,7 @@ const filteredData = useMemo(() => {
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
+    console.log("Process Kg:", processKg);
     return stationaryKg + mobileKg + fugitiveKg + processKg;
   }, [data]);
 

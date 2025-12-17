@@ -52,7 +52,7 @@ const BusinessTravel = () => {
         setLoading(true);
         try {
             const res = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/get-All`,
+                `${process.env.REACT_APP_BASE_URL}/Business-Travel/List`,
                 {
                     params: {
                         page: pageIndex,
@@ -84,7 +84,7 @@ const BusinessTravel = () => {
     // Delete Record
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/delete/${id}`, {
+            await axios.delete(`${process.env.REACT_APP_BASE_URL}/Business-Travel/Delete/${id}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
             });
             toast.success("Record deleted successfully");
@@ -231,7 +231,6 @@ const BusinessTravel = () => {
 
                     <div className="md:flex md:space-x-3 items-center">
                         <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-
                         <Button
                             icon="heroicons-outline:plus-sm"
                             text="Add Record"
@@ -240,7 +239,6 @@ const BusinessTravel = () => {
                         />
                     </div>
                 </div>
-
                 <div className="overflow-x-auto -mx-6">
                     <div className="inline-block min-w-full align-middle">
                         {/*  Set fixed height for vertical scroll */}

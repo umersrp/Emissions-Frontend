@@ -6,8 +6,10 @@ import CustomSelect from "@/components/ui/Select";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { qualityControlOptions,
-  FugitiveAndMobileStakeholderOptions} from "@/constant/scope1/options"
+import {
+  qualityControlOptions,
+  FugitiveAndMobileStakeholderOptions
+} from "@/constant/scope1/options"
 import {
   wasteCategoryOptions,
   wasteTypeOptions,
@@ -186,7 +188,7 @@ const WasteGeneratedFormPage = () => {
         toast.success("Record updated successfully!");
       } else {
         await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/waste-generated/create`,
+          `${process.env.REACT_APP_BASE_URL}/Waste-Generate/Create`,
           payload,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
@@ -233,8 +235,8 @@ const WasteGeneratedFormPage = () => {
               />
               {errors.stakeholder && <p className="text-red-500 text-sm">{errors.stakeholder}</p>}
             </div>
-              {/* Waste Category & Type */}
-             <div>
+            {/* Waste Category & Type */}
+            <div>
               <label className="field-label">Waste Category *</label>
               <CustomSelect
                 value={formData.wasteCategory}
@@ -246,9 +248,9 @@ const WasteGeneratedFormPage = () => {
             </div>
           </div>
 
-         
+
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-            <div className="col-span-2">
+            <div className="">
               <label className="field-label">Waste Type *</label>
               <CustomSelect
                 value={formData.wasteType}
@@ -258,28 +260,27 @@ const WasteGeneratedFormPage = () => {
               />
               {errors.wasteType && <p className="text-red-500 text-sm">{errors.wasteType}</p>}
             </div>
-           {/* Treatment */}
-          <div>
-            <label className="field-label">Waste Treatment *</label>
-            <CustomSelect
-              value={formData.wasteTreatmentMethod}
-              options={availableTreatmentMethods}
-              onChange={(v) => handleSelectChange("wasteTreatmentMethod", v)}
-              isDisabled={isView || !formData.wasteType}
-            />
-            {errors.wasteTreatmentMethod && (
-              <p className="text-red-500 text-sm">{errors.wasteTreatmentMethod}</p>
-            )}
-          </div>
-
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {/* Treatment */}
+            <div>
+              <label className="field-label">Waste Treatment *</label>
+              <CustomSelect
+                value={formData.wasteTreatmentMethod}
+                options={availableTreatmentMethods}
+                onChange={(v) => handleSelectChange("wasteTreatmentMethod", v)}
+                isDisabled={isView || !formData.wasteType}
+              />
+              {errors.wasteTreatmentMethod && (
+                <p className="text-red-500 text-sm">{errors.wasteTreatmentMethod}</p>
+              )}
+            </div>
             <div>
               <label className="field-label">Unit *</label>
               <CustomSelect value={formData.unit} isDisabled />
             </div>
-          {/* Quantity */}
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            {/* Quantity */}
             <div>
               <label className="field-label">Total Waste Quantity *</label>
               <input
@@ -295,19 +296,19 @@ const WasteGeneratedFormPage = () => {
               )}
             </div>
 
-           {/* Quality Control */}
-          <div>
-            <label className="field-label">Quality Control *</label>
-            <CustomSelect
-              value={formData.qualityControl}
-              options={qualityControlOptions}
-              onChange={(v) => handleSelectChange("qualityControl", v)}
-              isDisabled={isView}
-            />
-            {errors.qualityControl && (
-              <p className="text-red-500 text-sm">{errors.qualityControl}</p>
-            )}
-          </div>
+            {/* Quality Control */}
+            <div>
+              <label className="field-label">Quality Control *</label>
+              <CustomSelect
+                value={formData.qualityControl}
+                options={qualityControlOptions}
+                onChange={(v) => handleSelectChange("qualityControl", v)}
+                isDisabled={isView}
+              />
+              {errors.qualityControl && (
+                <p className="text-red-500 text-sm">{errors.qualityControl}</p>
+              )}
+            </div>
 
           </div>
 

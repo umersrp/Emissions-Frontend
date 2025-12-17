@@ -416,7 +416,8 @@ const capitalizeLabel = (text) => {
   const exceptions = [
     "and","or","in","of","from","at","to","the","a","an","for","on","with",
     "but","by","is","it","as","be","this","that","these","those","such",
-    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite"
+    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
+    "n.e.c."
   ];
 
   return text   

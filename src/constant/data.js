@@ -278,10 +278,6 @@ export const menuItems = [
         childlink: "Waste-Generated",
       },
        {
-        childtitle: "Waste Generated In Operations",
-        childlink: "Waste-Generated",
-      },
-       {
         childtitle: "Business Travel",
         childlink: "Business-Travel",
       },

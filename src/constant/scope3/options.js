@@ -396,7 +396,7 @@ export const fuelEnergyTypesChildTypes = {
   ]
 };
 
-export const ALL_UNIT_OPTIONS = [
+export const fuelConsumptionUnits = [
   { value: "Tonnes", label: "Tonnes" },
   { value: "kg", label: "kg" },
   { value: "lb", label: "lb" },
@@ -578,15 +578,15 @@ export const unitConversion = {
   
 
   // Energy conversions → kwh
-  "kwh": { factor: 1, to: "kwh" },
-  "Joules": { factor: 0.000000278, to: "kwh" },
-  "Mj": { factor: 0.2778, to: "kwh" },
-  "Gj": { factor: 277.78, to: "kwh" },
-  "Tj": { factor: 277777.78, to: "kwh" },
-  "MWh": { factor: 1000, to: "kwh" },
-  "GWh": { factor: 1000000, to: "kwh" },
-  "Btu": { factor: 0.00029307, to: "kwh" },
-  "MMBtu": { factor: 293.07, to: "kwh" },
+  "kWh": { factor: 1, to: "kWh" },
+  "Joules": { factor: 0.000000278, to: "kWh" },
+  "Mj": { factor: 0.2778, to: "kWh" },
+  "Gj": { factor: 277.78, to: "kWh" },
+  "Tj": { factor: 277777.78, to: "kWh" },
+  "MWh": { factor: 1000, to: "kWh" },
+  "GWh": { factor: 1000000, to: "kWh" },
+  "Btu": { factor: 0.00029307, to: "kWh" },
+  "MMBtu": { factor: 293.07, to: "kWh" },
 
   // Volume conversions
   "Litres": { factor: 1, to: "Litres" },
@@ -622,7 +622,7 @@ export const travelFields = {
 export const unitsEmissionFactors = {
   //GASEOUS FUELS
   "Butane": {
-    "tonnes": 3033.38067,
+    "tonnes": 344.30947,
     "litres": 1.74533,
     "kwh": 0.22241,
   },
