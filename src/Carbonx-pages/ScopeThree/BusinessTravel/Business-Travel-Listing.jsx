@@ -97,94 +97,134 @@ const BusinessTravel = () => {
 
     // Columns
     const COLUMNS = useMemo(
-        () => [
-            {
-                Header: "Sr.No",
-                id: "serialNo",
-                Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
-            },
-            { Header: "Building", accessor: "buildingId.buildingName" },
-            { Header: "Stakeholder", accessor: "stakeholder" },
-            { Header: "Fuel Type", accessor: "fuelType" },
-            { Header: "Fuel", accessor: "fuel" },
-            { Header: "Total Fuel Consumption", accessor: "totalFuelConsumption" },
-            { Header: "Fuel Consumption Unit", accessor: "fuelConsumptionUnit" },
-            { Header: "Total Gross Electricity Purchased", accessor: "totalGrossElectricityPurchased", },
-            { Header: "Unit", accessor: "unit", },
-            {
-                Header: "KgCo2e",
-                accessor: "calculatedEmissionKgCo2e",
-                Cell: ({ row }) => <span>{row.original.calculatedEmissionKgCo2e.toFixed(2)}</span>,
-            },
-            {
-                Header: "TCo2e",
-                accessor: "calculatedEmissionTCo2e",
-                Cell: ({ row }) => <span>{row.original.calculatedEmissionTCo2e.toFixed(2)}</span>,
-            },
-            // {
-            //     Header: "Created By",
-            //     accessor: "createdBy.name",
-            //     Cell: ({ cell }) => cell.value || "-",
-            // },
-            // {
-            //     Header: "Updated By",
-            //     accessor: "updatedBy.name",
-            //     Cell: ({ cell }) => cell.value || "-",
-            // },
-            { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => cell.value || "-", },
-            {
-                Header: "Created At",
-                accessor: "createdAt",
-                Cell: ({ cell }) => cell.value ? new Date(cell.value).toLocaleDateString() : "-",
-            },
-            {
-                Header: "Actions",
-                accessor: "_id",
-                Cell: ({ cell }) => (
-                    <div className="flex space-x-3 rtl:space-x-reverse">
-                        <Tippy content="View">
-                            <button
-                                className="action-btn"
-                                onClick={() =>
-                                    navigate(`/Business-Travel-Form/${cell.value}`, {
-                                        state: { mode: "view" },
-                                    })
-                                }
-                            >
-                                <Icon icon="heroicons:eye" className="text-green-600" />
-                            </button>
-                        </Tippy>
+    () => [
+        {
+            Header: "Sr.No",
+            id: "serialNo",
+            Cell: ({ row }) => (
+                <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
+            ),
+        },
 
-                        <Tippy content="Edit">
-                            <button
-                                className="action-btn"
-                                onClick={() =>
-                                    navigate(`/Business-Travel-Form/${cell.value}`, {
-                                        state: { mode: "edit" },
-                                    })
-                                }
-                            >
-                                <Icon icon="heroicons:pencil-square" className="text-blue-600" />
-                            </button>
-                        </Tippy>
+        { Header: "Building", accessor: "buildingId.buildingName" },
+        { Header: "Stakeholder", accessor: "stakeholder" },
 
-                        <Tippy content="Delete">
-                            <button
-                                className="action-btn"
-                                onClick={() => {
-                                    setSelectedId(cell.value);
-                                    setDeleteModalOpen(true);
-                                }}
-                            >
-                                <Icon icon="heroicons:trash" className="text-red-600" />
-                            </button>
-                        </Tippy>
-                    </div>
-                ),
-            },
-        ],
-        [pageIndex, pageSize]
-    );
+        // ================= AIR =================
+        { Header: "Air Travel", accessor: "travelByAir", Cell: ({ value }) => (value ? "Yes" : "No") },
+        { Header: "Air Passengers", accessor: "airPassengers" },
+        { Header: "Air Distance (Km)", accessor: "airDistanceKm" },
+        { Header: "Air Class", accessor: "airTravelClass" },
+        { Header: "Flight Type", accessor: "airFlightType" },
+
+        // ================= MOTORBIKE =================
+        { Header: "Motorbike", accessor: "travelByMotorbike", Cell: ({ value }) => (value ? "Yes" : "No") },
+        { Header: "Motorbike Distance (Km)", accessor: "motorbikeDistanceKm" },
+        { Header: "Motorbike Type", accessor: "motorbikeType" },
+
+        // ================= TAXI =================
+        { Header: "Taxi", accessor: "travelByTaxi", Cell: ({ value }) => (value ? "Yes" : "No") },
+        { Header: "Taxi Passengers", accessor: "taxiPassengers" },
+        { Header: "Taxi Distance (Km)", accessor: "taxiDistanceKm" },
+        { Header: "Taxi Type", accessor: "taxiType" },
+
+        // ================= BUS =================
+        { Header: "Bus", accessor: "travelByBus", Cell: ({ value }) => (value ? "Yes" : "No") },
+        { Header: "Bus Passengers", accessor: "busPassengers" },
+        { Header: "Bus Distance (Km)", accessor: "busDistanceKm" },
+        { Header: "Bus Type", accessor: "busType" },
+
+        // ================= TRAIN =================
+        { Header: "Train", accessor: "travelByTrain", Cell: ({ value }) => (value ? "Yes" : "No") },
+        { Header: "Train Passengers", accessor: "trainPassengers" },
+        { Header: "Train Distance (Km)", accessor: "trainDistanceKm" },
+        { Header: "Train Type", accessor: "trainType" },
+
+        // ================= CAR =================
+        { Header: "Car", accessor: "travelByCar", Cell: ({ value }) => (value ? "Yes" : "No") },
+        { Header: "Car Distance (Km)", accessor: "carDistanceKm" },
+        { Header: "Car Type", accessor: "carType" },
+        { Header: "Car Fuel Type", accessor: "carFuelType" },
+
+        // ================= HOTEL =================
+        { Header: "Hotel Stay", accessor: "hotelStay", Cell: ({ value }) => (value ? "Yes" : "No") },
+        { Header: "Hotel Rooms", accessor: "hotelRooms" },
+        { Header: "Hotel Nights", accessor: "hotelNights" },
+
+        // ================= EMISSIONS =================
+        {
+            Header: "KgCO₂e",
+            accessor: "calculatedEmissionKgCo2e",
+            Cell: ({ value }) => Number(value).toFixed(2),
+        },
+        {
+            Header: "TCO₂e",
+            accessor: "calculatedEmissionTCo2e",
+            Cell: ({ value }) => Number(value).toFixed(2),
+        },
+
+        // ================= META =================
+        {
+            Header: "Remarks",
+            accessor: "remarks",
+            Cell: ({ value }) => value || "-",
+        },
+        {
+            Header: "Created At",
+            accessor: "createdAt",
+            Cell: ({ value }) =>
+                value ? new Date(value).toLocaleDateString() : "-",
+        },
+
+        // ================= ACTIONS =================
+        {
+            Header: "Actions",
+            accessor: "_id",
+            Cell: ({ cell }) => (
+                <div className="flex space-x-3 rtl:space-x-reverse">
+                    <Tippy content="View">
+                        <button
+                            className="action-btn"
+                            onClick={() =>
+                                navigate(`/Business-Travel-Form/${cell.value}`, {
+                                    state: { mode: "view" },
+                                })
+                            }
+                        >
+                            <Icon icon="heroicons:eye" className="text-green-600" />
+                        </button>
+                    </Tippy>
+
+                    <Tippy content="Edit">
+                        <button
+                            className="action-btn"
+                            onClick={() =>
+                                navigate(`/Business-Travel-Form/${cell.value}`, {
+                                    state: { mode: "edit" },
+                                })
+                            }
+                        >
+                            <Icon icon="heroicons:pencil-square" className="text-blue-600" />
+                        </button>
+                    </Tippy>
+
+                    <Tippy content="Delete">
+                        <button
+                            className="action-btn"
+                            onClick={() => {
+                                setSelectedId(cell.value);
+                                setDeleteModalOpen(true);
+                            }}
+                        >
+                            <Icon icon="heroicons:trash" className="text-red-600" />
+                        </button>
+                    </Tippy>
+                </div>
+            ),
+        },
+    ],
+    [pageIndex, pageSize]
+);
+
 
     const columns = useMemo(() => COLUMNS, [COLUMNS]);
     const data = useMemo(() => records, [records]);
