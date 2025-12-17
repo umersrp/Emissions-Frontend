@@ -20,6 +20,8 @@ import {
   processQualityControlOptions,
 } from "@/constant/scope1/options";
 import ToggleButton from "@/components/ui/ToggleButton";
+import { calculateBusinessTravel } from "@/utils/Scope3/calculateBusinessTravel";
+
 
 const BusinessTravelFormPage = () => {
   const navigate = useNavigate();
@@ -32,14 +34,15 @@ const BusinessTravelFormPage = () => {
   const isAdd = mode === "add";
 
   const [buildingOptions, setBuildingOptions] = useState([]);
-  const [selectedCarType, setSelectedCarType] = useState(null);
-  const [selectedFuelType, setSelectedFuelType] = useState(null);
+
+  const [calculatedEmissionKgCo2e, setCalculatedEmissionKgCo2e] = useState(0);
+  const [calculatedEmissionTCo2e, setCalculatedEmissionTCo2e] = useState(0);
 
   const [formData, setFormData] = useState({
     buildingId: null,
     stakeholder: null,
+    qualityControl: null,
 
-    // Toggles
     travelByAir: false,
     travelByMotorbike: false,
     travelByTaxi: false,
@@ -48,69 +51,127 @@ const BusinessTravelFormPage = () => {
     travelByCar: false,
     hotelStay: false,
 
-    // Air Fields
     airPassengers: "",
     airDistanceKm: "",
     airTravelClass: null,
     airFlightType: null,
 
-    // Motorbike
     motorbikeDistanceKm: "",
     motorbikeType: null,
 
-    // Taxi
     taxiPassengers: "",
     taxiDistanceKm: "",
     taxiType: null,
 
-    // Bus
     busPassengers: "",
     busDistanceKm: "",
     busType: null,
 
-    // Train
     trainPassengers: "",
     trainDistanceKm: "",
     trainType: null,
 
-    // Car
     carDistanceKm: "",
     carType: null,
     carFuelType: null,
 
-
-    // Hotel
     hotelRooms: "",
     hotelNights: "",
 
-    qualityControl: null,
     remarks: "",
   });
 
-  // Get fuel options based on selected car type
-  const fuelOptions = selectedCarType
-    ? carFuelTypeOptions[selectedCarType.value].map((fuel) => ({
-      value: fuel,
-      label: fuel,
-    }))
-    : [];
+  /* ===============================
+     🔁 CALCULATION WRAPPER
+  =============================== */
+  const recalculateEmissions = (data) => {
+    try {
+      const result = calculateBusinessTravel(data);
 
-  const handleToggle = (name) => {
-    if (isView) return;
-    setFormData((prev) => ({ ...prev, [name]: !prev[name] }));
+      setCalculatedEmissionKgCo2e(result?.calculatedEmissionKgCo2e || 0);
+      setCalculatedEmissionTCo2e(result?.calculatedEmissionTCo2e || 0);
+    } catch (err) {
+      console.error("Calculation error", err);
+    }
   };
 
+  /* ===============================
+     📝 INPUT HANDLERS
+  =============================== */
   const handleChange = (e) => {
     if (isView) return;
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const { name, value } = e.target;
+
+    if (Number(value) < 0) {
+      toast.error("Negative values are not allowed");
+      return;
+    }
+
+    const updated = { ...formData, [name]: value };
+    setFormData(updated);
+    recalculateEmissions(updated);
   };
 
   const handleSelectChange = (value, { name }) => {
     if (isView) return;
-    setFormData({ ...formData, [name]: value });
+
+    const updated = { ...formData, [name]: value };
+    setFormData(updated);
+    recalculateEmissions(updated);
   };
 
-  // Fetch buildings
+  const handleToggle = (name) => {
+    if (isView) return;
+
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: !prev[name] };
+
+      if (prev[name]) {
+        if (name === "travelByAir") {
+          updated.airPassengers = "";
+          updated.airDistanceKm = "";
+          updated.airTravelClass = null;
+          updated.airFlightType = null;
+        }
+        if (name === "travelByMotorbike") {
+          updated.motorbikeDistanceKm = "";
+          updated.motorbikeType = null;
+        }
+        if (name === "travelByTaxi") {
+          updated.taxiPassengers = "";
+          updated.taxiDistanceKm = "";
+          updated.taxiType = null;
+        }
+        if (name === "travelByBus") {
+          updated.busPassengers = "";
+          updated.busDistanceKm = "";
+          updated.busType = null;
+        }
+        if (name === "travelByTrain") {
+          updated.trainPassengers = "";
+          updated.trainDistanceKm = "";
+          updated.trainType = null;
+        }
+        if (name === "travelByCar") {
+          updated.carDistanceKm = "";
+          updated.carType = null;
+          updated.carFuelType = null;
+        }
+        if (name === "hotelStay") {
+          updated.hotelRooms = "";
+          updated.hotelNights = "";
+        }
+      }
+
+      recalculateEmissions(updated);
+      return updated;
+    });
+  };
+
+  /* ===============================
+     🏢 FETCH BUILDINGS
+  =============================== */
   useEffect(() => {
     const fetchBuildings = async () => {
       try {
@@ -129,60 +190,86 @@ const BusinessTravelFormPage = () => {
         toast.error("Failed to load buildings");
       }
     };
+
     fetchBuildings();
   }, []);
 
-  // TODO: Fetch by ID for edit/view (You can add same logic you had earlier)
-
+  /* ===============================
+     📌 VALIDATION
+  =============================== */
   const validate = () => {
-    const errors = {};
-    if (!formData.buildingId) errors.buildingId = "Building is required";
-    if (!formData.stakeholder) errors.stakeholder = "Stakeholder is required";
-    if (!formData.qualityControl) errors.qualityControl = "Quality Control is required";
-    return errors;
+    if (!formData.buildingId || !formData.stakeholder || !formData.qualityControl) {
+      toast.error("Please fill all required fields");
+      return false;
+    }
+
+    const anyToggle =
+      formData.travelByAir ||
+      formData.travelByMotorbike ||
+      formData.travelByTaxi ||
+      formData.travelByBus ||
+      formData.travelByTrain ||
+      formData.travelByCar ||
+      formData.hotelStay;
+
+    if (!anyToggle) {
+      toast.error("Please select at least one travel option");
+      return false;
+    }
+
+    return true;
   };
 
+  /* ===============================
+     🚀 SUBMIT
+  =============================== */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isView) return;
+    if (!validate()) return;
 
-    const errors = validate();
-    if (Object.keys(errors).length > 0) {
-      toast.error("Please fill all required fields");
-      return;
-    }
+    recalculateEmissions(formData);
+
+    toast.success(
+      `Total Emissions: ${calculatedEmissionKgCo2e.toFixed(2)} Kg CO₂e`
+    );
 
     const payload = {
       ...formData,
-      buildingId: formData.buildingId?.value,
-      stakeholder: formData.stakeholder?.value,
-      qualityControl: formData.qualityControl?.value,
+      buildingId: formData.buildingId.value,
+      stakeholder: formData.stakeholder.value,
+      qualityControl: formData.qualityControl.value,
+
       carType: formData.carType?.value || null,
       carFuelType: formData.carFuelType?.value || null,
+      airTravelClass: formData.airTravelClass?.value || null,
+      airFlightType: formData.airFlightType?.value || null,
+
+      totalEmissions_KgCo2e: calculatedEmissionKgCo2e,
+      totalEmissions_TCo2e: calculatedEmissionTCo2e,
     };
 
     try {
       if (isEdit) {
         await axios.put(
-          `${process.env.REACT_APP_BASE_URL}/Business-Travel/${id}`,
+          `${process.env.REACT_APP_BASE_URL}/Business-Travel/Update/${id}`,
           payload,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
-        toast.success("Record updated successfully!");
+        toast.success("Record updated successfully");
       } else {
         await axios.post(
           `${process.env.REACT_APP_BASE_URL}/Business-Travel/Create`,
           payload,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
-        toast.success("Record added successfully!");
+        toast.success("Record added successfully");
       }
+
       navigate("/Business-Travel");
     } catch (err) {
       toast.error(err.response?.data?.message || "Error saving record");
     }
   };
-
   return (
     <div>
       <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Business Travel Record`}>
@@ -236,8 +323,7 @@ const BusinessTravelFormPage = () => {
             />
 
             {formData.travelByAir && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <input
                   type="number"
                   name="airPassengers"
@@ -285,7 +371,7 @@ const BusinessTravelFormPage = () => {
             />
 
             {formData.travelByMotorbike && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <input
                   type="number"
                   name="motorbikeDistanceKm"
@@ -315,7 +401,7 @@ const BusinessTravelFormPage = () => {
               disabled={isView}
             />
             {formData.travelByTaxi && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <input
                   type="number"
                   name="taxiPassengers"
@@ -354,7 +440,7 @@ const BusinessTravelFormPage = () => {
               disabled={isView}
             />
             {formData.travelByBus && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <input
                   type="number"
                   name="busPassengers"
@@ -394,7 +480,7 @@ const BusinessTravelFormPage = () => {
             />
 
             {formData.travelByTrain && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <input
                   type="number"
                   name="trainPassengers"
@@ -434,7 +520,7 @@ const BusinessTravelFormPage = () => {
             />
 
             {formData.travelByCar && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <input
                   type="number"
                   name="carDistanceKm"
@@ -503,7 +589,7 @@ const BusinessTravelFormPage = () => {
             />
 
             {formData.hotelStay && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <input
                   type="number"
                   name="hotelRooms"

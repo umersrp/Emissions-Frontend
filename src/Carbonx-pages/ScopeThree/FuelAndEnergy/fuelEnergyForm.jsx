@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import CustomSelect from "@/components/ui/Select";
@@ -7,23 +7,14 @@ import axios from "axios";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { qualityControlOptions } from "@/constant/scope1/options";
 import {
-    stakeholderOptions,
-    ALL_UNIT_OPTIONS,
-    fuelEnergyTypes,
-    fuelEnergyTypesChildTypes,
-    units,
-    emissionFactors,
-    unitConversion,
-    fuelUnitOptionsByName,
-} from "@/constant/scope3/options";
-import { calculateFuelAndEnergy } from "@/utils/Scope3/calculateFuelAndEnergy";
-
-
+    fuelUnitOptionsByName, fuelEnergyTypes, fuelEnergyTypesChildTypes, travelFields, AIR_TRAVEL_OPTIONS, AIR_FLIGHT_TYPES, TAXI_TYPES, BUS_TYPES, TRAIN_TYPES,
+} from "@/constant/scope3/fuelAndEnergy";
+import { stakeholderOptions, units, } from "@/constant/scope3/options";
 import Spinner from "@/components/ui/spinner";
 import Swicth from "@/components/ui/Switch";
+import { calculateFuelAndEnergy } from "@/utils/Scope3/calculateFuelAndEnergy";
 
 const FuelEnergyForm = () => {
-
     const navigate = useNavigate();
     const { id } = useParams();
     const location = useLocation();
@@ -31,43 +22,39 @@ const FuelEnergyForm = () => {
     const isView = mode === "view";
     const isEdit = mode === "edit";
     const isAdd = mode === "add";
-
     const [formData, setFormData] = useState({
         buildingId: null,
         stakeholder: null,
         fuelType: null,
         fuel: null,
-
-        totalFuelConsumption: "",
+        totalFuelConsumption: null,
         fuelConsumptionUnit: null,
-
-        totalGrossElectricityPurchased: "",
+        totalGrossElectricityPurchased: null,
         unit: null,
-
         qualityControl: null,
         remarks: "",
-
         // Travel fields
         airPassengers: "",
         airDistanceKm: "",
+        airTravelClass: "",
+        airFlightType: "",
         taxiPassengers: "",
         taxiDistanceKm: "",
+        taxiType: "",
         busPassengers: "",
         busDistanceKm: "",
+        busTyope: "",
         trainPassengers: "",
         trainDistanceKm: "",
+        trainType: "",
+
     });
-
-
     const [buildingOptions, setBuildingOptions] = useState([]);
     const [fuel, setFuel] = useState([]);
     const [goodsServicesTypeOptions, setGoodsServicesTypeOptions] = useState([]);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(false);
-    const [fuelUnitOptions, setFuelUnitOptions] = useState([]);
-
-
     const [toggleOptions, setToggleOptions] = useState({
         didTravelByAir: false,
         didTravelByTaxi: false,
@@ -75,60 +62,71 @@ const FuelEnergyForm = () => {
         didTravelByBus: false,
     });
 
-    const travelFields = {
-        didTravelByAir: [
-            "airPassengers",
-            "airDistanceKm",
-            "airTravelClass",
-            "airFlightType",
-        ],
-        didTravelByTaxi: [
-            "taxiPassengers",
-            "taxiDistanceKm",
-            "taxiType",
-        ],
-        didTravelByTrain: [
-            "trainPassengers",
-            "trainDistanceKm",
-            "trainType",
-        ],
-        didTravelByBus: [
-            "busPassengers",
-            "busDistanceKm",
-            "busType",
-        ],
+    // Real-time emission calculation & toast
+    useEffect(() => {
+        if (!isView) {
+            const fuelType = formData.fuelType?.value;
+            const fuelName = formData.fuel?.value;
+            const inputValue = Number(formData.totalFuelConsumption);
+            const inputUnit = formData.fuelConsumptionUnit?.value;
+            const electricityValue = Number(formData.totalGrossElectricityPurchased);
+            const electricityUnit = formData.unit?.value;
+
+            // Only calculate if any required value exists
+            if ((inputValue && fuelName && inputUnit) || (electricityValue && electricityUnit)) {
+                const emission = calculateFuelAndEnergy({
+                    fuelType,
+                    fuel: fuelName,
+                    totalFuelConsumption: inputValue,
+                    fuelConsumptionUnit: inputUnit,
+                    totalGrossElectricityPurchased: electricityValue,
+                    unit: electricityUnit,
+                    airPassengers: Number(formData.airPassengers),
+                    airDistanceKm: Number(formData.airDistanceKm),
+                    airTravelClass: formData.airTravelClass,
+                    airFlightType: formData.airFlightType,
+                    taxiPassengers: Number(formData.taxiPassengers),
+                    taxiDistanceKm: Number(formData.taxiDistanceKm),
+                    taxiType: formData.taxiType,
+                    busPassengers: Number(formData.busPassengers),
+                    busDistanceKm: Number(formData.busDistanceKm),
+                    busType: formData.busType,
+                    trainPassengers: Number(formData.trainPassengers),
+                    trainDistanceKm: Number(formData.trainDistanceKm),
+                    trainType: formData.trainType,
+                });
+
+                // toast.info(
+                //     `Emission: ${emission.totalEmissions_KgCo2e.toFixed(2)} kg CO2e (${emission.totalEmissions_TCo2e.toFixed(2)} t CO2e)`,
+                //     { autoClose: 2000 }
+                // );
+            }
+        }
+    }, [
+        formData.fuelType,
+        formData.fuel,
+        formData.totalFuelConsumption,
+        formData.fuelConsumptionUnit,
+        formData.totalGrossElectricityPurchased,
+        formData.unit,
+        formData.airPassengers,
+        formData.airDistanceKm,
+        formData.airTravelClass,
+        formData.airFlightType,
+        formData.taxiPassengers,
+        formData.taxiDistanceKm,
+        formData.taxiType,
+        formData.busPassengers,
+        formData.busDistanceKm,
+        formData.busType,
+        formData.trainPassengers,
+        formData.trainDistanceKm,
+        formData.trainType
+    ]);
+    const capitalizeFirstLetter = (text) => {
+        if (!text) return "";
+        return text.charAt(0).toUpperCase() + text.slice(1);
     };
-
-    const getFuelUnitOptions = (fuelName) => {
-        if (!fuelName) return [];
-
-        const allowedUnits = [
-            ...(fuelUnitOptionsByName.default || []),
-            ...(fuelUnitOptionsByName[fuelName] || [])
-        ];
-
-        return ALL_UNIT_OPTIONS.filter(unit =>
-            allowedUnits.includes(unit.value)
-        );
-    };
-
-
-    const calculateEmission = (fuelType, fuelName, value, unit) => {
-        const ef = emissionFactors[fuelType]?.[fuelName] || emissionFactors["Electricity"]?.[unit] || 0;
-        const conversion = unitConversion[unit];
-
-        const standardizedValue = conversion
-            ? Number(value) * conversion.factor
-            : Number(value);
-
-        const kg = standardizedValue * ef;
-        const tons = kg / 1000;
-        return {
-            calculatedEmissionKgCo2e: Number(kg.toFixed(4)),
-            calculatedEmissionTCo2e: Number(tons.toFixed(6)),
-        };
-    };
-
     // Fetch Buildings
     useEffect(() => {
         const fetchBuildings = async () => {
@@ -150,44 +148,98 @@ const FuelEnergyForm = () => {
         };
         fetchBuildings();
     }, []);
-
     // Fetch record for Edit/View mode
-    useEffect(() => {
-        if (isEdit || isView) {
-            const fetchRecord = async () => {
-                setIsFetching(true)
-                try {
-                    const res = await axios.get(
-                        `${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/get/${id}`,
-                        {
-                            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                        }
-                    );
-                    const data = res.data?.data;
-                    if (data) {
-                        setFormData({
-                            buildingId: { value: data.buildingId?._id, label: data.buildingId?.buildingName },
-                            stakeholder: { value: data.stakeholder, label: data.stakeholder },
-                            fuelType: { value: data.fuelType, label: data.fuelType },
-                            fuel: { value: data.fuel, label: data.fuel },
-                            totalFuelConsumption: data.totalFuelConsumption,
-                            fuelConsumptionUnit: { value: data.fuelConsumptionUnit, label: data.fuelConsumptionUnit },
-                            totalGrossElectricityPurchased: data.totalGrossElectricityPurchased,
-                            unit: { value: data.unit, label: data.unit },
-                            qualityControl: data.qualityControl ? { value: data.qualityControl, label: data.qualityControl } : null,
-                            remarks: data.remarks || "",
-                        });
-                        setIsFetching(false)
+ useEffect(() => {
+    if (isEdit || isView) {
+        const fetchRecord = async () => {
+            setIsFetching(true);
+            try {
+                const res = await axios.get(
+                    `${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/get/${id}`,
+                    {
+                        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
                     }
-                } catch (err) {
-                    setIsFetching(false)
-                    toast.error("Failed to fetch record details");
-                }
-            };
-            fetchRecord();
-        }
-    }, [id, isEdit, isView]);
+                );
+                const data = res.data?.data;
+                if (data) {
+                    setFormData((prev) => ({
+                        ...prev,
 
+                        // Air
+                        airPassengers: data.airPassengers ?? "",
+                        airDistanceKm: data.airDistanceKm ?? "",
+                        airTravelClass: data.airTravelClass
+                            ? { value: data.airTravelClass, label: data.airTravelClass }
+                            : null,
+                        airFlightType: data.airFlightType
+                            ? { value: data.airFlightType, label: data.airFlightType }
+                            : null,
+
+                        // Taxi
+                        taxiPassengers: data.taxiPassengers ?? "",
+                        taxiDistanceKm: data.taxiDistanceKm ?? "",
+                        taxiType: data.taxiType
+                            ? { value: data.taxiType, label: data.taxiType }
+                            : null,
+
+                        // Bus
+                        busPassengers: data.busPassengers ?? "",
+                        busDistanceKm: data.busDistanceKm ?? "",
+                        busType: data.busType
+                            ? { value: data.busType, label: data.busType }
+                            : null,
+
+                        // Train
+                        trainPassengers: data.trainPassengers ?? "",
+                        trainDistanceKm: data.trainDistanceKm ?? "",
+                        trainType: data.trainType
+                            ? { value: data.trainType, label: data.trainType }
+                            : null,
+
+                        // New fields
+                        buildingId: data.buildingId
+                            ? { value: data.buildingId._id, label: data.buildingId.buildingName }
+                            : null,
+                        stakeholder: data.stakeholder
+                            ? { value: data.stakeholder, label: data.stakeholder }
+                            : null,
+                        fuelType: data.fuelType
+                            ? { value: data.fuelType, label: data.fuelType }
+                            : null,
+                        fuel: data.fuel
+                            ? { value: data.fuel, label: data.fuel }
+                            : null,
+                        totalFuelConsumption: data.totalFuelConsumption ?? "",
+                        fuelConsumptionUnit: data.fuelConsumptionUnit
+                            ? { value: data.fuelConsumptionUnit, label: data.fuelConsumptionUnit }
+                            : null,
+                        totalGrossElectricityPurchased: data.totalGrossElectricityPurchased ?? "",
+                        unit: data.unit
+                            ? { value: data.unit, label: data.unit }
+                            : null,
+                        qualityControl: data.qualityControl
+                            ? { value: data.qualityControl, label: data.qualityControl }
+                            : null,
+                        remarks: data.remarks || "",
+                    }));
+
+                    setToggleOptions({
+                        didTravelByAir: !!data.didTravelByAir,
+                        didTravelByTaxi: !!data.didTravelByTaxi,
+                        didTravelByBus: !!data.didTravelByBus,
+                        didTravelByTrain: !!data.didTravelByTrain,
+                    });
+
+                    setIsFetching(false);
+                }
+            } catch (err) {
+                setIsFetching(false);
+                toast.error("Failed to fetch record details");
+            }
+        };
+        fetchRecord();
+    }
+}, [id, isEdit, isView]);
 
     const handleInputChange = (e) => {
         if (isView) return;
@@ -195,12 +247,32 @@ const FuelEnergyForm = () => {
         setFormData((prev) => ({ ...prev, [name]: value }));
         setErrors((prev) => ({ ...prev, [name]: "" }));
     };
-
     const handleSelectChange = (name, value) => {
         if (isView) return;
         setFormData((prev) => ({ ...prev, [name]: value }));
         setErrors((prev) => ({ ...prev, [name]: "" }));
     };
+    const handleNumberInputWheel = (e) => {
+        e.target.blur();
+    };// onWheel={handleNumberInputWheel}
+
+    const getFuelUnitOptions = (fuelName) => {
+        const defaultUnits = fuelUnitOptionsByName.default || [];
+        const extraUnits = fuelName
+            ? fuelUnitOptionsByName[fuelName] || []
+            : [];
+        return [...new Set([...defaultUnits, ...extraUnits])];
+    };
+
+    const fuelUnitOptions = useMemo(() => {
+        const fuelName = formData.fuel?.value;
+
+        return getFuelUnitOptions(fuelName).map((unit) => ({
+            value: unit,
+            label: unit,
+        }));
+    }, [formData.fuel]);
+
 
     // Validation
     const validate = () => {
@@ -214,19 +286,23 @@ const FuelEnergyForm = () => {
         if (!formData.totalGrossElectricityPurchased) newErrors.totalGrossElectricityPurchased = "TotalGross electricity purchased is required";
         if (!formData.unit) newErrors.unit = "Unit is required";
         if (!formData.qualityControl) newErrors.qualityControl = "Quality control is required";
+        // Validate for negative values (only if field has a value)
+        const numberFields = ['.totalFuelConsumption', 'totalGrossElectricityPurchased', 'airPassengers',
+            'airDistanceKm', 'taxiPassengers', 'taxiDistanceKm', 'busPassengers', 'busDistanceKm',];
+
+        numberFields.forEach(field => {
+            if (formData[field] && Number(formData[field]) < 0) {
+                newErrors[field] = "Value cannot be negative.";
+            }
+        })
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
-
     // Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isView) return;
-
-        if (!validate()) {
-            // toast.error("Please fill all required fields");
-            return;
-        }
+        if (!validate()) return;
 
         const userId = localStorage.getItem("userId");
         if (!userId) {
@@ -236,114 +312,101 @@ const FuelEnergyForm = () => {
 
         const fuelType = formData.fuelType?.value;
         const fuelName = formData.fuel?.value;
-        const inputValue = formData.totalFuelConsumption;
+        const inputValue = Number(formData.totalFuelConsumption);
         const inputUnit = formData.fuelConsumptionUnit?.value;
-        const electricityValue = formData.totalGrossElectricityPurchased;
+        const electricityValue = Number(formData.totalGrossElectricityPurchased);
         const electricityUnit = formData.unit?.value;
 
-        let emission = { calculatedEmissionKgCo2e: 0, calculatedEmissionTCo2e: 0 };
+        const emission = calculateFuelAndEnergy({
+            fuelType,
+            fuel: fuelName,
+            totalFuelConsumption: inputValue,
+            fuelConsumptionUnit: inputUnit,
+            totalGrossElectricityPurchased: electricityValue,
+            unit: electricityUnit,
+            airPassengers: Number(formData.airPassengers),
+            airDistanceKm: Number(formData.airDistanceKm),
+            airTravelClass: formData.airTravelClass,
+            airFlightType: formData.airFlightType,
+            taxiPassengers: Number(formData.taxiPassengers),
+            taxiDistanceKm: Number(formData.taxiDistanceKm),
+            taxiType: formData.taxiType,
+            busPassengers: Number(formData.busPassengers),
+            busDistanceKm: Number(formData.busDistanceKm),
+            busType: formData.busType,
+            trainPassengers: Number(formData.trainPassengers),
+            trainDistanceKm: Number(formData.trainDistanceKm),
+            trainType: formData.trainType,
+        });
 
-        // Fuel-based emissions
-        if (fuelType && fuelName && inputValue) {
-            emission = calculateEmission(fuelType, fuelName, inputValue, inputUnit);
-        }
-
-        // Electricity-based emissions (Scope 2)
-        if (electricityValue) {
-            const elecEmission = calculateEmission("Electricity", electricityUnit, electricityValue, electricityUnit);
-            emission.calculatedEmissionKgCo2e += elecEmission.calculatedEmissionKgCo2e;
-            emission.calculatedEmissionTCo2e += elecEmission.calculatedEmissionTCo2e;
-        }
-
-        const calculationInput = {
-            // Fuel & electricity
-            totalFuelConsumption: formData.totalFuelConsumption,
-            fuelConsumptionUnit: formData.fuelConsumptionUnit?.value, // string
-            totalGrossElectricityPurchased: formData.totalGrossElectricityPurchased,
-            fuelType: formData.fuelType?.value, // "Gaseous Fuel"
-            fuel: formData.fuel?.value,         // "Natural gas"
-
-            // Travel (only values, helper handles 0 safely)
-            airPassengers: formData.airPassengers,
-            airDistanceKm: formData.airDistanceKm,
-            airTravelClass: formData.airTravelClass?.value,
-            airFlightType: formData.airFlightType?.value,
-
-            taxiPassengers: formData.taxiPassengers,
-            taxiDistanceKm: formData.taxiDistanceKm,
-            taxiType: formData.taxiType?.value,
-
-            busPassengers: formData.busPassengers,
-            busDistanceKm: formData.busDistanceKm,
-            busType: formData.busType?.value,
-
-            trainPassengers: formData.trainPassengers,
-            trainDistanceKm: formData.trainDistanceKm,
-            trainType: formData.trainType?.value,
-        };
-        const calculationResult = calculateFuelAndEnergy(calculationInput);
+        // Prepare payload
         const payload = {
             buildingId: formData.buildingId?.value,
             stakeholder: formData.stakeholder?.value,
             fuelType,
             fuel: fuelName,
-            totalFuelConsumption: Number(inputValue),
+            totalFuelConsumption: inputValue,
             fuelConsumptionUnit: inputUnit,
-            totalGrossElectricityPurchased: Number(electricityValue),
+            totalGrossElectricityPurchased: electricityValue,
             unit: electricityUnit,
             qualityControl: formData.qualityControl?.value,
-            remarks: formData.remarks,
-            calculatedEmissionKgCo2e:
-                calculationResult?.totalEmissions_KgCo2e || 0,
+            remarks: capitalizeFirstLetter(formData.remarks),
+            calculatedEmissionKgCo2e: emission.totalEmissions_KgCo2e,
+            calculatedEmissionTCo2e: emission.totalEmissions_TCo2e,
 
-            calculatedEmissionTCo2e:
-                calculationResult?.totalEmissions_TCo2e || 0,
+            didTravelByAir: toggleOptions.didTravelByAir,
+            didTravelByTaxi: toggleOptions.didTravelByTaxi,
+            didTravelByBus: toggleOptions.didTravelByBus,
+            didTravelByTrain: toggleOptions.didTravelByTrain,
         };
-
         Object.keys(toggleOptions).forEach((key) => {
-            if (toggleOptions[key]) {
-                travelFields[key].forEach((field) => {
-                    const value = formData[field];
+            if (!toggleOptions[key]) return;
 
-                    // If value comes from CustomSelect, extract `.value`
-                    if (value && typeof value === "object" && "value" in value) {
-                        payload[field] = value.value;
-                    } else {
-                        payload[field] = value ?? null;
-                    }
-                });
-            }
+            travelFields[key].forEach((field) => {
+                const value = formData[field];
+                if (value && typeof value === "object" && "value" in value) {
+                    payload[field] = value.value; // select value
+                } else {
+                    payload[field] = value !== "" ? value : null; // numbers
+                }
+            });
         });
-        // console.log("Payload to send:", payload);
+        // Include travel fields if toggled
+        Object.keys(toggleOptions).forEach((key) => {
+            if (!toggleOptions[key]) return;
+
+            travelFields[key].forEach((field) => {
+                const value = formData[field];
+                if (value && typeof value === "object" && "value" in value) {
+                    payload[field] = value.value; // keep select values
+                } else {
+                    payload[field] = value !== "" ? value : null; // keep numbers
+                }
+            });
+        });
         try {
             setLoading(true);
             if (isEdit) {
                 await axios.put(
                     `${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/update/${id}`,
                     payload,
-                    {
-                        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                    }
+                    { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
                 );
-                setLoading(false);
                 toast.success("Record updated successfully!");
             } else {
                 await axios.post(
                     `${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/Create`,
                     payload,
-                    {
-                        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                    }
+                    { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
                 );
-                setLoading(false);
                 toast.success("Record added successfully!");
             }
             navigate(-1);
         } catch (err) {
-            setLoading(false);
             toast.error(err.response?.data?.message || "Something went wrong");
+        } finally {
+            setLoading(false);
         }
-
     };
     return (
         <div>
@@ -385,7 +448,7 @@ const FuelEnergyForm = () => {
                                 {errors.stakeholder && <p className="text-red-500 text-sm mt-2">{errors.stakeholder}</p>}
                             </div>
                         </div>
-                        {/* Purchase Category and Activity Type */}
+                        {/* Purchase Category and Fuel */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="field-label">Fuel Types *</label>
@@ -413,32 +476,20 @@ const FuelEnergyForm = () => {
                                 />
                                 {errors.fuelType && <p className="text-red-500 text-sm mt-2">{errors.fuelType}</p>}
                             </div>
+
                             <div>
                                 <label className="field-label">Fuel *</label>
                                 <CustomSelect
                                     name="fuel"
                                     options={fuel}
                                     value={formData.fuel}
-                                    onChange={(value) => {
-                                        handleSelectChange("fuel", value);
-
-                                        // Update unit options dynamically
-                                        const units = getFuelUnitOptions(value?.value);
-                                        setFuelUnitOptions(units);
-
-                                        // Reset previously selected unit
-                                        setFormData(prev => ({
-                                            ...prev,
-                                            fuelConsumptionUnit: null
-                                        }));
-                                    }}
+                                    onChange={(value) => handleSelectChange("fuel", value)}
                                     placeholder="Select Fuel"
                                     isDisabled={isView}
                                 />
                                 {errors.fuel && <p className="text-red-500 text-sm mt-2">{errors.fuel}</p>}
                             </div>
                         </div>
-                        {/* Goods/Services Type */}
                         {/* Amount Spent and Unit */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -446,26 +497,28 @@ const FuelEnergyForm = () => {
                                 <input
                                     type="totalFuelConsumption"
                                     name="totalFuelConsumption"
-                                    value={formData.totalFuelConsumption}
+                                    onWheel={handleNumberInputWheel}
+                                    value={formData.totalFuelConsumption ?? ""}
                                     onChange={(e) => {
                                         handleInputChange(e)
                                         handleSelectChange("totalFuelConsumption", e.target.value)
                                     }}
-                                    placeholder="Enter consumption amount"
+                                    placeholder="Enter Consumption Amount"
                                     className="border-[2px] w-full h-10 p-2 rounded-md"
                                     disabled={isView}
                                 />
                                 {errors.totalFuelConsumption && <p className="text-red-500 text-sm mt-2">{errors.totalFuelConsumption}</p>}
                             </div>
+
                             <div>
                                 <label className="field-label">Fuel Consumption Unit *</label>
                                 <CustomSelect
                                     name="fuelConsumptionUnit"
                                     options={fuelUnitOptions}
-                                    disableCapitalize={true}
                                     value={formData.fuelConsumptionUnit}
                                     onChange={(value) => handleSelectChange("fuelConsumptionUnit", value)}
-                                    isDisabled={isView}
+                                    isDisabled={!formData.fuel || isView}
+                                    disableCapitalize={true}
                                 />
                                 {errors.fuelConsumptionUnit && <p className="text-red-500 text-sm mt-2">{errors.fuelConsumptionUnit}</p>}
                             </div>
@@ -476,13 +529,16 @@ const FuelEnergyForm = () => {
                                 <input
                                     type="totalGrossElectricityPurchased"
                                     name="totalGrossElectricityPurchased"
-                                    value={formData.totalGrossElectricityPurchased}
+                                    onWheel={handleNumberInputWheel}
+                                    value={formData.totalGrossElectricityPurchased ?? ""}
                                     onChange={handleInputChange}
-                                    placeholder="Enter gross electricity amount"
+                                    placeholder="Enter Gross Electricity Amount"
                                     className="border-[2px] w-full h-10 p-2 rounded-md"
                                     disabled={isView}
                                 />
-                                {errors.totalGrossElectricityPurchased && <p className="text-red-500 text-sm mt-2">{errors.totalGrossElectricityPurchased}</p>}                            </div>
+                                {errors.totalGrossElectricityPurchased && <p className="text-red-500 text-sm mt-2">{errors.totalGrossElectricityPurchased}</p>}
+                            </div>
+
                             <div>
                                 <label className="field-label">Unit *</label>
                                 <CustomSelect
@@ -491,6 +547,7 @@ const FuelEnergyForm = () => {
                                     value={formData.unit}
                                     onChange={(value) => handleSelectChange("unit", value)}
                                     isDisabled={isView}
+                                    disableCapitalize={true}
                                 />
                                 {errors.unit && <p className="text-red-500 text-sm mt-2">{errors.unit}</p>}
                             </div>
@@ -523,25 +580,40 @@ const FuelEnergyForm = () => {
                         </div>
                         {/* Business Travel Section */}
                         <div className="col-span-full border-t pt-6">
-                            <h3 className="text-lg font-medium text-gray-700 mb-4">Business Travel Details (Optional)</h3>
+                            <h3 className="text-lg font-medium text-gray-700 mb-4">Business Travel Details</h3>
                             {/* Air Travel */}
-                            <div className="mb-4">
-                                <label className="flex items-center gap-2">
-                                    <Swicth
-                                        value={toggleOptions.didTravelByAir}
-                                        onChange={(e) => setToggleOptions((prev) => ({ ...prev, didTravelByAir: e.target.checked }))}
-                                        disabled={isView}
-                                    />
-                                    Did you have any business travel by air during the reporting period?
-                                </label>
+                            <div className="border-t pt-6 pb-6">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={toggleOptions.didTravelByAir}
+                                            onChange={() =>
+                                                setToggleOptions((prev) => ({ ...prev, didTravelByAir: !prev.didTravelByAir }))
+                                            }
+                                            className="sr-only peer"
+                                            disabled={isView}
+                                        />
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full
+                      peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
+                      after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
+                      after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                      peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                                    </label>
+                                    <span className="text-sm font-medium">
+                                        Did you have any business travel by air during the reporting period?
+                                    </span>
+                                </div>
+
                                 {toggleOptions.didTravelByAir && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ml-8 mt-4">
                                         <div>
-                                            <label className="field-label">Number of Passengers *</label>
+                                            <label className="field-label">Number of Passengers <span className="text-red-500">*</span></label>
                                             <input
                                                 type="number"
                                                 name="airPassengers"
-                                                value={formData.airPassengers}
+                                                onWheel={handleNumberInputWheel}
+                                                value={formData.airPassengers ?? ""}
                                                 onChange={handleInputChange}
                                                 placeholder="e.g., 1, 2, 3"
                                                 className="border-[2px] w-full h-10 p-2 rounded-md"
@@ -551,12 +623,14 @@ const FuelEnergyForm = () => {
                                                 <p className="text-red-500 text-sm mt-1">{errors.airPassengers}</p>
                                             )}
                                         </div>
+
                                         <div>
-                                            <label className="field-label">Distance Travelled (km) *</label>
+                                            <label className="field-label">Distance Travelled (km) <span className="text-red-500">*</span></label>
                                             <input
                                                 type="number"
                                                 name="airDistanceKm"
-                                                value={formData.airDistanceKm}
+                                                onWheel={handleNumberInputWheel}
+                                                value={formData.airDistanceKm ?? ""}
                                                 onChange={handleInputChange}
                                                 placeholder="e.g., 1000"
                                                 className="border-[2px] w-full h-10 p-2 rounded-md"
@@ -566,34 +640,17 @@ const FuelEnergyForm = () => {
                                                 <p className="text-red-500 text-sm mt-1">{errors.airDistanceKm}</p>
                                             )}
                                         </div>
+
                                         <div>
-                                            <label className="field-label">Travel Class *</label>
-                                            <CustomSelect
-                                                name="airTravelClass"
-                                                options={[
-                                                    { value: "Economy", label: "Economy" },
-                                                    { value: "Business", label: "Business" },
-                                                    { value: "First", label: "First" },
-                                                ]}
-                                                value={formData.airTravelClass}
-                                                onChange={(value) => handleSelectChange("airTravelClass", value)}
-                                                placeholder="Select class"
-                                                isDisabled={isView}
-                                            />
-                                            {errors.airTravelClass && (
-                                                <p className="text-red-500 text-sm mt-1">{errors.airTravelClass}</p>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <label className="field-label">Flight Type *</label>
+                                            <label className="field-label">Flight Type <span className="text-red-500">*</span></label>
                                             <CustomSelect
                                                 name="airFlightType"
-                                                options={[
-                                                    { value: "Domestic", label: "Domestic" },
-                                                    { value: "International", label: "International" },
-                                                ]}
+                                                options={AIR_FLIGHT_TYPES}
                                                 value={formData.airFlightType}
-                                                onChange={(value) => handleSelectChange("airFlightType", value)}
+                                                onChange={(value) => {
+                                                    handleSelectChange("airFlightType", value);
+                                                    handleSelectChange("airTravelClass", null); // reset class on type change
+                                                }}
                                                 placeholder="Select flight type"
                                                 isDisabled={isView}
                                             />
@@ -601,27 +658,66 @@ const FuelEnergyForm = () => {
                                                 <p className="text-red-500 text-sm mt-1">{errors.airFlightType}</p>
                                             )}
                                         </div>
+
+                                        <div>
+                                            <label className="field-label">Travel Class <span className="text-red-500">*</span></label>
+                                            <CustomSelect
+                                                name="airTravelClass"
+                                                options={
+                                                    formData.airFlightType?.value
+                                                        ? AIR_TRAVEL_OPTIONS[formData.airFlightType.value]
+                                                        : []
+                                                }
+                                                value={formData.airTravelClass}
+                                                onChange={(value) => handleSelectChange("airTravelClass", value)}
+                                                placeholder={
+                                                    formData.airFlightType
+                                                        ? "Select travel class"
+                                                        : "Select flight type first"
+                                                }
+                                                isDisabled={isView || !formData.airFlightType}
+                                            />
+                                            {errors.airTravelClass && (
+                                                <p className="text-red-500 text-sm mt-1">{errors.airTravelClass}</p>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                             </div>
+
                             {/* Taxi Travel */}
-                            <div className="mb-4">
-                                <label className="flex items-center gap-2">
-                                    <Swicth
-                                        value={toggleOptions.didTravelByTaxi}
-                                        onChange={(e) => setToggleOptions((prev) => ({ ...prev, didTravelByTaxi: e.target.checked }))}
-                                        disabled={isView}
-                                    />
-                                    Did you have any business travel by taxi during the reporting period?
-                                </label>
+                            <div className="border-t pt-6 pb-6">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={toggleOptions.didTravelByTaxi}
+                                            onChange={(e) =>
+                                                setToggleOptions((prev) => ({ ...prev, didTravelByTaxi: e.target.checked }))
+                                            }
+                                            className="sr-only peer"
+                                            disabled={isView}
+                                        />
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full
+                      peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
+                      after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
+                      after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                      peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                                    </label>
+                                    <span className="text-sm font-medium">
+                                        Did you have any business travel by taxi during the reporting period?
+                                    </span>
+                                </div>
+
                                 {toggleOptions.didTravelByTaxi && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ml-8 mt-4">
                                         <div>
-                                            <label className="field-label">Number of Passengers *</label>
+                                            <label className="field-label">Number of Passengers <span className="text-red-500">*</span></label>
                                             <input
                                                 type="number"
                                                 name="taxiPassengers"
-                                                value={formData.taxiPassengers}
+                                                onWheel={handleNumberInputWheel}
+                                                value={formData.taxiPassengers ?? ""}
                                                 onChange={handleInputChange}
                                                 placeholder="e.g., 1, 2, 3"
                                                 className="border-[2px] w-full h-10 p-2 rounded-md"
@@ -631,12 +727,14 @@ const FuelEnergyForm = () => {
                                                 <p className="text-red-500 text-sm mt-1">{errors.taxiPassengers}</p>
                                             )}
                                         </div>
+
                                         <div>
-                                            <label className="field-label">Distance Travelled (km) *</label>
+                                            <label className="field-label">Distance Travelled (km) <span className="text-red-500">*</span></label>
                                             <input
                                                 type="number"
                                                 name="taxiDistanceKm"
-                                                value={formData.taxiDistanceKm}
+                                                onWheel={handleNumberInputWheel}
+                                                value={formData.taxiDistanceKm ?? ""}
                                                 onChange={handleInputChange}
                                                 placeholder="e.g., 50"
                                                 className="border-[2px] w-full h-10 p-2 rounded-md"
@@ -646,15 +744,12 @@ const FuelEnergyForm = () => {
                                                 <p className="text-red-500 text-sm mt-1">{errors.taxiDistanceKm}</p>
                                             )}
                                         </div>
+
                                         <div>
-                                            <label className="field-label">Taxi Type *</label>
+                                            <label className="field-label">Taxi Type <span className="text-red-500">*</span></label>
                                             <CustomSelect
                                                 name="taxiType"
-                                                options={[
-                                                    { value: "Regular", label: "Regular" },
-                                                    { value: "Luxury", label: "Luxury" },
-                                                    { value: "Shared", label: "Shared" },
-                                                ]}
+                                                options={TAXI_TYPES}
                                                 value={formData.taxiType}
                                                 onChange={(value) => handleSelectChange("taxiType", value)}
                                                 placeholder="Select taxi type"
@@ -667,30 +762,40 @@ const FuelEnergyForm = () => {
                                     </div>
                                 )}
                             </div>
+
                             {/* Bus Travel */}
-                            <div className="mb-4">
-                                <label className="flex items-center gap-2">
-                                    {/* <input
-                                        type="checkbox"
-                                        checked={formData.didTravelByBus}
-                                        onChange={(e) => setToggleOptions((prev) => ({ ...prev, didTravelByBus: e.target.checked }))}
-                                        disabled={isView}
-                                    /> */}
-                                    <Swicth
-                                        value={toggleOptions.didTravelByBus}
-                                        onChange={(e) => setToggleOptions((prev) => ({ ...prev, didTravelByBus: e.target.checked }))}
-                                        disabled={isView}
-                                    />
-                                    Did you have any business travel by bus during the reporting period?
-                                </label>
+                            <div className="border-t pt-6 pb-6">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={toggleOptions.didTravelByBus}
+                                            onChange={(e) =>
+                                                setToggleOptions((prev) => ({ ...prev, didTravelByBus: e.target.checked }))
+                                            }
+                                            className="sr-only peer"
+                                            disabled={isView}
+                                        />
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full
+                      peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
+                      after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
+                      after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                      peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                                    </label>
+                                    <span className="text-sm font-medium">
+                                        Did you have any business travel by bus during the reporting period?
+                                    </span>
+                                </div>
+
                                 {toggleOptions.didTravelByBus && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ml-8 mt-4">
                                         <div>
-                                            <label className="field-label">Number of Passengers *</label>
+                                            <label className="field-label">Number of Passengers <span className="text-red-500">*</span></label>
                                             <input
                                                 type="number"
                                                 name="busPassengers"
-                                                value={formData.busPassengers}
+                                                onWheel={handleNumberInputWheel}
+                                                value={formData.busPassengers ?? ""}
                                                 onChange={handleInputChange}
                                                 placeholder="e.g., 1, 2, 3"
                                                 className="border-[2px] w-full h-10 p-2 rounded-md"
@@ -700,12 +805,14 @@ const FuelEnergyForm = () => {
                                                 <p className="text-red-500 text-sm mt-1">{errors.busPassengers}</p>
                                             )}
                                         </div>
+
                                         <div>
-                                            <label className="field-label">Distance Travelled (km) *</label>
+                                            <label className="field-label">Distance Travelled (km) <span className="text-red-500">*</span></label>
                                             <input
                                                 type="number"
                                                 name="busDistanceKm"
-                                                value={formData.busDistanceKm}
+                                                onWheel={handleNumberInputWheel}
+                                                value={formData.busDistanceKm ?? ""}
                                                 onChange={handleInputChange}
                                                 placeholder="e.g., 100"
                                                 className="border-[2px] w-full h-10 p-2 rounded-md"
@@ -715,15 +822,12 @@ const FuelEnergyForm = () => {
                                                 <p className="text-red-500 text-sm mt-1">{errors.busDistanceKm}</p>
                                             )}
                                         </div>
+
                                         <div>
-                                            <label className="field-label">Bus Type *</label>
+                                            <label className="field-label">Bus Type <span className="text-red-500">*</span></label>
                                             <CustomSelect
                                                 name="busType"
-                                                options={[
-                                                    { value: "City", label: "City" },
-                                                    { value: "Intercity", label: "Intercity" },
-                                                    { value: "Shuttle", label: "Shuttle" },
-                                                ]}
+                                                options={BUS_TYPES}
                                                 value={formData.busType}
                                                 onChange={(value) => handleSelectChange("busType", value)}
                                                 placeholder="Select bus type"
@@ -736,24 +840,40 @@ const FuelEnergyForm = () => {
                                     </div>
                                 )}
                             </div>
+
                             {/* Train Travel */}
-                            <div className="mb-4">
-                                <label className="flex items-center gap-2">
-                                    <Swicth
-                                        value={toggleOptions.didTravelByTrain}
-                                        onChange={(e) => setToggleOptions((prev) => ({ ...prev, didTravelByTrain: e.target.checked }))}
-                                        disabled={isView}
-                                    />
-                                    Did you have any business travel by train during the reporting period?
-                                </label>
+                            <div className="border-t pt-6 pb-6">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input
+                                            type="checkbox"
+                                            checked={toggleOptions.didTravelByTrain}
+                                            onChange={(e) =>
+                                                setToggleOptions((prev) => ({ ...prev, didTravelByTrain: e.target.checked }))
+                                            }
+                                            className="sr-only peer"
+                                            disabled={isView}
+                                        />
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full
+                      peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
+                      after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
+                      after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                      peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                                    </label>
+                                    <span className="text-sm font-medium">
+                                        Did you have any business travel by train during the reporting period?
+                                    </span>
+                                </div>
+
                                 {toggleOptions.didTravelByTrain && (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ml-8 mt-4">
                                         <div>
-                                            <label className="field-label">Number of Passengers *</label>
+                                            <label className="field-label">Number of Passengers <span className="text-red-500">*</span></label>
                                             <input
                                                 type="number"
                                                 name="trainPassengers"
-                                                value={formData.trainPassengers}
+                                                onWheel={handleNumberInputWheel}
+                                                value={formData.trainPassengers ?? ""}
                                                 onChange={handleInputChange}
                                                 placeholder="e.g., 1, 2, 3"
                                                 className="border-[2px] w-full h-10 p-2 rounded-md"
@@ -763,12 +883,14 @@ const FuelEnergyForm = () => {
                                                 <p className="text-red-500 text-sm mt-1">{errors.trainPassengers}</p>
                                             )}
                                         </div>
+
                                         <div>
-                                            <label className="field-label">Distance Travelled (km) *</label>
+                                            <label className="field-label">Distance Travelled (km) <span className="text-red-500">*</span></label>
                                             <input
                                                 type="number"
                                                 name="trainDistanceKm"
-                                                value={formData.trainDistanceKm}
+                                                onWheel={handleNumberInputWheel}
+                                                value={formData.trainDistanceKm ?? ""}
                                                 onChange={handleInputChange}
                                                 placeholder="e.g., 200"
                                                 className="border-[2px] w-full h-10 p-2 rounded-md"
@@ -778,15 +900,12 @@ const FuelEnergyForm = () => {
                                                 <p className="text-red-500 text-sm mt-1">{errors.trainDistanceKm}</p>
                                             )}
                                         </div>
+
                                         <div>
-                                            <label className="field-label">Train Type *</label>
+                                            <label className="field-label">Train Type <span className="text-red-500">*</span></label>
                                             <CustomSelect
                                                 name="trainType"
-                                                options={[
-                                                    { value: "Local", label: "Local" },
-                                                    { value: "Express", label: "Express" },
-                                                    { value: "Intercity", label: "Intercity" },
-                                                ]}
+                                                options={TRAIN_TYPES}
                                                 value={formData.trainType}
                                                 onChange={(value) => handleSelectChange("trainType", value)}
                                                 placeholder="Select train type"
@@ -799,6 +918,7 @@ const FuelEnergyForm = () => {
                                     </div>
                                 )}
                             </div>
+
                         </div>
                         {/* Buttons */}
                         <div className="col-span-full flex justify-end gap-4 pt-6 border-t">
@@ -817,12 +937,10 @@ const FuelEnergyForm = () => {
                                 />
                             )}
                         </div>
-
                     </form>
                 )}
             </Card>
         </div>
     );
 };
-
 export default FuelEnergyForm;

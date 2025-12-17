@@ -105,7 +105,7 @@ export const GHG_ACTIVITIES = [
   "Silicon production",
   "Ferroalloy production",
   "Ammonia production",
-  "Urea Production (kg)",
+  "Urea Production (kg)",   /////////
   "Methanol production",
   "Hydrogen production (SMR – Steam Methane Reforming)",
   "Amine-based gas sweetening (acid gas removal)",
@@ -160,7 +160,7 @@ export const GHG_ACTIVITIES = [
   "Steam Cracking of Naphtha",
   "Steam Cracking of Ethane",
   "Ethylene Oxide / Ethylene Glycol Production",
-  "Ammonia / Urea Production",
+  "Urea Production",
   "Methanol Synthesis",
   "Other GHG Emission Process Activities",
 ];
