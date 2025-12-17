@@ -11,7 +11,7 @@ import {
 const HOTEL_EF = 72.6; // kg CO2e per room-night
 
 export const calculateBusinessTravel = (data) => {
-  console.group("🚗 Business Travel Emission Calculation");
+  console.group(" Business Travel Emission Calculation");
 
   if (!data) {
     console.warn("No data provided");
@@ -29,9 +29,9 @@ export const calculateBusinessTravel = (data) => {
   let result6 = 0; // Car
   let result7 = 0; // Hotel
 
-  /* ==================== RESULT 1 – AIR ==================== */
+  /* RESULT 1 – AIR */
   if (data.travelByAir) {
-    console.group("✈️ Result 1 – Air Travel");
+    console.group(" Result 1 – Air Travel");
 
     const passengers = Number(data.airPassengers);
     const distance = Number(data.airDistanceKm);
@@ -62,9 +62,9 @@ export const calculateBusinessTravel = (data) => {
     console.groupEnd();
   }
 
-  /* ==================== RESULT 2 – MOTORBIKE ==================== */
+  /* RESULT 2 – MOTORBIKE */
   if (data.travelByMotorbike) {
-    console.group("🏍️ Result 2 – Motorbike");
+    console.group("Result 2 – Motorbike");
 
     const distance = Number(data.motorbikeDistanceKm);
     const type = data.motorbikeType;
@@ -76,9 +76,9 @@ export const calculateBusinessTravel = (data) => {
     console.groupEnd();
   }
 
-  /* ==================== RESULT 3 – TAXI ==================== */
+  /* RESULT 3 – TAXI */
   if (data.travelByTaxi) {
-    console.group("🚕 Result 3 – Taxi");
+    console.group("Result 3 – Taxi");
 
     const passengers = Number(data.taxiPassengers);
     const distance = Number(data.taxiDistanceKm);
@@ -91,9 +91,9 @@ export const calculateBusinessTravel = (data) => {
     console.groupEnd();
   }
 
-  /* ==================== RESULT 4 – BUS ==================== */
+  /* RESULT 4 – BUS */
   if (data.travelByBus) {
-    console.group("🚌 Result 4 – Bus");
+    console.group("Result 4 – Bus");
 
     const passengers = Number(data.busPassengers);
     const distance = Number(data.busDistanceKm);
@@ -106,9 +106,9 @@ export const calculateBusinessTravel = (data) => {
     console.groupEnd();
   }
 
-  /* ==================== RESULT 5 – TRAIN ==================== */
+  /* RESULT 5 – TRAIN */
   if (data.travelByTrain) {
-    console.group("🚆 Result 5 – Train");
+    console.group("Result 5 – Train");
 
     const passengers = Number(data.trainPassengers);
     const distance = Number(data.trainDistanceKm);
@@ -121,9 +121,9 @@ export const calculateBusinessTravel = (data) => {
     console.groupEnd();
   }
 
-  /* ==================== RESULT 6 – CAR ==================== */
+  /* RESULT 6 – CAR */
   if (data.travelByCar) {
-    console.group("🚗 Result 6 – Car");
+    console.group("Result 6 – Car");
 
     const distance = Number(data.carDistanceKm);
     const carType = data.carType;
@@ -138,9 +138,9 @@ export const calculateBusinessTravel = (data) => {
     console.groupEnd();
   }
 
-  /* ==================== RESULT 7 – HOTEL ==================== */
+  /* RESULT 7 – HOTEL */  
   if (data.hotelStay) {
-    console.group("🏨 Result 7 – Hotel Stay");
+    console.group("Result 7 – Hotel Stay");
 
     const rooms = Number(data.hotelRooms);
     const nights = Number(data.hotelNights);
@@ -151,7 +151,7 @@ export const calculateBusinessTravel = (data) => {
     console.groupEnd();
   }
 
-  /* ==================== TOTAL ==================== */
+  /* TOTAL */
   const totalKg =
     result1 +
     result2 +
@@ -161,7 +161,7 @@ export const calculateBusinessTravel = (data) => {
     result6 +
     result7;
 
-  console.group("🌍 TOTAL BUSINESS TRAVEL EMISSIONS");
+  console.group("TOTAL BUSINESS TRAVEL EMISSIONS");
   console.log("Total KgCO2e:", totalKg);
   console.log("Total TCO2e:", totalKg / 1000);
   console.groupEnd();
