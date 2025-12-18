@@ -262,7 +262,7 @@ export const menuItems = [
       //   childlink: "Scope-Three-Report",
       // },
       {
-        childtitle: "Purchase Good & Services",
+        childtitle: "Purchase Goods and Services Records",
         childlink: "Purchased-Good-Services",
       },
       {

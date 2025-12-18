@@ -1110,6 +1110,10 @@ const handleSubmit = async (e) => {
   return (
     <div>
       <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Business Travel Record`}>
+         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
+          <p className="text-gray-700">
+            This category includes emissions from the transportation of employees for <span className="font-semibold">business related activities</span> in vehicles <span className="font-semibold">owned or operated by third parties</span>, such as aircraft, trains, buses, and passenger cars. Also companies may optionally include emissions from business travelers staying in hotels         </p>
+        </div>
         <form onSubmit={handleSubmit} className="p-6 grid gap-6">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-4">
             {/* 1. Building */}
@@ -1397,7 +1401,7 @@ const handleSubmit = async (e) => {
                   value={findOptionByValue(fuelOptions, formData.carFuelType)}
                   options={fuelOptions}
                   onChange={handleCarFuelTypeChange}
-                  placeholder={formData.carType ? "Select fuel type" : "Select car type first"}
+                  placeholder={formData.carType ? "Select Fuel Type" : "Select Car Type first"}
                   isDisabled={!formData.carType || isView}
                 />
               </div>
@@ -1435,7 +1439,7 @@ const handleSubmit = async (e) => {
                   disabled={isView}
                 />
               </div>
-            )}
+            )}  
           </div>
 
           {/* Remarks */}

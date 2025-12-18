@@ -271,7 +271,7 @@ export const emissionFactors = {
     "tonnes": 55.19389,
     "kwh": 0.01150,
   },
-  "Grass/straw": {
+  "Grass / straw": {
     "tonnes": 47.35709,
     "kwh": 0.01273,
   },
@@ -373,7 +373,7 @@ export const outOfScopeEmissionFactors = {
     "tonnes": 1677.18,
     "kwh": 0.35,
   },
-  "Grass/straw": {
+  "Grass / straw": {
     "tonnes": 1287.25,
     "kwh": 0.35,
   },
