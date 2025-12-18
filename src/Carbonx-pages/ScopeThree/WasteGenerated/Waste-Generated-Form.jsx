@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -15,6 +14,8 @@ import {
   wasteTypeOptions,
   wasteTreatmentOptions
 } from "@/constant/scope3/wasteGenerated";
+import { calculateWasteEmission } from "@/utils/Scope3/calculateWasteGenerated";
+import { formatEmission } from "@/components/ui/FormateEmission";
 
 const WasteGeneratedFormPage = () => {
   const navigate = useNavigate();
@@ -24,6 +25,8 @@ const WasteGeneratedFormPage = () => {
   const mode = location.state?.mode || "add";
   const isView = mode === "view";
   const isEdit = mode === "edit";
+  const [calculatedEmissionKgCo2e, setCalculatedEmissionKgCo2e] = useState(0);
+  const [calculatedEmissionTCo2e, setCalculatedEmissionTCo2e] = useState(0);
 
   const [formData, setFormData] = useState({
     buildingId: null,
@@ -63,21 +66,42 @@ const WasteGeneratedFormPage = () => {
 
     fetchBuildings();
   }, []);
-
+  useEffect(() => {
+    const qty = formData.totalWasteQty;
+    const wasteType = formData.wasteType?.value;
+    const treatment = formData.wasteTreatmentMethod?.value;
+    if (!qty || !wasteType || !treatment) {
+      setCalculatedEmissionKgCo2e(0);
+      setCalculatedEmissionTCo2e(0);
+      return;
+    }
+    const emissionKg = calculateWasteEmission(qty, wasteType, treatment);
+    if (emissionKg !== null) {
+      const formattedKg = formatEmission(emissionKg);
+      const formattedT = formatEmission(emissionKg / 1000);
+      setCalculatedEmissionKgCo2e(formattedKg);
+      setCalculatedEmissionTCo2e(formattedT);
+      toast.info(
+        `Emission: ${formattedKg} kg CO₂e (${formattedT} t CO₂e)`,
+        { autoClose: 2000 }
+      );
+    }
+  }, [
+    formData.totalWasteQty,
+    formData.wasteType,
+    formData.wasteTreatmentMethod
+  ]);
 
   useEffect(() => {
     if (!isEdit && !isView) return;
-
     const fetchRecord = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/waste-generated/get/${id}`,
+          `${process.env.REACT_APP_BASE_URL}/Waste-Generate/Detail/${id}`,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
-
         const data = res.data?.data;
         if (!data) return;
-
         setFormData({
           buildingId: {
             value: data.buildingId?._id,
@@ -173,6 +197,8 @@ const WasteGeneratedFormPage = () => {
       unit: "Tonnes",
       totalWasteQty: Number(formData.totalWasteQty),
       qualityControl: formData.qualityControl.value,
+      calculatedEmissionKgCo2e,
+      calculatedEmissionTCo2e,
       remarks: formData.remarks,
       createdBy: userId,
       updatedBy: userId
@@ -181,7 +207,7 @@ const WasteGeneratedFormPage = () => {
     try {
       if (isEdit) {
         await axios.put(
-          `${process.env.REACT_APP_BASE_URL}/waste-generated/update/${id}`,
+          `${process.env.REACT_APP_BASE_URL}/Waste-Generate/Update/${id}`,
           payload,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );

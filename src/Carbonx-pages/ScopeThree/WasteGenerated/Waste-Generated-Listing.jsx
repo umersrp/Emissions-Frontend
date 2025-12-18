@@ -52,7 +52,7 @@ const WasteGeneratedListing = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
+        `${process.env.REACT_APP_BASE_URL}/Waste-Generate/List`,
         {
           params: {
             page: pageIndex,
@@ -88,7 +88,7 @@ const WasteGeneratedListing = () => {
   // Delete Record
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/delete/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/Waste-Generate/Delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Record deleted successfully");
@@ -112,11 +112,11 @@ const WasteGeneratedListing = () => {
 
     { Header: "Building", accessor: "buildingId.buildingName" },
     { Header: "Stakeholder", accessor: "stakeholder" },
-    { Header: "Purchase Category", accessor: "purchaseCategory" },
-    { Header: "Purchased Activity Type", accessor: "purchasedActivityType" },
-    { Header: "Purchased Goods/Services Type", accessor: "purchasedGoodsServicesType" },
-    { Header: "Amount Spent", accessor: "amountSpent" },
+    { Header: "Waste Category", accessor: "wasteCategory" },
+    { Header: "Waste Type", accessor: "wasteType" },
+    { Header: "Waste Treatment Method", accessor: "wasteTreatmentMethod" },
     { Header: "Unit", accessor: "unit" },
+    { Header: "totalWasteQty", accessor: "totalWasteQty" },
     { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
     { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
     { Header: "Quality Control", accessor: "qualityControl" },
