@@ -424,7 +424,7 @@ export const fuelNameOptionsByType = {
     { value: "Wood logs", label: "Wood logs" },
     { value: "Wood chips", label: "Wood chips" },
     { value: "Wood pellets", label: "Wood pellets" },
-    { value: "Grass/straw", label: "Grass/straw" },
+    { value: "Grass / straw", label: "Grass / straw" },
   ],
 };
 

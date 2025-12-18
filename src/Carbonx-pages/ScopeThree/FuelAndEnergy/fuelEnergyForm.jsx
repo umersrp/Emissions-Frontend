@@ -442,7 +442,7 @@ const FuelEnergyForm = () => {
                                     options={stakeholderOptions}
                                     value={formData.stakeholder}
                                     onChange={(value) => handleSelectChange("stakeholder", value)}
-                                    placeholder="Select Stakeholder/Department"
+                                    placeholder="Select Stakeholder / Department"
                                     isDisabled={isView}
                                 />
                                 {errors.stakeholder && <p className="text-red-500 text-sm mt-2">{errors.stakeholder}</p>}
@@ -519,6 +519,7 @@ const FuelEnergyForm = () => {
                                     onChange={(value) => handleSelectChange("fuelConsumptionUnit", value)}
                                     isDisabled={!formData.fuel || isView}
                                     disableCapitalize={true}
+                                    placeholder="Select Unit"
                                 />
                                 {errors.fuelConsumptionUnit && <p className="text-red-500 text-sm mt-2">{errors.fuelConsumptionUnit}</p>}
                             </div>
@@ -548,6 +549,7 @@ const FuelEnergyForm = () => {
                                     onChange={(value) => handleSelectChange("unit", value)}
                                     isDisabled={isView}
                                     disableCapitalize={true}
+                                    placeholder="Select Unit"
                                 />
                                 {errors.unit && <p className="text-red-500 text-sm mt-2">{errors.unit}</p>}
                             </div>
@@ -573,7 +575,7 @@ const FuelEnergyForm = () => {
                                 value={formData.remarks}
                                 onChange={handleInputChange}
                                 rows={3}
-                                placeholder="Any remarks..."
+                                placeholder="Any Remarks"
                                 className="border-[2px] w-full p-2 rounded-md"
                                 disabled={isView}
                             />
@@ -651,7 +653,7 @@ const FuelEnergyForm = () => {
                                                     handleSelectChange("airFlightType", value);
                                                     handleSelectChange("airTravelClass", null); // reset class on type change
                                                 }}
-                                                placeholder="Select flight type"
+                                                placeholder="Select Flight Type"
                                                 isDisabled={isView}
                                             />
                                             {errors.airFlightType && (
@@ -672,8 +674,8 @@ const FuelEnergyForm = () => {
                                                 onChange={(value) => handleSelectChange("airTravelClass", value)}
                                                 placeholder={
                                                     formData.airFlightType
-                                                        ? "Select travel class"
-                                                        : "Select flight type first"
+                                                        ? "Select Travel Class"
+                                                        : "Select Flight Type First"
                                                 }
                                                 isDisabled={isView || !formData.airFlightType}
                                             />
@@ -752,7 +754,7 @@ const FuelEnergyForm = () => {
                                                 options={TAXI_TYPES}
                                                 value={formData.taxiType}
                                                 onChange={(value) => handleSelectChange("taxiType", value)}
-                                                placeholder="Select taxi type"
+                                                placeholder="Select Taxi type"
                                                 isDisabled={isView}
                                             />
                                             {errors.taxiType && (
@@ -830,7 +832,7 @@ const FuelEnergyForm = () => {
                                                 options={BUS_TYPES}
                                                 value={formData.busType}
                                                 onChange={(value) => handleSelectChange("busType", value)}
-                                                placeholder="Select bus type"
+                                                placeholder="Select Bus Type"
                                                 isDisabled={isView}
                                             />
                                             {errors.busType && (
@@ -908,7 +910,7 @@ const FuelEnergyForm = () => {
                                                 options={TRAIN_TYPES}
                                                 value={formData.trainType}
                                                 onChange={(value) => handleSelectChange("trainType", value)}
-                                                placeholder="Select train type"
+                                                placeholder="Select Train Type"
                                                 isDisabled={isView}
                                             />
                                             {errors.trainType && (
