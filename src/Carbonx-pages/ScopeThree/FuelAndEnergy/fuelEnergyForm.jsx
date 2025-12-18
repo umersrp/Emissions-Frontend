@@ -413,7 +413,7 @@ const FuelEnergyForm = () => {
             <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Fuel & Energy Record`}>
                 <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
                     <p className="text-gray-700">
-                        This category includes emissions related to the production of fuels and energy purchased and consumed by the reporting company in the reporting year that ar that are not included in scope 1 or scope 2.</p>
+                        This category includes emissions related to the production of fuels and energy purchased and consumed by the reporting company in the reporting year that are not included in scope 1 or scope 2.</p>
                 </div>
                 {isFetching ? (
                     <div className="flex justify-center items-center h-64">

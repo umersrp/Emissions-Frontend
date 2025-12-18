@@ -42,63 +42,43 @@ export const wasteTypeOptions = {
   ].map((x) => ({ value: x, label: x })), // Add later if needed
 
   Metal: [
-  "Metal: aluminium cans and foil (excl. forming)",
-  "Metal: mixed cans",
-  "Metal: scrap metal",
-  "Metal: steel cans"
-].map((x) => ({ value: x, label: x })),
+    "Metal: aluminium cans and foil (excl. forming)",
+    "Metal: mixed cans",
+    "Metal: scrap metal",
+    "Metal: steel cans"
+  ].map((x) => ({ value: x, label: x })),
 
-Plastic: [
-  "Plastics: average plastics",
-  "Plastics: average plastic film",
-  "Plastics: average plastic rigid",
-  "Plastics: HDPE (incl. forming)",
-  "Plastics: LDPE and LLDPE (incl. forming)",
-  "Plastics: PET (incl. forming)",
-  "Plastics: PP (incl. forming)",
-  "Plastics: PS (incl. forming)",
-  "Plastics: PVC (incl. forming)"
-].map((x) => ({ value: x, label: x })),
+  Plastic: [
+    "Plastics: average plastics",
+    "Plastics: average plastic film",
+    "Plastics: average plastic rigid",
+    "Plastics: HDPE (incl. forming)",
+    "Plastics: LDPE and LLDPE (incl. forming)",
+    "Plastics: PET (incl. forming)",
+    "Plastics: PP (incl. forming)",
+    "Plastics: PS (incl. forming)",
+    "Plastics: PVC (incl. forming)"
+  ].map((x) => ({ value: x, label: x })),
 
-Paper: [
-  "Paper and board: board (Average: 78% corrugate and 22% carton board)",
-  "Paper and board: mixed (Assumes 25% paper, 75% board)",
-  "Paper and board: paper",
-  "Mixed Paper (primarily residential)",
-  "Mixed Paper (primarily from offices)"
-].map((x) => ({ value: x, label: x })),
+  Paper: [
+    "Paper and board: board (Average: 78% corrugate and 22% carton board)",
+    "Paper and board: mixed (Assumes 25% paper, 75% board)",
+    "Paper and board: paper",
+    "Mixed Paper (primarily residential)",
+    "Mixed Paper (primarily from offices)"
+  ].map((x) => ({ value: x, label: x })),
 
-Others: [
-  "Books",
-  "Glass",
-  "Clothing"
-].map((x) => ({ value: x, label: x })),
+  Others: [
+    "Books",
+    "Glass",
+    "Clothing"
+  ].map((x) => ({ value: x, label: x })),
 
 };
 
-// export const wasteTreatmentOptions = {
-//   Aggregates: ["Recycled", "Landfill"].map((x) => ({ value: x, label: x })),
-
-//   "Average construction": [
-//     "Recycled",
-//     "Incineration with energy recovery",
-//     "Landfill"
-//   ].map((x) => ({ value: x, label: x })),
-//   Asbestos: ["Recycled", "Landfill"].map((x) => ({ value: x, label: x })),
-//   Aggregates: ["Recycled", "Landfill"].map((x) => ({ value: x, label: x })),
-//   oneAggregates: ["Recycled", "Landfill"].map((x) => ({ value: x, label: x })),
-//   rAggregates: ["Recycled", "Landfill"].map((x) => ({ value: x, label: x })),
-//   yAggregates: ["Recycled", "Landfill"].map((x) => ({ value: x, label: x })),
-//   tAggregates: ["Recycled", "Landfill"].map((x) => ({ value: x, label: x })),
-// dAggregates: ["Recycled", "Landfill"].map((x) => ({ value: x, label: x })),
-//   fAggregates: ["Recycled", "Landfill"].map((x) => ({ value: x, label: x })),
-//   yAggregates: ["Recycled", "Landfill"].map((x) => ({ value: x, label: x })),
-
-// };
-
 const recycledLandfill = ["Recycled", "Landfill"];
 const incinerationLandfill = ["Incineration with energy recovery", "Landfill"];
-const recycledIncinerationLandfill = ["Recycled","Incineration with energy recovery", "Landfill"];
+const recycledIncinerationLandfill = ["Recycled", "Incineration with energy recovery", "Landfill"];
 
 export const wasteTreatmentOptions = {
   Aggregates: recycledLandfill.map(x => ({ value: x, label: x })),
@@ -115,24 +95,24 @@ export const wasteTreatmentOptions = {
   Insulation: recycledLandfill.map(x => ({ value: x, label: x })),
   Metals: recycledLandfill.map(x => ({ value: x, label: x })),
   Soils: recycledLandfill.map(x => ({ value: x, label: x })),
-  "Mineral oil":["Recycled","Incineration with energy recovery"].map(x => ({ value: x, label: x })),
+  "Mineral oil": ["Recycled", "Incineration with energy recovery"].map(x => ({ value: x, label: x })),
   Plasterboard: recycledLandfill.map(x => ({ value: x, label: x })),
-  Tyres:[...recycledLandfill,"Incineration with energy recovery"].map(x => ({ value: x, label: x })),
-  Wood:[...recycledLandfill,"Incineration with energy recovery","Composting"].map(x => ({ value: x, label: x })),
+  Tyres: [...recycledLandfill, "Incineration with energy recovery"].map(x => ({ value: x, label: x })),
+  Wood: [...recycledLandfill, "Incineration with energy recovery", "Composting"].map(x => ({ value: x, label: x })),
   //
- "Household residual waste": incinerationLandfill.map(x => ({ value: x, label: x })),
-  "Organic: food and drink waste":[...incinerationLandfill,"Composting","Anaerobic Digestion"].map(x => ({ value: x, label: x })),
-  "Organic: garden waste":[...incinerationLandfill,"Composting","Anaerobic Digestion"].map(x => ({ value: x, label: x })),
-  "Organic: mixed food and garden waste":[...incinerationLandfill,"Composting","Anaerobic Digestion"].map(x => ({ value: x, label: x })),
+  "Household residual waste": incinerationLandfill.map(x => ({ value: x, label: x })),
+  "Organic: food and drink waste": [...incinerationLandfill, "Composting", "Anaerobic Digestion"].map(x => ({ value: x, label: x })),
+  "Organic: garden waste": [...incinerationLandfill, "Composting", "Anaerobic Digestion"].map(x => ({ value: x, label: x })),
+  "Organic: mixed food and garden waste": [...incinerationLandfill, "Composting", "Anaerobic Digestion"].map(x => ({ value: x, label: x })),
   "Commercial and industrial waste (Waste generated by businesses or industrial operations)": incinerationLandfill.map(x => ({ value: x, label: x })),
- //
+  //
   "Waste Electrical and Electronic Equipment - fridges and freezers": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
-  "Waste Electrical and Electronic Equipment - large electrical equipments (Washing machine, Ovens, Large printers, Photocopiers, Large appliances or machinery)":recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
+  "Waste Electrical and Electronic Equipment - large electrical equipments (Washing machine, Ovens, Large printers, Photocopiers, Large appliances or machinery)": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
   "Waste Electrical and Electronic Equipment - mixed/unsorted electrical equipments": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
   "Waste Electrical and Electronic Equipment - small electrical equipments (Phones, Chargers, Small gadgets, Electric tools or Small household electronics)": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
   "Batteries (Excludes car batteries)": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
 
- //
+  //
   "Metal: aluminium cans and foil (excl. forming)": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
   "Metal: mixed cans": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
   "Metal: scrap metal": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
@@ -148,13 +128,245 @@ export const wasteTreatmentOptions = {
   "Plastics: PS (incl. forming)": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
   "Plastics: PVC (incl. forming)": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
   //
-  "Paper and board: board (Average: 78% corrugate and 22% carton board)":[...recycledIncinerationLandfill,"Composting"].map(x => ({ value: x, label: x })),
-  "Paper and board: mixed (Assumes 25% paper, 75% board)":[...recycledIncinerationLandfill,"Composting"].map(x => ({ value: x, label: x })),
-  "Paper and board: paper":[...recycledIncinerationLandfill,"Composting"].map(x => ({ value: x, label: x })),
+  "Paper and board: board (Average: 78% corrugate and 22% carton board)": [...recycledIncinerationLandfill, "Composting"].map(x => ({ value: x, label: x })),
+  "Paper and board: mixed (Assumes 25% paper, 75% board)": [...recycledIncinerationLandfill, "Composting"].map(x => ({ value: x, label: x })),
+  "Paper and board: paper": [...recycledIncinerationLandfill, "Composting"].map(x => ({ value: x, label: x })),
   "Mixed Paper (primarily residential)": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
   "Mixed Paper (primarily from offices)": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
-  "Books":[...recycledIncinerationLandfill,"Composting"].map(x => ({ value: x, label: x })),
+  "Books": [...recycledIncinerationLandfill, "Composting"].map(x => ({ value: x, label: x })),
   "Glass": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
   "Clothing": recycledIncinerationLandfill.map(x => ({ value: x, label: x })),
 };
-  
+
+
+//calculation unit options
+// constant/scope3/wasteEmissionFactors.js
+
+export const wasteEmissionFactors = {
+  //Construction
+  Aggregates: {
+    Recycled: 1.00835,
+    Landfill: 1.26338,
+  },
+  "Average construction": {
+    Recycled: 1.00835,
+    "Incineration with energy recovery": 4.68568,
+    Landfill: 12.31,
+  },
+  Asbestos: {
+    Landfill: 5.94160,
+  },
+  Asphalt: {
+    Recycled: 1.00835,
+    Landfill: 1.26338,
+  },
+  Bricks: {
+    Recycled: 1.00835,
+    Landfill: 1.26338,
+  },
+  Concrete: {
+    Recycled: 1.00835,
+    Landfill: 1.26338,
+  },
+  Insulation: {
+    Recycled: 1.00835,
+    Landfill: 1.26338,
+  },
+  Metals: {
+    Recycled: 1.00835,
+    Landfill: 1.26435,
+  },
+  Soils: {
+    Recycled: 1.00835,
+    Landfill: 19.54671,
+  },
+  "Mineral oil": {
+    Recycled: 4.68568,
+    "Incineration with energy recovery": 4.68568,
+  },
+  Plasterboard: {
+    Recycled: 4.68568,
+    Landfill: 71.95,
+  },
+  Tyres: {
+    Recycled: 4.68568,
+    "Incineration with energy recovery": 2004.47,
+    Landfill: 18.14,
+
+  },
+  Wood: {
+    Recycled: 4.68568,
+    "Incineration with energy recovery": 4.68568,
+    Composting: 8.98311,
+    Landfill: 925.34348,
+  },
+  //Other
+  Books: {
+    Recycled: 4.68568,
+    "Incineration with energy recovery": 4.68568,
+    Composting: 8.98311,
+    Landfill: 1164.48940,
+  },
+  Glass: {
+    Recycled: 4.68568,
+    "Incineration with energy recovery": 4.68568,
+    Landfill: 8.98311,
+  },
+  Clothing: {
+    Recycled: 4.68568,
+    "Incineration with energy recovery": 4.68568,
+    Landfill: 496.78228,
+  },
+
+  //Refuse (General Mixed Waste/Unsorted Waste)
+  "Household residual waste": {
+    "Incineration with energy recovery": 4.68568,
+    Landfill: 497.24244,
+  },
+  "Organic: food and drink waste": {
+    "Incineration with energy recovery": 4.68568,
+    Composting: 8.98311,
+    Landfill: 700.30886,
+    "Anaerobic digestion": 8.98311,
+  },
+  "Organic: garden waste": {
+    "Incineration with energy recovery": 4.68568,
+    Composting: 8.98311,
+    Landfill: 646.70557,
+    "Anaerobic digestion": 8.98311,
+  },
+  "Organic: mixed food and garden waste": {
+    "Incineration with energy recovery": 4.68568,
+    Composting: 8.98311,
+    Landfill: 656.08614,
+    "Anaerobic digestion": 8.98311,
+  },
+  "Commercial and industrial waste (Waste generated by businesses or industrial operations)": {
+    "Incineration with energy recovery": 4.68568,
+    Landfill: 520.5327,
+  },
+  //Electrical Items
+  "Waste Electrical and Electronic Equipment - fridges and freezers": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Waste Electrical and Electronic Equipment - large electrical equipments (Washing machine, Ovens, Large printers, Photocopiers, Large appliances or machinery)": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Waste Electrical and Electronic Equipment - mixed/unsorted electrical equipments": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Waste Electrical and Electronic Equipment - small electrical equipments (Phones, Chargers, Small gadgets, Electric tools or Small household electronics)": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Batteries (Excludes car batteries)": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  //Metal
+  "Metal: aluminium cans and foil (excl. forming)": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Metal: mixed cans": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Metal: scrap metal": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Metal: steel cans": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  //Plastic
+  "Plastics: average plastics": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Plastics: average plastic film": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Plastics: average plastic rigid": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Plastics: HDPE (incl. forming)": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Plastics: LDPE and LLDPE (incl. forming)": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Plastics: PET (incl. forming)": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Plastics: PP (incl. forming)": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Plastics: PS (incl. forming)": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  "Plastics: PVC (incl. forming)": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Landfill: 8.98311,
+  },
+  //Paper
+  "Paper and board: board (Average: 78% corrugate and 22% carton board)": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Composting: 8.98311,
+    Landfill: 1164.4894,
+  },
+  "Paper and board: mixed (Assumes 25% paper, 75% board)": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Composting: 8.98311,
+    Landfill: 1164.4894,
+  },
+  "Paper and board: paper": {
+    "Incineration with energy recovery": 4.68568,
+    Recycled: 4.68568,
+    Composting: 8.98311,
+    Landfill: 1164.4894,
+  },
+  "Mixed Paper (primarily residential)": {
+    Recycled: 63.49,
+    "Incineration with energy recovery": 45.35,
+    Landfill: 780.02,
+  },
+  "Mixed Paper (primarily from offices)": {
+    Recycled: 27.21,
+    "Incineration with energy recovery": 45.35,
+    Landfill: 761.88,
+  },
+
+
+};

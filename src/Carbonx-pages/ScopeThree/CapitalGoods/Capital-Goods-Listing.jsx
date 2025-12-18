@@ -46,6 +46,24 @@ const CapitalGoodsListing = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
 
+   const capitalizeLabel = (text) => {
+    if (!text) return "";
+
+    const exceptions = [ "and","or","in","of","from","at","to","the","a","an","for","on","with",
+    "but","by","is","it","as","be","this","that","these","those","such",
+    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
+    "n.e.c."];
+    return text
+      .split(" ")
+      .map((word, index) => {
+        // Always capitalize the first word
+        if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
+        // Don't capitalize exceptions
+        if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      })
+      .join(" ");
+  };
 
   // Fetch data from server with pagination
   // const fetchData = async () => {
@@ -82,7 +100,7 @@ const CapitalGoodsListing = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
+        `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All-isCaptialGoods`,
         {
           params: {
             page: pageIndex,
@@ -147,9 +165,9 @@ const CapitalGoodsListing = () => {
     { Header: "Stakeholder", accessor: "stakeholder" },
     { Header: "Purchase Category", accessor: "purchaseCategory" },
     { Header: "Purchased Activity Type", accessor: "purchasedActivityType" },
-    { Header: "Purchased Goods/Services Type", accessor: "purchasedGoodsServicesType" },
+    { Header: "Purchased Goods / Services Type", accessor: "purchasedGoodsServicesType", Cell: ({ value }) => capitalizeLabel(value)  },
     { Header: "Amount Spent", accessor: "amountSpent" },
-    { Header: "Unit", accessor: "unit" },
+    { Header: "Unit", accessor: "unit", Cell: ({ value }) => (value === "USD" ? "$" : value), },
     { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
     { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
     { Header: "Quality Control", accessor: "qualityControl" },

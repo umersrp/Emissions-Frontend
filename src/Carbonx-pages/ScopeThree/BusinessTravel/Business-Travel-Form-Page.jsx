@@ -734,7 +734,7 @@
 
 // export default BusinessTravelFormPage;
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
@@ -819,25 +819,26 @@ const BusinessTravelFormPage = () => {
   /* 
       CALCULATION WRAPPER
    */
-  const recalculateEmissions = (data) => {
-    try {
-      const result = calculateBusinessTravel(data);
+const recalculateEmissions = useCallback((data) => {
+  try {
+    const result = calculateBusinessTravel(data);
 
-      // Use the correct property names from the calculation result
-      setCalculatedEmissionKgCo2e(result?.totalEmissions_KgCo2e || 0);
-      setCalculatedEmissionTCo2e(result?.totalEmissions_TCo2e || 0);
-    } catch (err) {
-      console.error("Calculation error", err);
-    }
-  };
+    // Use the correct property names from the calculation result
+    setCalculatedEmissionKgCo2e(result?.totalEmissions_KgCo2e || 0);
+    setCalculatedEmissionTCo2e(result?.totalEmissions_TCo2e || 0);
+    
+    return result; // Return the result so we can use it immediately
+  } catch (err) {
+    console.error("Calculation error", err);
+    return null;
+  }
+}, []);
 
   useEffect(() => {
     recalculateEmissions(formData);
   }, [formData]);
 
-  /* 
-     INPUT HANDLERS
-   */
+
   const handleChange = (e) => {
     if (isView) return;
 
@@ -867,16 +868,13 @@ const BusinessTravelFormPage = () => {
   // Special handler for carType since it affects carFuelType
   const handleCarTypeChange = (selectedOption) => {
     if (isView) return;
-
     const stringValue = selectedOption ? selectedOption.value : "";
-    
     setFormData(prev => ({
       ...prev,
       carType: stringValue,
-      carFuelType: "" // Reset fuel type when car type changes
+      carFuelType: "" 
     }));
     
-    // Recalculate after state update
     setTimeout(() => {
       recalculateEmissions({
         ...formData,
@@ -943,9 +941,6 @@ const BusinessTravelFormPage = () => {
     });
   };
 
-  /* 
-     FETCH BUILDINGS
-   */
   useEffect(() => {
     const fetchBuildings = async () => {
       try {
@@ -970,17 +965,14 @@ const BusinessTravelFormPage = () => {
 
   useEffect(() => {
     const fetchBusinessTravelById = async () => {
-      if (!isEdit && !isView) return; // Only fetch in edit or view mode
-
+      if (!isEdit && !isView) return; 
       try {
         const res = await axios.get(
           `${process.env.REACT_APP_BASE_URL}/Business-Travel/Detail/${id}`,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
-
         const data = res.data?.data;
         if (!data) return;
-
         // Transform API data to match your formData structure - store only string values
         const updatedFormData = {
           buildingId: data.buildingId?._id || data.buildingId || "",
@@ -1038,9 +1030,6 @@ const BusinessTravelFormPage = () => {
     }
   }, [id, isEdit, isView]);
 
-  /* 
-     VALIDATION
-   */
   const validate = () => {
     if (!formData.buildingId || !formData.stakeholder || !formData.qualityControl) {
       toast.error("Please fill all required fields");
@@ -1064,46 +1053,49 @@ const BusinessTravelFormPage = () => {
     return true;
   };
 
-  /* 
-     SUBMIT
-   */
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validate()) return;
 
-    recalculateEmissions(formData);
+  // First, recalculate emissions to get the latest values
+  const latestResult = calculateBusinessTravel(formData);
+  const latestKgCo2e = latestResult?.totalEmissions_KgCo2e || 0;
+  const latestTCo2e = latestResult?.totalEmissions_TCo2e || 0;
 
-    // toast.success(
-    //   `Total Emissions: ${calculatedEmissionKgCo2e.toFixed(2)} Kg CO₂e`
-    // );
+  // Update state immediately
+  setCalculatedEmissionKgCo2e(latestKgCo2e);
+  setCalculatedEmissionTCo2e(latestTCo2e);
 
-    const payload = {
-      ...formData,
-      totalEmissions_KgCo2e: calculatedEmissionKgCo2e,
-      totalEmissions_TCo2e: calculatedEmissionTCo2e,
-    };
-
-    try {
-      if (isEdit) {
-        await axios.put(
-          `${process.env.REACT_APP_BASE_URL}/Business-Travel/Update/${id}`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        toast.success("Record updated successfully");
-      } else {
-        await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/Business-Travel/Create`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        toast.success("Record added successfully");
-      }
-      navigate("/Business-Travel");
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Error saving record");
-    }
+  const payload = {
+    ...formData,
+     calculatedEmissionKgCo2e: latestKgCo2e,  // CHANGED HERE
+    calculatedEmissionTCo2e: latestTCo2e,
   };
+
+  console.log("Submitting payload:", payload);
+
+  try {
+    if (isEdit) {
+      await axios.put(
+        `${process.env.REACT_APP_BASE_URL}/Business-Travel/Update/${id}`,
+        payload,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      toast.success("Record updated successfully");
+    } else {
+      await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/Business-Travel/Create`,
+        payload,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      toast.success("Record added successfully");
+    }
+    navigate("/Business-Travel");
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Error saving record");
+    console.error("Submission error:", err);
+  }
+};
 
   // Helper function to find the current option for Select components
   const findOptionByValue = (options, value) => {
@@ -1161,7 +1153,7 @@ const BusinessTravelFormPage = () => {
           {/* 3. Air Travel Toggle & Fields */}
           <div className="border-b pb-4">
             <ToggleButton
-              label="Did you travel by Air?"
+              label="Did you have any business travel by air during the reporting period?"
               checked={formData.travelByAir}
               onChange={() => handleToggle("travelByAir")}
               disabled={isView}
@@ -1213,7 +1205,7 @@ const BusinessTravelFormPage = () => {
           {/* 4. Motorbike */}
           <div className="border-b pb-4">
             <ToggleButton
-              label="Business travel by Motorbike?"
+              label="Did you have any business travel by motorbike during the reporting period?"
               checked={formData.travelByMotorbike}
               onChange={() => handleToggle("travelByMotorbike")}
               disabled={isView}
@@ -1246,7 +1238,7 @@ const BusinessTravelFormPage = () => {
           {/* 5. Taxi */}
           <div className="border-b pb-4">
             <ToggleButton
-              label="Business travel by Taxi?"
+              label="Did you have any business travel by taxi during the reporting period?"
               checked={formData.travelByTaxi}
               onChange={() => handleToggle("travelByTaxi")}
               disabled={isView}
@@ -1288,7 +1280,7 @@ const BusinessTravelFormPage = () => {
           {/* 6. Bus */}
           <div className="border-b pb-4">
             <ToggleButton
-              label="Business travel by Bus?"
+              label="Did you have any business travel by bus during the reporting period?"
               checked={formData.travelByBus}
               onChange={() => handleToggle("travelByBus")}
               disabled={isView}
@@ -1330,7 +1322,7 @@ const BusinessTravelFormPage = () => {
           {/* 7. Train */}
           <div className="border-b pb-4">
             <ToggleButton
-              label="Business travel by train?"
+              label="Did you have any business travel by train during the reporting period?"
               checked={formData.travelByTrain}
               onChange={() => handleToggle("travelByTrain")}
               disabled={isView}
@@ -1373,7 +1365,7 @@ const BusinessTravelFormPage = () => {
           {/* 8. Car */}
           <div className="border-b pb-4">
             <ToggleButton
-              label="Business travel by car?"
+              label="Did you have any business travel by car during the reporting period?"
               checked={formData.travelByCar}
               onChange={() => handleToggle("travelByCar")}
               disabled={isView}
@@ -1415,7 +1407,7 @@ const BusinessTravelFormPage = () => {
           {/* 9. Hotel Stay */}
           <div className="border-b pb-4">
             <ToggleButton
-              label="Any Hotel stay?"
+              label="Did you have any hotel stays during business travel in the reporting period?"
               checked={formData.hotelStay}
               onChange={() => handleToggle("hotelStay")}
               disabled={isView}
@@ -1454,7 +1446,7 @@ const BusinessTravelFormPage = () => {
               value={formData.remarks}
               onChange={handleChange}
               rows={3}
-              className="input-field"
+              className="input-field h-auto min-h-[80px]"
               disabled={isView}
             />
           </div>

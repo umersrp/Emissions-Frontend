@@ -159,7 +159,7 @@ export const purchasedServicesActivityTypes = [
 
 export const purchasedGoodsServicesTypes = {
   "Food & Drinks": [
-    { value: "Alcoholic beverages", label: "Alcoholic beverages" },
+    // { value: "Alcoholic beverages", label: "Alcoholic beverages" },
     { value: "Bakery and farinaceous products", label: "Bakery and farinaceous products" },
     { value: "Dairy products", label: "Dairy products" },
     { value: "Grain mill products, starches and starch products", label: "Grain mill products, starches and starch products" },
@@ -289,7 +289,7 @@ export const purchasedGoodsServicesTypes = {
   ],
   "Services & Leisure": [
     { value: "Travel agency, tour operator and other reservation services and related services", label: "Travel agency, tour operator and other reservation services and related services" },
-    { value: "Gambling and betting services", label: "Gambling and betting services" },
+    // { value: "Gambling and betting services", label: "Gambling and betting services" },
     { value: "Food and beverage serving services", label: "Food and beverage serving services" },
     { value: "Sports services and amusement and recreation services", label: "Sports services and amusement and recreation services" },
     { value: "Accommodation services", label: "Accommodation services" }
@@ -313,7 +313,7 @@ export const purchasedGoodsServicesTypes = {
 };
 
 export const currencyUnitOptions = [
-  { value: "USD", label: "Dollar (USD)" }
+  { value: "USD", label: "$" }
 ];
 
 // Fuel & Energy data

@@ -34,7 +34,7 @@ const PurchasedGoodServicesFormPage = () => {
     isCapitalGoods: false,
     purchasedGoodsServicesType: null,
     amountSpent: "",
-    unit: { value: "USD", label: "Dollar (USD)" },
+    unit: { value: "USD", label: "$" },
     qualityControl: null,
     remarks: "",
   });
@@ -204,13 +204,19 @@ const PurchasedGoodServicesFormPage = () => {
 
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
+  useEffect(() => {
+    if (formData.purchaseCategory?.value === "Purchased Services") {
+      setFormData(prev => ({
+        ...prev,
+        isCapitalGoods: false
+      }));
+    }
+  }, [formData.purchaseCategory]);
 
   const handleSelectChange = (name, value) => {
     if (isView) return;
-
     setFormData((prev) => {
       const updatedData = { ...prev, [name]: value };
-
       // Calculate emissions
       if (updatedData.amountSpent && updatedData.purchasedGoodsServicesType) {
         const result = calculatePurchasedGoodsEmission({
@@ -221,27 +227,18 @@ const PurchasedGoodServicesFormPage = () => {
         if (result) {
           const formattedKg = formatEmission(result.calculatedEmissionKgCo2e);
           const formattedT = formatEmission(result.calculatedEmissionTCo2e);
-
           updatedData.calculatedEmissionKgCo2e = formattedKg;
           updatedData.calculatedEmissionTCo2e = formattedT;
-
-          // Show toast
           // toast.info(`Emissions Calculated: ${formattedKg} kgCO2e / ${formattedT} tCO2e`);
         }
       }
-
       return updatedData;
     });
-
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
-
-
-
   // Validation
   const validate = () => {
     const newErrors = {};
-
     if (!formData.buildingId) newErrors.buildingId = "Building is required";
     if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder/Department is required";
     if (!formData.purchaseCategory) newErrors.purchaseCategory = "Purchase Category is required";
@@ -252,7 +249,6 @@ const PurchasedGoodServicesFormPage = () => {
     if (formData.amountSpent && Number(formData.amountSpent) < 0) {
       newErrors.amountSpent = "Value cannot be negative.";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -293,9 +289,6 @@ const PurchasedGoodServicesFormPage = () => {
       calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e || 0,
       calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e || 0,
     };
-
-    console.log("Payload to send:", payload);
-
     try {
       if (isEdit) {
         await axios.put(
@@ -391,7 +384,13 @@ const PurchasedGoodServicesFormPage = () => {
 
           {/* Goods/Services Type */}
           <div>
-            <label className="field-label">Purchased Goods or Services Type *</label>
+            <label className="field-label">
+              {formData.purchaseCategory?.value === "Purchased Goods"
+                ? "Purchased Goods Type *"
+                : formData.purchaseCategory?.value === "Purchased Services"
+                  ? "Purchased Services Type *"
+                  : "Purchased Goods or Services Type *"}
+            </label>
             <CustomSelect
               name="purchasedGoodsServicesType"
               options={goodsServicesTypeOptions}
@@ -404,39 +403,40 @@ const PurchasedGoodServicesFormPage = () => {
           </div>
 
           {/* Capital Goods Toggle */}
-          <div>
-            <label className="field-label">
-              Please specify whether the selected item is a capital good
-            </label>
+          {formData.purchaseCategory?.value === "Purchased Goods" && (
+            <div>
+              <label className="field-label">
+                Please specify whether the selected item is a capital good
+              </label>
+              <div className="flex items-center gap-4 mt-2">
+                <label className="inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isCapitalGoods}
+                    onChange={(e) =>
+                      !isView &&
+                      setFormData((prev) => ({
+                        ...prev,
+                        isCapitalGoods: e.target.checked,
+                      }))
+                    }
+                    className="sr-only peer"
+                  />
 
-            <div className="flex items-center gap-4 mt-2">
-              <label className="inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.isCapitalGoods}
-                  onChange={(e) =>
-                    !isView &&
-                    setFormData((prev) => ({
-                      ...prev,
-                      isCapitalGoods: e.target.checked,
-                    }))
-                  }
-                  className="sr-only peer"
-                />
-
-                <div className="relative w-11 h-6 bg-gray-300 peer-focus:ring-2 peer-focus:ring-primary-300 
+                  <div className="relative w-11 h-6 bg-gray-300 peer-focus:ring-2 peer-focus:ring-primary-300 
           rounded-full peer dark:bg-gray-700 peer-checked:bg-primary-600 after:content-[''] 
           after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 
           after:border after:rounded-full after:h-5 after:w-5 after:transition-all 
           peer-checked:after:translate-x-full">
-                </div>
-              </label>
+                  </div>
+                </label>
 
-              <span className="text-sm text-gray-700">
-                {formData.isCapitalGoods ? "Yes" : "No"}
-              </span>
+                <span className="text-sm text-gray-700">
+                  {formData.isCapitalGoods ? "Yes" : "No"}
+                </span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Amount Spent and Unit */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
