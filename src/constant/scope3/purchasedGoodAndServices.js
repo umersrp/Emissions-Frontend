@@ -26,7 +26,7 @@ export const purchasedGoodsServicesEF = {
   //"Sewerage services; sewage sludge": 0.505108935,
   "Architectural and engineering services; technical testing and analysis services": 0.25113534,
   "Printing and recording services": 0.549872561,
-  "Gambling and betting services": 0.176000769,
+  // "Gambling and betting services": 0.176000769,
   "Veterinary services": 0.132366213,
   "Insurance, reinsurance and pension funding services, except compulsory social security": 0.108308796,
   "Other professional, scientific and technical services": 0.198951175,
@@ -71,7 +71,7 @@ export const purchasedGoodsServicesEF = {
 
   //Goods
   "Air and spacecraft and related machinery": 0.54180935,
-  "Alcoholic beverages": 1.225803004,
+  // "Alcoholic beverages": 1.225803004,
   "Bakery and farinaceous products": 0.739476302,
   "Basic iron and steel": 1.014458737,
   "Basic pharmaceutical products and pharmaceutical preparations": 0.317119387,
@@ -91,6 +91,7 @@ export const purchasedGoodsServicesEF = {
   "Grain mill products, starches and starch products": 1.119326111,
   "Industrial gases, inorganics and fertilisers (all inorganic chemicals)": 1.54633009,
   "Leather and related products": 0.987780921,
+  "Other Textiles":1.0331331523,
   "Machinery and equipment n.e.c.": 0.766118034,
   "Motor vehicles, trailers and semi-trailers": 0.720453133,
   "Other basic metals and casting": 0.027360152,
@@ -109,7 +110,6 @@ export const purchasedGoodsServicesEF = {
   "Ships and boats": 0.398359821,
   "Soap and detergents, cleaning and polishing preparations, perfumes and toilet preparations": 1.10027227,
   "Soft drinks": 0.745567076,
-  "Textiles": 1.033131523,
   "Tobacco products": 1.100179515,
   "Vegetable and animal oils and fats": 1.150752579,
   "Weapons and ammunition": 0.676756393,

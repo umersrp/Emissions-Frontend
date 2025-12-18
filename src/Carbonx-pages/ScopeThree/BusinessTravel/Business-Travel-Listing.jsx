@@ -109,60 +109,51 @@ const BusinessTravel = () => {
         { Header: "Building", accessor: "buildingId.buildingName" },
         { Header: "Stakeholder", accessor: "stakeholder" },
 
-        // ================= AIR =================
         { Header: "Air Travel", accessor: "travelByAir", Cell: ({ value }) => (value ? "Yes" : "No") },
         { Header: "Air Passengers", accessor: "airPassengers" },
         { Header: "Air Distance (Km)", accessor: "airDistanceKm" },
         { Header: "Air Class", accessor: "airTravelClass" },
         { Header: "Flight Type", accessor: "airFlightType" },
 
-        // ================= MOTORBIKE =================
         { Header: "Motorbike", accessor: "travelByMotorbike", Cell: ({ value }) => (value ? "Yes" : "No") },
         { Header: "Motorbike Distance (Km)", accessor: "motorbikeDistanceKm" },
         { Header: "Motorbike Type", accessor: "motorbikeType" },
 
-        // ================= TAXI =================
         { Header: "Taxi", accessor: "travelByTaxi", Cell: ({ value }) => (value ? "Yes" : "No") },
         { Header: "Taxi Passengers", accessor: "taxiPassengers" },
         { Header: "Taxi Distance (Km)", accessor: "taxiDistanceKm" },
         { Header: "Taxi Type", accessor: "taxiType" },
 
-        // ================= BUS =================
         { Header: "Bus", accessor: "travelByBus", Cell: ({ value }) => (value ? "Yes" : "No") },
         { Header: "Bus Passengers", accessor: "busPassengers" },
         { Header: "Bus Distance (Km)", accessor: "busDistanceKm" },
         { Header: "Bus Type", accessor: "busType" },
 
-        // ================= TRAIN =================
         { Header: "Train", accessor: "travelByTrain", Cell: ({ value }) => (value ? "Yes" : "No") },
         { Header: "Train Passengers", accessor: "trainPassengers" },
         { Header: "Train Distance (Km)", accessor: "trainDistanceKm" },
         { Header: "Train Type", accessor: "trainType" },
 
-        // ================= CAR =================
         { Header: "Car", accessor: "travelByCar", Cell: ({ value }) => (value ? "Yes" : "No") },
         { Header: "Car Distance (Km)", accessor: "carDistanceKm" },
         { Header: "Car Type", accessor: "carType" },
         { Header: "Car Fuel Type", accessor: "carFuelType" },
 
-        // ================= HOTEL =================
         { Header: "Hotel Stay", accessor: "hotelStay", Cell: ({ value }) => (value ? "Yes" : "No") },
         { Header: "Hotel Rooms", accessor: "hotelRooms" },
         { Header: "Hotel Nights", accessor: "hotelNights" },
 
-        // ================= EMISSIONS =================
         {
-            Header: "KgCO₂e",
+            Header: "Calculated Emissions (kgCO₂e)",
             accessor: "calculatedEmissionKgCo2e",
             Cell: ({ value }) => Number(value).toFixed(2),
         },
         {
-            Header: "TCO₂e",
+            Header: "Calculated Emissions (kgCO₂e)",
             accessor: "calculatedEmissionTCo2e",
             Cell: ({ value }) => Number(value).toFixed(2),
         },
 
-        // ================= META =================
         {
             Header: "Remarks",
             accessor: "remarks",
@@ -175,7 +166,6 @@ const BusinessTravel = () => {
                 value ? new Date(value).toLocaleDateString() : "-",
         },
 
-        // ================= ACTIONS =================
         {
             Header: "Actions",
             accessor: "_id",
