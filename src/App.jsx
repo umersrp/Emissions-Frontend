@@ -233,6 +233,10 @@ import BusinessTravelFormPage from "./Carbonx-pages/ScopeThree/BusinessTravel/Bu
 import BusinessTravel from "./Carbonx-pages/ScopeThree/BusinessTravel/Business-Travel-Listing";
 import CapitalGoodsListing from "./Carbonx-pages/ScopeThree/CapitalGoods/Capital-Goods-Listing";
 import ScopeThreeReport from "./Carbonx-pages/ScopeThree/ScopeThreeReport/Scope-Three-Report";
+import UpstreamTransportationFormPage from "./Carbonx-pages/ScopeThree/UpstreamTransporation/Upstream-Transportation-Form";
+import UpstreamTransportationListing from "./Carbonx-pages/ScopeThree/UpstreamTransporation/Upstream-Transportation-Listing";
+import DownstreamTransportationFormPage from "./Carbonx-pages/ScopeThree/DownstreamTransporation/Downstream-Transportation-Form";
+import DownstreamTransportationListing from "./Carbonx-pages/ScopeThree/DownstreamTransporation/Downstream-Transportation-Listing";
 
 
 
@@ -435,9 +439,9 @@ function App() {
           <Route path="Building" element={<BuildingTable />} />
 
           <Route path="Scope-1" element={<Scope1 />} />
-          
-          <Route path="Scope-One-Report" element={<ScopeOneReport/>} />
-          <Route path="Air-Emission-Report-Page" element={<EmissionsReportPage/>} />
+
+          <Route path="Scope-One-Report" element={<ScopeOneReport />} />
+          <Route path="Air-Emission-Report-Page" element={<EmissionsReportPage />} />
 
           <Route path="Stationary-Combustion-Form/add" element={<StationaryCombustionFormPage />} />
           <Route path="Stationary-Combustion-Form/:id" element={<StationaryCombustionFormPage />} />
@@ -450,42 +454,48 @@ function App() {
           <Route path="Mobile-Combustion-Form/add" element={<MobileCombustionFormPage />} />
           <Route path="Mobile-Combustion-Form/:id" element={<MobileCombustionFormPage />} />
           <Route path="Mobile-Combustion" element={<MobileCombustionListing />} />
-          
+
           <Route path="Process-Emissions-Form/add" element={<ProcessEmissionsFormPage />} />
           <Route path="Process-Emissions-Form/:id" element={<ProcessEmissionsFormPage />} />
           <Route path="Process-Emissions" element={<ProcessEmissionsListing />} />
 
 
           <Route path="Scope-2" element={<Scope2 />} />
-          <Route path="Scope-Two-Report" element={<ScopeTwoReport/>} />
+          <Route path="Scope-Two-Report" element={<ScopeTwoReport />} />
 
           <Route path="Purchased-Electricity-Form/add" element={<PurchasedElectricityFormPage />} />
           <Route path="Purchased-Electricity-Form/:id" element={<PurchasedElectricityFormPage />} />
-          <Route path="Purchased-Electricity" element={<PurchasedElectricityListing/>} />
+          <Route path="Purchased-Electricity" element={<PurchasedElectricityListing />} />
 
-          <Route path="Scope-3" element={<Scope3/>} />
-          <Route path="Scope-Three-Report" element={<ScopeThreeReport/>} />
+          <Route path="Scope-3" element={<Scope3 />} />
+          <Route path="Scope-Three-Report" element={<ScopeThreeReport />} />
 
           <Route path="Purchased-Good-Services-Form/add" element={<PurchasedGoodServicesFormPage />} />
           <Route path="Purchased-Good-Services-Form/:id" element={<PurchasedGoodServicesFormPage />} />
-          <Route path="Purchased-Good-Services" element={<PurchasedGoodServicesListing/>} />
-          <Route path="Capital-Goods" element={<CapitalGoodsListing/>} />
+          <Route path="Purchased-Good-Services" element={<PurchasedGoodServicesListing />} />
+          <Route path="Capital-Goods" element={<CapitalGoodsListing />} />
 
           <Route path="fuel-energy-form/add" element={<FuelEnergyForm />} />
           <Route path="fuel-energy-form/:id" element={<FuelEnergyForm />} />
-          <Route path="fuel-energy" element={<FuelFusion/>} />
+          <Route path="fuel-energy" element={<FuelFusion />} />
 
-          <Route path="Waste-Generated-Form/add" element={<WasteGeneratedFormPage/>} />
-          <Route path="Waste-Generated-Form/:id" element={<WasteGeneratedFormPage/>} />
-          <Route path="Waste-Generated" element={<WasteGeneratedListing/>} />
+          <Route path="Waste-Generated-Form/add" element={<WasteGeneratedFormPage />} />
+          <Route path="Waste-Generated-Form/:id" element={<WasteGeneratedFormPage />} />
+          <Route path="Waste-Generated" element={<WasteGeneratedListing />} />
 
-          <Route path="Business-Travel-Form/add" element={<BusinessTravelFormPage/>} />
-          <Route path="Business-Travel-Form/:id" element={<BusinessTravelFormPage/>} />
-          <Route path="Business-Travel" element={<BusinessTravel/>} />
+          <Route path="Business-Travel-Form/add" element={<BusinessTravelFormPage />} />
+          <Route path="Business-Travel-Form/:id" element={<BusinessTravelFormPage />} />
+          <Route path="Business-Travel" element={<BusinessTravel />} />
+
+          <Route path="Upstream-Transportation-Form/add" element={<UpstreamTransportationFormPage />} />
+          <Route path="Upstream-Transportation-Form/:id" element={<UpstreamTransportationFormPage />} />
+          <Route path="Upstream-Transportation" element={<UpstreamTransportationListing />} />
+
+          <Route path="Downstream-Transportation-Form/add" element={<DownstreamTransportationFormPage />} />
+          <Route path="Downstream-Transportation-Form/:id" element={<DownstreamTransportationFormPage />} />
+          <Route path="Downstream-Transportation" element={<DownstreamTransportationListing/>} />
 
           <Route path="Coach-edit" element={<CoachEditPage />} />
-
-
           <Route path="*" element={<Navigate to="/404" />} />
         </Route>
         <Route

@@ -173,46 +173,76 @@ export const carEmissionFactors = {
     LPG: 0.2126,
     CNG: 0.188,
     Diesel: 0.1434,
+    Hybrid:0.11413,
+    Unknown:0.14322,
+    "Plug-in Hybrid Electric Vehicle":0.05669,
+   	"Battery Electric Vehicle":0.03688,
   },
 
   "Medium car - Petrol/LPG/CNG - from 1.4-litre to 2.0-litre engine. Diesel - from 1.7-litre to 2.0-litre engine. Others - vehicles models of a similar size (i.e. generally market segment C)": {
-    Petrol: 0.2121,
-    LPG: 0.1954,
-    CNG: 0.1859,
-    Diesel: 0.1687,
+    Petrol: 0.17474,
+    LPG: 0.17427,
+    CNG: 0.15504,
+    Diesel: 0.17174,
+    Hybrid:0.11724,
+    Unknown:0.17322,
+	  "Plug-in Hybrid Electric Vehicle":0.08820,
+	  "Battery Electric Vehicle":0.03882
   },
 
   "Large car - Petrol/LPG/CNG - 2.0-litre engine (+) . Diesel - 2.0-litre engine (+). Others - vehicles models of a similar size (i.e. generally market segment D and above)": {
-    Petrol: 0.2854,
-    LPG: 0.2628,
-    CNG: 0.2481,
-    Diesel: 0.2421,
+    Petrol: 0.26828,
+    LPG: 0.26771,
+    CNG: 0.23722,
+    Diesel: 0.21007,
+    Hybrid:0.15650,
+    Unknown:0.22678,
+	  "Plug-in Hybrid Electric Vehicle":0.11430,
+	"Battery Electric Vehicle":0.04205
   },
-  //
   "Average car - Unknown engine size.": {
     Petrol: 0.2250,
     LPG: 0.2073,
-    CNG: 0.1972,
+    CNG: 0.19599,
+    Diesel: 0.17304,
+    Hybrid:0.12825, 
+    Unknown:0.16725,
+    "Plug-in Hybrid Electric Vehicle":0.10461,	
+    "Battery Electric Vehicle":0.04047
   },
   "Executive - Large Executive or E-Segment Passenger Cars (2000 cc - 3500+ cc)": {
-
-    Diesel: 0.2500,
-    Petrol: 0.2950,
+    Diesel: 0.17088,
+    Petrol: 0.20073,
+    Unknown:0.17846,
+	"Plug-in Hybrid Electric Vehicle":0.09133,
+	"Battery Electric Vehicle":0.03702
   },
   "Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000 cc - 6000 cc)": {
-    Diesel: 0.3200,
-    Petrol: 0.3700,
+    Diesel: 0.20632,
+    Petrol: 0.30752,
+    Unknown:0.25196,
+    "Plug-in Hybrid Electric Vehicle":0.12510,
+    "Battery Electric Vehicle":0.04902
   },
   "Sports - High Performance - High Speed Vehicles ( 2000 cc - 4000 cc+)": {
-    Diesel: 0.3300,
-    Petrol: 0.4000,
+    Diesel: 0.17323,
+    Petrol: 0.23396,
+    Unknown:0.22400,
+    "Plug-in Hybrid Electric Vehicle":0.14904,
+		"Battery Electric Vehicle":0.06260
   },
   "Dual purpose 4X4 - SUVs 4 wheel Drive or All Wheel Drive (1500 cc - 6000 cc)": {
-    Diesel: 0.2900,
-    Petrol: 0.3400,
+    Diesel: 0.19973,
+    Petrol: 0.19219,
+    Unknown:0.19690,
+    "Plug-in Hybrid Electric Vehicle":0.11663,
+	   "Battery Electric Vehicle":0.04228
   },
   "MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace,Suzuki APV, Vans etc.)  - Passenger or Transport Vehicle (1200 cc - 2000 cc)": {
-    Diesel: 0.2700,
-    Petrol: 0.3000,
+    Diesel: 0.18072,
+    Petrol: 0.17903,
+    Unknown:0.18030,	
+    "Plug-in Hybrid Electric Vehicle":0.10193,
+    "Battery Electric Vehicle":0.05202
   }
 };

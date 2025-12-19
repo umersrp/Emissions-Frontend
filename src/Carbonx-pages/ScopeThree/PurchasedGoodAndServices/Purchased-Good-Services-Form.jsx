@@ -317,7 +317,7 @@ const PurchasedGoodServicesFormPage = () => {
 
   return (
     <div>
-      <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Purchased Goods & Services Record`}>
+      <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Purchased Goods and Services Record`}>
         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
           <p className="text-gray-700">
             This category includes all upstream (i.e., cradle-to-gate) emissions from the production of products purchased or acquired by the reporting company in the reporting year. Products include both goods (tangible products) and services (intangible products).           </p>

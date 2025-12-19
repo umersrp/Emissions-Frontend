@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -27,7 +26,7 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref)
   return <input type="checkbox" ref={resolvedRef} {...rest} className="table-checkbox" />;
 });
 
-const PurchasedGoodServicesListing = () => {
+const DownstreamTransportationListing = () => {
   const navigate = useNavigate();
 
   // Server-side states
@@ -45,46 +44,12 @@ const PurchasedGoodServicesListing = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-
-  // Fetch data from server with pagination
-  // const fetchData = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const res = await axios.get(
-  //       `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
-  //       {
-  //         params: {
-  //           page: pageIndex,
-  //           limit: pageSize,
-  //           search: globalFilterValue || "",
-  //         },
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //         },
-  //       }
-  //     );
-
-  //     const data = res.data?.data || [];
-  //     const meta = res.data?.meta || {};
-
-  //     setRecords(data);
-  //     setTotalPages(meta.totalPages || 1);
-  //     setTotalRecords(meta.totalRecords || 0);
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to fetch records");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const capitalizeLabel = (text) => {
     if (!text) return "";
 
-    const exceptions = [ "and","or","in","of","from","at","to","the","a","an","for","on","with",
-    "but","by","is","it","as","be","this","that","these","those","such",
-    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
-    "n.e.c."];
+    const exceptions = ["and", "or"];
     return text
       .split(" ")
       .map((word, index) => {
@@ -96,50 +61,57 @@ const PurchasedGoodServicesListing = () => {
       })
       .join(" ");
   };
-const fetchData = async () => {
-  setLoading(true);
-  try {
-    const res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
-      {
-        params: {
-          page: pageIndex,
-          limit: pageSize,
-          search: globalFilterValue || "",
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
 
-    // Get data and metadata from server response
-    const data = res.data?.data || [];
-    const meta = res.data?.meta || {};
-    
-    // Set states - NO FILTERING
-    setRecords(data);
-    // Use server's pagination metadata directly
-    setTotalPages(meta.totalPages || 1);
-    setTotalRecords(meta.totalRecords || 0);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to fetch records");
-  } finally {
-    setLoading(false);
-  }
-};
+  useEffect(() => {
+  const delayDebounce = setTimeout(() => {
+    setDebouncedSearch(globalFilterValue);
+  }, 500); // 0.5 sec debounce
+
+  return () => clearTimeout(delayDebounce);
+}, [globalFilterValue]);
+
+  // Fetch data from server with pagination
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/Process-Emissions/Get-All`,
+        {
+          params: {
+            page: pageIndex,
+            limit: pageSize,
+            search: debouncedSearch  || "",
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const data = res.data?.data || [];
+      const meta = res.data?.meta || {};
+
+      setRecords(data);
+      setTotalPages(meta.totalPages || 1);
+      setTotalRecords(meta.totalRecords || 0);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch records");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchData();
-  }, [pageIndex, pageSize, globalFilterValue]);
+  }, [pageIndex, pageSize, debouncedSearch]);
 
 
 
   // Delete Record
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/delete/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/Process-Emissions/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Record deleted successfully");
@@ -156,39 +128,37 @@ const fetchData = async () => {
       {
         Header: "Sr.No",
         id: "serialNo",
-        Cell: ({ row }) => (
-          <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
-        ),
+        Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
       },
-
       { Header: "Building", accessor: "buildingId.buildingName" },
-      { Header: "Stakeholder", accessor: "stakeholder" },
-      { Header: "Purchase Category", accessor: "purchaseCategory" },
-      { Header: "Purchased Activity Type", accessor: "purchasedActivityType",},
-      { Header: "Purchased Goods / Services Type", accessor: "purchasedGoodsServicesType", Cell: ({ value }) => capitalizeLabel(value)  },
-      { Header: "Amount Spent", accessor: "amountSpent" },
-      { Header: "Unit", accessor: "unit", Cell: ({ value }) => (value === "USD" ? "$" : value), },
-      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
-      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
+      { Header: "Stakeholder", accessor: "stakeholderDepartment" },
+      {
+        Header: "Activity Type",
+        accessor: "activityType",
+        Cell: ({ value }) => capitalizeLabel(value), // use the function here
+      },
+      { Header: "Gas Emitted", accessor: "gasEmitted" },
+      { Header: "Amount Of Emissions", accessor: "amountOfEmissions" },
       { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Remarks", accessor: "remarks" },
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
       // {
       //   Header: "Created By",
-      //   accessor: "createdBy",
+      //   accessor: "createdBy.name",
       //   Cell: ({ cell }) => cell.value || "-",
       // },
       // {
       //   Header: "Updated By",
-      //   accessor: "updatedBy",
+      //   accessor: "updatedBy.name",
       //   Cell: ({ cell }) => cell.value || "-",
       // },
+      { Header: "Remarks", accessor: "remarks" },
       {
         Header: "Created At",
         accessor: "createdAt",
         Cell: ({ cell }) =>
           cell.value ? new Date(cell.value).toLocaleDateString() : "-",
       },
-
       {
         Header: "Actions",
         accessor: "_id",
@@ -198,7 +168,7 @@ const fetchData = async () => {
               <button
                 className="action-btn"
                 onClick={() =>
-                  navigate(`/Purchased-Good-Services-Form/${cell.value}`, {
+                  navigate(`/Process-Emissions-Form/${cell.value}`, {
                     state: { mode: "view" },
                   })
                 }
@@ -211,7 +181,7 @@ const fetchData = async () => {
               <button
                 className="action-btn"
                 onClick={() =>
-                  navigate(`/Purchased-Good-Services-Form/${cell.value}`, {
+                  navigate(`/Process-Emissions-Form/${cell.value}`, {
                     state: { mode: "edit" },
                   })
                 }
@@ -279,7 +249,7 @@ const fetchData = async () => {
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0 ">Purchase Goods and Services Records</h6>
+          <h6 className="flex-1 md:mb-0 ">Downstream Transportation and Distribution Records</h6>
 
           <div className="md:flex md:space-x-3 items-center">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
@@ -288,12 +258,12 @@ const fetchData = async () => {
               icon="heroicons-outline:plus-sm"
               text="Add Record"
               className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
-              onClick={() => navigate("/Purchased-Good-Services-Form/add")}
+              onClick={() => navigate("/Process-Emissions-Form/Add")}
             />
           </div>
         </div>
 
-        {/* TABLE */}
+     
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
             {/*  Set fixed height for vertical scroll */}
@@ -436,20 +406,15 @@ const fetchData = async () => {
               // Always show first 2 pages
               if (total > 0) showPages.push(1);
               if (total > 1) showPages.push(2);
-
               // Left ellipsis (... before current page)
               if (current > 4) showPages.push("left-ellipsis");
-
               // Current page
               if (current > 2 && current < total - 1) showPages.push(current);
-
               // Right ellipsis (... after current page)
               if (current < total - 3) showPages.push("right-ellipsis");
-
               // Always show last 2 pages
               if (total > 2) showPages.push(total - 1);
               if (total > 1) showPages.push(total);
-
               // Remove duplicates + keep valid entries
               const finalPages = [...new Set(
                 showPages.filter(
@@ -479,24 +444,17 @@ const fetchData = async () => {
 
             {/* Next */}
             <li>
-              <button
-                onClick={handleNextPage}
-                disabled={pageIndex === totalPages}
-              >
+              <button onClick={handleNextPage} disabled={pageIndex === totalPages}>
                 Next
               </button>
             </li>
 
             {/* Last Page */}
             <li>
-              <button
-                onClick={() => handleGoToPage(totalPages)}
-                disabled={pageIndex === totalPages}
-              >
+              <button onClick={() => handleGoToPage(totalPages)} disabled={pageIndex === totalPages}>
                 <Icon icon="heroicons:chevron-double-right-solid" />
               </button>
             </li>
-
           </ul>
 
           {/* RIGHT SECTION – Show page size */}
@@ -515,6 +473,7 @@ const fetchData = async () => {
             </select>
           </div>
         </div>
+
       </Card>
 
       {/* DELETE MODAL */}
@@ -527,7 +486,6 @@ const fetchData = async () => {
         footerContent={
           <>
             <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
-
             <Button
               text="Delete"
               className="btn-danger"
@@ -540,11 +498,11 @@ const fetchData = async () => {
         }
       >
         <p className="text-gray-700 text-center">
-          Are you sure you want to delete this Recorde? This action cannot be undone.
+          Are you sure you want to delete this Process? This action cannot be undone.
         </p>
       </Modal>
     </>
   );
 };
 
-export default PurchasedGoodServicesListing;
+export default DownstreamTransportationListing;
