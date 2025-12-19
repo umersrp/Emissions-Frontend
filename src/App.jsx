@@ -258,6 +258,8 @@ function App() {
           <Route path="/lock-screen" element={<LockScreen />} />
           <Route path="/lock-screen2" element={<LockScreen2 />} />
           <Route path="/lock-screen3" element={<LockScreen3 />} />
+          <Route path="AddfromEmployee" element={<EmployeeCommutingForm />} />
+
         </Route>
         <Route path="/*" element={<Layout />}>
           {/* <Route path="dashboard" element={<Dashboard />} /> */}
@@ -323,10 +325,12 @@ function App() {
           <Route path="map" element={<MapPage />} />
           <Route path="table-basic" element={<BasicTablePage />} />
           <Route path="react-table" element={<TanstackTable />} />
-          <Route path="Customer" element={<UserPage />} />
+          <Route path="Employee" element={<UserPage />} />
           <Route path="vendor" element={<VendorPage />} />
-          <Route path="Customers-add" element={<UserAddPage />} />
-          <Route path="Customer-edit" element={<UserEditPage />} />
+          <Route path="Employee-add" element={<UserAddPage />} />
+          <Route path="Employee-edit/:id" element={<UserEditPage />} />
+          <Route path="Employee-View/:id" element={<UserViewPage />} />
+
           <Route path="vendor-add" element={<VendorAddPage />} />
           <Route path="vendor-edit" element={<VendorEditPage />} />
           <Route path="add-player" element={<RoleAddPage />} />

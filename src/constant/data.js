@@ -172,6 +172,7 @@ export const menuItems = [
     icon: "heroicons-outline:building-library",
     link: "Sector-table",
   },
+  
   {
     title: "Industry",
     isHide: true,
@@ -195,6 +196,18 @@ export const menuItems = [
     isHide: true,
     icon: "heroicons:home-modern",
     link: "Building"
+  },
+  {
+      title: "Add Employee",
+    isHide: true,
+    icon: "heroicons:user",
+    link: "Employee",
+  },
+   {
+    title: "Employee Commuting Email Sent",
+    isHide: true,
+    icon: "heroicons:home-modern",
+    link: "EmployeeCommuting"
   },
   {
     title: "Scope 1",
