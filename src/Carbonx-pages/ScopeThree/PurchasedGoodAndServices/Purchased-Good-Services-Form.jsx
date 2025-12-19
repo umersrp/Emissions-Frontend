@@ -346,7 +346,7 @@ const PurchasedGoodServicesFormPage = () => {
                 options={stakeholderOptions}
                 value={formData.stakeholder}
                 onChange={(value) => handleSelectChange("stakeholder", value)}
-                placeholder="Select Stakeholder/Department"
+                placeholder="Select Stakeholder / Department"
                 isDisabled={isView}
               />
               {errors.stakeholder && <p className="text-red-500 text-sm">{errors.stakeholder}</p>}
@@ -448,7 +448,7 @@ const PurchasedGoodServicesFormPage = () => {
                 onWheel={handleNumberInputWheel}
                 value={formData.amountSpent}
                 onChange={handleInputChange}
-                placeholder="Enter amount"
+                placeholder="Enter Amount"
                 className="border-[2px] w-full h-10 p-2 rounded-md"
                 disabled={isView}
               />
@@ -460,6 +460,7 @@ const PurchasedGoodServicesFormPage = () => {
               <CustomSelect
                 name="unit"
                 options={currencyUnitOptions}
+                placeholder={"Select Unit"}
                 value={formData.unit}
                 onChange={(value) => handleSelectChange("unit", value)}
                 isDisabled={isView}
@@ -489,7 +490,7 @@ const PurchasedGoodServicesFormPage = () => {
               value={formData.remarks}
               onChange={handleInputChange}
               rows={3}
-              placeholder="Any remarks..."
+              placeholder="Any Remarks"
               className="border-[2px] w-full p-2 rounded-md"
               disabled={isView}
             />
