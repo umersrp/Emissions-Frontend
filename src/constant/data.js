@@ -270,12 +270,12 @@ export const menuItems = [
     icon: "mdi:share-variant",
     link: "Scope-3",
     child: [
-      // {
-      //   childtitle: "Scope 3 Report",
-      //   childlink: "Scope-Three-Report",
-      // },
       {
-        childtitle: "Purchase Goods and Services Records",
+        childtitle: "Scope 3 Report",
+        childlink: "Scope-Three-Report",
+      },
+      {
+        childtitle: "Purchase Goods and Services",
         childlink: "Purchased-Good-Services",
       },
       {
@@ -293,7 +293,16 @@ export const menuItems = [
        {
         childtitle: "Business Travel",
         childlink: "Business-Travel",
+      },//Upstream-Transportation
+      {
+        childtitle: "Upstream Transportation and Distribution",
+        childlink: "Upstream-Transportation",
       },
+        {
+        childtitle: "Downstream Transportation and Distribution",
+        childlink: "Downstream-Transportation",
+      },
+
     ]
 
   },

@@ -6,25 +6,27 @@ import Card from "@/components/ui/Card";
 import Select from "@/components/ui/Select";
 import { Icon } from "@iconify/react";
 import { useNavigate } from "react-router-dom";
+import { map } from "leaflet";
+import { Business } from "@mui/icons-material";
 
 // Utility for formatting numbers
 const formatNumber = (num) => {
-  if (!num && num !== 0) return "-";
   const value = Number(num);
-  if (Math.abs(value) < 0.01 && value !== 0) {
+  if (!num || value === 0) return "N/A";
+  if (Math.abs(value) < 0.01) {
     return value.toExponential(2);
   }
   return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
 };
 
 const ScopeThreeReport = () => {
-  const [data, setData] = useState({ electricity: [], steam: [], heating: [], cooling: [] });
+  const [data, setData] = useState({ goodsAndServices: [], capitalGoods: [], fuelAndEnergy: [], wasteGenerated: [], Business: [], upstreamTransportation: [], downstreamTransportation: [], });
   const [loading, setLoading] = useState(false);
   const [emissionType, setEmissionType] = useState("all");
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
-    limit: 10,
+    limit: 5,
     hasNextPage: false,
     hasPrevPage: false,
   });
@@ -37,15 +39,38 @@ const ScopeThreeReport = () => {
         setLoading(true);
         const token = localStorage.getItem("token");
 
-        const [electricityRes, steamRes, heatingRes, coolingRes] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get-All?limit=1000`, {
+        const [goodsAndServicesRes, capitalGoodsRes, fuelAndEnergyRes, wasteGeneratedRes, businessRes] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All?limit=1000`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-
+          axios.get(`${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All-isCaptialGoods?limit=1000`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/get-All?limit=1000`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`${process.env.REACT_APP_BASE_URL}/Waste-Generate/List?limit=1000`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`${process.env.REACT_APP_BASE_URL}/Business-Travel/List?limit=1000`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          // axios.get(`${process.env.REACT_APP_BASE_URL}/Upstream/List?limit=1000`, {
+          //   headers: { Authorization: `Bearer ${token}` },
+          // }),
+          // axios.get(`${process.env.REACT_APP_BASE_URL}/Downstream/List?limit=1000`, {
+          //   headers: { Authorization: `Bearer ${token}` },
+          // }),
         ]);
 
         setData({
-          electricity: electricityRes.data.data || [],
+          goodsAndServices: goodsAndServicesRes.data.data || [],
+          capitalGoods: capitalGoodsRes.data.data || [],
+          fuelAndEnergy: fuelAndEnergyRes.data.data || [],
+          wasteGenerated: wasteGeneratedRes.data.data || [],
+          Business: businessRes.data.data || [],
+          // upstreamTransportation: upstreamTransportationRes.data.data || [],
+          // downstreamTransportation: downstreamTransportationRes.data.data || [],
         });
       } catch (err) {
         console.error(err);
@@ -62,20 +87,29 @@ const ScopeThreeReport = () => {
   const filteredData = useMemo(() => {
     if (!data) return [];
     switch (emissionType) {
-      case "electricity":
-        return data.electricity;
-      case "steam":
-        return data.steam;
-      case "heating":
-        return data.heating;
-      case "cooling":
-        return data.cooling;
+      case "Purchased Goods and Services":
+        return data.goodsAndServices;
+      case "Capital Goods":
+        return data.capitalGoods;
+      case "Fuel and Energy":
+        return data.fuelAndEnergy;
+      case "Waste Generated":
+        return data.wasteGenerated;
+      case "Business Travel":
+        return data.Business;
+      case "Upstream Transportation":
+        return data.upstreamTransportation;
+      case "Downstream Transportation":
+        return data.downstreamTransportation;
       case "all":
         return [
-          ...(data.electricity || []),
-          ...(data.steam || []),
-          ...(data.heating || []),
-          ...(data.cooling || []),
+          ...(data.goodsAndServices || []),
+          ...(data.capitalGoods || []),
+          ...(data.fuelAndEnergy || []),
+          ...(data.wasteGenerated || []),
+          ...(data.Business || []),
+          ...(data.upstreamTransportation || []),
+          ...(data.downstreamTransportation || []),
         ];
       default:
         return [];
@@ -86,151 +120,138 @@ const ScopeThreeReport = () => {
   const buildingData = useMemo(() => {
     const map = {};
     filteredData.forEach((item) => {
-      const name = item.buildingId?.buildingName || "Unknown";
-      if (!map[name]) map[name] = 0;
-      // map[name] += Number(item.calculatedEmissionKgCo2e || 0);
-      if (!map[name]) {
-        map[name] = { location: 0, market: 0 };
-      }
-
-      map[name].location += Number(item.calculatedEmissionKgCo2e || 0);
-      map[name].market += Number(item.calculatedEmissionMarketKgCo2e || 0);
-
+      const name = item.buildingId?.buildingName || "N/A";
+      if (!map[name]) map[name] = { totalKg: 0, count: 0 };
+      map[name].totalKg += Number(item.calculatedEmissionKgCo2e || 0);
+      map[name].count += 1; // increment record count
     });
-    // return Object.entries(map).map(([buildingName, kg]) => ({
-    //   buildingName,
-    //   totalKg: kg,
-    //   totalT: kg / 1000,
-    // }));
-    return Object.entries(map).map(([buildingName, obj]) => ({
+
+    const entries = Object.entries(map).map(([buildingName, data]) => ({
       buildingName,
-      totalKg: obj.location,
-      totalT: obj.location / 1000,
-      marketKg: obj.market,
-      marketT: obj.market / 1000,
+      totalKg: data.totalKg,
+      totalT: data.totalKg / 1000,
+      recordCount: data.count, // number of records for this building
     }));
 
+    console.log("Building Data with record count:", entries);
+
+    return entries;
   }, [filteredData]);
 
-  // Manual pagination
+  console.log("Building Data:", buildingData);
+  // console.log("Building Count:",totalBuildings)
+
   const paginatedData = useMemo(() => {
-    const totalPages = Math.ceil(buildingData.length / pagination.limit) || 1;
-    const startIndex = (pagination.currentPage - 1) * pagination.limit;
+    const totalPages = Math.max(1, Math.ceil(buildingData.length / pagination.limit));
+
+    // Fix invalid page when filter changes
+    const safePage = Math.min(pagination.currentPage, totalPages);
+
+    const startIndex = (safePage - 1) * pagination.limit;
     const endIndex = startIndex + pagination.limit;
-    const slicedData = buildingData.slice(startIndex, endIndex);
 
     return {
-      data: slicedData,
+      data: buildingData.slice(startIndex, endIndex),
       totalPages,
-      hasNextPage: pagination.currentPage < totalPages,
-      hasPrevPage: pagination.currentPage > 1,
+      safePage,
     };
   }, [buildingData, pagination.currentPage, pagination.limit]);
 
-  // Total Scope 1 including cooling
+
+  // Total Scope 3 including process
   const allTotalKg = useMemo(() => {
-    // const electricityKg = (data.electricity || []).reduce(
-    //   (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
-    //   0
-    // );
-    const electricityLocationKg = (data.electricity || []).reduce(
+    const goodsAndServicesKg = (data.goodsAndServices || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+    const capitalGoodsKg = (data.capitalGoods || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+    const fuelAndEnergyKg = (data.fuelAndEnergy || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+    const wasteGeneratedKg = (data.wasteGenerated || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+    const businessKg = (data.Business || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+      const upstreamTransportationKg = (data.upstreamTransportation || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+    const downstreamTransportationKg = (data.downstreamTransportation || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
 
-    const electricityMarketKg = (data.electricity || []).reduce(
-      (sum, item) => sum + Number(item.calculatedEmissionMarketKgCo2e || 0),
-      0
-    );
-    const steamKg = (data.steam || []).reduce(
-      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
-      0
-    );
-    const heatingKg = (data.heating || []).reduce(
-      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
-      0
-    );
-    const coolingKg = (data.cooling || []).reduce(
-      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
-      0
-    );
-    return electricityLocationKg + electricityMarketKg + steamKg + heatingKg + coolingKg;
+    // console.log("Process Kg:", processKg);
+    return goodsAndServicesKg + capitalGoodsKg + fuelAndEnergyKg + wasteGeneratedKg + businessKg + upstreamTransportationKg + downstreamTransportationKg;
   }, [data]);
 
   const allTotalT = allTotalKg / 1000;
 
   // Individual Summary Cards
   const summaryCards = useMemo(() => {
-    // const electricityKg = (data.electricity || []).reduce(
-    //   (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
-    //   0
-    // );
-    // Purchased Electricity: Location & Market based
-    const electricityLocationKg = (data.electricity || []).reduce(
+    const goodsAndServicesKg = (data.goodsAndServices || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-
-    const electricityMarketKg = (data.electricity || []).reduce(
-      (sum, item) => sum + Number(item.calculatedEmissionMarketKgCo2e || 0),
-      0
-    );
-    const steamKg = (data.steam || []).reduce(
+    const capitalGoodsKg = (data.capitalGoods || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    const heatingKg = (data.heating || []).reduce(
+    const fuelAndEnergyKg = (data.fuelAndEnergy || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    const coolingKg = (data.cooling || []).reduce(
+    const wasteGeneratedKg = (data.wasteGenerated || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+    const businessKg = (data.Business || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+    const upstreamTransportationKg = (data.upstreamTransportation || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+    const downstreamTransportationKg = (data.downstreamTransportation || []).reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
 
     return [
-      // { name: "Purchased Electricity", kg: electricityKg, t: electricityKg / 1000, bg: "bg-cyan-50" },
-      // {
-      //   name: "Purchased Electricity Location-Based",
-      //   kg: electricityLocationKg,
-      //   t: electricityLocationKg / 1000,
-      //   bg: "bg-cyan-50",
-      // },
-      // {
-      //   name: "Purchased Electricity Market-Based",
-      //   kg: electricityMarketKg,
-      //   t: electricityMarketKg / 1000,
-      //   bg: "bg-blue-50",
-      // },
-      {
-        name: "Purchased Electricity",
-        locationKg: electricityLocationKg,
-        locationT: electricityLocationKg / 1000,
-        marketKg: electricityMarketKg,
-        marketT: electricityMarketKg / 1000,
-        totalKg: electricityLocationKg + electricityMarketKg,
-        totalT: (electricityLocationKg + electricityMarketKg) / 1000,
-        bg: "bg-cyan-50",
-      },
-      { name: "Purchased Steam", kg: steamKg, t: steamKg / 1000, bg: "bg-red-50" },
-      { name: "Purchased Heating", kg: heatingKg, t: heatingKg / 1000, bg: "bg-purple-50" },
-      { name: "Purchased Cooling", kg: coolingKg, t: coolingKg / 1000, bg: "bg-green-50" },
+      { name: "Purchased Goods and Services", kg: goodsAndServicesKg, t: goodsAndServicesKg / 1000, bg: "bg-cyan-50" },
+      { name: "Capital Goods", kg: capitalGoodsKg, t: capitalGoodsKg / 1000, bg: "bg-red-50" },
+      { name: "Fuel and Energy", kg: fuelAndEnergyKg, t: fuelAndEnergyKg / 1000, bg: "bg-purple-50" },
+      { name: "Waste Generated", kg: wasteGeneratedKg, t: wasteGeneratedKg / 1000, bg: "bg-green-50" },
+      { name: "Business Travel", kg: businessKg, t: businessKg / 1000, bg: "bg-green-50" },
+      { name: "Upstream Transportation", kg: upstreamTransportationKg, t: upstreamTransportationKg / 1000, bg: "bg-yellow-50" },
+      { name: "Downstream Transportation", kg: downstreamTransportationKg, t: downstreamTransportationKg / 1000, bg: "bg-blue-50" },
     ];
   }, [data]);
 
   // React Select options
   const emissionOptions = [
-    { value: "all", label: "All Scope 2 (Building-wise)" },
-    { value: "electricity", label: "Purchased Electricity" },
-    // { value: "steam", label: "Purchased Steam" },
-    // { value: "heating", label: "Purchased Heating" },
-    // { value: "cooling", label: "Purchased Cooling" },
+    { value: "all", label: "All Scope 3 (Building-wise)" },
+    { value: "Purchased Goods and Services", label: "Purchased Goods and Services" },
+    { value: "Capital Goods", label: "Capital Goods" },
+    { value: "Fuel and Energy", label: "Fuel and Energy" },
+    { value: "Waste Generated", label: "Waste Generated" },
+    { value: "Business Travel", label: "Business Travel" },
+    { value: "Upstream Transportation", label: "Upstream Transportation" },
+    { value: "Downstream Transportation", label: "Downstream Transportation" },
   ];
 
   return (
     <Card>
       <h2 className="text-2xl font-semibold text-gray-700 mb-4">GHG Emissions</h2>
-
       {/* Total Scope One */}
       <motion.div
         className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl p-6 mb-8"
@@ -244,15 +265,17 @@ const ScopeThreeReport = () => {
             : `${formatNumber(allTotalKg)} kg CO₂e | ${formatNumber(allTotalT)} t CO₂e`}
         </p>
       </motion.div>
-
       {/* Individual Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
         {summaryCards.map((item, idx) => {
           const iconMap = {
-            "Stationary Combustion": "heroicons:fire",
-            "Mobile Combustion": "heroicons:truck",
-            "Fugitive Emissions": "heroicons:cloud",
-            "Process Emissions": "heroicons:cog-6-tooth",
+            "Purchased Goods and Services": "heroicons:fire",
+            "Capital Goods": "heroicons:truck",
+            "Fuel and Energy": "heroicons:cloud",
+            "Waste Generated": "heroicons:cog-6-tooth",
+            "Business Travel": "heroicons:cog-6-tooth",
+            "Upstream Transportation": "heroicons:cog-6-tooth",
+            "Downstream Transportation": "heroicons:cog-6-tooth",
           };
           return (
             <div
@@ -267,37 +290,26 @@ const ScopeThreeReport = () => {
                 <h2 className="text-xl font-semibold mb-1 text-gray-700">{item.name}</h2>
               </div>
               <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
-                {item.name === "Purchased Electricity" ? (
-                  <>
-                    <span className="text-md font-semibold mb-1 text-gray-700">Location Based</span>
-                    <span>
-                      {formatNumber(item.locationKg)} kg CO₂e, {formatNumber(item.locationT)} t CO₂e
-                    </span>
-                    <span className="text-md font-semibold mb-1 text-gray-700">Market Based</span>
-                    <span>
-                      {formatNumber(item.marketKg)} kg CO₂e, {formatNumber(item.marketT)} t CO₂e
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span>{formatNumber(item.kg)} kg CO₂e</span>
-                    <span>{formatNumber(item.t)} t CO₂e</span>
-                  </>
-                )}
+                <span>
+                  {formatNumber(item.kg)}<span className="text-black-500">kg CO₂e</span>
+                </span>
+                <span>
+                  {formatNumber(item.t)}<span className="text-black-500">t CO₂e</span>
+                </span>
               </p>
             </div>
           );
         })}
       </div>
-
       {/* Building-wise Table + Filter */}
       <Card>
         <div className="flex justify-between items-center mb-4">
           <h6 className="text-gray-800 font-semibold">
-            Building Emissions{" "}
+
             {emissionType === "all"
               ? "All Scope 2"
               : emissionType.charAt(0).toUpperCase() + emissionType.slice(1)}
+            {" "} Emissions (Building-Wise)
           </h6>
           <div className="w-64">
             <Select
@@ -325,25 +337,15 @@ const ScopeThreeReport = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">
                   Sr.No
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-normal break-words">
+                <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">
                   Building
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
-                  Total Location Based Emissions (kgCO₂e)
+                  Total Emissions (kgCO₂e)
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
-                  Total Location Based Emissions (tCO₂e)
+                  Total Emissions (tCO₂e)
                 </th>
-                {(emissionType === "all" || emissionType === "electricity") && (
-                  <>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
-                      Total Market Based Emissions (kgCO₂e)
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
-                      Total Market Based Emissions (tCO₂e)
-                    </th>
-                  </>
-                )}
               </tr>
             </thead>
             <tbody>
@@ -359,17 +361,9 @@ const ScopeThreeReport = () => {
                     <td className="px-6 py-4">
                       {index + 1 + (pagination.currentPage - 1) * pagination.limit}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {row.buildingName}
-                    </td>                    <td className="px-6 py-4">{formatNumber(row.totalKg)}</td>
+                    <td className="px-6 py-4">{row.buildingName}</td>
+                    <td className="px-6 py-4">{formatNumber(row.totalKg)}</td>
                     <td className="px-6 py-4">{formatNumber(row.totalT)}</td>
-                    {(emissionType === "all" || emissionType === "electricity") && (
-                      <>
-                        <td className="px-6 py-4">{formatNumber(row.marketKg)}</td>
-                        <td className="px-6 py-4">{formatNumber(row.marketT)}</td>
-                      </>
-                    )}
-
                   </tr>
                 ))
               )}
@@ -379,91 +373,102 @@ const ScopeThreeReport = () => {
 
         {/* Pagination UI */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
-          <div className="flex items-center space-x-3 rtl:space-x-reverse">
+          {/* Go to Page */}
+          <div className="flex items-center space-x-3">
             <span className="flex space-x-2 items-center">
               <span className="text-sm font-medium text-slate-600">Go</span>
               <input
                 type="number"
-                className="form-control py-2"
                 min="1"
                 max={paginatedData.totalPages}
+                className="form-control py-2"
                 value={pagination.currentPage}
                 onChange={(e) => {
-                  const page = Number(e.target.value);
-                  if (page >= 1 && page <= paginatedData.totalPages) {
-                    setPagination((prev) => ({ ...prev, currentPage: page }));
-                  }
+                  let page = Number(e.target.value);
+                  if (page < 1) page = 1;
+                  if (page > paginatedData.totalPages) page = paginatedData.totalPages;
+                  setPagination((p) => ({ ...p, currentPage: page }));
                 }}
-                style={{ width: "50px" }}
+                style={{ width: "60px" }}
               />
             </span>
+
             <span className="text-sm font-medium text-slate-600">
-              Page {pagination.currentPage} of {paginatedData.totalPages}
+              Page {paginatedData.safePage} of {paginatedData.totalPages}
             </span>
           </div>
 
-          <ul className="flex items-center space-x-3 rtl:space-x-reverse">
+          {/* Pagination Buttons */}
+          <ul className="flex items-center space-x-3">
             <li>
               <button
                 onClick={() => setPagination((p) => ({ ...p, currentPage: 1 }))}
-                disabled={pagination.currentPage === 1}
-                className={`${pagination.currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+                disabled={paginatedData.safePage === 1}
               >
                 <Icon icon="heroicons:chevron-double-left-solid" />
               </button>
             </li>
+
             <li>
               <button
                 onClick={() =>
-                  setPagination((p) => ({ ...p, currentPage: Math.max(1, p.currentPage - 1) }))
+                  setPagination((p) => ({ ...p, currentPage: p.currentPage - 1 }))
                 }
-                disabled={pagination.currentPage === 1}
-                className={`${pagination.currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+                disabled={paginatedData.safePage === 1}
               >
                 Prev
               </button>
             </li>
+
             {Array.from({ length: paginatedData.totalPages }, (_, idx) => (
               <li key={idx}>
                 <button
-                  className={`${idx + 1 === pagination.currentPage
-                    ? "bg-slate-900 text-white font-medium"
-                    : "bg-slate-100 text-slate-900 font-normal"
+                  className={`${idx + 1 === paginatedData.safePage
+                    ? "bg-slate-900 text-white"
+                    : "bg-slate-100 text-slate-900"
                     } text-sm rounded h-6 w-6 flex items-center justify-center`}
-                  onClick={() => setPagination((p) => ({ ...p, currentPage: idx + 1 }))}
+                  onClick={() =>
+                    setPagination((p) => ({ ...p, currentPage: idx + 1 }))
+                  }
                 >
                   {idx + 1}
                 </button>
               </li>
             ))}
+
             <li>
               <button
                 onClick={() =>
-                  setPagination((p) => ({ ...p, currentPage: Math.min(paginatedData.totalPages, p.currentPage + 1) }))
+                  setPagination((p) => ({ ...p, currentPage: p.currentPage + 1 }))
                 }
-                disabled={pagination.currentPage === paginatedData.totalPages}
-                className={`${pagination.currentPage === paginatedData.totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
+                disabled={paginatedData.safePage === paginatedData.totalPages}
               >
                 Next
               </button>
             </li>
+
             <li>
               <button
-                onClick={() => setPagination((p) => ({ ...p, currentPage: paginatedData.totalPages }))}
-                disabled={pagination.currentPage === paginatedData.totalPages}
-                className={`${pagination.currentPage === paginatedData.totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
+                onClick={() =>
+                  setPagination((p) => ({
+                    ...p,
+                    currentPage: paginatedData.totalPages,
+                  }))
+                }
+                disabled={paginatedData.safePage === paginatedData.totalPages}
               >
                 <Icon icon="heroicons:chevron-double-right-solid" />
               </button>
             </li>
           </ul>
 
+          {/* Limit Selector */}
           <div className="flex items-center space-x-3">
             <span className="text-sm font-medium text-slate-600">Show</span>
             <select
               value={pagination.limit}
               onChange={(e) =>
-                setPagination((p) => ({ ...p, limit: Number(e.target.value), currentPage: 1 }))
+                setPagination({ currentPage: 1, limit: Number(e.target.value) })
               }
               className="form-select py-2"
             >
@@ -475,6 +480,7 @@ const ScopeThreeReport = () => {
             </select>
           </div>
         </div>
+
       </Card>
     </Card>
   );

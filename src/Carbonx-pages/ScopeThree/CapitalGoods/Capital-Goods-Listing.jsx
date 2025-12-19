@@ -96,39 +96,39 @@ const CapitalGoodsListing = () => {
   //     setLoading(false);
   //   }
   // };
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All-isCaptialGoods`,
-        {
-          params: {
-            page: pageIndex,
-            limit: pageSize,
-            search: globalFilterValue || "",
-          },
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-  
-      let data = res.data?.data || [];
-      //  FILTER OUT CAPITAL GOODS
-      data = data.filter((item) => item.isCapitalGoods !== false);
-      // UPDATE STATE
-      setRecords(data);
-      // FIX TOTAL COUNTS ACCORDING TO FILTERED DATA
-      setTotalRecords(data.length);
-      // FIX TOTAL PAGES AFTER FILTERING
-      setTotalPages(Math.ceil(data.length / pageSize));
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch records");
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchData = async () => {
+  setLoading(true);
+  try {
+    const res = await axios.get(
+      `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All-isCaptialGoods`,
+      {
+        params: {
+          page: pageIndex,
+          limit: pageSize,
+          search: globalFilterValue || "",
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+
+    // Get data and metadata from server response
+    const data = res.data?.data || [];
+    const meta = res.data?.meta || {};
+    
+    // Set states - NO FILTERING
+    setRecords(data);
+    // Use server's pagination metadata directly
+    setTotalPages(meta.totalPages || 1);
+    setTotalRecords(meta.totalRecords || 0);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to fetch records");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchData();

@@ -31,7 +31,7 @@ const Scope3 = () => {
     },
     {
       title: "Upstream Transportation & Distribution",
-      path: "",
+      path: "/Upstream-Transportation",
       icon: "heroicons:truck",
       bg: "bg-green-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebc0] to-[#6fcf97]"
@@ -70,7 +70,7 @@ const Scope3 = () => {
   const downstream_categories = [
     {
       title: "Downstream Transportation & Distribution",
-      path: "",
+      path: "/Downstream-Transportation",
       icon: "heroicons:fire",
       bg: "bg-cyan-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
@@ -125,7 +125,7 @@ const Scope3 = () => {
        className="w-full  flex flex-col justify-center pb-44 min-h-screen">
           <div className="space-y-6 w-full">
         <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
-          Scope 3 emissions are a consequence of the activities of the company, but occur from sources not owned or controlled by the company, it refers to indirect greenhouse gas emissions from a <span className="font-semibold"> company's value chain</span> that are not owned or controlled by the company itself. This broad category includes emissions from activities such as the production of purchased goods and services, employee commuting, business travel, and the use and disposal of sold products.
+          Scope 3 emissions are a consequence of the activities of the company, but occur from sources not owned or controlled by the company, it refers to indirect greenhouse gas emissions from a <span className="font-extrabold "> company's value chain</span> that are not owned or controlled by the company itself. This broad category includes emissions from activities such as the production of purchased goods and services, employee commuting, business travel, and the use and disposal of sold products.
         </p>
         {/* <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
           <span className="font-semibold ">Note:</span> Direct CO₂ emissions from the combustion of biomass shall not be included in scope 1 but reported separately.

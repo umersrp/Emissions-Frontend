@@ -233,9 +233,10 @@ import BusinessTravelFormPage from "./Carbonx-pages/ScopeThree/BusinessTravel/Bu
 import BusinessTravel from "./Carbonx-pages/ScopeThree/BusinessTravel/Business-Travel-Listing";
 import CapitalGoodsListing from "./Carbonx-pages/ScopeThree/CapitalGoods/Capital-Goods-Listing";
 import ScopeThreeReport from "./Carbonx-pages/ScopeThree/ScopeThreeReport/Scope-Three-Report";
-import EmailSent from "./Carbonx-pages/Emailsent/EmailSent";
-import EmployeeCommutingForm from "./Carbonx-pages/EmployeeCommuting/EmployeeComutingAdd";
-import UserViewPage from "./pages/utility/userView";
+import UpstreamTransportationFormPage from "./Carbonx-pages/ScopeThree/UpstreamTransporation/Upstream-Transportation-Form";
+import UpstreamTransportationListing from "./Carbonx-pages/ScopeThree/UpstreamTransporation/Upstream-Transportation-Listing";
+import DownstreamTransportationFormPage from "./Carbonx-pages/ScopeThree/DownstreamTransporation/Downstream-Transportation-Form";
+import DownstreamTransportationListing from "./Carbonx-pages/ScopeThree/DownstreamTransporation/Downstream-Transportation-Listing";
 
 
 
@@ -490,13 +491,15 @@ function App() {
           <Route path="Business-Travel-Form/:id" element={<BusinessTravelFormPage />} />
           <Route path="Business-Travel" element={<BusinessTravel />} />
 
+          <Route path="Upstream-Transportation-Form/add" element={<UpstreamTransportationFormPage />} />
+          <Route path="Upstream-Transportation-Form/:id" element={<UpstreamTransportationFormPage />} />
+          <Route path="Upstream-Transportation" element={<UpstreamTransportationListing />} />
+
+          <Route path="Downstream-Transportation-Form/add" element={<DownstreamTransportationFormPage />} />
+          <Route path="Downstream-Transportation-Form/:id" element={<DownstreamTransportationFormPage />} />
+          <Route path="Downstream-Transportation" element={<DownstreamTransportationListing/>} />
+
           <Route path="Coach-edit" element={<CoachEditPage />} />
-          <Route path="EmployeeCommuting" element={<EmailSent />} />
-          <Route path="AddfromEmployee" element={<EmployeeCommutingForm />} />
-
-
-
-
           <Route path="*" element={<Navigate to="/404" />} />
         </Route>
         <Route
