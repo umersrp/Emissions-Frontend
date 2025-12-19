@@ -233,6 +233,9 @@ import BusinessTravelFormPage from "./Carbonx-pages/ScopeThree/BusinessTravel/Bu
 import BusinessTravel from "./Carbonx-pages/ScopeThree/BusinessTravel/Business-Travel-Listing";
 import CapitalGoodsListing from "./Carbonx-pages/ScopeThree/CapitalGoods/Capital-Goods-Listing";
 import ScopeThreeReport from "./Carbonx-pages/ScopeThree/ScopeThreeReport/Scope-Three-Report";
+import EmailSent from "./Carbonx-pages/Emailsent/EmailSent";
+import EmployeeCommutingForm from "./Carbonx-pages/EmployeeCommuting/EmployeeComutingAdd";
+import UserViewPage from "./pages/utility/userView";
 
 
 
@@ -254,6 +257,8 @@ function App() {
           <Route path="/lock-screen" element={<LockScreen />} />
           <Route path="/lock-screen2" element={<LockScreen2 />} />
           <Route path="/lock-screen3" element={<LockScreen3 />} />
+          <Route path="AddfromEmployee" element={<EmployeeCommutingForm />} />
+
         </Route>
         <Route path="/*" element={<Layout />}>
           {/* <Route path="dashboard" element={<Dashboard />} /> */}
@@ -319,10 +324,12 @@ function App() {
           <Route path="map" element={<MapPage />} />
           <Route path="table-basic" element={<BasicTablePage />} />
           <Route path="react-table" element={<TanstackTable />} />
-          <Route path="Customer" element={<UserPage />} />
+          <Route path="Employee" element={<UserPage />} />
           <Route path="vendor" element={<VendorPage />} />
-          <Route path="Customers-add" element={<UserAddPage />} />
-          <Route path="Customer-edit" element={<UserEditPage />} />
+          <Route path="Employee-add" element={<UserAddPage />} />
+          <Route path="Employee-edit/:id" element={<UserEditPage />} />
+          <Route path="Employee-View/:id" element={<UserViewPage />} />
+
           <Route path="vendor-add" element={<VendorAddPage />} />
           <Route path="vendor-edit" element={<VendorEditPage />} />
           <Route path="add-player" element={<RoleAddPage />} />
@@ -435,9 +442,9 @@ function App() {
           <Route path="Building" element={<BuildingTable />} />
 
           <Route path="Scope-1" element={<Scope1 />} />
-          
-          <Route path="Scope-One-Report" element={<ScopeOneReport/>} />
-          <Route path="Air-Emission-Report-Page" element={<EmissionsReportPage/>} />
+
+          <Route path="Scope-One-Report" element={<ScopeOneReport />} />
+          <Route path="Air-Emission-Report-Page" element={<EmissionsReportPage />} />
 
           <Route path="Stationary-Combustion-Form/add" element={<StationaryCombustionFormPage />} />
           <Route path="Stationary-Combustion-Form/:id" element={<StationaryCombustionFormPage />} />
@@ -450,40 +457,44 @@ function App() {
           <Route path="Mobile-Combustion-Form/add" element={<MobileCombustionFormPage />} />
           <Route path="Mobile-Combustion-Form/:id" element={<MobileCombustionFormPage />} />
           <Route path="Mobile-Combustion" element={<MobileCombustionListing />} />
-          
+
           <Route path="Process-Emissions-Form/add" element={<ProcessEmissionsFormPage />} />
           <Route path="Process-Emissions-Form/:id" element={<ProcessEmissionsFormPage />} />
           <Route path="Process-Emissions" element={<ProcessEmissionsListing />} />
 
 
           <Route path="Scope-2" element={<Scope2 />} />
-          <Route path="Scope-Two-Report" element={<ScopeTwoReport/>} />
+          <Route path="Scope-Two-Report" element={<ScopeTwoReport />} />
 
           <Route path="Purchased-Electricity-Form/add" element={<PurchasedElectricityFormPage />} />
           <Route path="Purchased-Electricity-Form/:id" element={<PurchasedElectricityFormPage />} />
-          <Route path="Purchased-Electricity" element={<PurchasedElectricityListing/>} />
+          <Route path="Purchased-Electricity" element={<PurchasedElectricityListing />} />
 
-          <Route path="Scope-3" element={<Scope3/>} />
-          <Route path="Scope-Three-Report" element={<ScopeThreeReport/>} />
+          <Route path="Scope-3" element={<Scope3 />} />
+          <Route path="Scope-Three-Report" element={<ScopeThreeReport />} />
 
           <Route path="Purchased-Good-Services-Form/add" element={<PurchasedGoodServicesFormPage />} />
           <Route path="Purchased-Good-Services-Form/:id" element={<PurchasedGoodServicesFormPage />} />
-          <Route path="Purchased-Good-Services" element={<PurchasedGoodServicesListing/>} />
-          <Route path="Capital-Goods" element={<CapitalGoodsListing/>} />
+          <Route path="Purchased-Good-Services" element={<PurchasedGoodServicesListing />} />
+          <Route path="Capital-Goods" element={<CapitalGoodsListing />} />
 
           <Route path="fuel-energy-form/add" element={<FuelEnergyForm />} />
           <Route path="fuel-energy-form/:id" element={<FuelEnergyForm />} />
-          <Route path="fuel-energy" element={<FuelFusion/>} />
+          <Route path="fuel-energy" element={<FuelFusion />} />
 
-          <Route path="Waste-Generated-Form/add" element={<WasteGeneratedFormPage/>} />
-          <Route path="Waste-Generated-Form/:id" element={<WasteGeneratedFormPage/>} />
-          <Route path="Waste-Generated" element={<WasteGeneratedListing/>} />
+          <Route path="Waste-Generated-Form/add" element={<WasteGeneratedFormPage />} />
+          <Route path="Waste-Generated-Form/:id" element={<WasteGeneratedFormPage />} />
+          <Route path="Waste-Generated" element={<WasteGeneratedListing />} />
 
-          <Route path="Business-Travel-Form/add" element={<BusinessTravelFormPage/>} />
-          <Route path="Business-Travel-Form/:id" element={<BusinessTravelFormPage/>} />
-          <Route path="Business-Travel" element={<BusinessTravel/>} />
+          <Route path="Business-Travel-Form/add" element={<BusinessTravelFormPage />} />
+          <Route path="Business-Travel-Form/:id" element={<BusinessTravelFormPage />} />
+          <Route path="Business-Travel" element={<BusinessTravel />} />
 
           <Route path="Coach-edit" element={<CoachEditPage />} />
+          <Route path="EmployeeCommuting" element={<EmailSent />} />
+          <Route path="AddfromEmployee" element={<EmployeeCommutingForm />} />
+
+
 
 
           <Route path="*" element={<Navigate to="/404" />} />

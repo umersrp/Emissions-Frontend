@@ -6,7 +6,7 @@ import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-const UserEditPage = () => {
+const UserViewPage = () => {
   const navigate = useNavigate();
   const { id: userId } = useParams();
   const user = useSelector((state) => state.auth.user);
@@ -113,7 +113,7 @@ const UserEditPage = () => {
 
   return (
     <div>
-      <Card title="Edit User">
+      <Card title="View User">
         {isLoading ? (
           <p>Loading...</p>
         ) : (
@@ -189,16 +189,16 @@ const UserEditPage = () => {
           <button className="btn btn-light" onClick={handleCancel} type="button">
             Cancel
           </button>
-          <Button
+          {/* <Button
             text="Save"
             className="btn-dark"
             onClick={handleSubmit}
             isLoading={uploadingData}
-          />
+          /> */}
         </div>
       </Card>
     </div>
   );
 };
 
-export default UserEditPage;
+export default UserViewPage;

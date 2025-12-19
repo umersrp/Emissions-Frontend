@@ -6,9 +6,14 @@ import RevenueBarChart from "@/components/partials/widget/chart/revenue-bar-char
 
 const Dashboard = () => {
   const [buildings, setBuildings] = useState([]);
-  const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [dashboardData, setDashboardData] = useState(null);
+  const [selectedBuilding, setSelectedBuilding] = useState([]);
+
   const [loading, setLoading] = useState(false);
+  const [selectedDepartments, setSelectedDepartments] = useState([]);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
 
   // Fetch buildings list on mount
   useEffect(() => {
@@ -55,6 +60,40 @@ const Dashboard = () => {
 
     fetchDashboardData();
   }, [selectedBuilding]);
+
+  const applyFilters = async () => {
+    if (!selectedBuilding) return;
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: {
+            buildingId: selectedBuilding,
+            departments: selectedDepartments,
+            fromDate,
+            toDate,
+          },
+        }
+      );
+      setDashboardData(res.data.data);
+    } catch (err) {
+      console.error("Filter error", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const clearFilters = () => {
+    setSelectedDepartments([]);
+    setFromDate("");
+    setToDate("");
+  };
+
 
   // --- Calculate emissions ---
 
@@ -111,36 +150,89 @@ const Dashboard = () => {
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar: Building filter */}
       <aside className="w-64 p-4 bg-white shadow-lg overflow-auto rounded-xl">
-        <h2 className="font-bold text-xl mb-6 text-gray-800 dark:text-gray-200">Filter by Building</h2>
+        <h2 className="font-bold text-xl mb-6 text-gray-800 dark:text-gray-200">
+          Filters
+        </h2>
 
-        {buildings.length === 0 ? (
-          <p className="text-gray-500 dark:text-gray-400">No buildings found</p>
-        ) : (
-          <div className="space-y-3">
-            {buildings.map((b) => {
-              const isSelected = selectedBuilding === b._id;
-              return (
-                <button
-                  key={b._id}
-                  onClick={() => setSelectedBuilding(b._id)}
-                  className={`
-              w-full text-left px-4 py-3 rounded-lg transition-all
-              flex items-center justify-between
-              ${isSelected ? "bg-blue-500 text-white shadow-lg" : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-blue-100 dark:hover:bg-blue-600"}
-            `}
-                >
-                  <span className="font-medium">{b.buildingName || b.name}</span>
-                  {isSelected && (
-                    <span className="bg-white text-blue-500 dark:text-blue-200 px-2 py-0.5 text-xs rounded-full font-semibold">
-                      Selected
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+        {/* ---------------- BUILDING FILTER (DROPDOWN) ---------------- */}
+        <div className="mb-6">
+          <h3 className="font-semibold text-lg text-gray-700 mb-3">Building</h3>
+          <select
+            value={selectedBuilding[0] || ""}
+            onChange={(e) => setSelectedBuilding(e.target.value ? [e.target.value] : [])}
+            className="w-full border rounded-md px-3 py-2 text-sm"
+          >
+            <option value="">Select a building</option>
+            {buildings.map((b) => (
+              <option key={b._id} value={b._id}>
+                {b.buildingName || b.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* ---------------- DEPARTMENT FILTER ---------------- */}
+        <div className="mb-6">
+          <h3 className="font-semibold text-lg text-gray-700 mb-3">Department</h3>
+          <div className="space-y-2 text-sm">
+            {["Operations", "Finance", "HR", "IT", "Maintenance"].map((dept) => (
+              <label key={dept} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  className="rounded"
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedDepartments((prev) => [...prev, dept]);
+                    } else {
+                      setSelectedDepartments((prev) =>
+                        prev.filter((d) => d !== dept)
+                      );
+                    }
+                  }}
+                />
+                {dept}
+              </label>
+            ))}
           </div>
-        )}
+        </div>
+
+        {/* ---------------- DATE RANGE FILTER ---------------- */}
+        <div className="mb-6">
+          <h3 className="font-semibold text-lg text-gray-700 mb-3">Date Range</h3>
+          <div className="space-y-2">
+            <input
+              type="date"
+              className="w-full border rounded-md px-3 py-2 text-sm"
+              onChange={(e) => setFromDate(e.target.value)}
+            />
+            <input
+              type="date"
+              className="w-full border rounded-md px-3 py-2 text-sm"
+              onChange={(e) => setToDate(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {/* ---------------- FILTER BUTTONS ---------------- */}
+        <div className="space-y-2">
+          <button
+            onClick={applyFilters}
+            className="w-full btn-dark py-2 rounded-lg font-semibold"
+
+          >
+            Apply Filters
+          </button>
+
+          <button
+            onClick={clearFilters}
+            className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg font-semibold"
+          >
+            Clear Filters
+          </button>
+        </div>
       </aside>
+
+
 
       {/* Main content */}
       <main className="flex-1 p-6 overflow-auto">
@@ -178,6 +270,7 @@ const Dashboard = () => {
             <h3 className="font-semibold mb-4">GHG Emissions by Scope</h3>
             <GroupChart1 chartData={pieData} loading={loading} />
           </Card>
+
 
           <Card className="flex-1 p-4 min-w-[320px]">
             <h3 className="font-semibold mb-4">Building-wise GHG Emissions</h3>
