@@ -172,6 +172,7 @@ export const menuItems = [
     icon: "heroicons-outline:building-library",
     link: "Sector-table",
   },
+  
   {
     title: "Industry",
     isHide: true,
@@ -195,6 +196,18 @@ export const menuItems = [
     isHide: true,
     icon: "heroicons:home-modern",
     link: "Building"
+  },
+  {
+      title: "Add Employee",
+    isHide: true,
+    icon: "heroicons:user",
+    link: "Employee",
+  },
+   {
+    title: "Employee Commuting Email Sent",
+    isHide: true,
+    icon: "heroicons:home-modern",
+    link: "EmployeeCommuting"
   },
   {
     title: "Scope 1",
@@ -257,12 +270,12 @@ export const menuItems = [
     icon: "mdi:share-variant",
     link: "Scope-3",
     child: [
-      // {
-      //   childtitle: "Scope 3 Report",
-      //   childlink: "Scope-Three-Report",
-      // },
       {
-        childtitle: "Purchase Goods and Services Records",
+        childtitle: "Scope 3 Report",
+        childlink: "Scope-Three-Report",
+      },
+      {
+        childtitle: "Purchase Goods and Services",
         childlink: "Purchased-Good-Services",
       },
       {
@@ -280,7 +293,16 @@ export const menuItems = [
        {
         childtitle: "Business Travel",
         childlink: "Business-Travel",
+      },//Upstream-Transportation
+      {
+        childtitle: "Upstream Transportation and Distribution",
+        childlink: "Upstream-Transportation",
       },
+        {
+        childtitle: "Downstream Transportation and Distribution",
+        childlink: "Downstream-Transportation",
+      },
+
     ]
 
   },

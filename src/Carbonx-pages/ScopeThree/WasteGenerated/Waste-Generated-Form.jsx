@@ -81,10 +81,10 @@ const WasteGeneratedFormPage = () => {
       const formattedT = formatEmission(emissionKg / 1000);
       setCalculatedEmissionKgCo2e(formattedKg);
       setCalculatedEmissionTCo2e(formattedT);
-      toast.info(
-        `Emission: ${formattedKg} kg CO₂e (${formattedT} t CO₂e)`,
-        { autoClose: 2000 }
-      );
+      // toast.info(
+      //   `Emission: ${formattedKg} kg CO₂e (${formattedT} t CO₂e)`,
+      //   { autoClose: 2000 }
+      // );
     }
   }, [
     formData.totalWasteQty,

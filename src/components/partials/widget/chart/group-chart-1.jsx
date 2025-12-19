@@ -1,62 +1,102 @@
 import React from "react";
 import Chart from "react-apexcharts";
 
-const GroupChart1 = ({ chartData = [] }) => {
-  const colors = ["#00EBFF", "#FB8F65", "#5743BE"]; // Scope 1,2,3 colors
+const GroupChart1 = ({ chartData = [], loading }) => {
+  // chartData example:
+  // [
+  //   { name: "Scope 1", value: 720 },
+  //   { name: "Scope 2", value: 1105 },
+  //   { name: "Scope 3", value: 685 },
+  // ]
 
-  // Helper to format big numbers (K, M)
-  const formatNumber = (num) => {
-    if (num >= 1e6) return (num / 1e6).toFixed(2) + "M";
-    if (num >= 1e3) return (num / 1e3).toFixed(1) + "K";
-    return num.toLocaleString();
-  };
+  const series = chartData.map((d) => d.value || 0);
+  const labels = chartData.map((d) => d.name);
 
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {chartData.map((item, i) => {
-        const series = [item.value || 0];
-        const options = {
-          chart: {
-            type: "radialBar",
-            sparkline: { enabled: true },
-            toolbar: { show: false },
-          },
-          plotOptions: {
-            radialBar: {
-              hollow: { size: "60%" },
-              dataLabels: {
-                name: { show: true, fontSize: "14px", color: "#64748B" },
-                value: {
-                  show: true,
-                  fontSize: "18px",
-                  fontWeight: 600,
-                  formatter: (val) => formatNumber(val),
-                },
-              },
+  const total = series.reduce((a, b) => a + b, 0);
+
+  const colors = ["#22C55E", "#22D3EE", "#FACC15"]; // green, cyan, yellow
+
+  const options = {
+    chart: {
+      type: "donut",
+    },
+    labels,
+    colors,
+    stroke: {
+      width: 0,
+    },
+    legend: {
+      show: false, // custom legend below
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: (val) => `${val.toFixed(0)}%`,
+      style: {
+        fontSize: "12px",
+        fontWeight: 600,
+        colors: ["#374151"],
+      },
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "70%",
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: "Total",
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#6B7280",
+              formatter: () => total.toLocaleString(),
+            },
+            value: {
+              show: true,
+              fontSize: "22px",
+              fontWeight: 700,
+              color: "#111827",
+              formatter: (val) => val.toLocaleString(),
             },
           },
-          colors: [colors[i] || "#374151"],
-          tooltip: {
-            enabled: true,
-            y: { formatter: (val) => val.toLocaleString() + " tCO₂e" },
-          },
-        };
+        },
+      },
+    },
+    tooltip: {
+      y: {
+        formatter: (val) => `${val.toLocaleString()} tCO₂e`,
+      },
+    },
+  };
 
-        return (
-          <div
-            key={i}
-            className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-md flex flex-col items-center justify-center hover:shadow-xl transition-shadow"
-          >
-            <Chart options={options} series={series} type="radialBar" height={140} />
-            <div className="mt-3 text-center">
-              <h3 className="text-gray-700 dark:text-gray-300 font-medium text-sm">{item.name}</h3>
-              <p className="text-gray-900 dark:text-white font-bold text-lg mt-1">
-                {formatNumber(item.value)} tCO₂e
-              </p>
+  if (loading) {
+    return <p className="text-sm text-gray-500">Loading chart...</p>;
+  }
+
+  return (
+    <div className="flex flex-col items-center">
+      {/* Donut Chart */}
+      <Chart options={options} series={series} type="donut" height={260} />
+
+      {/* Custom Legend (like PDF) */}
+      <div className="flex gap-4 mt-4">
+        {chartData.map((item, index) => {
+          const percent =
+            total > 0 ? Math.round((item.value / total) * 100) : 0;
+
+          return (
+            <div key={item.name} className="flex items-center gap-2 text-sm">
+              <span
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: colors[index] }}
+              />
+              <span className="text-gray-700">
+                {item.name} {percent}%
+              </span>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };
