@@ -160,11 +160,7 @@ const MobileCombustionListing = () => {
       {
         Header: "Remarks",
         accessor: "remarks",
-        Cell: ({ value }) => (
-          <span title={value}>
-            {value?.length > 20 ? value.slice(0, 20) + "..." : value || "-"}
-          </span>
-        ),
+       Cell: ({ cell }) => cell.value || "N/A" 
       },
       {
         Header: "Created At",
