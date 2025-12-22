@@ -1,6 +1,6 @@
 export const wasteCategoryOptions = [
   { value: "Construction", label: "Construction" },
-  { value: "Refuse (General Mixed Waste/Unsorted Waste)", label: "Refuse (General Mixed Waste/Unsorted Waste)" },
+  { value: "Refuse (General Mixed Waste / Unsorted Waste)", label: "Refuse (General Mixed Waste / Unsorted Waste)" },
   { value: "Electrical Items", label: "Electrical items" },
   { value: "Metal", label: "Metal" },
   { value: "Plastic", label: "Plastic" },
@@ -25,7 +25,7 @@ export const wasteTypeOptions = {
     "Wood"
   ].map((x) => ({ value: x, label: x })),
 
-  "Refuse (General Mixed Waste/Unsorted Waste)": [
+  "Refuse (General Mixed Waste / Unsorted Waste)": [
     "Household residual waste",
     "Organic: food and drink waste",
     "Organic: garden waste",
@@ -218,7 +218,7 @@ export const wasteEmissionFactors = {
     Landfill: 496.78228,
   },
 
-  //Refuse (General Mixed Waste/Unsorted Waste)
+  //Refuse (General Mixed Waste / Unsorted Waste)
   "Household residual waste": {
     "Incineration with energy recovery": 4.68568,
     Landfill: 497.24244,

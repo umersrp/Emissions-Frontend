@@ -22,6 +22,7 @@ const FuelEnergyForm = () => {
     const isView = mode === "view";
     const isEdit = mode === "edit";
     const isAdd = mode === "add";
+    const [showToggleError, setShowToggleError] = useState(false);
     const [formData, setFormData] = useState({
         buildingId: null,
         stakeholder: null,
@@ -95,7 +96,7 @@ const FuelEnergyForm = () => {
                     trainDistanceKm: Number(formData.trainDistanceKm),
                     trainType: formData.trainType,
                 });
-
+                   
                 // toast.info(
                 //     `Emission: ${emission.totalEmissions_KgCo2e.toFixed(2)} kg CO2e (${emission.totalEmissions_TCo2e.toFixed(2)} t CO2e)`,
                 //     { autoClose: 2000 }
@@ -127,6 +128,14 @@ const FuelEnergyForm = () => {
         if (!text) return "";
         return text.charAt(0).toUpperCase() + text.slice(1);
     };
+    const formatEmission = (num) => {
+        const rounded = Number(num.toFixed(5));
+        if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
+            return rounded.toExponential(5);
+        }
+        return rounded;
+    };
+
     // Fetch Buildings
     useEffect(() => {
         const fetchBuildings = async () => {
@@ -149,97 +158,160 @@ const FuelEnergyForm = () => {
         fetchBuildings();
     }, []);
     // Fetch record for Edit/View mode
- useEffect(() => {
-    if (isEdit || isView) {
-        const fetchRecord = async () => {
-            setIsFetching(true);
-            try {
-                const res = await axios.get(
-                    `${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/get/${id}`,
-                    {
-                        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    useEffect(() => {
+        if (isEdit || isView) {
+            const fetchRecord = async () => {
+                setIsFetching(true);
+                try {
+                    const res = await axios.get(
+                        `${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/get/${id}`,
+                        {
+                            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                        }
+                    );
+                    const data = res.data?.data;
+                    if (data) {
+                        setFormData((prev) => ({
+                            ...prev,
+
+                            // Air
+                            airPassengers: data.airPassengers ?? "",
+                            airDistanceKm: data.airDistanceKm ?? "",
+                            airTravelClass: data.airTravelClass
+                                ? { value: data.airTravelClass, label: data.airTravelClass }
+                                : null,
+                            airFlightType: data.airFlightType
+                                ? { value: data.airFlightType, label: data.airFlightType }
+                                : null,
+
+                            // Taxi
+                            taxiPassengers: data.taxiPassengers ?? "",
+                            taxiDistanceKm: data.taxiDistanceKm ?? "",
+                            taxiType: data.taxiType
+                                ? { value: data.taxiType, label: data.taxiType }
+                                : null,
+
+                            // Bus
+                            busPassengers: data.busPassengers ?? "",
+                            busDistanceKm: data.busDistanceKm ?? "",
+                            busType: data.busType
+                                ? { value: data.busType, label: data.busType }
+                                : null,
+
+                            // Train
+                            trainPassengers: data.trainPassengers ?? "",
+                            trainDistanceKm: data.trainDistanceKm ?? "",
+                            trainType: data.trainType
+                                ? { value: data.trainType, label: data.trainType }
+                                : null,
+
+                            // New fields
+                            buildingId: data.buildingId
+                                ? { value: data.buildingId._id, label: data.buildingId.buildingName }
+                                : null,
+                            stakeholder: data.stakeholder
+                                ? { value: data.stakeholder, label: data.stakeholder }
+                                : null,
+                            fuelType: data.fuelType
+                                ? { value: data.fuelType, label: data.fuelType }
+                                : null,
+                            fuel: data.fuel
+                                ? { value: data.fuel, label: data.fuel }
+                                : null,
+                            totalFuelConsumption: data.totalFuelConsumption ?? "",
+                            fuelConsumptionUnit: data.fuelConsumptionUnit
+                                ? { value: data.fuelConsumptionUnit, label: data.fuelConsumptionUnit }
+                                : null,
+                            totalGrossElectricityPurchased: data.totalGrossElectricityPurchased ?? "",
+                            unit: data.unit
+                                ? { value: data.unit, label: data.unit }
+                                : null,
+                            qualityControl: data.qualityControl
+                                ? { value: data.qualityControl, label: data.qualityControl }
+                                : null,
+                            remarks: data.remarks || "",
+                        }));
+
+                        setToggleOptions({
+                            didTravelByAir: !!data.didTravelByAir,
+                            didTravelByTaxi: !!data.didTravelByTaxi,
+                            didTravelByBus: !!data.didTravelByBus,
+                            didTravelByTrain: !!data.didTravelByTrain,
+                        });
+
+                        setIsFetching(false);
                     }
-                );
-                const data = res.data?.data;
-                if (data) {
-                    setFormData((prev) => ({
-                        ...prev,
-
-                        // Air
-                        airPassengers: data.airPassengers ?? "",
-                        airDistanceKm: data.airDistanceKm ?? "",
-                        airTravelClass: data.airTravelClass
-                            ? { value: data.airTravelClass, label: data.airTravelClass }
-                            : null,
-                        airFlightType: data.airFlightType
-                            ? { value: data.airFlightType, label: data.airFlightType }
-                            : null,
-
-                        // Taxi
-                        taxiPassengers: data.taxiPassengers ?? "",
-                        taxiDistanceKm: data.taxiDistanceKm ?? "",
-                        taxiType: data.taxiType
-                            ? { value: data.taxiType, label: data.taxiType }
-                            : null,
-
-                        // Bus
-                        busPassengers: data.busPassengers ?? "",
-                        busDistanceKm: data.busDistanceKm ?? "",
-                        busType: data.busType
-                            ? { value: data.busType, label: data.busType }
-                            : null,
-
-                        // Train
-                        trainPassengers: data.trainPassengers ?? "",
-                        trainDistanceKm: data.trainDistanceKm ?? "",
-                        trainType: data.trainType
-                            ? { value: data.trainType, label: data.trainType }
-                            : null,
-
-                        // New fields
-                        buildingId: data.buildingId
-                            ? { value: data.buildingId._id, label: data.buildingId.buildingName }
-                            : null,
-                        stakeholder: data.stakeholder
-                            ? { value: data.stakeholder, label: data.stakeholder }
-                            : null,
-                        fuelType: data.fuelType
-                            ? { value: data.fuelType, label: data.fuelType }
-                            : null,
-                        fuel: data.fuel
-                            ? { value: data.fuel, label: data.fuel }
-                            : null,
-                        totalFuelConsumption: data.totalFuelConsumption ?? "",
-                        fuelConsumptionUnit: data.fuelConsumptionUnit
-                            ? { value: data.fuelConsumptionUnit, label: data.fuelConsumptionUnit }
-                            : null,
-                        totalGrossElectricityPurchased: data.totalGrossElectricityPurchased ?? "",
-                        unit: data.unit
-                            ? { value: data.unit, label: data.unit }
-                            : null,
-                        qualityControl: data.qualityControl
-                            ? { value: data.qualityControl, label: data.qualityControl }
-                            : null,
-                        remarks: data.remarks || "",
-                    }));
-
-                    setToggleOptions({
-                        didTravelByAir: !!data.didTravelByAir,
-                        didTravelByTaxi: !!data.didTravelByTaxi,
-                        didTravelByBus: !!data.didTravelByBus,
-                        didTravelByTrain: !!data.didTravelByTrain,
-                    });
-
+                } catch (err) {
                     setIsFetching(false);
+                    toast.error("Failed to fetch record details");
                 }
-            } catch (err) {
-                setIsFetching(false);
-                toast.error("Failed to fetch record details");
+            };
+            fetchRecord();
+        }
+    }, [id, isEdit, isView]);
+
+    const handleToggleChange = (toggleName) => {
+        const newToggleValue = !toggleOptions[toggleName];
+
+        // Map toggle names to their corresponding form fields
+        const toggleFieldMap = {
+            didTravelByAir: {
+                errors: ['airPassengers', 'airDistanceKm', 'airFlightType', 'airTravelClass'],
+                formFields: {
+                    airPassengers: "",
+                    airDistanceKm: "",
+                    airFlightType: null,
+                    airTravelClass: null,
+                }
+            },
+            didTravelByTaxi: {
+                errors: ['taxiPassengers', 'taxiDistanceKm', 'taxiType'],
+                formFields: {
+                    taxiPassengers: "",
+                    taxiDistanceKm: "",
+                    taxiType: null,
+                }
+            },
+            didTravelByBus: {
+                errors: ['busPassengers', 'busDistanceKm', 'busType'],
+                formFields: {
+                    busPassengers: "",
+                    busDistanceKm: "",
+                    busType: null,
+                }
+            },
+            didTravelByTrain: {
+                errors: ['trainPassengers', 'trainDistanceKm', 'trainType'],
+                formFields: {
+                    trainPassengers: "",
+                    trainDistanceKm: "",
+                    trainType: null,
+                }
             }
         };
-        fetchRecord();
-    }
-}, [id, isEdit, isView]);
+
+        setToggleOptions((prev) => ({ ...prev, [toggleName]: newToggleValue }));
+
+        // Clear errors and reset form fields when toggle is turned off
+        if (!newToggleValue && toggleFieldMap[toggleName]) {
+            const { errors: errorFields, formFields } = toggleFieldMap[toggleName];
+
+            // Clear errors
+            setErrors((prev) => {
+                const newErrors = { ...prev };
+                errorFields.forEach(field => {
+                    newErrors[field] = "";
+                });
+                return newErrors;
+            });
+
+            // Reset form fields
+            setFormData((prev) => ({
+                ...prev,
+                ...formFields
+            }));
+        }
+    };
 
     const handleInputChange = (e) => {
         if (isView) return;
@@ -250,7 +322,23 @@ const FuelEnergyForm = () => {
     const handleSelectChange = (name, value) => {
         if (isView) return;
         setFormData((prev) => ({ ...prev, [name]: value }));
-        setErrors((prev) => ({ ...prev, [name]: "" }));
+
+        // Clear error when value is selected
+        if (value) {
+            setErrors((prev) => ({ ...prev, [name]: "" }));
+        }
+        // If value is cleared and toggle is active, set error
+        else if (
+            (name === "airFlightType" && toggleOptions.didTravelByAir) ||
+            (name === "airTravelClass" && toggleOptions.didTravelByAir) ||
+            (name === "taxiType" && toggleOptions.didTravelByTaxi) ||
+            (name === "busType" && toggleOptions.didTravelByBus) ||
+            (name === "trainType" && toggleOptions.didTravelByTrain)
+        ) {
+            // Format field name for error message
+            const fieldName = name.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+            setErrors((prev) => ({ ...prev, [name]: `${fieldName} is required` }));
+        }
     };
     const handleNumberInputWheel = (e) => {
         e.target.blur();
@@ -273,37 +361,99 @@ const FuelEnergyForm = () => {
         }));
     }, [formData.fuel]);
 
-
+    // Clear toggle error when any travel option is selected
+    useEffect(() => {
+        const anyTravelSelected = Object.values(toggleOptions).some(value => value === true);
+        if (anyTravelSelected && showToggleError) {
+            setShowToggleError(false);
+        }
+    }, [toggleOptions]);
+    // Validation
+    // Validation
     // Validation
     const validate = () => {
         const newErrors = {};
+
+        // Basic field validations
         if (!formData.buildingId) newErrors.buildingId = "Building is required";
         if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder/Department is required";
         if (!formData.fuel) newErrors.fuel = "Fuel is required";
-        if (!formData.fuelConsumptionUnit) newErrors.fuelConsumptionUnit = "Fuel consumption is required";
+        if (!formData.fuelConsumptionUnit) newErrors.fuelConsumptionUnit = "Fuel consumption unit is required";
         if (!formData.fuelType) newErrors.fuelType = "Fuel type is required";
         if (!formData.totalFuelConsumption) newErrors.totalFuelConsumption = "Total fuel consumption is required";
-        if (!formData.totalGrossElectricityPurchased) newErrors.totalGrossElectricityPurchased = "TotalGross electricity purchased is required";
+        if (!formData.totalGrossElectricityPurchased) newErrors.totalGrossElectricityPurchased = "Total gross electricity purchased is required";
         if (!formData.unit) newErrors.unit = "Unit is required";
         if (!formData.qualityControl) newErrors.qualityControl = "Quality control is required";
+
         // Validate for negative values (only if field has a value)
-        const numberFields = ['.totalFuelConsumption', 'totalGrossElectricityPurchased', 'airPassengers',
-            'airDistanceKm', 'taxiPassengers', 'taxiDistanceKm', 'busPassengers', 'busDistanceKm',];
+        const numberFields = ['totalFuelConsumption', 'totalGrossElectricityPurchased', 'airPassengers',
+            'airDistanceKm', 'taxiPassengers', 'taxiDistanceKm', 'busPassengers',
+            'busDistanceKm', 'trainPassengers', 'trainDistanceKm'];
 
         numberFields.forEach(field => {
             if (formData[field] && Number(formData[field]) < 0) {
                 newErrors[field] = "Value cannot be negative.";
             }
-        })
+        });
+
+        // Check if at least one travel toggle is selected
+        const anyTravelSelected = Object.values(toggleOptions).some(value => value === true);
+
+        // Show/hide toggle error
+        if (!anyTravelSelected) {
+            setShowToggleError(true);
+        } else {
+            setShowToggleError(false);
+        }
+
+        // Validate opened toggle fields
+        if (toggleOptions.didTravelByAir) {
+            if (!formData.airPassengers) newErrors.airPassengers = "Number of passengers is required";
+            if (!formData.airDistanceKm) newErrors.airDistanceKm = "Distance is required";
+            if (!formData.airFlightType) newErrors.airFlightType = "Flight type is required";
+            if (!formData.airTravelClass) newErrors.airTravelClass = "Travel class is required";
+        }
+
+        if (toggleOptions.didTravelByTaxi) {
+            if (!formData.taxiPassengers) newErrors.taxiPassengers = "Number of passengers is required";
+            if (!formData.taxiDistanceKm) newErrors.taxiDistanceKm = "Distance is required";
+            if (!formData.taxiType) newErrors.taxiType = "Taxi type is required";
+        }
+
+        if (toggleOptions.didTravelByBus) {
+            if (!formData.busPassengers) newErrors.busPassengers = "Number of passengers is required";
+            if (!formData.busDistanceKm) newErrors.busDistanceKm = "Distance is required";
+            if (!formData.busType) newErrors.busType = "Bus type is required";
+        }
+
+        if (toggleOptions.didTravelByTrain) {
+            if (!formData.trainPassengers) newErrors.trainPassengers = "Number of passengers is required";
+            if (!formData.trainDistanceKm) newErrors.trainDistanceKm = "Distance is required";
+            if (!formData.trainType) newErrors.trainType = "Train type is required";
+        }
+
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+
+        // Form is valid only if:
+        // 1. No field errors
+        // 2. At least one travel toggle is selected
+        // 3. All opened toggle fields are filled
+        return Object.keys(newErrors).length === 0 && anyTravelSelected;
     };
     // Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isView) return;
-        if (!validate()) return;
 
+        // Validate form
+        const isValid = validate();
+        if (!isValid) {
+            // Scroll to error for better UX
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        // Rest of your submit logic...
         const userId = localStorage.getItem("userId");
         if (!userId) {
             toast.error("User not found. Please log in again.");
@@ -351,9 +501,8 @@ const FuelEnergyForm = () => {
             unit: electricityUnit,
             qualityControl: formData.qualityControl?.value,
             remarks: capitalizeFirstLetter(formData.remarks),
-            calculatedEmissionKgCo2e: emission.totalEmissions_KgCo2e,
-            calculatedEmissionTCo2e: emission.totalEmissions_TCo2e,
-
+            calculatedEmissionKgCo2e: formatEmission(emission.totalEmissions_KgCo2e),
+            calculatedEmissionTCo2e: formatEmission(emission.totalEmissions_TCo2e),
             didTravelByAir: toggleOptions.didTravelByAir,
             didTravelByTaxi: toggleOptions.didTravelByTaxi,
             didTravelByBus: toggleOptions.didTravelByBus,
@@ -580,9 +729,37 @@ const FuelEnergyForm = () => {
                                 disabled={isView}
                             />
                         </div>
+
+                        {showToggleError && !isView && (
+                            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                                <div className="flex">
+                                    <div className="flex-shrink-0">
+                                        <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div className="ml-3 flex-1">
+                                        <p className="text-sm text-red-700">
+                                            Please select at least one travel option below.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="ml-auto pl-3 -mx-1.5 -my-1.5"
+                                        onClick={() => setShowToggleError(false)}
+                                    >
+                                        <span className="sr-only">Dismiss</span>
+                                        <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                         {/* Business Travel Section */}
                         <div className="col-span-full border-t pt-6">
                             <h3 className="text-lg font-medium text-gray-700 mb-4">Business Travel Details</h3>
+
                             {/* Air Travel */}
                             <div className="border-t pt-6 pb-6">
                                 <div className="flex items-center gap-3 mb-4">
@@ -590,17 +767,15 @@ const FuelEnergyForm = () => {
                                         <input
                                             type="checkbox"
                                             checked={toggleOptions.didTravelByAir}
-                                            onChange={() =>
-                                                setToggleOptions((prev) => ({ ...prev, didTravelByAir: !prev.didTravelByAir }))
-                                            }
+                                            onChange={() => handleToggleChange("didTravelByAir")}
                                             className="sr-only peer"
                                             disabled={isView}
                                         />
                                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full
-                      peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
-                      after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
-                      after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                      peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                    peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
+                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
+                    after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                    peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
                                     </label>
                                     <span className="text-sm font-medium">
                                         Did you have any business travel by air during the reporting period?
@@ -694,17 +869,15 @@ const FuelEnergyForm = () => {
                                         <input
                                             type="checkbox"
                                             checked={toggleOptions.didTravelByTaxi}
-                                            onChange={(e) =>
-                                                setToggleOptions((prev) => ({ ...prev, didTravelByTaxi: e.target.checked }))
-                                            }
+                                            onChange={() => handleToggleChange("didTravelByTaxi")}
                                             className="sr-only peer"
                                             disabled={isView}
                                         />
                                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full
-                      peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
-                      after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
-                      after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                      peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                    peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
+                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
+                    after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                    peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
                                     </label>
                                     <span className="text-sm font-medium">
                                         Did you have any business travel by taxi during the reporting period?
@@ -772,17 +945,15 @@ const FuelEnergyForm = () => {
                                         <input
                                             type="checkbox"
                                             checked={toggleOptions.didTravelByBus}
-                                            onChange={(e) =>
-                                                setToggleOptions((prev) => ({ ...prev, didTravelByBus: e.target.checked }))
-                                            }
+                                            onChange={() => handleToggleChange("didTravelByBus")}
                                             className="sr-only peer"
                                             disabled={isView}
                                         />
                                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full
-                      peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
-                      after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
-                      after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                      peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                    peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
+                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
+                    after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                    peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
                                     </label>
                                     <span className="text-sm font-medium">
                                         Did you have any business travel by bus during the reporting period?
@@ -850,17 +1021,15 @@ const FuelEnergyForm = () => {
                                         <input
                                             type="checkbox"
                                             checked={toggleOptions.didTravelByTrain}
-                                            onChange={(e) =>
-                                                setToggleOptions((prev) => ({ ...prev, didTravelByTrain: e.target.checked }))
-                                            }
+                                            onChange={() => handleToggleChange("didTravelByTrain")}
                                             className="sr-only peer"
                                             disabled={isView}
                                         />
                                         <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full
-                      peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
-                      after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
-                      after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                      peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                    peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
+                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
+                    after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
+                    peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
                                     </label>
                                     <span className="text-sm font-medium">
                                         Did you have any business travel by train during the reporting period?
@@ -920,7 +1089,6 @@ const FuelEnergyForm = () => {
                                     </div>
                                 )}
                             </div>
-
                         </div>
                         {/* Buttons */}
                         <div className="col-span-full flex justify-end gap-4 pt-6 border-t">
