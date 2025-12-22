@@ -275,7 +275,7 @@ export const menuItems = [
         childlink: "Scope-Three-Report",
       },
       {
-        childtitle: "Purchase Goods and Services",
+        childtitle: "Purchased Goods and Services",
         childlink: "Purchased-Good-Services",
       },
       {
