@@ -127,8 +127,8 @@ const StationaryCombustionListing = () => {
       { Header: "Fuel Consumption", accessor: "fuelConsumption" },
       { Header: "Consumption Unit", accessor: "consumptionUnit" },
       { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
-      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",Cell: ({ cell }) => cell.value || "N/A"  },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",Cell: ({ cell }) => cell.value || "N/A" },
       // { Header: "Calculated Bio Emissions (kgCO₂e)", accessor: "calculatedBioEmissionKgCo2e" },
       // { Header: "Calculated Bio Emissions (tCO₂e)", accessor: "calculatedBioEmissionTCo2e" },
       // {
@@ -141,7 +141,7 @@ const StationaryCombustionListing = () => {
       //   accessor: "updatedBy.name",
       //   Cell: ({ cell }) => cell.value || "-",
       // },
-      { Header: "Remarks", accessor: "remarks" },
+      { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A"  },
       {
         Header: "Created At",
         accessor: "createdAt",

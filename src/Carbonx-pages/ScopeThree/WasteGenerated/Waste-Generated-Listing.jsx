@@ -46,6 +46,24 @@ const WasteGeneratedListing = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
 
+  const capitalizeLabel = (text) => {
+    if (!text) return "N/A";
+
+    const exceptions = [ "and","or","in","of","from","at","to","the","a","an","for","on","with",
+    "but","by","is","it","as","be","this","that","these","those","such",
+    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
+    "n.e.c."];
+    return text
+      .split(" ")
+      .map((word, index) => {
+        // Always capitalize the first word
+        if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
+        // Don't capitalize exceptions
+        if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      })
+      .join(" ");
+  };
 
   // Fetch data from server with pagination
   const fetchData = async () => {
@@ -110,17 +128,17 @@ const WasteGeneratedListing = () => {
       ),
     },
 
-    { Header: "Building", accessor: "buildingId.buildingName" },
-    { Header: "Stakeholder", accessor: "stakeholder" },
-    { Header: "Waste Category", accessor: "wasteCategory" },
-    { Header: "Waste Type", accessor: "wasteType" },
-    { Header: "Waste Treatment Method", accessor: "wasteTreatmentMethod" },
-    { Header: "Unit", accessor: "unit" },
-    { Header: "Total Waste Quantity", accessor: "totalWasteQty" },
-    { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
-    { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
-    { Header: "Quality Control", accessor: "qualityControl" },
-    { Header: "Remarks", accessor: "remarks" },
+    { Header: "Building", accessor: "buildingId.buildingName",Cell: ({ cell }) => cell.value || "N/A" },
+    { Header: "Stakeholder", accessor: "stakeholder",Cell: ({ value }) => capitalizeLabel(value)  },
+    { Header: "Waste Category", accessor: "wasteCategory",Cell: ({ value }) => capitalizeLabel(value)  },
+    { Header: "Waste Type", accessor: "wasteType",Cell: ({ value }) => capitalizeLabel(value)  },
+    { Header: "Waste Treatment Method", accessor: "wasteTreatmentMethod" ,Cell: ({ value }) => capitalizeLabel(value) },
+    { Header: "Unit", accessor: "unit" ,Cell: ({ cell }) => cell.value || "N/A"},
+    { Header: "Total Waste Quantity", accessor: "totalWasteQty",Cell: ({ cell }) => cell.value || "N/A" },
+    { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",Cell: ({ cell }) => cell.value || "N/A" },
+    { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",Cell: ({ cell }) => cell.value || "N/A" },
+    { Header: "Quality Control", accessor: "qualityControl" ,Cell: ({ cell }) => cell.value || "N/A"},
+    { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A" },
     // {
     //   Header: "Created By",
     //   accessor: "createdBy",
@@ -135,9 +153,8 @@ const WasteGeneratedListing = () => {
       Header: "Created At",
       accessor: "createdAt",
       Cell: ({ cell }) =>
-        cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+        cell.value ? new Date(cell.value).toLocaleDateString() : "N/A",
     },
-
     {
       Header: "Actions",
       accessor: "_id",

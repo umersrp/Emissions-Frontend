@@ -173,12 +173,12 @@ const capitalizeLabel = (text) => {
         {
             Header: "Calculated Emissions (kgCO₂e)",
             accessor: "calculatedEmissionKgCo2e",
-            Cell: ({ value }) => Number(value).toFixed(2),
+            Cell: ({ cell }) => cell.value || "N/A",
         },
         {
             Header: "Calculated Emissions (kgCO₂e)",
             accessor: "calculatedEmissionTCo2e",
-            Cell: ({ value }) => Number(value).toFixed(2),
+            Cell: ({ cell }) => cell.value || "N/A",
         },
 
         {

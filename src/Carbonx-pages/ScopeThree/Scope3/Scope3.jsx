@@ -39,14 +39,14 @@ const Scope3 = () => {
 
     {
       title: "Waste Generated in Operations",
-      path: "",
+      path: "/Waste-Generated",
       icon: "heroicons:trash",
       bg: "bg-yellow-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#fdf3b7] to-[#f5d742]"
     },
     {
       title: "Business Travel",
-      path: "",
+      path: "/Business-Travel",
       icon: "heroicons:briefcase",
       bg: "bg-blue-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#c6dcff] to-[#7fb3ff]"

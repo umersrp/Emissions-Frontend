@@ -152,7 +152,7 @@ const ProcessEmissionsListing = () => {
       //   accessor: "updatedBy.name",
       //   Cell: ({ cell }) => cell.value || "-",
       // },
-      { Header: "Remarks", accessor: "remarks" },
+      { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A"  },
       {
         Header: "Created At",
         accessor: "createdAt",
