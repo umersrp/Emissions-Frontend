@@ -3,6 +3,9 @@ import axios from "axios";
 import Card from "@/components/ui/Card";
 import GroupChart1 from "@/components/partials/widget/chart/group-chart-1"; // Pie/donut chart
 import RevenueBarChart from "@/components/partials/widget/chart/revenue-bar-chart"; // Bar chart
+import Scope1EmissionsSection from "@/components/partials/widget/chart/ScopeoneEmissions";
+import Scope2EmissionsSection from "@/components/partials/widget/chart/Scope2Emissions";
+import Scope3EmissionsSection from "@/components/partials/widget/chart/Scope3Emissions";
 
 const Dashboard = () => {
   const [buildings, setBuildings] = useState([]);
@@ -21,7 +24,7 @@ const Dashboard = () => {
       try {
         const token = localStorage.getItem("token");
         const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings`,
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?page=1&limit=100000`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setBuildings(res.data?.data?.buildings || []);
@@ -275,6 +278,21 @@ const Dashboard = () => {
           <Card className="flex-1 p-4 min-w-[320px]">
             <h3 className="font-semibold mb-4">Building-wise GHG Emissions</h3>
             <RevenueBarChart chartData={barChartData} loading={loading} />
+          </Card>
+        </div>
+        <div>
+          <Card className="flex-1 p-4 min-w-[320px]">
+            <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} />
+          </Card>
+        </div>
+        <div>
+          <Card className="flex-1 p-4 min-w-[320px]">
+            <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} />
+          </Card>
+        </div>
+         <div>
+          <Card className="flex-1 p-4 min-w-[320px]">
+            <Scope3EmissionsSection dashboardData={dashboardData} loading={loading} />
           </Card>
         </div>
       </main>
