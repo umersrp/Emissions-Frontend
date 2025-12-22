@@ -236,14 +236,19 @@ const WasteGeneratedFormPage = () => {
   return (
     <div>
       <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Waste Generated`}>
+        <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
+          <p className="text-gray-700">
+            This Category includes emissions from third-party disposal and treatment of waste generated in the reporting company’s owned or controlled operations in the reporting year. This category includes emissions from disposal of both solid waste and wastewater.           </p>
+        </div>
         <form onSubmit={handleSubmit} className="p-6 grid gap-6">
 
           {/* Building & Stakeholder */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             <div>
-              <label className="field-label">Site / Building Name *</label>
+              <label className="field-label">Site / Building Name <span className="text-red-500">*</span></label>
               <CustomSelect
                 value={formData.buildingId}
+                placeholder="Select Building Name"
                 options={buildingOptions}
                 onChange={(v) => handleSelectChange("buildingId", v)}
                 isDisabled={isView}
@@ -252,9 +257,10 @@ const WasteGeneratedFormPage = () => {
             </div>
 
             <div>
-              <label className="field-label">Stakeholder *</label>
+              <label className="field-label">Stakeholder / Department <span className="text-red-500">*</span></label>
               <CustomSelect
                 value={formData.stakeholder}
+                placeholder="Select or Type Department"
                 options={FugitiveAndMobileStakeholderOptions}
                 onChange={(v) => handleSelectChange("stakeholder", v)}
                 isDisabled={isView}
@@ -263,9 +269,10 @@ const WasteGeneratedFormPage = () => {
             </div>
             {/* Waste Category & Type */}
             <div>
-              <label className="field-label">Waste Category *</label>
+              <label className="field-label">Waste Category <span className="text-red-500">*</span></label>
               <CustomSelect
                 value={formData.wasteCategory}
+                placeholder="Select Category"
                 options={wasteCategoryOptions}
                 onChange={(v) => handleSelectChange("wasteCategory", v)}
                 isDisabled={isView}
@@ -277,9 +284,10 @@ const WasteGeneratedFormPage = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             <div className="">
-              <label className="field-label">Waste Type *</label>
+              <label className="field-label">Waste Type <span className="text-red-500">*</span></label>
               <CustomSelect
                 value={formData.wasteType}
+                placeholder="Select Waste Type"
                 options={availableWasteTypes}
                 onChange={(v) => handleSelectChange("wasteType", v)}
                 isDisabled={isView || !formData.wasteCategory}
@@ -288,9 +296,10 @@ const WasteGeneratedFormPage = () => {
             </div>
             {/* Treatment */}
             <div>
-              <label className="field-label">Waste Treatment *</label>
+              <label className="field-label">Waste Treatment <span className="text-red-500">*</span></label>
               <CustomSelect
                 value={formData.wasteTreatmentMethod}
+                placeholder="Select Waste Treatment"
                 options={availableTreatmentMethods}
                 onChange={(v) => handleSelectChange("wasteTreatmentMethod", v)}
                 isDisabled={isView || !formData.wasteType}
@@ -300,7 +309,7 @@ const WasteGeneratedFormPage = () => {
               )}
             </div>
             <div>
-              <label className="field-label">Unit *</label>
+              <label className="field-label">Unit <span className="text-red-500">*</span></label>
               <CustomSelect value={formData.unit} isDisabled />
             </div>
           </div>
@@ -308,10 +317,11 @@ const WasteGeneratedFormPage = () => {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
             {/* Quantity */}
             <div>
-              <label className="field-label">Total Waste Quantity *</label>
+              <label className="field-label">Total Waste Quantity <span className="text-red-500">*</span></label>
               <input
                 type="number"
                 name="totalWasteQty"
+                placeholder="Enter Quantity"
                 value={formData.totalWasteQty}
                 onChange={handleInputChange}
                 className="border w-full p-2 rounded"
@@ -324,9 +334,10 @@ const WasteGeneratedFormPage = () => {
 
             {/* Quality Control */}
             <div>
-              <label className="field-label">Quality Control *</label>
+              <label className="field-label">Quality Control <span className="text-red-500">*</span></label>
               <CustomSelect
                 value={formData.qualityControl}
+                placeholder="Enter Quality"
                 options={qualityControlOptions}
                 onChange={(v) => handleSelectChange("qualityControl", v)}
                 isDisabled={isView}
@@ -343,6 +354,7 @@ const WasteGeneratedFormPage = () => {
             <label className="field-label">Remarks</label>
             <textarea
               name="remarks"
+              placeholder="Enter Remarks"
               value={formData.remarks}
               onChange={handleInputChange}
               className="border p-2 rounded w-full"

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
@@ -29,23 +28,17 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref)
 
 const FuelFusion = () => {
     const navigate = useNavigate();
-
     // Server-side states
     const [records, setRecords] = useState([]);
     const [loading, setLoading] = useState(false);
-
     const [pageIndex, setPageIndex] = useState(1); // server-based pages start at 1
     const [pageSize, setPageSize] = useState(10);
-
     const [totalPages, setTotalPages] = useState(1);
     const [totalRecords, setTotalRecords] = useState(0);
-
     const [globalFilterValue, setGlobalFilterValue] = useState("");
-
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
     const [goToValue, setGoToValue] = useState(pageIndex);
-
 
     // Fetch data from server with pagination
     const fetchData = async () => {
@@ -81,6 +74,25 @@ const FuelFusion = () => {
         fetchData();
     }, [pageIndex, pageSize, globalFilterValue]);
 
+const capitalizeLabel = (text) => {
+    if (!text) return "N/A";
+
+    const exceptions = [ "and","or","in","of","from","at","to","the","a","an","for","on","with",
+    "but","by","is","it","as","be","this","that","these","those","such",
+    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
+    "n.e.c."];
+    return text
+      .split(" ")
+      .map((word, index) => {
+        // Always capitalize the first word
+        if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
+        // Don't capitalize exceptions
+        if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      })
+      .join(" ");
+  };
+
     // Delete Record
     const handleDelete = async (id) => {
         try {
@@ -106,24 +118,24 @@ const FuelFusion = () => {
             { Header: "Building", accessor: "buildingId.buildingName" },
             { Header: "Stakeholder", accessor: "stakeholder" },
             { Header: "Fuel Type", accessor: "fuelType" },
-            { Header: "Fuel Name", accessor: "fuel" },
+            { Header: "Fuel Name", accessor: "fuel", Cell: ({ value }) => capitalizeLabel(value)},
             { Header: "Total Fuel Consumption", accessor: "totalFuelConsumption" },
             { Header: "Consumption Unit", accessor: "fuelConsumptionUnit" },
             { Header: "Total Gross Electricity Purchased", accessor: "totalGrossElectricityPurchased", },
             { Header: "Unit", accessor: "unit", },
-            { Header: "Did you have any business travel by air during the reporting period",accessor: "didTravelByAir", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
-            { Header: "Did you have any business travel by taxi during the reporting period",accessor: "didTravelByTaxi", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
-            { Header: "Did you have any business travel by bus during the reporting period",accessor: "didTravelByBus", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
-            { Header: "Did you have any business travel by train during the reporting period",accessor: "didTravelByTrain", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+            { Header: "Did You have Any Business Travel By Air During The Reporting Period",accessor: "didTravelByAir", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+            { Header: "Did You have Any Business Travel By Taxi During The Reporting Period",accessor: "didTravelByTaxi", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+            { Header: "Did You have Any Business Travel By Bus During The Reporting Period",accessor: "didTravelByBus", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+            { Header: "Did You have Any Business Travel By Train During The Reporting Period",accessor: "didTravelByTrain", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             {
                 Header: "Calculated Emissions (kgCO₂e)",
                 accessor: "calculatedEmissionKgCo2e",
-                Cell: ({ row }) => <span>{row.original.calculatedEmissionKgCo2e.toFixed(2)}</span>,
+                Cell: ({ cell }) => cell.value || "N/A"
             },
             {
                 Header: "Calculated Emissions (tCO₂e)",
                 accessor: "calculatedEmissionTCo2e",
-                Cell: ({ row }) => <span>{row.original.calculatedEmissionTCo2e.toFixed(2)}</span>,
+                Cell: ({ cell }) => cell.value || "N/A",
             },
             // {
             //     Header: "Created By",
@@ -135,11 +147,11 @@ const FuelFusion = () => {
             //     accessor: "updatedBy.name",
             //     Cell: ({ cell }) => cell.value || "-",
             // },
-            { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => cell.value || "-", },
+            { Header: "Remarks", accessor: "remarks", Cell: ({ value }) => capitalizeLabel(value) },
             {
                 Header: "Created At",
                 accessor: "createdAt",
-                Cell: ({ cell }) => cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+                Cell: ({ cell }) => cell.value ? new Date(cell.value).toLocaleDateString() : "N/A",
             },
             {
                 Header: "Actions",
@@ -376,104 +388,12 @@ const FuelFusion = () => {
                     </div>
                 </div>
 
-                {/* CUSTOM PAGINATION UI (SERVER SIDE) */}
-                {/* <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
-          <div className="flex items-center space-x-3">
-            <span className="flex space-x-2 items-center">
-              <span className="text-sm font-medium text-slate-600">Go</span>
-              <input
-                type="number"
-                className="form-control py-2"
-                value={pageIndex}
-                onChange={(e) => handleGoToPage(Number(e.target.value))}
-                style={{ width: "50px" }}
-              />
-            </span>
-            <span className="text-sm font-medium text-slate-600">
-              Page {pageIndex} of {totalPages}
-            </span>
-          </div>
-
-          <ul className="flex items-center space-x-3">
-            <li>
-              <button
-                onClick={() => handleGoToPage(1)}
-                disabled={pageIndex === 1}
-              >
-                <Icon icon="heroicons:chevron-double-left-solid" />
-              </button>
-            </li>
-
-            <li>
-              <button
-                onClick={handlePrevPage}
-                disabled={pageIndex === 1}
-              >
-                Prev
-              </button>
-            </li>
-
-            {[...Array(totalPages)].map((_, idx) => (
-              <li key={idx}>
-                <button
-                  className={`${
-                    idx + 1 === pageIndex
-                      ? "bg-slate-900 text-white font-medium"
-                      : "bg-slate-100 text-slate-900"
-                  } text-sm rounded h-6 w-6 flex items-center justify-center`}
-                  onClick={() => handleGoToPage(idx + 1)}
-                >
-                  {idx + 1}
-                </button>
-              </li>
-            ))}
-
-            <li>
-              <button
-                onClick={handleNextPage}
-                disabled={pageIndex === totalPages}
-              >
-                Next
-              </button>
-            </li>
-
-            <li>
-              <button
-                onClick={() => handleGoToPage(totalPages)}
-                disabled={pageIndex === totalPages}
-              >
-                <Icon icon="heroicons:chevron-double-right-solid" />
-              </button>
-            </li>
-          </ul>
-
-          <div className="flex items-center space-x-3">
-            <span className="text-sm font-medium text-slate-600">Show</span>
-            <select
-              value={pageSize}
-              onChange={(e) => setPageSize(Number(e.target.value))}
-              className="form-select py-2"
-            >
-              {[10, 20, 50].map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div> */}
+            
                 <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
                     {/* LEFT SECTION – Go To Page */}
                     <div className="flex items-center space-x-3">
                         <span className="flex space-x-2 items-center">
                             <span className="text-sm font-medium text-slate-600">Go</span>
-                            {/* <input
-                type="number"
-                className="form-control py-2"
-                value={pageIndex}
-                onChange={(e) => handleGoToPage(Number(e.target.value))}
-                style={{ width: "50px" }}
-              /> */}
                             <input
                                 type="number"
                                 className="form-control py-2"
@@ -535,24 +455,18 @@ const FuelFusion = () => {
                             const showPages = [];
                             const total = totalPages;
                             const current = pageIndex;
-
                             // Always show first 2 pages
                             if (total > 0) showPages.push(1);
                             if (total > 1) showPages.push(2);
-
                             // Left ellipsis (... before current page)
                             if (current > 4) showPages.push("left-ellipsis");
-
                             // Current page
                             if (current > 2 && current < total - 1) showPages.push(current);
-
                             // Right ellipsis (... after current page)
                             if (current < total - 3) showPages.push("right-ellipsis");
-
                             // Always show last 2 pages
                             if (total > 2) showPages.push(total - 1);
                             if (total > 1) showPages.push(total);
-
                             // Remove duplicates + keep valid entries
                             const finalPages = [...new Set(
                                 showPages.filter(

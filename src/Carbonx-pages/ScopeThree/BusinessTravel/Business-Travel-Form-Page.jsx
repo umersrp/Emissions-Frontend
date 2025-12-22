@@ -36,6 +36,9 @@ const BusinessTravelFormPage = () => {
   const [showToggleError, setShowToggleError] = useState(false);
   const [calculatedEmissionKgCo2e, setCalculatedEmissionKgCo2e] = useState(0);
   const [calculatedEmissionTCo2e, setCalculatedEmissionTCo2e] = useState(0);
+  const [errors, setErrors] = useState({});
+
+
 
   const [formData, setFormData] = useState({
     buildingId: "",
@@ -100,75 +103,108 @@ const BusinessTravelFormPage = () => {
   }, [formData]);
 
 
-  const handleChange = (e) => {
-    if (isView) return;
+const handleChange = (e) => {
+  if (isView) return;
 
-    const { name, value } = e.target;
+  const { name, value } = e.target;
 
-    if (Number(value) < 0) {
-      toast.error("Negative values are not allowed");
-      return;
-    }
+  // Clear the field error immediately when user starts typing
+  setErrors(prev => ({ ...prev, [name]: "" }));
 
-    const updated = { ...formData, [name]: value };
-    setFormData(updated);
-    const anyToggle =
-    updated.travelByAir ||
-    updated.travelByMotorbike ||
-    updated.travelByTaxi ||
-    updated.travelByBus ||
-    updated.travelByTrain ||
-    updated.travelByCar ||
-    updated.hotelStay;
-  
-  setShowToggleError(!anyToggle);
+  // Validate for negative values
+  if (Number(value) < 0) {
+    setErrors(prev => ({ ...prev, [name]: "Value cannot be negative" }));
+    return;
+  }
 
+  // For car distance, also check if it's 0
+  if (name === "carDistanceKm" && Number(value) === 0) {
+    setErrors(prev => ({ ...prev, [name]: "Distance must be greater than 0" }));
+    return;
+  }
+
+  setFormData(prev => {
+    const updated = { ...prev, [name]: value };
     recalculateEmissions(updated);
-  };
+    return updated;
+  });
+};
 
-  const handleSelectChange = (selectedOption, { name }) => {
-    if (isView) return;
+const handleSelectChange = (selectedOption, { name }) => {
+  if (isView) return;
 
-    // Store only the string value from the selected option
-    const stringValue = selectedOption ? selectedOption.value : "";
+  // Clear the field error when a selection is made
+  setErrors(prev => ({ ...prev, [name]: "" }));
 
-    const updated = { ...formData, [name]: stringValue };
-    setFormData(updated);
-    recalculateEmissions(updated);
-  };
+  // Store only the string value from the selected option
+  const stringValue = selectedOption ? selectedOption.value : "";
+
+  const updated = { ...formData, [name]: stringValue };
+  setFormData(updated);
+  recalculateEmissions(updated);
+};
 
   // Special handler for carType since it affects carFuelType
-  const handleCarTypeChange = (selectedOption) => {
-    if (isView) return;
-    const stringValue = selectedOption ? selectedOption.value : "";
-    setFormData(prev => ({
-      ...prev,
-      carType: stringValue,
-      carFuelType: ""
-    }));
+ const handleCarTypeChange = (selectedOption) => {
+  if (isView) return;
+  
+  const stringValue = selectedOption ? selectedOption.value : "";
+  
+  // Clear errors for carType and carFuelType when car type changes
+  setErrors(prev => ({ 
+    ...prev, 
+    carType: "",
+    carFuelType: "" 
+  }));
 
-    setTimeout(() => {
-      recalculateEmissions({
-        ...formData,
-        carType: stringValue,
-        carFuelType: ""
-      });
-    }, 0);
+  setFormData(prev => ({
+    ...prev,
+    carType: stringValue,
+    carFuelType: ""
+  }));
+
+  // Recalculate emissions with updated formData
+  const updated = { 
+    ...formData, 
+    carType: stringValue, 
+    carFuelType: "" 
   };
+  recalculateEmissions(updated);
+};
 
-  const handleCarFuelTypeChange = (selectedOption) => {
-    if (isView) return;
+const handleCarFuelTypeChange = (selectedOption) => {
+  if (isView) return;
 
-    const stringValue = selectedOption ? selectedOption.value : "";
-    const updated = { ...formData, carFuelType: stringValue };
-    setFormData(updated);
-    recalculateEmissions(updated);
+  const stringValue = selectedOption ? selectedOption.value : "";
+  
+  // Clear carFuelType error when fuel type is selected
+  setErrors(prev => ({ 
+    ...prev, 
+    carFuelType: "" 
+  }));
+
+  const updated = { 
+    ...formData, 
+    carFuelType: stringValue 
   };
+  setFormData(updated);
+  recalculateEmissions(updated);
+};
+
 const handleToggle = (name) => {
   if (isView) return;
 
   setFormData((prev) => {
     const updated = { ...prev, [name]: !prev[name] };
+
+    // Toggle OFF → reset fields + clear errors
+    const clearErrors = (keys) => {
+      setErrors(prevErr => {
+        const copy = { ...prevErr };
+        keys.forEach(k => delete copy[k]);
+        return copy;
+      });
+    };
 
     if (prev[name]) {
       if (name === "travelByAir") {
@@ -176,38 +212,51 @@ const handleToggle = (name) => {
         updated.airDistanceKm = "";
         updated.airTravelClass = "";
         updated.airFlightType = "";
+        clearErrors(["airPassengers", "airDistanceKm", "airTravelClass", "airFlightType"]);
       }
+
       if (name === "travelByMotorbike") {
         updated.motorbikeDistanceKm = "";
         updated.motorbikeType = "";
+        clearErrors(["motorbikeDistanceKm", "motorbikeType"]);
       }
+
       if (name === "travelByTaxi") {
         updated.taxiPassengers = "";
         updated.taxiDistanceKm = "";
         updated.taxiType = "";
+        clearErrors(["taxiPassengers", "taxiDistanceKm", "taxiType"]);
       }
+
       if (name === "travelByBus") {
         updated.busPassengers = "";
         updated.busDistanceKm = "";
         updated.busType = "";
+        clearErrors(["busPassengers", "busDistanceKm", "busType"]);
       }
+
       if (name === "travelByTrain") {
         updated.trainPassengers = "";
         updated.trainDistanceKm = "";
         updated.trainType = "";
+        clearErrors(["trainPassengers", "trainDistanceKm", "trainType"]);
       }
+
       if (name === "travelByCar") {
         updated.carDistanceKm = "";
         updated.carType = "";
         updated.carFuelType = "";
+        clearErrors(["carDistanceKm", "carType", "carFuelType"]);
       }
+
       if (name === "hotelStay") {
         updated.hotelRooms = "";
         updated.hotelNights = "";
+        clearErrors(["hotelRooms", "hotelNights"]);
       }
     }
 
-    // ADD THIS CHECK FOR TOGGLES
+    // ✅ Toggle group validation
     const anyToggle =
       updated.travelByAir ||
       updated.travelByMotorbike ||
@@ -216,9 +265,9 @@ const handleToggle = (name) => {
       updated.travelByTrain ||
       updated.travelByCar ||
       updated.hotelStay;
-    
+
     setShowToggleError(!anyToggle);
-    
+
     recalculateEmissions(updated);
     return updated;
   });
@@ -302,15 +351,15 @@ const handleToggle = (name) => {
 
         setFormData(updatedFormData);
         const anyToggle =
-  updatedFormData.travelByAir ||
-  updatedFormData.travelByMotorbike ||
-  updatedFormData.travelByTaxi ||
-  updatedFormData.travelByBus ||
-  updatedFormData.travelByTrain ||
-  updatedFormData.travelByCar ||
-  updatedFormData.hotelStay;
+          updatedFormData.travelByAir ||
+          updatedFormData.travelByMotorbike ||
+          updatedFormData.travelByTaxi ||
+          updatedFormData.travelByBus ||
+          updatedFormData.travelByTrain ||
+          updatedFormData.travelByCar ||
+          updatedFormData.hotelStay;
 
-setShowToggleError(!anyToggle && !isView);
+        setShowToggleError(!anyToggle && !isView);
         recalculateEmissions(updatedFormData);
       } catch (err) {
         toast.error("Failed to fetch record");
@@ -324,11 +373,14 @@ setShowToggleError(!anyToggle && !isView);
   }, [id, isEdit, isView]);
 
   const validate = () => {
-    if (!formData.buildingId || !formData.stakeholder || !formData.qualityControl) {
-      toast.error("Please fill all required fields");
-      return false;
-    }
+    const newErrors = {};
 
+    // Required base fields with proper messages
+    if (!formData.buildingId) newErrors.buildingId = "Building is required";
+    if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder/Department is required";
+    if (!formData.qualityControl) newErrors.qualityControl = "Quality control is required";
+
+    // Toggle group validation
     const anyToggle =
       formData.travelByAir ||
       formData.travelByMotorbike ||
@@ -338,14 +390,77 @@ setShowToggleError(!anyToggle && !isView);
       formData.travelByCar ||
       formData.hotelStay;
 
-   if (!anyToggle) {
-    setShowToggleError(true); // CHANGE THIS from toast.error to setShowToggleError
-    return false;
-  }
+    setShowToggleError(!anyToggle);
 
-  setShowToggleError(false); // ADD THIS to hide error when validation passes
-  return true;
+    // ✈️ Air Travel validation
+    if (formData.travelByAir) {
+      if (!formData.airPassengers) newErrors.airPassengers = "Number of passengers is required";
+      else if (Number(formData.airPassengers) <= 0) newErrors.airPassengers = "Passengers must be greater than 0";
+
+      if (!formData.airDistanceKm) newErrors.airDistanceKm = "Distance is required";
+      else if (Number(formData.airDistanceKm) <= 0) newErrors.airDistanceKm = "Distance must be greater than 0";
+
+      if (!formData.airTravelClass) newErrors.airTravelClass = "Travel class is required";
+      if (!formData.airFlightType) newErrors.airFlightType = "Flight type is required";
+    }
+
+    // 🏍️ Motorbike Travel validation
+    if (formData.travelByMotorbike) {
+      if (!formData.motorbikeDistanceKm) newErrors.motorbikeDistanceKm = "Distance is required";
+      else if (Number(formData.motorbikeDistanceKm) <= 0) newErrors.motorbikeDistanceKm = "Distance must be greater than 0";
+
+      if (!formData.motorbikeType) newErrors.motorbikeType = "Motorbike type is required";
+    }
+
+    // 🚕 Taxi Travel validation
+    if (formData.travelByTaxi) {
+      if (!formData.taxiPassengers) newErrors.taxiPassengers = "Number of passengers is required";
+      else if (Number(formData.taxiPassengers) <= 0) newErrors.taxiPassengers = "Passengers must be greater than 0";
+
+      if (!formData.taxiDistanceKm) newErrors.taxiDistanceKm = "Distance is required";
+      else if (Number(formData.taxiDistanceKm) <= 0) newErrors.taxiDistanceKm = "Distance must be greater than 0";
+
+      if (!formData.taxiType) newErrors.taxiType = "Taxi type is required";
+    }
+
+    // 🚌 Bus Travel validation
+    if (formData.travelByBus) {
+      if (!formData.busPassengers) newErrors.busPassengers = "Number of passengers is required";
+      else if (Number(formData.busPassengers) <= 0) newErrors.busPassengers = "Passengers must be greater than 0";
+      if (!formData.busDistanceKm) newErrors.busDistanceKm = "Distance is required";
+      else if (Number(formData.busDistanceKm) <= 0) newErrors.busDistanceKm = "Distance must be greater than 0";
+      if (!formData.busType) newErrors.busType = "Bus type is required";
+    }
+
+    //  Train Travel validation
+    if (formData.travelByTrain) {
+      if (!formData.trainPassengers) newErrors.trainPassengers = "Number of passengers is required";
+      else if (Number(formData.trainPassengers) <= 0) newErrors.trainPassengers = "Passengers must be greater than 0";
+      if (!formData.trainDistanceKm) newErrors.trainDistanceKm = "Distance is required";
+      else if (Number(formData.trainDistanceKm) <= 0) newErrors.trainDistanceKm = "Distance must be greater than 0";
+      if (!formData.trainType) newErrors.trainType = "Train type is required";
+    }
+
+    //  Car Travel validation
+    if (formData.travelByCar) {
+      if (!formData.carDistanceKm) newErrors.carDistanceKm = "Distance is required";
+      else if (Number(formData.carDistanceKm) <= 0) newErrors.carDistanceKm = "Distance must be greater than 0";
+      if (!formData.carType) newErrors.carType = "Car type is required";
+      if (!formData.carFuelType) newErrors.carFuelType = "Fuel type is required";
+    }
+
+    // Hotel Stay validation
+    if (formData.hotelStay) {
+      if (!formData.hotelRooms) newErrors.hotelRooms = "Number of rooms is required";
+      else if (Number(formData.hotelRooms) <= 0) newErrors.hotelRooms = "Rooms must be greater than 0";
+      if (!formData.hotelNights) newErrors.hotelNights = "Number of nights is required";
+      else if (Number(formData.hotelNights) <= 0) newErrors.hotelNights = "Nights must be greater than 0";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0 && anyToggle;
   };
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -406,7 +521,7 @@ setShowToggleError(!anyToggle && !isView);
       <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Business Travel Record`}>
         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
           <p className="text-gray-700">
-            This category includes emissions from the transportation of employees for <span className="font-extrabold">business related activities</span> in vehicles <span className="font-semibold">owned or operated by third parties</span>, such as aircraft, trains, buses, and passenger cars. Also companies may optionally include emissions from business travelers staying in hotels         </p>
+            This category includes emissions from the transportation of employees for <span className="font-semibold">business related activities</span> in vehicles <span className="font-semibold">owned or operated by third parties</span>, such as aircraft, trains, buses, and passenger cars. Also companies may optionally include emissions from business travelers staying in hotels         </p>
         </div>
         <form onSubmit={handleSubmit} className="p-6 grid gap-6">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-4">
@@ -421,11 +536,14 @@ setShowToggleError(!anyToggle && !isView);
                 placeholder="Select Building"
                 isDisabled={isView}
               />
+              {errors.buildingId && (
+                <p className="text-red-500 text-sm mt-1">{errors.buildingId}</p>
+              )}
             </div>
 
             {/* 2. Stakeholder */}
             <div>
-              <label className="field-label">Stakeholder</label>
+              <label className="field-label">Stakeholder / Department</label>
               <Select
                 name="stakeholder"
                 placeholder="Select or Type Department"
@@ -434,6 +552,9 @@ setShowToggleError(!anyToggle && !isView);
                 onChange={handleSelectChange}
                 isDisabled={isView}
               />
+              {errors.stakeholder && (
+                <p className="text-red-500 text-sm mt-1">{errors.stakeholder}</p>
+              )}
             </div>
 
             {/* Quality Control */}
@@ -441,15 +562,19 @@ setShowToggleError(!anyToggle && !isView);
               <label className="field-label">Quality Control</label>
               <Select
                 name="qualityControl"
+                placeholder={"Select Quality"}
                 value={findOptionByValue(processQualityControlOptions, formData.qualityControl)}
                 options={processQualityControlOptions}
                 onChange={handleSelectChange}
                 isDisabled={isView}
               />
+              {errors.qualityControl && (
+                <p className="text-red-500 text-sm mt-1">{errors.qualityControl}</p>
+              )}
             </div>
           </div>
 
-              {/* NEW: Error message for toggle selection */}
+          {/* NEW: Error message for toggle selection */}
           {showToggleError && !isView && (
             <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
               <div className="flex items-center">
@@ -466,7 +591,6 @@ setShowToggleError(!anyToggle && !isView);
               </div>
             </div>
           )}
-
 
           {/* 3. Air Travel Toggle & Fields */}
           <div className="border-b pb-4">
@@ -490,6 +614,9 @@ setShowToggleError(!anyToggle && !isView);
                     className="input-field"
                     disabled={isView}
                   />
+                  {errors.airPassengers && (
+                    <p className="text-red-500 text-sm mt-1">{errors.airPassengers}</p>
+                  )}
                 </div>
 
                 <div>
@@ -503,6 +630,9 @@ setShowToggleError(!anyToggle && !isView);
                     className="input-field"
                     disabled={isView}
                   />
+                  {errors.airDistanceKm && (
+                    <p className="text-red-500 text-sm mt-1">{errors.airDistanceKm}</p>
+                  )}
                 </div>
 
                 <div>
@@ -515,6 +645,9 @@ setShowToggleError(!anyToggle && !isView);
                     placeholder="Travel Class"
                     isDisabled={isView}
                   />
+                  {errors.airTravelClass && (
+                    <p className="text-red-500 text-sm mt-1">{errors.airTravelClass}</p>
+                  )}
                 </div>
 
                 <div>
@@ -527,6 +660,9 @@ setShowToggleError(!anyToggle && !isView);
                     placeholder="Flight Type"
                     isDisabled={isView}
                   />
+                  {errors.airFlightType && (
+                    <p className="text-red-500 text-sm mt-1">{errors.airFlightType}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -554,6 +690,9 @@ setShowToggleError(!anyToggle && !isView);
                     className="input-field"
                     disabled={isView}
                   />
+                  {errors.motorbikeDistanceKm && (
+                    <p className="text-red-500 text-sm mt-1">{errors.motorbikeDistanceKm}</p>
+                  )}
                 </div>
 
                 <div>
@@ -566,6 +705,9 @@ setShowToggleError(!anyToggle && !isView);
                     placeholder="Motorbike Type"
                     isDisabled={isView}
                   />
+                  {errors.motorbikeType && (
+                    <p className="text-red-500 text-sm mt-1">{errors.motorbikeType}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -592,6 +734,9 @@ setShowToggleError(!anyToggle && !isView);
                     className="input-field"
                     disabled={isView}
                   />
+                  {errors.taxiPassengers && (
+                    <p className="text-red-500 text-sm mt-1">{errors.taxiPassengers}</p>
+                  )}
                 </div>
 
                 <div>
@@ -605,6 +750,9 @@ setShowToggleError(!anyToggle && !isView);
                     className="input-field"
                     disabled={isView}
                   />
+                  {errors.taxiDistanceKm && (
+                    <p className="text-red-500 text-sm mt-1">{errors.taxiDistanceKm}</p>
+                  )}
                 </div>
 
                 <div>
@@ -617,6 +765,9 @@ setShowToggleError(!anyToggle && !isView);
                     placeholder="Taxi Type"
                     isDisabled={isView}
                   />
+                  {errors.taxiType && (
+                    <p className="text-red-500 text-sm mt-1">{errors.taxiType}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -640,9 +791,12 @@ setShowToggleError(!anyToggle && !isView);
                     value={formData.busPassengers}
                     onChange={handleChange}
                     placeholder="Passengers"
-                    className="input-field"
+                     className="input-field"
                     disabled={isView}
                   />
+                  {errors.busPassengers && (
+                    <p className="text-red-500 text-sm mt-1">{errors.busPassengers}</p>
+                  )}
                 </div>
 
                 <div>
@@ -656,6 +810,9 @@ setShowToggleError(!anyToggle && !isView);
                     className="input-field"
                     disabled={isView}
                   />
+                  {errors.busDistanceKm && (
+                    <p className="text-red-500 text-sm mt-1">{errors.busDistanceKm}</p>
+                  )}
                 </div>
 
                 <div>
@@ -667,7 +824,11 @@ setShowToggleError(!anyToggle && !isView);
                     onChange={handleSelectChange}
                     placeholder="Bus Type"
                     isDisabled={isView}
+                    className={errors.busType ? 'border-red-500' : ''}
                   />
+                  {errors.busType && (
+                    <p className="text-red-500 text-sm mt-1">{errors.busType}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -692,9 +853,12 @@ setShowToggleError(!anyToggle && !isView);
                     value={formData.trainPassengers}
                     onChange={handleChange}
                     placeholder="Passengers"
-                    className="input-field"
+                     className="input-field"
                     disabled={isView}
                   />
+                  {errors.trainPassengers && (
+                    <p className="text-red-500 text-sm mt-1">{errors.trainPassengers}</p>
+                  )}
                 </div>
 
                 <div>
@@ -708,6 +872,9 @@ setShowToggleError(!anyToggle && !isView);
                     className="input-field"
                     disabled={isView}
                   />
+                  {errors.trainDistanceKm && (
+                    <p className="text-red-500 text-sm mt-1">{errors.trainDistanceKm}</p>
+                  )}
                 </div>
 
                 <div>
@@ -719,7 +886,11 @@ setShowToggleError(!anyToggle && !isView);
                     onChange={handleSelectChange}
                     placeholder="Train Type"
                     isDisabled={isView}
+                    className={errors.trainType ? 'border-red-500' : ''}
                   />
+                  {errors.trainType && (
+                    <p className="text-red-500 text-sm mt-1">{errors.trainType}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -744,9 +915,12 @@ setShowToggleError(!anyToggle && !isView);
                     value={formData.carDistanceKm}
                     onChange={handleChange}
                     placeholder="Distance (km)"
-                    className="input-field"
+                    className="input-field" 
                     disabled={isView}
                   />
+                  {errors.carDistanceKm && (
+                    <p className="text-red-500 text-sm mt-1">{errors.carDistanceKm}</p>
+                  )}
                 </div>
 
                 <div className="col-span-2">
@@ -758,7 +932,11 @@ setShowToggleError(!anyToggle && !isView);
                     onChange={handleCarTypeChange}
                     placeholder="Car Type"
                     isDisabled={isView}
+                    className={errors.carType ? 'border-red-500' : ''}
                   />
+                  {errors.carType && (
+                    <p className="text-red-500 text-sm mt-1">{errors.carType}</p>
+                  )}
                 </div>
 
                 <div>
@@ -770,7 +948,11 @@ setShowToggleError(!anyToggle && !isView);
                     onChange={handleCarFuelTypeChange}
                     placeholder={formData.carType ? "Select Fuel Type" : "Select Car Type first"}
                     isDisabled={!formData.carType || isView}
+                    className={errors.carFuelType ? 'border-red-500' : ''}
                   />
+                  {errors.carFuelType && (
+                    <p className="text-red-500 text-sm mt-1">{errors.carFuelType}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -798,6 +980,9 @@ setShowToggleError(!anyToggle && !isView);
                     className="input-field"
                     disabled={isView}
                   />
+                  {errors.hotelRooms && (
+                    <p className="text-red-500 text-sm mt-1">{errors.hotelRooms}</p>
+                  )}
                 </div>
 
                 <div>
@@ -811,6 +996,9 @@ setShowToggleError(!anyToggle && !isView);
                     className="input-field"
                     disabled={isView}
                   />
+                  {errors.hotelNights && (
+                    <p className="text-red-500 text-sm mt-1">{errors.hotelNights}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -821,6 +1009,7 @@ setShowToggleError(!anyToggle && !isView);
             <label className="field-label">Remarks</label>
             <textarea
               name="remarks"
+              placeholder="Enter Remarks"
               value={formData.remarks}
               onChange={handleChange}
               rows={3}

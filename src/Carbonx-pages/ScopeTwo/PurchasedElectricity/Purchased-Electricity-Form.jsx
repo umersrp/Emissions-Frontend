@@ -509,12 +509,8 @@ const PurchasedElectricityFormPage = () => {
     <div>
       <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Purchased Electricity Record`}>
         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
-
           <p className="text-gray-700">
             Scope 2 Purchased Electricity refers to indirect greenhouse gas (GHG) emissions that occur from the generation of electricity that is purchased or acquired by a company for its own use.</p>
-
-          {/* <p>For this method its necessary you to have Renewable Energy attributes or Contractractual instruments or PPAs that covers your electricity consumption otherwise you cannot report under this method.</p> */}
-
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 grid gap-6">

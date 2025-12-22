@@ -47,7 +47,7 @@ const CapitalGoodsListing = () => {
   const [goToValue, setGoToValue] = useState(pageIndex);
 
    const capitalizeLabel = (text) => {
-    if (!text) return "";
+    if (!text) return "N/A";
 
     const exceptions = [ "and","or","in","of","from","at","to","the","a","an","for","on","with",
     "but","by","is","it","as","be","this","that","these","those","such",
@@ -161,17 +161,17 @@ const fetchData = async () => {
       ),
     },
 
-    { Header: "Building", accessor: "buildingId.buildingName" },
+    { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ value }) => capitalizeLabel(value) },
     { Header: "Stakeholder", accessor: "stakeholder" },
     { Header: "Purchase Category", accessor: "purchaseCategory" },
-    { Header: "Purchased Activity Type", accessor: "purchasedActivityType" },
+    { Header: "Purchased Activity Type", accessor: "purchasedActivityType", Cell: ({ value }) => capitalizeLabel(value)},
     { Header: "Purchased Goods / Services Type", accessor: "purchasedGoodsServicesType", Cell: ({ value }) => capitalizeLabel(value)  },
     { Header: "Amount Spent", accessor: "amountSpent" },
     { Header: "Unit", accessor: "unit", Cell: ({ value }) => (value === "USD" ? "$" : value), },
-    { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
-    { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
+    { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" ,Cell: ({ cell }) => cell.value || "N/A"},
+    { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",Cell: ({ cell }) => cell.value || "N/A" },
     { Header: "Quality Control", accessor: "qualityControl" },
-    { Header: "Remarks", accessor: "remarks" },
+    { Header: "Remarks", accessor: "remarks", Cell: ({ value }) => capitalizeLabel(value)   },
     // {
     //   Header: "Created By",
     //   accessor: "createdBy",
