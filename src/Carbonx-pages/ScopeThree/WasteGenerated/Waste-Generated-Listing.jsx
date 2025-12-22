@@ -116,7 +116,7 @@ const WasteGeneratedListing = () => {
     { Header: "Waste Type", accessor: "wasteType" },
     { Header: "Waste Treatment Method", accessor: "wasteTreatmentMethod" },
     { Header: "Unit", accessor: "unit" },
-    { Header: "totalWasteQty", accessor: "totalWasteQty" },
+    { Header: "Total Waste Quantity", accessor: "totalWasteQty" },
     { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
     { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
     { Header: "Quality Control", accessor: "qualityControl" },
