@@ -46,13 +46,13 @@ const CapitalGoodsListing = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
 
-   const capitalizeLabel = (text) => {
+  const capitalizeLabel = (text) => {
     if (!text) return "N/A";
 
-    const exceptions = [ "and","or","in","of","from","at","to","the","a","an","for","on","with",
-    "but","by","is","it","as","be","this","that","these","those","such",
-    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
-    "n.e.c."];
+    const exceptions = ["and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+      "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+      "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+      "n.e.c."];
     return text
       .split(" ")
       .map((word, index) => {
@@ -96,39 +96,39 @@ const CapitalGoodsListing = () => {
   //     setLoading(false);
   //   }
   // };
-const fetchData = async () => {
-  setLoading(true);
-  try {
-    const res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All-isCaptialGoods`,
-      {
-        params: {
-          page: pageIndex,
-          limit: pageSize,
-          search: globalFilterValue || "",
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All-isCaptialGoods`,
+        {
+          params: {
+            page: pageIndex,
+            limit: pageSize,
+            search: globalFilterValue || "",
+          },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-    // Get data and metadata from server response
-    const data = res.data?.data || [];
-    const meta = res.data?.meta || {};
-    
-    // Set states - NO FILTERING
-    setRecords(data);
-    // Use server's pagination metadata directly
-    setTotalPages(meta.totalPages || 1);
-    setTotalRecords(meta.totalRecords || 0);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to fetch records");
-  } finally {
-    setLoading(false);
-  }
-};
+      // Get data and metadata from server response
+      const data = res.data?.data || [];
+      const meta = res.data?.meta || {};
+
+      // Set states - NO FILTERING
+      setRecords(data);
+      // Use server's pagination metadata directly
+      setTotalPages(meta.totalPages || 1);
+      setTotalRecords(meta.totalRecords || 0);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch records");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -151,92 +151,92 @@ const fetchData = async () => {
   };
 
   // Columns
- const COLUMNS = useMemo(
-  () => [
-    {
-      Header: "Sr.No",
-      id: "serialNo",
-      Cell: ({ row }) => (
-        <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
-      ),
-    },
+  const COLUMNS = useMemo(
+    () => [
+      {
+        Header: "Sr.No",
+        id: "serialNo",
+        Cell: ({ row }) => (
+          <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
+        ),
+      },
 
-    { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ value }) => capitalizeLabel(value) },
-    { Header: "Stakeholder", accessor: "stakeholder" },
-    { Header: "Purchase Category", accessor: "purchaseCategory" },
-    { Header: "Purchased Activity Type", accessor: "purchasedActivityType", Cell: ({ value }) => capitalizeLabel(value)},
-    { Header: "Purchased Goods / Services Type", accessor: "purchasedGoodsServicesType", Cell: ({ value }) => capitalizeLabel(value)  },
-    { Header: "Amount Spent", accessor: "amountSpent" },
-    { Header: "Unit", accessor: "unit", Cell: ({ value }) => (value === "USD" ? "$" : value), },
-    { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" ,Cell: ({ cell }) => cell.value || "N/A"},
-    { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",Cell: ({ cell }) => cell.value || "N/A" },
-    { Header: "Quality Control", accessor: "qualityControl" },
-    { Header: "Remarks", accessor: "remarks", Cell: ({ value }) => capitalizeLabel(value)   },
-    // {
-    //   Header: "Created By",
-    //   accessor: "createdBy",
-    //   Cell: ({ cell }) => cell.value || "-",
-    // },
-    // {
-    //   Header: "Updated By",
-    //   accessor: "updatedBy",
-    //   Cell: ({ cell }) => cell.value || "-",
-    // },
-    {
-      Header: "Created At",
-      accessor: "createdAt",
-      Cell: ({ cell }) =>
-        cell.value ? new Date(cell.value).toLocaleDateString() : "-",
-    },
+      { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Stakeholder", accessor: "stakeholder" },
+      { Header: "Purchase Category", accessor: "purchaseCategory" },
+      { Header: "Purchased Activity Type", accessor: "purchasedActivityType", Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Purchased Goods / Services Type", accessor: "purchasedGoodsServicesType", Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Amount Spent", accessor: "amountSpent" },
+      { Header: "Unit", accessor: "unit", Cell: ({ value }) => (value === "USD" ? "$" : value), },
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Quality Control", accessor: "qualityControl" },
+      { Header: "Remarks", accessor: "remarks", Cell: ({ value }) => capitalizeLabel(value) },
+      {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
+      {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
+      {
+        Header: "Created At",
+        accessor: "createdAt",
+        Cell: ({ cell }) =>
+          cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+      },
 
-    {
-      Header: "Actions",
-      accessor: "_id",
-      Cell: ({ cell }) => (
-        <div className="flex space-x-3 rtl:space-x-reverse">
-          <Tippy content="View">
-            <button
-              className="action-btn"
-              onClick={() =>
-                navigate(`/Purchased-Good-Services-Form/${cell.value}`, {
-                  state: { mode: "view" },
-                })
-              }
-            >
-              <Icon icon="heroicons:eye" className="text-green-600" />
-            </button>
-          </Tippy>
+      {
+        Header: "Actions",
+        accessor: "_id",
+        Cell: ({ cell }) => (
+          <div className="flex space-x-3 rtl:space-x-reverse">
+            <Tippy content="View">
+              <button
+                className="action-btn"
+                onClick={() =>
+                  navigate(`/Purchased-Good-Services-Form/${cell.value}`, {
+                    state: { mode: "view" },
+                  })
+                }
+              >
+                <Icon icon="heroicons:eye" className="text-green-600" />
+              </button>
+            </Tippy>
 
-          <Tippy content="Edit">
-            <button
-              className="action-btn"
-              onClick={() =>
-                navigate(`/Purchased-Good-Services-Form/${cell.value}`, {
-                  state: { mode: "edit" },
-                })
-              }
-            >
-              <Icon icon="heroicons:pencil-square" className="text-blue-600" />
-            </button>
-          </Tippy>
+            <Tippy content="Edit">
+              <button
+                className="action-btn"
+                onClick={() =>
+                  navigate(`/Purchased-Good-Services-Form/${cell.value}`, {
+                    state: { mode: "edit" },
+                  })
+                }
+              >
+                <Icon icon="heroicons:pencil-square" className="text-blue-600" />
+              </button>
+            </Tippy>
 
-          <Tippy content="Delete">
-            <button
-              className="action-btn"
-              onClick={() => {
-                setSelectedId(cell.value);
-                setDeleteModalOpen(true);
-              }}
-            >
-              <Icon icon="heroicons:trash" className="text-red-600" />
-            </button>
-          </Tippy>
-        </div>
-      ),
-    },
-  ],
-  [pageIndex, pageSize]
-);
+            <Tippy content="Delete">
+              <button
+                className="action-btn"
+                onClick={() => {
+                  setSelectedId(cell.value);
+                  setDeleteModalOpen(true);
+                }}
+              >
+                <Icon icon="heroicons:trash" className="text-red-600" />
+              </button>
+            </Tippy>
+          </div>
+        ),
+      },
+    ],
+    [pageIndex, pageSize]
+  );
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
   const data = useMemo(() => records, [records]);

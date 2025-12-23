@@ -46,63 +46,63 @@ const BusinessTravel = () => {
     const [selectedId, setSelectedId] = useState(null);
     const [goToValue, setGoToValue] = useState(pageIndex);
 
-  const renderNA = (value) => {
-  return value === null || value === undefined || value === "" ? "N/A" : value;
-};
+    const renderNA = (value) => {
+        return value === null || value === undefined || value === "" ? "N/A" : value;
+    };
 
-const capitalizeLabel = (text) => {
-    if (!text) return "N/A";
+    const capitalizeLabel = (text) => {
+        if (!text) return "N/A";
 
-    const exceptions = [ "and","or","in","of","from","at","to","the","a","an","for","on","with",
-    "but","by","is","it","as","be","this","that","these","those","such",
-    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
-    "n.e.c."];
-    return text
-      .split(" ")
-      .map((word, index) => {
-        // Always capitalize the first word
-        if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
-        // Don't capitalize exceptions
-        if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
-        return word.charAt(0).toUpperCase() + word.slice(1);
-      })
-      .join(" ");
-  };
+        const exceptions = ["and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+            "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+            "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+            "n.e.c."];
+        return text
+            .split(" ")
+            .map((word, index) => {
+                // Always capitalize the first word
+                if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
+                // Don't capitalize exceptions
+                if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            })
+            .join(" ");
+    };
     // Fetch data from server with pagination
-   const fetchData = async () => {
-    setLoading(true);
-    try {
-        const res = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}/Business-Travel/List`,
-            {
-                params: {
-                    page: pageIndex,
-                    limit: pageSize,
-                    search: globalFilterValue || "",
-                },
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const res = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/Business-Travel/List`,
+                {
+                    params: {
+                        page: pageIndex,
+                        limit: pageSize,
+                        search: globalFilterValue || "",
+                    },
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                }
+            );
+            const data = res.data?.data || [];
+            const meta = res.data?.meta || {};
+            setRecords(data);
+            setTotalPages(meta.totalPages || 1);
+            setTotalRecords(meta.total || 0);
+
+            // Update pageIndex based on server response
+            if (meta.page && meta.page !== pageIndex) {
+                setPageIndex(meta.page);
+                setGoToValue(meta.page);
             }
-        );
-        const data = res.data?.data || [];
-        const meta = res.data?.meta || {};
-        setRecords(data);
-        setTotalPages(meta.totalPages || 1);
-        setTotalRecords(meta.total || 0);
-        
-        // Update pageIndex based on server response
-        if (meta.page && meta.page !== pageIndex) {
-            setPageIndex(meta.page);
-            setGoToValue(meta.page);
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to fetch records");
+        } finally {
+            setLoading(false);
         }
-    } catch (err) {
-        console.error(err);
-        toast.error("Failed to fetch records");
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
     useEffect(() => {
         fetchData();
@@ -124,123 +124,134 @@ const capitalizeLabel = (text) => {
 
     // Columns
     const COLUMNS = useMemo(
-    () => [
-        {
-            Header: "Sr.No",
-            id: "serialNo",
-            Cell: ({ row }) => (
-                <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
-            ),
-        },
+        () => [
+            {
+                Header: "Sr.No",
+                id: "serialNo",
+                Cell: ({ row }) => (
+                    <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
+                ),
+            },
 
-        { Header: "Building", accessor: "buildingId.buildingName" },
-        { Header: "Stakeholder", accessor: "stakeholder" },
+            { Header: "Building", accessor: "buildingId.buildingName" },
+            { Header: "Stakeholder", accessor: "stakeholder" },
 
-        { Header: "Air Travel", accessor: "travelByAir", Cell: ({ value }) => (value ? "Yes" : "No") },
-        { Header: "Air Passengers", accessor: "airPassengers", Cell: ({ value }) => capitalizeLabel(value)  },
-        { Header: "Air Distance (Km)", accessor: "airDistanceKm", Cell: ({ value }) => capitalizeLabel(value)  },
-        { Header: "Air Class", accessor: "airTravelClass", Cell: ({ value }) => capitalizeLabel(value)  },
-        { Header: "Flight Type", accessor: "airFlightType", Cell: ({ value }) => capitalizeLabel(value)  },
+            { Header: "Air Travel", accessor: "travelByAir", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "Air Passengers", accessor: "airPassengers", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Air Distance (Km)", accessor: "airDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Air Class", accessor: "airTravelClass", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Flight Type", accessor: "airFlightType", Cell: ({ value }) => capitalizeLabel(value) },
 
-        { Header: "Motorbike", accessor: "travelByMotorbike", Cell: ({ value }) => (value ? "Yes" : "No") },
-        { Header: "Motorbike Distance (Km)", accessor: "motorbikeDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
-        { Header: "Motorbike Type", accessor: "motorbikeType", Cell: ({ value }) => capitalizeLabel(value)  },
+            { Header: "Motorbike", accessor: "travelByMotorbike", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "Motorbike Distance (Km)", accessor: "motorbikeDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Motorbike Type", accessor: "motorbikeType", Cell: ({ value }) => capitalizeLabel(value) },
 
-        { Header: "Taxi", accessor: "travelByTaxi", Cell: ({ value }) => (value ? "Yes" : "No") },
-        { Header: "Taxi Passengers", accessor: "taxiPassengers", Cell: ({ value }) => capitalizeLabel(value)  },
-        { Header: "Taxi Distance (Km)", accessor: "taxiDistanceKm", Cell: ({ value }) => capitalizeLabel(value)  },
-        { Header: "Taxi Type", accessor: "taxiType", Cell: ({ value }) => capitalizeLabel(value)  },
+            { Header: "Taxi", accessor: "travelByTaxi", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "Taxi Passengers", accessor: "taxiPassengers", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Taxi Distance (Km)", accessor: "taxiDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Taxi Type", accessor: "taxiType", Cell: ({ value }) => capitalizeLabel(value) },
 
-        { Header: "Bus", accessor: "travelByBus", Cell: ({ value }) => (value ? "Yes" : "No") },
-        { Header: "Bus Passengers", accessor: "busPassengers", Cell: ({ value }) => capitalizeLabel(value)  },
-        { Header: "Bus Distance (Km)", accessor: "busDistanceKm", Cell: ({ value }) => capitalizeLabel(value)  },
-        { Header: "Bus Type", accessor: "busType", Cell: ({ value }) => capitalizeLabel(value)  },
+            { Header: "Bus", accessor: "travelByBus", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "Bus Passengers", accessor: "busPassengers", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Bus Distance (Km)", accessor: "busDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Bus Type", accessor: "busType", Cell: ({ value }) => capitalizeLabel(value) },
 
-        { Header: "Train", accessor: "travelByTrain", Cell: ({ value }) => (value ? "Yes" : "No") },
-        { Header: "Train Passengers", accessor: "trainPassengers", Cell: ({ value }) => capitalizeLabel(value)  },
-        { Header: "Train Distance (Km)", accessor: "trainDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
-        { Header: "Train Type", accessor: "trainType", Cell: ({ value }) => capitalizeLabel(value)  },
+            { Header: "Train", accessor: "travelByTrain", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "Train Passengers", accessor: "trainPassengers", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Train Distance (Km)", accessor: "trainDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Train Type", accessor: "trainType", Cell: ({ value }) => capitalizeLabel(value) },
 
-        { Header: "Car", accessor: "travelByCar", Cell: ({ value }) => (value ? "Yes" : "No") },
-        { Header: "Car Distance (Km)", accessor: "carDistanceKm", Cell: ({ value }) => capitalizeLabel(value)  },
-        { Header: "Car Type", accessor: "carType",Cell: ({ cell }) => renderNA(cell.value)},
-        { Header: "Car Fuel Type", accessor: "carFuelType", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Car", accessor: "travelByCar", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "Car Distance (Km)", accessor: "carDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Car Type", accessor: "carType", Cell: ({ cell }) => renderNA(cell.value) },
+            { Header: "Car Fuel Type", accessor: "carFuelType", Cell: ({ value }) => capitalizeLabel(value) },
 
-        { Header: "Hotel Stay", accessor: "hotelStay", Cell: ({ value }) => (value ? "Yes" : "No") },
-        { Header: "Hotel Rooms", accessor: "hotelRooms", Cell: ({ value }) => capitalizeLabel(value) },
-        { Header: "Hotel Nights", accessor: "hotelNights", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Hotel Stay", accessor: "hotelStay", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "Hotel Rooms", accessor: "hotelRooms", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Hotel Nights", accessor: "hotelNights", Cell: ({ value }) => capitalizeLabel(value) },
 
-        {
-            Header: "Calculated Emissions (kgCO₂e)",
-            accessor: "calculatedEmissionKgCo2e",
-            Cell: ({ cell }) => cell.value || "N/A",
-        },
-        {
-            Header: "Calculated Emissions (kgCO₂e)",
-            accessor: "calculatedEmissionTCo2e",
-            Cell: ({ cell }) => cell.value || "N/A",
-        },
+            {
+                Header: "Calculated Emissions (kgCO₂e)",
+                accessor: "calculatedEmissionKgCo2e",
+                Cell: ({ cell }) => cell.value || "N/A",
+            },
+            {
+                Header: "Calculated Emissions (kgCO₂e)",
+                accessor: "calculatedEmissionTCo2e",
+                Cell: ({ cell }) => cell.value || "N/A",
+            },
 
-        {
-            Header: "Remarks",
-            accessor: "remarks",
-            Cell: ({ value }) => capitalizeLabel(value)  
-        },
-        {
-            Header: "Created At",
-            accessor: "createdAt",
-            Cell: ({ value }) =>
-                value ? new Date(value).toLocaleDateString() : "-",
-        },
 
-        {
-            Header: "Actions",
-            accessor: "_id",
-            Cell: ({ cell }) => (
-                <div className="flex space-x-3 rtl:space-x-reverse">
-                    <Tippy content="View">
-                        <button
-                            className="action-btn"
-                            onClick={() =>
-                                navigate(`/Business-Travel-Form/${cell.value}`, {
-                                    state: { mode: "view" },
-                                })
-                            }
-                        >
-                            <Icon icon="heroicons:eye" className="text-green-600" />
-                        </button>
-                    </Tippy>
+            {
+                Header: "Remarks",
+                accessor: "remarks",
+                Cell: ({ value }) => capitalizeLabel(value)
+            },
+            {
+                Header: "Created By",
+                accessor: "createdBy.name",
+                Cell: ({ cell }) => cell.value || "N/A",
+            },
+            {
+                Header: "Updated By",
+                accessor: "updatedBy.name",
+                Cell: ({ cell }) => cell.value || "N/A",
+            },
+            {
+                Header: "Created At",
+                accessor: "createdAt",
+                Cell: ({ value }) =>
+                    value ? new Date(value).toLocaleDateString() : "-",
+            },
 
-                    <Tippy content="Edit">
-                        <button
-                            className="action-btn"
-                            onClick={() =>
-                                navigate(`/Business-Travel-Form/${cell.value}`, {
-                                    state: { mode: "edit" },
-                                })
-                            }
-                        >
-                            <Icon icon="heroicons:pencil-square" className="text-blue-600" />
-                        </button>
-                    </Tippy>
+            {
+                Header: "Actions",
+                accessor: "_id",
+                Cell: ({ cell }) => (
+                    <div className="flex space-x-3 rtl:space-x-reverse">
+                        <Tippy content="View">
+                            <button
+                                className="action-btn"
+                                onClick={() =>
+                                    navigate(`/Business-Travel-Form/${cell.value}`, {
+                                        state: { mode: "view" },
+                                    })
+                                }
+                            >
+                                <Icon icon="heroicons:eye" className="text-green-600" />
+                            </button>
+                        </Tippy>
 
-                    <Tippy content="Delete">
-                        <button
-                            className="action-btn"
-                            onClick={() => {
-                                setSelectedId(cell.value);
-                                setDeleteModalOpen(true);
-                            }}
-                        >
-                            <Icon icon="heroicons:trash" className="text-red-600" />
-                        </button>
-                    </Tippy>
-                </div>
-            ),
-        },
-    ],
-    [pageIndex, pageSize]
-);
+                        <Tippy content="Edit">
+                            <button
+                                className="action-btn"
+                                onClick={() =>
+                                    navigate(`/Business-Travel-Form/${cell.value}`, {
+                                        state: { mode: "edit" },
+                                    })
+                                }
+                            >
+                                <Icon icon="heroicons:pencil-square" className="text-blue-600" />
+                            </button>
+                        </Tippy>
+
+                        <Tippy content="Delete">
+                            <button
+                                className="action-btn"
+                                onClick={() => {
+                                    setSelectedId(cell.value);
+                                    setDeleteModalOpen(true);
+                                }}
+                            >
+                                <Icon icon="heroicons:trash" className="text-red-600" />
+                            </button>
+                        </Tippy>
+                    </div>
+                ),
+            },
+        ],
+        [pageIndex, pageSize]
+    );
 
 
     const columns = useMemo(() => COLUMNS, [COLUMNS]);

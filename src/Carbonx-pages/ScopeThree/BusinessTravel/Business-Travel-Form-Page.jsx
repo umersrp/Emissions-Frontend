@@ -103,175 +103,175 @@ const BusinessTravelFormPage = () => {
   }, [formData]);
 
 
-const handleChange = (e) => {
-  if (isView) return;
+  const handleChange = (e) => {
+    if (isView) return;
 
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  // Clear the field error immediately when user starts typing
-  setErrors(prev => ({ ...prev, [name]: "" }));
+    // Clear the field error immediately when user starts typing
+    setErrors(prev => ({ ...prev, [name]: "" }));
 
-  // Validate for negative values
-  if (Number(value) < 0) {
-    setErrors(prev => ({ ...prev, [name]: "Value cannot be negative" }));
-    return;
-  }
-
-  // For car distance, also check if it's 0
-  if (name === "carDistanceKm" && Number(value) === 0) {
-    setErrors(prev => ({ ...prev, [name]: "Distance must be greater than 0" }));
-    return;
-  }
-
-  setFormData(prev => {
-    const updated = { ...prev, [name]: value };
-    recalculateEmissions(updated);
-    return updated;
-  });
-};
-
-const handleSelectChange = (selectedOption, { name }) => {
-  if (isView) return;
-
-  // Clear the field error when a selection is made
-  setErrors(prev => ({ ...prev, [name]: "" }));
-
-  // Store only the string value from the selected option
-  const stringValue = selectedOption ? selectedOption.value : "";
-
-  const updated = { ...formData, [name]: stringValue };
-  setFormData(updated);
-  recalculateEmissions(updated);
-};
-
-  // Special handler for carType since it affects carFuelType
- const handleCarTypeChange = (selectedOption) => {
-  if (isView) return;
-  
-  const stringValue = selectedOption ? selectedOption.value : "";
-  
-  // Clear errors for carType and carFuelType when car type changes
-  setErrors(prev => ({ 
-    ...prev, 
-    carType: "",
-    carFuelType: "" 
-  }));
-
-  setFormData(prev => ({
-    ...prev,
-    carType: stringValue,
-    carFuelType: ""
-  }));
-
-  // Recalculate emissions with updated formData
-  const updated = { 
-    ...formData, 
-    carType: stringValue, 
-    carFuelType: "" 
-  };
-  recalculateEmissions(updated);
-};
-
-const handleCarFuelTypeChange = (selectedOption) => {
-  if (isView) return;
-
-  const stringValue = selectedOption ? selectedOption.value : "";
-  
-  // Clear carFuelType error when fuel type is selected
-  setErrors(prev => ({ 
-    ...prev, 
-    carFuelType: "" 
-  }));
-
-  const updated = { 
-    ...formData, 
-    carFuelType: stringValue 
-  };
-  setFormData(updated);
-  recalculateEmissions(updated);
-};
-
-const handleToggle = (name) => {
-  if (isView) return;
-
-  setFormData((prev) => {
-    const updated = { ...prev, [name]: !prev[name] };
-
-    // Toggle OFF → reset fields + clear errors
-    const clearErrors = (keys) => {
-      setErrors(prevErr => {
-        const copy = { ...prevErr };
-        keys.forEach(k => delete copy[k]);
-        return copy;
-      });
-    };
-
-    if (prev[name]) {
-      if (name === "travelByAir") {
-        updated.airPassengers = "";
-        updated.airDistanceKm = "";
-        updated.airTravelClass = "";
-        updated.airFlightType = "";
-        clearErrors(["airPassengers", "airDistanceKm", "airTravelClass", "airFlightType"]);
-      }
-
-      if (name === "travelByMotorbike") {
-        updated.motorbikeDistanceKm = "";
-        updated.motorbikeType = "";
-        clearErrors(["motorbikeDistanceKm", "motorbikeType"]);
-      }
-
-      if (name === "travelByTaxi") {
-        updated.taxiPassengers = "";
-        updated.taxiDistanceKm = "";
-        updated.taxiType = "";
-        clearErrors(["taxiPassengers", "taxiDistanceKm", "taxiType"]);
-      }
-
-      if (name === "travelByBus") {
-        updated.busPassengers = "";
-        updated.busDistanceKm = "";
-        updated.busType = "";
-        clearErrors(["busPassengers", "busDistanceKm", "busType"]);
-      }
-
-      if (name === "travelByTrain") {
-        updated.trainPassengers = "";
-        updated.trainDistanceKm = "";
-        updated.trainType = "";
-        clearErrors(["trainPassengers", "trainDistanceKm", "trainType"]);
-      }
-
-      if (name === "travelByCar") {
-        updated.carDistanceKm = "";
-        updated.carType = "";
-        updated.carFuelType = "";
-        clearErrors(["carDistanceKm", "carType", "carFuelType"]);
-      }
-
-      if (name === "hotelStay") {
-        updated.hotelRooms = "";
-        updated.hotelNights = "";
-        clearErrors(["hotelRooms", "hotelNights"]);
-      }
+    // Validate for negative values
+    if (Number(value) < 0) {
+      setErrors(prev => ({ ...prev, [name]: "Value cannot be negative" }));
+      return;
     }
 
-    // ✅ Toggle group validation
-    const anyToggle =
-      updated.travelByAir ||
-      updated.travelByMotorbike ||
-      updated.travelByTaxi ||
-      updated.travelByBus ||
-      updated.travelByTrain ||
-      updated.travelByCar ||
-      updated.hotelStay;
+    // For car distance, also check if it's 0
+    if (name === "carDistanceKm" && Number(value) === 0) {
+      setErrors(prev => ({ ...prev, [name]: "Distance must be greater than 0" }));
+      return;
+    }
 
-    setShowToggleError(!anyToggle);
+    setFormData(prev => {
+      const updated = { ...prev, [name]: value };
+      recalculateEmissions(updated);
+      return updated;
+    });
+  };
 
+  const handleSelectChange = (selectedOption, { name }) => {
+    if (isView) return;
+
+    // Clear the field error when a selection is made
+    setErrors(prev => ({ ...prev, [name]: "" }));
+
+    // Store only the string value from the selected option
+    const stringValue = selectedOption ? selectedOption.value : "";
+
+    const updated = { ...formData, [name]: stringValue };
+    setFormData(updated);
     recalculateEmissions(updated);
-    return updated;
-  });
-};
+  };
+
+  // Special handler for carType since it affects carFuelType
+  const handleCarTypeChange = (selectedOption) => {
+    if (isView) return;
+
+    const stringValue = selectedOption ? selectedOption.value : "";
+
+    // Clear errors for carType and carFuelType when car type changes
+    setErrors(prev => ({
+      ...prev,
+      carType: "",
+      carFuelType: ""
+    }));
+
+    setFormData(prev => ({
+      ...prev,
+      carType: stringValue,
+      carFuelType: ""
+    }));
+
+    // Recalculate emissions with updated formData
+    const updated = {
+      ...formData,
+      carType: stringValue,
+      carFuelType: ""
+    };
+    recalculateEmissions(updated);
+  };
+
+  const handleCarFuelTypeChange = (selectedOption) => {
+    if (isView) return;
+
+    const stringValue = selectedOption ? selectedOption.value : "";
+
+    // Clear carFuelType error when fuel type is selected
+    setErrors(prev => ({
+      ...prev,
+      carFuelType: ""
+    }));
+
+    const updated = {
+      ...formData,
+      carFuelType: stringValue
+    };
+    setFormData(updated);
+    recalculateEmissions(updated);
+  };
+
+  const handleToggle = (name) => {
+    if (isView) return;
+
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: !prev[name] };
+
+      // Toggle OFF → reset fields + clear errors
+      const clearErrors = (keys) => {
+        setErrors(prevErr => {
+          const copy = { ...prevErr };
+          keys.forEach(k => delete copy[k]);
+          return copy;
+        });
+      };
+
+      if (prev[name]) {
+        if (name === "travelByAir") {
+          updated.airPassengers = "";
+          updated.airDistanceKm = "";
+          updated.airTravelClass = "";
+          updated.airFlightType = "";
+          clearErrors(["airPassengers", "airDistanceKm", "airTravelClass", "airFlightType"]);
+        }
+
+        if (name === "travelByMotorbike") {
+          updated.motorbikeDistanceKm = "";
+          updated.motorbikeType = "";
+          clearErrors(["motorbikeDistanceKm", "motorbikeType"]);
+        }
+
+        if (name === "travelByTaxi") {
+          updated.taxiPassengers = "";
+          updated.taxiDistanceKm = "";
+          updated.taxiType = "";
+          clearErrors(["taxiPassengers", "taxiDistanceKm", "taxiType"]);
+        }
+
+        if (name === "travelByBus") {
+          updated.busPassengers = "";
+          updated.busDistanceKm = "";
+          updated.busType = "";
+          clearErrors(["busPassengers", "busDistanceKm", "busType"]);
+        }
+
+        if (name === "travelByTrain") {
+          updated.trainPassengers = "";
+          updated.trainDistanceKm = "";
+          updated.trainType = "";
+          clearErrors(["trainPassengers", "trainDistanceKm", "trainType"]);
+        }
+
+        if (name === "travelByCar") {
+          updated.carDistanceKm = "";
+          updated.carType = "";
+          updated.carFuelType = "";
+          clearErrors(["carDistanceKm", "carType", "carFuelType"]);
+        }
+
+        if (name === "hotelStay") {
+          updated.hotelRooms = "";
+          updated.hotelNights = "";
+          clearErrors(["hotelRooms", "hotelNights"]);
+        }
+      }
+
+      // ✅ Toggle group validation
+      const anyToggle =
+        updated.travelByAir ||
+        updated.travelByMotorbike ||
+        updated.travelByTaxi ||
+        updated.travelByBus ||
+        updated.travelByTrain ||
+        updated.travelByCar ||
+        updated.hotelStay;
+
+      setShowToggleError(!anyToggle);
+
+      recalculateEmissions(updated);
+      return updated;
+    });
+  };
 
   useEffect(() => {
     const fetchBuildings = async () => {
@@ -460,51 +460,63 @@ const handleToggle = (name) => {
     return Object.keys(newErrors).length === 0 && anyToggle;
   };
 
-
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
-
-    // First, recalculate emissions to get the latest values
-    const latestResult = calculateBusinessTravel(formData);
-    const latestKgCo2e = latestResult?.totalEmissions_KgCo2e || 0;
-    const latestTCo2e = latestResult?.totalEmissions_TCo2e || 0;
-
-    // Update state immediately
-    setCalculatedEmissionKgCo2e(latestKgCo2e);
-    setCalculatedEmissionTCo2e(latestTCo2e);
-
-    const payload = {
-      ...formData,
-      calculatedEmissionKgCo2e: latestKgCo2e,  // CHANGED HERE
-      calculatedEmissionTCo2e: latestTCo2e,
-    };
-
-    console.log("Submitting payload:", payload);
-
-    try {
-      if (isEdit) {
-        await axios.put(
-          `${process.env.REACT_APP_BASE_URL}/Business-Travel/Update/${id}`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        toast.success("Record updated successfully");
-      } else {
-        await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/Business-Travel/Create`,
-          payload,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        toast.success("Record added successfully");
-      }
-      navigate("/Business-Travel");
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Error saving record");
-      console.error("Submission error:", err);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  // Run validation and store the result
+  const isValid = validate();
+  
+  // If validation fails, show error toast
+  if (!isValid) {
+    // Check what type of error we have
+    if (showToggleError) {
+      toast.error("Please select at least one travel option.");
+    } else {
+      toast.error("Please fill all required fields correctly.");
     }
+    return;
+  }
+
+  // If validation passes, continue with submission
+  // First, recalculate emissions to get the latest values
+  const latestResult = calculateBusinessTravel(formData);
+  const latestKgCo2e = latestResult?.totalEmissions_KgCo2e || 0;
+  const latestTCo2e = latestResult?.totalEmissions_TCo2e || 0;
+
+  // Update state immediately
+  setCalculatedEmissionKgCo2e(latestKgCo2e);
+  setCalculatedEmissionTCo2e(latestTCo2e);
+
+  const payload = {
+    ...formData,
+    calculatedEmissionKgCo2e: latestKgCo2e,
+    calculatedEmissionTCo2e: latestTCo2e,
   };
+
+  console.log("Submitting payload:", payload);
+
+  try {
+    if (isEdit) {
+      await axios.put(
+        `${process.env.REACT_APP_BASE_URL}/Business-Travel/Update/${id}`,
+        payload,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      toast.success("Record updated successfully");
+    } else {
+      await axios.post(
+        `${process.env.REACT_APP_BASE_URL}/Business-Travel/Create`,
+        payload,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      toast.success("Record added successfully");
+    }
+    navigate("/Business-Travel");
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Error saving record");
+    console.error("Submission error:", err);
+  }
+};
 
   // Helper function to find the current option for Select components
   const findOptionByValue = (options, value) => {
@@ -791,7 +803,7 @@ const handleToggle = (name) => {
                     value={formData.busPassengers}
                     onChange={handleChange}
                     placeholder="Passengers"
-                     className="input-field"
+                    className="input-field"
                     disabled={isView}
                   />
                   {errors.busPassengers && (
@@ -853,7 +865,7 @@ const handleToggle = (name) => {
                     value={formData.trainPassengers}
                     onChange={handleChange}
                     placeholder="Passengers"
-                     className="input-field"
+                    className="input-field"
                     disabled={isView}
                   />
                   {errors.trainPassengers && (
@@ -915,7 +927,7 @@ const handleToggle = (name) => {
                     value={formData.carDistanceKm}
                     onChange={handleChange}
                     placeholder="Distance (km)"
-                    className="input-field" 
+                    className="input-field"
                     disabled={isView}
                   />
                   {errors.carDistanceKm && (

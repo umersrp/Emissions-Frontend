@@ -623,8 +623,8 @@ export const airTravelEmissionFactors = {
     International: {
         "Average passenger": 0.02162,          // kg CO2e per passenger-km
         "Economy class": 0.01656,
-        "Business class": 0.02649,
-        "Premium economy class": 0.04802,
+        "Business class":0.04802,
+        "Premium economy class": 0.02649,
         "First class": 0.06623,
     },
 };

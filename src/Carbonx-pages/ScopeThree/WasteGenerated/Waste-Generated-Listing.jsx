@@ -49,10 +49,10 @@ const WasteGeneratedListing = () => {
   const capitalizeLabel = (text) => {
     if (!text) return "N/A";
 
-    const exceptions = [ "and","or","in","of","from","at","to","the","a","an","for","on","with",
-    "but","by","is","it","as","be","this","that","these","those","such",
-    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
-    "n.e.c."];
+    const exceptions = ["and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+      "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+      "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+      "n.e.c."];
     return text
       .split(" ")
       .map((word, index) => {
@@ -118,91 +118,91 @@ const WasteGeneratedListing = () => {
   };
 
   // Columns
- const COLUMNS = useMemo(
-  () => [
-    {
-      Header: "Sr.No",
-      id: "serialNo",
-      Cell: ({ row }) => (
-        <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
-      ),
-    },
+  const COLUMNS = useMemo(
+    () => [
+      {
+        Header: "Sr.No",
+        id: "serialNo",
+        Cell: ({ row }) => (
+          <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
+        ),
+      },
 
-    { Header: "Building", accessor: "buildingId.buildingName",Cell: ({ cell }) => cell.value || "N/A" },
-    { Header: "Stakeholder", accessor: "stakeholder",Cell: ({ value }) => capitalizeLabel(value)  },
-    { Header: "Waste Category", accessor: "wasteCategory",Cell: ({ value }) => capitalizeLabel(value)  },
-    { Header: "Waste Type", accessor: "wasteType",Cell: ({ value }) => capitalizeLabel(value)  },
-    { Header: "Waste Treatment Method", accessor: "wasteTreatmentMethod" ,Cell: ({ value }) => capitalizeLabel(value) },
-    { Header: "Unit", accessor: "unit" ,Cell: ({ cell }) => cell.value || "N/A"},
-    { Header: "Total Waste Quantity", accessor: "totalWasteQty",Cell: ({ cell }) => cell.value || "N/A" },
-    { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",Cell: ({ cell }) => cell.value || "N/A" },
-    { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",Cell: ({ cell }) => cell.value || "N/A" },
-    { Header: "Quality Control", accessor: "qualityControl" ,Cell: ({ cell }) => cell.value || "N/A"},
-    { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A" },
-    // {
-    //   Header: "Created By",
-    //   accessor: "createdBy",
-    //   Cell: ({ cell }) => cell.value || "-",
-    // },
-    // {
-    //   Header: "Updated By",
-    //   accessor: "updatedBy",
-    //   Cell: ({ cell }) => cell.value || "-",
-    // },
-    {
-      Header: "Created At",
-      accessor: "createdAt",
-      Cell: ({ cell }) =>
-        cell.value ? new Date(cell.value).toLocaleDateString() : "N/A",
-    },
-    {
-      Header: "Actions",
-      accessor: "_id",
-      Cell: ({ cell }) => (
-        <div className="flex space-x-3 rtl:space-x-reverse">
-          <Tippy content="View">
-            <button
-              className="action-btn"
-              onClick={() =>
-                navigate(`/Waste-Generated-Form/${cell.value}`, {
-                  state: { mode: "view" },
-                })
-              }
-            >
-              <Icon icon="heroicons:eye" className="text-green-600" />
-            </button>
-          </Tippy>
+      { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Stakeholder", accessor: "stakeholder", Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Waste Category", accessor: "wasteCategory", Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Waste Type", accessor: "wasteType", Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Waste Treatment Method", accessor: "wasteTreatmentMethod", Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Unit", accessor: "unit", Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Total Waste Quantity", accessor: "totalWasteQty", Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Quality Control", accessor: "qualityControl", Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => cell.value || "N/A" },
+      {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
+      {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
+      {
+        Header: "Created At",
+        accessor: "createdAt",
+        Cell: ({ cell }) =>
+          cell.value ? new Date(cell.value).toLocaleDateString() : "N/A",
+      },
+      {
+        Header: "Actions",
+        accessor: "_id",
+        Cell: ({ cell }) => (
+          <div className="flex space-x-3 rtl:space-x-reverse">
+            <Tippy content="View">
+              <button
+                className="action-btn"
+                onClick={() =>
+                  navigate(`/Waste-Generated-Form/${cell.value}`, {
+                    state: { mode: "view" },
+                  })
+                }
+              >
+                <Icon icon="heroicons:eye" className="text-green-600" />
+              </button>
+            </Tippy>
 
-          <Tippy content="Edit">
-            <button
-              className="action-btn"
-              onClick={() =>
-                navigate(`/Waste-Generated-Form/${cell.value}`, {
-                  state: { mode: "edit" },
-                })
-              }
-            >
-              <Icon icon="heroicons:pencil-square" className="text-blue-600" />
-            </button>
-          </Tippy>
+            <Tippy content="Edit">
+              <button
+                className="action-btn"
+                onClick={() =>
+                  navigate(`/Waste-Generated-Form/${cell.value}`, {
+                    state: { mode: "edit" },
+                  })
+                }
+              >
+                <Icon icon="heroicons:pencil-square" className="text-blue-600" />
+              </button>
+            </Tippy>
 
-          <Tippy content="Delete">
-            <button
-              className="action-btn"
-              onClick={() => {
-                setSelectedId(cell.value);
-                setDeleteModalOpen(true);
-              }}
-            >
-              <Icon icon="heroicons:trash" className="text-red-600" />
-            </button>
-          </Tippy>
-        </div>
-      ),
-    },
-  ],
-  [pageIndex, pageSize]
-);
+            <Tippy content="Delete">
+              <button
+                className="action-btn"
+                onClick={() => {
+                  setSelectedId(cell.value);
+                  setDeleteModalOpen(true);
+                }}
+              >
+                <Icon icon="heroicons:trash" className="text-red-600" />
+              </button>
+            </Tippy>
+          </div>
+        ),
+      },
+    ],
+    [pageIndex, pageSize]
+  );
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
   const data = useMemo(() => records, [records]);
