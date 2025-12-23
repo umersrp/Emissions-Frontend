@@ -9,7 +9,18 @@ import {
   stakeholderDepartmentOptions,
   processQualityControlOptions,
 } from "@/constant/scope1/options";
-// import { calculateUpstreamTransportationEmission } from "@/utils/scope1/calculate-upstream-transportation-emission";
+import 'tippy.js/dist/tippy.css'; // Essential base styles
+import 'tippy.js/themes/light.css';
+import Tippy from "@tippyjs/react";
+import {
+  transportationCategoryOptions,
+  purchasedGoodsActivityOptions,
+  purchasedServicesActivityOptions,
+  purchasedGoodsTypeMapping,
+  vehicleCategoryOptions,
+  vehicleTypeOptions
+} from '@/constant/scope3/upstreamTransportation';
+import { calculateUpstreamTransportationEmission } from '@/utils/Scope3/calculateUpstreamTransportation';
 
 const UpstreamTransportationFormPage = () => {
   const navigate = useNavigate();
@@ -21,78 +32,18 @@ const UpstreamTransportationFormPage = () => {
   const isEdit = mode === "edit";
   const isAdd = mode === "add";
 
-  // Transportation and Distribution Category Options
-  const transportationCategoryOptions = [
-    { value: "purchasedGoods", label: "Purchased Goods" },
-    { value: "purchasedServices", label: "Purchased Third-party Transportation and Distribution Services" },
-  ];
-
-  // Purchased Goods Activity Type Options
-  const purchasedGoodsActivityOptions = [
-    { value: "vehicles", label: "Vehicles" },
-    { value: "rawMaterials", label: "Raw Materials" },
-  ];
-
-  // Purchased Services Activity Type Options
-  const purchasedServicesActivityOptions = [
-    { value: "waterTransport", label: "Water transport services" },
-    { value: "warehousingSupport", label: "Warehousing and support services for transportation" },
-  ];
-
-  // Purchased Goods Type Options
-  const purchasedGoodsTypeOptions = [
-    { value: "motorVehicles", label: "Motor vehicles, trailers and semi-trailers" },
-    { value: "pharmaceutical", label: "Basic pharmaceutical products and pharmaceutical preparations" },
-    { value: "otherGoods", label: "Other Goods" },
-  ];
-
-  // Transportation Vehicle Category Options
-  const vehicleCategoryOptions = [
-    { value: "vans", label: "Vans" },
-    { value: "hqv", label: "Heavy Good Vehicles" },
-    { value: "hqvRefrigerated", label: "Heavy Good Vehicles (Refrigerated)" },
-    { value: "freightFlights", label: "Freight flights" },
-    { value: "rail", label: "Rail" },
-    { value: "seaTanker", label: "Sea tanker" },
-    { value: "cargoShip", label: "Cargo Ship" },
-  ];
-
-  // Vehicle Type Options based on Category
-  const vehicleTypeOptions = {
-    freightFlights: [
-      { value: "domestic", label: "Domestic" },
-      { value: "international", label: "International" },
-    ],
-    seaTanker: [
-      { value: "crudeTanker", label: "Crude tanker" },
-      { value: "productsTanker", label: "Products tanker" },
-      { value: "chemicalTanker", label: "Chemical tanker" },
-      { value: "lngTanker", label: "LNG tanker" },
-      { value: "lpgTanker", label: "LPG Tanker" },
-    ],
-    cargoShip: [
-      { value: "bulkCarrier", label: "Bulk carrier" },
-      { value: "generalCargo", label: "General cargo" },
-      { value: "containerShip", label: "Container ship" },
-      { value: "vehicleTransport", label: "Vehicle transport" },
-      { value: "roroFerry", label: "RoRo-Ferry" },
-      { value: "largeRoPax", label: "Large RoPax ferry" },
-      { value: "refrigeratedCargo", label: "Refrigerated cargo" },
-    ],
-  };
-
   const [formData, setFormData] = useState({
     buildingId: null,
     stakeholderDepartment: null,
-    transportationCategory: null, 
+    transportationCategory: null,
     activityType: null,
-    purchasedGoodsType: null, 
-    vehicleCategory: null, 
-    vehicleType: null, 
-    weightLoaded: "", 
-    distanceTravelled: "", 
-    amountSpent: "", 
-    unit: "USD", 
+    purchasedGoodsType: null,
+    vehicleCategory: null,
+    vehicleType: null,
+    weightLoaded: "",
+    distanceTravelled: "",
+    amountSpent: "",
+    unit: "USD",
     qualityControl: null,
     remarks: "",
     calculatedEmissionKgCo2e: "",
@@ -102,67 +53,76 @@ const UpstreamTransportationFormPage = () => {
   const [errors, setErrors] = useState({});
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [activityTypeOptions, setActivityTypeOptions] = useState([]);
-
-  // Calculate emissions whenever relevant fields change
-  // useEffect(() => {
-  //   if (isView) return;
-
-  //   let result = null;
-  //   const { transportationCategory } = formData;
-
-  //   if (transportationCategory?.value === "purchasedGoods") {
-  //     const { weightLoaded, distanceTravelled, vehicleCategory, vehicleType } = formData;
-  //     if (weightLoaded && distanceTravelled && vehicleCategory) {
-  //       result = calculateUpstreamTransportationEmission({
-  //         transportationCategory: "purchasedGoods",
-  //         weightLoaded: parseFloat(weightLoaded),
-  //         distanceTravelled: parseFloat(distanceTravelled),
-  //         vehicleCategory: vehicleCategory.value,
-  //         vehicleType: vehicleType?.value,
-  //       });
-  //     }
-  //   } else if (transportationCategory?.value === "purchasedServices") {
-  //     const { amountSpent, activityType } = formData;
-  //     if (amountSpent && activityType) {
-  //       result = calculateUpstreamTransportationEmission({
-  //         transportationCategory: "purchasedServices",
-  //         amountSpent: parseFloat(amountSpent),
-  //         activityType: activityType.value,
-  //       });
-  //     }
-  //   }
-
-  //   if (result) {
-  //     const formatEmission = (num) => {
-  //       const rounded = Number(num.toFixed(5));
-  //       if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
-  //         return rounded.toExponential(5);
-  //       }
-  //       return rounded;
-  //     };
-
-  //     setFormData(prev => ({
-  //       ...prev,
-  //       calculatedEmissionKgCo2e: formatEmission(result.calculatedEmissionKgCo2e),
-  //       calculatedEmissionTCo2e: formatEmission(result.calculatedEmissionTCo2e),
-  //     }));
-  //   }
-  // }, [
-  //   formData.transportationCategory,
-  //   formData.weightLoaded,
-  //   formData.distanceTravelled,
-  //   formData.vehicleCategory,
-  //   formData.vehicleType,
-  //   formData.amountSpent,
-  //   formData.activityType,
-  //   isView
-  // ]);
+  const [purchasedGoodsTypeOptions, setPurchasedGoodsTypeOptions] = useState([]);
 
   const capitalizeFirstLetter = (text) => {
     if (!text) return "";
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
 
+  useEffect(() => {
+    if (isView) return;
+
+    const { transportationCategory } = formData;
+
+    let result = null;
+
+    if (transportationCategory?.value === "purchasedGoods") {
+      const { weightLoaded, distanceTravelled, vehicleCategory, vehicleType } = formData;
+      if (weightLoaded && distanceTravelled && vehicleCategory?.value) {
+        result = calculateUpstreamTransportationEmission({
+          transportationCategory: "purchasedGoods",
+          weightLoaded: parseFloat(weightLoaded),
+          distanceTravelled: parseFloat(distanceTravelled),
+          vehicleCategory: vehicleCategory.value,
+          vehicleType: vehicleType?.value,
+        });
+      }
+    } else if (transportationCategory?.value === "purchasedServices") {
+      const { amountSpent, activityType, unit } = formData;
+      if (amountSpent && activityType?.value) {
+        result = calculateUpstreamTransportationEmission({
+          transportationCategory: "purchasedServices",
+          amountSpent: parseFloat(amountSpent),
+          activityType: activityType.value,
+          unit: unit,
+        });
+      }
+    }
+
+    if (result) {
+      setFormData(prev => ({
+        ...prev,
+        calculatedEmissionKgCo2e: result.calculatedEmissionKgCo2e,
+        calculatedEmissionTCo2e: result.calculatedEmissionTCo2e,
+      }));
+    }
+  }, [
+    formData.transportationCategory,
+    formData.weightLoaded,
+    formData.distanceTravelled,
+    formData.vehicleCategory,
+    formData.vehicleType,
+    formData.amountSpent,
+    formData.activityType,
+    formData.unit,
+    isView
+  ]);
+  
+  const formatEmission = (num) => {
+  if (num === null || num === undefined || num === "") {
+    return 0;
+  }
+  const number = typeof num === 'string' ? parseFloat(num) : num;
+  if (isNaN(number)) {
+    return 0;
+  }
+  const rounded = Number(number.toFixed(5));
+  if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
+    return rounded.toExponential(5);
+  }
+  return rounded;
+};
   // Fetch all buildings for dropdown
   useEffect(() => {
     const fetchBuildings = async () => {
@@ -194,7 +154,7 @@ const UpstreamTransportationFormPage = () => {
       if (!id || isAdd) return;
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/Upstream-Transportation/${id}`,
+          `${process.env.REACT_APP_BASE_URL}/upstream/upstream/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -207,8 +167,26 @@ const UpstreamTransportationFormPage = () => {
         // Set activity type options based on transportation category
         if (data.transportationCategory === "purchasedGoods") {
           setActivityTypeOptions(purchasedGoodsActivityOptions);
+
+          // Set purchased goods type options based on activity type
+          if (data.activityType) {
+            const goodsOptions = purchasedGoodsTypeMapping[data.activityType] || [];
+            setPurchasedGoodsTypeOptions(goodsOptions);
+          }
         } else if (data.transportationCategory === "purchasedServices") {
           setActivityTypeOptions(purchasedServicesActivityOptions);
+        }
+
+        // Find the purchased goods type from the mapping
+        let purchasedGoodsTypeValue = null;
+        if (data.activityType && data.purchasedGoodsType) {
+          const goodsOptions = purchasedGoodsTypeMapping[data.activityType] || [];
+          purchasedGoodsTypeValue = goodsOptions.find(
+            (option) => option.value === data.purchasedGoodsType
+          ) || {
+            label: data.purchasedGoodsType,
+            value: data.purchasedGoodsType,
+          };
         }
 
         setFormData({
@@ -232,15 +210,11 @@ const UpstreamTransportationFormPage = () => {
               value: data.transportationCategory,
             },
           activityType:
-            activityTypeOptions.find((a) => a.value === data.activityType) || {
+            purchasedGoodsActivityOptions.find((a) => a.value === data.activityType) || {
               label: data.activityType,
               value: data.activityType,
             },
-          purchasedGoodsType:
-            purchasedGoodsTypeOptions.find((g) => g.value === data.purchasedGoodsType) || {
-              label: data.purchasedGoodsType,
-              value: data.purchasedGoodsType,
-            },
+          purchasedGoodsType: purchasedGoodsTypeValue,
           vehicleCategory:
             vehicleCategoryOptions.find((v) => v.value === data.vehicleCategory) || {
               label: data.vehicleCategory,
@@ -268,7 +242,6 @@ const UpstreamTransportationFormPage = () => {
     };
     fetchById();
   }, [id, isAdd, buildingOptions]);
-
   // Handle dropdown changes
   const handleSelectChange = (value, { name }) => {
     if (isView) return;
@@ -284,12 +257,26 @@ const UpstreamTransportationFormPage = () => {
       updated.weightLoaded = "";
       updated.distanceTravelled = "";
       updated.amountSpent = "";
-      
+      setPurchasedGoodsTypeOptions([]); // Clear purchased goods options
+
       // Set activity type options based on category
       if (value?.value === "purchasedGoods") {
         setActivityTypeOptions(purchasedGoodsActivityOptions);
       } else if (value?.value === "purchasedServices") {
         setActivityTypeOptions(purchasedServicesActivityOptions);
+      }
+    }
+
+    if (name === "activityType") {
+      // Reset purchased goods type when activity type changes
+      updated.purchasedGoodsType = null;
+
+      // Set purchased goods type options based on selected activity type
+      if (value?.value) {
+        const goodsOptions = purchasedGoodsTypeMapping[value.value] || [];
+        setPurchasedGoodsTypeOptions(goodsOptions);
+      } else {
+        setPurchasedGoodsTypeOptions([]);
       }
     }
 
@@ -327,12 +314,35 @@ const UpstreamTransportationFormPage = () => {
 
     // Validate based on category
     if (formData.transportationCategory?.value === "purchasedGoods") {
-      if (!formData.purchasedGoodsType) newErrors.purchasedGoodsType = "Purchased Goods Type is required";
+      // Only require purchasedGoodsType if activityType is selected AND there are options available
+      if (formData.activityType) {
+        const goodsOptions = purchasedGoodsTypeMapping[formData.activityType.value] || [];
+        if (goodsOptions.length > 0 && !formData.purchasedGoodsType) {
+          newErrors.purchasedGoodsType = "Purchased Goods Type is required";
+        }
+      }
+
       if (!formData.vehicleCategory) newErrors.vehicleCategory = "Vehicle Category is required";
-      if (!formData.weightLoaded) newErrors.weightLoaded = "Weight Loaded is required";
-      if (!formData.distanceTravelled) newErrors.distanceTravelled = "Distance Travelled is required";
+
+      // Validate numeric fields
+      if (!formData.weightLoaded) {
+        newErrors.weightLoaded = "Weight Loaded is required";
+      } else if (isNaN(parseFloat(formData.weightLoaded)) || parseFloat(formData.weightLoaded) <= 0) {
+        newErrors.weightLoaded = "Weight Loaded must be a positive number";
+      }
+
+      if (!formData.distanceTravelled) {
+        newErrors.distanceTravelled = "Distance Travelled is required";
+      } else if (isNaN(parseFloat(formData.distanceTravelled)) || parseFloat(formData.distanceTravelled) <= 0) {
+        newErrors.distanceTravelled = "Distance Travelled must be a positive number";
+      }
+
     } else if (formData.transportationCategory?.value === "purchasedServices") {
-      if (!formData.amountSpent) newErrors.amountSpent = "Amount Spent is required";
+      if (!formData.amountSpent) {
+        newErrors.amountSpent = "Amount Spent is required";
+      } else if (isNaN(parseFloat(formData.amountSpent)) || parseFloat(formData.amountSpent) <= 0) {
+        newErrors.amountSpent = "Amount Spent must be a positive number";
+      }
     }
 
     if (!formData.qualityControl)
@@ -350,6 +360,24 @@ const UpstreamTransportationFormPage = () => {
       toast.error("Please fill all required fields");
       return;
     }
+    // Calculate emissions before submitting
+    let calculatedEmissions = {};
+    if (formData.transportationCategory?.value === "purchasedGoods") {
+      calculatedEmissions = calculateUpstreamTransportationEmission({
+        transportationCategory: "purchasedGoods",
+        weightLoaded: parseFloat(formData.weightLoaded),
+        distanceTravelled: parseFloat(formData.distanceTravelled),
+        vehicleCategory: formData.vehicleCategory?.value,
+        vehicleType: formData.vehicleType?.value,
+      }) || {};
+    } else if (formData.transportationCategory?.value === "purchasedServices") {
+      calculatedEmissions = calculateUpstreamTransportationEmission({
+        transportationCategory: "purchasedServices",
+        amountSpent: parseFloat(formData.amountSpent),
+        activityType: formData.activityType?.value,
+        unit: formData.unit,
+      }) || {};
+    }
 
     const payload = {
       buildingId: formData.buildingId?.value,
@@ -365,21 +393,25 @@ const UpstreamTransportationFormPage = () => {
       unit: formData.unit,
       qualityControl: formData.qualityControl?.value,
       remarks: capitalizeFirstLetter(formData.remarks),
-      calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e,
-      calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
+      calculatedEmissionKgCo2e: formatEmission(
+        calculatedEmissions.calculatedEmissionKgCo2e
+      ),
+      calculatedEmissionTCo2e: formatEmission(
+        calculatedEmissions.calculatedEmissionTCo2e
+      ),
     };
 
     try {
       if (isEdit) {
         await axios.put(
-          `${process.env.REACT_APP_BASE_URL}/Upstream-Transportation/${id}`,
+          `${process.env.REACT_APP_BASE_URL}/upstream/Update/${id}`,
           payload,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
         toast.success("Record updated successfully!");
       } else {
         await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/Upstream-Transportation/Create`,
+          `${process.env.REACT_APP_BASE_URL}/upstream/Create`,
           payload,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
@@ -405,8 +437,7 @@ const UpstreamTransportationFormPage = () => {
       >
         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 justify-center">
           <p className="text-gray-700">
-            This category includes emissions from the transportation and distribution of products purchased by the reporting company, in vehicles and facilities not owned or controlled by the company. It also covers third-party transportation and distribution services purchased by the reporting company in the reporting year, including inbound logistics, outbound logistics (e.g., of sold products) and transportation between the company's own facilities when performed by third-party logistics providers.
-          </p>
+            This category includes emissions from the transportation and distribution of products purchased by the reporting company, in <span className="font-semibold">vehicles and facilities not owned or controlled by the company.</span> It also covers <span className="font-semibold">third-party transportation and distribution</span> services <span className="font-semibold">purchased</span> by the reporting company in the reporting year, including inbound logistics, outbound logistics (e.g., of sold products) and transportation between the company’s own facilities when performed by third-party logistics providers.          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 grid gap-6">
@@ -428,7 +459,7 @@ const UpstreamTransportationFormPage = () => {
             </div>
 
             {/* Department */}
-            <div>
+            <div className="lg:col-span-2">
               <label className="field-label">Stakeholder / Department</label>
               <Select
                 name="stakeholderDepartment"
@@ -445,7 +476,7 @@ const UpstreamTransportationFormPage = () => {
             </div>
 
             {/* Transportation Category */}
-            <div>
+            <div className="col-span-2">
               <label className="field-label">Transportation and Distribution Category</label>
               <Select
                 name="transportationCategory"
@@ -477,7 +508,7 @@ const UpstreamTransportationFormPage = () => {
             </div>
 
             {/* Purchased Goods Type (only for purchasedGoods category) */}
-            {formData.transportationCategory?.value === "purchasedGoods" && (
+            {/* {formData.transportationCategory?.value === "purchasedGoods" && (
               <div>
                 <label className="field-label">Purchased Goods Type</label>
                 <Select
@@ -492,12 +523,58 @@ const UpstreamTransportationFormPage = () => {
                   <p className="text-red-500 text-sm mt-1">{errors.purchasedGoodsType}</p>
                 )}
               </div>
+            )} */}
+            {/* Purchased Goods Type (only for purchasedGoods category) */}
+            {formData.transportationCategory?.value === "purchasedGoods" && (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="field-label">Purchased Goods Type</label>
+                  <Tippy
+                    content="Select the specific type of goods based on the chosen activity type."
+                    placement="top"
+                  >
+                    <button
+                      type="button"
+                      className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      aria-label="Information about purchased goods type"
+                    >
+                      i
+                    </button>
+                  </Tippy>
+                </div>
+                <Select
+                  name="purchasedGoodsType"
+                  value={formData.purchasedGoodsType}
+                  options={purchasedGoodsTypeOptions}
+                  onChange={handleSelectChange}
+                  placeholder={formData.activityType ? `Select ${formData.activityType.label} Type` : "Select Goods Type"}
+                  isDisabled={isView || !formData.activityType}
+                  isClearable={true}
+                />
+                {errors.purchasedGoodsType && (
+                  <p className="text-red-500 text-sm mt-1">{errors.purchasedGoodsType}</p>
+                )}
+                {formData.activityType && purchasedGoodsTypeOptions.length === 0 && (
+                  <p className="text-gray-500 text-sm mt-1">No options available for this activity type</p>
+                )}
+              </div>
             )}
 
             {/* Vehicle Category (only for purchasedGoods category) */}
             {formData.transportationCategory?.value === "purchasedGoods" && (
               <div>
-                <label className="field-label">Transportation Vehicle Category</label>
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="field-label">Transportation Vehicle Category</label>
+                  <Tippy content="Please specify the vehicle category in which your purchased goods were transported / distributed."
+                    placement="top">
+                    <button
+                      type="button"
+                      className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      aria-label="Information about vehicle category">
+                      i
+                    </button>
+                  </Tippy>
+                </div>
                 <Select
                   name="vehicleCategory"
                   value={formData.vehicleCategory}
@@ -510,12 +587,24 @@ const UpstreamTransportationFormPage = () => {
                   <p className="text-red-500 text-sm mt-1">{errors.vehicleCategory}</p>
                 )}
               </div>
+
             )}
 
             {/* Vehicle Type (only for specific categories) */}
             {formData.transportationCategory?.value === "purchasedGoods" && shouldShowVehicleType() && (
               <div>
-                <label className="field-label">Transportation Vehicle Type</label>
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="field-label">Transportation Vehicle Category</label>
+                  <Tippy content="Please specify the type of transportation vehicle used to deliver your purchased goods."
+                    placement="top">
+                    <button
+                      type="button"
+                      className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      aria-label="Information about vehicle category">
+                      i
+                    </button>
+                  </Tippy>
+                </div>
                 <Select
                   name="vehicleType"
                   value={formData.vehicleType}
@@ -524,13 +613,28 @@ const UpstreamTransportationFormPage = () => {
                   placeholder="Select Vehicle Type"
                   isDisabled={isView}
                 />
+                {errors.vehicleType && (
+                  <p className="text-red-500 text-sm mt-1">{errors.vehicleType}</p>
+                )}
+
               </div>
             )}
 
             {/* Weight Loaded (only for purchasedGoods category) */}
             {formData.transportationCategory?.value === "purchasedGoods" && (
               <div>
-                <label className="field-label">Weight Loaded</label>
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="field-label">Wieght Loaded</label>
+                  <Tippy content="Please specify the total weight of the purchased goods."
+                    placement="top">
+                    <button
+                      type="button"
+                      className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      aria-label="Information about vehicle category">
+                      i
+                    </button>
+                  </Tippy>
+                </div>
                 <div className="flex">
                   <input
                     type="number"
@@ -554,7 +658,18 @@ const UpstreamTransportationFormPage = () => {
             {/* Distance Travelled (only for purchasedGoods category) */}
             {formData.transportationCategory?.value === "purchasedGoods" && (
               <div>
-                <label className="field-label">Distance Travelled</label>
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="field-label">Distance Traveled</label>
+                  <Tippy content="Please specify the distance traveled by the vehicle to transport / distribute your purchased goods."
+                    placement="top">
+                    <button
+                      type="button"
+                      className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      aria-label="Information about vehicle category">
+                      i
+                    </button>
+                  </Tippy>
+                </div>
                 <div className="flex">
                   <input
                     type="number"
@@ -578,7 +693,18 @@ const UpstreamTransportationFormPage = () => {
             {/* Amount Spent (only for purchasedServices category) */}
             {formData.transportationCategory?.value === "purchasedServices" && (
               <div>
-                <label className="field-label">Amount Spent</label>
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="field-label">Amount Spent</label>
+                  <Tippy content="Please specify the amount spent on third-party transportation and distribution services."
+                    placement="top">
+                    <button
+                      type="button"
+                      className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      aria-label="Information about vehicle category">
+                      i
+                    </button>
+                  </Tippy>
+                </div>
                 <div className="flex">
                   <input
                     type="number"
@@ -616,7 +742,7 @@ const UpstreamTransportationFormPage = () => {
             </div>
 
             {/* Calculated Emissions (Display only) */}
-            {formData.calculatedEmissionKgCo2e && (
+            {/* {formData.calculatedEmissionKgCo2e && (
               <>
                 <div>
                   <label className="field-label">Calculated Emission (kg CO₂e)</label>
@@ -637,7 +763,7 @@ const UpstreamTransportationFormPage = () => {
                   />
                 </div>
               </>
-            )}
+            )} */}
           </div>
 
           {/* Remarks */}
@@ -648,7 +774,7 @@ const UpstreamTransportationFormPage = () => {
               value={formData.remarks}
               onChange={handleInputChange}
               rows={3}
-              placeholder="Enter remarks..."
+              placeholder="Enter Remarks"
               className="border p-2 rounded-md w-full"
               disabled={isView}
             />
