@@ -75,7 +75,7 @@ const UpstreamTransportationListing = () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/Upstream-Transportation/Get-All`,
+        `${process.env.REACT_APP_BASE_URL}/upstream/Get-All`,
         {
           params: {
             page: pageIndex,
@@ -111,7 +111,7 @@ const UpstreamTransportationListing = () => {
   // Delete Record
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/Upstream-Transportation/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/upstream/Delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Record deleted successfully");
@@ -123,90 +123,174 @@ const UpstreamTransportationListing = () => {
   };
 
   // Columns
-  const COLUMNS = useMemo(
-    () => [
-      {
-        Header: "Sr.No",
-        id: "serialNo",
-        Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
+ const COLUMNS = useMemo(
+  () => [
+    {
+      Header: "Sr.No",
+      id: "serialNo",
+      Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
+    },
+    { 
+      Header: "Building", 
+      accessor: "buildingId.buildingName",
+      Cell: ({ cell }) => cell.value || "N/A"
+    },
+    { 
+      Header: "Stakeholder", 
+      accessor: "stakeholderDepartment",
+      Cell: ({ value }) => capitalizeLabel(value)
+    },
+    {
+      Header: "Transportation Category",
+      accessor: "transportationCategory",
+      Cell: ({ value }) => {
+        if (!value) return "N/A";
+        return value === "purchasedGoods" ? "Purchased Goods" : 
+               value === "purchasedServices" ? "Purchased Services" : 
+               capitalizeLabel(value);
+      }
+    },
+    {
+      Header: "Activity Type",
+      accessor: "activityType",
+      Cell: ({ value }) => {
+        if (!value) return "N/A";
+        return value === "vehicles" ? "Vehicles" :
+               value === "rawMaterials" ? "Raw Materials" :
+               value === "waterTransport" ? "Water Transport Services" :
+               value === "warehousingSupport" ? "Warehousing Support Services" :
+               capitalizeLabel(value);
+      }
+    },
+    {
+      Header: "Goods Type",
+      accessor: "purchasedGoodsType",
+      Cell: ({ value }) => {
+        if (!value) return "N/A";
+        return value === "motorVehicles" ? "Motor Vehicles" :
+               value === "pharmaceutical" ? "Pharmaceutical Products" :
+               value === "otherGoods" ? "Other Goods" :
+               capitalizeLabel(value);
+      }
+    },
+    {
+      Header: "Vehicle Category",
+      accessor: "vehicleCategory",
+      Cell: ({ value }) => {
+        if (!value) return "N/A";
+        return value === "vans" ? "Vans" :
+               value === "hqv" ? "Heavy Good Vehicles" :
+               value === "hqvRefrigerated" ? "Heavy Good Vehicles (Refrigerated)" :
+               value === "freightFlights" ? "Freight Flights" :
+               value === "rail" ? "Rail" :
+               value === "seaTanker" ? "Sea Tanker" :
+               value === "cargoShip" ? "Cargo Ship" :
+               capitalizeLabel(value);
+      }
+    },
+    {
+      Header: "Weight Loaded",
+      accessor: "weightLoaded",
+      Cell: ({ value }) => value ? `${value} tonnes` : "N/A"
+    },
+    {
+      Header: "Distance Travelled",
+      accessor: "distanceTravelled",
+      Cell: ({ value }) => value ? `${value} km` : "N/A"
+    },
+    {
+      Header: "Amount Spent",
+      accessor: (row) => {
+        if (row.amountSpent && row.unit) {
+          return `${row.amountSpent} ${row.unit}`;
+        }
+        return "N/A";
+      }
+    },
+    { 
+      Header: "Quality Control", 
+      accessor: "qualityControl",
+      Cell: ({ value }) => capitalizeLabel(value)
+    },
+    { 
+      Header: "Calculated Emissions (kgCO₂e)", 
+      accessor: "calculatedEmissionKgCo2e",
+      Cell: ({ value }) => value || "N/A"
+    },
+    { 
+      Header: "Calculated Emissions (tCO₂e)", 
+      accessor: "calculatedEmissionTCo2e",
+      Cell: ({ value }) => value || "N/A"
+    },
+    { 
+      Header: "Remarks", 
+      accessor: "remarks",
+      Cell: ({ value }) => value || "N/A"
+    },
+     {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
       },
-      { Header: "Building", accessor: "buildingId.buildingName" },
-      { Header: "Stakeholder", accessor: "stakeholderDepartment" },
       {
-        Header: "Activity Type",
-        accessor: "activityType",
-        Cell: ({ value }) => capitalizeLabel(value), // use the function here
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
       },
-      { Header: "Gas Emitted", accessor: "gasEmitted" },
-      { Header: "Amount Of Emissions", accessor: "amountOfEmissions" },
-      { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
-      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
-      // {
-      //   Header: "Created By",
-      //   accessor: "createdBy.name",
-      //   Cell: ({ cell }) => cell.value || "-",
-      // },
-      // {
-      //   Header: "Updated By",
-      //   accessor: "updatedBy.name",
-      //   Cell: ({ cell }) => cell.value || "-",
-      // },
-      { Header: "Remarks", accessor: "remarks" },
-      {
-        Header: "Created At",
-        accessor: "createdAt",
-        Cell: ({ cell }) =>
-          cell.value ? new Date(cell.value).toLocaleDateString() : "-",
-      },
-      {
-        Header: "Actions",
-        accessor: "_id",
-        Cell: ({ cell }) => (
-          <div className="flex space-x-3 rtl:space-x-reverse">
-            <Tippy content="View">
-              <button
-                className="action-btn"
-                onClick={() =>
-                  navigate(`/Upstream-Transportation-Form/${cell.value}`, {
-                    state: { mode: "view" },
-                  })
-                }
-              >
-                <Icon icon="heroicons:eye" className="text-green-600" />
-              </button>
-            </Tippy>
+    {
+      Header: "Created At",
+      accessor: "createdAt",
+      Cell: ({ cell }) =>
+        cell.value ? new Date(cell.value).toLocaleDateString() : "N/A",
+    },
+    {
+      Header: "Actions",
+      accessor: "_id",
+      Cell: ({ cell }) => (
+        <div className="flex space-x-3 rtl:space-x-reverse">
+          <Tippy content="View">
+            <button
+              className="action-btn"
+              onClick={() =>
+                navigate(`/Upstream-Transportation-Form/${cell.value}`, {
+                  state: { mode: "view" },
+                })
+              }
+            >
+              <Icon icon="heroicons:eye" className="text-green-600" />
+            </button>
+          </Tippy>
 
-            <Tippy content="Edit">
-              <button
-                className="action-btn"
-                onClick={() =>
-                  navigate(`/Upstream-Transportation-Form/${cell.value}`, {
-                    state: { mode: "edit" },
-                  })
-                }
-              >
-                <Icon icon="heroicons:pencil-square" className="text-blue-600" />
-              </button>
-            </Tippy>
+          <Tippy content="Edit">
+            <button
+              className="action-btn"
+              onClick={() =>
+                navigate(`/Upstream-Transportation-Form/${cell.value}`, {
+                  state: { mode: "edit" },
+                })
+              }
+            >
+              <Icon icon="heroicons:pencil-square" className="text-blue-600" />
+            </button>
+          </Tippy>
 
-            <Tippy content="Delete">
-              <button
-                className="action-btn"
-                onClick={() => {
-                  setSelectedId(cell.value);
-                  setDeleteModalOpen(true);
-                }}
-              >
-                <Icon icon="heroicons:trash" className="text-red-600" />
-              </button>
-            </Tippy>
-          </div>
-        ),
-      },
-    ],
-    [pageIndex, pageSize]
-  );
+          <Tippy content="Delete">
+            <button
+              className="action-btn"
+              onClick={() => {
+                setSelectedId(cell.value);
+                setDeleteModalOpen(true);
+              }}
+            >
+              <Icon icon="heroicons:trash" className="text-red-600" />
+            </button>
+          </Tippy>
+        </div>
+      ),
+    },
+  ],
+  [pageIndex, pageSize]
+);
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
   const data = useMemo(() => records, [records]);
