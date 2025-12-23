@@ -100,9 +100,17 @@ const FugitiveCombustionListing = () => {
       { Header: "Quality Control", accessor: "qualityControl" },
       { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
       { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
-      { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A"  },
-      // { Header: "Created By", accessor: "createdBy.name", Cell: ({ cell }) => cell.value || "-" },
-      { Header: "Updated By", accessor: "updatedBy.name", Cell: ({ cell }) => cell.value || "-" },
+      { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => cell.value || "N/A" },
+      {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
+      {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
       { Header: "Created At", accessor: "createdAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-") },
       {
         Header: "Actions",

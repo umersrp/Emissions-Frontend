@@ -172,16 +172,16 @@ const fetchData = async () => {
       { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Quality Control", accessor: "qualityControl",Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A" },
-      // {
-      //   Header: "Created By",
-      //   accessor: "createdBy",
-      //   Cell: ({ cell }) => cell.value || "-",
-      // },
-      // {
-      //   Header: "Updated By",
-      //   accessor: "updatedBy",
-      //   Cell: ({ cell }) => cell.value || "-",
-      // },
+        {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
+      {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
       {
         Header: "Created At",
         accessor: "createdAt",

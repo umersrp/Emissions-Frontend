@@ -37,18 +37,18 @@ const PurchasedElectricityListing = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
 
-const formatSnakeCase = (value) => {
-  if (!value) return "";
-  return value
-    .split("_")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-};
+  const formatSnakeCase = (value) => {
+    if (!value) return "";
+    return value
+      .split("_")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
 
 
   const renderNA = (value) => {
-  return value === null || value === undefined || value === "" ? "N/A" : value;
-};
+    return value === null || value === undefined || value === "" ? "N/A" : value;
+  };
 
 
 
@@ -116,53 +116,63 @@ const formatSnakeCase = (value) => {
   const COMMON_COLUMNS = [
     { Header: "Sr.No", id: "serialNo", Cell: ({ row }) => (pageIndex - 1) * pageSize + row.index + 1 },
     { Header: "Building", accessor: "buildingId.buildingName" },
- { 
-    Header: "Method", 
-    accessor: "method",
-    Cell: ({ cell }) => formatSnakeCase(cell.value) || "-",
-  },  ];
+    {
+      Header: "Method",
+      accessor: "method",
+      Cell: ({ cell }) => formatSnakeCase(cell.value) || "-",
+    },];
 
   // Location-based specific columns
   const LOCATION_BASED_COLUMNS = [
-    { Header: "Total Gross Electricity Purchased (Grid)", accessor: "totalGrossElectricityGrid",Cell: ({ cell }) => renderNA(cell.value) },
+    { Header: "Total Gross Electricity Purchased (Grid)", accessor: "totalGrossElectricityGrid", Cell: ({ cell }) => renderNA(cell.value) },
     { Header: "Unit", accessor: "unit" },
     { Header: "Grid Station", accessor: "gridStation" },
-    { Header: "Total Other Supplier Specific Electricity Purchased", accessor: "totalOtherSupplierElectricity",Cell: ({ cell }) => renderNA(cell.value)  },
+    { Header: "Total Other Supplier Specific Electricity Purchased", accessor: "totalOtherSupplierElectricity", Cell: ({ cell }) => renderNA(cell.value) },
     { Header: "Calculated Location Based Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
     { Header: "Calculated Location Based Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
   ];
 
   // Market-based specific columns
   const MARKET_BASED_COLUMNS = [
-    { Header: "Total Purchased Electricity (Grid / Supplier Specific / PPA)", accessor: "totalPurchasedElectricity"},
+    { Header: "Total Purchased Electricity (Grid / Supplier Specific / PPA)", accessor: "totalPurchasedElectricity" },
     { Header: "Total Gross Electricity Purchased (Grid)", accessor: "totalGrossElectricityGrid" },
     { Header: "Unit", accessor: "unit" },
     { Header: "Grid Station", accessor: "gridStation" },
     { Header: "On-Site Solar / Renewable Electricity Generation", accessor: "hasSolarPanels", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
-    { Header: "Solar Consumption with Sold Attributes", accessor: "solarConsumedButSold",Cell: ({ cell }) => renderNA(cell.value)  },
+    { Header: "Solar Consumption with Sold Attributes", accessor: "solarConsumedButSold", Cell: ({ cell }) => renderNA(cell.value) },
 
-    { Header: "Supplier-Specific Electricity",accessor: "purchasesSupplierSpecific", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
-    { Header: "Purchased Supplier Specific Electricity", accessor: "supplierSpecificElectricity",Cell: ({ cell }) => renderNA(cell.value)  },//
-   
+    { Header: "Supplier-Specific Electricity", accessor: "purchasesSupplierSpecific", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+    { Header: "Purchased Supplier Specific Electricity", accessor: "supplierSpecificElectricity", Cell: ({ cell }) => renderNA(cell.value) },//
+
     { Header: "Power Purchase Agreements (PPAs)", accessor: "hasPPA", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
-    { Header: "Electricity Purchased / Covered Under PPAs", accessor: "ppaElectricity",Cell: ({ cell }) => renderNA(cell.value)  },
-    
+    { Header: "Electricity Purchased / Covered Under PPAs", accessor: "ppaElectricity", Cell: ({ cell }) => renderNA(cell.value) },
+
     { Header: "Renewable Energy Attributes/Certificates", accessor: "hasRenewableAttributes", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
-    { Header: "Electricity Covered by Renewable Attributes", accessor: "renewableAttributesElectricity",Cell: ({ cell }) => renderNA(cell.value) },
+    { Header: "Electricity Covered by Renewable Attributes", accessor: "renewableAttributesElectricity", Cell: ({ cell }) => renderNA(cell.value) },
 
     //{ Header: "Total Onsite Solar Consumption", accessor: "totalOnsiteSolarConsumption" },
     //{ Header: "Solar Retained Under RECs", accessor: "solarRetainedUnderRECs" },
-    { Header: "Calculated Location Based Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",Cell: ({ cell }) => renderNA(cell.value)  },
-    { Header: "Calculated Location Based Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",Cell: ({ cell }) => renderNA(cell.value)  },
+    { Header: "Calculated Location Based Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", Cell: ({ cell }) => renderNA(cell.value) },
+    { Header: "Calculated Location Based Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", Cell: ({ cell }) => renderNA(cell.value) },
 
-    { Header: "Calculated Market Based Emissions (kgCO₂e)", accessor: "calculatedEmissionMarketKgCo2e",Cell: ({ cell }) => renderNA(cell.value) },
-    { Header: "Calculated Market Based Emissions (tCO₂e)", accessor: "calculatedEmissionMarketTCo2e",Cell: ({ cell }) => renderNA(cell.value) },
+    { Header: "Calculated Market Based Emissions (kgCO₂e)", accessor: "calculatedEmissionMarketKgCo2e", Cell: ({ cell }) => renderNA(cell.value) },
+    { Header: "Calculated Market Based Emissions (tCO₂e)", accessor: "calculatedEmissionMarketTCo2e", Cell: ({ cell }) => renderNA(cell.value) },
   ];
 
   // Additional common columns after emission columns
   const FINAL_COLUMNS = [
-    { Header: "Quality Control", accessor: "qualityControl",Cell: ({ cell }) => renderNA(cell.value) },
-    { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => renderNA(cell.value) },
+    { Header: "Quality Control", accessor: "qualityControl", Cell: ({ cell }) => renderNA(cell.value) },
+    { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => renderNA(cell.value) },
+    {
+      Header: "Created By",
+      accessor: "createdBy.name",
+      Cell: ({ cell }) => cell.value || "N/A",
+    },
+    {
+      Header: "Updated By",
+      accessor: "updatedBy.name",
+      Cell: ({ cell }) => cell.value || "N/A",
+    },
     {
       Header: "Created At",
       accessor: "createdAt",

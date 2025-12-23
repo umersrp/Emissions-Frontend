@@ -74,24 +74,24 @@ const FuelFusion = () => {
         fetchData();
     }, [pageIndex, pageSize, globalFilterValue]);
 
-const capitalizeLabel = (text) => {
-    if (!text) return "N/A";
+    const capitalizeLabel = (text) => {
+        if (!text) return "N/A";
 
-    const exceptions = [ "and","or","in","of","from","at","to","the","a","an","for","on","with",
-    "but","by","is","it","as","be","this","that","these","those","such",
-    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
-    "n.e.c."];
-    return text
-      .split(" ")
-      .map((word, index) => {
-        // Always capitalize the first word
-        if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
-        // Don't capitalize exceptions
-        if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
-        return word.charAt(0).toUpperCase() + word.slice(1);
-      })
-      .join(" ");
-  };
+        const exceptions = ["and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+            "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+            "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+            "n.e.c."];
+        return text
+            .split(" ")
+            .map((word, index) => {
+                // Always capitalize the first word
+                if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
+                // Don't capitalize exceptions
+                if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
+                return word.charAt(0).toUpperCase() + word.slice(1);
+            })
+            .join(" ");
+    };
 
     // Delete Record
     const handleDelete = async (id) => {
@@ -118,15 +118,32 @@ const capitalizeLabel = (text) => {
             { Header: "Building", accessor: "buildingId.buildingName" },
             { Header: "Stakeholder", accessor: "stakeholder" },
             { Header: "Fuel Type", accessor: "fuelType" },
-            { Header: "Fuel Name", accessor: "fuel", Cell: ({ value }) => capitalizeLabel(value)},
+            { Header: "Fuel Name", accessor: "fuel", Cell: ({ value }) => capitalizeLabel(value) },
             { Header: "Total Fuel Consumption", accessor: "totalFuelConsumption" },
             { Header: "Consumption Unit", accessor: "fuelConsumptionUnit" },
             { Header: "Total Gross Electricity Purchased", accessor: "totalGrossElectricityPurchased", },
             { Header: "Unit", accessor: "unit", },
-            { Header: "Did You have Any Business Travel By Air During The Reporting Period",accessor: "didTravelByAir", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
-            { Header: "Did You have Any Business Travel By Taxi During The Reporting Period",accessor: "didTravelByTaxi", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
-            { Header: "Did You have Any Business Travel By Bus During The Reporting Period",accessor: "didTravelByBus", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
-            { Header: "Did You have Any Business Travel By Train During The Reporting Period",accessor: "didTravelByTrain", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+            { Header: "Unit", accessor: "", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Did You have Any Business Travel By Air During The Reporting Period", accessor: "didTravelByAir", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+            { Header: "No of Passengers", accessor: "airPassengers", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Distance(km)", accessor: "airDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Travel Class", accessor: "airTravelClass", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Flight Type", accessor: "airFlightType", Cell: ({ cell }) => cell.value || "N/A" },
+
+
+            { Header: "Did You have Any Business Travel By Taxi During The Reporting Period", accessor: "didTravelByTaxi", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+            { Header: "No of Passengers", accessor: "taxiPassengers", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Distance(km)", accessor: "taxiDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Taxi Type", accessor: "taxiType", Cell: ({ cell }) => cell.value || "N/A" },
+
+            { Header: "Did You have Any Business Travel By Bus During The Reporting Period", accessor: "didTravelByBus", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+            { Header: "No of Passengers", accessor: "busPassengers", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Distance(km)", accessor: "busDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Bus Type", accessor: "busType", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Did You have Any Business Travel By Train During The Reporting Period", accessor: "didTravelByTrain", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+            { Header: "No of Passengers", accessor: "trainPassengers", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Distance(km)", accessor: "trainDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Train Type", accessor: "trainType", Cell: ({ cell }) => cell.value || "N/A" },
             {
                 Header: "Calculated Emissions (kgCO₂e)",
                 accessor: "calculatedEmissionKgCo2e",
@@ -137,17 +154,18 @@ const capitalizeLabel = (text) => {
                 accessor: "calculatedEmissionTCo2e",
                 Cell: ({ cell }) => cell.value || "N/A",
             },
-            // {
-            //     Header: "Created By",
-            //     accessor: "createdBy.name",
-            //     Cell: ({ cell }) => cell.value || "-",
-            // },
-            // {
-            //     Header: "Updated By",
-            //     accessor: "updatedBy.name",
-            //     Cell: ({ cell }) => cell.value || "-",
-            // },
             { Header: "Remarks", accessor: "remarks", Cell: ({ value }) => capitalizeLabel(value) },
+
+            {
+                Header: "Created By",
+                accessor: "createdBy.name",
+                Cell: ({ cell }) => cell.value || "N/A",
+            },
+            {
+                Header: "Updated By",
+                accessor: "updatedBy.name",
+                Cell: ({ cell }) => cell.value || "N/A",
+            },
             {
                 Header: "Created At",
                 accessor: "createdAt",
@@ -388,7 +406,7 @@ const capitalizeLabel = (text) => {
                     </div>
                 </div>
 
-            
+
                 <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
                     {/* LEFT SECTION – Go To Page */}
                     <div className="flex items-center space-x-3">
