@@ -167,19 +167,9 @@ export const calculateUpstreamTransportationEmission = (data) => {
     console.log(`Calculated Emissions: ${calculatedEmissionKgCo2e.toFixed(4)} kg CO2e`);
     console.log(`Calculated Emissions: ${calculatedEmissionTCo2e.toFixed(6)} t CO2e`);
 
-    // Format results (handle very small or large numbers)
-    const formatNumber = (num) => {
-      if (num === 0) return "0";
-      if (Math.abs(num) < 0.0001 || Math.abs(num) >= 1e6) {
-        return num.toExponential(4);
-      }
-      // Round to 6 decimal places for tCO2e, 2 for kgCO2e
-      return num.toFixed(6);
-    };
-
     const result = {
-      calculatedEmissionKgCo2e: formatNumber(calculatedEmissionKgCo2e),
-      calculatedEmissionTCo2e: formatNumber(calculatedEmissionTCo2e),
+      calculatedEmissionKgCo2e: calculatedEmissionKgCo2e,
+      calculatedEmissionTCo2e: calculatedEmissionTCo2e,
       _rawCalculation: {
         kgCO2e: calculatedEmissionKgCo2e,
         tCO2e: calculatedEmissionTCo2e,

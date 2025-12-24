@@ -109,19 +109,29 @@ const UpstreamTransportationFormPage = () => {
     isView
   ]);
   
-  const formatEmission = (num) => {
-  if (num === null || num === undefined || num === "") {
+ const formatEmission = (num) => {
+  try {
+    if (num === null || num === undefined || num === "") {
+      return 0;
+    }
+    const number = Number(num);
+    if (isNaN(number) || !isFinite(number)) {
+      return 0;
+    }
+    const rounded = Number(number.toFixed(5));
+    const integerPart = Math.floor(Math.abs(rounded));
+    if (
+      rounded !== 0 &&
+      (Math.abs(rounded) < 0.0001 || 
+       (Math.abs(rounded) >= 1e6 && integerPart === 0))
+    ) {
+      return rounded.toExponential(5);
+    }
+    return rounded;
+  } catch (error) {
+    console.error("Error in formatEmission:", error, "num:", num);
     return 0;
   }
-  const number = typeof num === 'string' ? parseFloat(num) : num;
-  if (isNaN(number)) {
-    return 0;
-  }
-  const rounded = Number(number.toFixed(5));
-  if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
-    return rounded.toExponential(5);
-  }
-  return rounded;
 };
   // Fetch all buildings for dropdown
   useEffect(() => {
