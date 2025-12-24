@@ -339,7 +339,7 @@ const MobileCombustionFormPage = () => {
             {/* Stakeholder */}
             <div>
               <label className="field-label">Stakeholder / Department</label>
-              <Select name="stakeholder" value={formData.stakeholder} options={FugitiveAndMobileStakeholderOptions} onChange={handleSelectChange} placeholder="Select or Type Department" isDisabled={isView} allowCustomInput />
+              <Select name="stakeholder" value={formData.stakeholder} options={FugitiveAndMobileStakeholderOptions} onChange={handleSelectChange} placeholder="Select Stakeholder / Department" isDisabled={isView} allowCustomInput />
               {errors.stakeholder && <p className="text-red-500 text-sm mt-1">{errors.stakeholder}</p>}
             </div>
 

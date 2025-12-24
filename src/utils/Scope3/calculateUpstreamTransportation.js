@@ -9,7 +9,7 @@ export const calculateUpstreamTransportationEmission = (data) => {
   
   // Input validation
   if (!data || !data.transportationCategory) {
-    console.warn("❌ No transportation category provided");
+    console.warn(" No transportation category provided");
     return null;
   }
 
@@ -22,7 +22,7 @@ export const calculateUpstreamTransportationEmission = (data) => {
       
       // Validate required fields
       if (!data.weightLoaded || !data.distanceTravelled || !data.vehicleCategory) {
-        console.warn("❌ Missing required fields for purchasedGoods calculation");
+        console.warn(" Missing required fields for purchasedGoods calculation");
         return null;
       }
 
@@ -35,11 +35,11 @@ export const calculateUpstreamTransportationEmission = (data) => {
 
       // Validate numeric inputs
       if (isNaN(weight) || weight <= 0) {
-        console.warn("❌ Invalid weight loaded");
+        console.warn(" Invalid weight loaded");
         return null;
       }
       if (isNaN(distance) || distance <= 0) {
-        console.warn("❌ Invalid distance travelled");
+        console.warn(" Invalid distance travelled");
         return null;
       }
 
@@ -52,19 +52,19 @@ export const calculateUpstreamTransportationEmission = (data) => {
         
         // Vehicles with sub-types
         if (!vehicleType) {
-          console.warn(`❌ Vehicle type required for ${vehicleCategory}`);
+          console.warn(` Vehicle type required for ${vehicleCategory}`);
           return null;
         }
         
         const categoryFactors = purchasedGoodsEmissionFactors[vehicleCategory];
         if (!categoryFactors) {
-          console.warn(`❌ No emission factors found for ${vehicleCategory}`);
+          console.warn(` No emission factors found for ${vehicleCategory}`);
           return null;
         }
         
         emissionFactor = categoryFactors[vehicleType];
         if (!emissionFactor) {
-          console.warn(`❌ No emission factor found for ${vehicleCategory}.${vehicleType}`);
+          console.warn(` No emission factor found for ${vehicleCategory}.${vehicleType}`);
           return null;
         }
         
@@ -74,7 +74,7 @@ export const calculateUpstreamTransportationEmission = (data) => {
         // Vehicles without sub-types
         emissionFactor = purchasedGoodsEmissionFactors[vehicleCategory];
         if (!emissionFactor) {
-          console.warn(`❌ No emission factor found for ${vehicleCategory}`);
+          console.warn(` No emission factor found for ${vehicleCategory}`);
           return null;
         }
         
@@ -100,7 +100,7 @@ export const calculateUpstreamTransportationEmission = (data) => {
       
       // Validate required fields
       if (!data.amountSpent || !data.activityType) {
-        console.warn("❌ Missing required fields for purchasedServices calculation");
+        console.warn(" Missing required fields for purchasedServices calculation");
         return null;
       }
 
@@ -111,7 +111,7 @@ export const calculateUpstreamTransportationEmission = (data) => {
 
       // Validate numeric input
       if (isNaN(amountSpent) || amountSpent <= 0) {
-        console.warn("❌ Invalid amount spent");
+        console.warn(" Invalid amount spent");
         return null;
       }
 
@@ -128,7 +128,7 @@ export const calculateUpstreamTransportationEmission = (data) => {
       }
       
       if (!emissionFactor) {
-        console.warn(`❌ No emission factor found for activityType: ${activityType}`);
+        console.warn(` No emission factor found for activityType: ${activityType}`);
         // Try to find by partial match
         const possibleKeys = Object.keys(purchasedServicesEmissionFactors).filter(key => 
           activityType.toLowerCase().includes(key.toLowerCase())
@@ -155,7 +155,7 @@ export const calculateUpstreamTransportationEmission = (data) => {
       };
 
     } else {
-      console.warn(`❌ Unknown transportation category: ${data.transportationCategory}`);
+      console.warn(` Unknown transportation category: ${data.transportationCategory}`);
       return null;
     }
 

@@ -458,7 +458,7 @@ const UpstreamTransportationFormPage = () => {
   return (
     <div>
       <Card
-        title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Upstream Transportation Record`}
+        title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Upstream Transportation and Distribution Records`}
       >
         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 justify-center">
           <p className="text-gray-700">
@@ -491,7 +491,7 @@ const UpstreamTransportationFormPage = () => {
                 value={formData.stakeholderDepartment}
                 options={stakeholderDepartmentOptions}
                 onChange={handleSelectChange}
-                placeholder="Select or Type Department"
+                placeholder="Select Stakeholder / Department"
                 isDisabled={isView}
                 allowCustomInput
               />

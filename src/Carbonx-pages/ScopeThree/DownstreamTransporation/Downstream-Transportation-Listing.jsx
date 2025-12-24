@@ -47,9 +47,12 @@ const DownstreamTransportationListing = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const capitalizeLabel = (text) => {
-    if (!text) return "";
+    if (!text) return "N/A";
 
-    const exceptions = ["and", "or"];
+    const exceptions = ["and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+      "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+      "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+      "n.e.c."];
     return text
       .split(" ")
       .map((word, index) => {
@@ -63,24 +66,24 @@ const DownstreamTransportationListing = () => {
   };
 
   useEffect(() => {
-  const delayDebounce = setTimeout(() => {
-    setDebouncedSearch(globalFilterValue);
-  }, 500); // 0.5 sec debounce
+    const delayDebounce = setTimeout(() => {
+      setDebouncedSearch(globalFilterValue);
+    }, 500); // 0.5 sec debounce
 
-  return () => clearTimeout(delayDebounce);
-}, [globalFilterValue]);
+    return () => clearTimeout(delayDebounce);
+  }, [globalFilterValue]);
 
   // Fetch data from server with pagination
   const fetchData = async () => {
     setLoading(true);
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/Process-Emissions/Get-All`,
+        `${process.env.REACT_APP_BASE_URL}/downstream/Get-All`,
         {
           params: {
             page: pageIndex,
             limit: pageSize,
-            search: debouncedSearch  || "",
+            search: debouncedSearch || "",
           },
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -111,7 +114,7 @@ const DownstreamTransportationListing = () => {
   // Delete Record
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/Process-Emissions/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/downstream/Delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Record deleted successfully");
@@ -130,34 +133,104 @@ const DownstreamTransportationListing = () => {
         id: "serialNo",
         Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
       },
-      { Header: "Building", accessor: "buildingId.buildingName" },
-      { Header: "Stakeholder", accessor: "stakeholderDepartment" },
       {
-        Header: "Activity Type",
-        accessor: "activityType",
-        Cell: ({ value }) => capitalizeLabel(value), // use the function here
+        Header: "Building",
+        accessor: "buildingId.buildingName",
+        Cell: ({ cell }) => cell.value || "N/A"
       },
-      { Header: "Gas Emitted", accessor: "gasEmitted" },
-      { Header: "Amount Of Emissions", accessor: "amountOfEmissions" },
-      { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
-      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
-      // {
-      //   Header: "Created By",
-      //   accessor: "createdBy.name",
-      //   Cell: ({ cell }) => cell.value || "-",
-      // },
-      // {
-      //   Header: "Updated By",
-      //   accessor: "updatedBy.name",
-      //   Cell: ({ cell }) => cell.value || "-",
-      // },
-      { Header: "Remarks", accessor: "remarks" },
+      {
+        Header: "Stakeholder",
+        accessor: "stakeholder",
+        Cell: ({ value }) => capitalizeLabel(value) || "N/A"
+      },
+      {
+        Header: "Transportation and Distribution Category",
+        accessor: "transportationCategory",
+       Cell: ({ value }) => capitalizeLabel(value) || "N/A"
+      },
+      {
+        Header: "Sold Product Activity Type",
+        accessor: "soldProductActivityType",
+       Cell: ({ value }) => capitalizeLabel(value) || "N/A"
+      },
+      {
+        Header: "Sold Goods Type",
+        accessor: "soldGoodsType",
+        Cell: ({ value }) => capitalizeLabel(value) || "N/A"
+      },
+      {
+        Header: "Vehicle Category",
+        accessor: "transportationVehicleCategory",
+        Cell: ({ value }) => {
+          if (!value) return "N/A";
+          return value === "vans" ? "Vans" :
+            value === "hqv" ? "Heavy Good Vehicles" :
+              value === "hqvRefrigerated" ? "Heavy Good Vehicles (Refrigerated)" :
+                value === "freightFlights" ? "Freight Flights" :
+                  value === "rail" ? "Rail" :
+                    value === "seaTanker" ? "Sea Tanker" :
+                      value === "cargoShip" ? "Cargo Ship" :
+                        capitalizeLabel(value);
+        }
+      },
+      {
+        Header: "Vehicle Type",
+        accessor: "transportationVehicleType",
+        Cell: ({ value }) => capitalizeLabel(value) || "N/A"
+      },
+      {
+        Header: "Weight Loaded",
+        accessor: "weightLoaded",
+        Cell: ({ value }) => value !== null && value !== undefined ? `${value} tonnes` : "N/A"
+      },
+      {
+        Header: "Distance Travelled",
+        accessor: "distanceTravelled",
+        Cell: ({ value }) => value !== null && value !== undefined ? `${value} km` : "N/A"
+      },
+      {
+        Header: "Quality Control",
+        accessor: "qualityControl",
+        Cell: ({ value }) => {
+          if (value === true) return "Certain";
+          if (value === false) return "Uncertain";
+          return "N/A";
+        }
+      },
+        {
+        Header: "Calculated Emissions (kgCO₂e)",
+        accessor: "calculatedEmissionKgCo2e",
+        Cell: ({ value }) => value || "N/A"
+      },
+      {
+        Header: "Calculated Emissions (tCO₂e)",
+        accessor: "calculatedEmissionTCo2e",
+        Cell: ({ value }) => value || "N/A"
+      },
+      {
+        Header: "Remarks",
+        accessor: "remarks",
+        Cell: ({ value }) => value || "N/A"
+      },
+      {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
+      {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
       {
         Header: "Created At",
         accessor: "createdAt",
-        Cell: ({ cell }) =>
-          cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+        Cell: ({ value }) => value ? new Date(value).toLocaleDateString() : "N/A",
+      },
+      {
+        Header: "Updated At",
+        accessor: "updatedAt",
+        Cell: ({ value }) => value ? new Date(value).toLocaleDateString() : "N/A",
       },
       {
         Header: "Actions",
@@ -168,7 +241,7 @@ const DownstreamTransportationListing = () => {
               <button
                 className="action-btn"
                 onClick={() =>
-                  navigate(`/Process-Emissions-Form/${cell.value}`, {
+                  navigate(`/Downstream-Transportation-Form/${cell.value}`, {
                     state: { mode: "view" },
                   })
                 }
@@ -181,7 +254,7 @@ const DownstreamTransportationListing = () => {
               <button
                 className="action-btn"
                 onClick={() =>
-                  navigate(`/Process-Emissions-Form/${cell.value}`, {
+                  navigate(`/Downstream-Transportation-Form/${cell.value}`, {
                     state: { mode: "edit" },
                   })
                 }
@@ -258,12 +331,11 @@ const DownstreamTransportationListing = () => {
               icon="heroicons-outline:plus-sm"
               text="Add Record"
               className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
-              onClick={() => navigate("/Process-Emissions-Form/Add")}
+              onClick={() => navigate("/Downstream-Transportation-Form/Add")}
             />
           </div>
         </div>
 
-     
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
             {/*  Set fixed height for vertical scroll */}
@@ -506,3 +578,4 @@ const DownstreamTransportationListing = () => {
 };
 
 export default DownstreamTransportationListing;
+

@@ -7,11 +7,19 @@ import { toast } from "react-toastify";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
   stakeholderDepartmentOptions,
-  activityTypeOptions,
-  activityMetadata,
   processQualityControlOptions,
 } from "@/constant/scope1/options";
-import { calculateProcessEmission } from "@/utils/scope1/calculate-process-emission"
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/themes/light.css';
+import Tippy from "@tippyjs/react";
+import {
+  transportationCategoryOptions,
+  soldProductActivityOptions,
+  soldGoodsTypeMapping,
+  transportationVehicleCategoryOptions,
+  transportationVehicleTypeOptions
+} from '@/constant/scope3/downstreamTransportation';
+import { calculateDownstreamTransportationEmission } from '@/utils/Scope3/calculateDownstreamTransportation';
 
 const DownstreamTransportationFormPage = () => {
   const navigate = useNavigate();
@@ -25,25 +33,112 @@ const DownstreamTransportationFormPage = () => {
 
   const [formData, setFormData] = useState({
     buildingId: null,
-    stakeholderDepartment: null,
-    activityType: null,
-    gasEmitted: "",
-    amountOfEmissions: "",
+    stakeholder: null,
+    transportationCategory: null,
+    soldProductActivityType: null,
+    soldGoodsType: null,
+    transportationVehicleCategory: null,
+    transportationVehicleType: null,
+    weightLoaded: "",
+    distanceTravelled: "",
     qualityControl: null,
     remarks: "",
-    calculatedEmissionKgCo2e: "",      // new
+    calculatedEmissionKgCo2e: "",
     calculatedEmissionTCo2e: "",
   });
 
-  const [amountLabel, setAmountLabel] = useState("Amount of Emissions"); // dynamic label
   const [errors, setErrors] = useState({});
   const [buildingOptions, setBuildingOptions] = useState([]);
-
-   const capitalizeFirstLetter = (text) => {
+  const [activityTypeOptions, setActivityTypeOptions] = useState([]);
+  const [soldGoodsTypeOptions, setSoldGoodsTypeOptions] = useState([]);
+  const formatEmission = (num) => {
+    try {
+      if (num === null || num === undefined || num === "") {
+        return 0;
+      }
+      const number = Number(num);
+      if (isNaN(number) || !isFinite(number)) {
+        return 0;
+      }
+      const rounded = Number(number.toFixed(5));
+      const integerPart = Math.floor(Math.abs(rounded));
+      if (
+        rounded !== 0 &&
+        (Math.abs(rounded) < 0.0001 ||
+          (Math.abs(rounded) >= 1e6 && integerPart === 0))
+      ) {
+        return rounded.toExponential(5);
+      }
+      return rounded;
+    } catch (error) {
+      console.error("Error in formatEmission:", error, "num:", num);
+      return 0;
+    }
+  };
+  const capitalizeFirstLetter = (text) => {
     if (!text) return "";
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
-
+useEffect(() => {
+  if (isView) return;
+  
+  const { transportationCategory } = formData;
+  
+  // Clear calculations first
+  setFormData(prev => ({
+    ...prev,
+    calculatedEmissionKgCo2e: "",
+    calculatedEmissionTCo2e: "",
+  }));
+  
+  // Only calculate for "Sold Goods" category
+  if (transportationCategory?.value === "Sold Goods") {
+    const { weightLoaded, distanceTravelled, transportationVehicleCategory, transportationVehicleType } = formData;
+    
+    // Check if we have all required fields for calculation
+    const hasAllRequired = weightLoaded && 
+                          distanceTravelled && 
+                          transportationVehicleCategory?.value;
+    
+    if (hasAllRequired) {
+      console.log("🔍 All required fields present, calculating...");
+      
+      const result = calculateDownstreamTransportationEmission({
+        transportationCategory: "Sold Goods",
+        weightLoaded: parseFloat(weightLoaded),
+        distanceTravelled: parseFloat(distanceTravelled),
+        transportationVehicleCategory: transportationVehicleCategory.value,
+        transportationVehicleType: transportationVehicleType?.value,
+      });
+      
+      if (result) {
+        console.log("✅ Calculation successful:", {
+          kgCO2e: result.calculatedEmissionKgCo2e,
+          tCO2e: result.calculatedEmissionTCo2e
+        });
+        
+        setFormData(prev => ({
+          ...prev,
+          calculatedEmissionKgCo2e: result.calculatedEmissionKgCo2e.toString(),
+          calculatedEmissionTCo2e: result.calculatedEmissionTCo2e.toString(),
+        }));
+      } else {
+        console.log("⚠️ Calculation returned null - check input values");
+      }
+    } else {
+      console.log("⚠️ Missing required fields for calculation");
+    }
+  } else {
+    console.log("ℹ️ Not 'Sold Goods' category or no category selected");
+  }
+}, [
+  formData.transportationCategory,
+  formData.weightLoaded,
+  formData.distanceTravelled,
+  formData.transportationVehicleCategory,
+  formData.transportationVehicleType,
+  isView
+]);
   // Fetch all buildings for dropdown
   useEffect(() => {
     const fetchBuildings = async () => {
@@ -75,7 +170,7 @@ const DownstreamTransportationFormPage = () => {
       if (!id || isAdd) return;
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/Process-Emissions/${id}`,
+          `${process.env.REACT_APP_BASE_URL}/downstream/downstream/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -84,8 +179,17 @@ const DownstreamTransportationFormPage = () => {
         );
 
         const data = res.data?.data;
-        const activityMeta = activityMetadata[data.activityType] || {};
-        setAmountLabel(activityMeta.amountLabel || "Amount of Emissions");
+
+        // Set sold goods type options based on activity type
+        if (data.soldProductActivityType) {
+          const goodsOptions = soldGoodsTypeMapping[data.soldProductActivityType] || [];
+          setSoldGoodsTypeOptions(goodsOptions);
+        }
+
+        // Find the matching stakeholder option
+        const stakeholderOption = stakeholderDepartmentOptions.find(
+          option => option.value === data.stakeholder
+        ) || { label: data.stakeholder || "", value: data.stakeholder || "" };
 
         setFormData({
           buildingId:
@@ -93,24 +197,38 @@ const DownstreamTransportationFormPage = () => {
               label: data.buildingId?.buildingName || "",
               value: data.buildingId?._id || "",
             },
-          stakeholderDepartment:
-            stakeholderDepartmentOptions.find(
-              (s) => s.value === data.stakeholderDepartment
+          stakeholder: stakeholderOption, // Use the option object
+          transportationCategory:
+            transportationCategoryOptions.find(
+              (t) => t.value === data.transportationCategory
             ) || {
-              label: data.stakeholderDepartment,
-              value: data.stakeholderDepartment,
+              label: data.transportationCategory,
+              value: data.transportationCategory,
             },
-          activityType:
-            activityTypeOptions.find((a) => a.value === data.activityType) || {
-              label: data.activityType,
-              value: data.activityType,
+          soldProductActivityType:
+            soldProductActivityOptions.find((a) => a.value === data.soldProductActivityType) || {
+              label: data.soldProductActivityType,
+              value: data.soldProductActivityType,
             },
-          gasEmitted: data.gasEmitted || "",
-          amountOfEmissions: data.amountOfEmissions || "",
-          qualityControl:
-            processQualityControlOptions.find(
-              (q) => q.value === data.qualityControl
-            ) || { label: data.qualityControl, value: data.qualityControl },
+          soldGoodsType: data.soldGoodsType
+            ? soldGoodsTypeMapping[data.soldProductActivityType]?.find(g => g.value === data.soldGoodsType) || {
+              label: data.soldGoodsType,
+              value: data.soldGoodsType,
+            }
+            : null,
+          transportationVehicleCategory:
+            transportationVehicleCategoryOptions.find((v) => v.value === data.transportationVehicleCategory) || {
+              label: data.transportationVehicleCategory,
+              value: data.transportationVehicleCategory,
+            },
+          transportationVehicleType: data.transportationVehicleType
+            ? transportationVehicleTypeOptions[data.transportationVehicleCategory]?.find(v => v.value === data.transportationVehicleType) || null
+            : null,
+          weightLoaded: data.weightLoaded || "",
+          distanceTravelled: data.distanceTravelled || "",
+          qualityControl: data.qualityControl !== undefined ?
+            processQualityControlOptions.find(q => q.value === (data.qualityControl ? "Certain" : "Uncertain")) || null
+            : null,
           remarks: data.remarks || "",
         });
       } catch (err) {
@@ -120,112 +238,81 @@ const DownstreamTransportationFormPage = () => {
     };
     fetchById();
   }, [id, isAdd, buildingOptions]);
+  // Handle dropdown changes
+  // Handle dropdown changes
+  const handleSelectChange = (value, { name }) => {
+    if (isView) return;
 
-  // Handle dropdowns
-  // const handleSelectChange = (value, { name }) => {
-  //   if (isView) return;
-  //   let updated = { ...formData, [name]: value };
-  //   if (name === "activityType") {
-  //     const meta = activityMetadata[value?.value] || {};
-  //     updated.gasEmitted = meta.gasEmitted || "";
-  //     setAmountLabel(meta.amountLabel || "Amount of Emissions");
-  //   }
-  //   setFormData(updated);
-  //   setErrors((prev) => ({ ...prev, [name]: "" }));
-  // };
-const handleSelectChange = (value, { name }) => {
-  if (isView) return;
+    let updated = { ...formData, [name]: value };
 
-  let updated = { ...formData, [name]: value };
+    if (name === "soldProductActivityType") {
+      // Reset sold goods type when activity type changes
+      updated.soldGoodsType = null;
 
-  if (name === "activityType") {
-    const meta = activityMetadata[value?.value] || {};
-
-    updated.gasEmitted = meta.gasEmitted || "";
-    setAmountLabel(meta.amountLabel || "Amount of Emissions");
-
-    // **Trigger emission calculation when activityType changes**
-    if (updated.amountOfEmissions) {
-      const result = calculateProcessEmission({
-        activityType: value?.value,
-        amountOfEmissions: updated.amountOfEmissions,
-      });
-
-      if (result) {
-        const formatEmission = (num) => {
-          const rounded = Number(num.toFixed(5));
-          if (
-            rounded !== 0 &&
-            (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)
-          ) {
-            return rounded.toExponential(5);
-          }
-          return rounded;
-        };
-
-        updated.calculatedEmissionKgCo2e = formatEmission(result.calculatedEmissionKgCo2e);
-        updated.calculatedEmissionTCo2e = formatEmission(result.calculatedEmissionTCo2e);
+      // Set sold goods type options based on selected activity type
+      if (value?.value) {
+        const goodsOptions = soldGoodsTypeMapping[value.value] || [];
+        setSoldGoodsTypeOptions(goodsOptions);
+      } else {
+        setSoldGoodsTypeOptions([]);
       }
     }
-  }
 
-  setFormData(updated);
-  setErrors((prev) => ({ ...prev, [name]: "" }));
-};
+    if (name === "transportationVehicleCategory") {
+      // Reset vehicle type when category changes
+      updated.transportationVehicleType = null;
+    }
 
-
+    setFormData(updated);
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
   const handleInputChange = (e) => {
     if (isView) return;
     const { name, value } = e.target;
 
-    // Update local state
-    setFormData((prev) => {
-      const updated = { ...prev, [name]: value };
-      const formatEmission = (num) => {
-        const rounded = Number(num.toFixed(5));
-        if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
-          return rounded.toExponential(5);
-        }
-        return rounded;
-      };
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
-      // Trigger calculation when amountOfEmissions changes
-      if (name === "amountOfEmissions" && updated.activityType?.value) {
-        const result = calculateProcessEmission({
-          activityType: updated.activityType.value,
-          amountOfEmissions: value,
-        });
-
-        if (result) {
-          const kg = result.calculatedEmissionKgCo2e;
-          const t = kg / 1000;
-
-          updated.calculatedEmissionKgCo2e = formatEmission(kg);
-          updated.calculatedEmissionTCo2e = formatEmission(t);
-          
-        }
-        //     toast.info(
-        //   `Emissions Calculated: ${updated.calculatedEmissionKgCo2e} kg CO2e / ${updated.calculatedEmissionTCo2e} t CO2e`
-        // );
-      }
-
-      return updated;
-    });
-
-    // Clear validation error
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   // Validation
   const validate = () => {
     const newErrors = {};
+    if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder is required";
     if (!formData.buildingId) newErrors.buildingId = "Building is required";
-    if (!formData.stakeholderDepartment)
-      newErrors.stakeholderDepartment = "Department is required";
-    if (!formData.activityType)
-      newErrors.activityType = "Activity Type is required";
-    if (!formData.amountOfEmissions)
-      newErrors.amountOfEmissions = "Amount of Emissions is required";
+    if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder is required";
+    if (!formData.transportationCategory)
+      newErrors.transportationCategory = "Transportation Category is required";
+    if (!formData.soldProductActivityType)
+      newErrors.soldProductActivityType = "Sold Product Activity Type is required";
+
+    // Validate sold goods type
+    if (formData.soldProductActivityType) {
+      const goodsOptions = soldGoodsTypeMapping[formData.soldProductActivityType.value] || [];
+      if (goodsOptions.length > 0 && !formData.soldGoodsType) {
+        newErrors.soldGoodsType = "Sold Goods Type is required";
+      }
+    }
+
+    if (!formData.transportationVehicleCategory)
+      newErrors.transportationVehicleCategory = "Transportation Vehicle Category is required";
+
+    // Validate numeric fields
+    if (!formData.weightLoaded) {
+      newErrors.weightLoaded = "Weight Loaded is required";
+    } else if (isNaN(parseFloat(formData.weightLoaded)) || parseFloat(formData.weightLoaded) <= 0) {
+      newErrors.weightLoaded = "Weight Loaded must be a positive number";
+    }
+
+    if (!formData.distanceTravelled) {
+      newErrors.distanceTravelled = "Distance Travelled is required";
+    } else if (isNaN(parseFloat(formData.distanceTravelled)) || parseFloat(formData.distanceTravelled) <= 0) {
+      newErrors.distanceTravelled = "Distance Travelled must be a positive number";
+    }
+
     if (!formData.qualityControl)
       newErrors.qualityControl = "Quality Control is required";
 
@@ -244,47 +331,69 @@ const handleSelectChange = (value, { name }) => {
 
     const payload = {
       buildingId: formData.buildingId?.value,
-      stakeholderDepartment: formData.stakeholderDepartment?.value,
-      activityType: formData.activityType?.value,
-      gasEmitted: formData.gasEmitted,
-      amountOfEmissions: formData.amountOfEmissions,
-      qualityControl: formData.qualityControl?.value,
+      stakeholder: formData.stakeholder?.value,
+      transportationCategory: formData.transportationCategory?.value,
+      soldProductActivityType: formData.soldProductActivityType?.value,
+      soldGoodsType: formData.soldGoodsType?.value,
+      transportationVehicleCategory: formData.transportationVehicleCategory?.value,
+      transportationVehicleType: formData.transportationVehicleType?.value,
+      weightLoaded: parseFloat(formData.weightLoaded),
+      distanceTravelled: parseFloat(formData.distanceTravelled),
+      qualityControl: formData.qualityControl?.value === "Certain",
       remarks: capitalizeFirstLetter(formData.remarks),
-      calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e,  // added
-      calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
+      // Ensure these are numbers, not strings
+      // calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e ?
+      //   parseFloat(formData.calculatedEmissionKgCo2e) : 0,
+      // calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e ?
+      //   parseFloat(formData.calculatedEmissionTCo2e) : 0,
+    calculatedEmissionKgCo2e: formatEmission(formData.calculatedEmissionKgCo2e),
+    calculatedEmissionTCo2e: formatEmission(formData.calculatedEmissionTCo2e),
     };
+console.log("Form data before sending:", {
+  kgCO2e: formData.calculatedEmissionKgCo2e,
+  tCO2e: formData.calculatedEmissionTCo2e,
+  parsedKgCO2e: formData.calculatedEmissionKgCo2e ? parseFloat(formData.calculatedEmissionKgCo2e) : 0,
+  parsedTCO2e: formData.calculatedEmissionTCo2e ? parseFloat(formData.calculatedEmissionTCo2e) : 0,
+});
+    console.log("Sending payload:", payload); // Debug log
 
     try {
       if (isEdit) {
         await axios.put(
-          `${process.env.REACT_APP_BASE_URL}/Process-Emissions/${id}`,
+          `${process.env.REACT_APP_BASE_URL}/downstream/Update/${id}`,
           payload,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
         toast.success("Record updated successfully!");
       } else {
         await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/Process-Emissions/Create`,
+          `${process.env.REACT_APP_BASE_URL}/downstream/Create`,
           payload,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
         toast.success("Record added successfully!");
       }
-      navigate("/Process-Emissions");
+      navigate("/Downstream-Transportation");
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || "Error saving record");
     }
   };
 
+  // Helper to determine if vehicle type should be shown
+  const shouldShowVehicleType = () => {
+    const category = formData.transportationVehicleCategory?.value;
+    return category && ["freightFlights", "seaTanker", "cargoShip"].includes(category);
+  };
+
   return (
     <div>
       <Card
-        title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Process Emission Record`}
+        title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Downstream Transportation and Distribution Records`}
       >
         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 justify-center">
           <p className="text-gray-700">
-            Process Emissions are direct greenhouse gas (GHG) emissions that result from chemical or physical processes occurring within an organization’s owned or controlled operations, not related to fuel combustion or fugitive leaks.
+            This category includes emissions from transportation and distribution of products sold by the reporting company in the reporting year between the reporting company's operations and the end consumer (if not paid for by the reporting company), in vehicles and facilities not owned or controlled by the reporting company. Outbound transportation and distribution services that are purchased by the reporting company are excluded from this category and included in the category (Upstream transportation and distribution) because the reporting company purchases the service.
           </p>
         </div>
 
@@ -306,65 +415,208 @@ const handleSelectChange = (value, { name }) => {
               )}
             </div>
 
-            {/* Department */}
-            <div>
+
+            {/* Stakeholder */}
+            <div className="lg:col-span-2">
               <label className="field-label">Stakeholder / Department</label>
               <Select
-                name="stakeholderDepartment"
-                value={formData.stakeholderDepartment}
+                name="stakeholder"
+                value={formData.stakeholder}
                 options={stakeholderDepartmentOptions}
                 onChange={handleSelectChange}
-                placeholder="Select or Type Department"
+                placeholder="Select Stakeholder / Department"
                 isDisabled={isView}
                 allowCustomInput
               />
-              {errors.stakeholderDepartment && (
-                <p className="text-red-500 text-sm mt-1">{errors.stakeholderDepartment}</p>
+              {errors.stakeholder && (
+                <p className="text-red-500 text-sm mt-1">{errors.stakeholder}</p>
               )}
             </div>
-
-            {/* Activity Type */}
-            <div>
-              <label className="field-label">Type of Activity / Process</label>
+            {/* Transportation Category */}
+            <div className="col-span-2">
+              <label className="field-label">Transportation and Distribution Category</label>
               <Select
-                name="activityType"
-                value={formData.activityType}
-                options={activityTypeOptions}
+                name="transportationCategory"
+                value={formData.transportationCategory}
+                options={transportationCategoryOptions}
                 onChange={handleSelectChange}
-                placeholder="Select Activity"
+                placeholder="Select Category"
                 isDisabled={isView}
               />
-              {errors.activityType && (
-                <p className="text-red-500 text-sm mt-1">{errors.activityType}</p>
+              {errors.transportationCategory && (
+                <p className="text-red-500 text-sm mt-1">{errors.transportationCategory}</p>
               )}
             </div>
 
-            {/* Gas Emitted */}
-            <div className="overflow-x-auto">
-              <label className="field-label">Gas Emitted</label>
-              <input
-                type="text"
-                name="gasEmitted"
-                value={formData.gasEmitted}
-                readOnly
-                className="input-field bg-gray-100 whitespace-nowrap overflow-visible block leading-[1.4] "
+            {/* Sold Product Activity Type */}
+            <div>
+              <label className="field-label">Sold Product Activity Type</label>
+              <Select
+                name="soldProductActivityType"
+                value={formData.soldProductActivityType}
+                options={soldProductActivityOptions}
+                onChange={handleSelectChange}
+                placeholder="Select Activity Type"
+                isDisabled={isView}
               />
+              {errors.soldProductActivityType && (
+                <p className="text-red-500 text-sm mt-1">{errors.soldProductActivityType}</p>
+              )}
             </div>
 
-            {/* Amount of Emissions */}
-            <div className="col-span-2">
-              <label className="field-label">{amountLabel}</label>
-              <input
-                type="number"
-                name="amountOfEmissions"
-                value={formData.amountOfEmissions}
-                onChange={handleInputChange}
-                placeholder="Enter Value"
-                className="input-field"
-                disabled={isView}
+            {/* Sold Goods Type */}
+              <div>
+                <div className="flex items-center gap-2 ">
+                  <label className="field-label">Sold Goods Type</label>
+                  <Tippy
+                    content="Select the specific type of goods based on the chosen activity type."
+                    placement="top"
+                  >
+                    <button
+                      type="button"
+                      className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      aria-label="Information about sold goods type"
+                    >
+                      i
+                    </button>
+                  </Tippy>
+                </div>
+                <Select
+                  name="soldGoodsType"
+                  value={formData.soldGoodsType}
+                  options={soldGoodsTypeOptions}
+                  onChange={handleSelectChange}
+                  placeholder={formData.soldProductActivityType ? `Select ${formData.soldProductActivityType.label} Type` : "Select Goods Type"}
+                  isDisabled={isView || !formData.soldProductActivityType}
+                  isClearable={true}
+                />
+                {errors.soldGoodsType && (
+                  <p className="text-red-500 text-sm mt-1">{errors.soldGoodsType}</p>
+                )}
+                {formData.soldProductActivityType && soldGoodsTypeOptions.length === 0 && (
+                  <p className="text-gray-500 text-sm mt-1">No options available for this activity type</p>
+                )}
+              </div>
+
+            {/* Transportation Vehicle Category */}
+            <div>
+              <div className="flex items-center gap-2 ">
+                <label className="field-label">Transportation Vehicle Category</label>
+                <Tippy content="Please specify the vehicle category in which the sold goods were transported / distributed."
+                  placement="top">
+                  <button
+                    type="button"
+                    className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                    aria-label="Information about vehicle category">
+                    i
+                  </button>
+                </Tippy>
+              </div>
+              <Select
+                name="transportationVehicleCategory"
+                value={formData.transportationVehicleCategory}
+                options={transportationVehicleCategoryOptions}
+                onChange={handleSelectChange}
+                placeholder="Select Vehicle Category"
+                isDisabled={isView}
               />
-              {errors.amountOfEmissions && (
-                <p className="text-red-500 text-sm mt-1">{errors.amountOfEmissions}</p>
+              {errors.transportationVehicleCategory && (
+                <p className="text-red-500 text-sm mt-1">{errors.transportationVehicleCategory}</p>
+              )}
+            </div>
+
+            {/* Transportation Vehicle Type */}
+            {shouldShowVehicleType() && (
+              <div>
+                <div className="flex items-center gap-2 ">
+                  <label className="field-label">Transportation Vehicle Type</label>
+                  <Tippy content="Please specify the type of transportation vehicle used to deliver the sold goods."
+                    placement="top">
+                    <button
+                      type="button"
+                      className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      aria-label="Information about vehicle type">
+                      i
+                    </button>
+                  </Tippy>
+                </div>
+                <Select
+                  name="transportationVehicleType"
+                  value={formData.transportationVehicleType}
+                  options={transportationVehicleTypeOptions[formData.transportationVehicleCategory?.value] || []}
+                  onChange={handleSelectChange}
+                  placeholder="Select Vehicle Type"
+                  isDisabled={isView}
+                />
+                {errors.transportationVehicleType && (
+                  <p className="text-red-500 text-sm mt-1">{errors.transportationVehicleType}</p>
+                )}
+              </div>
+            )}
+
+            {/* Weight Loaded */}
+            <div>
+              <div className="flex items-center gap-2 ">
+                <label className="field-label">Weight Loaded</label>
+                <Tippy content="Please specify the total weight of the sold goods."
+                  placement="top">
+                  <button
+                    type="button"
+                    className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                    aria-label="Information about weight">
+                    i
+                  </button>
+                </Tippy>
+              </div>
+              <div className="flex">
+                <input
+                  type="number"
+                  name="weightLoaded"
+                  value={formData.weightLoaded}
+                  onChange={handleInputChange}
+                  placeholder="Enter Value"
+                  className="input-field rounded-r-none"
+                  disabled={isView}
+                />
+                <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                  tonnes
+                </div>
+              </div>
+              {errors.weightLoaded && (
+                <p className="text-red-500 text-sm mt-1">{errors.weightLoaded}</p>
+              )}
+            </div>
+
+            {/* Distance Travelled */}
+            <div>
+              <div className="flex items-center gap-2 ">
+                <label className="field-label">Distance Traveled</label>
+                <Tippy content="Please specify the distance traveled by the vehicle to transport / distribute the sold goods."
+                  placement="top">
+                  <button
+                    type="button"
+                    className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                    aria-label="Information about distance">
+                    i
+                  </button>
+                </Tippy>
+              </div>
+              <div className="flex">
+                <input
+                  type="number"
+                  name="distanceTravelled"
+                  value={formData.distanceTravelled}
+                  onChange={handleInputChange}
+                  placeholder="Enter Value"
+                  className="input-field rounded-r-none"
+                  disabled={isView}
+                />
+                <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                  km
+                </div>
+              </div>
+              {errors.distanceTravelled && (
+                <p className="text-red-500 text-sm mt-1">{errors.distanceTravelled}</p>
               )}
             </div>
 
@@ -383,6 +635,7 @@ const handleSelectChange = (value, { name }) => {
                 <p className="text-red-500 text-sm mt-1">{errors.qualityControl}</p>
               )}
             </div>
+
           </div>
 
           {/* Remarks */}
@@ -393,7 +646,7 @@ const handleSelectChange = (value, { name }) => {
               value={formData.remarks}
               onChange={handleInputChange}
               rows={3}
-              placeholder="Enter remarks..."
+              placeholder="Enter Remarks"
               className="border p-2 rounded-md w-full"
               disabled={isView}
             />
@@ -405,7 +658,7 @@ const handleSelectChange = (value, { name }) => {
               text={isView ? "Back" : "Cancel"}
               className={isView ? "btn-primary" : "btn-light"}
               type="button"
-              onClick={() => navigate("/Process-Emissions")}
+              onClick={() => navigate("/Downstream-Transportation")}
             />
             {!isView && (
               <Button
