@@ -39,7 +39,7 @@ const ScopeThreeReport = () => {
         setLoading(true);
         const token = localStorage.getItem("token");
 
-        const [goodsAndServicesRes, capitalGoodsRes, fuelAndEnergyRes, wasteGeneratedRes, businessRes] = await Promise.all([
+        const [goodsAndServicesRes, capitalGoodsRes, fuelAndEnergyRes, wasteGeneratedRes, businessRes, upstreamTransportationRes] = await Promise.all([
           axios.get(`${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All?limit=1000`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
@@ -55,9 +55,9 @@ const ScopeThreeReport = () => {
           axios.get(`${process.env.REACT_APP_BASE_URL}/Business-Travel/List?limit=1000`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          // axios.get(`${process.env.REACT_APP_BASE_URL}/Upstream/List?limit=1000`, {
-          //   headers: { Authorization: `Bearer ${token}` },
-          // }),
+          axios.get(`${process.env.REACT_APP_BASE_URL}/upstream/Get-All?limit=1000`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
           // axios.get(`${process.env.REACT_APP_BASE_URL}/Downstream/List?limit=1000`, {
           //   headers: { Authorization: `Bearer ${token}` },
           // }),
@@ -69,7 +69,7 @@ const ScopeThreeReport = () => {
           fuelAndEnergy: fuelAndEnergyRes.data.data || [],
           wasteGenerated: wasteGeneratedRes.data.data || [],
           Business: businessRes.data.data || [],
-          // upstreamTransportation: upstreamTransportationRes.data.data || [],
+          upstreamTransportation: upstreamTransportationRes.data.data || [],
           // downstreamTransportation: downstreamTransportationRes.data.data || [],
         });
       } catch (err) {
