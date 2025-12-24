@@ -43,7 +43,7 @@ const UpstreamTransportationFormPage = () => {
     weightLoaded: "",
     distanceTravelled: "",
     amountSpent: "",
-    unit: "USD",
+    unit: "",
     qualityControl: null,
     remarks: "",
     calculatedEmissionKgCo2e: "",
@@ -54,6 +54,10 @@ const UpstreamTransportationFormPage = () => {
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [activityTypeOptions, setActivityTypeOptions] = useState([]);
   const [purchasedGoodsTypeOptions, setPurchasedGoodsTypeOptions] = useState([]);
+  const unitOptions = [
+    { value: "USD", label: "$" },
+
+  ];
 
   const capitalizeFirstLetter = (text) => {
     if (!text) return "";
@@ -108,31 +112,31 @@ const UpstreamTransportationFormPage = () => {
     formData.unit,
     isView
   ]);
-  
- const formatEmission = (num) => {
-  try {
-    if (num === null || num === undefined || num === "") {
+
+  const formatEmission = (num) => {
+    try {
+      if (num === null || num === undefined || num === "") {
+        return 0;
+      }
+      const number = Number(num);
+      if (isNaN(number) || !isFinite(number)) {
+        return 0;
+      }
+      const rounded = Number(number.toFixed(5));
+      const integerPart = Math.floor(Math.abs(rounded));
+      if (
+        rounded !== 0 &&
+        (Math.abs(rounded) < 0.0001 ||
+          (Math.abs(rounded) >= 1e6 && integerPart === 0))
+      ) {
+        return rounded.toExponential(5);
+      }
+      return rounded;
+    } catch (error) {
+      console.error("Error in formatEmission:", error, "num:", num);
       return 0;
     }
-    const number = Number(num);
-    if (isNaN(number) || !isFinite(number)) {
-      return 0;
-    }
-    const rounded = Number(number.toFixed(5));
-    const integerPart = Math.floor(Math.abs(rounded));
-    if (
-      rounded !== 0 &&
-      (Math.abs(rounded) < 0.0001 || 
-       (Math.abs(rounded) >= 1e6 && integerPart === 0))
-    ) {
-      return rounded.toExponential(5);
-    }
-    return rounded;
-  } catch (error) {
-    console.error("Error in formatEmission:", error, "num:", num);
-    return 0;
-  }
-};
+  };
   // Fetch all buildings for dropdown
   useEffect(() => {
     const fetchBuildings = async () => {
@@ -236,8 +240,7 @@ const UpstreamTransportationFormPage = () => {
           weightLoaded: data.weightLoaded || "",
           distanceTravelled: data.distanceTravelled || "",
           amountSpent: data.amountSpent || "",
-          unit: data.unit || "USD",
-          qualityControl:
+          unit: data.transportationCategory === "purchasedServices" ? (data.unit || "USD") : "", qualityControl:
             processQualityControlOptions.find(
               (q) => q.value === data.qualityControl
             ) || { label: data.qualityControl, value: data.qualityControl },
@@ -257,6 +260,12 @@ const UpstreamTransportationFormPage = () => {
     if (isView) return;
 
     let updated = { ...formData, [name]: value };
+    if (name === "unit") {
+      updated[name] = value?.value || "USD";
+    } else {
+      updated[name] = value;
+    }
+
 
     if (name === "transportationCategory") {
       // Reset dependent fields when category changes
@@ -267,6 +276,11 @@ const UpstreamTransportationFormPage = () => {
       updated.weightLoaded = "";
       updated.distanceTravelled = "";
       updated.amountSpent = "";
+      if (value?.value !== "purchasedServices") {
+        updated.unit = "USD"; // Reset to default or empty string
+      }
+
+
       setPurchasedGoodsTypeOptions([]); // Clear purchased goods options
 
       // Set activity type options based on category
@@ -389,6 +403,7 @@ const UpstreamTransportationFormPage = () => {
       }) || {};
     }
 
+    // Create payload with all fields
     const payload = {
       buildingId: formData.buildingId?.value,
       stakeholderDepartment: formData.stakeholderDepartment?.value,
@@ -400,7 +415,8 @@ const UpstreamTransportationFormPage = () => {
       weightLoaded: formData.weightLoaded,
       distanceTravelled: formData.distanceTravelled,
       amountSpent: formData.amountSpent,
-      unit: formData.unit,
+      // Send empty string for purchasedGoods, "USD" for purchasedServices
+      unit: formData.transportationCategory?.value === "purchasedServices" ? formData.unit : "",
       qualityControl: formData.qualityControl?.value,
       remarks: capitalizeFirstLetter(formData.remarks),
       calculatedEmissionKgCo2e: formatEmission(
@@ -433,7 +449,6 @@ const UpstreamTransportationFormPage = () => {
       toast.error(err.response?.data?.message || "Error saving record");
     }
   };
-
   // Helper to determine if vehicle type should be shown
   const shouldShowVehicleType = () => {
     const category = formData.vehicleCategory?.value;
@@ -518,26 +533,9 @@ const UpstreamTransportationFormPage = () => {
             </div>
 
             {/* Purchased Goods Type (only for purchasedGoods category) */}
-            {/* {formData.transportationCategory?.value === "purchasedGoods" && (
-              <div>
-                <label className="field-label">Purchased Goods Type</label>
-                <Select
-                  name="purchasedGoodsType"
-                  value={formData.purchasedGoodsType}
-                  options={purchasedGoodsTypeOptions}
-                  onChange={handleSelectChange}
-                  placeholder="Select Goods Type"
-                  isDisabled={isView}
-                />
-                {errors.purchasedGoodsType && (
-                  <p className="text-red-500 text-sm mt-1">{errors.purchasedGoodsType}</p>
-                )}
-              </div>
-            )} */}
-            {/* Purchased Goods Type (only for purchasedGoods category) */}
             {formData.transportationCategory?.value === "purchasedGoods" && (
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 ">
                   <label className="field-label">Purchased Goods Type</label>
                   <Tippy
                     content="Select the specific type of goods based on the chosen activity type."
@@ -545,7 +543,7 @@ const UpstreamTransportationFormPage = () => {
                   >
                     <button
                       type="button"
-                      className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
                       aria-label="Information about purchased goods type"
                     >
                       i
@@ -573,13 +571,13 @@ const UpstreamTransportationFormPage = () => {
             {/* Vehicle Category (only for purchasedGoods category) */}
             {formData.transportationCategory?.value === "purchasedGoods" && (
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 ">
                   <label className="field-label">Transportation Vehicle Category</label>
                   <Tippy content="Please specify the vehicle category in which your purchased goods were transported / distributed."
                     placement="top">
                     <button
                       type="button"
-                      className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
                       aria-label="Information about vehicle category">
                       i
                     </button>
@@ -603,13 +601,13 @@ const UpstreamTransportationFormPage = () => {
             {/* Vehicle Type (only for specific categories) */}
             {formData.transportationCategory?.value === "purchasedGoods" && shouldShowVehicleType() && (
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 ">
                   <label className="field-label">Transportation Vehicle Type</label>
                   <Tippy content="Please specify the type of transportation vehicle used to deliver your purchased goods."
                     placement="top">
                     <button
                       type="button"
-                      className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
                       aria-label="Information about vehicle category">
                       i
                     </button>
@@ -633,13 +631,13 @@ const UpstreamTransportationFormPage = () => {
             {/* Weight Loaded (only for purchasedGoods category) */}
             {formData.transportationCategory?.value === "purchasedGoods" && (
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 ">
                   <label className="field-label">Wieght Loaded</label>
                   <Tippy content="Please specify the total weight of the purchased goods."
                     placement="top">
                     <button
                       type="button"
-                      className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
                       aria-label="Information about vehicle category">
                       i
                     </button>
@@ -668,13 +666,13 @@ const UpstreamTransportationFormPage = () => {
             {/* Distance Travelled (only for purchasedGoods category) */}
             {formData.transportationCategory?.value === "purchasedGoods" && (
               <div>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 ">
                   <label className="field-label">Distance Traveled</label>
                   <Tippy content="Please specify the distance traveled by the vehicle to transport / distribute your purchased goods."
                     placement="top">
                     <button
                       type="button"
-                      className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                      className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
                       aria-label="Information about vehicle category">
                       i
                     </button>
@@ -702,36 +700,51 @@ const UpstreamTransportationFormPage = () => {
 
             {/* Amount Spent (only for purchasedServices category) */}
             {formData.transportationCategory?.value === "purchasedServices" && (
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <label className="field-label">Amount Spent</label>
-                  <Tippy content="Please specify the amount spent on third-party transportation and distribution services."
-                    placement="top">
-                    <button
-                      type="button"
-                      className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
-                      aria-label="Information about vehicle category">
-                      i
-                    </button>
-                  </Tippy>
-                </div>
-                <div className="flex">
+              <div >
+                {/* Amount Input */}
+                <div >
+                  <div className="flex items-center gap-2 ">
+                    <label className="field-label">Amount Spent</label>
+                    <Tippy content="Please specify the amount spent on third-party transportation and distribution services."
+                      placement="top">
+                      <button
+                        type="button"
+                        className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                        aria-label="Information about vehicle category">
+                        i
+                      </button>
+                    </Tippy>
+                  </div>
                   <input
                     type="number"
                     name="amountSpent"
                     value={formData.amountSpent}
                     onChange={handleInputChange}
                     placeholder="Enter Value"
-                    className="input-field rounded-r-none"
+                    className="input-field"
                     disabled={isView}
                   />
-                  <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                    {formData.unit}
-                  </div>
+                  {errors.amountSpent && (
+                    <p className="text-red-500 text-sm mt-1">{errors.amountSpent}</p>
+                  )}
                 </div>
-                {errors.amountSpent && (
-                  <p className="text-red-500 text-sm mt-1">{errors.amountSpent}</p>
-                )}
+              </div>
+            )}
+
+            {formData.transportationCategory?.value === "purchasedServices" && (
+              <div>
+                {/* Unit Selection */}
+                <div>
+                  <label className="field-label">Unit</label>
+                  <Select
+                    name="unit"
+                    value={unitOptions.find(option => option.value === formData.unit) || unitOptions[0]}
+                    options={unitOptions}
+                    onChange={handleSelectChange}
+                    placeholder="Select Unit"
+                    isDisabled={isView}
+                  />
+                </div>
               </div>
             )}
 
@@ -751,29 +764,6 @@ const UpstreamTransportationFormPage = () => {
               )}
             </div>
 
-            {/* Calculated Emissions (Display only) */}
-            {/* {formData.calculatedEmissionKgCo2e && (
-              <>
-                <div>
-                  <label className="field-label">Calculated Emission (kg CO₂e)</label>
-                  <input
-                    type="text"
-                    value={formData.calculatedEmissionKgCo2e}
-                    readOnly
-                    className="input-field bg-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="field-label">Calculated Emission (t CO₂e)</label>
-                  <input
-                    type="text"
-                    value={formData.calculatedEmissionTCo2e}
-                    readOnly
-                    className="input-field bg-gray-100"
-                  />
-                </div>
-              </>
-            )} */}
           </div>
 
           {/* Remarks */}

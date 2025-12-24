@@ -49,10 +49,10 @@ const UpstreamTransportationListing = () => {
   const capitalizeLabel = (text) => {
     if (!text) return "N/A";
 
-    const exceptions = ["and","or","in","of","from","at","to","the","a","an","for","on","with",
-    "but","by","is","it","as","be","this","that","these","those","such",
-    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
-    "n.e.c."];
+    const exceptions = ["and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+      "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+      "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+      "n.e.c."];
     return text
       .split(" ")
       .map((word, index) => {
@@ -66,12 +66,12 @@ const UpstreamTransportationListing = () => {
   };
 
   useEffect(() => {
-  const delayDebounce = setTimeout(() => {
-    setDebouncedSearch(globalFilterValue);
-  }, 500); // 0.5 sec debounce
+    const delayDebounce = setTimeout(() => {
+      setDebouncedSearch(globalFilterValue);
+    }, 500); // 0.5 sec debounce
 
-  return () => clearTimeout(delayDebounce);
-}, [globalFilterValue]);
+    return () => clearTimeout(delayDebounce);
+  }, [globalFilterValue]);
 
   // Fetch data from server with pagination
   const fetchData = async () => {
@@ -83,7 +83,7 @@ const UpstreamTransportationListing = () => {
           params: {
             page: pageIndex,
             limit: pageSize,
-            search: debouncedSearch  || "",
+            search: debouncedSearch || "",
           },
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -126,110 +126,116 @@ const UpstreamTransportationListing = () => {
   };
 
   // Columns
- const COLUMNS = useMemo(
-  () => [
-    {
-      Header: "Sr.No",
-      id: "serialNo",
-      Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
-    },
-    { 
-      Header: "Building", 
-      accessor: "buildingId.buildingName",
-      Cell: ({ cell }) => cell.value || "N/A"
-    },
-    { 
-      Header: "Stakeholder", 
-      accessor: "stakeholderDepartment",
-      Cell: ({ value }) => capitalizeLabel(value)
-    },
-    {
-      Header: "Transportation Category",
-      accessor: "transportationCategory",
-      Cell: ({ value }) => {
-        if (!value) return "N/A";
-        return value === "purchasedGoods" ? "Purchased Goods" : 
-               value === "purchasedServices" ? "Purchased Services" : 
-               capitalizeLabel(value);
-      }
-    },
-    {
-      Header: "Activity Type",
-      accessor: "activityType",
-      Cell: ({ value }) => {
-        if (!value) return "N/A";
-        return value === "vehicles" ? "Vehicles" :
-               value === "rawMaterials" ? "Raw Materials" :
-               value === "waterTransport" ? "Water Transport Services" :
-               value === "warehousingSupport" ? "Warehousing Support Services" :
-               capitalizeLabel(value);
-      }
-    },
-    {
-      Header: "Goods Type",
-      accessor: "purchasedGoodsType",
-      Cell: ({ value }) => capitalizeLabel(value)
-    },
-    {
-      Header: "Vehicle Category",
-      accessor: "vehicleCategory",
-      Cell: ({ value }) => {
-        if (!value) return "N/A";
-        return value === "vans" ? "Vans" :
-               value === "hqv" ? "Heavy Good Vehicles" :
-               value === "hqvRefrigerated" ? "Heavy Good Vehicles (Refrigerated)" :
-               value === "freightFlights" ? "Freight Flights" :
-               value === "rail" ? "Rail" :
-               value === "seaTanker" ? "Sea Tanker" :
-               value === "cargoShip" ? "Cargo Ship" :
-               capitalizeLabel(value);
-      }
-    },
+  const COLUMNS = useMemo(
+    () => [
       {
-      Header: "Vehicle Type",
-      accessor: "vehicleType",
-      Cell: ({ value }) => capitalizeLabel(value)
-    },
-    {
-      Header: "Weight Loaded",
-      accessor: "weightLoaded",
-      Cell: ({ value }) => value ? `${value} tonnes` : "N/A"
-    },
-    {
-      Header: "Distance Travelled",
-      accessor: "distanceTravelled",
-      Cell: ({ value }) => value ? `${value} km` : "N/A"
-    },
-    {
-      Header: "Amount Spent",
-      accessor: (row) => {
-        if (row.amountSpent && row.unit) {
-          return `${row.amountSpent} ${row.unit}`;
+        Header: "Sr.No",
+        id: "serialNo",
+        Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
+      },
+      {
+        Header: "Building",
+        accessor: "buildingId.buildingName",
+        Cell: ({ cell }) => cell.value || "N/A"
+      },
+      {
+        Header: "Stakeholder",
+        accessor: "stakeholderDepartment",
+        Cell: ({ value }) => capitalizeLabel(value)
+      },
+      {
+        Header: "Transportation Category",
+        accessor: "transportationCategory",
+        Cell: ({ value }) => {
+          if (!value) return "N/A";
+          return value === "purchasedGoods" ? "Purchased Goods" :
+            value === "purchasedServices" ? "Purchased Services" :
+              capitalizeLabel(value);
         }
-        return "N/A";
-      }
-    },
-    { 
-      Header: "Quality Control", 
-      accessor: "qualityControl",
-      Cell: ({ value }) => capitalizeLabel(value)
-    },
-    { 
-      Header: "Calculated Emissions (kgCO₂e)", 
-      accessor: "calculatedEmissionKgCo2e",
-      Cell: ({ value }) => value || "N/A"
-    },
-    { 
-      Header: "Calculated Emissions (tCO₂e)", 
-      accessor: "calculatedEmissionTCo2e",
-      Cell: ({ value }) => value || "N/A"
-    },
-    { 
-      Header: "Remarks", 
-      accessor: "remarks",
-      Cell: ({ value }) => value || "N/A"
-    },
-     {
+      },
+      {
+        Header: "Activity Type",
+        accessor: "activityType",
+        Cell: ({ value }) => {
+          if (!value) return "N/A";
+          return value === "vehicles" ? "Vehicles" :
+            value === "rawMaterials" ? "Raw Materials" :
+              value === "waterTransport" ? "Water Transport Services" :
+                value === "warehousingSupport" ? "Warehousing Support Services" :
+                  capitalizeLabel(value);
+        }
+      },
+      {
+        Header: "Goods Type",
+        accessor: "purchasedGoodsType",
+        Cell: ({ value }) => capitalizeLabel(value)
+      },
+      {
+        Header: "Vehicle Category",
+        accessor: "vehicleCategory",
+        Cell: ({ value }) => {
+          if (!value) return "N/A";
+          return value === "vans" ? "Vans" :
+            value === "hqv" ? "Heavy Good Vehicles" :
+              value === "hqvRefrigerated" ? "Heavy Good Vehicles (Refrigerated)" :
+                value === "freightFlights" ? "Freight Flights" :
+                  value === "rail" ? "Rail" :
+                    value === "seaTanker" ? "Sea Tanker" :
+                      value === "cargoShip" ? "Cargo Ship" :
+                        capitalizeLabel(value);
+        }
+      },
+      {
+        Header: "Vehicle Type",
+        accessor: "vehicleType",
+        Cell: ({ value }) => capitalizeLabel(value)
+      },
+      {
+        Header: "Weight Loaded",
+        accessor: "weightLoaded",
+        Cell: ({ value }) => value ? `${value} tonnes` : "N/A"
+      },
+      {
+        Header: "Distance Travelled",
+        accessor: "distanceTravelled",
+        Cell: ({ value }) => value ? `${value} km` : "N/A"
+      },
+      {
+        Header: "Amount Spent",
+        accessor: "amountSpent",
+        Cell: ({ value }) => value || "N/A"
+
+      },
+      {
+        Header: "Unit",
+        accessor: "unit",
+        Cell: ({ value }) => {
+          if (!value) return "N/A";
+          if (value === "USD") return "$";
+          return value;
+        }
+      },
+      {
+        Header: "Quality Control",
+        accessor: "qualityControl",
+        Cell: ({ value }) => capitalizeLabel(value)
+      },
+      {
+        Header: "Calculated Emissions (kgCO₂e)",
+        accessor: "calculatedEmissionKgCo2e",
+        Cell: ({ value }) => value || "N/A"
+      },
+      {
+        Header: "Calculated Emissions (tCO₂e)",
+        accessor: "calculatedEmissionTCo2e",
+        Cell: ({ value }) => value || "N/A"
+      },
+      {
+        Header: "Remarks",
+        accessor: "remarks",
+        Cell: ({ value }) => value || "N/A"
+      },
+      {
         Header: "Created By",
         accessor: "createdBy.name",
         Cell: ({ cell }) => cell.value || "N/A",
@@ -239,60 +245,60 @@ const UpstreamTransportationListing = () => {
         accessor: "updatedBy.name",
         Cell: ({ cell }) => cell.value || "N/A",
       },
-    {
-      Header: "Created At",
-      accessor: "createdAt",
-      Cell: ({ cell }) =>
-        cell.value ? new Date(cell.value).toLocaleDateString() : "N/A",
-    },
-    {
-      Header: "Actions",
-      accessor: "_id",
-      Cell: ({ cell }) => (
-        <div className="flex space-x-3 rtl:space-x-reverse">
-          <Tippy content="View">
-            <button
-              className="action-btn"
-              onClick={() =>
-                navigate(`/Upstream-Transportation-Form/${cell.value}`, {
-                  state: { mode: "view" },
-                })
-              }
-            >
-              <Icon icon="heroicons:eye" className="text-green-600" />
-            </button>
-          </Tippy>
+      {
+        Header: "Created At",
+        accessor: "createdAt",
+        Cell: ({ cell }) =>
+          cell.value ? new Date(cell.value).toLocaleDateString() : "N/A",
+      },
+      {
+        Header: "Actions",
+        accessor: "_id",
+        Cell: ({ cell }) => (
+          <div className="flex space-x-3 rtl:space-x-reverse">
+            <Tippy content="View">
+              <button
+                className="action-btn"
+                onClick={() =>
+                  navigate(`/Upstream-Transportation-Form/${cell.value}`, {
+                    state: { mode: "view" },
+                  })
+                }
+              >
+                <Icon icon="heroicons:eye" className="text-green-600" />
+              </button>
+            </Tippy>
 
-          <Tippy content="Edit">
-            <button
-              className="action-btn"
-              onClick={() =>
-                navigate(`/Upstream-Transportation-Form/${cell.value}`, {
-                  state: { mode: "edit" },
-                })
-              }
-            >
-              <Icon icon="heroicons:pencil-square" className="text-blue-600" />
-            </button>
-          </Tippy>
+            <Tippy content="Edit">
+              <button
+                className="action-btn"
+                onClick={() =>
+                  navigate(`/Upstream-Transportation-Form/${cell.value}`, {
+                    state: { mode: "edit" },
+                  })
+                }
+              >
+                <Icon icon="heroicons:pencil-square" className="text-blue-600" />
+              </button>
+            </Tippy>
 
-          <Tippy content="Delete">
-            <button
-              className="action-btn"
-              onClick={() => {
-                setSelectedId(cell.value);
-                setDeleteModalOpen(true);
-              }}
-            >
-              <Icon icon="heroicons:trash" className="text-red-600" />
-            </button>
-          </Tippy>
-        </div>
-      ),
-    },
-  ],
-  [pageIndex, pageSize]
-);
+            <Tippy content="Delete">
+              <button
+                className="action-btn"
+                onClick={() => {
+                  setSelectedId(cell.value);
+                  setDeleteModalOpen(true);
+                }}
+              >
+                <Icon icon="heroicons:trash" className="text-red-600" />
+              </button>
+            </Tippy>
+          </div>
+        ),
+      },
+    ],
+    [pageIndex, pageSize]
+  );
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
   const data = useMemo(() => records, [records]);
@@ -348,7 +354,7 @@ const UpstreamTransportationListing = () => {
             />
           </div>
         </div>
-    
+
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
             {/*  Set fixed height for vertical scroll */}
