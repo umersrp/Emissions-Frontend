@@ -604,7 +604,7 @@ const UpstreamTransportationFormPage = () => {
             {formData.transportationCategory?.value === "purchasedGoods" && shouldShowVehicleType() && (
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <label className="field-label">Transportation Vehicle Category</label>
+                  <label className="field-label">Transportation Vehicle Type</label>
                   <Tippy content="Please specify the type of transportation vehicle used to deliver your purchased goods."
                     placement="top">
                     <button
