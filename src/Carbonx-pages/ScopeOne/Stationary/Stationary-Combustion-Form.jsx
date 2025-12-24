@@ -327,7 +327,7 @@ const StationaryCombustionFormPage = () => {
                 options={stakeholderOptions}
                 value={formData.stakeholder}
                 onChange={handleSelectChange}
-                placeholder="Select or Type department"
+                placeholder="Select Stakeholder / Department"
                 className={`w-full ${errors.stakeholder ? "border border-red-500 rounded" : ""}`}
                 isDisabled={isView}
                 allowCustomInput

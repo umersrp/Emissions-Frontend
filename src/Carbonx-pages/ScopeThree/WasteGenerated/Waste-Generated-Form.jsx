@@ -260,7 +260,7 @@ const WasteGeneratedFormPage = () => {
               <label className="field-label">Stakeholder / Department <span className="text-red-500">*</span></label>
               <CustomSelect
                 value={formData.stakeholder}
-                placeholder="Select or Type Department"
+                placeholder="Select Stakeholder / Department"
                 options={FugitiveAndMobileStakeholderOptions}
                 onChange={(v) => handleSelectChange("stakeholder", v)}
                 isDisabled={isView}

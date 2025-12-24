@@ -144,7 +144,7 @@ const UpstreamTransportationListing = () => {
         Cell: ({ value }) => capitalizeLabel(value)
       },
       {
-        Header: "Transportation Category",
+        Header: "Transportation and Distribution Category",
         accessor: "transportationCategory",
         Cell: ({ value }) => {
           if (!value) return "N/A";
