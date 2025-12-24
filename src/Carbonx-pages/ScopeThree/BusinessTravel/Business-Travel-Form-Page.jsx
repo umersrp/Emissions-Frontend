@@ -558,7 +558,7 @@ const handleSubmit = async (e) => {
               <label className="field-label">Stakeholder / Department</label>
               <Select
                 name="stakeholder"
-                placeholder="Select or Type Department"
+                placeholder="Select Stakeholder / Department"
                 value={findOptionByValue(stakeholderDepartmentOptions, formData.stakeholder)}
                 options={stakeholderDepartmentOptions}
                 onChange={handleSelectChange}

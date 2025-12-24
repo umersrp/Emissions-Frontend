@@ -314,7 +314,7 @@ const handleSelectChange = (value, { name }) => {
                 value={formData.stakeholderDepartment}
                 options={stakeholderDepartmentOptions}
                 onChange={handleSelectChange}
-                placeholder="Select or Type Department"
+                placeholder="Select Stakeholder / Department"
                 isDisabled={isView}
                 allowCustomInput
               />

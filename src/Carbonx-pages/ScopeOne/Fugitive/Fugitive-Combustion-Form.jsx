@@ -258,7 +258,7 @@ const FugitiveCombustionFormPage = () => {
                 options={FugitiveAndMobileStakeholderOptions}
                 value={formData.stakeholder}
                 onChange={(value) => handleSelectChange("stakeholder", value)}
-                placeholder="Select or type department"
+                placeholder="Select Stakeholder / Department"
                 allowCustomInput
                 isDisabled={isView}
               />
