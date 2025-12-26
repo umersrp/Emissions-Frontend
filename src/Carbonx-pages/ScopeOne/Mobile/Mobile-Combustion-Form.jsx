@@ -16,6 +16,7 @@ import {
   weightLoadedOptions,
 } from "@/constant/scope1/options";
 import { calculateMobileCombustion } from "@/utils/scope1/calculate-mobile-combuction";
+import InputGroup from "@/components/ui/InputGroup";
 
 
 const MobileCombustionFormPage = () => {
@@ -367,7 +368,7 @@ const MobileCombustionFormPage = () => {
             {/* Distance Traveled */}
             <div>
               <label className="field-label">Distance Travelled</label>
-              <input type="number" name="distanceTraveled" onWheel={handleNumberInputWheel} value={formData.distanceTraveled} onChange={handleInputChange} placeholder="Enter distance travelled" className="input-field" disabled={isView} />
+              <InputGroup type="number" name="distanceTraveled" onWheel={handleNumberInputWheel} value={formData.distanceTraveled} onChange={handleInputChange} placeholder="Enter distance travelled" className="input-field" disabled={isView} />
               {errors.distanceTraveled && <p className="text-red-500 text-sm mt-1">{errors.distanceTraveled}</p>}
             </div>
 
@@ -405,7 +406,7 @@ const MobileCombustionFormPage = () => {
           {/* Remarks */}
           <div>
             <label className="field-label">Remark</label>
-            <textarea name="remarks" value={formData.remarks} onChange={handleInputChange} rows={3} placeholder="Remarks..." className="border p-2 rounded-md w-full" disabled={isView} />
+            <InputGroup type="textarea" name="remarks" value={formData.remarks} onChange={handleInputChange} rows={3} placeholder="Enter Remarks" className="border-[2px] border-gray-400 rounded-md" disabled={isView} />
           </div>
 
           {/* Buttons */}

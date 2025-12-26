@@ -181,12 +181,12 @@ const DownstreamTransportationListing = () => {
       {
         Header: "Weight Loaded",
         accessor: "weightLoaded",
-        Cell: ({ value }) => value !== null && value !== undefined ? `${value} tonnes` : "N/A"
+        Cell: ({ value }) => value || "N/A"
       },
       {
         Header: "Distance Travelled",
         accessor: "distanceTravelled",
-        Cell: ({ value }) => value !== null && value !== undefined ? `${value} km` : "N/A"
+        Cell: ({ value }) => value || "N/A"
       },
       {
         Header: "Quality Control",

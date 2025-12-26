@@ -4,12 +4,12 @@ import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 import Tippy from "@tippyjs/react";
 import { useTable, useRowSelect, useSortBy } from "react-table";
 import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
 import Logo from "@/assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -24,7 +24,7 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref)
 
 const PurchasedElectricityListing = () => {
   const navigate = useNavigate();
-
+ const location = useLocation();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
@@ -50,7 +50,13 @@ const PurchasedElectricityListing = () => {
     return value === null || value === undefined || value === "" ? "N/A" : value;
   };
 
-
+ useEffect(() => {
+    if (location.state?.selectedMethod) {
+      setEmissionFilter(location.state.selectedMethod);
+      // Clear the state to prevent persistence on refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
 
   // Fetch data from Purchased-Electricity API
   const fetchData = async () => {
