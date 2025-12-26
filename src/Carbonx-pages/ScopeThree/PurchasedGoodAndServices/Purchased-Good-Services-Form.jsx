@@ -15,7 +15,7 @@ import {
   currencyUnitOptions
 } from "@/constant/scope3/options";
 import { calculatePurchasedGoodsEmission } from "@/utils/Scope3/calculatePurchasedGoodsEmission"; // adjust path
-
+import InputGroup from "@/components/ui/InputGroup";
 
 const PurchasedGoodServicesFormPage = () => {
   const navigate = useNavigate();
@@ -410,7 +410,7 @@ const PurchasedGoodServicesFormPage = () => {
               </label>
               <div className="flex items-center gap-4 mt-2">
                 <label className="inline-flex items-center cursor-pointer">
-                  <input
+                  <InputGroup
                     type="checkbox"
                     checked={formData.isCapitalGoods}
                     onChange={(e) =>
@@ -442,7 +442,7 @@ const PurchasedGoodServicesFormPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="field-label">Amount Spent *</label>
-              <input
+              <InputGroup
                 type="number"
                 name="amountSpent"
                 onWheel={handleNumberInputWheel}
@@ -484,14 +484,14 @@ const PurchasedGoodServicesFormPage = () => {
 
           {/* Remarks */}
           <div>
-            <label className="field-label">Remarks (Optional)</label>
-            <textarea
-              name="remarks"
+            <label className="field-label">Remarks</label>
+            <InputGroup
+     type="textarea"          name="remarks"
               value={formData.remarks}
               onChange={handleInputChange}
               rows={3}
-              placeholder="Any Remarks"
-              className="border-[2px] w-full p-2 rounded-md"
+              placeholder="Enter Remarks"
+              className="border-[2px] border-gray-400 rounded-md"
               disabled={isView}
             />
           </div>

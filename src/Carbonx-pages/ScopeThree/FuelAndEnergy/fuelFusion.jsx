@@ -119,28 +119,29 @@ const FuelFusion = () => {
             { Header: "Stakeholder", accessor: "stakeholder" },
             { Header: "Fuel Type", accessor: "fuelType" },
             { Header: "Fuel Name", accessor: "fuel", Cell: ({ value }) => capitalizeLabel(value) },
-            { Header: "Total Fuel Consumption", accessor: "totalFuelConsumption" },
+            { Header: "Total Fuel Consumption", accessor: "totalFuelConsumption",   Cell: ({ value }) => value === "0" || value === 0 || value === "" ? "N/A" : value},
             { Header: "Consumption Unit", accessor: "fuelConsumptionUnit" },
-            { Header: "Total Gross Electricity Purchased", accessor: "totalGrossElectricityPurchased", },
-            { Header: "Unit", accessor: "unit", },
-            { Header: "Unit", accessor: "", Cell: ({ cell }) => cell.value || "N/A" },
-            { Header: "Did You have Any Business Travel By Air During The Reporting Period", accessor: "didTravelByAir", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+            { Header: "Total Purchased Electricity (Grid / Supplier Specific / PPA)", accessor: "totalGrossElectricityPurchased",  Cell: ({ value }) => value === "0" || value === 0 || value === "" ? "N/A" : value },
+            { Header: "Unit", accessor: "unit",Cell: ({ cell }) => cell.value || "N/A" },
+
+            { Header: "Business Travel By Air", accessor: "didTravelByAir", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             { Header: "No of Passengers", accessor: "airPassengers", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Distance(km)", accessor: "airDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Travel Class", accessor: "airTravelClass", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Flight Type", accessor: "airFlightType", Cell: ({ cell }) => cell.value || "N/A" },
 
 
-            { Header: "Did You have Any Business Travel By Taxi During The Reporting Period", accessor: "didTravelByTaxi", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+            { Header: "Business Travel By Taxi", accessor: "didTravelByTaxi", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             { Header: "No of Passengers", accessor: "taxiPassengers", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Distance(km)", accessor: "taxiDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Taxi Type", accessor: "taxiType", Cell: ({ cell }) => cell.value || "N/A" },
 
-            { Header: "Did You have Any Business Travel By Bus During The Reporting Period", accessor: "didTravelByBus", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+            { Header: "Business Travel By Bus", accessor: "didTravelByBus", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             { Header: "No of Passengers", accessor: "busPassengers", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Distance(km)", accessor: "busDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Bus Type", accessor: "busType", Cell: ({ cell }) => cell.value || "N/A" },
-            { Header: "Did You have Any Business Travel By Train During The Reporting Period", accessor: "didTravelByTrain", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+
+            { Header: "Business Travel By Train", accessor: "didTravelByTrain", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             { Header: "No of Passengers", accessor: "trainPassengers", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Distance(km)", accessor: "trainDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Train Type", accessor: "trainType", Cell: ({ cell }) => cell.value || "N/A" },
@@ -261,7 +262,7 @@ const FuelFusion = () => {
         <>
             <Card noborder>
                 <div className="md:flex pb-6 items-center">
-                    <h6 className="flex-1 md:mb-0 ">Fuel and Energy Records</h6>
+                    <h6 className="flex-1 md:mb-0 ">Fuel and Energy Related Activity Records</h6>
 
                     <div className="md:flex md:space-x-3 items-center">
                         <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />

@@ -12,6 +12,7 @@ import {
   processQualityControlOptions,
 } from "@/constant/scope1/options";
 import { calculateProcessEmission } from "@/utils/scope1/calculate-process-emission"
+import InputGroup from "@/components/ui/InputGroup";
 
 const ProcessEmissionsFormPage = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const ProcessEmissionsFormPage = () => {
   const [errors, setErrors] = useState({});
   const [buildingOptions, setBuildingOptions] = useState([]);
 
-   const capitalizeFirstLetter = (text) => {
+  const capitalizeFirstLetter = (text) => {
     if (!text) return "";
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
@@ -133,45 +134,45 @@ const ProcessEmissionsFormPage = () => {
   //   setFormData(updated);
   //   setErrors((prev) => ({ ...prev, [name]: "" }));
   // };
-const handleSelectChange = (value, { name }) => {
-  if (isView) return;
+  const handleSelectChange = (value, { name }) => {
+    if (isView) return;
 
-  let updated = { ...formData, [name]: value };
+    let updated = { ...formData, [name]: value };
 
-  if (name === "activityType") {
-    const meta = activityMetadata[value?.value] || {};
+    if (name === "activityType") {
+      const meta = activityMetadata[value?.value] || {};
 
-    updated.gasEmitted = meta.gasEmitted || "";
-    setAmountLabel(meta.amountLabel || "Amount of Emissions");
+      updated.gasEmitted = meta.gasEmitted || "";
+      setAmountLabel(meta.amountLabel || "Amount of Emissions");
 
-    // **Trigger emission calculation when activityType changes**
-    if (updated.amountOfEmissions) {
-      const result = calculateProcessEmission({
-        activityType: value?.value,
-        amountOfEmissions: updated.amountOfEmissions,
-      });
+      // **Trigger emission calculation when activityType changes**
+      if (updated.amountOfEmissions) {
+        const result = calculateProcessEmission({
+          activityType: value?.value,
+          amountOfEmissions: updated.amountOfEmissions,
+        });
 
-      if (result) {
-        const formatEmission = (num) => {
-          const rounded = Number(num.toFixed(5));
-          if (
-            rounded !== 0 &&
-            (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)
-          ) {
-            return rounded.toExponential(5);
-          }
-          return rounded;
-        };
+        if (result) {
+          const formatEmission = (num) => {
+            const rounded = Number(num.toFixed(5));
+            if (
+              rounded !== 0 &&
+              (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)
+            ) {
+              return rounded.toExponential(5);
+            }
+            return rounded;
+          };
 
-        updated.calculatedEmissionKgCo2e = formatEmission(result.calculatedEmissionKgCo2e);
-        updated.calculatedEmissionTCo2e = formatEmission(result.calculatedEmissionTCo2e);
+          updated.calculatedEmissionKgCo2e = formatEmission(result.calculatedEmissionKgCo2e);
+          updated.calculatedEmissionTCo2e = formatEmission(result.calculatedEmissionTCo2e);
+        }
       }
     }
-  }
 
-  setFormData(updated);
-  setErrors((prev) => ({ ...prev, [name]: "" }));
-};
+    setFormData(updated);
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
 
 
   const handleInputChange = (e) => {
@@ -202,7 +203,7 @@ const handleSelectChange = (value, { name }) => {
 
           updated.calculatedEmissionKgCo2e = formatEmission(kg);
           updated.calculatedEmissionTCo2e = formatEmission(t);
-          
+
         }
         //     toast.info(
         //   `Emissions Calculated: ${updated.calculatedEmissionKgCo2e} kg CO2e / ${updated.calculatedEmissionTCo2e} t CO2e`
@@ -342,7 +343,7 @@ const handleSelectChange = (value, { name }) => {
             {/* Gas Emitted */}
             <div className="overflow-x-auto">
               <label className="field-label">Gas Emitted</label>
-              <input
+              <InputGroup
                 type="text"
                 name="gasEmitted"
                 value={formData.gasEmitted}
@@ -354,7 +355,7 @@ const handleSelectChange = (value, { name }) => {
             {/* Amount of Emissions */}
             <div className="col-span-2">
               <label className="field-label">{amountLabel}</label>
-              <input
+              <InputGroup
                 type="number"
                 name="amountOfEmissions"
                 value={formData.amountOfEmissions}
@@ -388,13 +389,23 @@ const handleSelectChange = (value, { name }) => {
           {/* Remarks */}
           <div>
             <label className="field-label">Remarks</label>
-            <textarea
+            {/* <InputGroup
               name="remarks"
               value={formData.remarks}
               onChange={handleInputChange}
               rows={3}
-              placeholder="Enter remarks..."
-              className="border p-2 rounded-md w-full"
+              placeholder="Enter Remarks"
+              className="border-[2px] border-gray-400 rounded-md"
+              disabled={isView}
+            /> */}
+            <InputGroup
+              type="textarea"
+              name="remarks"
+              placeholder="Enter Remarks"
+              value={formData.remarks}
+              onChange={handleInputChange}
+              rows={3}
+              className="border-[2px] border-gray-300 rounded-md"
               disabled={isView}
             />
           </div>

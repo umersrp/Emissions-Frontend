@@ -21,6 +21,7 @@ import {
 } from "@/constant/scope1/options";
 import ToggleButton from "@/components/ui/ToggleButton";
 import { calculateBusinessTravel } from "@/utils/Scope3/calculateBusinessTravel";
+import InputGroup from "@/components/ui/InputGroup";
 
 const BusinessTravelFormPage = () => {
   const navigate = useNavigate();
@@ -256,7 +257,7 @@ const BusinessTravelFormPage = () => {
         }
       }
 
-      // ✅ Toggle group validation
+      //  Toggle group validation
       const anyToggle =
         updated.travelByAir ||
         updated.travelByMotorbike ||
@@ -617,12 +618,12 @@ const handleSubmit = async (e) => {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <div>
                   <label className="field-label">Number of Passengers</label>
-                  <input
+                  <InputGroup
                     type="number"
                     name="airPassengers"
                     value={formData.airPassengers}
                     onChange={handleChange}
-                    placeholder="Number of Passengers"
+                    placeholder="e.g., 1, 2, 3"
                     className="input-field"
                     disabled={isView}
                   />
@@ -633,12 +634,12 @@ const handleSubmit = async (e) => {
 
                 <div>
                   <label className="field-label">Distance (km)</label>
-                  <input
+                  <InputGroup
                     type="number"
                     name="airDistanceKm"
                     value={formData.airDistanceKm}
                     onChange={handleChange}
-                    placeholder="Distance (km)"
+                    placeholder="e.g., 1000"
                     className="input-field"
                     disabled={isView}
                   />
@@ -654,7 +655,7 @@ const handleSubmit = async (e) => {
                     value={findOptionByValue(travelClassOptions, formData.airTravelClass)}
                     options={travelClassOptions}
                     onChange={handleSelectChange}
-                    placeholder="Travel Class"
+                    placeholder="Select Travel Class"
                     isDisabled={isView}
                   />
                   {errors.airTravelClass && (
@@ -669,7 +670,7 @@ const handleSubmit = async (e) => {
                     value={findOptionByValue(flightTypeOptions, formData.airFlightType)}
                     options={flightTypeOptions}
                     onChange={handleSelectChange}
-                    placeholder="Flight Type"
+                    placeholder="Select Flight Type"
                     isDisabled={isView}
                   />
                   {errors.airFlightType && (
@@ -693,12 +694,12 @@ const handleSubmit = async (e) => {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <div>
                   <label className="field-label">Distance (km)</label>
-                  <input
+                  <InputGroup
                     type="number"
                     name="motorbikeDistanceKm"
                     value={formData.motorbikeDistanceKm}
                     onChange={handleChange}
-                    placeholder="Distance (km)"
+                    placeholder="e.g., 1000"
                     className="input-field"
                     disabled={isView}
                   />
@@ -714,7 +715,7 @@ const handleSubmit = async (e) => {
                     value={findOptionByValue(motorbikeTypeOptions, formData.motorbikeType)}
                     options={motorbikeTypeOptions}
                     onChange={handleSelectChange}
-                    placeholder="Motorbike Type"
+                    placeholder=" Select Motorbike Type"
                     isDisabled={isView}
                   />
                   {errors.motorbikeType && (
@@ -737,12 +738,12 @@ const handleSubmit = async (e) => {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <div>
                   <label className="field-label">Number of Passengers</label>
-                  <input
+                  <InputGroup
                     type="number"
                     name="taxiPassengers"
                     value={formData.taxiPassengers}
                     onChange={handleChange}
-                    placeholder="Number of Passengers"
+                    placeholder="e.g., 1, 2, 3"
                     className="input-field"
                     disabled={isView}
                   />
@@ -753,12 +754,12 @@ const handleSubmit = async (e) => {
 
                 <div>
                   <label className="field-label">Distance (km)</label>
-                  <input
+                  <InputGroup
                     type="number"
                     name="taxiDistanceKm"
                     value={formData.taxiDistanceKm}
                     onChange={handleChange}
-                    placeholder="Distance (km)"
+                    placeholder="e.g., 1000"
                     className="input-field"
                     disabled={isView}
                   />
@@ -774,7 +775,7 @@ const handleSubmit = async (e) => {
                     value={findOptionByValue(taxiTypeOptions, formData.taxiType)}
                     options={taxiTypeOptions}
                     onChange={handleSelectChange}
-                    placeholder="Taxi Type"
+                    placeholder="Select Taxi Type"
                     isDisabled={isView}
                   />
                   {errors.taxiType && (
@@ -797,12 +798,12 @@ const handleSubmit = async (e) => {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <div>
                   <label className="field-label">Passengers</label>
-                  <input
+                  <InputGroup
                     type="number"
                     name="busPassengers"
                     value={formData.busPassengers}
                     onChange={handleChange}
-                    placeholder="Passengers"
+                    placeholder="e.g., 1, 2, 3"
                     className="input-field"
                     disabled={isView}
                   />
@@ -813,12 +814,12 @@ const handleSubmit = async (e) => {
 
                 <div>
                   <label className="field-label">Distance (km)</label>
-                  <input
+                  <InputGroup
                     type="number"
                     name="busDistanceKm"
                     value={formData.busDistanceKm}
                     onChange={handleChange}
-                    placeholder="Distance (km)"
+                    placeholder="e.g., 1000"
                     className="input-field"
                     disabled={isView}
                   />
@@ -834,7 +835,7 @@ const handleSubmit = async (e) => {
                     value={findOptionByValue(busTypeOptions, formData.busType)}
                     options={busTypeOptions}
                     onChange={handleSelectChange}
-                    placeholder="Bus Type"
+                    placeholder="Select Bus Type"
                     isDisabled={isView}
                     className={errors.busType ? 'border-red-500' : ''}
                   />
@@ -859,12 +860,12 @@ const handleSubmit = async (e) => {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <div>
                   <label className="field-label">Passengers</label>
-                  <input
+                  <InputGroup
                     type="number"
                     name="trainPassengers"
                     value={formData.trainPassengers}
                     onChange={handleChange}
-                    placeholder="Passengers"
+                    placeholder="e.g., 1, 2, 3"
                     className="input-field"
                     disabled={isView}
                   />
@@ -875,12 +876,12 @@ const handleSubmit = async (e) => {
 
                 <div>
                   <label className="field-label">Distance (km)</label>
-                  <input
+                  <InputGroup
                     type="number"
                     name="trainDistanceKm"
                     value={formData.trainDistanceKm}
                     onChange={handleChange}
-                    placeholder="Distance (km)"
+                    placeholder="e.g., 1000"
                     className="input-field"
                     disabled={isView}
                   />
@@ -896,7 +897,7 @@ const handleSubmit = async (e) => {
                     value={findOptionByValue(trainTypeOptions, formData.trainType)}
                     options={trainTypeOptions}
                     onChange={handleSelectChange}
-                    placeholder="Train Type"
+                    placeholder="Select Train Type"
                     isDisabled={isView}
                     className={errors.trainType ? 'border-red-500' : ''}
                   />
@@ -921,12 +922,12 @@ const handleSubmit = async (e) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
                   <label className="field-label">Distance (km)</label>
-                  <input
+                  <InputGroup
                     type="number"
                     name="carDistanceKm"
                     value={formData.carDistanceKm}
                     onChange={handleChange}
-                    placeholder="Distance (km)"
+                    placeholder="e.g., 1000"
                     className="input-field"
                     disabled={isView}
                   />
@@ -942,7 +943,7 @@ const handleSubmit = async (e) => {
                     value={findOptionByValue(carTypeOptions, formData.carType)}
                     options={carTypeOptions}
                     onChange={handleCarTypeChange}
-                    placeholder="Car Type"
+                    placeholder="Select Car Type"
                     isDisabled={isView}
                     className={errors.carType ? 'border-red-500' : ''}
                   />
@@ -983,12 +984,12 @@ const handleSubmit = async (e) => {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <div>
                   <label className="field-label">Number of Rooms</label>
-                  <input
+                  <InputGroup
                     type="number"
                     name="hotelRooms"
                     value={formData.hotelRooms}
                     onChange={handleChange}
-                    placeholder="Number of Rooms"
+                    placeholder="e.g., 1, 2, 3"
                     className="input-field"
                     disabled={isView}
                   />
@@ -999,12 +1000,12 @@ const handleSubmit = async (e) => {
 
                 <div>
                   <label className="field-label">Nights Stayed</label>
-                  <input
+                  <InputGroup
                     type="number"
                     name="hotelNights"
                     value={formData.hotelNights}
                     onChange={handleChange}
-                    placeholder="Nights Stayed"
+                    placeholder="e.g., 1, 2, 3"
                     className="input-field"
                     disabled={isView}
                   />
@@ -1019,13 +1020,13 @@ const handleSubmit = async (e) => {
           {/* Remarks */}
           <div>
             <label className="field-label">Remarks</label>
-            <textarea
-              name="remarks"
+            <InputGroup
+     type="textarea"          name="remarks"
               placeholder="Enter Remarks"
               value={formData.remarks}
               onChange={handleChange}
               rows={3}
-              className="input-field h-auto min-h-[80px]"
+              className="border-[2px] border-gray-400 rounded-md"
               disabled={isView}
             />
           </div>

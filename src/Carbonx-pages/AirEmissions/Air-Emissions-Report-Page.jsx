@@ -660,7 +660,7 @@ const AirEmissionReportPage = () => {
     // 4. Summary Card Verification
     const biogenicCard = summaryCards.find(card => card.key === "biogenic");
     if (biogenicCard) {
-      console.group("✅ SUMMARY CARD VERIFICATION:");
+      console.group(" SUMMARY CARD VERIFICATION:");
       console.log(`Card shows: ${formatNumber(biogenicCard.kg)} kg`);
       console.log(`Calculated: ${formatNumber(combinedTotalKg)} kg`);
       console.log(`Match: ${Math.abs(biogenicCard.kg - combinedTotalKg) < 0.01 ? "✓" : "✗"}`);
