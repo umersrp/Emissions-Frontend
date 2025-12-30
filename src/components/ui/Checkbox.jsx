@@ -1,51 +1,42 @@
 import React from "react";
 import CheckImage from "@/assets/images/icon/ck-white.svg";
+
 const Checkbox = ({
   id,
   disabled,
   label,
-  value,
+  checked, // rename from value
   name,
   onChange,
-  activeClass = "ring-black-500  bg-slate-900 dark:bg-slate-700 dark:ring-slate-700 ",
+  activeClass = "bg-slate-900 ring-slate-900 dark:bg-slate-700 dark:ring-slate-700",
 }) => {
   return (
     <label
-      className={`flex items-center ${
-        disabled ? " cursor-not-allowed opacity-50" : "cursor-pointer"
-      }`}
-      id={id}
+      htmlFor={id}
+      className={`flex items-center ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}`}
     >
       <input
+        id={id}
         type="checkbox"
         className="hidden"
         name={name}
-        checked={value}
+        checked={checked} // use checked here
         onChange={onChange}
-        htmlFor={id}
         disabled={disabled}
       />
+
       <span
-        className={`h-4 w-4 border flex-none border-slate-100 dark:border-slate-800 rounded 
-        inline-flex ltr:mr-3 rtl:ml-3 relative transition-all duration-150
-        ${
-          value
-            ? activeClass + " ring-2 ring-offset-2 dark:ring-offset-slate-800 "
-            : "bg-slate-100 dark:bg-slate-600 dark:border-slate-600"
-        }
-        `}
+        className={`h-5 w-5 border flex-none border-slate-300 rounded 
+          inline-flex mr-3 relative transition-all duration-150
+          ${checked
+            ? `${activeClass} ring-2 ring-offset-2 flex items-center justify-center`
+            : "bg-slate-100"
+          }`}
       >
-        {value && (
-          <img
-            src={CheckImage}
-            alt=""
-            className="h-[10px] w-[10px] block m-auto"
-          />
-        )}
+        {checked && <img src={CheckImage} alt="" className="h-[10px] w-[10px]" />}
       </span>
-      <span className="text-slate-500 dark:text-slate-400 text-sm leading-6 capitalize">
-        {label}
-      </span>
+
+      <span className="text-slate-600 text-sm">{label}</span>
     </label>
   );
 };

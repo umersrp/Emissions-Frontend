@@ -3,18 +3,18 @@ import Chart from "react-apexcharts";
 import useDarkMode from "@/hooks/useDarkMode";
 import useRtl from "@/hooks/useRtl";
 
-const RevenueBarChart = ({
-  chartData = [],
-  height = 400,
-  onBarClick, // 👈 ADD THIS
-}) => {
+const RevenueBarChart = ({ chartData = [], height = 400, onBarClick }) => {
   const [isDark] = useDarkMode();
   const [isRtl] = useRtl();
+
+  const values = chartData.map((item) => item.value || 0);
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
 
   const series = [
     {
       name: "Emissions",
-      data: chartData.map((item) => item.value || 0),
+      data: values,
     },
   ];
 
@@ -22,12 +22,9 @@ const RevenueBarChart = ({
     chart: {
       type: "bar",
       toolbar: { show: false },
-
-      // 🔥 BAR CLICK EVENT
       events: {
         dataPointSelection: (event, chartContext, config) => {
           const index = config.dataPointIndex;
-
           const clickedData = chartData[index];
           if (clickedData && onBarClick) {
             onBarClick(clickedData);
@@ -41,7 +38,22 @@ const RevenueBarChart = ({
         horizontal: false,
         endingShape: "rounded",
         columnWidth: "45%",
+        // ✅ Per-bar coloring via fill.colors function
+        colors: {
+          ranges: [
+            { from: minValue, to: minValue, color: "#A0A0A0" }, // grey for lowest
+            { from: maxValue, to: maxValue, color: "#4669FA" }, // blue for highest
+          ],
+        },
       },
+    },
+
+    fill: {
+      colors: values.map((v) => {
+        if (v === maxValue) return "#4669FA";
+        if (v === minValue) return "#A0A0A0";
+        return "#7F9CF5"; // optional middle color
+      }),
     },
 
     dataLabels: { enabled: false },
@@ -80,8 +92,6 @@ const RevenueBarChart = ({
       },
     },
 
-    colors: ["#4669FA"],
-
     grid: {
       show: true,
       borderColor: isDark ? "#334155" : "#E2E8F0",
@@ -89,14 +99,7 @@ const RevenueBarChart = ({
     },
   };
 
-  return (
-    <Chart
-      options={options}
-      series={series}
-      type="bar"
-      height={height}
-    />
-  );
+  return <Chart options={options} series={series} type="bar" height={height} />;
 };
 
 export default RevenueBarChart;

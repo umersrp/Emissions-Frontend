@@ -239,6 +239,8 @@ import DownstreamTransportationFormPage from "./Carbonx-pages/ScopeThree/Downstr
 import DownstreamTransportationListing from "./Carbonx-pages/ScopeThree/DownstreamTransporation/Downstream-Transportation-Listing";
 import EmployeeCommutingForm from "./Carbonx-pages/EmployeeCommuting/EmployeeComutingAdd";
 import UserViewPage from "./pages/utility/userView";
+import EmailSent from "./Carbonx-pages/Emailsent/EmailSent";
+import CommutingTable from "./Carbonx-pages/EmployeeCommuting/CommutingTable";
 
 
 
@@ -499,7 +501,11 @@ function App() {
 
           <Route path="Downstream-Transportation-Form/add" element={<DownstreamTransportationFormPage />} />
           <Route path="Downstream-Transportation-Form/:id" element={<DownstreamTransportationFormPage />} />
-          <Route path="Downstream-Transportation" element={<DownstreamTransportationListing/>} />
+          <Route path="Downstream-Transportation" element={<DownstreamTransportationListing />} />
+          <Route path="EmailSent" element={<EmailSent />} />
+          <Route path="Commuting" element={<CommutingTable />} />
+
+
 
           <Route path="Coach-edit" element={<CoachEditPage />} />
           <Route path="*" element={<Navigate to="/404" />} />

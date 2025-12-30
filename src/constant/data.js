@@ -172,7 +172,7 @@ export const menuItems = [
     icon: "heroicons-outline:building-library",
     link: "Sector-table",
   },
-  
+
   {
     title: "Industry",
     isHide: true,
@@ -198,16 +198,23 @@ export const menuItems = [
     link: "Building"
   },
   {
-      title: "Add Employee",
+    title: "Add Employee",
     isHide: true,
     icon: "heroicons:user",
     link: "Employee",
   },
-   {
-    title: "Employee Commuting Email Sent",
+  {
+    title: "Employee Email Sent",
     isHide: true,
     icon: "heroicons:home-modern",
-    link: "EmployeeCommuting"
+    link: "EmailSent"
+  },
+
+  {
+    title: "Employee Commuting Submited Data",
+    isHide: true,
+    icon: "heroicons:home-modern",
+    link: "Commuting"
   },
   {
     title: "Scope 1",
@@ -242,7 +249,7 @@ export const menuItems = [
     ]
 
   },
-    {
+  {
     title: "Scope 2",
     icon: "heroicons-outline:home",
     isOpen: true,
@@ -250,7 +257,7 @@ export const menuItems = [
     icon: "mdi:power-plug",
     link: "Scope-2",
     child: [
-      
+
       {
         childtitle: "Scope 2 Report",
         childlink: "Scope-Two-Report",
@@ -260,7 +267,7 @@ export const menuItems = [
         childlink: "Purchased-Electricity",
       },
     ]
-  
+
   },
   {
     title: "Scope 3",
@@ -286,11 +293,11 @@ export const menuItems = [
         childtitle: "Fuel and Energy",
         childlink: "fuel-energy",
       },
-       {
+      {
         childtitle: "Waste Generated In Operations",
         childlink: "Waste-Generated",
       },
-       {
+      {
         childtitle: "Business Travel",
         childlink: "Business-Travel",
       },//Upstream-Transportation
@@ -298,7 +305,7 @@ export const menuItems = [
         childtitle: "Upstream Transportation and Distribution",
         childlink: "Upstream-Transportation",
       },
-        {
+      {
         childtitle: "Downstream Transportation and Distribution",
         childlink: "Downstream-Transportation",
       },
@@ -308,7 +315,7 @@ export const menuItems = [
   },
   {
     title: "Out of Scope / Other Air Emissions",
-    isHide: true, 
+    isHide: true,
     icon: "heroicons:no-symbol",
     link: "Air-Emission-Report-Page"
   },

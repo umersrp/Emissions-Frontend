@@ -6,6 +6,11 @@ import RevenueBarChart from "@/components/partials/widget/chart/revenue-bar-char
 import Scope1EmissionsSection from "@/components/partials/widget/chart/ScopeoneEmissions";
 import Scope2EmissionsSection from "@/components/partials/widget/chart/Scope2Emissions";
 import Scope3EmissionsSection from "@/components/partials/widget/chart/Scope3Emissions";
+import Select from "@/components/ui/Select";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Tooltip } from '@mui/material';
+
+
 
 const Dashboard = () => {
   const [buildings, setBuildings] = useState([]);
@@ -129,19 +134,25 @@ const Dashboard = () => {
     { name: "Scope 3", value: scope3Emission },
   ];
 
+
+  const buildingMap = {};
+  buildings.forEach((b) => {
+    buildingMap[b._id] = b.buildingName;
+  });
+
+
   // Bar chart data
-  const barChartData = [
-    { name: "Stationary Combustion", value: dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0 },
-    { name: "Transport", value: dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0 },
-    { name: "Fugitive", value: dashboardData?.scope1?.fugitive?.totalEmissionTCo2e || 0 },
-    { name: "Emission Activity", value: dashboardData?.scope1?.emissionActivity?.totalEmissionTCo2e || 0 },
-    {
-      name: "Purchased Electricity",
-      value:
-        (dashboardData?.scope2?.purchasedElectricity?.totalLocationTCo2e || 0) +
-        (dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0),
-    },
-  ];
+  const barChartData = dashboardData?.companyBuildingEmissions?.map((item) => ({
+    name: item.buildingName || "Unknown",
+    value: item.totalEmissionTCo2e,
+    buildingId: item.buildingId,
+  })) || [];
+
+
+
+
+
+
 
   // Format numbers helper
   const formatNumber = (num) => {
@@ -152,93 +163,86 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar: Building filter */}
-      <aside className="w-64 p-4 bg-white shadow-lg overflow-auto rounded-xl">
-        <h2 className="font-bold text-xl mb-6 text-gray-800 dark:text-gray-200">
-          Filters
-        </h2>
-
-        {/* ---------------- BUILDING FILTER (DROPDOWN) ---------------- */}
-        <div className="mb-6">
-          <h3 className="font-semibold text-lg text-gray-700 mb-3">Building</h3>
-          <select
-            value={selectedBuilding[0] || ""}
-            onChange={(e) => setSelectedBuilding(e.target.value ? [e.target.value] : [])}
-            className="w-full border rounded-md px-3 py-2 text-sm"
-          >
-            <option value="">Select a building</option>
-            {buildings.map((b) => (
-              <option key={b._id} value={b._id}>
-                {b.buildingName || b.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* ---------------- DEPARTMENT FILTER ---------------- */}
-        <div className="mb-6">
-          <h3 className="font-semibold text-lg text-gray-700 mb-3">Department</h3>
-          <div className="space-y-2 text-sm">
-            {["Operations", "Finance", "HR", "IT", "Maintenance"].map((dept) => (
-              <label key={dept} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  className="rounded"
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedDepartments((prev) => [...prev, dept]);
-                    } else {
-                      setSelectedDepartments((prev) =>
-                        prev.filter((d) => d !== dept)
-                      );
-                    }
-                  }}
-                />
-                {dept}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* ---------------- DATE RANGE FILTER ---------------- */}
-        <div className="mb-6">
-          <h3 className="font-semibold text-lg text-gray-700 mb-3">Date Range</h3>
-          <div className="space-y-2">
-            <input
-              type="date"
-              className="w-full border rounded-md px-3 py-2 text-sm"
-              onChange={(e) => setFromDate(e.target.value)}
-            />
-            <input
-              type="date"
-              className="w-full border rounded-md px-3 py-2 text-sm"
-              onChange={(e) => setToDate(e.target.value)}
-            />
-          </div>
-        </div>
-
-        {/* ---------------- FILTER BUTTONS ---------------- */}
-        <div className="space-y-2">
-          <button
-            onClick={applyFilters}
-            className="w-full btn-dark py-2 rounded-lg font-semibold"
-
-          >
-            Apply Filters
-          </button>
-
-          <button
-            onClick={clearFilters}
-            className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg font-semibold"
-          >
-            Clear Filters
-          </button>
-        </div>
-      </aside>
 
 
 
       {/* Main content */}
       <main className="flex-1 p-6 overflow-auto">
+        <div className="flex flex-wrap gap-4 mb-6 items-end bg-white p-4 rounded-xl shadow-lg">
+          {/* Building filter */}
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">Building</label>
+            <Select
+              value={selectedBuilding[0] ? { value: selectedBuilding[0], label: buildingMap[selectedBuilding[0]] } : null}
+              onChange={(option) => setSelectedBuilding(option ? [option.value] : [])}
+              options={buildings.map((b) => ({
+                value: b._id,
+                label: b.buildingName || b.name,
+              }))}
+              isClearable
+              placeholder="Select a building"
+              className="w-48"
+            />
+          </div>
+
+          {/* Department filter */}
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">Departments</label>
+            <select
+
+              value={selectedDepartments}
+              onChange={(e) => {
+                const options = Array.from(e.target.selectedOptions, (option) => option.value);
+                setSelectedDepartments(options);
+              }}
+              className="border rounded-md px-3 py-2 text-sm w-48"
+            >
+              {["Operations", "Finance", "HR", "IT", "Maintenance"].map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
+              ))}
+            </select>
+          </div>
+
+
+          {/* Date range filter */}
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">From Date</label>
+            <input
+              type="date"
+              className="border rounded-md px-3 py-2 text-sm"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">To Date</label>
+            <input
+              type="date"
+              className="border rounded-md px-3 py-2 text-sm"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+            />
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={applyFilters}
+              className="btn-dark py-2 px-4 rounded-lg font-semibold"
+            >
+              Apply Filters
+            </button>
+            <button
+              onClick={clearFilters}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg font-semibold"
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+
         {/* Summary cards */}
         <div className="flex gap-4 mb-6 flex-wrap">
           <Card className="flex-1 text-black p-6 rounded-lg shadow-lg min-w-[220px]">
@@ -270,14 +274,33 @@ const Dashboard = () => {
         {/* Charts */}
         <div className="flex gap-6 flex-wrap">
           <Card className="flex-1 p-4 min-w-[320px]">
-            <h3 className="font-semibold mb-4">GHG Emissions by Scope</h3>
+             <h3 className="font-semibold mb-4 text-xl flex items-center gap-2">
+             GHG Emissions by Scopes
+              <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e.">
+                <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
+              </Tooltip>
+            </h3>
             <GroupChart1 chartData={pieData} loading={loading} />
           </Card>
 
 
           <Card className="flex-1 p-4 min-w-[320px]">
-            <h3 className="font-semibold mb-4">Building-wise GHG Emissions</h3>
-            <RevenueBarChart chartData={barChartData} loading={loading} />
+
+            <h3 className="font-semibold mb-4 text-xl flex items-center gap-2">
+              Building-wise GHG Emissions
+              <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e.">
+                <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
+              </Tooltip>
+            </h3>
+
+            <RevenueBarChart
+              chartData={barChartData}
+              onBarClick={(building) => {
+                console.log("Clicked building:", building);
+                // navigate(`/dashboard?buildingId=${building.buildingId}`);
+              }}
+            />
+
           </Card>
         </div>
         <div>
@@ -290,7 +313,7 @@ const Dashboard = () => {
             <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} />
           </Card>
         </div>
-         <div>
+        <div>
           <Card className="flex-1 p-4 min-w-[320px]">
             <Scope3EmissionsSection dashboardData={dashboardData} loading={loading} />
           </Card>
