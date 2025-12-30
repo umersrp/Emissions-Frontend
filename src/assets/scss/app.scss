@@ -192,7 +192,7 @@
 
   /* Reusable input/select field class */
   .input-field {
-    @apply border-[2px] w-full h-10 p-2 rounded-md;
+    @apply border-[2px] border-gray-300 w-full h-10 p-2 rounded-md;
   }
 
 

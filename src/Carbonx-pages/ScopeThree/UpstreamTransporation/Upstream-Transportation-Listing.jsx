@@ -193,12 +193,12 @@ const UpstreamTransportationListing = () => {
       {
         Header: "Weight Loaded",
         accessor: "weightLoaded",
-        Cell: ({ value }) => value ? `${value} tonnes` : "N/A"
+        Cell: ({ value }) => value || "N/A"
       },
       {
         Header: "Distance Travelled",
         accessor: "distanceTravelled",
-        Cell: ({ value }) => value ? `${value} km` : "N/A"
+        Cell: ({ value }) => value || "N/A"
       },
       {
         Header: "Amount Spent",

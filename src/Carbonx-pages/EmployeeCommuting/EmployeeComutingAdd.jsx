@@ -2724,7 +2724,7 @@ const EmployeeCommutingForm = () => {
                             Quality Control & Remarks
                         </h2>
                         <Textarea
-                            label="Remarks (Optional)"
+                            label="Remarks"
                             placeholder="Any additional comments, clarifications, or special circumstances regarding your commute..."
                             rows={4}
                             value={formData.qualityControlRemarks}

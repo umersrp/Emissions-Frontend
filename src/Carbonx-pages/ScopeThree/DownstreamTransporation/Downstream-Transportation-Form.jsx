@@ -20,6 +20,7 @@ import {
   transportationVehicleTypeOptions
 } from '@/constant/scope3/downstreamTransportation';
 import { calculateDownstreamTransportationEmission } from '@/utils/Scope3/calculateDownstreamTransportation';
+import InputGroup from "@/components/ui/InputGroup";
 
 const DownstreamTransportationFormPage = () => {
   const navigate = useNavigate();
@@ -112,7 +113,7 @@ useEffect(() => {
       });
       
       if (result) {
-        console.log("✅ Calculation successful:", {
+        console.log(" Calculation successful:", {
           kgCO2e: result.calculatedEmissionKgCo2e,
           tCO2e: result.calculatedEmissionTCo2e
         });
@@ -569,7 +570,7 @@ console.log("Form data before sending:", {
                 </Tippy>
               </div>
               <div className="flex">
-                <input
+                <InputGroup
                   type="number"
                   name="weightLoaded"
                   value={formData.weightLoaded}
@@ -602,7 +603,7 @@ console.log("Form data before sending:", {
                 </Tippy>
               </div>
               <div className="flex">
-                <input
+                <InputGroup
                   type="number"
                   name="distanceTravelled"
                   value={formData.distanceTravelled}
@@ -641,13 +642,13 @@ console.log("Form data before sending:", {
           {/* Remarks */}
           <div>
             <label className="field-label">Remarks</label>
-            <textarea
-              name="remarks"
+            <InputGroup
+     type="textarea"          name="remarks"
               value={formData.remarks}
               onChange={handleInputChange}
               rows={3}
               placeholder="Enter Remarks"
-              className="border p-2 rounded-md w-full"
+              className="border-[2px] border-gray-400 rounded-md"
               disabled={isView}
             />
           </div>

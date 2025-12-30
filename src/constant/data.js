@@ -172,7 +172,6 @@ export const menuItems = [
     icon: "heroicons-outline:building-library",
     link: "Sector-table",
   },
-
   {
     title: "Industry",
     isHide: true,
@@ -224,7 +223,6 @@ export const menuItems = [
     icon: "mdi:factory",
     link: "Scope-1",
     child: [
-
       {
         childtitle: "Scope 1 Report",
         childlink: "Scope-One-Report",
@@ -245,9 +243,7 @@ export const menuItems = [
         childtitle: "Process Emissions",
         childlink: "Process-Emissions",
       },
-
     ]
-
   },
   {
     title: "Scope 2",
@@ -257,7 +253,6 @@ export const menuItems = [
     icon: "mdi:power-plug",
     link: "Scope-2",
     child: [
-
       {
         childtitle: "Scope 2 Report",
         childlink: "Scope-Two-Report",
@@ -267,7 +262,6 @@ export const menuItems = [
         childlink: "Purchased-Electricity",
       },
     ]
-
   },
   {
     title: "Scope 3",
@@ -290,11 +284,11 @@ export const menuItems = [
         childlink: "Capital-Goods",
       },
       {
-        childtitle: "Fuel and Energy",
+        childtitle: "Fuels and Energy Related Activity",
         childlink: "fuel-energy",
       },
-      {
-        childtitle: "Waste Generated In Operations",
+       {
+        childtitle: "Waste Generated in Operations",
         childlink: "Waste-Generated",
       },
       {

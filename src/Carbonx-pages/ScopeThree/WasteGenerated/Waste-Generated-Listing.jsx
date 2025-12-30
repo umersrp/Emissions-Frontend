@@ -245,7 +245,7 @@ const WasteGeneratedListing = () => {
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0 ">Waste Generated In Operation Records</h6>
+          <h6 className="flex-1 md:mb-0 ">Waste Generated in Operation Records</h6>
 
           <div className="md:flex md:space-x-3 items-center">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />

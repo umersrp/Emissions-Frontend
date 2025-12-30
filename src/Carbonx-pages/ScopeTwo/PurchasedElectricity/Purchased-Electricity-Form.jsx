@@ -9,6 +9,7 @@ import { qualityControlOptions } from "@/constant/scope1/options";
 import { gridStationOptions, unitOptions } from "@/constant/scope2/options";
 import { calculatePurchasedElectricity } from "@/utils/scope2/calculate-purchased-electricity";
 import { GridStationEmissionFactors } from "@/constant/scope2/purchased-electricity"
+import InputGroup from "@/components/ui/InputGroup";
 
 const PurchasedElectricityFormPage = () => {
   const navigate = useNavigate();
@@ -495,7 +496,10 @@ const PurchasedElectricityFormPage = () => {
       });
 
       toast.success(`Record ${isEdit ? 'updated' : 'added'} successfully!`);
-      navigate("/Purchased-Electricity");
+      // navigate("/Purchased-Electricity");
+      navigate("/Purchased-Electricity", { 
+      state: { selectedMethod: formData.method?.value } 
+    });
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong");
     }
@@ -523,7 +527,7 @@ const PurchasedElectricityFormPage = () => {
             <div className="flex flex-col gap-3 mt-2 max-w-xs">
               {(!formData.method || formData.method.value === "location_based") && (
                 <label className="flex items-center cursor-pointer">
-                  <input
+                  <InputGroup
                     type="radio"
                     name="method"
                     value="location_based"
@@ -551,7 +555,7 @@ const PurchasedElectricityFormPage = () => {
 
               {(!formData.method || formData.method.value === "market_based") && (
                 <label className="flex items-center cursor-pointer">
-                  <input
+                  <InputGroup
                     type="radio"
                     name="method"
                     value="market_based"
@@ -609,7 +613,7 @@ const PurchasedElectricityFormPage = () => {
                 </div>
                 <div>
                   <label className="field-label">Total Electricity Consumption  <span className="text-red-500">*</span></label>
-                  <input
+                  <InputGroup
                     type="number"
                     onWheel={handleNumberInputWheel}
                     name="totalElectricity"
@@ -640,7 +644,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="col-span-2">
                   <label className="field-label">Total Gross Electricity Purchased from Grid Station ({selectedUnit}) </label>
-                  <input
+                  <InputGroup
                     type="number"
                     onWheel={handleNumberInputWheel}
                     name="totalGrossElectricityGrid"
@@ -671,7 +675,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="col-span-3">
                   <label className="field-label">Total other supplier specific electricity purchased or purchased under Power Purchased Agreement (PPA) ({selectedUnit}) </label>
-                  <input
+                  <InputGroup
                     type="number"
                     onWheel={handleNumberInputWheel}
                     name="totalOtherSupplierElectricity"
@@ -702,14 +706,15 @@ const PurchasedElectricityFormPage = () => {
               </div>
 
               <div className="col-span-full">
-                <label className="field-label">Remarks (Optional)</label>
-                <textarea
+                <label className="field-label">Remarks</label>
+                <InputGroup
+                type="textarea"
                   name="remarks"
                   value={formData.remarks}
                   onChange={handleInputChange}
                   rows={3}
-                  placeholder="Any remarks..."
-                  className="border-[2px] w-full p-2 rounded-md"
+                  placeholder="Enter Remarks"
+                  className="border-[2px] border-gray-400 rounded-md"
                   disabled={isView}
                 />
               </div>
@@ -734,7 +739,7 @@ const PurchasedElectricityFormPage = () => {
                 </div>
                 <div className="col-span-2">
                   <label className="field-label">Total Purchased Electricity (Grid / Supplier Specific / PPA)  <span className="text-red-500">*</span></label>
-                  <input
+                  <InputGroup
                     type="number"
                     onWheel={handleNumberInputWheel}
                     name="totalPurchasedElectricity"
@@ -763,7 +768,7 @@ const PurchasedElectricityFormPage = () => {
 
                 <div className="col-span-2">
                   <label className="field-label">Total Gross Electricity Purchased from Grid Station ({selectedUnit})  <span className="text-red-500">*</span></label>
-                  <input
+                  <InputGroup
                     type="number"
                     onWheel={handleNumberInputWheel}
                     name="totalGrossElectricityGrid"
@@ -808,14 +813,15 @@ const PurchasedElectricityFormPage = () => {
               </div>
 
               <div className="col-span-full">
-                <label className="field-label">Remarks (Optional)</label>
-                <textarea
+                <label className="field-label">Remarks</label>
+                <InputGroup
+                type="textarea"
                   name="remarks"
                   value={formData.remarks}
                   onChange={handleInputChange}
                   rows={3}
-                  placeholder="Any remarks..."
-                  className="border-[2px] w-full p-2 rounded-md"
+                  placeholder="Enter Remarks"
+                  className="border-[2px] border-gray-400 rounded-md"
                   disabled={isView}
                 />
               </div>
@@ -832,7 +838,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input
+                    <InputGroup
                       type="checkbox"
                       checked={formData.hasSolarPanels}
                       onChange={() => handleToggleChange("hasSolarPanels")}
@@ -850,7 +856,7 @@ const PurchasedElectricityFormPage = () => {
                   <div className="grid grid-cols-1  gap-6 ml-8 mt-4">
                     <div>
                       <label className="field-label">What is the total onsite solar electricity consumption? ({selectedUnit})  <span className="text-red-500">*</span></label>
-                      <input
+                      <InputGroup
                         type="number"
                         onWheel={handleNumberInputWheel}
                         name="totalOnsiteSolarConsumption"
@@ -867,7 +873,7 @@ const PurchasedElectricityFormPage = () => {
 
                     <div>
                       <label className="field-label">How much solar electricity is retained by you under valid RECs or any other energy attributes? ({selectedUnit})  <span className="text-red-500">*</span></label>
-                      <input
+                      <InputGroup
                         type="number"
                         onWheel={handleNumberInputWheel}
                         name="solarRetainedUnderRECs"
@@ -884,7 +890,7 @@ const PurchasedElectricityFormPage = () => {
 
                     <div>
                       <label className="field-label">How much solar electricity is consumed by you but its renewable instruments or attributes is sold by you to another entity? ({selectedUnit})  <span className="text-red-500">*</span></label>
-                      <input
+                      <InputGroup
                         type="number"
                         onWheel={handleNumberInputWheel}
                         name="solarConsumedButSold"
@@ -906,7 +912,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input
+                    <InputGroup
                       type="checkbox"
                       checked={formData.purchasesSupplierSpecific}
                       onChange={() => handleToggleChange("purchasesSupplierSpecific")}
@@ -924,7 +930,7 @@ const PurchasedElectricityFormPage = () => {
                   <div className="ml-8 mt-4 space-y-4">
                     <div>
                       <label className="field-label">How much electricity from total electricity consumption is purchased from specific supplier under contractual instrument? ({selectedUnit})  <span className="text-red-500">*</span></label>
-                      <input
+                      <InputGroup
                         type="number"
                         onWheel={handleNumberInputWheel}
                         name="supplierSpecificElectricity"
@@ -941,7 +947,7 @@ const PurchasedElectricityFormPage = () => {
 
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                        <input
+                        <InputGroup
                           type="checkbox"
                           checked={formData.hasSupplierEmissionFactor}
                           onChange={() => handleCheckboxChange("hasSupplierEmissionFactor", ["hasSupplierEmissionFactor", "dontHaveSupplierEmissionFactor"])}
@@ -954,7 +960,7 @@ const PurchasedElectricityFormPage = () => {
                       {formData.hasSupplierEmissionFactor && (
                         <div className="ml-7">
                           <label className="field-label">Emission Factor (kgCO₂e/kWh)  <span className="text-red-500">*</span></label>
-                          <input
+                          <InputGroup
                             type="number"
                             onWheel={handleNumberInputWheel}
                             name="supplierEmissionFactor"
@@ -971,7 +977,7 @@ const PurchasedElectricityFormPage = () => {
                       )}
 
                       <div className="flex items-center gap-3">
-                        <input
+                        <InputGroup
                           type="checkbox"
                           checked={formData.dontHaveSupplierEmissionFactor}
                           onChange={() => handleCheckboxChange("dontHaveSupplierEmissionFactor", ["hasSupplierEmissionFactor", "dontHaveSupplierEmissionFactor"])}
@@ -993,7 +999,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input
+                    <InputGroup
                       type="checkbox"
                       checked={formData.hasPPA}
                       onChange={() => handleToggleChange("hasPPA")}
@@ -1011,7 +1017,7 @@ const PurchasedElectricityFormPage = () => {
                   <div className="ml-8 mt-4 space-y-4">
                     <div>
                       <label className="field-label">How much electricity from total electricity consumption is purchased or covered under Power Purchase Agreement (PPA)? ({selectedUnit})  <span className="text-red-500">*</span></label>
-                      <input
+                      <InputGroup
                         type="number"
                         onWheel={handleNumberInputWheel}
                         name="ppaElectricity"
@@ -1028,7 +1034,7 @@ const PurchasedElectricityFormPage = () => {
 
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
-                        <input
+                        <InputGroup
                           type="checkbox"
                           checked={formData.hasPPAEmissionFactor}
                           onChange={() => handleCheckboxChange("hasPPAEmissionFactor", ["hasPPAEmissionFactor", "hasPPAValidInstruments"])}
@@ -1041,7 +1047,7 @@ const PurchasedElectricityFormPage = () => {
                       {formData.hasPPAEmissionFactor && (
                         <div className="ml-7">
                           <label className="field-label">PPA Emission Factor (kgCO₂e/kWh)  <span className="text-red-500">*</span></label>
-                          <input
+                          <InputGroup
                             type="number"
                             onWheel={handleNumberInputWheel}
                             name="ppaEmissionFactor"
@@ -1057,7 +1063,7 @@ const PurchasedElectricityFormPage = () => {
                         </div>
                       )}
                       <div className="flex items-center gap-3">
-                        <input
+                        <InputGroup
                           type="checkbox"
                           checked={formData.hasPPAValidInstruments}
                           onChange={() => handleCheckboxChange("hasPPAValidInstruments", ["hasPPAEmissionFactor", "hasPPAValidInstruments"])}
@@ -1078,7 +1084,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input
+                    <InputGroup
                       type="checkbox"
                       checked={formData.hasRenewableAttributes}
                       onChange={() => handleToggleChange("hasRenewableAttributes")}
@@ -1095,7 +1101,7 @@ const PurchasedElectricityFormPage = () => {
                   <div className="ml-8 mt-4">
                     <div>
                       <label className="field-label">How much of your total electricity consumption (excluding solar generation and PPA-covered electricity) is covered by valid renewable energy attributes or market-based instruments ({selectedUnit})?<span className="text-red-500">*</span></label>
-                      <input
+                      <InputGroup
                         type="number"
                         onWheel={handleNumberInputWheel}
                         name="renewableAttributesElectricity"
