@@ -34,7 +34,6 @@ const EmailSent = () => {
             try {
                 const token = localStorage.getItem("token");
 
-                // Use minEmployeesRequired as limit
                 const response = await axios.get(
                     `${process.env.REACT_APP_BASE_URL}/auth/getCompanyUsers`,
                     {
@@ -44,9 +43,12 @@ const EmailSent = () => {
                 );
 
                 const users = response.data.data.users || [];
+
+                // ✅ CHANGED: include userId
                 const options = users.map((u) => ({
                     value: u.email,
                     label: `${u.name} (${u.email})`,
+                    userId: u._id, // ✅ ADDED
                 }));
 
                 setEmployeesOptions(options);
@@ -57,7 +59,9 @@ const EmailSent = () => {
         };
 
         fetchCompanyUsers();
-    }, [formData.minEmployeesRequired]); // Re-run whenever minEmployeesRequired changes
+    }, [formData.minEmployeesRequired]);
+
+    // ===============================
 
 
     // Update email count whenever selectedEmployees change
@@ -115,7 +119,7 @@ const EmailSent = () => {
     // Send Email Handler
     const handleSendEmail = async () => {
         const errors = validateForm();
-        if (errors.length > 0) {
+        if (errors.length) {
             errors.forEach((err) => toast.error(err));
             return;
         }
@@ -129,7 +133,13 @@ const EmailSent = () => {
                 userEmailId: formData.userEmailId,
                 totalEmployees: formData.selectedEmployees.length,
                 minEmployeesRequired: Number(formData.minEmployeesRequired),
-                emails: formData.selectedEmployees.map((e) => e.value),
+
+                // ✅ CHANGED: send email + userId
+                emails: formData.selectedEmployees.map((e) => ({
+                    email: e.value,
+                    userId: e.userId,
+                })),
+
                 startDateTime: formData.startDateTime,
                 endDateTime: formData.endDateTime,
                 subject: formData.subject,
@@ -149,9 +159,11 @@ const EmailSent = () => {
             toast.success("Emails sent and configuration saved successfully!");
         } catch (error) {
             console.error(error);
-            const errorMessage =
-                error.response?.data?.message || error.response?.data?.error || "Failed to send email";
-            toast.error(errorMessage);
+            toast.error(
+                error.response?.data?.message ||
+                error.response?.data?.error ||
+                "Failed to send email"
+            );
         } finally {
             setLoading(false);
         }
