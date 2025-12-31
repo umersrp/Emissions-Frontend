@@ -196,8 +196,10 @@ const Dashboard = () => {
                 setSelectedDepartments(options);
               }}
               className="border rounded-md px-3 py-2 text-sm w-48"
+              placeholder="Select Departments"
+
             >
-              {["Operations", "Finance", "HR", "IT", "Maintenance"].map((dept) => (
+              {["Select Departments","Operations", "Finance", "HR", "IT", "Maintenance"].map((dept) => (
                 <option key={dept} value={dept}>
                   {dept}
                 </option>
@@ -274,8 +276,8 @@ const Dashboard = () => {
         {/* Charts */}
         <div className="flex gap-6 flex-wrap">
           <Card className="flex-1 p-4 min-w-[320px]">
-             <h3 className="font-semibold mb-4 text-xl flex items-center gap-2">
-             GHG Emissions by Scopes
+            <h3 className="font-semibold mb-4 text-xl flex items-center gap-2">
+              GHG Emissions by Scopes
               <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e.">
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
               </Tooltip>

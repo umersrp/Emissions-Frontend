@@ -204,19 +204,6 @@ export const menuItems = [
     link: "Employee",
   },
   {
-    title: "Employee Email Sent",
-    isHide: true,
-    icon: "heroicons:home-modern",
-    link: "EmailSent"
-  },
-
-  {
-    title: "Employee Commuting Submited Data",
-    isHide: true,
-    icon: "heroicons:home-modern",
-    link: "Commuting"
-  },
-  {
     title: "Scope 1",
     icon: "heroicons-outline:home",
     isOpen: true,
@@ -302,6 +289,15 @@ export const menuItems = [
         childlink: "Business-Travel",
       },//Upstream-Transportation
       {
+        childtitle: "Employee Email Sent",
+        childlink: "EmailSent",
+      },
+      {
+        childtitle: "Employee Commuting",
+        childlink: "Commuting",
+      },
+
+      {
         childtitle: "Upstream Transportation and Distribution",
         childlink: "Upstream-Transportation",
       },
@@ -310,9 +306,11 @@ export const menuItems = [
         childlink: "Downstream-Transportation",
       },
 
+
     ]
 
   },
+
   {
     title: "Out of Scope / Other Air Emissions",
     isHide: true,
