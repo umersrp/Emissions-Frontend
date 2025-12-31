@@ -64,7 +64,7 @@ const PurchasedElectricityFormPage = () => {
     if (num === null || num === undefined) return "N/A"; // handle empty values
     if (num === 0) return 0; // exact zero
 
-    const rounded = Number(num.toFixed(5));
+    const rounded = Number(num.toFixed(2));
     if (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6) {
       return rounded.toExponential(5);
     }
@@ -356,7 +356,7 @@ const PurchasedElectricityFormPage = () => {
         delete newErrors.totalOtherSupplierElectricity;
       }
 
-      if (!formData.gridStation) newErrors.gridStation = "Required";
+      //if (!formData.gridStation) newErrors.gridStation = "Required";
       if (!formData.qualityControl) newErrors.qualityControl = "Required";
     }
 
@@ -660,7 +660,7 @@ const PurchasedElectricityFormPage = () => {
                 </div>
 
                 <div>
-                  <label className="field-label">Grid Station  <span className="text-red-500">*</span></label>
+                  <label className="field-label">Grid Station </label>
                   <CustomSelect
                     name="gridStation"
                     options={gridStationOptions}

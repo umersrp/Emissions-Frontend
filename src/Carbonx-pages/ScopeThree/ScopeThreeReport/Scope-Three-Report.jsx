@@ -323,7 +323,7 @@ const ScopeThreeReport = () => {
                    wasteGeneratedKg + businessKg + upstreamTransportationKg + 
                    downstreamTransportationKg;
     
-    console.log("\n📈 FINAL TOTALS BY CATEGORY:");
+    console.log("\n FINAL TOTALS BY CATEGORY:");
     console.log("1. Purchased Goods and Services:", goodsAndServicesKg.toFixed(2), "kg CO2e");
     console.log("2. Capital Goods:", capitalGoodsKg.toFixed(2), "kg CO2e");
     console.log("3. Fuel and Energy:", fuelAndEnergyKg.toFixed(2), "kg CO2e");
@@ -331,7 +331,7 @@ const ScopeThreeReport = () => {
     console.log("5. Business Travel:", businessKg.toFixed(2), "kg CO2e");
     console.log("6. Upstream Transportation:", upstreamTransportationKg.toFixed(2), "kg CO2e");
     console.log("7. Downstream Transportation:", downstreamTransportationKg.toFixed(2), "kg CO2e");
-    console.log("🏆 GRAND TOTAL:", totalKg.toFixed(2), "kg CO2e", `(${(totalKg/1000).toFixed(3)} t CO2e)`);
+    console.log(" GRAND TOTAL:", totalKg.toFixed(2), "kg CO2e", `(${(totalKg/1000).toFixed(3)} t CO2e)`);
 
     return [
       { 

@@ -141,12 +141,7 @@ const EMISSION_FACTORS = {
     
     // Trains
     trains: {
-        "National rail": 0.03546,
-        "Subway/Metro": 0.02860,
-        "Light rail": 0.02860, // Using Metro as proxy
-        "Commuter rail": 0.03546, // Using National rail
-        "High speed rail": 0.03546, // Using National rail
-        "National Rail": 0.03546,
+      "National Rail": 0.03546,
         "Subway/Metro": 0.02860,
         "Light Rail": 0.02860,
         "Commuter Rail": 0.03546,

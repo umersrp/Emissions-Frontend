@@ -35,7 +35,8 @@ const DownstreamTransportationFormPage = () => {
   const [formData, setFormData] = useState({
     buildingId: null,
     stakeholder: null,
-    transportationCategory: null,
+    // transportationCategory: null,
+    transportationCategory: { value: "Sold Goods", label: "Sold Goods" },
     soldProductActivityType: null,
     soldGoodsType: null,
     transportationVehicleCategory: null,
@@ -61,7 +62,7 @@ const DownstreamTransportationFormPage = () => {
       if (isNaN(number) || !isFinite(number)) {
         return 0;
       }
-      const rounded = Number(number.toFixed(5));
+      const rounded = Number(number.toFixed(2));
       const integerPart = Math.floor(Math.abs(rounded));
       if (
         rounded !== 0 &&
@@ -333,7 +334,8 @@ useEffect(() => {
     const payload = {
       buildingId: formData.buildingId?.value,
       stakeholder: formData.stakeholder?.value,
-      transportationCategory: formData.transportationCategory?.value,
+      // transportationCategory: formData.transportationCategory?.value,
+      transportationCategory: "Sold Goods",
       soldProductActivityType: formData.soldProductActivityType?.value,
       soldGoodsType: formData.soldGoodsType?.value,
       transportationVehicleCategory: formData.transportationVehicleCategory?.value,
@@ -394,7 +396,7 @@ console.log("Form data before sending:", {
       >
         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 justify-center">
           <p className="text-gray-700">
-            This category includes emissions from transportation and distribution of products sold by the reporting company in the reporting year between the reporting company's operations and the end consumer (if not paid for by the reporting company), in vehicles and facilities not owned or controlled by the reporting company. Outbound transportation and distribution services that are purchased by the reporting company are excluded from this category and included in the category (Upstream transportation and distribution) because the reporting company purchases the service.
+            This category includes emissions from transportation and distribution of products sold by the reporting company in the reporting year between the reporting company's operations and the end consumer (<span className="font-semibold">if not paid for by the reporting company</span>),<span className="font-semibold"> in vehicles and facilities not owned or controlled by the reporting company</span>. Outbound transportation and distribution services that are <span className="font-semibold">purchased by the reporting company</span> are excluded from this category and included in the category (Upstream transportation and distribution) because the reporting company <span className="font-semibold">purchases the service</span>.
           </p>
         </div>
 
@@ -434,7 +436,7 @@ console.log("Form data before sending:", {
               )}
             </div>
             {/* Transportation Category */}
-            <div className="col-span-2">
+            {/* <div className="col-span-2">
               <label className="field-label">Transportation and Distribution Category</label>
               <Select
                 name="transportationCategory"
@@ -447,7 +449,18 @@ console.log("Form data before sending:", {
               {errors.transportationCategory && (
                 <p className="text-red-500 text-sm mt-1">{errors.transportationCategory}</p>
               )}
-            </div>
+            </div> */}
+            <div className="col-span-2">
+  <label className="field-label">Transportation and Distribution Category</label>
+  <div className="flex items-center h-10 px-3 border border-gray-300 rounded-md bg-gray-100">
+    Sold Goods
+  </div>
+  <input 
+    type="hidden" 
+    name="transportationCategory" 
+    value="Sold Goods" 
+  />
+</div>
 
             {/* Sold Product Activity Type */}
             <div>
@@ -591,8 +604,8 @@ console.log("Form data before sending:", {
             {/* Distance Travelled */}
             <div>
               <div className="flex items-center gap-2 ">
-                <label className="field-label">Distance Traveled</label>
-                <Tippy content="Please specify the distance traveled by the vehicle to transport / distribute the sold goods."
+                <label className="field-label">Distance travelled </label>
+                <Tippy content="Please specify the distance travelled by the vehicle to transport / distribute the sold goods."
                   placement="top">
                   <button
                     type="button"

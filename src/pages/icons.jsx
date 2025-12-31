@@ -110,7 +110,7 @@ const icons = [
   { name: "mdi:share-variant", label: "Scope 3" },
 
   { name: "heroicons:globe-alt", label: "Scope" },
-  { name: "heroicons:no-symbol", label: "Out of Scope" },
+  { name: "heroicons:no-symbol", label: "out of Scope" },
   { name: "heroicons:building-office", label: "Company" },
   { name: "heroicons:home-modern", label: "Building" },
   { name: "heroicons:fire", label: "Stationary Combustion" },

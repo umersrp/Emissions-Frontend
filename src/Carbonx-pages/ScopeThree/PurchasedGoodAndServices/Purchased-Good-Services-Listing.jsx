@@ -168,8 +168,16 @@ const fetchData = async () => {
       { Header: "Purchased Goods / Services Type", accessor: "purchasedGoodsServicesType", Cell: ({ value }) => capitalizeLabel(value)  },
       { Header: "Amount Spent", accessor: "amountSpent",Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Unit", accessor: "unit", Cell: ({ value }) => (value === "USD" ? "$" : value), },
-      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",Cell: ({ cell }) => cell.value || "N/A" },
-      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);}  },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);}  },
       { Header: "Quality Control", accessor: "qualityControl",Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A" },
         {
