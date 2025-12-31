@@ -140,8 +140,20 @@ const ProcessEmissionsListing = () => {
       { Header: "Gas Emitted", accessor: "gasEmitted" },
       { Header: "Amount Of Emissions", accessor: "amountOfEmissions" },
       { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", },
-      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", },
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",
+         Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);} 
+       },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",
+         Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);} 
+       },
             { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A"  },
 
       {

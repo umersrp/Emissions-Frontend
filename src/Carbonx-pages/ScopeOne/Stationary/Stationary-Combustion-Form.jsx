@@ -53,7 +53,7 @@ const StationaryCombustionFormPage = () => {
       return num.toExponential(5);
     }
     // For normal numbers, show up to 5 decimals without trailing zeros
-    return parseFloat(num.toFixed(5)).toString();
+    return parseFloat(num.toFixed(2)).toString();
   };
   const capitalizeFirstLetter = (text) => {
     if (!text) return "";
@@ -119,6 +119,10 @@ const StationaryCombustionFormPage = () => {
             : null,
           fuelConsumption: data.fuelConsumption || "",
           remarks: data.remarks || "",
+          calculatedEmissionKgCo2e: data.calculatedEmissionKgCo2e || "",
+          calculatedEmissionTCo2e: data.calculatedEmissionTCo2e || "",
+          calculatedBioEmissionKgCo2e: data.calculatedBioEmissionKgCo2e || "",
+          calculatedBioEmissionTCo2e: data.calculatedBioEmissionTCo2e || "",
         });
       } catch (err) {
         console.error(err);
@@ -172,10 +176,10 @@ const StationaryCombustionFormPage = () => {
       ].map((u) => ({ value: u, label: u }))
       : fuelUnitOptionsByName.default.map((u) => ({ value: u, label: u }));
 
-    const handleNumberInputWheel = (e) => {
-  e.target.blur(); 
-  e.preventDefault(); // Add this to prevent scroll changing value
-};
+  const handleNumberInputWheel = (e) => {
+    e.target.blur();
+    e.preventDefault(); // Add this to prevent scroll changing value
+  };
 
   // --- Validation ---
   const validate = () => {

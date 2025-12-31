@@ -426,12 +426,13 @@ const primary900 = "#4097ab7a";
 // };
 const capitalizeLabel = (text) => {
   if (!text) return "";
+  
 
   const exceptions = [
     "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
     "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
     "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
-    "n.e.c.", "cc", "cc+"
+    "n.e.c.", "cc", "cc+",
   ];
 
   // Special handling for "a" - we'll preserve its original case
@@ -461,8 +462,9 @@ const capitalizeLabel = (text) => {
       }
       // Exception words (excluding "a" which we already handled)
       else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
-        result = lowerCore;
+       result = lowerCore;
       }
+      
       // Normal capitalization
       else {
         result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);

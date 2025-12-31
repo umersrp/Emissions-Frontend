@@ -58,7 +58,7 @@ export const soldGoodsTypeMapping = {
     { value: "Paper and paper products", label: "Paper and paper products" },
     { value: "Rubber and plastic products", label: "Rubber and plastic products" },
     { value: "Weapons and ammunition", label: "Weapons and ammunition" },
-    { value: "Plastic/Polymer products", label: "Plastic/Polymer products" },
+    { value: "Plastic / Polymer products", label: "Plastic / Polymer products" },
     { value: "Metal Foils", label: "Metal Foils" },
   ],
 

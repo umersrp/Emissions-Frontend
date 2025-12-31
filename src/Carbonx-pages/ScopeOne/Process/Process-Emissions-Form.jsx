@@ -154,7 +154,7 @@ const ProcessEmissionsFormPage = () => {
 
         if (result) {
           const formatEmission = (num) => {
-            const rounded = Number(num.toFixed(5));
+            const rounded = Number(num.toFixed(2));
             if (
               rounded !== 0 &&
               (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)
@@ -183,7 +183,7 @@ const ProcessEmissionsFormPage = () => {
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
       const formatEmission = (num) => {
-        const rounded = Number(num.toFixed(5));
+        const rounded = Number(num.toFixed(2));
         if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
           return rounded.toExponential(5);
         }

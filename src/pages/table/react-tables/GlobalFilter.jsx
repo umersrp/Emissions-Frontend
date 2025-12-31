@@ -46,7 +46,7 @@ const GlobalFilter = ({ filter, setFilter }) => {
 
   return (
     <div>
-      <Textinput value={value} onChange={onChange} placeholder="search..." />
+      <Textinput value={value} onChange={onChange} placeholder="Search..." />
     </div>
   );
 };
