@@ -159,7 +159,7 @@ const DownstreamTransportationListing = () => {
         Cell: ({ value }) => capitalizeLabel(value) || "N/A"
       },
       {
-        Header: "Vehicle Category",
+        Header: "Transportation Vehicle Category",
         accessor: "transportationVehicleCategory",
         Cell: ({ value }) => {
           if (!value) return "N/A";
@@ -174,7 +174,7 @@ const DownstreamTransportationListing = () => {
         }
       },
       {
-        Header: "Vehicle Type",
+        Header: "Transportation Vehicle Type",
         accessor: "transportationVehicleType",
         Cell: ({ value }) => capitalizeLabel(value) || "N/A"
       },
@@ -200,12 +200,20 @@ const DownstreamTransportationListing = () => {
         {
         Header: "Calculated Emissions (kgCO₂e)",
         accessor: "calculatedEmissionKgCo2e",
-        Cell: ({ value }) => value || "N/A"
+         Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);} 
       },
       {
         Header: "Calculated Emissions (tCO₂e)",
         accessor: "calculatedEmissionTCo2e",
-        Cell: ({ value }) => value || "N/A"
+         Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);} 
       },
       {
         Header: "Remarks",

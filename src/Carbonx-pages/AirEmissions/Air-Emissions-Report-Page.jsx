@@ -279,7 +279,7 @@
 //         initial={{ opacity: 0, scale: 0.95 }}
 //         animate={{ opacity: 1, scale: 1 }}
 //       >
-//         <h2 className="text-2xl font-semibold mb-2 text-white">Total Out of Scope/ Other Air Emission</h2>
+//         <h2 className="text-2xl font-semibold mb-2 text-white">Total out of Scope/ Other Air Emission</h2>
 //         {/* <p className="text-xl font-bold text-white">
 //           {loading ? "Loading..." : `${formatNumber(totalEmission.kg)} kg CO₂e | ${formatNumber(totalEmission.t)} t CO₂e`}
 //         </p> */}
@@ -511,7 +511,7 @@ const AirEmissionReportPage = () => {
   const [tableFilter, setTableFilter] = useState("all"); // dropdown for table
 
   const emissionOptions = [
-    { value: "all", label: "All Out-of-Scope" },
+    { value: "all", label: "All out of Scope" },
     // { value: "nonKyoto", label: "Non Kyoto Gases" },
     { value: "nonKyotoCombined", label: "Non Kyoto protocol / Other Gases Emissions" },
     { value: "vocs", label: "VOCs" },
@@ -520,10 +520,10 @@ const AirEmissionReportPage = () => {
 
   // Function to analyze biogenic data
   const analyzeBiogenicData = () => {
-    console.group("🔍 BIOGENIC EMISSIONS ANALYSIS");
+    console.group(" BIOGENIC EMISSIONS ANALYSIS");
     
     // 1. Stationary (BioData) Analysis
-    console.group("📊 STATIONARY EMISSIONS (BioData):");
+    console.group(" STATIONARY EMISSIONS (BioData):");
     console.log(`Total records: ${bioData.length}`);
     
     const stationaryByBuilding = {};
@@ -552,7 +552,7 @@ const AirEmissionReportPage = () => {
     
     console.log(`Buildings with stationary emissions: ${Object.keys(stationaryByBuilding).length}`);
     Object.entries(stationaryByBuilding).forEach(([building, data]) => {
-      console.log(`🏢 ${building}: ${data.records.length} records, ${formatNumber(data.totalKg)} kg, ${formatNumber(data.totalT)} t`);
+      console.log(` ${building}: ${data.records.length} records, ${formatNumber(data.totalKg)} kg, ${formatNumber(data.totalT)} t`);
       console.log("Records:", data.records);
     });
     
@@ -563,7 +563,7 @@ const AirEmissionReportPage = () => {
     console.groupEnd();
     
     // 2. Process Emissions Analysis (Biogenic Activities)
-    console.group("📊 PROCESS EMISSIONS (Biogenic Activities):");
+    console.group(" PROCESS EMISSIONS (Biogenic Activities):");
     const biogenicProcessRecords = processData.filter(item => 
       BIOGENIC_ACTIVITIES.includes((item.activityType || "").trim())
     );
@@ -599,7 +599,7 @@ const AirEmissionReportPage = () => {
     
     console.log(`Buildings with biogenic process emissions: ${Object.keys(processByBuilding).length}`);
     Object.entries(processByBuilding).forEach(([building, data]) => {
-      console.log(`🏢 ${building}: ${data.records.length} records, ${formatNumber(data.totalKg)} kg, ${formatNumber(data.totalT)} t`);
+      console.log(` ${building}: ${data.records.length} records, ${formatNumber(data.totalKg)} kg, ${formatNumber(data.totalT)} t`);
       console.log("Records by activity:", data.records.map(r => ({
         activity: r.activityType,
         kg: formatNumber(r.emissionKg),
@@ -614,7 +614,7 @@ const AirEmissionReportPage = () => {
     console.groupEnd();
     
     // 3. Combined Biogenic Analysis
-    console.group("🔗 COMBINED BIOGENIC ANALYSIS:");
+    console.group(" COMBINED BIOGENIC ANALYSIS:");
     
     // Get all unique buildings from both sources
     const allBuildings = new Set([
@@ -642,13 +642,13 @@ const AirEmissionReportPage = () => {
       combinedTotalKg += buildingTotalKg;
       combinedTotalT += buildingTotalT;
       
-      console.log(`🏢 ${building}:`);
+      console.log(` ${building}:`);
       console.log(`   Stationary: ${stationary.records.length} records, ${formatNumber(stationary.totalKg)} kg`);
       console.log(`   Process: ${process.records.length} records, ${formatNumber(process.totalKg)} kg`);
       console.log(`   Total: ${buildingRecords} records, ${formatNumber(buildingTotalKg)} kg, ${formatNumber(buildingTotalT)} t`);
     });
     
-    console.log(`📈 GRAND TOTALS:`);
+    console.log(` GRAND TOTALS:`);
     console.log(`   Total Records: ${combinedRecords}`);
     console.log(`   Stationary Contribution: ${formatNumber(stationaryTotalKg)} kg (${stationaryTotalKg > 0 ? ((stationaryTotalKg/combinedTotalKg)*100).toFixed(1) : 0}%)`);
     console.log(`   Process Contribution: ${formatNumber(processTotalKg)} kg (${processTotalKg > 0 ? ((processTotalKg/combinedTotalKg)*100).toFixed(1) : 0}%)`);
@@ -804,7 +804,7 @@ const AirEmissionReportPage = () => {
     const biogenicTotal = biogenicFromStationary + biogenicFromProcess;
 
     // Log biogenic breakdown
-    console.log("📋 Biogenic Breakdown:");
+    console.log(" Biogenic Breakdown:");
     console.log(`  From Stationary: ${formatNumber(biogenicFromStationary)} kg`);
     console.log(`  From Process: ${formatNumber(biogenicFromProcess)} kg`);
     console.log(`  Total: ${formatNumber(biogenicTotal)} kg`);
@@ -935,7 +935,7 @@ const AirEmissionReportPage = () => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
       >
-        <h2 className="text-2xl font-semibold mb-2 text-white">Total Out of Scope/ Other Air Emission</h2>
+        <h2 className="text-2xl font-semibold mb-2 text-white">Total out of Scope/ Other Air Emission</h2>
         {/* <p className="text-xl font-bold text-white">
           {loading ? "Loading..." : `${formatNumber(totalEmission.kg)} kg CO₂e | ${formatNumber(totalEmission.t)} t CO₂e`}
         </p> */}
@@ -972,7 +972,9 @@ const AirEmissionReportPage = () => {
       {/* Building-wise Table with Dropdown */}
       <Card>
         <div className="flex justify-between items-center mb-4">
-          <h6 className="text-gray-800 font-semibold">Building Emissions (Out-of-Scope)</h6>
+          <h6 className="text-gray-800 font-semibold">
+           {emissionOptions.find(opt => opt.value === tableFilter)?.label || "out-of-Scope"} Emissions (Building-Wise)
+          </h6>
           <div className="w-64">
             <Select
               options={emissionOptions}
