@@ -286,12 +286,12 @@
 //   isDisabled = false,
 //   allowCustomInput = false,
 
-//   // ⭐ NEW PROP
+//   // NEW PROP
 //   disableCapitalize = false,
 // }) => {
 //   const [localOptions, setLocalOptions] = useState([]);
 
-//   // ⭐ Apply capitalization conditionally
+//   //  Apply capitalization conditionally
 //   useEffect(() => {
 //     if (disableCapitalize) {
 //       setLocalOptions(options); // keep EXACT labels
@@ -368,8 +368,6 @@
 
 // export default CustomSelect;
 
-
-
 import React, { useState, useEffect, useMemo } from "react";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
@@ -378,47 +376,66 @@ import { components } from "react-select";
 const primary500 = "#4098ab";
 const primary900 = "#4097ab7a";
 
-
 // const capitalizeLabel = (text) => {
 //   if (!text) return "";
 
 //   const exceptions = [
 //     "and","or","in","of","from","at","to","the","a","an","for","on","with",
 //     "but","by","is","it","as","be","this","that","these","those","such",
-//     "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","On-site"
+//     "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
+//     "n.e.c.","cc","cc+"
 //   ];
 
 //   return text
 //     .split(" ")
 //     .map((word, index) => {
-//       const hasParen = word.startsWith("(");
-//       const cleanWord = hasParen ? word.slice(1) : word;
-//       // First word always capitalized (even if exception)
-//       if (index === 0) {
-//         const cap = cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1);
-//         return hasParen ? "(" + cap : cap;
+//       const hasOpenParen = word.startsWith("(");
+//       const hasCloseParen = word.endsWith(")");
+
+//       let coreWord = word;
+//       if (hasOpenParen) coreWord = coreWord.slice(1);
+//       if (hasCloseParen) coreWord = coreWord.slice(0, -1);
+
+//       const lowerCore = coreWord.toLowerCase();
+//       let result;
+
+//       // 🔥 Special rule for "it" at first position
+//       if (index === 0 && lowerCore === "it") {
+//         result = "IT";
 //       }
-      
-//       // Exception words ALWAYS lowercase
-//       if (exceptions.includes(cleanWord.toLowerCase())) {
-//         return hasParen ? "(" + cleanWord.toLowerCase() : cleanWord.toLowerCase();
+//       // First word general rule
+//       else if (index === 0) {
+//         result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
 //       }
-//       // Default capitalization
-//       const cap = cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1);
-//       return hasParen ? "(" + cap : cap;
+//       // Exception words in middle
+//       else if (exceptions.includes(lowerCore)) {
+//         result = lowerCore;
+//       }
+//       // Normal capitalization
+//       else {
+//         result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+//       }
+
+//       // Reattach parentheses
+//       if (hasOpenParen) result = "(" + result;
+//       if (hasCloseParen) result = result + ")";
+
+//       return result;
 //     })
 //     .join(" ");
 // };
 const capitalizeLabel = (text) => {
   if (!text) return "";
+  
 
   const exceptions = [
-    "and","or","in","of","from","at","to","the","a","an","for","on","with",
-    "but","by","is","it","as","be","this","that","these","those","such",
-    "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
-    "n.e.c."
+    "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+    "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+    "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+    "n.e.c.", "cc", "cc+",
   ];
 
+  // Special handling for "a" - we'll preserve its original case
   return text
     .split(" ")
     .map((word, index) => {
@@ -431,24 +448,27 @@ const capitalizeLabel = (text) => {
 
       const lowerCore = coreWord.toLowerCase();
       let result;
-
-      // 🔥 Special rule for "it" at first position
-      if (index === 0 && lowerCore === "it") {
-        result = "IT";
+      //  SPECIAL RULE: If word is "a" or "A", preserve original case
+      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
+        result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
       }
-      // First word general rule
+      // Single letters (except "a" already handled)
+      else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
+        result = coreWord.toUpperCase();
+      }
+      // First word
       else if (index === 0) {
         result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
       }
-      // Exception words in middle
-      else if (exceptions.includes(lowerCore)) {
-        result = lowerCore;
+      // Exception words (excluding "a" which we already handled)
+      else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
+       result = lowerCore;
       }
+      
       // Normal capitalization
       else {
         result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
       }
-
       // Reattach parentheses
       if (hasOpenParen) result = "(" + result;
       if (hasCloseParen) result = result + ")";
@@ -457,49 +477,6 @@ const capitalizeLabel = (text) => {
     })
     .join(" ");
 };
-
-// const capitalizeLabel = (text) => {
-//   if (!text) return "";
-
-//   const exceptions = [
-//     "and","or","in","of","from","at","to","the","a","an","for","on","with",
-//     "but","by","is","it","as","be","this","that","these","those","such",
-//     "if","e.g.,","i.e.","kg","via","etc.","vs.","per","e.g.","on-site","can","will","not","cause","onsite",
-//     "n.e.c."
-//   ];
-
-//   return text   
-//     .split(" ")
-//     .map((word, index) => {
-//       const hasOpenParen = word.startsWith("(");
-//       const hasCloseParen = word.endsWith(")");
-
-//       let coreWord = word;
-//       if (hasOpenParen) coreWord = coreWord.slice(1);
-//       if (hasCloseParen) coreWord = coreWord.slice(0, -1);
-
-//       const lowerCore = coreWord.toLowerCase();
-
-//       // First word rule
-//       let result;
-//       if (index === 0) {
-//         result = exceptions.includes(lowerCore)
-//           ? lowerCore
-//           : coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
-//       } else if (exceptions.includes(lowerCore)) {
-//         result = lowerCore;
-//       } else {
-//         result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
-//       }
-
-//       // Reattach parentheses
-//       if (hasOpenParen) result = "(" + result;
-//       if (hasCloseParen) result = result + ")";
-
-//       return result;
-//     })
-//     .join(" ");
-// };
 
 const customStyles = {
   control: (base, state) => ({
@@ -550,7 +527,7 @@ const customStyles = {
   }),
   placeholder: (base, state) => ({
     ...base,
-    color: state.isDisabled ? "#9ca3af" : "#6b7280",
+    color: state.isDisabled ? "#9CA3AF" : "#6B7280",
   }),
 };
 

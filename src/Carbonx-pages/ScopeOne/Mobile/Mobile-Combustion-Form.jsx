@@ -16,6 +16,7 @@ import {
   weightLoadedOptions,
 } from "@/constant/scope1/options";
 import { calculateMobileCombustion } from "@/utils/scope1/calculate-mobile-combuction";
+import InputGroup from "@/components/ui/InputGroup";
 
 
 const MobileCombustionFormPage = () => {
@@ -200,7 +201,7 @@ const MobileCombustionFormPage = () => {
     if (!formData.vehicleClassification) newErrors.vehicleClassification = "Vehicle Classification is required";
     if (!formData.vehicleType) newErrors.vehicleType = "Vehicle Type is required";
     if (!formData.fuelName) newErrors.fuelName = "Fuel Name is required";
-    if (!formData.distanceTraveled) newErrors.distanceTraveled = "Distance Traveled is required";
+    if (!formData.distanceTraveled) newErrors.distanceTraveled = "Distance Travelled is required";
     if (!formData.distanceUnit) newErrors.distanceUnit = "Distance Unit is required";
     if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
     if (formData.distanceTraveled && Number(formData.distanceTraveled) < 0) {
@@ -227,8 +228,8 @@ const MobileCombustionFormPage = () => {
       isHGV ? formData.weightLoaded?.value || formData.weightLoaded : null
     );
 
-    const calculatedEmissionKgCo2e = result ? Number(result.totalEmissionKg.toFixed(5)) : 0;
-    const calculatedEmissionTCo2e = result ? Number(result.totalEmissionTonnes.toFixed(5)) : 0;
+    const calculatedEmissionKgCo2e = result ? Number(result.totalEmissionKg.toFixed(2)) : 0;
+    const calculatedEmissionTCo2e = result ? Number(result.totalEmissionTonnes.toFixed(2)) : 0;
 
     //   Merge updated values into formData before sending
     const payload = {
@@ -306,8 +307,8 @@ const MobileCombustionFormPage = () => {
       //  Update formData with calculated emissions
       setFormData((prev) => ({
         ...prev,
-        calculatedEmissionKgCo2e: parseFloat(result.totalEmissionKg.toFixed(5)),
-        calculatedEmissionTCo2e: parseFloat(result.totalEmissionTonnes.toFixed(5)),
+        calculatedEmissionKgCo2e: parseFloat(result.totalEmissionKg.toFixed(2)),
+        calculatedEmissionTCo2e: parseFloat(result.totalEmissionTonnes.toFixed(2)),
       }));
 
       //  Show formatted toast
@@ -364,10 +365,10 @@ const MobileCombustionFormPage = () => {
               {errors.fuelName && <p className="text-red-500 text-sm mt-1">{errors.fuelName}</p>}
             </div>
 
-            {/* Distance Traveled */}
+            {/* Distance travelled */}
             <div>
               <label className="field-label">Distance Travelled</label>
-              <input type="number" name="distanceTraveled" onWheel={handleNumberInputWheel} value={formData.distanceTraveled} onChange={handleInputChange} placeholder="Enter distance travelled" className="input-field" disabled={isView} />
+              <InputGroup type="number" name="distanceTraveled" onWheel={handleNumberInputWheel} value={formData.distanceTraveled} onChange={handleInputChange} placeholder="Enter distance travelled" className="input-field" disabled={isView} />
               {errors.distanceTraveled && <p className="text-red-500 text-sm mt-1">{errors.distanceTraveled}</p>}
             </div>
 
@@ -405,7 +406,7 @@ const MobileCombustionFormPage = () => {
           {/* Remarks */}
           <div>
             <label className="field-label">Remark</label>
-            <textarea name="remarks" value={formData.remarks} onChange={handleInputChange} rows={3} placeholder="Remarks..." className="border p-2 rounded-md w-full" disabled={isView} />
+            <InputGroup type="textarea" name="remarks" value={formData.remarks} onChange={handleInputChange} rows={3} placeholder="Enter Remarks" className="border-[2px] border-gray-400 rounded-md" disabled={isView} />
           </div>
 
           {/* Buttons */}

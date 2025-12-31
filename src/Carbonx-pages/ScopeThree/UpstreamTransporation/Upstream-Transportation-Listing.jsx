@@ -154,7 +154,7 @@ const UpstreamTransportationListing = () => {
         }
       },
       {
-        Header: "Activity Type",
+        Header: "Purchased Product Activity Type",
         accessor: "activityType",
         Cell: ({ value }) => {
           if (!value) return "N/A";
@@ -166,12 +166,12 @@ const UpstreamTransportationListing = () => {
         }
       },
       {
-        Header: "Goods Type",
+        Header: "Purchased Goods Type",
         accessor: "purchasedGoodsType",
         Cell: ({ value }) => capitalizeLabel(value)
       },
       {
-        Header: "Vehicle Category",
+        Header: "Transportation Vehicle Category",
         accessor: "vehicleCategory",
         Cell: ({ value }) => {
           if (!value) return "N/A";
@@ -186,19 +186,19 @@ const UpstreamTransportationListing = () => {
         }
       },
       {
-        Header: "Vehicle Type",
+        Header: "Transportation Vehicle Type",
         accessor: "vehicleType",
         Cell: ({ value }) => capitalizeLabel(value)
       },
       {
         Header: "Weight Loaded",
         accessor: "weightLoaded",
-        Cell: ({ value }) => value ? `${value} tonnes` : "N/A"
+        Cell: ({ value }) => value || "N/A"
       },
       {
         Header: "Distance Travelled",
         accessor: "distanceTravelled",
-        Cell: ({ value }) => value ? `${value} km` : "N/A"
+        Cell: ({ value }) => value || "N/A"
       },
       {
         Header: "Amount Spent",
@@ -223,12 +223,20 @@ const UpstreamTransportationListing = () => {
       {
         Header: "Calculated Emissions (kgCO₂e)",
         accessor: "calculatedEmissionKgCo2e",
-        Cell: ({ value }) => value || "N/A"
+         Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);} 
       },
       {
         Header: "Calculated Emissions (tCO₂e)",
         accessor: "calculatedEmissionTCo2e",
-        Cell: ({ value }) => value || "N/A"
+         Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);} 
       },
       {
         Header: "Remarks",

@@ -135,8 +135,16 @@ const WasteGeneratedListing = () => {
       { Header: "Waste Treatment Method", accessor: "wasteTreatmentMethod", Cell: ({ value }) => capitalizeLabel(value) },
       { Header: "Unit", accessor: "unit", Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Total Waste Quantity", accessor: "totalWasteQty", Cell: ({ cell }) => cell.value || "N/A" },
-      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", Cell: ({ cell }) => cell.value || "N/A" },
-      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",  Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);}  },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",  Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);}  },
       { Header: "Quality Control", accessor: "qualityControl", Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => cell.value || "N/A" },
       {
@@ -245,7 +253,7 @@ const WasteGeneratedListing = () => {
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0 ">Waste Generated In Operation Records</h6>
+          <h6 className="flex-1 md:mb-0 ">Waste Generated in Operation Records</h6>
 
           <div className="md:flex md:space-x-3 items-center">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />

@@ -13,6 +13,7 @@ import { stakeholderOptions, units, } from "@/constant/scope3/options";
 import Spinner from "@/components/ui/spinner";
 import Swicth from "@/components/ui/Switch";
 import { calculateFuelAndEnergy } from "@/utils/Scope3/calculateFuelAndEnergy";
+import InputGroup from "@/components/ui/InputGroup";
 
 const FuelEnergyForm = () => {
     const navigate = useNavigate();
@@ -28,9 +29,9 @@ const FuelEnergyForm = () => {
         stakeholder: null,
         fuelType: null,
         fuel: null,
-        totalFuelConsumption: null,
+        totalFuelConsumption: "",
         fuelConsumptionUnit: null,
-        totalGrossElectricityPurchased: null,
+        totalGrossElectricityPurchased: "",
         unit: null,
         qualityControl: null,
         remarks: "",
@@ -96,7 +97,7 @@ const FuelEnergyForm = () => {
                     trainDistanceKm: Number(formData.trainDistanceKm),
                     trainType: formData.trainType,
                 });
-                   
+
                 // toast.info(
                 //     `Emission: ${emission.totalEmissions_KgCo2e.toFixed(2)} kg CO2e (${emission.totalEmissions_TCo2e.toFixed(2)} t CO2e)`,
                 //     { autoClose: 2000 }
@@ -129,7 +130,7 @@ const FuelEnergyForm = () => {
         return text.charAt(0).toUpperCase() + text.slice(1);
     };
     const formatEmission = (num) => {
-        const rounded = Number(num.toFixed(5));
+        const rounded = Number(num.toFixed(2));
         if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
             return rounded.toExponential(5);
         }
@@ -368,9 +369,77 @@ const FuelEnergyForm = () => {
             setShowToggleError(false);
         }
     }, [toggleOptions]);
+
     // Validation
-    // Validation
-    // Validation
+    // const validate = () => {
+    //     const newErrors = {};
+
+    //     // Basic field validations
+    //     if (!formData.buildingId) newErrors.buildingId = "Building is required";
+    //     if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder/Department is required";
+    //     if (!formData.fuel) newErrors.fuel = "Fuel is required";
+    //     if (!formData.fuelConsumptionUnit) newErrors.fuelConsumptionUnit = "Fuel consumption unit is required";
+    //     if (!formData.fuelType) newErrors.fuelType = "Fuel type is required";
+    //     if (!formData.totalFuelConsumption) newErrors.totalFuelConsumption = "Total fuel consumption is required";
+    //     if (!formData.totalGrossElectricityPurchased) newErrors.totalGrossElectricityPurchased = "Total gross electricity purchased is required";
+    //     if (!formData.unit) newErrors.unit = "Unit is required";
+    //     if (!formData.qualityControl) newErrors.qualityControl = "Quality control is required";
+
+    //     // Validate for negative values (only if field has a value)
+    //     const numberFields = ['totalFuelConsumption', 'totalGrossElectricityPurchased', 'airPassengers',
+    //         'airDistanceKm', 'taxiPassengers', 'taxiDistanceKm', 'busPassengers',
+    //         'busDistanceKm', 'trainPassengers', 'trainDistanceKm'];
+
+    //     numberFields.forEach(field => {
+    //         if (formData[field] && Number(formData[field]) < 0) {
+    //             newErrors[field] = "Value cannot be negative.";
+    //         }
+    //     });
+
+    //     // Check if at least one travel toggle is selected
+    //     const anyTravelSelected = Object.values(toggleOptions).some(value => value === true);
+
+    //     // Show/hide toggle error
+    //     if (!anyTravelSelected) {
+    //         setShowToggleError(true);
+    //     } else {
+    //         setShowToggleError(false);
+    //     }
+
+    //     // Validate opened toggle fields
+    //     if (toggleOptions.didTravelByAir) {
+    //         if (!formData.airPassengers) newErrors.airPassengers = "Number of passengers is required";
+    //         if (!formData.airDistanceKm) newErrors.airDistanceKm = "Distance is required";
+    //         if (!formData.airFlightType) newErrors.airFlightType = "Flight type is required";
+    //         if (!formData.airTravelClass) newErrors.airTravelClass = "Travel class is required";
+    //     }
+
+    //     if (toggleOptions.didTravelByTaxi) {
+    //         if (!formData.taxiPassengers) newErrors.taxiPassengers = "Number of passengers is required";
+    //         if (!formData.taxiDistanceKm) newErrors.taxiDistanceKm = "Distance is required";
+    //         if (!formData.taxiType) newErrors.taxiType = "Taxi type is required";
+    //     }
+
+    //     if (toggleOptions.didTravelByBus) {
+    //         if (!formData.busPassengers) newErrors.busPassengers = "Number of passengers is required";
+    //         if (!formData.busDistanceKm) newErrors.busDistanceKm = "Distance is required";
+    //         if (!formData.busType) newErrors.busType = "Bus type is required";
+    //     }
+
+    //     if (toggleOptions.didTravelByTrain) {
+    //         if (!formData.trainPassengers) newErrors.trainPassengers = "Number of passengers is required";
+    //         if (!formData.trainDistanceKm) newErrors.trainDistanceKm = "Distance is required";
+    //         if (!formData.trainType) newErrors.trainType = "Train type is required";
+    //     }
+
+    //     setErrors(newErrors);
+
+    //     // Form is valid only if:
+    //     // 1. No field errors
+    //     // 2. At least one travel toggle is selected
+    //     // 3. All opened toggle fields are filled
+    //     return Object.keys(newErrors).length === 0 && anyTravelSelected;
+    // };
     const validate = () => {
         const newErrors = {};
 
@@ -378,12 +447,45 @@ const FuelEnergyForm = () => {
         if (!formData.buildingId) newErrors.buildingId = "Building is required";
         if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder/Department is required";
         if (!formData.fuel) newErrors.fuel = "Fuel is required";
-        if (!formData.fuelConsumptionUnit) newErrors.fuelConsumptionUnit = "Fuel consumption unit is required";
+        // if (!formData.fuelConsumptionUnit) newErrors.fuelConsumptionUnit = "Fuel consumption unit is required";
         if (!formData.fuelType) newErrors.fuelType = "Fuel type is required";
-        if (!formData.totalFuelConsumption) newErrors.totalFuelConsumption = "Total fuel consumption is required";
-        if (!formData.totalGrossElectricityPurchased) newErrors.totalGrossElectricityPurchased = "Total gross electricity purchased is required";
-        if (!formData.unit) newErrors.unit = "Unit is required";
+        // if (!formData.unit) newErrors.unit = "Unit is required";
         if (!formData.qualityControl) newErrors.qualityControl = "Quality control is required";
+
+        // Validate totalFuelConsumption and totalGrossElectricityPurchased
+        // Show error only if BOTH are empty
+        // const isFuelConsumptionEmpty = !formData.totalFuelConsumption || formData.totalFuelConsumption === '';
+        // const isElectricityPurchasedEmpty = !formData.totalGrossElectricityPurchased || formData.totalGrossElectricityPurchased === '';
+
+        // if (isFuelConsumptionEmpty && isElectricityPurchasedEmpty) {
+        //     newErrors.totalFuelConsumption = "Either total fuel consumption or total gross electricity purchased is required";
+        //     newErrors.totalGrossElectricityPurchased = "Either total fuel consumption or total gross electricity purchased is required";
+        // }
+        // NEW LOGIC: Conditionally validate fuel consumption unit
+        const isFuelConsumptionFilled = formData.totalFuelConsumption && formData.totalFuelConsumption !== '';
+        const isElectricityPurchasedFilled = formData.totalGrossElectricityPurchased && formData.totalGrossElectricityPurchased !== '';
+
+        // Rule 1: If fuel consumption is filled, its unit is required
+        if (isFuelConsumptionFilled && !formData.fuelConsumptionUnit) {
+            newErrors.fuelConsumptionUnit = "Fuel consumption unit is required";
+        }
+
+        // Rule 2: If electricity purchased is filled, its unit is required
+        if (isElectricityPurchasedFilled && !formData.unit) {
+            newErrors.unit = "Unit is required";
+        }
+
+        // Rule 3: At least one of fuel consumption OR electricity purchased must be filled
+        if (!isFuelConsumptionFilled && !isElectricityPurchasedFilled) {
+            // Show error on both fields when both are empty
+            newErrors.totalFuelConsumption = "Either total fuel consumption or total purchased electricity is required";
+            newErrors.totalGrossElectricityPurchased = "Either total fuel consumption or total purchased electricity is required";
+        } else {
+            // If at least one is filled, ensure we DON'T show errors on these fields
+            // This is the key fix: explicitly remove the errors when condition is satisfied
+            delete newErrors.totalFuelConsumption;
+            delete newErrors.totalGrossElectricityPurchased;
+        }
 
         // Validate for negative values (only if field has a value)
         const numberFields = ['totalFuelConsumption', 'totalGrossElectricityPurchased', 'airPassengers',
@@ -391,22 +493,16 @@ const FuelEnergyForm = () => {
             'busDistanceKm', 'trainPassengers', 'trainDistanceKm'];
 
         numberFields.forEach(field => {
-            if (formData[field] && Number(formData[field]) < 0) {
+            // Only validate if field has a value (not empty string)
+            if (formData[field] !== undefined && formData[field] !== '' && Number(formData[field]) < 0) {
                 newErrors[field] = "Value cannot be negative.";
             }
         });
 
-        // Check if at least one travel toggle is selected
-        const anyTravelSelected = Object.values(toggleOptions).some(value => value === true);
+        // Toggles are now optional, so remove the toggle error logic
+        setShowToggleError(false);
 
-        // Show/hide toggle error
-        if (!anyTravelSelected) {
-            setShowToggleError(true);
-        } else {
-            setShowToggleError(false);
-        }
-
-        // Validate opened toggle fields
+        // Validate opened toggle fields only if the toggle is selected
         if (toggleOptions.didTravelByAir) {
             if (!formData.airPassengers) newErrors.airPassengers = "Number of passengers is required";
             if (!formData.airDistanceKm) newErrors.airDistanceKm = "Distance is required";
@@ -434,11 +530,9 @@ const FuelEnergyForm = () => {
 
         setErrors(newErrors);
 
-        // Form is valid only if:
-        // 1. No field errors
-        // 2. At least one travel toggle is selected
-        // 3. All opened toggle fields are filled
-        return Object.keys(newErrors).length === 0 && anyTravelSelected;
+        // Form is valid only if there are no field errors
+        // Note: At least one travel toggle is no longer required
+        return Object.keys(newErrors).length === 0;
     };
     // Submit
     const handleSubmit = async (e) => {
@@ -488,6 +582,19 @@ const FuelEnergyForm = () => {
             trainDistanceKm: Number(formData.trainDistanceKm),
             trainType: formData.trainType,
         });
+        const handleEmptyValue = (value) => {
+            // If value is empty string, return empty string instead of null
+            if (value === "" || value === null || value === undefined) {
+                return ""; // Send empty string instead of null
+            }
+            // If value is 0 (as string or number), return 0
+            if (value === 0 || value === "0") {
+                return 0;
+            }
+            // Try to convert to number, but only if it's a valid number
+            const num = Number(value);
+            return isNaN(num) ? "" : num; // Return empty string for invalid numbers
+        };
 
         // Prepare payload
         const payload = {
@@ -495,9 +602,11 @@ const FuelEnergyForm = () => {
             stakeholder: formData.stakeholder?.value,
             fuelType,
             fuel: fuelName,
-            totalFuelConsumption: inputValue,
+            // totalFuelConsumption: inputValue,
+            totalFuelConsumption: formData.totalFuelConsumption === "" ? null : Number(formData.totalFuelConsumption),
             fuelConsumptionUnit: inputUnit,
-            totalGrossElectricityPurchased: electricityValue,
+            // totalGrossElectricityPurchased: electricityValue,
+            totalGrossElectricityPurchased: formData.totalGrossElectricityPurchased === "" ? null : handleEmptyValue(formData.totalGrossElectricityPurchased),
             unit: electricityUnit,
             qualityControl: formData.qualityControl?.value,
             remarks: capitalizeFirstLetter(formData.remarks),
@@ -559,7 +668,7 @@ const FuelEnergyForm = () => {
     };
     return (
         <div>
-            <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Fuel & Energy Record`}>
+            <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Fuel and Energy Related Activity Record`}>
                 <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
                     <p className="text-gray-700">
                         This category includes emissions related to the production of fuels and energy purchased and consumed by the reporting company in the reporting year that are not included in scope 1 or scope 2.</p>
@@ -573,7 +682,7 @@ const FuelEnergyForm = () => {
                         {/* Building and Stakeholder */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="field-label">Site / Building Name *</label>
+                                <label className="field-label">Site / Building Name <span className="text-red-500">*</span></label>
                                 <CustomSelect
                                     name="buildingId"
                                     options={buildingOptions}
@@ -585,7 +694,7 @@ const FuelEnergyForm = () => {
                                 {errors.buildingId && <p className="text-red-500 text-sm mt-2">{errors.buildingId}</p>}
                             </div>
                             <div>
-                                <label className="field-label">Stakeholder / Department *</label>
+                                <label className="field-label">Stakeholder / Department <span className="text-red-500">*</span></label>
                                 <CustomSelect
                                     name="stakeholder"
                                     options={stakeholderOptions}
@@ -600,7 +709,7 @@ const FuelEnergyForm = () => {
                         {/* Purchase Category and Fuel */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="field-label">Fuel Types *</label>
+                                <label className="field-label">Fuel Types <span className="text-red-500">*</span></label>
                                 <CustomSelect
                                     name="fuelType"
                                     options={fuelEnergyTypes}
@@ -627,13 +736,13 @@ const FuelEnergyForm = () => {
                             </div>
 
                             <div>
-                                <label className="field-label">Fuel *</label>
+                                <label className="field-label">Fuel Name <span className="text-red-500">*</span></label>
                                 <CustomSelect
                                     name="fuel"
                                     options={fuel}
                                     value={formData.fuel}
                                     onChange={(value) => handleSelectChange("fuel", value)}
-                                    placeholder="Select Fuel"
+                                    placeholder="Select Fuel Name"
                                     isDisabled={isView}
                                 />
                                 {errors.fuel && <p className="text-red-500 text-sm mt-2">{errors.fuel}</p>}
@@ -642,9 +751,9 @@ const FuelEnergyForm = () => {
                         {/* Amount Spent and Unit */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="field-label">Total Fuel Consumption *</label>
-                                <input
-                                    type="totalFuelConsumption"
+                                <label className="field-label">Total Fuel Consumption </label>
+                                <InputGroup
+                                    type="number"
                                     name="totalFuelConsumption"
                                     onWheel={handleNumberInputWheel}
                                     value={formData.totalFuelConsumption ?? ""}
@@ -652,7 +761,7 @@ const FuelEnergyForm = () => {
                                         handleInputChange(e)
                                         handleSelectChange("totalFuelConsumption", e.target.value)
                                     }}
-                                    placeholder="Enter Consumption Amount"
+                                    placeholder="Enter Value"
                                     className="border-[2px] w-full h-10 p-2 rounded-md"
                                     disabled={isView}
                                 />
@@ -660,7 +769,7 @@ const FuelEnergyForm = () => {
                             </div>
 
                             <div>
-                                <label className="field-label">Fuel Consumption Unit *</label>
+                                <label className="field-label">Fuel Consumption Unit </label>
                                 <CustomSelect
                                     name="fuelConsumptionUnit"
                                     options={fuelUnitOptions}
@@ -675,14 +784,14 @@ const FuelEnergyForm = () => {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="field-label">Total Gross Electricity Purchased *</label>
-                                <input
-                                    type="totalGrossElectricityPurchased"
+                                <label className="field-label">Total Purchased Electricity (Grid / Supplier Specific / PPA) </label>
+                                <InputGroup
+                                    type="number"
                                     name="totalGrossElectricityPurchased"
                                     onWheel={handleNumberInputWheel}
                                     value={formData.totalGrossElectricityPurchased ?? ""}
                                     onChange={handleInputChange}
-                                    placeholder="Enter Gross Electricity Amount"
+                                    placeholder="Enter Value"
                                     className="border-[2px] w-full h-10 p-2 rounded-md"
                                     disabled={isView}
                                 />
@@ -690,7 +799,7 @@ const FuelEnergyForm = () => {
                             </div>
 
                             <div>
-                                <label className="field-label">Unit *</label>
+                                <label className="field-label">Unit</label>
                                 <CustomSelect
                                     name="unit"
                                     options={units}
@@ -705,7 +814,7 @@ const FuelEnergyForm = () => {
                         </div>
                         {/* Quality Control */}
                         <div>
-                            <label className="field-label">Quality Control *</label>
+                            <label className="field-label">Quality Control <span className="text-red-500">*</span></label>
                             <CustomSelect
                                 name="qualityControl"
                                 options={qualityControlOptions}
@@ -718,18 +827,19 @@ const FuelEnergyForm = () => {
                         </div>
                         {/* Remarks */}
                         <div>
-                            <label className="field-label">Remarks (Optional)</label>
-                            <textarea
+                            <label className="field-label">Remarks</label>
+                            <InputGroup
+                                type="textarea"
                                 name="remarks"
                                 value={formData.remarks}
                                 onChange={handleInputChange}
                                 rows={3}
-                                placeholder="Any Remarks"
-                                className="border-[2px] w-full p-2 rounded-md"
+                                placeholder="Enter Remarks"
+                                className="border-[2px] border-gray-400 rounded-md"
                                 disabled={isView}
                             />
                         </div>
-
+                        {/* 
                         {showToggleError && !isView && (
                             <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
                                 <div className="flex">
@@ -755,7 +865,8 @@ const FuelEnergyForm = () => {
                                     </button>
                                 </div>
                             </div>
-                        )}
+                        )} */}
+
                         {/* Business Travel Section */}
                         <div className="col-span-full border-t pt-6">
                             <h3 className="text-lg font-medium text-gray-700 mb-4">Business Travel Details</h3>
@@ -786,7 +897,7 @@ const FuelEnergyForm = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ml-8 mt-4">
                                         <div>
                                             <label className="field-label">Number of Passengers <span className="text-red-500">*</span></label>
-                                            <input
+                                            <InputGroup
                                                 type="number"
                                                 name="airPassengers"
                                                 onWheel={handleNumberInputWheel}
@@ -803,7 +914,7 @@ const FuelEnergyForm = () => {
 
                                         <div>
                                             <label className="field-label">Distance Travelled (km) <span className="text-red-500">*</span></label>
-                                            <input
+                                            <InputGroup
                                                 type="number"
                                                 name="airDistanceKm"
                                                 onWheel={handleNumberInputWheel}
@@ -888,7 +999,7 @@ const FuelEnergyForm = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ml-8 mt-4">
                                         <div>
                                             <label className="field-label">Number of Passengers <span className="text-red-500">*</span></label>
-                                            <input
+                                            <InputGroup
                                                 type="number"
                                                 name="taxiPassengers"
                                                 onWheel={handleNumberInputWheel}
@@ -905,7 +1016,7 @@ const FuelEnergyForm = () => {
 
                                         <div>
                                             <label className="field-label">Distance Travelled (km) <span className="text-red-500">*</span></label>
-                                            <input
+                                            <InputGroup
                                                 type="number"
                                                 name="taxiDistanceKm"
                                                 onWheel={handleNumberInputWheel}
@@ -964,7 +1075,7 @@ const FuelEnergyForm = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ml-8 mt-4">
                                         <div>
                                             <label className="field-label">Number of Passengers <span className="text-red-500">*</span></label>
-                                            <input
+                                            <InputGroup
                                                 type="number"
                                                 name="busPassengers"
                                                 onWheel={handleNumberInputWheel}
@@ -981,7 +1092,7 @@ const FuelEnergyForm = () => {
 
                                         <div>
                                             <label className="field-label">Distance Travelled (km) <span className="text-red-500">*</span></label>
-                                            <input
+                                            <InputGroup
                                                 type="number"
                                                 name="busDistanceKm"
                                                 onWheel={handleNumberInputWheel}
@@ -1040,7 +1151,7 @@ const FuelEnergyForm = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ml-8 mt-4">
                                         <div>
                                             <label className="field-label">Number of Passengers <span className="text-red-500">*</span></label>
-                                            <input
+                                            <InputGroup
                                                 type="number"
                                                 name="trainPassengers"
                                                 onWheel={handleNumberInputWheel}
@@ -1057,7 +1168,7 @@ const FuelEnergyForm = () => {
 
                                         <div>
                                             <label className="field-label">Distance Travelled (km) <span className="text-red-500">*</span></label>
-                                            <input
+                                            <InputGroup
                                                 type="number"
                                                 name="trainDistanceKm"
                                                 onWheel={handleNumberInputWheel}

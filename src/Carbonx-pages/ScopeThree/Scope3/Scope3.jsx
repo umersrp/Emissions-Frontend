@@ -9,7 +9,7 @@ const Scope3 = () => {
 
   const upstream_categories = [
     {
-      title: "Purchased Good & Services",
+      title: "Purchased Good and Services",
       path: "/Purchased-Good-Services",
       icon: "heroicons:shopping-bag",
       bg: "bg-cyan-50",
@@ -32,7 +32,7 @@ const Scope3 = () => {
     {
       title: "Upstream Transportation & Distribution",
       path: "/Upstream-Transportation",
-      icon: "heroicons:truck",
+      icon: "heroicons:arrow-down-tray",
       bg: "bg-green-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebc0] to-[#6fcf97]"
     },
@@ -71,7 +71,7 @@ const Scope3 = () => {
     {
       title: "Downstream Transportation & Distribution",
       path: "/Downstream-Transportation",
-      icon: "heroicons:fire",
+      icon: "heroicons:arrow-up-tray",
       bg: "bg-cyan-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
     },

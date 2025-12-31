@@ -16,6 +16,7 @@ import {
 } from "@/constant/scope3/wasteGenerated";
 import { calculateWasteEmission } from "@/utils/Scope3/calculateWasteGenerated";
 import { formatEmission } from "@/components/ui/FormateEmission";
+import InputGroup from "@/components/ui/InputGroup";
 
 const WasteGeneratedFormPage = () => {
   const navigate = useNavigate();
@@ -235,7 +236,7 @@ const WasteGeneratedFormPage = () => {
 
   return (
     <div>
-      <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Waste Generated`}>
+      <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Waste Generated in Operations`}>
         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
           <p className="text-gray-700">
             This Category includes emissions from third-party disposal and treatment of waste generated in the reporting company’s owned or controlled operations in the reporting year. This category includes emissions from disposal of both solid waste and wastewater.           </p>
@@ -296,10 +297,10 @@ const WasteGeneratedFormPage = () => {
             </div>
             {/* Treatment */}
             <div>
-              <label className="field-label">Waste Treatment <span className="text-red-500">*</span></label>
+              <label className="field-label">Waste Treatment Method<span className="text-red-500">*</span></label>
               <CustomSelect
                 value={formData.wasteTreatmentMethod}
-                placeholder="Select Waste Treatment"
+                placeholder="Select Waste Treatment Method"
                 options={availableTreatmentMethods}
                 onChange={(v) => handleSelectChange("wasteTreatmentMethod", v)}
                 isDisabled={isView || !formData.wasteType}
@@ -318,7 +319,7 @@ const WasteGeneratedFormPage = () => {
             {/* Quantity */}
             <div>
               <label className="field-label">Total Waste Quantity <span className="text-red-500">*</span></label>
-              <input
+              <InputGroup
                 type="number"
                 name="totalWasteQty"
                 placeholder="Enter Quantity"
@@ -337,7 +338,7 @@ const WasteGeneratedFormPage = () => {
               <label className="field-label">Quality Control <span className="text-red-500">*</span></label>
               <CustomSelect
                 value={formData.qualityControl}
-                placeholder="Enter Quality"
+                placeholder="Select Quality"
                 options={qualityControlOptions}
                 onChange={(v) => handleSelectChange("qualityControl", v)}
                 isDisabled={isView}
@@ -352,8 +353,8 @@ const WasteGeneratedFormPage = () => {
           {/* Remarks */}
           <div>
             <label className="field-label">Remarks</label>
-            <textarea
-              name="remarks"
+            <InputGroup
+     type="textarea"          name="remarks"
               placeholder="Enter Remarks"
               value={formData.remarks}
               onChange={handleInputChange}

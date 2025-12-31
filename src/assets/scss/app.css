@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @layer base {
   
   body {
@@ -1688,4 +1689,3 @@
     }
   }
 }
-@layer utilities {}/*# sourceMappingURL=app.css.map */

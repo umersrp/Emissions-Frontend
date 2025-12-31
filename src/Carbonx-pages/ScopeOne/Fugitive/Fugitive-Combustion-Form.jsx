@@ -13,6 +13,7 @@ import {
   consumptionUnitOptions,
 } from "@/constant/scope1/options";
 import { calculateFugitiveEmission } from "@/utils/scope1/calculate-fugitive-emission";
+import InputGroup from "@/components/ui/InputGroup";
 
 const FugitiveCombustionFormPage = () => {
   const navigate = useNavigate();
@@ -299,7 +300,7 @@ const FugitiveCombustionFormPage = () => {
             {/* --- Leakage Value --- */}
             <div>
               <label className="field-label">Leakage Value / Recharge Value</label>
-              <input
+              <InputGroup
                 type="number"
                 name="leakageValue"
                 value={formData.leakageValue}
@@ -344,14 +345,15 @@ const FugitiveCombustionFormPage = () => {
 
           {/* --- Remarks --- */}
           <div className="col-span-full">
-            <label className="field-label">Remarks (Optional)</label>
-            <textarea
+            <label className="field-label">Remarks</label>
+            <InputGroup
+            type="textarea"
               name="remarks"
               value={formData.remarks}
               onChange={handleInputChange}
               rows={3}
-              placeholder="Any remarks..."
-              className="border-[2px] w-full p-2 rounded-md"
+              placeholder="Enter Remarks"
+              className="border-[2px] border-gray-400 rounded-md"
               disabled={isView}
             />
           </div>

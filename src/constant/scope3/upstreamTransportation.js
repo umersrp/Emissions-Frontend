@@ -70,7 +70,7 @@ export const purchasedGoodsTypeMapping = {
     { value: "Paper and paper products", label: "Paper and paper products" },
     { value: "Rubber and plastic products", label: "Rubber and plastic products" },
     { value: "Weapons and ammunition", label: "Weapons and ammunition" },
-    { value: "Plastic/Polymer products", label: "Plastic/Polymer products" },
+    { value: "Plastic / Polymer products", label: "Plastic / Polymer products" },
     { value: "Metal Foils", label: "Metal Foils" },
   ],
 
@@ -193,8 +193,8 @@ export const purchasedGoodsEmissionFactors = {
   
   // Freight flights
   freightFlights: {
-    domestic: 0.76022338, // kg CO2e per tonne-km
-    international: 0.76022338, // kg CO2e per tonne-km
+    Domestic: 0.76022338, // kg CO2e per tonne-km
+    International: 0.76022338, // kg CO2e per tonne-km
   },
   
   // Sea tanker

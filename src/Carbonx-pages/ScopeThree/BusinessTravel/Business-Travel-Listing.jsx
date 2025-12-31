@@ -136,33 +136,33 @@ const BusinessTravel = () => {
             { Header: "Building", accessor: "buildingId.buildingName" },
             { Header: "Stakeholder", accessor: "stakeholder" },
 
-            { Header: "Air Travel", accessor: "travelByAir", Cell: ({ value }) => (value ? "Yes" : "No") },
-            { Header: "Air Passengers", accessor: "airPassengers", Cell: ({ value }) => capitalizeLabel(value) },
-            { Header: "Air Distance (Km)", accessor: "airDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Business Travel by Air", accessor: "travelByAir", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "No. of Passengers", accessor: "airPassengers", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Distance Travelled", accessor: "airDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
             { Header: "Air Class", accessor: "airTravelClass", Cell: ({ value }) => capitalizeLabel(value) },
             { Header: "Flight Type", accessor: "airFlightType", Cell: ({ value }) => capitalizeLabel(value) },
 
-            { Header: "Motorbike", accessor: "travelByMotorbike", Cell: ({ value }) => (value ? "Yes" : "No") },
-            { Header: "Motorbike Distance (Km)", accessor: "motorbikeDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Business Travel by Motorbike", accessor: "travelByMotorbike", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "Distance Travelled", accessor: "motorbikeDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
             { Header: "Motorbike Type", accessor: "motorbikeType", Cell: ({ value }) => capitalizeLabel(value) },
 
-            { Header: "Taxi", accessor: "travelByTaxi", Cell: ({ value }) => (value ? "Yes" : "No") },
-            { Header: "Taxi Passengers", accessor: "taxiPassengers", Cell: ({ value }) => capitalizeLabel(value) },
-            { Header: "Taxi Distance (Km)", accessor: "taxiDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Business Travel by Taxi", accessor: "travelByTaxi", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "No. of Passengers", accessor: "taxiPassengers", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Distance Travelled", accessor: "taxiDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
             { Header: "Taxi Type", accessor: "taxiType", Cell: ({ value }) => capitalizeLabel(value) },
 
-            { Header: "Bus", accessor: "travelByBus", Cell: ({ value }) => (value ? "Yes" : "No") },
-            { Header: "Bus Passengers", accessor: "busPassengers", Cell: ({ value }) => capitalizeLabel(value) },
-            { Header: "Bus Distance (Km)", accessor: "busDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Business Travel by Bus", accessor: "travelByBus", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "No. of Passengers", accessor: "busPassengers", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Distance Travelled", accessor: "busDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
             { Header: "Bus Type", accessor: "busType", Cell: ({ value }) => capitalizeLabel(value) },
 
-            { Header: "Train", accessor: "travelByTrain", Cell: ({ value }) => (value ? "Yes" : "No") },
-            { Header: "Train Passengers", accessor: "trainPassengers", Cell: ({ value }) => capitalizeLabel(value) },
-            { Header: "Train Distance (Km)", accessor: "trainDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Business Travel by Train", accessor: "travelByTrain", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "No. of Passengers", accessor: "trainPassengers", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Distance Travelled", accessor: "trainDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
             { Header: "Train Type", accessor: "trainType", Cell: ({ value }) => capitalizeLabel(value) },
 
-            { Header: "Car", accessor: "travelByCar", Cell: ({ value }) => (value ? "Yes" : "No") },
-            { Header: "Car Distance (Km)", accessor: "carDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
+            { Header: "Business Travel by Car", accessor: "travelByCar", Cell: ({ value }) => (value ? "Yes" : "No") },
+            { Header: "Distance Travelled", accessor: "carDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
             { Header: "Car Type", accessor: "carType", Cell: ({ cell }) => renderNA(cell.value) },
             { Header: "Car Fuel Type", accessor: "carFuelType", Cell: ({ value }) => capitalizeLabel(value) },
 
@@ -173,12 +173,22 @@ const BusinessTravel = () => {
             {
                 Header: "Calculated Emissions (kgCO₂e)",
                 accessor: "calculatedEmissionKgCo2e",
-                Cell: ({ cell }) => cell.value || "N/A",
+                Cell: ({ cell }) => {
+                    const value = Number(cell.value);
+                    if (isNaN(value) || value === 0) { return "N/A"; }
+                    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+                    return value.toFixed(2);
+                }
             },
             {
                 Header: "Calculated Emissions (kgCO₂e)",
                 accessor: "calculatedEmissionTCo2e",
-                Cell: ({ cell }) => cell.value || "N/A",
+                Cell: ({ cell }) => {
+                    const value = Number(cell.value);
+                    if (isNaN(value) || value === 0) { return "N/A"; }
+                    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+                    return value.toFixed(2);
+                }
             },
 
 

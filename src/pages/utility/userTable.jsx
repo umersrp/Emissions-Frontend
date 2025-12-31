@@ -71,7 +71,7 @@ const UserPage = () => {
 
       console.log("API RESPONSE:", response.data);
 
-      // ✅ FIX HERE
+      //  FIX HERE
       setUserData(response.data.data.users || []);
       setTotal(response.data.pagination?.total || 0);
       setHasNextPage(response.data.pagination?.hasNextPage || false);
@@ -358,9 +358,9 @@ const UserPage = () => {
     getTableProps,
     getTableBodyProps,
     headerGroups,
-    pageOptions, // ✅ add this
+    pageOptions, //  add this
     canPreviousPage,
-    pageCount: totalPages, // ✅ add this
+    pageCount: totalPages, //  add this
     rows,               // ⬅ use rows instead of page
     state,
     gotoPage,

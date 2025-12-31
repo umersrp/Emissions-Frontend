@@ -108,9 +108,9 @@ const icons = [
   { name: "mdi:factory", label: "Scope 1" },
   { name: "mdi:power-plug", label: "Scope 2" },
   { name: "mdi:share-variant", label: "Scope 3" },
-  
+
   { name: "heroicons:globe-alt", label: "Scope" },
-  { name: "heroicons:no-symbol", label: "Out of Scope" },
+  { name: "heroicons:no-symbol", label: "out of Scope" },
   { name: "heroicons:building-office", label: "Company" },
   { name: "heroicons:home-modern", label: "Building" },
   { name: "heroicons:fire", label: "Stationary Combustion" },
@@ -118,17 +118,17 @@ const icons = [
   { name: "heroicons:truck", label: "Mobile Combustion" },
   { name: "heroicons:cog-6-tooth", label: "Process Emissions" },
   {
-  name: "heroicons:bolt" // Electricity
-},
-{
-  name: "heroicons:fire" // Heating
-},
-{
-  name: "heroicons:snowflake" // Cooling
-},
-{
-  name: "heroicons:cloud" // Steam
-},
+    name: "heroicons:bolt" // Electricity
+  },
+  {
+    name: "heroicons:fire" // Heating
+  },
+  {
+    name: "heroicons:snowflake" // Cooling
+  },
+  {
+    name: "heroicons:cloud" // Steam
+  },
   { name: "heroicons:shopping-bag", label: "Purchased Goods & Services" },
   { name: "heroicons:building-office", label: "Capital Goods" },
   { name: "heroicons:bolt", label: "Fuel & Energy Related Activities" },
@@ -136,7 +136,8 @@ const icons = [
   { name: "heroicons:trash", label: "Waste Generated in Operations" },
   { name: "heroicons:briefcase", label: "Business Travel" },
   { name: "heroicons:user-group", label: "Employee Commuting" },
-  { name: "heroicons:building-library", label: "Upstream Leased Assets" },
+  { name: "heroicons:arrow-down-tray", label: "Upstream Transportation & Distribution" },
+  { name: "heroicons:arrow-up-tray", label: "Downstream Transportation & Distribution" },
 
   { name: "heroicons:rectangle-stack" },
   { name: "heroicons:rocket-launch" },
@@ -165,8 +166,8 @@ const IconPage = () => {
           <Tooltip placement="top" arrow content={item.name}>
             <div
               className={`rounded-md bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xl  py-3 px-4 ${skin === "bordered"
-                  ? " border border-gray-5002 dark:border-slate-700"
-                  : "shadow-base"
+                ? " border border-gray-5002 dark:border-slate-700"
+                : "shadow-base"
                 }`}
             >
               <Icon icon={item.name} />

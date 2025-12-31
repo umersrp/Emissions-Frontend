@@ -91,9 +91,9 @@ const ScopeThreeReport = () => {
         return data.goodsAndServices;
       case "Capital Goods":
         return data.capitalGoods;
-      case "Fuel and Energy":
+      case "Fuel and Energy Related Activity":
         return data.fuelAndEnergy;
-      case "Waste Generated":
+      case "Waste Generated in Operation":
         return data.wasteGenerated;
       case "Business Travel":
         return data.Business;
@@ -229,20 +229,20 @@ const ScopeThreeReport = () => {
   //   return [
   //     { name: "Purchased Goods and Services", kg: goodsAndServicesKg, t: goodsAndServicesKg / 1000, bg: "bg-cyan-50" },
   //     { name: "Capital Goods", kg: capitalGoodsKg, t: capitalGoodsKg / 1000, bg: "bg-red-50" },
-  //     { name: "Fuel and Energy", kg: fuelAndEnergyKg, t: fuelAndEnergyKg / 1000, bg: "bg-purple-50" },
-  //     { name: "Waste Generated", kg: wasteGeneratedKg, t: wasteGeneratedKg / 1000, bg: "bg-green-50" },
+  //     { name: "Fuel and Energy Related Activity", kg: fuelAndEnergyKg, t: fuelAndEnergyKg / 1000, bg: "bg-purple-50" },
+  //     { name: "Waste Generated in Operation", kg: wasteGeneratedKg, t: wasteGeneratedKg / 1000, bg: "bg-green-50" },
   //     { name: "Business Travel", kg: businessKg, t: businessKg / 1000, bg: "bg-green-50" },
   //     { name: "Upstream Transportation", kg: upstreamTransportationKg, t: upstreamTransportationKg / 1000, bg: "bg-yellow-50" },
   //     { name: "Downstream Transportation", kg: downstreamTransportationKg, t: downstreamTransportationKg / 1000, bg: "bg-blue-50" },
   //   ];
   // }, [data]);
   const summaryCards = useMemo(() => {
-    console.log("📊 STARTING SUMMARY CALCULATION FOR ALL CATEGORIES");
-    console.log("📋 Full data structure:", JSON.stringify(data, null, 2));
+    console.log(" STARTING SUMMARY CALCULATION FOR ALL CATEGORIES");
+    console.log(" Full data structure:", JSON.stringify(data, null, 2));
 
     // Helper function to log building-wise emissions for a category
     const logBuildingEmissions = (categoryName, items) => {
-      console.log(`\n🏢 ${categoryName.toUpperCase()} - Building-wise emissions:`);
+      console.log(` ${categoryName.toUpperCase()} - Building-wise emissions:`);
       if (!items || items.length === 0) {
         console.log("   No items found");
         return;
@@ -262,7 +262,7 @@ const ScopeThreeReport = () => {
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    console.log(`   ✅ TOTAL: ${goodsAndServicesKg.toFixed(2)} kg CO2e`);
+    console.log(`    TOTAL: ${goodsAndServicesKg.toFixed(2)} kg CO2e`);
 
     // Capital Goods
     const capitalGoodsItems = data.capitalGoods || [];
@@ -271,25 +271,25 @@ const ScopeThreeReport = () => {
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    console.log(`   ✅ TOTAL: ${capitalGoodsKg.toFixed(2)} kg CO2e`);
+    console.log(`    TOTAL: ${capitalGoodsKg.toFixed(2)} kg CO2e`);
 
     // Fuel and Energy
     const fuelAndEnergyItems = data.fuelAndEnergy || [];
-    logBuildingEmissions("Fuel and Energy", fuelAndEnergyItems);
+    logBuildingEmissions("Fuel and Energy Related Activity", fuelAndEnergyItems);
     const fuelAndEnergyKg = fuelAndEnergyItems.reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    console.log(`   ✅ TOTAL: ${fuelAndEnergyKg.toFixed(2)} kg CO2e`);
+    console.log(`    TOTAL: ${fuelAndEnergyKg.toFixed(2)} kg CO2e`);
 
     // Waste Generated
     const wasteGeneratedItems = data.wasteGenerated || [];
-    logBuildingEmissions("Waste Generated", wasteGeneratedItems);
+    logBuildingEmissions("Waste Generated in Operation", wasteGeneratedItems);
     const wasteGeneratedKg = wasteGeneratedItems.reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    console.log(`   ✅ TOTAL: ${wasteGeneratedKg.toFixed(2)} kg CO2e`);
+    console.log(`    TOTAL: ${wasteGeneratedKg.toFixed(2)} kg CO2e`);
 
     // Business Travel
     const businessItems = data.Business || [];
@@ -298,7 +298,7 @@ const ScopeThreeReport = () => {
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    console.log(`   ✅ TOTAL: ${businessKg.toFixed(2)} kg CO2e`);
+    console.log(`    TOTAL: ${businessKg.toFixed(2)} kg CO2e`);
 
     // Upstream Transportation
     const upstreamTransportationItems = data.upstreamTransportation || [];
@@ -307,7 +307,7 @@ const ScopeThreeReport = () => {
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    console.log(`   ✅ TOTAL: ${upstreamTransportationKg.toFixed(2)} kg CO2e`);
+    console.log(`    TOTAL: ${upstreamTransportationKg.toFixed(2)} kg CO2e`);
 
     // Downstream Transportation
     const downstreamTransportationItems = data.downstreamTransportation || [];
@@ -316,14 +316,14 @@ const ScopeThreeReport = () => {
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-    console.log(`   ✅ TOTAL: ${downstreamTransportationKg.toFixed(2)} kg CO2e`);
+    console.log(`    TOTAL: ${downstreamTransportationKg.toFixed(2)} kg CO2e`);
 
     // Calculate totals
     const totalKg = goodsAndServicesKg + capitalGoodsKg + fuelAndEnergyKg + 
                    wasteGeneratedKg + businessKg + upstreamTransportationKg + 
                    downstreamTransportationKg;
     
-    console.log("\n📈 FINAL TOTALS BY CATEGORY:");
+    console.log("\n FINAL TOTALS BY CATEGORY:");
     console.log("1. Purchased Goods and Services:", goodsAndServicesKg.toFixed(2), "kg CO2e");
     console.log("2. Capital Goods:", capitalGoodsKg.toFixed(2), "kg CO2e");
     console.log("3. Fuel and Energy:", fuelAndEnergyKg.toFixed(2), "kg CO2e");
@@ -331,7 +331,7 @@ const ScopeThreeReport = () => {
     console.log("5. Business Travel:", businessKg.toFixed(2), "kg CO2e");
     console.log("6. Upstream Transportation:", upstreamTransportationKg.toFixed(2), "kg CO2e");
     console.log("7. Downstream Transportation:", downstreamTransportationKg.toFixed(2), "kg CO2e");
-    console.log("🏆 GRAND TOTAL:", totalKg.toFixed(2), "kg CO2e", `(${(totalKg/1000).toFixed(3)} t CO2e)`);
+    console.log(" GRAND TOTAL:", totalKg.toFixed(2), "kg CO2e", `(${(totalKg/1000).toFixed(3)} t CO2e)`);
 
     return [
       { 
@@ -351,7 +351,7 @@ const ScopeThreeReport = () => {
         items: capitalGoodsItems
       },
       { 
-        name: "Fuel and Energy", 
+        name: "Fuel and Energy Related Activity", 
         kg: fuelAndEnergyKg, 
         t: fuelAndEnergyKg / 1000, 
         bg: "bg-purple-50",
@@ -359,7 +359,7 @@ const ScopeThreeReport = () => {
         items: fuelAndEnergyItems
       },
       { 
-        name: "Waste Generated", 
+        name: "Waste Generated in Operation", 
         kg: wasteGeneratedKg, 
         t: wasteGeneratedKg / 1000, 
         bg: "bg-green-50",
@@ -398,8 +398,8 @@ const ScopeThreeReport = () => {
     { value: "all", label: "All Scope 3 (Building-wise)" },
     { value: "Purchased Goods and Services", label: "Purchased Goods and Services" },
     { value: "Capital Goods", label: "Capital Goods" },
-    { value: "Fuel and Energy", label: "Fuel and Energy" },
-    { value: "Waste Generated", label: "Waste Generated" },
+    { value: "Fuel and Energy Related Activity", label: "Fuel and Energy Related Activity" },
+    { value: "Waste Generated in Operation", label: "Waste Generated in Operation"},
     { value: "Business Travel", label: "Business Travel" },
     { value: "Upstream Transportation", label: "Upstream Transportation" },
     { value: "Downstream Transportation", label: "Downstream Transportation" },
@@ -425,13 +425,13 @@ const ScopeThreeReport = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
         {summaryCards.map((item, idx) => {
           const iconMap = {
-            "Purchased Goods and Services": "heroicons:fire",
-            "Capital Goods": "heroicons:truck",
-            "Fuel and Energy": "heroicons:cloud",
-            "Waste Generated": "heroicons:cog-6-tooth",
-            "Business Travel": "heroicons:cog-6-tooth",
-            "Upstream Transportation": "heroicons:cog-6-tooth",
-            "Downstream Transportation": "heroicons:cog-6-tooth",
+            "Purchased Goods and Services": "heroicons:shopping-bag",
+            "Capital Goods": "heroicons:building-office",
+            "Fuel and Energy Related Activity": "heroicons:bolt",
+            "Waste Generated in Operation": "heroicons:trash",
+            "Business Travel": "heroicons:briefcase",
+            "Upstream Transportation": "heroicons:arrow-up-tray",
+            "Downstream Transportation": "heroicons:arrow-down-tray",
           };
           return (
             <div

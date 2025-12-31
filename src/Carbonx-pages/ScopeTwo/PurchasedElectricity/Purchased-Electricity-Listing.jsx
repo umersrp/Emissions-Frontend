@@ -4,12 +4,12 @@ import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 import Tippy from "@tippyjs/react";
 import { useTable, useRowSelect, useSortBy } from "react-table";
 import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
 import Logo from "@/assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -24,7 +24,7 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref)
 
 const PurchasedElectricityListing = () => {
   const navigate = useNavigate();
-
+ const location = useLocation();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(false);
   const [pageIndex, setPageIndex] = useState(1);
@@ -50,7 +50,13 @@ const PurchasedElectricityListing = () => {
     return value === null || value === undefined || value === "" ? "N/A" : value;
   };
 
-
+ useEffect(() => {
+    if (location.state?.selectedMethod) {
+      setEmissionFilter(location.state.selectedMethod);
+      // Clear the state to prevent persistence on refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate, location.pathname]);
 
   // Fetch data from Purchased-Electricity API
   const fetchData = async () => {
@@ -125,17 +131,25 @@ const PurchasedElectricityListing = () => {
   // Location-based specific columns
   const LOCATION_BASED_COLUMNS = [
     { Header: "Total Gross Electricity Purchased (Grid)", accessor: "totalGrossElectricityGrid", Cell: ({ cell }) => renderNA(cell.value) },
-    { Header: "Unit", accessor: "unit" },
-    { Header: "Grid Station", accessor: "gridStation" },
+    { Header: "Unit", accessor: "unit",Cell: ({ cell }) => renderNA(cell.value) },
+    { Header: "Grid Station", accessor: "gridStation",Cell: ({ cell }) => renderNA(cell.value) },
     { Header: "Total Other Supplier Specific Electricity Purchased", accessor: "totalOtherSupplierElectricity", Cell: ({ cell }) => renderNA(cell.value) },
-    { Header: "Calculated Location Based Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e" },
-    { Header: "Calculated Location Based Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e" },
+    { Header: "Calculated Location Based Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);}  },
+    { Header: "Calculated Location Based Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);}  },
   ];
 
   // Market-based specific columns
   const MARKET_BASED_COLUMNS = [
-    { Header: "Total Purchased Electricity (Grid / Supplier Specific / PPA)", accessor: "totalPurchasedElectricity" },
-    { Header: "Total Gross Electricity Purchased (Grid)", accessor: "totalGrossElectricityGrid" },
+    { Header: "Total Purchased Electricity (Grid / Supplier Specific / PPA)", accessor: "totalPurchasedElectricity",Cell: ({ cell }) => renderNA(cell.value) },
+    { Header: "Total Gross Electricity Purchased (Grid)", accessor: "totalGrossElectricityGrid",Cell: ({ cell }) => renderNA(cell.value) },
     { Header: "Unit", accessor: "unit" },
     { Header: "Grid Station", accessor: "gridStation" },
     { Header: "On-Site Solar / Renewable Electricity Generation", accessor: "hasSolarPanels", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
@@ -152,11 +166,27 @@ const PurchasedElectricityListing = () => {
 
     //{ Header: "Total Onsite Solar Consumption", accessor: "totalOnsiteSolarConsumption" },
     //{ Header: "Solar Retained Under RECs", accessor: "solarRetainedUnderRECs" },
-    { Header: "Calculated Location Based Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", Cell: ({ cell }) => renderNA(cell.value) },
-    { Header: "Calculated Location Based Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", Cell: ({ cell }) => renderNA(cell.value) },
+    { Header: "Calculated Location Based Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",  Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);} },
+    { Header: "Calculated Location Based Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",  Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);} },
 
-    { Header: "Calculated Market Based Emissions (kgCO₂e)", accessor: "calculatedEmissionMarketKgCo2e", Cell: ({ cell }) => renderNA(cell.value) },
-    { Header: "Calculated Market Based Emissions (tCO₂e)", accessor: "calculatedEmissionMarketTCo2e", Cell: ({ cell }) => renderNA(cell.value) },
+    { Header: "Calculated Market Based Emissions (kgCO₂e)", accessor: "calculatedEmissionMarketKgCo2e",  Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);} },
+    { Header: "Calculated Market Based Emissions (tCO₂e)", accessor: "calculatedEmissionMarketTCo2e",  Cell: ({ cell }) => {
+    const value = Number(cell.value);
+    if (isNaN(value) || value === 0) { return "N/A"; }
+    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
+    return value.toFixed(2);} },
   ];
 
   // Additional common columns after emission columns
