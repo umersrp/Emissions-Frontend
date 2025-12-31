@@ -20,54 +20,39 @@ const GroupChart1 = ({ chartData = [], loading }) => {
     chart: {
       type: "donut",
     },
-    labels,
-    colors,
-    stroke: {
-      width: 0,
-    },
-    legend: {
-      show: false, // custom legend below
-    },
-    dataLabels: {
-      enabled: true,
-      formatter: (val) => `${val.toFixed(0)}%`,
-      style: {
-        fontSize: "12px",
-        fontWeight: 600,
-        colors: ["#374151"],
-      },
-    },
     plotOptions: {
       pie: {
         donut: {
           size: "70%",
           labels: {
             show: true,
-            total: {
-              show: true,
-              label: "Total",
-              fontSize: "14px",
-              fontWeight: 600,
-              color: "#6B7280",
-              formatter: () => total.toLocaleString(),
+
+            // ❌ disable name in center
+            name: {
+              show: false,
             },
+
+            // ❌ disable value in center (THIS fixes your issue)
             value: {
-              show: true,
-              fontSize: "22px",
-              fontWeight: 700,
-              color: "#111827",
-              formatter: (val) => val.toLocaleString(),
+              show: false,
+            },
+
+            // ❌ disable total text too (optional)
+            total: {
+              show: false,
             },
           },
         },
       },
     },
+    dataLabels: {
+      enabled: false,
+    },
     tooltip: {
-      y: {
-        formatter: (val) => `${val.toLocaleString()} tCO₂e`,
-      },
+      enabled: true, // tooltip on hover is fine
     },
   };
+
 
   if (loading) {
     return <p className="text-sm text-gray-500">Loading chart...</p>;

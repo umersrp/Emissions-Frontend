@@ -16,7 +16,7 @@ const EmailSent = () => {
         startDateTime: "",
         endDateTime: "",
         subject: "Employee Commuting Data – Action Required",
-        formLink: "http://localhost:5173/AddfromEmployee",
+        formLink: "https://ksvvmxbk-5173.inc1.devtunnels.ms/AddfromEmployee",
         totalReminders: 3,
         reminderDates: "",
         reminderSubject: "Reminder – Employee Commuting Data Form Submission",

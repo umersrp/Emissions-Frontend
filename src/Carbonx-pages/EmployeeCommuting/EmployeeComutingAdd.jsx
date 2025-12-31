@@ -20,6 +20,16 @@ const EmployeeCommutingForm = () => {
     const currentYear = new Date().getFullYear();
     const [reportingYear, setReportingYear] = useState(currentYear);
 
+    // Track all selected date ranges for validation
+    const [selectedDateRanges, setSelectedDateRanges] = useState({
+        motorbike: null,
+        taxi: null,
+        bus: null,
+        train: null,
+        car: null,
+        workFromHome: null
+    });
+
     // Form state - store objects for select values
     const [formData, setFormData] = useState({
         // Basic Information
@@ -28,7 +38,7 @@ const EmployeeCommutingForm = () => {
 
         // Motorbike Commute
         commuteByMotorbike: false,
-        motorbikeMode: 'individual',
+        motorbikeMode: 'both', // possible values: 'individual', 'carpool', 'both'
         motorbikeDistance: '',
         motorbikeType: { value: 'Small', label: 'Small (<125cc)' },
         carryOthersMotorbike: false,
@@ -43,7 +53,7 @@ const EmployeeCommutingForm = () => {
 
         // Taxi Commute
         commuteByTaxi: false,
-        taxiMode: 'individual',
+        taxiMode: 'both', // possible values: 'individual', 'carpool', 'both'
         taxiPassengers: { value: '1', label: '1 passenger' },
         taxiDistance: '',
         taxiType: { value: 'Regular taxi', label: 'Regular Taxi' },
@@ -67,7 +77,7 @@ const EmployeeCommutingForm = () => {
 
         // Car Commute
         commuteByCar: false,
-        carMode: 'individual',
+        carMode: 'both', // possible values: 'individual', 'carpool', 'both'
         carDistance: '',
         carType: { value: 'Average car', label: 'Average car - Unknown engine size' },
         carFuelType: { value: 'Diesel', label: 'Diesel' },
@@ -341,6 +351,13 @@ const EmployeeCommutingForm = () => {
             { value: '5', label: '5+ passengers' },
         ]
     };
+
+    // Mode options for all transport types
+    const modeOptions = [
+        { value: 'individual', label: 'Individual' },
+        { value: 'carpool', label: 'Carpool' },
+        { value: 'both', label: 'Both (Individual & Carpool)' },
+    ];
 
     // Get the token from URL or localStorage
     const getToken = () => {
@@ -715,6 +732,16 @@ const EmployeeCommutingForm = () => {
             carDateRange: null,
             workFromHomeDateRange: null
         }));
+
+        // Clear selected date ranges
+        setSelectedDateRanges({
+            motorbike: null,
+            taxi: null,
+            bus: null,
+            train: null,
+            car: null,
+            workFromHome: null
+        });
     };
 
     // Handle checkbox changes
@@ -723,6 +750,19 @@ const EmployeeCommutingForm = () => {
             ...prev,
             [field]: value,
         }));
+
+        // If unchecked, clear the date range for that transport type
+        if (!value) {
+            const transportType = field.replace('commuteBy', '').toLowerCase();
+            if (transportType === 'motorbike' || transportType === 'taxi' || transportType === 'bus' || 
+                transportType === 'train' || transportType === 'car' || transportType === 'workfromhome') {
+                const dateRangeField = `${transportType}DateRange`;
+                setFormData(prev => ({ ...prev, [dateRangeField]: null }));
+                
+                // Update selected date ranges
+                setSelectedDateRanges(prev => ({ ...prev, [transportType]: null }));
+            }
+        }
     };
 
     // Handle input changes for Textinput
@@ -913,7 +953,58 @@ const EmployeeCommutingForm = () => {
         return Math.max(1, Math.min(12, totalMonths));
     };
 
-    // Update the handleDateRangeChange function
+    // Function to check if two date ranges overlap
+    const checkDateRangeOverlap = (range1, range2) => {
+        if (!range1 || !range2 || !range1.startDate || !range1.endDate || !range2.startDate || !range2.endDate) {
+            return false;
+        }
+
+        const start1 = new Date(range1.startDate);
+        const end1 = new Date(range1.endDate);
+        const start2 = new Date(range2.startDate);
+        const end2 = new Date(range2.endDate);
+
+        // Check if ranges overlap
+        return start1 <= end2 && end1 >= start2;
+    };
+
+    // Function to get month name from month number
+    const getMonthName = (monthNumber) => {
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        return monthNames[monthNumber - 1] || '';
+    };
+
+    // Function to check if a specific month is already covered
+    const isMonthAlreadyCovered = (month, existingRanges) => {
+        const targetMonth = parseInt(month);
+        
+        for (const [transportType, dateRange] of Object.entries(existingRanges)) {
+            if (dateRange && dateRange.startDate && dateRange.endDate) {
+                const startDate = new Date(dateRange.startDate);
+                const endDate = new Date(dateRange.endDate);
+                
+                // Check if target month falls within this date range
+                const startMonth = startDate.getMonth() + 1;
+                const endMonth = endDate.getMonth() + 1;
+                const startYear = startDate.getFullYear();
+                const endYear = endDate.getFullYear();
+                
+                // If same year, check month range
+                if (startYear === reportingYear && endYear === reportingYear) {
+                    if (targetMonth >= startMonth && targetMonth <= endMonth) {
+                        return transportType;
+                    }
+                }
+            }
+        }
+        
+        return null;
+    };
+
+    // Update the handleDateRangeChange function with enhanced validation
     const handleDateRangeChange = (transportType, value) => {
         if (value && value.startDate && value.endDate) {
             const startDate = new Date(value.startDate);
@@ -923,6 +1014,52 @@ const EmployeeCommutingForm = () => {
             if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
                 toast.warning(`Selected date range is outside ${reportingYear}. Please select dates within the reporting year.`);
                 return; // Don't update if outside reporting year
+            }
+
+            // Check for overlaps with other selected date ranges
+            const otherRanges = { ...selectedDateRanges };
+            delete otherRanges[transportType]; // Remove current transport type from check
+
+            let hasOverlap = false;
+            let overlappingTransportType = '';
+            let overlappingMonths = [];
+
+            // Check each existing date range for overlap
+            for (const [otherType, otherRange] of Object.entries(otherRanges)) {
+                if (otherRange && checkDateRangeOverlap(value, otherRange)) {
+                    hasOverlap = true;
+                    overlappingTransportType = otherType;
+                    
+                    // Find overlapping months
+                    const overlapStart = new Date(Math.max(startDate, new Date(otherRange.startDate)));
+                    const overlapEnd = new Date(Math.min(endDate, new Date(otherRange.endDate)));
+                    
+                    for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
+                        const month = d.getMonth() + 1;
+                        if (!overlappingMonths.includes(month)) {
+                            overlappingMonths.push(month);
+                        }
+                    }
+                    break;
+                }
+            }
+
+            if (hasOverlap) {
+                const monthNames = overlappingMonths.map(m => getMonthName(m)).join(', ');
+                toast.error(
+                    <div>
+                        <div className="font-semibold mb-1">Date Range Conflict!</div>
+                        <div className="text-sm mb-2">
+                            Your selected date range overlaps with {overlappingTransportType} commute 
+                            in month(s): {monthNames}. Please select a different date range.
+                        </div>
+                    </div>,
+                    {
+                        autoClose: false,
+                        closeButton: true,
+                    }
+                );
+                return; // Don't update if there's an overlap
             }
 
             // Calculate how many months are covered
@@ -982,9 +1119,15 @@ const EmployeeCommutingForm = () => {
             ...prev,
             [`${transportType}DateRange`]: value
         }));
+
+        // Update the selected date ranges state
+        setSelectedDateRanges(prev => ({
+            ...prev,
+            [transportType]: value
+        }));
     };
 
-    // Update the renderDateRangePicker function to include a progress indicator
+    // Update the renderDateRangePicker function to include overlap warning
     const renderDateRangePicker = (transportType, label) => {
         // Calculate coverage for current selection
         const currentRange = formData[`${transportType}DateRange`];
@@ -994,6 +1137,25 @@ const EmployeeCommutingForm = () => {
         if (currentRange && currentRange.startDate && currentRange.endDate) {
             monthsCovered = calculateRemainingMonths(currentRange.startDate, currentRange.endDate, reportingYear);
             progressPercentage = Math.round((monthsCovered / 12) * 100);
+        }
+
+        // Check for overlaps
+        const otherRanges = { ...selectedDateRanges };
+        delete otherRanges[transportType];
+        let hasOverlap = false;
+        let overlappingInfo = null;
+
+        if (currentRange && currentRange.startDate && currentRange.endDate) {
+            for (const [otherType, otherRange] of Object.entries(otherRanges)) {
+                if (otherRange && checkDateRangeOverlap(currentRange, otherRange)) {
+                    hasOverlap = true;
+                    overlappingInfo = {
+                        type: otherType,
+                        range: otherRange
+                    };
+                    break;
+                }
+            }
         }
 
         return (
@@ -1018,25 +1180,51 @@ const EmployeeCommutingForm = () => {
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div
-                                        className={`h-2 rounded-full ${progressPercentage === 100 ? 'bg-green-500' :
-                                            progressPercentage >= 50 ? 'bg-yellow-500' :
-                                                'bg-red-500'
+                                        className={`h-2 rounded-full ${hasOverlap ? 'bg-red-500' :
+                                            progressPercentage === 100 ? 'bg-green-500' :
+                                                progressPercentage >= 50 ? 'bg-yellow-500' :
+                                                    'bg-red-500'
                                             }`}
                                         style={{ width: `${progressPercentage}%` }}
                                     ></div>
                                 </div>
                             </div>
-                            {progressPercentage === 100 && (
+                            {hasOverlap ? (
+                                <span className="text-xs font-medium text-red-600 flex items-center">
+                                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                    </svg>
+                                    Overlap
+                                </span>
+                            ) : progressPercentage === 100 ? (
                                 <span className="text-xs font-medium text-green-600 flex items-center">
                                     <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                     </svg>
                                     Complete
                                 </span>
-                            )}
+                            ) : null}
                         </div>
                     )}
                 </div>
+
+                {/* Overlap warning */}
+                {hasOverlap && overlappingInfo && (
+                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded">
+                        <div className="flex items-start">
+                            <svg className="h-5 w-5 text-red-400 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            <div className="text-sm text-red-700">
+                                <p className="font-medium mb-1">Warning: Date Range Overlap!</p>
+                                <p>
+                                    This date range overlaps with your {overlappingInfo.type} commute selection. 
+                                    Please adjust the dates to avoid overlap.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="space-y-4">
                     <Datepicker
@@ -1224,7 +1412,7 @@ const EmployeeCommutingForm = () => {
                                 <ul className="list-disc pl-4 space-y-1">
                                     <li><strong>Select dates covering the full year</strong> for accurate emissions calculations</li>
                                     <li>Use the <strong>"Full Year ✓" shortcut</strong> to quickly select all 12 months</li>
-                                    <li>If you select less than 12 months, the system will prompt you to consider the full year</li>
+                                    <li>Date ranges should not overlap between different commute methods</li>
                                     <li>For discontinuous periods, submit multiple forms or select the largest continuous range</li>
                                 </ul>
                             </div>
@@ -1463,6 +1651,35 @@ const EmployeeCommutingForm = () => {
         };
     };
 
+    // Function to check for date range overlaps
+    const checkAllDateRangeOverlaps = () => {
+        const ranges = [
+            { type: 'motorbike', range: formData.motorbikeDateRange },
+            { type: 'taxi', range: formData.taxiDateRange },
+            { type: 'bus', range: formData.busDateRange },
+            { type: 'train', range: formData.trainDateRange },
+            { type: 'car', range: formData.carDateRange },
+            { type: 'workFromHome', range: formData.workFromHomeDateRange }
+        ].filter(r => r.range && r.range.startDate && r.range.endDate);
+
+        const overlaps = [];
+
+        for (let i = 0; i < ranges.length; i++) {
+            for (let j = i + 1; j < ranges.length; j++) {
+                if (checkDateRangeOverlap(ranges[i].range, ranges[j].range)) {
+                    overlaps.push({
+                        type1: ranges[i].type,
+                        type2: ranges[j].type,
+                        range1: ranges[i].range,
+                        range2: ranges[j].range
+                    });
+                }
+            }
+        }
+
+        return overlaps;
+    };
+
     // Validate form
     const validateForm = () => {
         const errors = [];
@@ -1555,13 +1772,39 @@ const EmployeeCommutingForm = () => {
 
         // Validate mode selections
         if (formData.commuteByMotorbike && !formData.motorbikeMode) {
-            errors.push('Please select Individual or Carpool for motorbike commute');
+            errors.push('Please select Individual, Carpool, or Both for motorbike commute');
         }
         if (formData.commuteByTaxi && !formData.taxiMode) {
-            errors.push('Please select Individual or Carpool for taxi commute');
+            errors.push('Please select Individual, Carpool, or Both for taxi commute');
         }
         if (formData.commuteByCar && !formData.carMode) {
-            errors.push('Please select Individual or Carpool for car commute');
+            errors.push('Please select Individual, Carpool, or Both for car commute');
+        }
+
+        // Check for date range overlaps
+        const overlaps = checkAllDateRangeOverlaps();
+        if (overlaps.length > 0) {
+            overlaps.forEach(overlap => {
+                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+                
+                // Find overlapping months
+                const start1 = new Date(overlap.range1.startDate);
+                const end1 = new Date(overlap.range1.endDate);
+                const start2 = new Date(overlap.range2.startDate);
+                const end2 = new Date(overlap.range2.endDate);
+                
+                const overlapStart = new Date(Math.max(start1, start2));
+                const overlapEnd = new Date(Math.min(end1, end2));
+                
+                const overlappingMonths = [];
+                for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
+                    const month = d.getMonth() + 1;
+                    overlappingMonths.push(monthNames[month - 1]);
+                }
+                
+                errors.push(`Date range overlap between ${overlap.type1} and ${overlap.type2} in month(s): ${overlappingMonths.join(', ')}`);
+            });
         }
 
         // Validate 12-month coverage
@@ -1591,8 +1834,8 @@ const EmployeeCommutingForm = () => {
             });
         };
 
-        // Motorbike carpool validation
-        if (formData.commuteByMotorbike && formData.motorbikeMode === 'carpool') {
+        // Motorbike carpool validation (only when mode is carpool or both)
+        if (formData.commuteByMotorbike && (formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both')) {
             if (formData.carryOthersMotorbike) {
                 validatePassengerEmails(formData.motorbikePassengerEmails, 'motorbike (carrying others)');
             }
@@ -1601,8 +1844,8 @@ const EmployeeCommutingForm = () => {
             }
         }
 
-        // Car carpool validation
-        if (formData.commuteByCar && formData.carMode === 'carpool') {
+        // Car carpool validation (only when mode is carpool or both)
+        if (formData.commuteByCar && (formData.carMode === 'carpool' || formData.carMode === 'both')) {
             if (formData.carryOthersCar) {
                 validatePassengerEmails(formData.carPassengerEmails, 'car (carrying others)');
             }
@@ -1611,8 +1854,8 @@ const EmployeeCommutingForm = () => {
             }
         }
 
-        // Taxi carpool validation
-        if (formData.commuteByTaxi && formData.taxiMode === 'carpool' && formData.travelWithOthersTaxi) {
+        // Taxi carpool validation (only when mode is carpool or both)
+        if (formData.commuteByTaxi && (formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && formData.travelWithOthersTaxi) {
             validatePassengerEmails(formData.taxiPassengerEmails, 'taxi');
         }
 
@@ -1675,7 +1918,7 @@ const EmployeeCommutingForm = () => {
                     motorbikeType: formData.motorbikeType?.value || '',
                     motorbikeDates: motorbikeDates.map(date => date.toISOString()),
                     motorbikeDateRange: formData.motorbikeDateRange,
-                    ...(formData.motorbikeMode === 'carpool' && {
+                    ...((formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && {
                         carryOthersMotorbike: formData.carryOthersMotorbike,
                         travelWithOthersMotorbike: formData.travelWithOthersMotorbike,
                         ...(formData.carryOthersMotorbike && {
@@ -1708,7 +1951,7 @@ const EmployeeCommutingForm = () => {
                     taxiType: formData.taxiType?.value || '',
                     taxiDates: taxiDates.map(date => date.toISOString()),
                     taxiDateRange: formData.taxiDateRange,
-                    ...(formData.taxiMode === 'carpool' && {
+                    ...((formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && {
                         travelWithOthersTaxi: formData.travelWithOthersTaxi,
                         ...(formData.travelWithOthersTaxi && {
                             personsTravelWithTaxi: Number(formData.personsTravelWithTaxi?.value || 0) || 0,
@@ -1749,7 +1992,7 @@ const EmployeeCommutingForm = () => {
                     carFuelType: formData.carFuelType?.value || '',
                     carDates: carDates.map(date => date.toISOString()),
                     carDateRange: formData.carDateRange,
-                    ...(formData.carMode === 'carpool' && {
+                    ...((formData.carMode === 'carpool' || formData.carMode === 'both') && {
                         carryOthersCar: formData.carryOthersCar,
                         travelWithOthersCar: formData.travelWithOthersCar,
                         ...(formData.carryOthersCar && {
@@ -1814,7 +2057,7 @@ const EmployeeCommutingForm = () => {
 
                         // Motorbike Commute
                         commuteByMotorbike: false,
-                        motorbikeMode: 'individual',
+                        motorbikeMode: 'both',
                         motorbikeDistance: '',
                         motorbikeType: { value: 'Small', label: 'Small (<125cc)' },
                         carryOthersMotorbike: false,
@@ -1829,7 +2072,7 @@ const EmployeeCommutingForm = () => {
 
                         // Taxi Commute
                         commuteByTaxi: false,
-                        taxiMode: 'individual',
+                        taxiMode: 'both',
                         taxiPassengers: { value: '1', label: '1 passenger' },
                         taxiDistance: '',
                         taxiType: { value: 'Regular taxi', label: 'Regular Taxi' },
@@ -1853,7 +2096,7 @@ const EmployeeCommutingForm = () => {
 
                         // Car Commute
                         commuteByCar: false,
-                        carMode: 'individual',
+                        carMode: 'both',
                         carDistance: '',
                         carType: { value: 'Average car', label: 'Average car - Unknown engine size' },
                         carFuelType: { value: 'Diesel', label: 'Diesel' },
@@ -1878,6 +2121,17 @@ const EmployeeCommutingForm = () => {
                         // Submitted By
                         submittedByEmail: '',
                     });
+                    
+                    // Clear selected date ranges
+                    setSelectedDateRanges({
+                        motorbike: null,
+                        taxi: null,
+                        bus: null,
+                        train: null,
+                        car: null,
+                        workFromHome: null
+                    });
+                    
                     setSubmitted(false);
                 }, 3000);
             }
@@ -2182,40 +2436,28 @@ const EmployeeCommutingForm = () => {
 
                         {formData.commuteByMotorbike && (
                             <div className="ml-6 space-y-4">
-                                {/* New: Individual vs Carpool selection */}
+                                {/* Updated: Individual vs Carpool vs Both selection */}
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         How do you commute by motorbike? *
                                     </label>
                                     <div className="flex flex-wrap gap-4">
-                                        <div className="flex items-center">
-                                            <input
-                                                type="radio"
-                                                id="motorbike-individual"
-                                                name="motorbikeMode"
-                                                value="individual"
-                                                checked={formData.motorbikeMode === 'individual'}
-                                                onChange={(e) => handleInputChange('motorbikeMode', e.target.value)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            />
-                                            <label htmlFor="motorbike-individual" className="ml-2 block text-sm text-gray-700">
-                                                Individual
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <input
-                                                type="radio"
-                                                id="motorbike-carpool"
-                                                name="motorbikeMode"
-                                                value="carpool"
-                                                checked={formData.motorbikeMode === 'carpool'}
-                                                onChange={(e) => handleInputChange('motorbikeMode', e.target.value)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            />
-                                            <label htmlFor="motorbike-carpool" className="ml-2 block text-sm text-gray-700">
-                                                Carpool
-                                            </label>
-                                        </div>
+                                        {modeOptions.map((option) => (
+                                            <div key={option.value} className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    id={`motorbike-${option.value}`}
+                                                    name="motorbikeMode"
+                                                    value={option.value}
+                                                    checked={formData.motorbikeMode === option.value}
+                                                    onChange={(e) => handleInputChange('motorbikeMode', e.target.value)}
+                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                                />
+                                                <label htmlFor={`motorbike-${option.value}`} className="ml-2 block text-sm text-gray-700">
+                                                    {option.label}
+                                                </label>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 
@@ -2242,8 +2484,8 @@ const EmployeeCommutingForm = () => {
                                 {/* Date range picker for motorbike */}
                                 {renderDateRangePicker('motorbike', 'Motorbike Commute Date Range')}
 
-                                {/* Show additional questions only when Carpool is selected */}
-                                {formData.motorbikeMode === 'carpool' && (
+                                {/* Show additional questions only when Carpool or Both is selected */}
+                                {(formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && (
                                     <>
                                         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                                             <div className="mb-4">
@@ -2292,9 +2534,9 @@ const EmployeeCommutingForm = () => {
                                                     checked={formData.travelWithOthersMotorbike}
                                                     onChange={(e) => handleCheckboxChange('travelWithOthersMotorbike', e.target.checked)}
                                                 />
-                                            </div> */}
+                                            </div>
 
-                                            {/* {formData.travelWithOthersMotorbike && (
+                                            {formData.travelWithOthersMotorbike && (
                                                 <>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                         <Select
@@ -2333,40 +2575,28 @@ const EmployeeCommutingForm = () => {
 
                         {formData.commuteByTaxi && (
                             <div className="ml-6 space-y-4">
-                                {/* Individual/Carpool selection for taxi */}
+                                {/* Updated: Individual/Carpool/Both selection for taxi */}
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         How do you commute by taxi? *
                                     </label>
                                     <div className="flex flex-wrap gap-4">
-                                        <div className="flex items-center">
-                                            <input
-                                                type="radio"
-                                                id="taxi-individual"
-                                                name="taxiMode"
-                                                value="individual"
-                                                checked={formData.taxiMode === 'individual'}
-                                                onChange={(e) => handleInputChange('taxiMode', e.target.value)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            />
-                                            <label htmlFor="taxi-individual" className="ml-2 block text-sm text-gray-700">
-                                                Individual
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <input
-                                                type="radio"
-                                                id="taxi-carpool"
-                                                name="taxiMode"
-                                                value="carpool"
-                                                checked={formData.taxiMode === 'carpool'}
-                                                onChange={(e) => handleInputChange('taxiMode', e.target.value)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            />
-                                            <label htmlFor="taxi-carpool" className="ml-2 block text-sm text-gray-700">
-                                                Carpool
-                                            </label>
-                                        </div>
+                                        {modeOptions.map((option) => (
+                                            <div key={option.value} className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    id={`taxi-${option.value}`}
+                                                    name="taxiMode"
+                                                    value={option.value}
+                                                    checked={formData.taxiMode === option.value}
+                                                    onChange={(e) => handleInputChange('taxiMode', e.target.value)}
+                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                                />
+                                                <label htmlFor={`taxi-${option.value}`} className="ml-2 block text-sm text-gray-700">
+                                                    {option.label}
+                                                </label>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 
@@ -2399,8 +2629,8 @@ const EmployeeCommutingForm = () => {
                                 {/* Date range picker for taxi */}
                                 {renderDateRangePicker('taxi', 'Taxi Commute Date Range')}
 
-                                {/* Show travel with others only when Carpool is selected */}
-                                {formData.taxiMode === 'carpool' && (
+                                {/* Show travel with others only when Carpool or Both is selected */}
+                                {(formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && (
                                     <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                                         <div className="mt-4">
                                             <Checkbox
@@ -2538,40 +2768,28 @@ const EmployeeCommutingForm = () => {
 
                         {formData.commuteByCar && (
                             <div className="ml-6 space-y-4">
-                                {/* New: Individual vs Carpool selection for car */}
+                                {/* Updated: Individual vs Carpool vs Both selection for car */}
                                 <div className="mb-4">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         How do you commute by car? *
                                     </label>
                                     <div className="flex flex-wrap gap-4">
-                                        <div className="flex items-center">
-                                            <input
-                                                type="radio"
-                                                id="car-individual"
-                                                name="carMode"
-                                                value="individual"
-                                                checked={formData.carMode === 'individual'}
-                                                onChange={(e) => handleInputChange('carMode', e.target.value)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            />
-                                            <label htmlFor="car-individual" className="ml-2 block text-sm text-gray-700">
-                                                Individual
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center">
-                                            <input
-                                                type="radio"
-                                                id="car-carpool"
-                                                name="carMode"
-                                                value="carpool"
-                                                checked={formData.carMode === 'carpool'}
-                                                onChange={(e) => handleInputChange('carMode', e.target.value)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            />
-                                            <label htmlFor="car-carpool" className="ml-2 block text-sm text-gray-700">
-                                                Carpool
-                                            </label>
-                                        </div>
+                                        {modeOptions.map((option) => (
+                                            <div key={option.value} className="flex items-center">
+                                                <input
+                                                    type="radio"
+                                                    id={`car-${option.value}`}
+                                                    name="carMode"
+                                                    value={option.value}
+                                                    checked={formData.carMode === option.value}
+                                                    onChange={(e) => handleInputChange('carMode', e.target.value)}
+                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                                />
+                                                <label htmlFor={`car-${option.value}`} className="ml-2 block text-sm text-gray-700">
+                                                    {option.label}
+                                                </label>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
 
@@ -2604,8 +2822,8 @@ const EmployeeCommutingForm = () => {
                                 {/* Date range picker for car */}
                                 {renderDateRangePicker('car', 'Car Commute Date Range')}
 
-                                {/* Show additional questions only when Carpool is selected */}
-                                {formData.carMode === 'carpool' && (
+                                {/* Show additional questions only when Carpool or Both is selected */}
+                                {(formData.carMode === 'carpool' || formData.carMode === 'both') && (
                                     <>
                                         <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                                             <div className="mb-4">

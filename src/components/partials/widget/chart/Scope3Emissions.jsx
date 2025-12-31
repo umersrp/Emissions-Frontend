@@ -47,10 +47,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading }) => {
     },
     {
       name: "Business Travel",
-      value: businessTravel.reduce(
-        (s, i) => s + (i.totalEmissionTCo2e || 0),
-        0
-      ),
+      value: businessTravel?.totalEmissionTCo2e || 0,
     },
     {
       name: "Employee Commuting",
@@ -61,10 +58,21 @@ const Scope3EmissionsSection = ({ dashboardData, loading }) => {
     },
   ];
 
+
   const totalScope3Emissions = barChartData.reduce(
     (acc, i) => acc + i.value,
     0
   );
+  const businessTravelRows = businessTravel
+    ? [
+      {
+        _id: "All Modes",
+        totalEmissionTCo2e: businessTravel.totalEmissionTCo2e,
+        totalPassengerKm: businessTravel.totalPassengerKm ?? "N/A",
+      },
+    ]
+    : [];
+
 
   /* ------------------ Table Mapping ------------------ */
   const tableSections = [
@@ -82,10 +90,11 @@ const Scope3EmissionsSection = ({ dashboardData, loading }) => {
     },
     {
       title: "Business Travel",
-      data: businessTravel,
+      data: businessTravelRows,
       quantityLabel: "Passenger Km",
       quantityKey: "totalPassengerKm",
     },
+
     {
       title: "Employee Commuting",
       data: employeeCommuting,
@@ -142,9 +151,8 @@ const Scope3EmissionsSection = ({ dashboardData, loading }) => {
                     {idx === 0 && (
                       <td
                         rowSpan={data.length}
-                        className={`border p-3 font-semibold align-middle ${
-                          categoryColors[title]
-                        }`}
+                        className={`border p-3 font-semibold align-middle ${categoryColors[title]
+                          }`}
                       >
                         {title}
                       </td>
