@@ -148,7 +148,79 @@ const Dashboard = () => {
     buildingId: item.buildingId,
   })) || [];
 
+  const sumEmissionTCo2e = (data) => {
+  if (!data) return 0;
 
+  // Case 1: Array of records
+  if (Array.isArray(data)) {
+    return data.reduce(
+      (sum, item) => sum + (item?.totalEmissionTCo2e || 0),
+      0
+    );
+  }
+
+  // Case 2: Object with totalEmissionTCo2e
+  if (typeof data === "object") {
+    return data.totalEmissionTCo2e || 0;
+  }
+
+  return 0;
+};
+
+
+
+
+  const allModelEmissionData = dashboardData
+    ? [
+      // Scope 1
+      {
+        name: "Stationary Combustion",
+        value: dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0,
+      },
+      {
+        name: "Transport",
+        value: dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0,
+      },
+      {
+        name: "Fugitive",
+        value: dashboardData?.scope1?.fugitive?.totalEmissionTCo2e || 0,
+      },
+      {
+        name: "Emission Activity",
+        value: dashboardData?.scope1?.emissionActivity?.totalEmissionTCo2e || 0,
+      },
+
+      // Scope 2
+      {
+        name: "Purchased Electricity (Location)",
+        value: dashboardData?.scope2?.purchasedElectricity?.totalLocationTCo2e || 0,
+      },
+      {
+        name: "Purchased Electricity (Market)",
+        value: dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0,
+      },
+
+      // Scope 3
+      {
+        name: "Purchased Goods & Services",
+        value: sumEmissionTCo2e(
+          dashboardData?.scope3?.purchasedGoodsAndServices
+        ),
+      },
+      {
+        name: "Business Travel",
+        value: sumEmissionTCo2e(
+          dashboardData?.scope3?.businessTravel
+        ),
+      },
+      {
+        name: "Waste Generated",
+        value: sumEmissionTCo2e(
+          dashboardData?.scope3?.wasteGeneratedInOperations
+        ),
+      },
+    ]
+    : [];
 
 
 
@@ -199,7 +271,7 @@ const Dashboard = () => {
               placeholder="Select Departments"
 
             >
-              {["Select Departments","Operations", "Finance", "HR", "IT", "Maintenance"].map((dept) => (
+              {["Select Departments", "Operations", "Finance", "HR", "IT", "Maintenance"].map((dept) => (
                 <option key={dept} value={dept}>
                   {dept}
                 </option>
@@ -274,7 +346,7 @@ const Dashboard = () => {
         </div>
 
         {/* Charts */}
-        <div className="flex gap-6 flex-wrap">
+        <div className="flex gap-6 flex-wrap mb-2">
           <Card className="flex-1 p-4 min-w-[320px]">
             <h3 className="font-semibold mb-4 text-xl flex items-center gap-2">
               GHG Emissions by Scopes
@@ -305,6 +377,23 @@ const Dashboard = () => {
 
           </Card>
         </div>
+
+        <div>
+          <Card className="flex-1 p-4 min-w-[320px]">
+            <h3 className="font-semibold mb-4 text-xl flex items-center gap-2">
+             Category-Wise GHG Emissions
+              <Tooltip title="This chart shows emissions from all emission models combined (tCO₂e).">
+                <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
+              </Tooltip>
+            </h3>
+
+            <RevenueBarChart
+              chartData={allModelEmissionData}
+              height={450}
+            />
+          </Card>
+        </div>
+
         <div>
           <Card className="flex-1 p-4 min-w-[320px]">
             <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} />
