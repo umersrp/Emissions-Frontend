@@ -121,7 +121,7 @@ const Scope1EmissionsSection = ({ dashboardData, loading }) => {
                       {idx === 0 && (
                         <td
                           rowSpan={limitedFuels.length}
-                          className={`border p-3 font-semibold align-middle ${
+                          className={`border pl-3 font-semibold align-middle ${
                             categoryColors[category] || "bg-gray-100"
                           }`}
                         >

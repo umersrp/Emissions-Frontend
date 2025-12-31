@@ -10,18 +10,14 @@ import Select from "@/components/ui/Select";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Tooltip } from '@mui/material';
 
-
-
 const Dashboard = () => {
   const [buildings, setBuildings] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
   const [selectedBuilding, setSelectedBuilding] = useState([]);
-
   const [loading, setLoading] = useState(false);
   const [selectedDepartments, setSelectedDepartments] = useState([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-
 
   // Fetch buildings list on mount
   useEffect(() => {
@@ -95,16 +91,13 @@ const Dashboard = () => {
     }
   };
 
-
   const clearFilters = () => {
     setSelectedDepartments([]);
     setFromDate("");
     setToDate("");
   };
 
-
   // --- Calculate emissions ---
-
   // Scope 1: sum of stationary, transport, fugitive, emissionActivity
   const scope1Emission =
     (dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0) +
@@ -134,12 +127,10 @@ const Dashboard = () => {
     { name: "Scope 3", value: scope3Emission },
   ];
 
-
   const buildingMap = {};
   buildings.forEach((b) => {
     buildingMap[b._id] = b.buildingName;
   });
-
 
   // Bar chart data
   const barChartData = dashboardData?.companyBuildingEmissions?.map((item) => ({
@@ -236,8 +227,6 @@ const Dashboard = () => {
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar: Building filter */}
 
-
-
       {/* Main content */}
       <main className="flex-1 p-6 overflow-auto">
         <div className="flex flex-wrap gap-4 mb-6 items-end bg-white p-4 rounded-xl shadow-lg">
@@ -279,7 +268,6 @@ const Dashboard = () => {
             </select>
           </div>
 
-
           {/* Date range filter */}
           <div>
             <label className="block font-semibold text-gray-700 mb-1">From Date</label>
@@ -319,36 +307,43 @@ const Dashboard = () => {
 
         {/* Summary cards */}
         <div className="flex gap-4 mb-6 flex-wrap">
-          <Card className="flex-1 text-black p-6 rounded-lg shadow-lg min-w-[220px]">
+          <Card className="flex-1 text-black rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Total GHG Emissions</h3>
             <p className="text-2xl text-red-500 font-bold mt-2">
               {formatNumber(totalEmission)} <span className="text-base font-normal">tCO₂e</span>
             </p>
           </Card>
 
-          <Card className="flex-1 p-6 rounded-lg shadow-lg min-w-[220px]">
+          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Scope 1 Emissions</h3>
             <p className="text-2xl text-green-500 font-bold mt-2">{formatNumber(scope1Emission)} tCO₂e</p>
             <p className="text-sm text-gray-600">Direct emissions</p>
           </Card>
 
-          <Card className="flex-1 p-6 rounded-lg shadow-lg min-w-[220px]">
+          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Scope 2 Emissions</h3>
             <p className="text-2xl text-orange-500 font-bold mt-2">{formatNumber(scope2Emission)} tCO₂e</p>
             <p className="text-sm text-gray-600">Indirect from energy</p>
           </Card>
 
-          <Card className="flex-1 p-6 rounded-lg shadow-lg min-w-[220px]">
+          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Scope 3 Emissions</h3>
             <p className="text-2xl text-purple-500 font-bold mt-2">{formatNumber(scope3Emission)} tCO₂e</p>
             <p className="text-sm text-gray-600">Other indirect emissions</p>
           </Card>
+
+          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
+            <h3 className="text-lg font-semibold">Scope 3 Emissions</h3>
+            <p className="text-2xl text-purple-500 font-bold mt-2">{formatNumber(scope3Emission)} tCO₂e</p>
+            <p className="text-sm text-gray-600">Other indirect emissions</p>
+          </Card>
+          
         </div>
 
         {/* Charts */}
-        <div className="flex gap-6 flex-wrap mb-2">
-          <Card className="flex-1 p-4 min-w-[320px]">
-            <h3 className="font-semibold mb-4 text-xl flex items-center gap-2">
+        <div className="grid gap-6 grid-cols-3">
+          <Card className="flex-1  min-w-[320px]">
+            <h3 className="font-semibold mb-20 text-xl flex items-center gap-2">
               GHG Emissions by Scopes
               <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e.">
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
@@ -357,10 +352,8 @@ const Dashboard = () => {
             <GroupChart1 chartData={pieData} loading={loading} />
           </Card>
 
-
-          <Card className="flex-1 p-4 min-w-[320px]">
-
-            <h3 className="font-semibold mb-4 text-xl flex items-center gap-2">
+          <Card className="flex-1  min-w-[320px] col-span-2">
+            <h3 className="font-semibold  text-xl flex items-center gap-2">
               Building-wise GHG Emissions
               <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e.">
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
@@ -374,23 +367,6 @@ const Dashboard = () => {
                 // navigate(`/dashboard?buildingId=${building.buildingId}`);
               }}
             />
-
-          </Card>
-        </div>
-
-        <div>
-          <Card className="flex-1 p-4 min-w-[320px]">
-            <h3 className="font-semibold mb-4 text-xl flex items-center gap-2">
-             Category-Wise GHG Emissions
-              <Tooltip title="This chart shows emissions from all emission models combined (tCO₂e).">
-                <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
-              </Tooltip>
-            </h3>
-
-            <RevenueBarChart
-              chartData={allModelEmissionData}
-              height={450}
-            />
           </Card>
         </div>
 
@@ -399,6 +375,7 @@ const Dashboard = () => {
             <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} />
           </Card>
         </div>
+        
         <div>
           <Card className="flex-1 p-4 min-w-[320px]">
             <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} />
