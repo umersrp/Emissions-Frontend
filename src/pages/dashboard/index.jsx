@@ -104,18 +104,22 @@ const Dashboard = () => {
 
 
   // --- Calculate emissions ---
+  const purchasedElectricity = dashboardData?.scope2?.purchasedElectricity;
+
 
   // Scope 1: sum of stationary, transport, fugitive, emissionActivity
   const scope1Emission =
     (dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0) +
     (dashboardData?.scope1?.fugitive?.totalEmissionTCo2e || 0) +
     (dashboardData?.scope1?.emissionActivity?.totalEmissionTCo2e || 0) +
-    (dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0);
+    (dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0) +
+    (dashboardData?.scope1?.processEmissions?.totalEmissionTCo2e || 0);
 
   // Scope 2: sum of purchased electricity (location + market)
   const scope2Emission =
-    (dashboardData?.scope2?.purchasedElectricity?.totalLocationTCo2e || 0) +
-    (dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0);
+    Number(dashboardData?.scope2?.purchasedElectricity?.totalLocationTCo2e || 0) +
+    Number(dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0);
+
 
   // Scope 3: default 0 if not available
   const scope3Emission = dashboardData?.scope3
@@ -129,9 +133,9 @@ const Dashboard = () => {
 
   // Pie chart data
   const pieData = [
-    { name: "Scope 1", value: scope1Emission },
-    { name: "Scope 2", value: scope2Emission },
-    { name: "Scope 3", value: scope3Emission },
+    { name: "Scope 1", value: Number(scope1Emission) || 0 },
+    { name: "Scope 2", value: Number(scope2Emission) || 0 },
+    { name: "Scope 3", value: Number(scope3Emission) || 0 },
   ];
 
 
@@ -149,25 +153,30 @@ const Dashboard = () => {
   })) || [];
 
   const sumEmissionTCo2e = (data) => {
-  if (!data) return 0;
+    if (!data) return 0;
 
-  // Case 1: Array of records
-  if (Array.isArray(data)) {
-    return data.reduce(
-      (sum, item) => sum + (item?.totalEmissionTCo2e || 0),
-      0
-    );
-  }
+    // Case 1: Array of records
+    if (Array.isArray(data)) {
+      return data.reduce(
+        (sum, item) => sum + (item?.totalEmissionTCo2e || 0),
+        0
+      );
+    }
 
-  // Case 2: Object with totalEmissionTCo2e
-  if (typeof data === "object") {
-    return data.totalEmissionTCo2e || 0;
-  }
+    // Case 2: Object with totalEmissionTCo2e
+    if (typeof data === "object") {
+      return data.totalEmissionTCo2e || 0;
+    }
 
-  return 0;
-};
+    return 0;
+  };
 
 
+  // const scope3Emission = dashboardData?.scope3
+  //   ? sumEmissionTCo2e(dashboardData.scope3.businessTravel) +
+  //   sumEmissionTCo2e(dashboardData.scope3.purchasedGoodsAndServices) +
+  //   sumEmissionTCo2e(dashboardData.scope3.wasteGeneratedInOperations)
+  //   : 0;
 
 
   const allModelEmissionData = dashboardData
@@ -178,7 +187,7 @@ const Dashboard = () => {
         value: dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0,
       },
       {
-        name: "Transport",
+        name: "Auto Mobile Combustion",
         value: dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0,
       },
       {
@@ -186,23 +195,23 @@ const Dashboard = () => {
         value: dashboardData?.scope1?.fugitive?.totalEmissionTCo2e || 0,
       },
       {
-        name: "Emission Activity",
+        name: "Process Emission",
         value: dashboardData?.scope1?.emissionActivity?.totalEmissionTCo2e || 0,
       },
 
       // Scope 2
       {
-        name: "Purchased Electricity (Location)",
+        name: "Purchased Electricity L",
         value: dashboardData?.scope2?.purchasedElectricity?.totalLocationTCo2e || 0,
       },
       {
-        name: "Purchased Electricity (Market)",
+        name: "Purchased Electricity M",
         value: dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0,
       },
 
       // Scope 3
       {
-        name: "Purchased Goods & Services",
+        name: "Purchased Goods",
         value: sumEmissionTCo2e(
           dashboardData?.scope3?.purchasedGoodsAndServices
         ),
@@ -219,6 +228,37 @@ const Dashboard = () => {
           dashboardData?.scope3?.wasteGeneratedInOperations
         ),
       },
+      {
+        name: "Purchased Goods",
+        value: sumEmissionTCo2e(
+          dashboardData?.scope3?.purchasedGoods
+        ),
+      },
+      {
+        name: "Fuel and Energy",
+        value: sumEmissionTCo2e(
+          dashboardData?.scope3?.FuelAndEnergys
+        ),
+      },
+      {
+        name: "UpStream",
+        value: sumEmissionTCo2e(
+          dashboardData?.scope3?.UpstreamTransportations
+        ),
+      },
+      {
+        name: "DownStream",
+        value: sumEmissionTCo2e(
+          dashboardData?.scope3?.DownstreamTransportations
+        ),
+      },
+      {
+        name: "CapitalGoods",
+        value: sumEmissionTCo2e(
+          dashboardData?.scope3?.CapitalGoods
+        ),
+      },
+
     ]
     : [];
 
@@ -334,9 +374,39 @@ const Dashboard = () => {
 
           <Card className="flex-1 p-6 rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Scope 2 Emissions</h3>
-            <p className="text-2xl text-orange-500 font-bold mt-2">{formatNumber(scope2Emission)} tCO₂e</p>
-            <p className="text-sm text-gray-600">Indirect from energy</p>
+
+            {/* TOTAL (same size as Scope 1) */}
+            <p className="text-2xl font-bold text-orange-500 mt-2">
+              {formatNumber(
+                (purchasedElectricity?.totalLocationTCo2e || 0) +
+                (purchasedElectricity?.totalMarketTCo2e || 0)
+              )}{" "}
+              tCO₂e
+            </p>
+
+            {/* Breakdown (smaller, subtle) */}
+            <div className="mt-1 space-y-1">
+              <p className="text-xs text-gray-500">
+                Location:{" "}
+                <span className="font-medium text-orange-500">
+                  {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)}
+                </span>
+              </p>
+              <p className="text-xs text-gray-500">
+                Market:{" "}
+                <span className="font-medium text-orange-500">
+                  {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)}
+                </span>
+              </p>
+            </div>
+
+            <p className="text-sm text-gray-600 mt-2">
+              Indirect emissions
+            </p>
           </Card>
+
+
+
 
           <Card className="flex-1 p-6 rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Scope 3 Emissions</h3>
@@ -346,9 +416,9 @@ const Dashboard = () => {
         </div>
 
         {/* Charts */}
-        <div className="flex gap-6 flex-wrap mb-2">
-          <Card className="flex-1 p-4 min-w-[320px]">
-            <h3 className="font-semibold mb-4 text-xl flex items-center gap-2">
+        <div className="grid gap-6 grid-cols-3 mb-5">
+          <Card className="flex-1  min-w-[320px]">
+            <h3 className="font-semibold mb-20 text-xl flex items-center gap-2">
               GHG Emissions by Scopes
               <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e.">
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
@@ -357,10 +427,8 @@ const Dashboard = () => {
             <GroupChart1 chartData={pieData} loading={loading} />
           </Card>
 
-
-          <Card className="flex-1 p-4 min-w-[320px]">
-
-            <h3 className="font-semibold mb-4 text-xl flex items-center gap-2">
+          <Card className="flex-1  min-w-[320px] col-span-2">
+            <h3 className="font-semibold  text-xl flex items-center gap-2">
               Building-wise GHG Emissions
               <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e.">
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
@@ -374,18 +442,18 @@ const Dashboard = () => {
                 // navigate(`/dashboard?buildingId=${building.buildingId}`);
               }}
             />
-
           </Card>
         </div>
 
-        <div>
-          <Card className="flex-1 p-4 min-w-[320px]">
-            <h3 className="font-semibold mb-4 text-xl flex items-center gap-2">
-             Category-Wise GHG Emissions
-              <Tooltip title="This chart shows emissions from all emission models combined (tCO₂e).">
+
+        <div className="mb-5">
+          <Card className="flex-1 min-w-[320px]" title="Category-Wise GHG Emissions">
+            <div className="flex items-center gap-2 mb-4">
+              <span>Category-Wise GHG Emissions</span>
+              <Tooltip title="This chart shows emissions from all emission models combined (tCO₂e)." arrow>
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
               </Tooltip>
-            </h3>
+            </div>
 
             <RevenueBarChart
               chartData={allModelEmissionData}
@@ -394,13 +462,14 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        <div>
-          <Card className="flex-1 p-4 min-w-[320px]">
+
+        <div className="mb-5">
+          <Card className="flex-1  min-w-[320px]" title="Scope 1 Emissions by Category">
             <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} />
           </Card>
         </div>
         <div>
-          <Card className="flex-1 p-4 min-w-[320px]">
+          <Card className="flex-1  min-w-[320px]" title="Scope 2 Emissions by Category">
             <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} />
           </Card>
         </div>
