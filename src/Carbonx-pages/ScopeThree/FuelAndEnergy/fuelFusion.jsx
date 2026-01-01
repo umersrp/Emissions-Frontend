@@ -119,31 +119,31 @@ const FuelFusion = () => {
             { Header: "Stakeholder", accessor: "stakeholder" },
             { Header: "Fuel Type", accessor: "fuelType" },
             { Header: "Fuel Name", accessor: "fuel", Cell: ({ value }) => capitalizeLabel(value) },
-            { Header: "Total Fuel Consumption", accessor: "totalFuelConsumption", Cell: ({ value }) => value === "0" || value === 0 || value === "" ? "N/A" : value },
-            { Header: "Consumption Unit", accessor: "fuelConsumptionUnit" },
-            { Header: "Total Gross Electricity Purchased from Grid, Specific Supplier or under PPA", accessor: "totalGrossElectricityPurchased", Cell: ({ value }) => value === "0" || value === 0 || value === "" ? "N/A" : value },
+            { Header: "Total Fuel Consumption", accessor: "totalFuelConsumption", Cell: ({ value }) => value === "0" || value === 0 || value === null ? "N/A" : value },
+            { Header: "Consumption Unit", accessor: "fuelConsumptionUnit", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Total Gross Electricity Purchased from Grid, Specific Supplier or under PPA", accessor: "totalGrossElectricityPurchased", Cell: ({ value }) => value === "0" || value === 0 || value === null ? "N/A" : value },
             { Header: "Unit", accessor: "unit", Cell: ({ cell }) => cell.value || "N/A" },
 
             { Header: "Business Travel By Air", accessor: "didTravelByAir", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             { Header: "No of Passengers", accessor: "airPassengers", Cell: ({ cell }) => cell.value || "N/A" },
-            { Header: "Distance (km)", accessor: "airDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Distance Travelled", accessor: "airDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Travel Class", accessor: "airTravelClass", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Flight Type", accessor: "airFlightType", Cell: ({ cell }) => cell.value || "N/A" },
 
 
             { Header: "Business Travel By Taxi", accessor: "didTravelByTaxi", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             { Header: "No of Passengers", accessor: "taxiPassengers", Cell: ({ cell }) => cell.value || "N/A" },
-            { Header: "Distance (km)", accessor: "taxiDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Distance Travelled", accessor: "taxiDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Taxi Type", accessor: "taxiType", Cell: ({ cell }) => cell.value || "N/A" },
 
             { Header: "Business Travel By Bus", accessor: "didTravelByBus", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             { Header: "No of Passengers", accessor: "busPassengers", Cell: ({ cell }) => cell.value || "N/A" },
-            { Header: "Distance (km)", accessor: "busDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Distance Travelled", accessor: "busDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Bus Type", accessor: "busType", Cell: ({ cell }) => cell.value || "N/A" },
 
             { Header: "Business Travel By Train", accessor: "didTravelByTrain", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             { Header: "No of Passengers", accessor: "trainPassengers", Cell: ({ cell }) => cell.value || "N/A" },
-            { Header: "Distance (km)", accessor: "trainDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Distance Travelled", accessor: "trainDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Train Type", accessor: "trainType", Cell: ({ cell }) => cell.value || "N/A" },
             {
                 Header: "Calculated Emissions (kgCO₂e)",

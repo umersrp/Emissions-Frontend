@@ -87,20 +87,42 @@ const PurchasedElectricityFormPage = () => {
     }
   };
 
-  useEffect(() => {
+useEffect(() => {
     const fetchBuildings = async () => {
-      try {
-        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-        });
-        setBuildingOptions(res.data?.data?.buildings?.map((b) => ({ value: b._id, label: b.buildingName })) || []);
-      } catch {
-        toast.error("Failed to load buildings");
-      }
+        try {
+            const res = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+                {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                }
+            );
+            
+            // Get buildings from response
+            const buildings = res.data?.data?.buildings || [];
+            
+            // Sort buildings alphabetically by buildingName
+            const sortedBuildings = [...buildings].sort((a, b) => {
+                const nameA = (a.buildingName || '').toUpperCase();
+                const nameB = (b.buildingName || '').toUpperCase();
+                
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0;
+            });
+            
+            // Format sorted buildings for dropdown
+            const formatted = sortedBuildings.map((b) => ({
+                value: b._id,
+                label: b.buildingName || 'Unnamed Building',
+            }));
+            
+            setBuildingOptions(formatted);
+        } catch {
+            toast.error("Failed to load buildings");
+        }
     };
     fetchBuildings();
-  }, []);
-
+}, []);
   useEffect(() => {
     if (isEdit || isView) {
       const fetchRecord = async () => {
@@ -221,12 +243,7 @@ const PurchasedElectricityFormPage = () => {
       //             Calculated Emissions (Market_based): ${formattedMarketKg} kg CO₂e (${formattedMarketT} t CO₂e)`);
     }
   };
-  // const handleInputChange = (e) => {
-  //   if (isView) return;
-  //   const { name, value } = e.target;
-  //   setFormData((prev) => ({ ...prev, [name]: value }));
-  //   setErrors((prev) => ({ ...prev, [name]: "" }));
-  // };
+  
   const handleInputChange = (e) => {
   if (isView) return;
   const { name, value } = e.target;

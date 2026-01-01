@@ -138,26 +138,62 @@ const FuelEnergyForm = () => {
     };
 
     // Fetch Buildings
+    // useEffect(() => {
+    //     const fetchBuildings = async () => {
+    //         try {
+    //             const res = await axios.get(
+    //                 `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+    //                 {
+    //                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    //                 }
+    //             );
+    //             const formatted = res.data?.data?.buildings?.map((b) => ({
+    //                 value: b._id,
+    //                 label: b.buildingName,
+    //             })) || [];
+    //             setBuildingOptions(formatted);
+    //         } catch {
+    //             toast.error("Failed to load buildings");
+    //         }
+    //     };
+    //     fetchBuildings();
+    // }, []);
     useEffect(() => {
-        const fetchBuildings = async () => {
-            try {
-                const res = await axios.get(
-                    `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
-                    {
-                        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                    }
-                );
-                const formatted = res.data?.data?.buildings?.map((b) => ({
-                    value: b._id,
-                    label: b.buildingName,
-                })) || [];
-                setBuildingOptions(formatted);
-            } catch {
-                toast.error("Failed to load buildings");
-            }
-        };
-        fetchBuildings();
-    }, []);
+    const fetchBuildings = async () => {
+        try {
+            const res = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+                {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                }
+            );
+            
+            // Get buildings from response
+            const buildings = res.data?.data?.buildings || [];
+            
+            // Sort buildings alphabetically by buildingName
+            const sortedBuildings = [...buildings].sort((a, b) => {
+                const nameA = (a.buildingName || '').toUpperCase();
+                const nameB = (b.buildingName || '').toUpperCase();
+                
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0;
+            });
+            
+            // Format sorted buildings for dropdown
+            const formatted = sortedBuildings.map((b) => ({
+                value: b._id,
+                label: b.buildingName || 'Unnamed Building',
+            }));
+            
+            setBuildingOptions(formatted);
+        } catch {
+            toast.error("Failed to load buildings");
+        }
+    };
+    fetchBuildings();
+}, []);
     // Fetch record for Edit/View mode
     useEffect(() => {
         if (isEdit || isView) {
@@ -445,7 +481,7 @@ const FuelEnergyForm = () => {
 
         // Basic field validations
         if (!formData.buildingId) newErrors.buildingId = "Building is required";
-        if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder/Department is required";
+        if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder / Department is required";
         if (!formData.fuel) newErrors.fuel = "Fuel is required";
         // if (!formData.fuelConsumptionUnit) newErrors.fuelConsumptionUnit = "Fuel consumption unit is required";
         if (!formData.fuelType) newErrors.fuelType = "Fuel type is required";

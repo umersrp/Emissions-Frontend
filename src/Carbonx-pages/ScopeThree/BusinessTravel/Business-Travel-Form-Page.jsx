@@ -274,27 +274,42 @@ const BusinessTravelFormPage = () => {
     });
   };
 
-  useEffect(() => {
+useEffect(() => {
     const fetchBuildings = async () => {
-      try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-
-        setBuildingOptions(
-          res.data?.data?.buildings?.map((b) => ({
-            value: b._id,
-            label: b.buildingName,
-          }))
-        );
-      } catch {
-        toast.error("Failed to load buildings");
-      }
+        try {
+            const res = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+                {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                }
+            );
+            
+            // Get buildings from response
+            const buildings = res.data?.data?.buildings || [];
+            
+            // Sort buildings alphabetically by buildingName
+            const sortedBuildings = [...buildings].sort((a, b) => {
+                const nameA = (a.buildingName || '').toUpperCase();
+                const nameB = (b.buildingName || '').toUpperCase();
+                
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0;
+            });
+            
+            // Format sorted buildings for dropdown
+            const formatted = sortedBuildings.map((b) => ({
+                value: b._id,
+                label: b.buildingName || 'Unnamed Building',
+            }));
+            
+            setBuildingOptions(formatted);
+        } catch {
+            toast.error("Failed to load buildings");
+        }
     };
-
     fetchBuildings();
-  }, []);
+}, []);
 
   useEffect(() => {
     const fetchBusinessTravelById = async () => {
@@ -633,7 +648,7 @@ const handleSubmit = async (e) => {
                 </div>
 
                 <div>
-                  <label className="field-label">Distance (km)</label>
+                  <label className="field-label">Distance Travelled (km)</label>
                   <InputGroup
                     type="number"
                     name="airDistanceKm"
@@ -693,7 +708,7 @@ const handleSubmit = async (e) => {
             {formData.travelByMotorbike && (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <div>
-                  <label className="field-label">Distance (km)</label>
+                  <label className="field-label">Distance Travelled (km)</label>
                   <InputGroup
                     type="number"
                     name="motorbikeDistanceKm"
@@ -753,7 +768,7 @@ const handleSubmit = async (e) => {
                 </div>
 
                 <div>
-                  <label className="field-label">Distance (km)</label>
+                  <label className="field-label">Distance Travelled (km)</label>
                   <InputGroup
                     type="number"
                     name="taxiDistanceKm"
@@ -813,7 +828,7 @@ const handleSubmit = async (e) => {
                 </div>
 
                 <div>
-                  <label className="field-label">Distance (km)</label>
+                  <label className="field-label">Distance Travelled (km)</label>
                   <InputGroup
                     type="number"
                     name="busDistanceKm"
@@ -875,7 +890,7 @@ const handleSubmit = async (e) => {
                 </div>
 
                 <div>
-                  <label className="field-label">Distance (km)</label>
+                  <label className="field-label">Distance Travelled (km)</label>
                   <InputGroup
                     type="number"
                     name="trainDistanceKm"
@@ -921,7 +936,7 @@ const handleSubmit = async (e) => {
             {formData.travelByCar && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
-                  <label className="field-label">Distance (km)</label>
+                  <label className="field-label">Distance Travelled (km)</label>
                   <InputGroup
                     type="number"
                     name="carDistanceKm"

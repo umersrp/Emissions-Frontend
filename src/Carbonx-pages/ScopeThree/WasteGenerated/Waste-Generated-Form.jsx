@@ -44,29 +44,43 @@ const WasteGeneratedFormPage = () => {
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
 
-
-  useEffect(() => {
+useEffect(() => {
     const fetchBuildings = async () => {
-      try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-
-        const formatted =
-          res.data?.data?.buildings?.map((b) => ({
-            value: b._id,
-            label: b.buildingName
-          })) || [];
-
-        setBuildingOptions(formatted);
-      } catch {
-        toast.error("Failed to load buildings");
-      }
+        try {
+            const res = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+                {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                }
+            );
+            
+            // Get buildings from response
+            const buildings = res.data?.data?.buildings || [];
+            
+            // Sort buildings alphabetically by buildingName
+            const sortedBuildings = [...buildings].sort((a, b) => {
+                const nameA = (a.buildingName || '').toUpperCase();
+                const nameB = (b.buildingName || '').toUpperCase();
+                
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0;
+            });
+            
+            // Format sorted buildings for dropdown
+            const formatted = sortedBuildings.map((b) => ({
+                value: b._id,
+                label: b.buildingName || 'Unnamed Building',
+            }));
+            
+            setBuildingOptions(formatted);
+        } catch {
+            toast.error("Failed to load buildings");
+        }
     };
-
     fetchBuildings();
-  }, []);
+}, []);
+
   useEffect(() => {
     const qty = formData.totalWasteQty;
     const wasteType = formData.wasteType?.value;
