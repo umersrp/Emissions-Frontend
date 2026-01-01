@@ -90,17 +90,39 @@ const PurchasedElectricityFormPage = () => {
   useEffect(() => {
     const fetchBuildings = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        const res = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          }
+        );
+
+        // Get buildings from response
+        const buildings = res.data?.data?.buildings || [];
+
+        // Sort buildings alphabetically by buildingName
+        const sortedBuildings = [...buildings].sort((a, b) => {
+          const nameA = (a.buildingName || '').toUpperCase();
+          const nameB = (b.buildingName || '').toUpperCase();
+
+          if (nameA < nameB) return -1;
+          if (nameA > nameB) return 1;
+          return 0;
         });
-        setBuildingOptions(res.data?.data?.buildings?.map((b) => ({ value: b._id, label: b.buildingName })) || []);
+
+        // Format sorted buildings for dropdown
+        const formatted = sortedBuildings.map((b) => ({
+          value: b._id,
+          label: b.buildingName || 'Unnamed Building',
+        }));
+
+        setBuildingOptions(formatted);
       } catch {
         toast.error("Failed to load buildings");
       }
     };
     fetchBuildings();
   }, []);
-
   useEffect(() => {
     if (isEdit || isView) {
       const fetchRecord = async () => {
@@ -221,32 +243,27 @@ const PurchasedElectricityFormPage = () => {
       //             Calculated Emissions (Market_based): ${formattedMarketKg} kg CO₂e (${formattedMarketT} t CO₂e)`);
     }
   };
-  // const handleInputChange = (e) => {
-  //   if (isView) return;
-  //   const { name, value } = e.target;
-  //   setFormData((prev) => ({ ...prev, [name]: value }));
-  //   setErrors((prev) => ({ ...prev, [name]: "" }));
-  // };
+
   const handleInputChange = (e) => {
-  if (isView) return;
-  const { name, value } = e.target;
-  setFormData((prev) => ({ ...prev, [name]: value }));
-  
-  setErrors((prev) => {
-    const newErrors = { ...prev, [name]: "" };
-    
-    // Special handling for the two electricity fields
-    if (name === 'totalGrossElectricityGrid' || name === 'totalOtherSupplierElectricity') {
-      // If this field has a value, clear errors from both fields
-      if (value) {
-        newErrors.totalGrossElectricityGrid = "";
-        newErrors.totalOtherSupplierElectricity = "";
+    if (isView) return;
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setErrors((prev) => {
+      const newErrors = { ...prev, [name]: "" };
+
+      // Special handling for the two electricity fields
+      if (name === 'totalGrossElectricityGrid' || name === 'totalOtherSupplierElectricity') {
+        // If this field has a value, clear errors from both fields
+        if (value) {
+          newErrors.totalGrossElectricityGrid = "";
+          newErrors.totalOtherSupplierElectricity = "";
+        }
       }
-    }
-    
-    return newErrors;
-  });
-};
+
+      return newErrors;
+    });
+  };
 
   const handleSelectChange = (name, value) => {
     if (isView) return;
@@ -345,6 +362,7 @@ const PurchasedElectricityFormPage = () => {
 
     if (formData.method?.value === "location_based") {
       if (!formData.totalElectricity) newErrors.totalElectricity = "Required";
+      if (!formData.unit) newErrors.unit = "Required";
 
       // At least one of these two fields must be filled
       if (!formData.totalGrossElectricityGrid && !formData.totalOtherSupplierElectricity) {
@@ -365,6 +383,7 @@ const PurchasedElectricityFormPage = () => {
       if (!formData.totalGrossElectricityGrid) newErrors.totalGrossElectricityGrid = "Required";
       if (!formData.gridStation) newErrors.gridStation = "Required";
       if (!formData.qualityControl) newErrors.qualityControl = "Required";
+      if (!formData.unit) newErrors.unit = "Required";
       // Check if at least one toggle is selected
       const hasAtLeastOneToggle =
         formData.hasSolarPanels ||
@@ -422,15 +441,15 @@ const PurchasedElectricityFormPage = () => {
       if (formData.hasRenewableAttributes && !formData.renewableAttributesElectricity) {
         newErrors.renewableAttributesElectricity = "Required";
       }
-      
-// Validate for negative values (only if field has a value)
-  const numberFields = ['totalGrossElectricityGrid','totalPurchasedElectricity','totalOnsiteSolarConsumption','solarRetainedUnderRECs','solarConsumedButSold','supplierSpecificElectricity','supplierEmissionFactor','ppaElectricity','renewableAttributesElectricity'];
-  
-  numberFields.forEach(field => {
-    if (formData[field] && Number(formData[field]) < 0) {
-      newErrors[field] = "Value cannot be negative.";
-    }
-  });
+
+      // Validate for negative values (only if field has a value)
+      const numberFields = ['totalGrossElectricityGrid', 'totalPurchasedElectricity', 'totalOnsiteSolarConsumption', 'solarRetainedUnderRECs', 'solarConsumedButSold', 'supplierSpecificElectricity', 'supplierEmissionFactor', 'ppaElectricity', 'renewableAttributesElectricity'];
+
+      numberFields.forEach(field => {
+        if (formData[field] && Number(formData[field]) < 0) {
+          newErrors[field] = "Value cannot be negative.";
+        }
+      });
     }
 
     setErrors(newErrors);
@@ -497,9 +516,9 @@ const PurchasedElectricityFormPage = () => {
 
       toast.success(`Record ${isEdit ? 'updated' : 'added'} successfully!`);
       // navigate("/Purchased-Electricity");
-      navigate("/Purchased-Electricity", { 
-      state: { selectedMethod: formData.method?.value } 
-    });
+      navigate("/Purchased-Electricity", {
+        state: { selectedMethod: formData.method?.value }
+      });
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong");
     }
@@ -619,7 +638,7 @@ const PurchasedElectricityFormPage = () => {
                     name="totalElectricity"
                     value={formData.totalElectricity}
                     onChange={handleInputChange}
-                    placeholder="Enter value"
+                    placeholder="Enter Value"
                     className="border-[2px] w-full h-10 p-2 rounded-md"
                     disabled={isView}
                   />
@@ -636,24 +655,31 @@ const PurchasedElectricityFormPage = () => {
                     value={formData.unit}
                     onChange={(value) => handleSelectChange("unit", value)}
                     isDisabled={isView}
-                    disableCapitalize={true}   //  TURN OFF CAPS
+                    disableCapitalize={true}
+                    placeholder={"Select Unit"}
                   />
+                  {errors.unit && <p className="text-red-500 text-sm">{errors.unit}</p>}
 
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="col-span-2">
-                  <label className="field-label">Total Gross Electricity Purchased from Grid Station ({selectedUnit}) </label>
-                  <InputGroup
-                    type="number"
-                    onWheel={handleNumberInputWheel}
-                    name="totalGrossElectricityGrid"
-                    value={formData.totalGrossElectricityGrid}
-                    onChange={handleInputChange}
-                    placeholder="Enter value"
-                    className="border-[2px] w-full h-10 p-2 rounded-md"
-                    disabled={isView}
-                  />
+                <div className="">
+                  <label className="field-label">Total Gross Electricity Purchased from Grid Station</label>
+                  <div className="grid grid-cols-[4fr_1fr]">
+                    <InputGroup
+                      type="number"
+                      onWheel={handleNumberInputWheel}
+                      name="totalGrossElectricityGrid"
+                      value={formData.totalGrossElectricityGrid}
+                      onChange={handleInputChange}
+                      placeholder="Enter Value"
+                      className="input-field rounded-r-none w-full"
+                      disabled={isView}
+                    />
+                    <div className="flex items-center justify-center border border-l-0 border-gray-300 rounded-r-md bg-gray-100 px-2">
+                      {selectedUnit}
+                    </div>
+                  </div>
                   {errors.totalGrossElectricityGrid && (
                     <p className="text-red-500 text-sm">{errors.totalGrossElectricityGrid}</p>
                   )}
@@ -674,17 +700,22 @@ const PurchasedElectricityFormPage = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="col-span-3">
-                  <label className="field-label">Total other supplier specific electricity purchased or purchased under Power Purchased Agreement (PPA) ({selectedUnit}) </label>
-                  <InputGroup
-                    type="number"
-                    onWheel={handleNumberInputWheel}
-                    name="totalOtherSupplierElectricity"
-                    value={formData.totalOtherSupplierElectricity}
-                    onChange={handleInputChange}
-                    placeholder="Enter value"
-                    className="border-[2px] w-full h-10 p-2 rounded-md"
-                    disabled={isView}
-                  />
+                  <label className="field-label">Total other supplier specific electricity purchased or purchased under Power Purchased Agreement (PPA)</label>
+                  <div className="grid grid-cols-[14fr_1fr]">
+                    <InputGroup
+                      type="number"
+                      onWheel={handleNumberInputWheel}
+                      name="totalOtherSupplierElectricity"
+                      value={formData.totalOtherSupplierElectricity}
+                      onChange={handleInputChange}
+                      placeholder="Enter Value"
+                      className="input-field rounded-r-none w-full"
+                      disabled={isView}
+                    />
+                    <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                      {selectedUnit}
+                    </div>
+                  </div>
                   {errors.totalOtherSupplierElectricity && (
                     <p className="text-red-500 text-sm">{errors.totalOtherSupplierElectricity}</p>
                   )}
@@ -708,7 +739,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="col-span-full">
                 <label className="field-label">Remarks</label>
                 <InputGroup
-                type="textarea"
+                  type="textarea"
                   name="remarks"
                   value={formData.remarks}
                   onChange={handleInputChange}
@@ -745,7 +776,7 @@ const PurchasedElectricityFormPage = () => {
                     name="totalPurchasedElectricity"
                     value={formData.totalPurchasedElectricity}
                     onChange={handleInputChange}
-                    placeholder="Enter value"
+                    placeholder="Enter Value"
                     className="border-[2px] w-full h-10 p-2 rounded-md"
                     disabled={isView}
                   />
@@ -755,7 +786,7 @@ const PurchasedElectricityFormPage = () => {
                 </div>
 
                 <div>
-                  <label className="field-label">Unit  <span className="text-red-500">*</span></label>
+                  <label className="field-label">Unit<span className="text-red-500">*</span></label>
                   <CustomSelect
                     name="unit"
                     options={unitOptions}
@@ -763,21 +794,28 @@ const PurchasedElectricityFormPage = () => {
                     onChange={(value) => handleSelectChange("unit", value)}
                     isDisabled={isView}
                     disableCapitalize={true}
+                    placeholder={"Select Unit"}
                   />
+                  {errors.unit && <p className="text-red-500 text-sm">{errors.unit}</p>}
                 </div>
 
                 <div className="col-span-2">
-                  <label className="field-label">Total Gross Electricity Purchased from Grid Station ({selectedUnit})  <span className="text-red-500">*</span></label>
-                  <InputGroup
-                    type="number"
-                    onWheel={handleNumberInputWheel}
-                    name="totalGrossElectricityGrid"
-                    value={formData.totalGrossElectricityGrid}
-                    onChange={handleInputChange}
-                    placeholder="Enter value"
-                    className="border-[2px] w-full h-10 p-2 rounded-md"
-                    disabled={isView}
-                  />
+                  <label className="field-label">Total Gross Electricity Purchased from Grid Station<span className="text-red-500">*</span></label>
+                  <div className="grid grid-cols-[14fr_1fr]">
+                    <InputGroup
+                      type="number"
+                      onWheel={handleNumberInputWheel}
+                      name="totalGrossElectricityGrid"
+                      value={formData.totalGrossElectricityGrid}
+                      onChange={handleInputChange}
+                      placeholder="Enter Value"
+                      className="input-field rounded-r-none w-full"
+                      disabled={isView}
+                    />
+                    <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                      {selectedUnit}
+                    </div>
+                  </div>
                   {errors.totalGrossElectricityGrid && (
                     <p className="text-red-500 text-sm">{errors.totalGrossElectricityGrid}</p>
                   )}
@@ -815,7 +853,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="col-span-full">
                 <label className="field-label">Remarks</label>
                 <InputGroup
-                type="textarea"
+                  type="textarea"
                   name="remarks"
                   value={formData.remarks}
                   onChange={handleInputChange}
@@ -855,51 +893,65 @@ const PurchasedElectricityFormPage = () => {
                 {formData.hasSolarPanels && (
                   <div className="grid grid-cols-1  gap-6 ml-8 mt-4">
                     <div>
-                      <label className="field-label">What is the total onsite solar electricity consumption? ({selectedUnit})  <span className="text-red-500">*</span></label>
-                      <InputGroup
-                        type="number"
-                        onWheel={handleNumberInputWheel}
-                        name="totalOnsiteSolarConsumption"
-                        value={formData.totalOnsiteSolarConsumption}
-                        onChange={handleInputChange}
-                        placeholder="Enter value"
-                        className="border-[2px] w-full h-10 p-2 rounded-md"
-                        disabled={isView}
-                      />
+                      <label className="field-label">What is the total onsite solar electricity consumption? <span className="text-red-500">*</span></label>
+                      <div className="grid grid-cols-[14fr_1fr]">
+                        <InputGroup
+                          type="number"
+                          onWheel={handleNumberInputWheel}
+                          name="totalOnsiteSolarConsumption"
+                          value={formData.totalOnsiteSolarConsumption}
+                          onChange={handleInputChange}
+                          placeholder="Enter Value"
+                          className="input-field rounded-r-none w-full"
+                          disabled={isView}
+                        />
+                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                          {selectedUnit}
+                        </div>
+                      </div>
                       {errors.totalOnsiteSolarConsumption && (
                         <p className="text-red-500 text-sm">{errors.totalOnsiteSolarConsumption}</p>
                       )}
                     </div>
 
                     <div>
-                      <label className="field-label">How much solar electricity is retained by you under valid RECs or any other energy attributes? ({selectedUnit})  <span className="text-red-500">*</span></label>
-                      <InputGroup
-                        type="number"
-                        onWheel={handleNumberInputWheel}
-                        name="solarRetainedUnderRECs"
-                        value={formData.solarRetainedUnderRECs}
-                        onChange={handleInputChange}
-                        placeholder="Enter value"
-                        className="border-[2px] w-full h-10 p-2 rounded-md"
-                        disabled={isView}
-                      />
-                      {errors.solarRetainedUnderRECs && (
-                        <p className="text-red-500 text-sm">{errors.solarRetainedUnderRECs}</p>
-                      )}
+                      <label className="field-label">How much solar electricity is retained by you under valid RECs or any other energy attributes?<span className="text-red-500">*</span></label>
+                      <div className="grid grid-cols-[14fr_1fr]">
+                        <InputGroup
+                          type="number"
+                          onWheel={handleNumberInputWheel}
+                          name="solarRetainedUnderRECs"
+                          value={formData.solarRetainedUnderRECs}
+                          onChange={handleInputChange}
+                          placeholder="Enter Value"
+                          className="input-field rounded-r-none w-full"
+                          disabled={isView}
+                        />
+                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                          {selectedUnit}
+                        </div>
+                        {errors.solarRetainedUnderRECs && (
+                          <p className="text-red-500 text-sm">{errors.solarRetainedUnderRECs}</p>
+                        )}
+                      </div>
                     </div>
-
                     <div>
-                      <label className="field-label">How much solar electricity is consumed by you but its renewable instruments or attributes is sold by you to another entity? ({selectedUnit})  <span className="text-red-500">*</span></label>
-                      <InputGroup
-                        type="number"
-                        onWheel={handleNumberInputWheel}
-                        name="solarConsumedButSold"
-                        value={formData.solarConsumedButSold}
-                        onChange={handleInputChange}
-                        placeholder="Enter value"
-                        className="border-[2px] w-full h-10 p-2 rounded-md"
-                        disabled={isView}
-                      />
+                      <label className="field-label">How much solar electricity is consumed by you but its renewable instruments or attributes is sold by you to another entity?<span className="text-red-500">*</span></label>
+                      <div className="grid grid-cols-[14fr_1fr]">
+                        <InputGroup
+                          type="number"
+                          onWheel={handleNumberInputWheel}
+                          name="solarConsumedButSold"
+                          value={formData.solarConsumedButSold}
+                          onChange={handleInputChange}
+                          placeholder="Enter Value"
+                          className="input-field rounded-r-none w-full"
+                          disabled={isView}
+                        />
+                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                          {selectedUnit}
+                        </div>
+                      </div>
                       {errors.solarConsumedButSold && (
                         <p className="text-red-500 text-sm">{errors.solarConsumedButSold}</p>
                       )}
@@ -929,17 +981,22 @@ const PurchasedElectricityFormPage = () => {
                 {formData.purchasesSupplierSpecific && (
                   <div className="ml-8 mt-4 space-y-4">
                     <div>
-                      <label className="field-label">How much electricity from total electricity consumption is purchased from specific supplier under contractual instrument? ({selectedUnit})  <span className="text-red-500">*</span></label>
-                      <InputGroup
-                        type="number"
-                        onWheel={handleNumberInputWheel}
-                        name="supplierSpecificElectricity"
-                        value={formData.supplierSpecificElectricity}
-                        onChange={handleInputChange}
-                        placeholder="Enter value"
-                        className="border-[2px] w-full h-10 p-2 rounded-md"
-                        disabled={isView}
-                      />
+                      <label className="field-label">How much electricity from total electricity consumption is purchased from specific supplier under contractual instrument?   <span className="text-red-500">*</span></label>
+                      <div className="grid grid-cols-[14fr_1fr]">
+                        <InputGroup
+                          type="number"
+                          onWheel={handleNumberInputWheel}
+                          name="supplierSpecificElectricity"
+                          value={formData.supplierSpecificElectricity}
+                          onChange={handleInputChange}
+                          placeholder="Enter Value"
+                          className="input-field rounded-r-none w-full"
+                          disabled={isView}
+                        />
+                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                          {selectedUnit}
+                        </div>
+                      </div>
                       {errors.supplierSpecificElectricity && (
                         <p className="text-red-500 text-sm">{errors.supplierSpecificElectricity}</p>
                       )}
@@ -959,17 +1016,22 @@ const PurchasedElectricityFormPage = () => {
 
                       {formData.hasSupplierEmissionFactor && (
                         <div className="ml-7">
-                          <label className="field-label">Emission Factor (kgCO₂e/kWh)  <span className="text-red-500">*</span></label>
-                          <InputGroup
-                            type="number"
-                            onWheel={handleNumberInputWheel}
-                            name="supplierEmissionFactor"
-                            value={formData.supplierEmissionFactor}
-                            onChange={handleInputChange}
-                            placeholder="Enter emission factor"
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
-                            disabled={isView}
-                          />
+                          <label className="field-label">Emission Factor <span className="text-red-500">*</span></label>
+                          <div className="grid grid-cols-[14fr_1fr]">
+                            <InputGroup
+                              type="number"
+                              onWheel={handleNumberInputWheel}
+                              name="supplierEmissionFactor"
+                              value={formData.supplierEmissionFactor}
+                              onChange={handleInputChange}
+                              placeholder="Enter Emission Factor"
+                              className="input-field rounded-r-none w-full"
+                              disabled={isView}
+                            />
+                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                              kgCO₂e/kWh
+                            </div>
+                          </div>
                           {errors.supplierEmissionFactor && (
                             <p className="text-red-500 text-sm">{errors.supplierEmissionFactor}</p>
                           )}
@@ -1016,17 +1078,22 @@ const PurchasedElectricityFormPage = () => {
                 {formData.hasPPA && (
                   <div className="ml-8 mt-4 space-y-4">
                     <div>
-                      <label className="field-label">How much electricity from total electricity consumption is purchased or covered under Power Purchase Agreement (PPA)? ({selectedUnit})  <span className="text-red-500">*</span></label>
-                      <InputGroup
-                        type="number"
-                        onWheel={handleNumberInputWheel}
-                        name="ppaElectricity"
-                        value={formData.ppaElectricity}
-                        onChange={handleInputChange}
-                        placeholder="Enter value"
-                        className="border-[2px] w-full h-10 p-2 rounded-md"
-                        disabled={isView}
-                      />
+                      <label className="field-label">How much electricity from total electricity consumption is purchased or covered under Power Purchase Agreement (PPA)?   <span className="text-red-500">*</span></label>
+                      <div className="grid grid-cols-[14fr_1fr]">
+                        <InputGroup
+                          type="number"
+                          onWheel={handleNumberInputWheel}
+                          name="ppaElectricity"
+                          value={formData.ppaElectricity}
+                          onChange={handleInputChange}
+                          placeholder="Enter Value"
+                          className="input-field rounded-r-none w-full"
+                          disabled={isView}
+                        />
+                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                          {selectedUnit}
+                        </div>
+                      </div>
                       {errors.ppaElectricity && (
                         <p className="text-red-500 text-sm">{errors.ppaElectricity}</p>
                       )}
@@ -1046,17 +1113,22 @@ const PurchasedElectricityFormPage = () => {
 
                       {formData.hasPPAEmissionFactor && (
                         <div className="ml-7">
-                          <label className="field-label">PPA Emission Factor (kgCO₂e/kWh)  <span className="text-red-500">*</span></label>
-                          <InputGroup
-                            type="number"
-                            onWheel={handleNumberInputWheel}
-                            name="ppaEmissionFactor"
-                            value={formData.ppaEmissionFactor}
-                            onChange={handleInputChange}
-                            placeholder="Enter emission factor"
-                            className="border-[2px] w-full h-10 p-2 rounded-md"
-                            disabled={isView}
-                          />
+                          <label className="field-label">PPA Emission Factor   <span className="text-red-500">*</span></label>
+                          <div className="grid grid-cols-[14fr_1fr]">
+                            <InputGroup
+                              type="number"
+                              onWheel={handleNumberInputWheel}
+                              name="ppaEmissionFactor"
+                              value={formData.ppaEmissionFactor}
+                              onChange={handleInputChange}
+                              placeholder="Enter Emission Factor"
+                              className="input-field rounded-r-none w-full"
+                              disabled={isView}
+                            />
+                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                              kgCO₂e/kWh
+                            </div>
+                          </div>
                           {errors.ppaEmissionFactor && (
                             <p className="text-red-500 text-sm">{errors.ppaEmissionFactor}</p>
                           )}
@@ -1100,17 +1172,22 @@ const PurchasedElectricityFormPage = () => {
                 {formData.hasRenewableAttributes && (
                   <div className="ml-8 mt-4">
                     <div>
-                      <label className="field-label">How much of your total electricity consumption (excluding solar generation and PPA-covered electricity) is covered by valid renewable energy attributes or market-based instruments ({selectedUnit})?<span className="text-red-500">*</span></label>
+                      <label className="field-label">How much of your total electricity consumption (excluding solar generation and PPA-covered electricity) is covered by valid renewable energy attributes or market-based instruments?<span className="text-red-500">*</span></label>
+                      <div className="grid grid-cols-[14fr_1fr]">
                       <InputGroup
                         type="number"
                         onWheel={handleNumberInputWheel}
                         name="renewableAttributesElectricity"
                         value={formData.renewableAttributesElectricity}
                         onChange={handleInputChange}
-                        placeholder="Enter value"
-                        className="border-[2px] w-full h-10 p-2 rounded-md"
+                        placeholder="Enter Value"
+                        className="input-field rounded-r-none w-full"
                         disabled={isView}
                       />
+                      <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                      {selectedUnit}
+                    </div>
+                    </div>
                       {errors.renewableAttributesElectricity && (
                         <p className="text-red-500 text-sm">{errors.renewableAttributesElectricity}</p>
                       )}

@@ -75,23 +75,58 @@ const FuelFusion = () => {
     }, [pageIndex, pageSize, globalFilterValue]);
 
     const capitalizeLabel = (text) => {
-        if (!text) return "N/A";
+  if (!text) return "N/A";
 
-        const exceptions = ["and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
-            "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
-            "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
-            "n.e.c."];
-        return text
-            .split(" ")
-            .map((word, index) => {
-                // Always capitalize the first word
-                if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
-                // Don't capitalize exceptions
-                if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
-                return word.charAt(0).toUpperCase() + word.slice(1);
-            })
-            .join(" ");
-    };
+  const exceptions = [
+    "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+    "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+    "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+    "n.e.c.", "cc", "cc+","up"
+  ];
+
+  // Special handling for "a" and other special cases
+  return text
+    .split(" ")
+    .map((word, index) => {
+      const hasOpenParen = word.startsWith("(");
+      const hasCloseParen = word.endsWith(")");
+      
+      let coreWord = word;
+      if (hasOpenParen) coreWord = coreWord.slice(1);
+      if (hasCloseParen) coreWord = coreWord.slice(0, -1);
+
+      const lowerCore = coreWord.toLowerCase();
+      let result;
+      
+      // SPECIAL RULE: If word is "a" or "A", preserve original case
+      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
+        result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
+      }
+      // Single letters (except "a" already handled)
+      else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
+        result = coreWord.toUpperCase();
+      }
+      // First word OR word after opening parenthesis should be capitalized
+      else if (index === 0 || (index > 0 && text.split(" ")[index-1]?.endsWith("("))) {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      }
+      // Exception words (excluding "a" which we already handled)
+      else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
+        result = lowerCore;
+      }
+      // Normal capitalization
+      else {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      }
+      
+      // Reattach parentheses
+      if (hasOpenParen) result = "(" + result;
+      if (hasCloseParen) result = result + ")";
+
+      return result;
+    })
+    .join(" ");
+};
 
     // Delete Record
     const handleDelete = async (id) => {
@@ -119,50 +154,66 @@ const FuelFusion = () => {
             { Header: "Stakeholder", accessor: "stakeholder" },
             { Header: "Fuel Type", accessor: "fuelType" },
             { Header: "Fuel Name", accessor: "fuel", Cell: ({ value }) => capitalizeLabel(value) },
-            { Header: "Total Fuel Consumption", accessor: "totalFuelConsumption", Cell: ({ value }) => value === "0" || value === 0 || value === "" ? "N/A" : value },
-            { Header: "Consumption Unit", accessor: "fuelConsumptionUnit" },
-            { Header: "Total Gross Electricity Purchased from Grid, Specific Supplier or under PPA", accessor: "totalGrossElectricityPurchased", Cell: ({ value }) => value === "0" || value === 0 || value === "" ? "N/A" : value },
+            { Header: "Total Fuel Consumption", accessor: "totalFuelConsumption", Cell: ({ value }) => value === "0" || value === 0 || value === null ? "N/A" : value },
+            { Header: "Consumption Unit", accessor: "fuelConsumptionUnit", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Total Gross Electricity Purchased from Grid, Specific Supplier or under PPA", accessor: "totalGrossElectricityPurchased", Cell: ({ value }) => value === "0" || value === 0 || value === null ? "N/A" : value },
             { Header: "Unit", accessor: "unit", Cell: ({ cell }) => cell.value || "N/A" },
 
             { Header: "Business Travel By Air", accessor: "didTravelByAir", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             { Header: "No of Passengers", accessor: "airPassengers", Cell: ({ cell }) => cell.value || "N/A" },
-            { Header: "Distance (km)", accessor: "airDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Distance Travelled", accessor: "airDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Travel Class", accessor: "airTravelClass", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Flight Type", accessor: "airFlightType", Cell: ({ cell }) => cell.value || "N/A" },
 
 
             { Header: "Business Travel By Taxi", accessor: "didTravelByTaxi", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             { Header: "No of Passengers", accessor: "taxiPassengers", Cell: ({ cell }) => cell.value || "N/A" },
-            { Header: "Distance (km)", accessor: "taxiDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Distance Travelled", accessor: "taxiDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Taxi Type", accessor: "taxiType", Cell: ({ cell }) => cell.value || "N/A" },
 
             { Header: "Business Travel By Bus", accessor: "didTravelByBus", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             { Header: "No of Passengers", accessor: "busPassengers", Cell: ({ cell }) => cell.value || "N/A" },
-            { Header: "Distance (km)", accessor: "busDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Distance Travelled", accessor: "busDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Bus Type", accessor: "busType", Cell: ({ cell }) => cell.value || "N/A" },
 
             { Header: "Business Travel By Train", accessor: "didTravelByTrain", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
             { Header: "No of Passengers", accessor: "trainPassengers", Cell: ({ cell }) => cell.value || "N/A" },
-            { Header: "Distance (km)", accessor: "trainDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
+            { Header: "Distance Travelled", accessor: "trainDistanceKm", Cell: ({ cell }) => cell.value || "N/A" },
             { Header: "Train Type", accessor: "trainType", Cell: ({ cell }) => cell.value || "N/A" },
             {
                 Header: "Calculated Emissions (kgCO₂e)",
                 accessor: "calculatedEmissionKgCo2e",
                 Cell: ({ cell }) => {
-                    const value = Number(cell.value);
-                    if (isNaN(value) || value === 0) { return "N/A"; }
-                    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
-                    return value.toFixed(2);
+                    const rawValue = cell.value;
+                    if (rawValue === null || rawValue === undefined || rawValue === "") {
+                        return "N/A";
+                    }
+                    const numValue = Number(rawValue);
+                    if (isNaN(numValue)) {
+                        return "N/A";
+                    }
+                    if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
+                        return numValue.toExponential(2);
+                    }
+                    return numValue.toFixed(2);
                 }
             },
             {
                 Header: "Calculated Emissions (tCO₂e)",
                 accessor: "calculatedEmissionTCo2e",
                 Cell: ({ cell }) => {
-                    const value = Number(cell.value);
-                    if (isNaN(value) || value === 0) { return "N/A"; }
-                    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
-                    return value.toFixed(2);
+                    const rawValue = cell.value;
+                    if (rawValue === null || rawValue === undefined || rawValue === "") {
+                        return "N/A";
+                    }
+                    const numValue = Number(rawValue);
+                    if (isNaN(numValue)) {
+                        return "N/A";
+                    }
+                    if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
+                        return numValue.toExponential(2);
+                    }
+                    return numValue.toFixed(2);
                 },
             },
             { Header: "Remarks", accessor: "remarks", Cell: ({ value }) => capitalizeLabel(value) },

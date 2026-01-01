@@ -511,7 +511,7 @@ const AirEmissionReportPage = () => {
   const [tableFilter, setTableFilter] = useState("all"); // dropdown for table
 
   const emissionOptions = [
-    { value: "all", label: "All out of Scope" },
+    { value: "all", label: "All Out of Scope" },
     // { value: "nonKyoto", label: "Non Kyoto Gases" },
     { value: "nonKyotoCombined", label: "Non Kyoto protocol / Other Gases Emissions" },
     { value: "vocs", label: "VOCs" },
@@ -935,7 +935,7 @@ const AirEmissionReportPage = () => {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
       >
-        <h2 className="text-2xl font-semibold mb-2 text-white">Total out of Scope/ Other Air Emission</h2>
+        <h2 className="text-2xl font-semibold mb-2 text-white">Total Out of Scope / Other Air Emission</h2>
         {/* <p className="text-xl font-bold text-white">
           {loading ? "Loading..." : `${formatNumber(totalEmission.kg)} kg CO₂e | ${formatNumber(totalEmission.t)} t CO₂e`}
         </p> */}
@@ -962,8 +962,8 @@ const AirEmissionReportPage = () => {
 
             <p className="text-[13px] font-medium text-gray-600 flex flex-col pl-8">
               {/* <span>{formatNumber(item.kg)} kg CO₂e</span> */}
-              <span>{formatNumber(item.kg)} {item.key === "vocs" ? "kg" : "kg CO₂e"}</span>
-              <span>{formatNumber(item.t)} t CO₂e</span>
+              <span>{formatNumber(item.kg)} {item.key === "vocs" ? "Kg" : "KgCO₂e"}</span>
+              <span>{formatNumber(item.t)} tCO₂e</span>
             </p>
           </div>
         ))}
@@ -973,7 +973,7 @@ const AirEmissionReportPage = () => {
       <Card>
         <div className="flex justify-between items-center mb-4">
           <h6 className="text-gray-800 font-semibold">
-           {emissionOptions.find(opt => opt.value === tableFilter)?.label || "out-of-Scope"} Emissions (Building-Wise)
+           {emissionOptions.find(opt => opt.value === tableFilter)?.label || "Out-of-Scope"} Emissions (Building-Wise)
           </h6>
           <div className="w-64">
             <Select
@@ -997,7 +997,7 @@ const AirEmissionReportPage = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Sr.No</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Building</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
-                  Total Emissions ({tableFilter === "vocs" ? "kg" : "kgCO₂e"})
+                  Total Emissions ({tableFilter === "vocs" ? "Kg" : "KgCO₂e"})
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">Total Emissions (tCO₂e)</th>
               </tr>

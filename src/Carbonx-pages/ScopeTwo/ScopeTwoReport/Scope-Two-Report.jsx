@@ -274,8 +274,8 @@ const ScopeTwoReport = () => {
 
         <div className="space-y-2 text-white">
           <p className="text-lg font-medium">
-             {formatNumber(totalLocationKg)} kg CO₂e |
-            {formatNumber(totalLocationT)} t CO₂e
+             {formatNumber(totalLocationKg)} KgCO₂e |
+            {formatNumber(totalLocationT)} tCO₂e
           </p>
         </div>
       </motion.div>
@@ -288,8 +288,8 @@ const ScopeTwoReport = () => {
 
         <div className="space-y-2 text-white">
           <p className="text-lg font-medium">
-             {formatNumber(totalMarketKg)} kg CO₂e |
-            {formatNumber(totalMarketT)} t CO₂e
+             {formatNumber(totalMarketKg)} KgCO₂e |
+            {formatNumber(totalMarketT)} tCO₂e
           </p>
         </div>
       </motion.div>
@@ -321,11 +321,11 @@ const ScopeTwoReport = () => {
                   <>
                     <span className="text-md font-semibold mb-1 text-gray-700">Location Based</span>
                     <span>
-                      {formatNumber(item.locationKg)} kg CO₂e, {formatNumber(item.locationT)} t CO₂e
+                      {formatNumber(item.locationKg)} KgCO₂e, {formatNumber(item.locationT)} tCO₂e
                     </span>
                     <span className="text-md font-semibold mb-1 text-gray-700">Market Based</span>
                     <span>
-                      {formatNumber(item.marketKg)} kg CO₂e, {formatNumber(item.marketT)} t CO₂e
+                      {formatNumber(item.marketKg)} KgCO₂e, {formatNumber(item.marketT)} tCO₂e
                     </span>
                   </>
                 ) : (

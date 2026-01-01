@@ -837,9 +837,9 @@ export const activityMetadata = {
   "Ethylene Oxide / Ethylene Glycol Production": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of ethylene oxide are produced?" },
   "Urea Production (kg)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of urea are produced?" },
   "Methanol Synthesis": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of methanol are synthesized?" },
-  "Other GHG Emission Process Activities": { gasEmitted: "GHG Gases", amountLabel: "Please write the total Process emissions in KgCo2e" },
-  "Non Kyoto protocol / Other Non GHG Emissions": { gasEmitted: "Non GHG Gases", amountLabel: "Please write the total Process emissions in Kg" },
-  "Other Biogenic GHG Emission Process Activities": { gasEmitted: "Biogenic Gases", amountLabel: "Please write the total Process emissions in KgCo2e" },
+  "Other GHG Emission Process Activities": { gasEmitted: "GHG Gases", amountLabel: "Please write the total Process emissions in KgCo2e." },
+  "Non Kyoto protocol / Other Non GHG Emissions": { gasEmitted: "Non GHG Gases", amountLabel: "Please write the total Process emissions in Kg." },
+  "Other Biogenic GHG Emission Process Activities": { gasEmitted: "Biogenic Gases", amountLabel: "Please write the total Process emissions in KgCo2e." },
   "Vinyl chloride monomer (VCM) production": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of VCM are produced?" },
   
 };

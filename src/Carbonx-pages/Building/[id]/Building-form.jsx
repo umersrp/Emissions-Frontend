@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Switch from "@/components/ui/Switch";
 import Select from "@/components/ui/Select";
+import InputGroup from "@/components/ui/InputGroup";
 
 const buildingTypeOptions = [
   { value: "office", label: "Office" },
@@ -162,10 +163,10 @@ const BuildingFormPage = () => {
   };
 
 
-const handleNumberInputWheel = (e) => {
-  e.target.blur(); 
-  e.preventDefault(); // Add this to prevent scroll changing value
-};// onWheel={handleNumberInputWheel}
+  const handleNumberInputWheel = (e) => {
+    e.target.blur();
+    e.preventDefault(); // Add this to prevent scroll changing value
+  };// onWheel={handleNumberInputWheel}
   // --- Handle Country Change ---
   const handleCountryChange = (selectedOption) => {
     if (isViewMode) return;
@@ -249,34 +250,34 @@ const handleNumberInputWheel = (e) => {
   };
 
 
-const validateFields = () => {
-  const newErrors = {};
+  const validateFields = () => {
+    const newErrors = {};
 
-  // Required field validations
-  if (!formData.buildingName.trim()) newErrors.buildingName = "Building Name is required";
-  if (!formData.country) newErrors.country = "Country is required";
-  if (!formData.buildingLocation.trim()) newErrors.buildingLocation = "Location is required";
-  if (!formData.buildingType) newErrors.buildingType = "Building Type is required";
-  if (!formData.ownership) newErrors.ownership = "Ownership is required";
-  if (!formData.operatingHours) newErrors.operatingHours = "Operating Hours is required";
-  if (!formData.numberOfEmployees) newErrors.numberOfEmployees = "Number of Employees is required";
-  if (!formData.buildingArea) newErrors.buildingArea = "Building Area is required";
-  if (!formData.electricityConsumption) newErrors.electricityConsumption = "Electricity Consumption is required";
-  if (formData.heatingUsed && !formData.heatingType.trim()) newErrors.heatingType = "Heating Type is required";
-  if (formData.coolingUsed && !formData.coolingType.trim()) newErrors.coolingType = "Cooling Type is required";
+    // Required field validations
+    if (!formData.buildingName.trim()) newErrors.buildingName = "Building Name is required";
+    if (!formData.country) newErrors.country = "Country is required";
+    if (!formData.buildingLocation.trim()) newErrors.buildingLocation = "Location is required";
+    if (!formData.buildingType) newErrors.buildingType = "Building Type is required";
+    if (!formData.ownership) newErrors.ownership = "Ownership is required";
+    if (!formData.operatingHours) newErrors.operatingHours = "Operating Hours is required";
+    if (!formData.numberOfEmployees) newErrors.numberOfEmployees = "Number of Employees is required";
+    if (!formData.buildingArea) newErrors.buildingArea = "Building Area is required";
+    if (!formData.electricityConsumption) newErrors.electricityConsumption = "Electricity Consumption is required";
+    if (formData.heatingUsed && !formData.heatingType.trim()) newErrors.heatingType = "Heating Type is required";
+    if (formData.coolingUsed && !formData.coolingType.trim()) newErrors.coolingType = "Cooling Type is required";
 
-  // Validate for negative values (only if field has a value)
-  const numberFields = ['operatingHours', 'numberOfEmployees', 'buildingArea', 'electricityConsumption'];
-  
-  numberFields.forEach(field => {
-    if (formData[field] && Number(formData[field]) < 0) {
-      newErrors[field] = "Value cannot be negative.";
-    }
-  });
+    // Validate for negative values (only if field has a value)
+    const numberFields = ['operatingHours', 'numberOfEmployees', 'buildingArea', 'electricityConsumption'];
 
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
+    numberFields.forEach(field => {
+      if (formData[field] && Number(formData[field]) < 0) {
+        newErrors[field] = "Value cannot be negative.";
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   if (loading) return <p>Loading building data...</p>;
 
@@ -292,7 +293,7 @@ const validateFields = () => {
             {/* --- Building Name --- */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Building Name</label>
-              <input
+              <InputGroup
                 type="text"
                 name="buildingName"
                 placeholder="Building Name"
@@ -321,7 +322,7 @@ const validateFields = () => {
             {/* --- Location --- */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-              <input
+              <InputGroup
                 type="text"
                 name="buildingLocation"
                 placeholder="Building Location"
@@ -377,7 +378,7 @@ const validateFields = () => {
             {/* --- Number of Employees --- */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Number of Employees</label>
-              <input
+              <InputGroup
                 type="number"
                 name="numberOfEmployees"
                 onWheel={handleNumberInputWheel}
@@ -394,10 +395,10 @@ const validateFields = () => {
             {/* --- Operating Hours --- */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Operating Hours</label>
-              <input
+              <InputGroup
                 type="Number"
                 name="operatingHours"
-                
+
                 onWheel={handleNumberInputWheel}
                 value={formData.operatingHours}
                 onChange={handleInputChange}
@@ -412,11 +413,11 @@ const validateFields = () => {
             {/* --- Building Area --- */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Building Area (m2)</label>
-              <input
+              <InputGroup
                 type="number"
                 name="buildingArea"
-                 
-                 onWheel={handleNumberInputWheel}
+
+                onWheel={handleNumberInputWheel}
                 placeholder="Building Area"
                 value={formData.buildingArea}
                 onChange={handleInputChange}
@@ -430,10 +431,10 @@ const validateFields = () => {
             {/* --- Electricity Consumption --- */}
             <div>
               <label className="field-label">Electricity Consumption (kWh)</label>
-              <input
+              <InputGroup
                 type="number"
-                 
-                 onWheel={handleNumberInputWheel}
+
+                onWheel={handleNumberInputWheel}
                 name="electricityConsumption"
                 placeholder="Electricity Consumption (kWh)"
                 value={formData.electricityConsumption}
@@ -458,7 +459,7 @@ const validateFields = () => {
                 disabled={isViewMode}
               />
               {formData.heatingUsed && (
-                <input
+                <InputGroup
                   type="text"
                   name="heatingType"
                   value={formData.heatingType}
@@ -481,7 +482,7 @@ const validateFields = () => {
                 disabled={isViewMode}
               />
               {formData.coolingUsed && (
-                <input
+                <InputGroup
                   type="text"
                   name="coolingType"
                   value={formData.coolingType}
@@ -498,13 +499,18 @@ const validateFields = () => {
             {/* --- Steam Used --- */}
             <div className="flex flex-col">
               <label className="block text-sm font-medium text-gray-700 mb-1">Steam Used</label>
-              <input
+              {/* <input
                 type="checkbox"
                 name="steamUsed"
                 checked={formData.steamUsed}
                 onChange={handleInputChange}
                 disabled={isViewMode}
                 className="h-5 w-5"
+              /> */}
+              <Switch
+                value={formData.steamUsed}
+                onChange={() => handleSwitchChange("steamUsed")}
+                disabled={isViewMode}
               />
 
             </div>

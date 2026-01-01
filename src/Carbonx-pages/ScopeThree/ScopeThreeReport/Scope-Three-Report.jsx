@@ -39,7 +39,7 @@ const ScopeThreeReport = () => {
         setLoading(true);
         const token = localStorage.getItem("token");
 
-        const [goodsAndServicesRes, capitalGoodsRes, fuelAndEnergyRes, wasteGeneratedRes, businessRes, upstreamTransportationRes, downstreamTransportationRes] = await Promise.all([
+        const [goodsAndServicesRes, capitalGoodsRes, fuelAndEnergyRes, wasteGeneratedRes, businessRes, upstreamTransportationRes, downstreamTransportationRes, employeeCommuteRes] = await Promise.all([
           axios.get(`${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All?limit=1000`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
@@ -61,6 +61,9 @@ const ScopeThreeReport = () => {
           axios.get(`${process.env.REACT_APP_BASE_URL}/downstream/Get-All?limit=1000`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
+           axios.get(`${process.env.REACT_APP_BASE_URL}/employee-commute/List?limit=1000`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
         setData({
@@ -71,6 +74,7 @@ const ScopeThreeReport = () => {
           Business: businessRes.data.data || [],
           upstreamTransportation: upstreamTransportationRes.data.data || [],
           downstreamTransportation: downstreamTransportationRes.data.data || [],
+          employeeCommute: employeeCommuteRes.data.data || [],
         });
       } catch (err) {
         console.error(err);
@@ -101,6 +105,8 @@ const ScopeThreeReport = () => {
         return data.upstreamTransportation;
       case "Downstream Transportation":
         return data.downstreamTransportation;
+      case "Employee Commuting":
+        return data.employeeCommute;
       case "all":
         return [
           ...(data.goodsAndServices || []),
@@ -110,6 +116,7 @@ const ScopeThreeReport = () => {
           ...(data.Business || []),
           ...(data.upstreamTransportation || []),
           ...(data.downstreamTransportation || []),
+          ...(data.employeeCommute || []),
         ];
       default:
         return [];
@@ -188,9 +195,13 @@ const ScopeThreeReport = () => {
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
+     const employeeCommuteKg = (data.employeeCommute || []).reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
 
     // console.log("Process Kg:", processKg);
-    return goodsAndServicesKg + capitalGoodsKg + fuelAndEnergyKg + wasteGeneratedKg + businessKg + upstreamTransportationKg + downstreamTransportationKg;
+    return goodsAndServicesKg + capitalGoodsKg + fuelAndEnergyKg + wasteGeneratedKg + businessKg + upstreamTransportationKg + downstreamTransportationKg + employeeCommuteKg;
   }, [data]);
 
   const allTotalT = allTotalKg / 1000;
@@ -318,10 +329,19 @@ const ScopeThreeReport = () => {
     );
     console.log(`    TOTAL: ${downstreamTransportationKg.toFixed(2)} kg CO2e`);
 
+    //Employee commute
+       const employeeCommuteItems = data.employeeCommute || [];
+    logBuildingEmissions("Employee Commuting", employeeCommuteItems);
+    const employeeCommuteKg = employeeCommuteItems.reduce(
+      (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
+      0
+    );
+    console.log(`    TOTAL: ${employeeCommuteKg.toFixed(2)} kg CO2e`);
+
     // Calculate totals
     const totalKg = goodsAndServicesKg + capitalGoodsKg + fuelAndEnergyKg + 
                    wasteGeneratedKg + businessKg + upstreamTransportationKg + 
-                   downstreamTransportationKg;
+                   downstreamTransportationKg + employeeCommuteKg;
     
     console.log("\n FINAL TOTALS BY CATEGORY:");
     console.log("1. Purchased Goods and Services:", goodsAndServicesKg.toFixed(2), "kg CO2e");
@@ -331,6 +351,7 @@ const ScopeThreeReport = () => {
     console.log("5. Business Travel:", businessKg.toFixed(2), "kg CO2e");
     console.log("6. Upstream Transportation:", upstreamTransportationKg.toFixed(2), "kg CO2e");
     console.log("7. Downstream Transportation:", downstreamTransportationKg.toFixed(2), "kg CO2e");
+    console.log("8. Employee Commuting:", employeeCommuteKg.toFixed(2), "kg CO2e");
     console.log(" GRAND TOTAL:", totalKg.toFixed(2), "kg CO2e", `(${(totalKg/1000).toFixed(3)} t CO2e)`);
 
     return [
@@ -390,6 +411,14 @@ const ScopeThreeReport = () => {
         count: downstreamTransportationItems.length,
         items: downstreamTransportationItems
       },
+        { 
+        name: "Employee Commuting", 
+        kg: employeeCommuteKg, 
+        t: employeeCommuteKg / 1000, 
+        bg: "bg-red-50",
+        count: employeeCommuteItems.length,
+        items: employeeCommuteItems
+      },
     ];
   }, [data]);
 
@@ -403,6 +432,7 @@ const ScopeThreeReport = () => {
     { value: "Business Travel", label: "Business Travel" },
     { value: "Upstream Transportation", label: "Upstream Transportation" },
     { value: "Downstream Transportation", label: "Downstream Transportation" },
+    { value: "Employee Commuting", label: "Employee Commuting" },
   ];
 
   return (
@@ -418,7 +448,7 @@ const ScopeThreeReport = () => {
         <p className="text-xl font-bold text-white">
           {loading
             ? "Loading..."
-            : `${formatNumber(allTotalKg)} kg CO₂e | ${formatNumber(allTotalT)} t CO₂e`}
+            : `${formatNumber(allTotalKg)} KgCO₂e | ${formatNumber(allTotalT)} tCO₂e`}
         </p>
       </motion.div>
       {/* Individual Summary Cards */}
@@ -432,6 +462,7 @@ const ScopeThreeReport = () => {
             "Business Travel": "heroicons:briefcase",
             "Upstream Transportation": "heroicons:arrow-up-tray",
             "Downstream Transportation": "heroicons:arrow-down-tray",
+            "Employee Commuting": "heroicons:arrow-down-tray",
           };
           return (
             <div
@@ -447,10 +478,10 @@ const ScopeThreeReport = () => {
               </div>
               <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
                 <span>
-                  {formatNumber(item.kg)}<span className="text-black-500">kg CO₂e</span>
+                  {formatNumber(item.kg)}<span className="text-black-500"> KgCO₂e</span>
                 </span>
                 <span>
-                  {formatNumber(item.t)}<span className="text-black-500">t CO₂e</span>
+                  {formatNumber(item.t)}<span className="text-black-500"> tCO₂e</span>
                 </span>
               </p>
             </div>
@@ -463,7 +494,7 @@ const ScopeThreeReport = () => {
           <h6 className="text-gray-800 font-semibold">
 
             {emissionType === "all"
-              ? "All Scope 2"
+              ? "All Scope 3"
               : emissionType.charAt(0).toUpperCase() + emissionType.slice(1)}
             {" "} Emissions (Building-Wise)
           </h6>
@@ -497,7 +528,7 @@ const ScopeThreeReport = () => {
                   Building
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
-                  Total Emissions (kgCO₂e)
+                  Total Emissions (KgCO₂e)
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
                   Total Emissions (tCO₂e)

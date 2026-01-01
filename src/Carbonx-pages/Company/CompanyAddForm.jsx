@@ -535,7 +535,7 @@ const CompanyProfileForm = () => {
                     </div>
                     {/* Province */}
                     <div className="">
-                        <label className="field-label">Province / territroy</label>
+                        <label className="field-label">Province / Territroy</label>
                         <input
                             type="text"
                             name="province"
@@ -549,7 +549,7 @@ const CompanyProfileForm = () => {
 
                     {/* Base Year */}
                     <div className="">
-                        <label className="field-label">Is This A Base Year ?</label>
+                        <label className="field-label">Is This a Base Year ??</label>
                         <input
                             type="checkbox"
                             name="baseyear"

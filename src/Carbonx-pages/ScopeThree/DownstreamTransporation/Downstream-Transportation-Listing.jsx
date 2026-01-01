@@ -46,24 +46,59 @@ const DownstreamTransportationListing = () => {
   const [goToValue, setGoToValue] = useState(pageIndex);
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  const capitalizeLabel = (text) => {
-    if (!text) return "N/A";
+ const capitalizeLabel = (text) => {
+  if (!text) return "N/A";
 
-    const exceptions = ["and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
-      "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
-      "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
-      "n.e.c."];
-    return text
-      .split(" ")
-      .map((word, index) => {
-        // Always capitalize the first word
-        if (index === 0) return word.charAt(0).toUpperCase() + word.slice(1);
-        // Don't capitalize exceptions
-        if (exceptions.includes(word.toLowerCase())) return word.toLowerCase();
-        return word.charAt(0).toUpperCase() + word.slice(1);
-      })
-      .join(" ");
-  };
+  const exceptions = [
+    "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+    "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+    "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+    "n.e.c.", "cc", "cc+","up"
+  ];
+
+  // Special handling for "a" and other special cases
+  return text
+    .split(" ")
+    .map((word, index) => {
+      const hasOpenParen = word.startsWith("(");
+      const hasCloseParen = word.endsWith(")");
+      
+      let coreWord = word;
+      if (hasOpenParen) coreWord = coreWord.slice(1);
+      if (hasCloseParen) coreWord = coreWord.slice(0, -1);
+
+      const lowerCore = coreWord.toLowerCase();
+      let result;
+      
+      // SPECIAL RULE: If word is "a" or "A", preserve original case
+      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
+        result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
+      }
+      // Single letters (except "a" already handled)
+      else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
+        result = coreWord.toUpperCase();
+      }
+      // First word OR word after opening parenthesis should be capitalized
+      else if (index === 0 || (index > 0 && text.split(" ")[index-1]?.endsWith("("))) {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      }
+      // Exception words (excluding "a" which we already handled)
+      else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
+        result = lowerCore;
+      }
+      // Normal capitalization
+      else {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      }
+      
+      // Reattach parentheses
+      if (hasOpenParen) result = "(" + result;
+      if (hasCloseParen) result = result + ")";
+
+      return result;
+    })
+    .join(" ");
+};
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => {
@@ -200,20 +235,38 @@ const DownstreamTransportationListing = () => {
         {
         Header: "Calculated Emissions (kgCO₂e)",
         accessor: "calculatedEmissionKgCo2e",
-         Cell: ({ cell }) => {
-    const value = Number(cell.value);
-    if (isNaN(value) || value === 0) { return "N/A"; }
-    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
-    return value.toFixed(2);} 
+       Cell: ({ cell }) => {
+          const rawValue = cell.value;
+          if (rawValue === null || rawValue === undefined || rawValue === "") {
+            return "N/A";
+          }
+          const numValue = Number(rawValue);
+          if (isNaN(numValue)) {
+            return "N/A";
+          }
+          if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
+            return numValue.toExponential(2);
+          }
+          return numValue.toFixed(2);
+        } 
       },
       {
         Header: "Calculated Emissions (tCO₂e)",
         accessor: "calculatedEmissionTCo2e",
-         Cell: ({ cell }) => {
-    const value = Number(cell.value);
-    if (isNaN(value) || value === 0) { return "N/A"; }
-    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
-    return value.toFixed(2);} 
+       Cell: ({ cell }) => {
+          const rawValue = cell.value;
+          if (rawValue === null || rawValue === undefined || rawValue === "") {
+            return "N/A";
+          }
+          const numValue = Number(rawValue);
+          if (isNaN(numValue)) {
+            return "N/A";
+          }
+          if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
+            return numValue.toExponential(2);
+          }
+          return numValue.toFixed(2);
+        } 
       },
       {
         Header: "Remarks",

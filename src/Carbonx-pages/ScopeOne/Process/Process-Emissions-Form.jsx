@@ -46,29 +46,42 @@ const ProcessEmissionsFormPage = () => {
   };
 
   // Fetch all buildings for dropdown
-  useEffect(() => {
+ useEffect(() => {
     const fetchBuildings = async () => {
-      try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        const formatted =
-          res.data?.data?.buildings?.map((b) => ({
-            value: b._id,
-            label: b.buildingName,
-          })) || [];
-        setBuildingOptions(formatted);
-      } catch {
-        toast.error("Failed to load buildings");
-      }
+        try {
+            const res = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+                {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                }
+            );
+            
+            // Get buildings from response
+            const buildings = res.data?.data?.buildings || [];
+            
+            // Sort buildings alphabetically by buildingName
+            const sortedBuildings = [...buildings].sort((a, b) => {
+                const nameA = (a.buildingName || '').toUpperCase();
+                const nameB = (b.buildingName || '').toUpperCase();
+                
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0;
+            });
+            
+            // Format sorted buildings for dropdown
+            const formatted = sortedBuildings.map((b) => ({
+                value: b._id,
+                label: b.buildingName || 'Unnamed Building',
+            }));
+            
+            setBuildingOptions(formatted);
+        } catch {
+            toast.error("Failed to load buildings");
+        }
     };
     fetchBuildings();
-  }, []);
+}, []);
 
   // Fetch record by ID (Edit / View)
   useEffect(() => {
@@ -122,18 +135,7 @@ const ProcessEmissionsFormPage = () => {
     fetchById();
   }, [id, isAdd, buildingOptions]);
 
-  // Handle dropdowns
-  // const handleSelectChange = (value, { name }) => {
-  //   if (isView) return;
-  //   let updated = { ...formData, [name]: value };
-  //   if (name === "activityType") {
-  //     const meta = activityMetadata[value?.value] || {};
-  //     updated.gasEmitted = meta.gasEmitted || "";
-  //     setAmountLabel(meta.amountLabel || "Amount of Emissions");
-  //   }
-  //   setFormData(updated);
-  //   setErrors((prev) => ({ ...prev, [name]: "" }));
-  // };
+ 
   const handleSelectChange = (value, { name }) => {
     if (isView) return;
 
@@ -348,6 +350,7 @@ const ProcessEmissionsFormPage = () => {
                 name="gasEmitted"
                 value={formData.gasEmitted}
                 readOnly
+                placeholder={"Gas Emitted"}
                 className="input-field bg-gray-100 whitespace-nowrap overflow-visible block leading-[1.4] "
               />
             </div>
@@ -389,15 +392,7 @@ const ProcessEmissionsFormPage = () => {
           {/* Remarks */}
           <div>
             <label className="field-label">Remarks</label>
-            {/* <InputGroup
-              name="remarks"
-              value={formData.remarks}
-              onChange={handleInputChange}
-              rows={3}
-              placeholder="Enter Remarks"
-              className="border-[2px] border-gray-400 rounded-md"
-              disabled={isView}
-            /> */}
+           
             <InputGroup
               type="textarea"
               name="remarks"

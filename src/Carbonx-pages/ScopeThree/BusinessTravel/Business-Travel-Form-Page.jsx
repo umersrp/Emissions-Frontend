@@ -192,109 +192,127 @@ const BusinessTravelFormPage = () => {
     recalculateEmissions(updated);
   };
 
-  const handleToggle = (name) => {
-    if (isView) return;
+ const handleToggle = (name) => {
+  if (isView) return;
 
-    setFormData((prev) => {
-      const updated = { ...prev, [name]: !prev[name] };
+  setFormData((prev) => {
+    const updated = { ...prev, [name]: !prev[name] };
 
-      // Toggle OFF → reset fields + clear errors
-      const clearErrors = (keys) => {
-        setErrors(prevErr => {
-          const copy = { ...prevErr };
-          keys.forEach(k => delete copy[k]);
-          return copy;
-        });
-      };
-
-      if (prev[name]) {
-        if (name === "travelByAir") {
-          updated.airPassengers = "";
-          updated.airDistanceKm = "";
-          updated.airTravelClass = "";
-          updated.airFlightType = "";
-          clearErrors(["airPassengers", "airDistanceKm", "airTravelClass", "airFlightType"]);
-        }
-
-        if (name === "travelByMotorbike") {
-          updated.motorbikeDistanceKm = "";
-          updated.motorbikeType = "";
-          clearErrors(["motorbikeDistanceKm", "motorbikeType"]);
-        }
-
-        if (name === "travelByTaxi") {
-          updated.taxiPassengers = "";
-          updated.taxiDistanceKm = "";
-          updated.taxiType = "";
-          clearErrors(["taxiPassengers", "taxiDistanceKm", "taxiType"]);
-        }
-
-        if (name === "travelByBus") {
-          updated.busPassengers = "";
-          updated.busDistanceKm = "";
-          updated.busType = "";
-          clearErrors(["busPassengers", "busDistanceKm", "busType"]);
-        }
-
-        if (name === "travelByTrain") {
-          updated.trainPassengers = "";
-          updated.trainDistanceKm = "";
-          updated.trainType = "";
-          clearErrors(["trainPassengers", "trainDistanceKm", "trainType"]);
-        }
-
-        if (name === "travelByCar") {
-          updated.carDistanceKm = "";
-          updated.carType = "";
-          updated.carFuelType = "";
-          clearErrors(["carDistanceKm", "carType", "carFuelType"]);
-        }
-
-        if (name === "hotelStay") {
-          updated.hotelRooms = "";
-          updated.hotelNights = "";
-          clearErrors(["hotelRooms", "hotelNights"]);
-        }
-      }
-
-      //  Toggle group validation
-      const anyToggle =
-        updated.travelByAir ||
-        updated.travelByMotorbike ||
-        updated.travelByTaxi ||
-        updated.travelByBus ||
-        updated.travelByTrain ||
-        updated.travelByCar ||
-        updated.hotelStay;
-
-      setShowToggleError(!anyToggle);
-
-      recalculateEmissions(updated);
-      return updated;
-    });
-  };
-
-  useEffect(() => {
-    const fetchBuildings = async () => {
-      try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-
-        setBuildingOptions(
-          res.data?.data?.buildings?.map((b) => ({
-            value: b._id,
-            label: b.buildingName,
-          }))
-        );
-      } catch {
-        toast.error("Failed to load buildings");
-      }
+    // Toggle OFF → reset fields + clear errors
+    const clearErrors = (keys) => {
+      setErrors(prevErr => {
+        const copy = { ...prevErr };
+        keys.forEach(k => delete copy[k]);
+        return copy;
+      });
     };
 
+    if (prev[name]) {
+      if (name === "travelByAir") {
+        updated.airPassengers = "";
+        updated.airDistanceKm = "";
+        updated.airTravelClass = "";
+        updated.airFlightType = "";
+        clearErrors(["airPassengers", "airDistanceKm", "airTravelClass", "airFlightType"]);
+      }
+
+      if (name === "travelByMotorbike") {
+        updated.motorbikeDistanceKm = "";
+        updated.motorbikeType = "";
+        clearErrors(["motorbikeDistanceKm", "motorbikeType"]);
+      }
+
+      if (name === "travelByTaxi") {
+        updated.taxiPassengers = "";
+        updated.taxiDistanceKm = "";
+        updated.taxiType = "";
+        clearErrors(["taxiPassengers", "taxiDistanceKm", "taxiType"]);
+      }
+
+      if (name === "travelByBus") {
+        updated.busPassengers = "";
+        updated.busDistanceKm = "";
+        updated.busType = "";
+        clearErrors(["busPassengers", "busDistanceKm", "busType"]);
+      }
+
+      if (name === "travelByTrain") {
+        updated.trainPassengers = "";
+        updated.trainDistanceKm = "";
+        updated.trainType = "";
+        clearErrors(["trainPassengers", "trainDistanceKm", "trainType"]);
+      }
+
+      if (name === "travelByCar") {
+        updated.carDistanceKm = "";
+        updated.carType = "";
+        updated.carFuelType = "";
+        clearErrors(["carDistanceKm", "carType", "carFuelType"]);
+      }
+
+      if (name === "hotelStay") {
+        updated.hotelRooms = "";
+        updated.hotelNights = "";
+        clearErrors(["hotelRooms", "hotelNights"]);
+      }
+    }
+
+  
+    // ADD: Hide toggle error if user selects any toggle
+    const anyToggle =
+      updated.travelByAir ||
+      updated.travelByMotorbike ||
+      updated.travelByTaxi ||
+      updated.travelByBus ||
+      updated.travelByTrain ||
+      updated.travelByCar ||
+      updated.hotelStay;
+
+    if (anyToggle) {
+      setShowToggleError(false); // Hide error when user selects something
+    }
+
+    recalculateEmissions(updated);
+    return updated;
+  });
+};
+
+useEffect(() => {
+    const fetchBuildings = async () => {
+        try {
+            const res = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+                {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+                }
+            );
+            
+            // Get buildings from response
+            const buildings = res.data?.data?.buildings || [];
+            
+            // Sort buildings alphabetically by buildingName
+            const sortedBuildings = [...buildings].sort((a, b) => {
+                const nameA = (a.buildingName || '').toUpperCase();
+                const nameB = (b.buildingName || '').toUpperCase();
+                
+                if (nameA < nameB) return -1;
+                if (nameA > nameB) return 1;
+                return 0;
+            });
+            
+            // Format sorted buildings for dropdown
+            const formatted = sortedBuildings.map((b) => ({
+                value: b._id,
+                label: b.buildingName || 'Unnamed Building',
+            }));
+            
+            setBuildingOptions(formatted);
+        } catch {
+            toast.error("Failed to load buildings");
+        }
+    };
     fetchBuildings();
-  }, []);
+}, []);
 
   useEffect(() => {
     const fetchBusinessTravelById = async () => {
@@ -351,16 +369,16 @@ const BusinessTravelFormPage = () => {
         };
 
         setFormData(updatedFormData);
-        const anyToggle =
-          updatedFormData.travelByAir ||
-          updatedFormData.travelByMotorbike ||
-          updatedFormData.travelByTaxi ||
-          updatedFormData.travelByBus ||
-          updatedFormData.travelByTrain ||
-          updatedFormData.travelByCar ||
-          updatedFormData.hotelStay;
+        // const anyToggle =
+        //   updatedFormData.travelByAir ||
+        //   updatedFormData.travelByMotorbike ||
+        //   updatedFormData.travelByTaxi ||
+        //   updatedFormData.travelByBus ||
+        //   updatedFormData.travelByTrain ||
+        //   updatedFormData.travelByCar ||
+        //   updatedFormData.hotelStay;
 
-        setShowToggleError(!anyToggle && !isView);
+        // setShowToggleError(!anyToggle && !isView);
         recalculateEmissions(updatedFormData);
       } catch (err) {
         toast.error("Failed to fetch record");
@@ -624,25 +642,31 @@ const handleSubmit = async (e) => {
                     value={formData.airPassengers}
                     onChange={handleChange}
                     placeholder="e.g., 1, 2, 3"
-                    className="input-field"
+                    className="input-field w-full"
                     disabled={isView}
                   />
+                 
                   {errors.airPassengers && (
                     <p className="text-red-500 text-sm mt-1">{errors.airPassengers}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="field-label">Distance (km)</label>
+                  <label className="field-label">Distance Travelled</label>
+                  <div className="grid grid-cols-[14fr_1fr]">
                   <InputGroup
                     type="number"
                     name="airDistanceKm"
                     value={formData.airDistanceKm}
                     onChange={handleChange}
                     placeholder="e.g., 1000"
-                    className="input-field"
+                    className="input-field rounded-r-none w-full"
                     disabled={isView}
                   />
+                  <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                      km
+                    </div>
+                    </div>
                   {errors.airDistanceKm && (
                     <p className="text-red-500 text-sm mt-1">{errors.airDistanceKm}</p>
                   )}
@@ -693,16 +717,21 @@ const handleSubmit = async (e) => {
             {formData.travelByMotorbike && (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <div>
-                  <label className="field-label">Distance (km)</label>
+                  <label className="field-label">Distance Travelled</label>
+                  <div className="grid grid-cols-[14fr_1fr]">
                   <InputGroup
                     type="number"
                     name="motorbikeDistanceKm"
                     value={formData.motorbikeDistanceKm}
                     onChange={handleChange}
                     placeholder="e.g., 1000"
-                    className="input-field"
+                    className="input-field rounded-r-none w-full"
                     disabled={isView}
                   />
+                  <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                      km
+                    </div>
+                    </div>
                   {errors.motorbikeDistanceKm && (
                     <p className="text-red-500 text-sm mt-1">{errors.motorbikeDistanceKm}</p>
                   )}
@@ -744,25 +773,31 @@ const handleSubmit = async (e) => {
                     value={formData.taxiPassengers}
                     onChange={handleChange}
                     placeholder="e.g., 1, 2, 3"
-                    className="input-field"
+                    className="input-field  w-full"
                     disabled={isView}
                   />
+                  
                   {errors.taxiPassengers && (
                     <p className="text-red-500 text-sm mt-1">{errors.taxiPassengers}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="field-label">Distance (km)</label>
+                  <label className="field-label">Distance Travelled</label>
+                  <div className="grid grid-cols-[14fr_1fr]">
                   <InputGroup
                     type="number"
                     name="taxiDistanceKm"
                     value={formData.taxiDistanceKm}
                     onChange={handleChange}
                     placeholder="e.g., 1000"
-                    className="input-field"
+                    className="input-field rounded-r-none w-full"
                     disabled={isView}
                   />
+                  <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                      km
+                    </div>
+                    </div>
                   {errors.taxiDistanceKm && (
                     <p className="text-red-500 text-sm mt-1">{errors.taxiDistanceKm}</p>
                   )}
@@ -804,25 +839,31 @@ const handleSubmit = async (e) => {
                     value={formData.busPassengers}
                     onChange={handleChange}
                     placeholder="e.g., 1, 2, 3"
-                    className="input-field"
+                    className="input-field  w-full"
                     disabled={isView}
                   />
+                  
                   {errors.busPassengers && (
                     <p className="text-red-500 text-sm mt-1">{errors.busPassengers}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="field-label">Distance (km)</label>
+                  <label className="field-label">Distance Travelled</label>
+                  <div className="grid grid-cols-[14fr_1fr]">
                   <InputGroup
                     type="number"
                     name="busDistanceKm"
                     value={formData.busDistanceKm}
                     onChange={handleChange}
                     placeholder="e.g., 1000"
-                    className="input-field"
+                    className="input-field rounded-r-none w-full"
                     disabled={isView}
                   />
+                  <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                      km
+                    </div>
+                    </div>
                   {errors.busDistanceKm && (
                     <p className="text-red-500 text-sm mt-1">{errors.busDistanceKm}</p>
                   )}
@@ -866,25 +907,31 @@ const handleSubmit = async (e) => {
                     value={formData.trainPassengers}
                     onChange={handleChange}
                     placeholder="e.g., 1, 2, 3"
-                    className="input-field"
+                    className="input-field w-full"
                     disabled={isView}
                   />
+                 
                   {errors.trainPassengers && (
                     <p className="text-red-500 text-sm mt-1">{errors.trainPassengers}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="field-label">Distance (km)</label>
+                  <label className="field-label">Distance Travelled</label>
+                  <div className="grid grid-cols-[14fr_1fr]">
                   <InputGroup
                     type="number"
                     name="trainDistanceKm"
                     value={formData.trainDistanceKm}
                     onChange={handleChange}
                     placeholder="e.g., 1000"
-                    className="input-field"
+                    className="input-field rounded-r-none w-full"
                     disabled={isView}
                   />
+                  <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                      km
+                    </div>
+                    </div>
                   {errors.trainDistanceKm && (
                     <p className="text-red-500 text-sm mt-1">{errors.trainDistanceKm}</p>
                   )}
@@ -921,16 +968,21 @@ const handleSubmit = async (e) => {
             {formData.travelByCar && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div>
-                  <label className="field-label">Distance (km)</label>
+                  <label className="field-label">Distance Travelled</label>
+                  <div className="grid grid-cols-[14fr_1fr]">
                   <InputGroup
                     type="number"
                     name="carDistanceKm"
                     value={formData.carDistanceKm}
                     onChange={handleChange}
                     placeholder="e.g., 1000"
-                    className="input-field"
+                    className="input-field rounded-r-none w-full"
                     disabled={isView}
                   />
+                  <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                      km
+                    </div>
+                    </div>
                   {errors.carDistanceKm && (
                     <p className="text-red-500 text-sm mt-1">{errors.carDistanceKm}</p>
                   )}
@@ -990,9 +1042,10 @@ const handleSubmit = async (e) => {
                     value={formData.hotelRooms}
                     onChange={handleChange}
                     placeholder="e.g., 1, 2, 3"
-                    className="input-field"
+                    className="input-field  w-full"
                     disabled={isView}
                   />
+                 
                   {errors.hotelRooms && (
                     <p className="text-red-500 text-sm mt-1">{errors.hotelRooms}</p>
                   )}
@@ -1006,9 +1059,10 @@ const handleSubmit = async (e) => {
                     value={formData.hotelNights}
                     onChange={handleChange}
                     placeholder="e.g., 1, 2, 3"
-                    className="input-field"
+                    className="input-field w-full"
                     disabled={isView}
                   />
+                    
                   {errors.hotelNights && (
                     <p className="text-red-500 text-sm mt-1">{errors.hotelNights}</p>
                   )}
