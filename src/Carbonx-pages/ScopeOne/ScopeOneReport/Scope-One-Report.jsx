@@ -668,7 +668,7 @@ console.log("Building Data:", buildingData);
         <p className="text-xl font-bold text-white">
           {loading
             ? "Loading..."
-            : `${formatNumber(allTotalKg)} kg CO₂e | ${formatNumber(allTotalT)} t CO₂e`}
+            : `${formatNumber(allTotalKg)} KgCO₂e | ${formatNumber(allTotalT)} tCO₂e`}
         </p>
       </motion.div>
 
@@ -695,10 +695,10 @@ console.log("Building Data:", buildingData);
               </div>
               <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
                 <span>
-                  {formatNumber(item.kg)}<span className="text-black-500">kg CO₂e</span>
+                  {formatNumber(item.kg)}<span className="text-black-500"> KgCO₂e</span>
                 </span>
                 <span>
-                  {formatNumber(item.t)}<span className="text-black-500">t CO₂e</span>
+                  {formatNumber(item.t)}<span className="text-black-500"> tCO₂e</span>
                 </span>
               </p>
             </div>

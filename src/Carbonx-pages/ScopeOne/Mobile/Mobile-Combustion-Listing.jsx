@@ -39,33 +39,64 @@ const MobileCombustionListing = () => {
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
 
+const capitalizeLabel = (text) => {
+  if (!text) return "N/A";
+  const exceptions = [
+    "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+    "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+    "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+    "n.e.c.", "cc", "cc+","up"
+  ];
 
-  //  Fetch records with server-side pagination
-  // const fetchRecords = async (page = 1, limit = 10) => {
-  //   setLoading(true);
-  //   try {
-  //     const res = await axios.get(
-  //       `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All?page=${page}&limit=${limit}`,
-  //       {
-  //         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-  //       }
-  //     );
+  // Add spaces around slashes first
+  const textWithSpaces = text.replace(/\s*\/\s*/g, ' / ');
 
-  //     const data = res.data?.data || [];
-  //     const meta = res.data?.meta || {};
+  // Special handling for "a" and other special cases
+  return textWithSpaces
+    .split(" ")
+    .map((word, index) => {
+      //  If word is just "/", keep it as is
+      if (word === "/") return word;
+      
+      const hasOpenParen = word.startsWith("(");
+      const hasCloseParen = word.endsWith(")");
+      
+      let coreWord = word;
+      if (hasOpenParen) coreWord = coreWord.slice(1);
+      if (hasCloseParen) coreWord = coreWord.slice(0, -1);
 
-  //     setRecords(data);
-  //     setTotalRecords(meta.totalRecords || 0);
-  //     setTotalPages(meta.totalPages || 1);
-  //     setPageIndex(meta.currentPage || 1);
-  //     setPageSize(meta.limit || 10);
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to fetch records");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+      const lowerCore = coreWord.toLowerCase();
+      let result;
+      
+      // SPECIAL RULE: If word is "a" or "A", preserve original case
+      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
+        result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
+      }
+      // Single letters (except "a" already handled)
+      else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
+        result = coreWord.toUpperCase();
+      }
+      // First word OR word after opening parenthesis should be capitalized
+      else if (index === 0 || (index > 0 && textWithSpaces.split(" ")[index-1]?.endsWith("("))) {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      }
+      // Exception words (excluding "a" which we already handled)
+      else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
+        result = lowerCore;
+      }
+      // Normal capitalization
+      else {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      }
+      
+      // Reattach parentheses
+      if (hasOpenParen) result = "(" + result;
+      if (hasCloseParen) result = result + ")";
+
+      return result;
+    })
+    .join(" ");
+};
   const fetchRecords = async (page = 1, limit = 10, search = "") => {
     setLoading(true);
     try {
@@ -127,35 +158,48 @@ const MobileCombustionListing = () => {
       },
       {
         Header: "Building",
-        accessor: (row) => row.buildingId?.buildingName || "-",
+        accessor: (row) => row.buildingId?.buildingName || "N/A",
       },
-      { Header: "Stakeholder", accessor: "stakeholder" },
-      { Header: "Vehicle Classification", accessor: "vehicleClassification" },
+      { Header: "Stakeholder", accessor: "stakeholder", Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Vehicle Classification", accessor: "vehicleClassification", Cell: ({ value }) => capitalizeLabel(value) },
       {
         Header: "Vehicle Type",
-        accessor: "vehicleType",
-        Cell: ({ value }) => (
-          <span title={value}>
-            {value?.length > 50 ? value.slice(0, 50) + "..." : value || "-"}
-          </span>
-        ),
+        accessor: "vehicleType", Cell: ({ value }) => capitalizeLabel(value)
       },
-      { Header: "Fuel Name", accessor: "fuelName" },
-      { Header: "Distance Travelled ", accessor: "distanceTraveled" },
-      { Header: "Distance Unit", accessor: "distanceUnit" },
-      { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Weight Loaded (kg)", accessor: "weightLoaded" },
+      { Header: "Fuel Name", accessor: "fuelName", Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Distance Travelled ", accessor: "distanceTraveled", Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Distance Unit", accessor: "distanceUnit", Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Quality Control", accessor: "qualityControl" , Cell: ({ cell }) => cell.value || "N/A"},
+      { Header: "Weight Loaded (kg)", accessor: "weightLoaded", Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", Cell: ({ cell }) => {
-    const value = Number(cell.value);
-    if (isNaN(value) || value === 0) { return "N/A"; }
-    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
-    return value.toFixed(2);}  },
+          const rawValue = cell.value;
+          if (rawValue === null || rawValue === undefined || rawValue === "") {
+            return "N/A";
+          }
+          const numValue = Number(rawValue);
+          if (isNaN(numValue)) {
+            return "N/A";
+          }
+          if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
+            return numValue.toExponential(2);
+          }
+          return numValue.toFixed(2);
+        } },
       { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",
          Cell: ({ cell }) => {
-    const value = Number(cell.value);
-    if (isNaN(value) || value === 0) { return "N/A"; }
-    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
-    return value.toFixed(2);} 
+          const rawValue = cell.value;
+          if (rawValue === null || rawValue === undefined || rawValue === "") {
+            return "N/A";
+          }
+          const numValue = Number(rawValue);
+          if (isNaN(numValue)) {
+            return "N/A";
+          }
+          if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
+            return numValue.toExponential(2);
+          }
+          return numValue.toFixed(2);
+        }
        },
       {
         Header: "Remarks",

@@ -12,6 +12,7 @@ import {
   fuelTypeOptions,
   qualityControlOptions,
   fuelUnitOptionsByName,
+  formatUnitDisplay,
 } from "@/constant/scope1/stationary-data";
 import { calculateStationaryEmissions } from "@/utils/scope1/calculate-stationary-emissions";
 import InputGroup from "@/components/ui/InputGroup";
@@ -62,42 +63,42 @@ const StationaryCombustionFormPage = () => {
 
 
   // --- Fetch Buildings ---
-useEffect(() => {
+  useEffect(() => {
     const fetchBuildings = async () => {
-        try {
-            const res = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
-                {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                }
-            );
-            
-            // Get buildings from response
-            const buildings = res.data?.data?.buildings || [];
-            
-            // Sort buildings alphabetically by buildingName
-            const sortedBuildings = [...buildings].sort((a, b) => {
-                const nameA = (a.buildingName || '').toUpperCase();
-                const nameB = (b.buildingName || '').toUpperCase();
-                
-                if (nameA < nameB) return -1;
-                if (nameA > nameB) return 1;
-                return 0;
-            });
-            
-            // Format sorted buildings for dropdown
-            const formatted = sortedBuildings.map((b) => ({
-                value: b._id,
-                label: b.buildingName || 'Unnamed Building',
-            }));
-            
-            setBuildingOptions(formatted);
-        } catch {
-            toast.error("Failed to load buildings");
-        }
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          }
+        );
+
+        // Get buildings from response
+        const buildings = res.data?.data?.buildings || [];
+
+        // Sort buildings alphabetically by buildingName
+        const sortedBuildings = [...buildings].sort((a, b) => {
+          const nameA = (a.buildingName || '').toUpperCase();
+          const nameB = (b.buildingName || '').toUpperCase();
+
+          if (nameA < nameB) return -1;
+          if (nameA > nameB) return 1;
+          return 0;
+        });
+
+        // Format sorted buildings for dropdown
+        const formatted = sortedBuildings.map((b) => ({
+          value: b._id,
+          label: b.buildingName || 'Unnamed Building',
+        }));
+
+        setBuildingOptions(formatted);
+      } catch {
+        toast.error("Failed to load buildings");
+      }
     };
     fetchBuildings();
-}, []);
+  }, []);
 
   // --- Fetch Record by ID (for edit/view) ---
   useEffect(() => {
@@ -131,8 +132,14 @@ useEffect(() => {
             ) || null,
           qualityControl:
             qualityControlOptions.find((q) => q.value === data.qualityControl) || null,
+          // consumptionUnit: data.consumptionUnit
+          //   ? { value: data.consumptionUnit, label: data.consumptionUnit }
+          //   : null,
           consumptionUnit: data.consumptionUnit
-            ? { value: data.consumptionUnit, label: data.consumptionUnit }
+            ? {
+              value: data.consumptionUnit,
+              label: formatUnitDisplay(data.consumptionUnit)  
+            }
             : null,
           fuelConsumption: data.fuelConsumption || "",
           remarks: data.remarks || "",
@@ -190,8 +197,8 @@ useEffect(() => {
           ...fuelUnitOptionsByName.default,
           ...fuelUnitOptionsByName[formData.fuelName.value],
         ]),
-      ].map((u) => ({ value: u, label: u }))
-      : fuelUnitOptionsByName.default.map((u) => ({ value: u, label: u }));
+      ].map((u) => ({ value: u, label: formatUnitDisplay(u) }))
+      : fuelUnitOptionsByName.default.map((u) => ({ value: u, label: formatUnitDisplay(u) }));
 
   const handleNumberInputWheel = (e) => {
     e.target.blur();
