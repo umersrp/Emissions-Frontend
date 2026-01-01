@@ -422,7 +422,7 @@ useEffect(() => {
 
           {/* Remarks */}
           <div>
-            <label className="field-label">Remark</label>
+            <label className="field-label">Remarks</label>
             <InputGroup type="textarea" name="remarks" value={formData.remarks} onChange={handleInputChange} rows={3} placeholder="Enter Remarks" className="border-[2px] border-gray-400 rounded-md" disabled={isView} />
           </div>
 

@@ -310,7 +310,7 @@ const FugitiveCombustionFormPage = () => {
                 options={FugitiveEquipmentTypeOptions}
                 value={formData.equipmentType}
                 onChange={(value) => handleSelectChange("equipmentType", value)}
-                placeholder="Select or type equipment"
+                placeholder="Select or Type Equipment"
                 allowCustomInput
                 isDisabled={isView}
               />
@@ -359,6 +359,7 @@ const FugitiveCombustionFormPage = () => {
                 value={formData.consumptionUnit}
                 onChange={(value) => handleSelectChange("consumptionUnit", value)}
                 isDisabled={isView}
+                placeholder={"Select Unit"}
               />
             </div>
 

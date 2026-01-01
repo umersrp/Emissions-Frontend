@@ -962,8 +962,8 @@ const AirEmissionReportPage = () => {
 
             <p className="text-[13px] font-medium text-gray-600 flex flex-col pl-8">
               {/* <span>{formatNumber(item.kg)} kg CO₂e</span> */}
-              <span>{formatNumber(item.kg)} {item.key === "vocs" ? "kg" : "kg CO₂e"}</span>
-              <span>{formatNumber(item.t)} t CO₂e</span>
+              <span>{formatNumber(item.kg)} {item.key === "vocs" ? "Kg" : "KgCO₂e"}</span>
+              <span>{formatNumber(item.t)} tCO₂e</span>
             </p>
           </div>
         ))}
@@ -997,7 +997,7 @@ const AirEmissionReportPage = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Sr.No</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Building</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">
-                  Total Emissions ({tableFilter === "vocs" ? "kg" : "kgCO₂e"})
+                  Total Emissions ({tableFilter === "vocs" ? "Kg" : "KgCO₂e"})
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider whitespace-nowrap">Total Emissions (tCO₂e)</th>
               </tr>

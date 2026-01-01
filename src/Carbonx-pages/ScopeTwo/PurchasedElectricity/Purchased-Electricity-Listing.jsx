@@ -135,15 +135,33 @@ const PurchasedElectricityListing = () => {
     { Header: "Grid Station", accessor: "gridStation",Cell: ({ cell }) => renderNA(cell.value) },
     { Header: "Total Other Supplier Specific Electricity Purchased", accessor: "totalOtherSupplierElectricity", Cell: ({ cell }) => renderNA(cell.value) },
     { Header: "Calculated Location Based Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", Cell: ({ cell }) => {
-    const value = Number(cell.value);
-    if (isNaN(value) || value === 0) { return "N/A"; }
-    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
-    return value.toFixed(2);}  },
-    { Header: "Calculated Location Based Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e", Cell: ({ cell }) => {
-    const value = Number(cell.value);
-    if (isNaN(value) || value === 0) { return "N/A"; }
-    if (Math.abs(value) < 0.01 || Math.abs(value) >= 1e6) { return value.toExponential(2); }
-    return value.toFixed(2);}  },
+          const rawValue = cell.value;
+          if (rawValue === null || rawValue === undefined || rawValue === "") {
+            return "N/A";
+          }
+          const numValue = Number(rawValue);
+          if (isNaN(numValue)) {
+            return "N/A";
+          }
+          if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
+            return numValue.toExponential(2);
+          }
+          return numValue.toFixed(2);
+        }  },
+    { Header: "Calculated Location Based Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",  Cell: ({ cell }) => {
+          const rawValue = cell.value;
+          if (rawValue === null || rawValue === undefined || rawValue === "") {
+            return "N/A";
+          }
+          const numValue = Number(rawValue);
+          if (isNaN(numValue)) {
+            return "N/A";
+          }
+          if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
+            return numValue.toExponential(2);
+          }
+          return numValue.toFixed(2);
+        }  },
   ];
 
   // Market-based specific columns

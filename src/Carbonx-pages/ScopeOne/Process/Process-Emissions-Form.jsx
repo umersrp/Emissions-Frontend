@@ -350,6 +350,7 @@ const ProcessEmissionsFormPage = () => {
                 name="gasEmitted"
                 value={formData.gasEmitted}
                 readOnly
+                placeholder={"Gas Emitted"}
                 className="input-field bg-gray-100 whitespace-nowrap overflow-visible block leading-[1.4] "
               />
             </div>

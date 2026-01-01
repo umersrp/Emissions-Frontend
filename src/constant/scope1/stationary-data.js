@@ -428,6 +428,37 @@ export const fuelNameOptionsByType = {
   ],
 };
 
+// Add this to your constants file
+export const unitDisplayNames = {
+  // Energy units
+  'kwh': 'kWh',
+  'MWh': 'MWh',
+  'GWh': 'GWh',
+  'Joules': 'Joules',
+  'Gj': 'GJ',
+  'Mj': 'MJ',
+  'Tj': 'TJ',
+  'Btu': 'BTU',
+  'MMBtu': 'MMBtu',
+  
+  // Mass units
+  'Tonnes': 'Tonnes',
+  'kg': 'kg',
+  'lb': 'lb',
+  
+  // Volume units
+  'Litres': 'Litres',
+  'Gallons': 'Gallons',
+  'm3': 'm³',
+  'ft3': 'ft³',
+  'SCF': 'SCF',
+  'in3': 'in³',
+};
+
+// Utility function
+export const formatUnitDisplay = (unit) => {
+  return unitDisplayNames[unit] || unit;
+};
 // --- Fuel Consumption Units by Fuel Name ---
 export const fuelUnitOptionsByName = {
   // common units (since all have these)
@@ -483,3 +514,4 @@ export const fuelUnitOptionsByName = {
   "Avtur (renewable)": ["Litres", "Gallons"],
   "Bioethanol": ["Litres", "Gallons"]
 };
+

@@ -424,21 +424,79 @@ const primary900 = "#4097ab7a";
 //     })
 //     .join(" ");
 // };
+// const capitalizeLabel = (text) => {
+//   if (!text) return "";
+  
+
+//   const exceptions = [
+//     "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+//     "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+//     "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+//     "n.e.c.", "cc", "cc+","kWh"
+//   ];
+
+//   // Special handling for "a" - we'll preserve its original case
+//   return text
+//     .split(" ")
+//     .map((word, index) => {
+//       const hasOpenParen = word.startsWith("(");
+//       const hasCloseParen = word.endsWith(")");
+
+//       let coreWord = word;
+//       if (hasOpenParen) coreWord = coreWord.slice(1);
+//       if (hasCloseParen) coreWord = coreWord.slice(0, -1);
+
+//       const lowerCore = coreWord.toLowerCase();
+//       let result;
+//       //  SPECIAL RULE: If word is "a" or "A", preserve original case
+//       if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
+//         result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
+//       }
+//       // Single letters (except "a" already handled)
+//       else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
+//         result = coreWord.toUpperCase();
+//       }
+//       // First word
+//       else if (index === 0) {
+//         result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+//       }
+//       // Exception words (excluding "a" which we already handled)
+//       else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
+//        result = lowerCore;
+//       }
+      
+//       // Normal capitalization
+//       else {
+//         result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+//       }
+//       // Reattach parentheses
+//       if (hasOpenParen) result = "(" + result;
+//       if (hasCloseParen) result = result + ")";
+
+//       return result;
+//     })
+//     .join(" ");
+// };
 const capitalizeLabel = (text) => {
   if (!text) return "";
   
-
   const exceptions = [
     "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
     "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
     "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
-    "n.e.c.", "cc", "cc+",
+    "n.e.c.", "cc", "cc+", "kwh","up","km"
   ];
-
-  // Special handling for "a" - we'll preserve its original case
-  return text
+  const preserveExact = ["kWh", "MWh", "GWh", "MJ", "GJ", "TJ", "BTU", "MMBtu", "m³", "ft³", "in³"];
+  
+  //   Add spaces around slashes first
+  const textWithSpaces = text.replace(/\s*\/\s*/g, ' / ');
+  
+  return textWithSpaces
     .split(" ")
     .map((word, index) => {
+      //  If word is just "/", keep it as is
+      if (word === "/") return word;
+      
       const hasOpenParen = word.startsWith("(");
       const hasCloseParen = word.endsWith(")");
 
@@ -446,11 +504,19 @@ const capitalizeLabel = (text) => {
       if (hasOpenParen) coreWord = coreWord.slice(1);
       if (hasCloseParen) coreWord = coreWord.slice(0, -1);
 
+      if (preserveExact.includes(coreWord)) {
+        let result = coreWord;
+        if (hasOpenParen) result = "(" + result;
+        if (hasCloseParen) result = result + ")";
+        return result;
+      }
+
       const lowerCore = coreWord.toLowerCase();
       let result;
-      //  SPECIAL RULE: If word is "a" or "A", preserve original case
+      
+      //  If word is "a" or "A", preserve original case
       if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
-        result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
+        result = coreWord;
       }
       // Single letters (except "a" already handled)
       else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
@@ -462,13 +528,13 @@ const capitalizeLabel = (text) => {
       }
       // Exception words (excluding "a" which we already handled)
       else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
-       result = lowerCore;
+        result = lowerCore;
       }
-      
       // Normal capitalization
       else {
         result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
       }
+      
       // Reattach parentheses
       if (hasOpenParen) result = "(" + result;
       if (hasCloseParen) result = result + ")";
@@ -477,7 +543,6 @@ const capitalizeLabel = (text) => {
     })
     .join(" ");
 };
-
 const customStyles = {
   control: (base, state) => ({
     ...base,
