@@ -462,7 +462,7 @@ const ScopeThreeReport = () => {
             "Business Travel": "heroicons:briefcase",
             "Upstream Transportation": "heroicons:arrow-up-tray",
             "Downstream Transportation": "heroicons:arrow-down-tray",
-            "Employee Commuting": "heroicons:arrow-down-tray",
+            "Employee Commuting": "heroicons:user-group",
           };
           return (
             <div
