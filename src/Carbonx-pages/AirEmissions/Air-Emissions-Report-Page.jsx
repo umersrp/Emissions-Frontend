@@ -763,84 +763,114 @@ const AirEmissionReportPage = () => {
   }, [bioData, processData]);
 
   // Summary Cards
-  const summaryCards = useMemo(() => {
-    // Non-Kyoto from Fugitive (materialRefrigerant mapping)
-    const totalsFugitive = {};
-    NON_KYOTO_GASES.forEach((gas) => {
-      totalsFugitive[gas] = fugitiveData
-        .filter((item) => item.materialRefrigerant === gas)
-        .reduce((sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0), 0);
-    });
-    const nonKyotoFromFugitive = Object.values(totalsFugitive).reduce((a, b) => a + b, 0);
+ // Summary Cards - Updated with detailed logging
+const summaryCards = useMemo(() => {
+  // Non-Kyoto from Fugitive (materialRefrigerant mapping)
+  const totalsFugitive = {};
+  NON_KYOTO_GASES.forEach((gas) => {
+    totalsFugitive[gas] = fugitiveData
+      .filter((item) => item.materialRefrigerant === gas)
+      .reduce((sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0), 0);
+  });
+  const nonKyotoFromFugitive = Object.values(totalsFugitive).reduce((a, b) => a + b, 0);
 
-    // Process-based classification totals
-    let nonKyotoFromProcess = 0;
-    let vocsFromProcess = 0;
-    let biogenicFromProcess = 0;
+  // Process-based classification totals
+  let nonKyotoFromProcess = 0;
+  let vocsFromProcess = 0;
+  let biogenicFromProcess = 0;
 
-    processData.forEach((item) => {
-      const activity = (item.activityType || "").trim();
-      const value = Number(item.calculatedEmissionKgCo2e || 0);
+  processData.forEach((item) => {
+    const activity = (item.activityType || "").trim();
+    const value = Number(item.calculatedEmissionKgCo2e || 0);
 
-      if (NON_KYOTO_ACTIVITIES.includes(activity)) {
-        nonKyotoFromProcess += value;
-      } else if (VO_ACTIVITIES.includes(activity)) {
-        vocsFromProcess += value;
-      } else if (BIOGENIC_ACTIVITIES.includes(activity)) {
-        biogenicFromProcess += value;
-      }
-      // else: activity not in lists -> ignore for these cards
-    });
+    if (NON_KYOTO_ACTIVITIES.includes(activity)) {
+      nonKyotoFromProcess += value;
+    } else if (VO_ACTIVITIES.includes(activity)) {
+      vocsFromProcess += value;
+    } else if (BIOGENIC_ACTIVITIES.includes(activity)) {
+      biogenicFromProcess += value;
+    }
+    // else: activity not in lists -> ignore for these cards
+  });
 
-    // Biogenic from stationary (bioData) + process
-    const biogenicFromStationary = bioData.reduce(
-      (sum, item) => sum + Number(item.calculatedBioEmissionKgCo2e || 0),
-      0
-    );
+  // Biogenic from stationary (bioData)
+  const biogenicFromStationary = bioData.reduce(
+    (sum, item) => sum + Number(item.calculatedBioEmissionKgCo2e || 0),
+    0
+  );
 
-    const nonKyotoTotal = nonKyotoFromFugitive + nonKyotoFromProcess;
-    const vocsTotal = vocsFromProcess; // currently only from process
-    const noxTotal = 0; // keep NOx = 0 as requested
-    const biogenicTotal = biogenicFromStationary + biogenicFromProcess;
+  const nonKyotoTotal = nonKyotoFromFugitive + nonKyotoFromProcess;
+  const vocsTotal = vocsFromProcess; // currently only from process
+  const noxTotal = 0; // keep NOx = 0 as requested
+  const biogenicTotal = biogenicFromStationary + biogenicFromProcess;
 
-    // Log biogenic breakdown
-    console.log(" Biogenic Breakdown:");
-    console.log(`  From Stationary: ${formatNumber(biogenicFromStationary)} kg`);
-    console.log(`  From Process: ${formatNumber(biogenicFromProcess)} kg`);
-    console.log(`  Total: ${formatNumber(biogenicTotal)} kg`);
+  // Console logs for each card
+  console.group("📊 SUMMARY CARDS BREAKDOWN");
+  
+  console.group("🔹 Non Kyoto Protocol / Other Gases Emission:");
+  console.log(`   From Fugitive: ${formatNumber(nonKyotoFromFugitive)} kg (${nonKyotoFromFugitive > 0 ? ((nonKyotoFromFugitive/nonKyotoTotal)*100).toFixed(1) : 0}%)`);
+  console.log(`   From Process: ${formatNumber(nonKyotoFromProcess)} kg (${nonKyotoFromProcess > 0 ? ((nonKyotoFromProcess/nonKyotoTotal)*100).toFixed(1) : 0}%)`);
+  console.log(`   Total: ${formatNumber(nonKyotoTotal)} kg CO₂e`);
+  console.groupEnd();
 
-    return [
-      {
-        key: "nonKyoto",
-        name: "Non Kyoto Protocol /Other Gases Emission",
-        kg: nonKyotoTotal,
-        t: nonKyotoTotal / 1000,
-        bg: "bg-cyan-50",
-      },
-      {
-        key: "vocs",
-        name: "VOCs",
-        kg: vocsTotal,
-        t: vocsTotal / 1000,
-        bg: "bg-red-50",
-      },
-      {
-        key: "nox",
-        name: "NOx",
-        kg: noxTotal,
-        t: noxTotal / 1000,
-        bg: "bg-purple-50",
-      },
-      {
-        key: "biogenic",
-        name: "Biogenic CO₂ Emissions",
-        kg: biogenicTotal,
-        t: biogenicTotal / 1000,
-        bg: "bg-green-50",
-      },
-    ];
-  }, [fugitiveData, bioData, processData]);
+  console.group("🔹 VOCs:");
+  console.log(`   From Process: ${formatNumber(vocsTotal)} kg (100%)`);
+  console.log(`   Total: ${formatNumber(vocsTotal)} kg`);
+  console.groupEnd();
 
+  console.group("🔹 NOx:");
+  console.log(`   Total: ${formatNumber(noxTotal)} kg`);
+  console.groupEnd();
+
+  console.group("🔹 Biogenic CO₂ Emissions:");
+  console.log(`   From Stationary: ${formatNumber(biogenicFromStationary)} kg (${biogenicFromStationary > 0 ? ((biogenicFromStationary/biogenicTotal)*100).toFixed(1) : 0}%)`);
+  console.log(`   From Process: ${formatNumber(biogenicFromProcess)} kg (${biogenicFromProcess > 0 ? ((biogenicFromProcess/biogenicTotal)*100).toFixed(1) : 0}%)`);
+  console.log(`   Total: ${formatNumber(biogenicTotal)} kg CO₂e`);
+  console.groupEnd();
+
+  // Summary of all sources
+  console.group("📈 ALL SOURCES SUMMARY");
+  console.log(`Fugitive Total: ${formatNumber(nonKyotoFromFugitive)} kg`);
+  console.log(`Process Total: ${formatNumber(nonKyotoFromProcess + vocsFromProcess + biogenicFromProcess)} kg`);
+  console.log(`  ↳ Non-Kyoto Process: ${formatNumber(nonKyotoFromProcess)} kg`);
+  console.log(`  ↳ VOCs Process: ${formatNumber(vocsFromProcess)} kg`);
+  console.log(`  ↳ Biogenic Process: ${formatNumber(biogenicFromProcess)} kg`);
+  console.log(`Stationary Total: ${formatNumber(biogenicFromStationary)} kg`);
+  console.groupEnd();
+
+  console.groupEnd();
+
+  return [
+    {
+      key: "nonKyoto",
+      name: "Non Kyoto Protocol /Other Gases Emission",
+      kg: nonKyotoTotal,
+      t: nonKyotoTotal / 1000,
+      bg: "bg-cyan-50",
+    },
+    {
+      key: "vocs",
+      name: "VOCs",
+      kg: vocsTotal,
+      t: vocsTotal / 1000,
+      bg: "bg-red-50",
+    },
+    {
+      key: "nox",
+      name: "NOx",
+      kg: noxTotal,
+      t: noxTotal / 1000,
+      bg: "bg-purple-50",
+    },
+    {
+      key: "biogenic",
+      name: "Biogenic CO₂ Emissions",
+      kg: biogenicTotal,
+      t: biogenicTotal / 1000,
+      bg: "bg-green-50",
+    },
+  ];
+}, [fugitiveData, bioData, processData]);
   // const totalEmission = useMemo(() => {
   //   const kg = summaryCards.reduce((sum, c) => sum + Number(c.kg || 0), 0);
   //   const t = summaryCards.reduce((sum, c) => sum + Number(c.t || 0), 0);
