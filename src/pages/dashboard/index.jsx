@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Card from "@/components/ui/Card";
 import GroupChart1 from "@/components/partials/widget/chart/group-chart-1"; // Pie/donut chart
@@ -9,8 +9,82 @@ import Scope3EmissionsSection from "@/components/partials/widget/chart/Scope3Emi
 import Select from "@/components/ui/Select";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Tooltip } from '@mui/material';
+// Import constants
+import { NON_KYOTO_GASES } from "@/constant/scope1/calculate-fugitive-emission";
+import {
+  NON_KYOTO_ACTIVITIES,
+  VO_ACTIVITIES,
+  BIOGENIC_ACTIVITIES,
+} from "@/constant/scope1/calculate-process-emission";
+// import { GHG_ACTIVITIES } from "@/constant/scope1/calculate-process-emission";
 
+// Helper functions
+const isNonKyotoMaterial = (materialRefrigerant) => {
+  if (!materialRefrigerant) return false;
+  
+  return NON_KYOTO_GASES.some(gas => 
+    materialRefrigerant.toLowerCase().includes(gas.toLowerCase())
+  );
+};
 
+const isExcludedActivity = (activityType) => {
+  if (!activityType) return false;
+  
+  const excludedActivities = [
+    ...NON_KYOTO_ACTIVITIES,
+    ...VO_ACTIVITIES,
+    ...BIOGENIC_ACTIVITIES
+  ];
+  
+  return excludedActivities.some(activity => 
+    activityType.toLowerCase().includes(activity.toLowerCase())
+  );
+};
+
+const calculateFugitiveEmissions = (fugitiveListData = []) => {
+  return fugitiveListData.reduce((sum, record) => {
+    if (isNonKyotoMaterial(record.materialRefrigerant)) {
+      return sum;
+    }
+    
+    const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
+    return sum + emissionValue;
+  }, 0);
+};
+// const calculateFugitiveEmissions = (fugitiveListData = []) => {
+//   const filteredData = fugitiveListData.filter(record => 
+//     GHG_ACTIVITIES.includes(record.materialRefrigerant)
+//   );
+  
+//   return filteredData.reduce((sum, record) => {
+//     const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
+//     return sum + emissionValue;
+//   }, 0);
+// };
+
+// const calculateProcessEmissions = (emissionActivityListData = []) => {
+//   return emissionActivityListData.reduce((sum, record) => {
+//     if (isExcludedActivity(record.activityType)) {
+//       return sum;
+//     }
+    
+//     const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
+//     return sum + emissionValue;
+//   }, 0);
+// };
+const calculateProcessEmissions = (emissionActivityListData = []) => {
+  let includedCount = 0;
+  const result = emissionActivityListData.reduce((sum, record) => {
+    if (isExcludedActivity(record.activityType)) {
+      return sum;
+    }
+    includedCount++;
+    const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
+    return sum + emissionValue;
+  }, 0);
+  console.log(`PROCESS EMISSIONS: ${includedCount}/${emissionActivityListData.length} records included, Total: ${result} tCO₂e`);
+  return result;
+};
 
 const Dashboard = () => {
   const [buildings, setBuildings] = useState([]);
@@ -95,31 +169,44 @@ const Dashboard = () => {
     }
   };
 
-
   const clearFilters = () => {
     setSelectedDepartments([]);
     setFromDate("");
     setToDate("");
   };
 
-
   // --- Calculate emissions ---
   const purchasedElectricity = dashboardData?.scope2?.purchasedElectricity;
 
-
   // Scope 1: sum of stationary, transport, fugitive, emissionActivity
-  const scope1Emission =
-    (dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0) +
-    (dashboardData?.scope1?.fugitive?.totalEmissionTCo2e || 0) +
-    (dashboardData?.scope1?.emissionActivity?.totalEmissionTCo2e || 0) +
-    (dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0) +
-    (dashboardData?.scope1?.processEmissions?.totalEmissionTCo2e || 0);
+  // const scope1Emission =
+  //   (dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0) +
+  //   (dashboardData?.scope1?.fugitive?.totalEmissionTCo2e || 0) +
+  //   // (dashboardData?.scope1?.emissionActivity?.totalEmissionTCo2e || 0) +
+  //   (dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0) +
+  //   (dashboardData?.scope1?.processEmissions?.totalEmissionTCo2e || 0);
+    const scope1Emission = useMemo(() => {
+    const stationary = dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0;
+    const transport = dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0;
+    const fugitive = calculateFugitiveEmissions(dashboardData?.scope1?.fugitiveListData);
+    const process = calculateProcessEmissions(dashboardData?.scope1?.EmissionActivityListData);
+
+  console.log("Scope 1 Calculation Debug");
+  console.log("Stationary:", stationary);
+  console.log("Transport:", transport);
+  console.log("Fugitive emissions calculated:", fugitive);
+  console.log("Process emissions calculated:", process);
+  // console.log("Fugitive list data:", dashboardData?.scope1?.fugitiveListData);
+   console.log("Process list data:", dashboardData?.scope1?.EmissionActivityListData);
+  console.log("Total scope1Emission:", stationary + transport + fugitive + process);
+  console.log("=== End Debug ===");
+      return stationary + transport + fugitive + process;
+  }, [dashboardData]);
 
   // Scope 2: sum of purchased electricity (location + market)
   const scope2Emission =
     Number(dashboardData?.scope2?.purchasedElectricity?.totalLocationTCo2e || 0) +
     Number(dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0);
-
 
   // Scope 3: default 0 if not available
   const scope3Emission = dashboardData?.scope3
@@ -137,8 +224,6 @@ const Dashboard = () => {
     { name: "Scope 2", value: Number(scope2Emission) || 0 },
     { name: "Scope 3", value: Number(scope3Emission) || 0 },
   ];
-
-
   const buildingMap = {};
   buildings.forEach((b) => {
     buildingMap[b._id] = b.buildingName;
@@ -262,10 +347,6 @@ const Dashboard = () => {
     ]
     : [];
 
-
-
-
-
   // Format numbers helper
   const formatNumber = (num) => {
     if (!num && num !== 0) return "0";
@@ -275,9 +356,6 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar: Building filter */}
-
-
-
       {/* Main content */}
       <main className="flex-1 p-6 overflow-auto">
         <div className="flex flex-wrap gap-4 mb-6 items-end bg-white p-4 rounded-xl shadow-lg">
@@ -318,7 +396,6 @@ const Dashboard = () => {
               ))}
             </select>
           </div>
-
 
           {/* Date range filter */}
           <div>
