@@ -306,12 +306,12 @@ const CommutingTable = () => {
         {
             Header: "SITE / BUILDING NAME",
             accessor: "building.buildingName",
-            Cell: ({ cell }) => cell.value || "-",
+            Cell: ({ cell }) => cell.value || "N/A",
         },
         {
             Header: "Reporting Year",
             accessor: "reportingYear",
-            Cell: ({ cell }) => cell.value || "-",
+            Cell: ({ cell }) => cell.value || "N/A",
         },
         {
             Header: "Commute Mode",
@@ -330,20 +330,20 @@ const CommutingTable = () => {
             Header: "Vehicle Type",
             Cell: ({ row }) => {
                 const d = row.original;
-                if (d.commuteByMotorbike) return d.motorbikeType || "-";
-                if (d.commuteByCar) return d.carType || "-";
-                if (d.commuteByBus) return d.busType || "-";
-                if (d.commuteByTaxi) return d.taxiType || "-";
-                if (d.commuteByTrain) return d.trainType || "-";
-                return "-";
+                if (d.commuteByMotorbike) return d.motorbikeType || "N/A";
+                if (d.commuteByCar) return d.carType || "N/A";
+                if (d.commuteByBus) return d.busType || "N/A";
+                if (d.commuteByTaxi) return d.taxiType || "N/A";
+                if (d.commuteByTrain) return d.trainType || "N/A";
+                return "N/A";
             },
         },
         {
             Header: "Fuel Type",
             Cell: ({ row }) => {
                 const d = row.original;
-                if (d.commuteByCar) return d.carFuelType || "-";
-                return "-";
+                if (d.commuteByCar) return d.carFuelType || "N/A";
+                return "N/A";
             },
         },
         {
@@ -373,7 +373,7 @@ const CommutingTable = () => {
             Header: "EMISSION FACTOR (kgCO₂e/passenger.km)",
             Cell: ({ row }) => {
                 const emissions = row.original.emissions;
-                if (!emissions) return "-";
+                if (!emissions) return "N/A";
                 return emissions.factor.toFixed(5);
             },
         },
@@ -381,7 +381,7 @@ const CommutingTable = () => {
             Header: "CALCULATED EMISSION (kgCO₂e)",
             Cell: ({ row }) => {
                 const emissions = row.original.emissions;
-                if (!emissions) return "-";
+                if (!emissions) return "N/A";
                 return emissions.totalEmissionsKg.toFixed(2);
             },
         },
@@ -389,20 +389,20 @@ const CommutingTable = () => {
             Header: "CALCULATED EMISSION (tCO₂e)",
             Cell: ({ row }) => {
                 const emissions = row.original.emissions;
-                if (!emissions) return "-";
+                if (!emissions) return "N/A";
                 return emissions.totalEmissionsTonnes.toFixed(4);
             },
         },
         {
             Header: "Submitted By",
             accessor: "submittedByEmail",
-            Cell: ({ cell }) => cell.value || "-",
+            Cell: ({ cell }) => cell.value || "N/A",
         },
         {
             Header: "Department",
             Cell: ({ row }) => {
                 const d = row.original;
-                return d.stakeholderDepartment || "-";
+                return d.stakeholderDepartment || "N/A";
             },
         },
         {
@@ -430,7 +430,7 @@ const CommutingTable = () => {
                     const end = new Date(dateRange.endDate).toLocaleDateString();
                     return `${start} to ${end}`;
                 }
-                return "-";
+                return "N/A";
             },
         },
         {

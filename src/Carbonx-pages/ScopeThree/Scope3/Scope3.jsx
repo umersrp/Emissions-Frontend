@@ -53,7 +53,7 @@ const Scope3 = () => {
     },
     {
       title: "Employee Commuting",
-      path: "",
+      path: "/Commuting",
       icon: "heroicons:user-group",
       bg: "bg-amber-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#fcc7d8] to-[#f56b8b]"

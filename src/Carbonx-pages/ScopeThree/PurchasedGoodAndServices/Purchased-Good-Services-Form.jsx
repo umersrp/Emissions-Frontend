@@ -409,7 +409,7 @@ const PurchasedGoodServicesFormPage = () => {
           {formData.purchaseCategory?.value === "Purchased Goods" && (
             <div>
               <label className="field-label">
-                Please specify whether the selected item is a capital good
+                Please specify whether the selected item is a capital good.
               </label>
               <div className="flex items-center gap-4 mt-2">
                 <label className="inline-flex items-center cursor-pointer">
