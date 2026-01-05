@@ -73,7 +73,7 @@ const GroupChart1 = ({ chartData = [], loading }) => {
     plotOptions: {
       pie: {
         donut: {
-          size: "65%",
+          size: "0%",
           labels: {
             show: false,
             total: {

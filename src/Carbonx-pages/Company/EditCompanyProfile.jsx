@@ -553,9 +553,9 @@ const EditCompanyProfile = () => {
                         />
                     </div>
 
-                    {/* Production Volume Tonne Per Annum */}
+                    {/* Production Volume Tonnes per Annum */}
                     <div className="">
-                        <label className="field-label">Production Volume (Tonne Per Annum)</label>
+                        <label className="field-label">Production Volume (Tonnes per Annum)</label>
                         <input
                             type="number"
                             name="productionVolumeTonnePerAnnum"

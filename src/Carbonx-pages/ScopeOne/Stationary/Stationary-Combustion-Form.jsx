@@ -48,19 +48,42 @@ const StationaryCombustionFormPage = () => {
   const [errors, setErrors] = useState({});
 
 
-  const formatNumber = (num) => {
-    if (!num || isNaN(num)) return "0";
-    if (Math.abs(num) < 0.001 && num !== 0) {
-      return num.toExponential(5);
+  // const formatNumber = (num) => {
+  //   if (!num || isNaN(num)) return "0";
+  //   if (Math.abs(num) < 0.001 && num !== 0) {
+  //     return num.toExponential(5);
+  //   }
+  //   // For normal numbers, show up to 5 decimals without trailing zeros
+  //   return parseFloat(num.toFixed(2)).toString();
+  // };
+    const formatNumber = (num) => {
+    try {
+      if (num === null || num === undefined || num === "") {
+        return 0;
+      }
+      const number = Number(num);
+      if (isNaN(number) || !isFinite(number)) {
+        return 0;
+      }
+      const rounded = Number(number.toFixed(2));
+      const integerPart = Math.floor(Math.abs(rounded));
+      if (
+        rounded !== 0 &&
+        (Math.abs(rounded) < 0.0001 ||
+          (Math.abs(rounded) >= 1e6 && integerPart === 0))
+      ) {
+        return rounded.toExponential(5);
+      }
+      return rounded;
+    } catch (error) {
+      console.error("Error in formatEmission:", error, "num:", num);
+      return 0;
     }
-    // For normal numbers, show up to 5 decimals without trailing zeros
-    return parseFloat(num.toFixed(2)).toString();
   };
   const capitalizeFirstLetter = (text) => {
     if (!text) return "";
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
-
 
   // --- Fetch Buildings ---
   useEffect(() => {
@@ -72,10 +95,8 @@ const StationaryCombustionFormPage = () => {
             headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
           }
         );
-
         // Get buildings from response
         const buildings = res.data?.data?.buildings || [];
-
         // Sort buildings alphabetically by buildingName
         const sortedBuildings = [...buildings].sort((a, b) => {
           const nameA = (a.buildingName || '').toUpperCase();
@@ -296,13 +317,13 @@ const StationaryCombustionFormPage = () => {
         setFormData((prev) => ({
           ...prev,
           calculatedEmissionKgCo2e: result.totalEmissionInScope
-            ? formatNumber(result.totalEmissionInScope)
+            ? result.totalEmissionInScope
             : "",
           calculatedEmissionTCo2e: result.totalEmissionInScope
             ? formatNumber(result.totalEmissionInScope / 1000)
             : "",
           calculatedBioEmissionKgCo2e: result.totalEmissionOutScope
-            ? formatNumber(result.totalEmissionOutScope)
+            ? result.totalEmissionOutScope
             : "",
           calculatedBioEmissionTCo2e: result.totalEmissionOutScope
             ? formatNumber(result.totalEmissionOutScope / 1000)
@@ -365,7 +386,7 @@ const StationaryCombustionFormPage = () => {
               {errors.stakeholder && <p className="text-red-500 text-sm mt-1">{errors.stakeholder}</p>}
             </div>
 
-            {/* --- Equipment Type --- */}
+            {/* --- Select or Type Equipment Name --- */}
             <div>
               <label className="field-label">Equipment Type</label>
               <Select
@@ -375,7 +396,7 @@ const StationaryCombustionFormPage = () => {
                 // onChange={handleSelectChange}
                 allowCustomInput
                 onChange={(newValue) => handleSelectChange(newValue, { name: "equipmentType" })}
-                placeholder="Select or type equipment"
+                placeholder="Select or Type Equipment Name"
                 className={`w-full ${errors.equipmentType ? "border border-red-500 rounded" : ""}`}
                 isDisabled={isView}
               />
@@ -392,7 +413,7 @@ const StationaryCombustionFormPage = () => {
                 options={fuelTypeOptions}
                 value={formData.fuelType}
                 onChange={handleSelectChange}
-                placeholder="Select fuel type"
+                placeholder="Select Fuel Type"
                 className={`w-full ${errors.fuelType ? "border border-red-500 rounded" : ""}`}
                 isDisabled={isView}
               />
@@ -407,7 +428,7 @@ const StationaryCombustionFormPage = () => {
                 options={fuelNameOptions}
                 value={formData.fuelName}
                 onChange={handleSelectChange}
-                placeholder="Select fuel name"
+                placeholder="Select Fuel Name"
                 className={`w-full ${errors.fuelName ? "border border-red-500 rounded" : ""}`}
                 isDisabled={isView}
               />
@@ -417,13 +438,13 @@ const StationaryCombustionFormPage = () => {
             {/* --- Fuel Consumption --- */}
             <div>
               <label className="field-label">Fuel Consumption Value</label>
-              <input
+              <InputGroup
                 type="number"
                 name="fuelConsumption"
                 onWheel={handleNumberInputWheel}
                 value={formData.fuelConsumption}
                 onChange={handleInputChange}
-                placeholder="Enter value"
+                placeholder="Enter Value"
                 className={"border-[2px] w-full h-10 p-2 rounded-md"}
                 disabled={isView}
               />
@@ -457,7 +478,7 @@ const StationaryCombustionFormPage = () => {
                 options={unitOptions}
                 value={formData.consumptionUnit}
                 onChange={handleSelectChange}
-                placeholder="Select unit"
+                placeholder="Select Unit"
                 className={`w-full ${errors.consumptionUnit ? "border border-red-500 rounded" : ""}`}
                 isDisabled={isView}
               />

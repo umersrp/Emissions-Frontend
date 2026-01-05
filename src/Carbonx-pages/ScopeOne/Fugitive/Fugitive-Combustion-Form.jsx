@@ -302,7 +302,7 @@ const FugitiveCombustionFormPage = () => {
               {errors.stakeholder && <p className="text-red-500 text-sm">{errors.stakeholder}</p>}
             </div>
 
-            {/* --- Equipment Type --- */}
+            {/* --- Select or Type Equipment Name --- */}
             <div>
               <label className="field-label">Equipment Type</label>
               <CustomSelect
@@ -310,7 +310,7 @@ const FugitiveCombustionFormPage = () => {
                 options={FugitiveEquipmentTypeOptions}
                 value={formData.equipmentType}
                 onChange={(value) => handleSelectChange("equipmentType", value)}
-                placeholder="Select or Type Equipment"
+                placeholder="Select or Type Equipment Name"
                 allowCustomInput
                 isDisabled={isView}
               />
@@ -341,7 +341,7 @@ const FugitiveCombustionFormPage = () => {
                 name="leakageValue"
                 value={formData.leakageValue}
                 onChange={handleInputChange}
-                placeholder="Enter value"
+                placeholder="Enter Value"
                 className="border-[2px] w-full h-10 p-2 rounded-md"
                 disabled={isView}
               />

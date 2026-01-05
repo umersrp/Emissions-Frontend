@@ -876,7 +876,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <InputGroup
+                    <input
                       type="checkbox"
                       checked={formData.hasSolarPanels}
                       onChange={() => handleToggleChange("hasSolarPanels")}
@@ -964,7 +964,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <InputGroup
+                    <input
                       type="checkbox"
                       checked={formData.purchasesSupplierSpecific}
                       onChange={() => handleToggleChange("purchasesSupplierSpecific")}
@@ -1061,7 +1061,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <InputGroup
+                    <input
                       type="checkbox"
                       checked={formData.hasPPA}
                       onChange={() => handleToggleChange("hasPPA")}
@@ -1156,7 +1156,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <InputGroup
+                    <input
                       type="checkbox"
                       checked={formData.hasRenewableAttributes}
                       onChange={() => handleToggleChange("hasRenewableAttributes")}

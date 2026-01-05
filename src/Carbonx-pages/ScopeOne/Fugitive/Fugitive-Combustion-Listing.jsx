@@ -39,6 +39,65 @@ const FugitiveCombustionListing = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 
+  const capitalizeLabel = (text) => {
+  if (!text) return "N/A";
+  const exceptions = [
+    "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+    "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+    "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+    "n.e.c.", "cc", "cc+","up"
+  ];
+
+  // Add spaces around slashes first
+  const textWithSpaces = text.replace(/\s*\/\s*/g, ' / ');
+
+  // Special handling for "a" and other special cases
+  return textWithSpaces
+    .split(" ")
+    .map((word, index) => {
+      //  If word is just "/", keep it as is
+      if (word === "/") return word;
+      
+      const hasOpenParen = word.startsWith("(");
+      const hasCloseParen = word.endsWith(")");
+      
+      let coreWord = word;
+      if (hasOpenParen) coreWord = coreWord.slice(1);
+      if (hasCloseParen) coreWord = coreWord.slice(0, -1);
+
+      const lowerCore = coreWord.toLowerCase();
+      let result;
+      
+      // SPECIAL RULE: If word is "a" or "A", preserve original case
+      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
+        result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
+      }
+      // Single letters (except "a" already handled)
+      else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
+        result = coreWord.toUpperCase();
+      }
+      // First word OR word after opening parenthesis should be capitalized
+      else if (index === 0 || (index > 0 && textWithSpaces.split(" ")[index-1]?.endsWith("("))) {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      }
+      // Exception words (excluding "a" which we already handled)
+      else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
+        result = lowerCore;
+      }
+      // Normal capitalization
+      else {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      }
+      
+      // Reattach parentheses
+      if (hasOpenParen) result = "(" + result;
+      if (hasCloseParen) result = result + ")";
+
+      return result;
+    })
+    .join(" ");
+};
+
   // Fetch Fugitive Records with Pagination + Search
   const fetchFugitiveRecords = async (page = 1, limit = 10, search = "") => {
     setLoading(true);
@@ -92,8 +151,8 @@ const FugitiveCombustionListing = () => {
     () => [
       { Header: "Sr.No", id: "serialNo", Cell: ({ row }) => <span>{row.index + 1 + (pageIndex - 1) * pageSize}</span> },
       { Header: "Building", accessor: "buildingId.buildingName" },
-      { Header: "Stakeholder", accessor: "stakeholder" },
-      { Header: "Equipment Type", accessor: "equipmentType" },
+      { Header: "Stakeholder", accessor: "stakeholder",Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Equipment Type", accessor: "equipmentType", Cell: ({ value }) => capitalizeLabel(value)},
       { Header: "Material / Refrigerant", accessor: "materialRefrigerant" },
       { Header: "Leakage Value / Recharge Value", accessor: "leakageValue" },
       { Header: "Consumption Unit", accessor: "consumptionUnit" },

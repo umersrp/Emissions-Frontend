@@ -127,7 +127,7 @@
 
 // export default Sidebar;
 import React, { useRef, useEffect, useState } from "react";
-import { useLocation } from "react-router-dom"; // Import useLocation
+import { useLocation } from "react-router-dom";
 import SidebarLogo from "./Logo";
 import Navmenu from "./Navmenu";
 import { menuItems } from "@/constant/data";
@@ -140,7 +140,7 @@ import svgRabitImage from "@/assets/images/svg/rabit.svg";
 const Sidebar = () => {
   const scrollableNodeRef = useRef(null);
   const [scroll, setScroll] = useState(false);
-  const location = useLocation(); // Get current location
+  const location = useLocation();
 
   // Sidebar collapsed state (global)
   const [collapsed, setMenuCollapsed] = useSidebar();
@@ -157,7 +157,7 @@ const Sidebar = () => {
     } else if (!isDashboardRoute && collapsed) {
       setMenuCollapsed(false);
     }
-  }, [location.pathname]); // Run when route changes
+  }, [location.pathname]);
 
   // Scroll detection
   useEffect(() => {
@@ -174,6 +174,19 @@ const Sidebar = () => {
 
     return () => node?.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Handle pin/unpin click
+  const handlePinToggle = () => {
+    setIsPinned(!isPinned);
+    if (!isPinned) {
+      // When pinning, ensure sidebar is expanded
+      setMenuCollapsed(false);
+    } else {
+      // When unpinning, revert to route-based collapsed state
+      const isDashboardRoute = location.pathname === "/dashboard";
+      setMenuCollapsed(isDashboardRoute);
+    }
+  };
 
   // semi dark option
   const [isSemiDark] = useSemiDark();
@@ -200,8 +213,12 @@ const Sidebar = () => {
         }}
         onMouseLeave={() => {
           if (!isPinned) {
-            setMenuCollapsed(location.pathname === "/dashboard"); // Collapse on leave only if on dashboard
             setMenuHover(false);
+            // Only collapse if on dashboard route
+            const isDashboardRoute = location.pathname === "/dashboard";
+            if (isDashboardRoute) {
+              setMenuCollapsed(true);
+            }
           }
         }}
       >
@@ -210,14 +227,13 @@ const Sidebar = () => {
 
         {/* Pin / Unpin Button */}
         <button
-          onClick={() => {
-            setIsPinned((prev) => !prev);
-            setMenuCollapsed(false);
-          }}
-          className="absolute top-4 right-3 z-50 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+          onClick={handlePinToggle}
+          className="absolute top-4 right-3 z-50 text-slate-500 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 w-6 h-6 flex items-center justify-center rounded border border-slate-200 dark:border-slate-700"
           title={isPinned ? "Unpin sidebar" : "Pin sidebar"}
         >
-          {isPinned ? "«" : "»"}
+          <span className="text-xs font-bold">
+            {isPinned ? "«" : "»"}
+          </span>
         </button>
 
         {/* Shadow on scroll */}
@@ -233,30 +249,6 @@ const Sidebar = () => {
           scrollableNodeProps={{ ref: scrollableNodeRef }}
         >
           <Navmenu menus={menuItems} />
-
-          {/* Optional bottom upgrade card */}
-          {/*
-          {!collapsed && (
-            <div className="bg-slate-900 mb-16 mt-24 p-4 relative text-center rounded-2xl text-white">
-              <img
-                src={svgRabitImage}
-                alt=""
-                className="mx-auto relative -mt-[73px]"
-              />
-              <div className="max-w-[160px] mx-auto mt-6">
-                <div className="widget-title">Unlimited Access</div>
-                <div className="text-xs font-light">
-                  Upgrade your system to business plan
-                </div>
-              </div>
-              <div className="mt-6">
-                <button className="btn bg-white hover:bg-opacity-80 text-slate-900 btn-sm w-full block">
-                  Upgrade
-                </button>
-              </div>
-            </div>
-          )}
-          */}
 
           <div className="px-5 py-5" />
         </SimpleBar>

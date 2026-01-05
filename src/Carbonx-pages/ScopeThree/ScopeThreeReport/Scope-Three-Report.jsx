@@ -95,7 +95,7 @@ const ScopeThreeReport = () => {
         return data.goodsAndServices;
       case "Capital Goods":
         return data.capitalGoods;
-      case "Fuel and Energy Related Activity":
+      case "Fuel and Energy Related Activities":
         return data.fuelAndEnergy;
       case "Waste Generated in Operation":
         return data.wasteGenerated;
@@ -240,7 +240,7 @@ const ScopeThreeReport = () => {
   //   return [
   //     { name: "Purchased Goods and Services", kg: goodsAndServicesKg, t: goodsAndServicesKg / 1000, bg: "bg-cyan-50" },
   //     { name: "Capital Goods", kg: capitalGoodsKg, t: capitalGoodsKg / 1000, bg: "bg-red-50" },
-  //     { name: "Fuel and Energy Related Activity", kg: fuelAndEnergyKg, t: fuelAndEnergyKg / 1000, bg: "bg-purple-50" },
+  //     { name: "Fuel and Energy Related Activities", kg: fuelAndEnergyKg, t: fuelAndEnergyKg / 1000, bg: "bg-purple-50" },
   //     { name: "Waste Generated in Operation", kg: wasteGeneratedKg, t: wasteGeneratedKg / 1000, bg: "bg-green-50" },
   //     { name: "Business Travel", kg: businessKg, t: businessKg / 1000, bg: "bg-green-50" },
   //     { name: "Upstream Transportation", kg: upstreamTransportationKg, t: upstreamTransportationKg / 1000, bg: "bg-yellow-50" },
@@ -286,7 +286,7 @@ const ScopeThreeReport = () => {
 
     // Fuel and Energy
     const fuelAndEnergyItems = data.fuelAndEnergy || [];
-    logBuildingEmissions("Fuel and Energy Related Activity", fuelAndEnergyItems);
+    logBuildingEmissions("Fuel and Energy Related Activities", fuelAndEnergyItems);
     const fuelAndEnergyKg = fuelAndEnergyItems.reduce(
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
@@ -372,7 +372,7 @@ const ScopeThreeReport = () => {
         items: capitalGoodsItems
       },
       { 
-        name: "Fuel and Energy Related Activity", 
+        name: "Fuel and Energy Related Activities", 
         kg: fuelAndEnergyKg, 
         t: fuelAndEnergyKg / 1000, 
         bg: "bg-purple-50",
@@ -427,7 +427,7 @@ const ScopeThreeReport = () => {
     { value: "all", label: "All Scope 3 (Building-wise)" },
     { value: "Purchased Goods and Services", label: "Purchased Goods and Services" },
     { value: "Capital Goods", label: "Capital Goods" },
-    { value: "Fuel and Energy Related Activity", label: "Fuel and Energy Related Activity" },
+    { value: "Fuel and Energy Related Activities", label: "Fuel and Energy Related Activities" },
     { value: "Waste Generated in Operation", label: "Waste Generated in Operation"},
     { value: "Business Travel", label: "Business Travel" },
     { value: "Upstream Transportation", label: "Upstream Transportation" },
@@ -457,7 +457,7 @@ const ScopeThreeReport = () => {
           const iconMap = {
             "Purchased Goods and Services": "heroicons:shopping-bag",
             "Capital Goods": "heroicons:building-office",
-            "Fuel and Energy Related Activity": "heroicons:bolt",
+            "Fuel and Energy Related Activities": "heroicons:bolt",
             "Waste Generated in Operation": "heroicons:trash",
             "Business Travel": "heroicons:briefcase",
             "Upstream Transportation": "heroicons:arrow-up-tray",
