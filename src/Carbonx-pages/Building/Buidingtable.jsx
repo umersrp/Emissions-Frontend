@@ -94,7 +94,10 @@ const BuildingTable = () => {
     { Header: "Name", accessor: "buildingName" },
     { Header: "Country", accessor: "country",Cell: ({ cell }) => cell.value || "N/A", },
     { Header: "Location", accessor: "buildingLocation",Cell: ({ cell }) => cell.value || "N/A", },
-    { Header: "Type", accessor: "buildingType",Cell: ({ cell }) => cell.value || "N/A", },
+    { Header: "Type", accessor: "buildingType", Cell: ({ cell }) => {
+    const value = cell.value || "N/A";
+    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+  } },
     { Header: "Area (m²)", accessor: "buildingArea",Cell: ({ cell }) => cell.value || "N/A", },
     { Header: "Employees", accessor: "numberOfEmployees",Cell: ({ cell }) => cell.value || "N/A", },
     { Header: "Cooling Type", accessor: "coolingType",Cell: ({ cell }) => cell.value || "N/A", },
@@ -104,8 +107,6 @@ const BuildingTable = () => {
     { Header: "Heating Used", accessor: "heatingUsed", Cell: ({ cell }) => (cell.value ? "Yes" : "No") },
     { Header: "Steam Used", accessor: "steamUsed", Cell: ({ cell }) => (cell.value ? "Yes" : "No") },
     { Header: "Operating Hours", accessor: "operatingHours",Cell: ({ cell }) => cell.value || "N/A", },
-    // { Header: "Created By", accessor: "createdBy.name", Cell: ({ cell }) => cell.value || "-" },
-    // { Header: "Updated By", accessor: "updatedBy.name", Cell: ({ cell }) => cell.value || "-" },
     { Header: "Created At", accessor: "createdAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-") },
     { Header: "Updated At", accessor: "updatedAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-") },
     {

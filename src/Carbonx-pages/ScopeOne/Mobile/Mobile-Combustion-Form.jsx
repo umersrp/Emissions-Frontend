@@ -385,7 +385,7 @@ useEffect(() => {
             {/* Distance travelled */}
             <div>
               <label className="field-label">Distance Travelled</label>
-              <InputGroup type="number" name="distanceTraveled" onWheel={handleNumberInputWheel} value={formData.distanceTraveled} onChange={handleInputChange} placeholder="Enter distance travelled" className="input-field" disabled={isView} />
+              <InputGroup type="number" name="distanceTraveled" onWheel={handleNumberInputWheel} value={formData.distanceTraveled} onChange={handleInputChange} placeholder="e.g., 1000" className="input-field" disabled={isView} />
               {errors.distanceTraveled && <p className="text-red-500 text-sm mt-1">{errors.distanceTraveled}</p>}
             </div>
 

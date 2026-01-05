@@ -125,7 +125,8 @@ const Scope1EmissionsSection = ({ dashboardData, loading }) => {
       </div>
 
       {/* ==================== TABLE ==================== */}
-      <div className="flex-1 min-w-[320px] p-6 bg-white rounded-xl shadow-lg border overflow-auto max-h-[520px]">
+      <div className="flex-1 min-w-[320px] p-6 bg-white rounded-xl shadow-lg border overflow-auto max-h-[580px] scrollbar-hide
+        ">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-xl text-gray-900">
             Top Categories
@@ -134,7 +135,7 @@ const Scope1EmissionsSection = ({ dashboardData, loading }) => {
           {selectedCategory && (
             <button
               onClick={resetView}
-              className="text-sm text-blue-600 hover:underline"
+              className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
             >
               Reset view
             </button>
@@ -161,7 +162,7 @@ const Scope1EmissionsSection = ({ dashboardData, loading }) => {
               return (
                 <div key={category} className="border border-gray-300 rounded p-2">
                   {/* Category Label */}
-                  <div className={`font-semibold mb-2 ${categoryColors[category]}`}>
+                  <div className={`font-semibold mb-2 p-1 rounded-md ${categoryColors[category]}`}>
                     {category}
                   </div>
 

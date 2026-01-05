@@ -595,7 +595,7 @@ console.log("Form data before sending:", {
                   </button>
                 </Tippy>
               </div>
-              <div className="flex">
+              <div className="grid grid-cols-[14fr_1fr]">
                 <InputGroup
                   type="number"
                   name="weightLoaded"
@@ -628,13 +628,13 @@ console.log("Form data before sending:", {
                   </button>
                 </Tippy>
               </div>
-              <div className="flex">
+              <div className="grid grid-cols-[14fr_1fr]">
                 <InputGroup
                   type="number"
                   name="distanceTravelled"
                   value={formData.distanceTravelled}
                   onChange={handleInputChange}
-                  placeholder="Enter Value"
+                  placeholder="e.g., 1000"
                   className="input-field rounded-r-none"
                   disabled={isView}
                 />
