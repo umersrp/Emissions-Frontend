@@ -735,7 +735,7 @@ export const activityTypeOptions = [
   { value: "Bioethanol Fermentation", label: "Bioethanol Fermentation" },
   { value: "Hydrogen from Electrolysis (if carbonates used)", label: "Hydrogen from Electrolysis (if carbonates used)" },
   { value: "Carbonate / Bicarbonate Neutralization in API Synthesis", label: "Carbonate / Bicarbonate Neutralization in API Synthesis" },
-  { value: "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (Biogenic)", label: "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (Biogenic)" },
+  { value: "Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)", label: "Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)" },
   { value: "Neutralization or Buffer Preparation Using Carbonates", label: "Neutralization or Buffer Preparation Using Carbonates" },
   { value: "Lyophilization or Freeze-Drying Using CO₂ Refrigerants", label: "Lyophilization or Freeze-Drying Using CO₂ Refrigerants" },
   { value: "Anaerobic Wastewater or Biowaste Treatment (On-site)", label: "Anaerobic Wastewater or Biowaste Treatment (On-site)" },
@@ -747,9 +747,9 @@ export const activityTypeOptions = [
   { value: "Ethylene Oxide / Ethylene Glycol Production", label: "Ethylene Oxide / Ethylene Glycol Production" },
   { value: "Urea Production (kg)", label: "Urea Production (kg)" },
   { value: "Methanol Synthesis", label: "Methanol Synthesis" },
-  { value: "Other GHG Emission Process Activities", label: "Other GHG Emission Process Activities" },
+  { value: "other GHG Emission Process Activities", label: "other GHG Emission Process Activities" },
   { value: "Non Kyoto protocol / Other Non GHG Emissions", label: "Non Kyoto protocol / Other Non GHG Emissions" },
-  { value: "Other Biogenic GHG Emission Process Activities", label: "Other Biogenic GHG Emission Process Activities" },
+  { value: "other Biogenic GHG Emission Process Activities", label: "other Biogenic GHG Emission Process Activities" },
 ];
 
 
@@ -788,7 +788,7 @@ export const activityMetadata = {
   "Coke calcination (in delayed coking)": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of calcined coke are produced?" },
   "Ethylene and Propylene production (via steam cracking)": { gasEmitted: "CO₂ and CH₄ emissions", amountLabel: "How many tonnes of ethylene are produced?" },
   "Methanol synthesis (from natural gas reforming)": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of methanol are produced?" },
-  "Ammonia production (via Haber-Bosch process)": { gasEmitted: "CO₂ emissions", amountLabel: "How many Tonnes of Ammonia are produced?" },
+  "Ammonia production (via Haber-Bosch process)": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of ammonia are produced?" },
   "Nitric acid production": { gasEmitted: "CO₂ and N₂O emissions", amountLabel: "How many tonnes of nitric acid are produced?" },
   "Adipic acid production": { gasEmitted: "CO₂ and N₂O emissions", amountLabel: "How many tonnes of adipic acid are produced?" },
   "Carbon black manufacturing": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of carbon black are manufactured?" },
@@ -825,7 +825,7 @@ export const activityMetadata = {
   "Bioethanol Fermentation": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of ethanol are fermented?" },
   "Hydrogen from Electrolysis (if carbonates used)": { gasEmitted: "CO₂ (trace) emissions", amountLabel: "How many tonnes of calcium carbonate are decomposed?" },
   "Carbonate / Bicarbonate Neutralization in API Synthesis": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of calcium carbonate are neutralized?" },
-  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of glucose are consumed?" },
+  "Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of glucose are consumed?" },
   "Neutralization or Buffer Preparation Using Carbonates": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of calcium carbonate or sodium carbonate are neutralized?" },
   "Lyophilization or Freeze-Drying Using CO₂ Refrigerants": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of product are treated?" },
   "Anaerobic Wastewater or Biowaste Treatment (On-site)": { gasEmitted: "CH₄ emissions (biogenic)", amountLabel: "How many kilograms of BOD are removed?" },
@@ -837,9 +837,9 @@ export const activityMetadata = {
   "Ethylene Oxide / Ethylene Glycol Production": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of ethylene oxide are produced?" },
   "Urea Production (kg)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of urea are produced?" },
   "Methanol Synthesis": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of methanol are synthesized?" },
-  "Other GHG Emission Process Activities": { gasEmitted: "GHG Gases", amountLabel: "Please write the total Process emissions in KgCo2e." },
-  "Non Kyoto protocol / Other Non GHG Emissions": { gasEmitted: "Non GHG Gases", amountLabel: "Please write the total Process emissions in Kg." },
-  "Other Biogenic GHG Emission Process Activities": { gasEmitted: "Biogenic Gases", amountLabel: "Please write the total Process emissions in KgCo2e." },
+  "other GHG Emission Process Activities": { gasEmitted: "GHG Gases", amountLabel: "Please write the total process emissions in KgCo2e." },
+  "Non Kyoto protocol / Other Non GHG Emissions": { gasEmitted: "Non GHG Gases", amountLabel: "Please write the total process emissions in Kg." },
+  "other Biogenic GHG Emission Process Activities": { gasEmitted: "Biogenic Gases", amountLabel: "Please write the total process emissions in KgCo2e." },
   "Vinyl chloride monomer (VCM) production": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of VCM are produced?" },
   
 };

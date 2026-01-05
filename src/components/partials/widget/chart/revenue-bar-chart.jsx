@@ -10,7 +10,7 @@
 //   // Filter out entries with a zero value (keep those with non-zero numeric values)
 //   const filteredData = chartData.filter((item) => Number(item.value || 0) !== 0);
 
-//   /* 🔹 SORT: Highest → Lowest */
+//   /*  SORT: Highest → Lowest */
 //   const sortedData = [...filteredData].sort(
 //     (a, b) => (Number(b.value) || 0) - (Number(a.value) || 0)
 //   );
@@ -176,6 +176,104 @@
 
 // export default RevenueBarChart;
 
+//artat
+// import React from "react";
+// import Chart from "react-apexcharts";
+// import useDarkMode from "@/hooks/useDarkMode";
+// import useRtl from "@/hooks/useRtl";
+
+// const RevenueBarChart = ({
+//   chartData = [],
+//   height = 450,
+//   onBarClick,
+//   selectedCategory,
+// }) => {
+//   const [isDark] = useDarkMode();
+//   const [isRtl] = useRtl();
+
+//   //  Filter out zero-emission buildings
+//   const filteredData = chartData.filter((item) => Number(item.value || 0) !== 0);
+
+//   //  Sort descending by value
+//   const sortedData = [...filteredData].sort(
+//     (a, b) => (Number(b.value) || 0) - (Number(a.value) || 0)
+//   );
+
+//   const values = sortedData.map((item) => Number(item.value) || 0);
+//   const maxValue = Math.max(...values);
+
+//   const series = [
+//     {
+//       name: "Emissions",
+//       data: values,
+//     },
+//   ];
+
+//   const options = {
+//     chart: {
+//       type: "bar",
+//       toolbar: { show: false },
+//       events: {
+//         dataPointSelection: (event, chartContext, config) => {
+//           const index = config.dataPointIndex;
+//           const clickedData = sortedData[index];
+//           if (clickedData && onBarClick) onBarClick(clickedData);
+//         },
+//       },
+//     },
+
+//     plotOptions: {
+//       bar: {
+//         horizontal: false,
+//         endingShape: "rounded",
+//         columnWidth: "45%",
+//         distributed: true,
+//       },
+//     },
+
+//     fill: {
+//       colors: sortedData.map((item) => {
+//         if (item.name === selectedCategory) return "#4669FA"; // blue highlight
+//         if (item.value === maxValue && item.value > 0) return "#34D399"; // green max
+//         return "#c3c3c3"; // default grey
+//       }),
+//     },
+
+//     dataLabels: { enabled: false },
+
+//     stroke: { show: true, width: 2, colors: ["transparent"] },
+
+//     xaxis: {
+//       categories: sortedData.map((item) => item.name),
+//       labels: { show: true, style: { colors: isDark ? "#CBD5E1" : "#475569", fontFamily: "Inter" } },
+//       axisBorder: { show: false },
+//       axisTicks: { show: false },
+//     },
+
+// yaxis: {
+//   opposite: isRtl,
+//   labels: {
+//     style: {
+//       colors: isDark ? "#CBD5E1" : "#475569",
+//       fontFamily: "Inter",
+//     },
+//     formatter: function (value) {
+//       // Format the value without decimals
+//       return Math.round(value).toLocaleString();
+//     },
+//   },
+// },
+//     tooltip: { y: { formatter: (val) => `${val.toLocaleString()} tCO₂e` } },
+
+//     legend: { show: false },
+//     grid: { show: false },
+//   };
+
+//   return <Chart options={options} series={series} type="bar" height={height} />;
+// };
+
+// export default RevenueBarChart;
+//yasir 
 import React from "react";
 import Chart from "react-apexcharts";
 import useDarkMode from "@/hooks/useDarkMode";
@@ -186,14 +284,15 @@ const RevenueBarChart = ({
   height = 450,
   onBarClick,
   selectedCategory,
+  selectedBuilding = null, // Add this prop
 }) => {
   const [isDark] = useDarkMode();
   const [isRtl] = useRtl();
 
-  // 🔹 Filter out zero-emission buildings
+  //  Filter out zero-emission buildings
   const filteredData = chartData.filter((item) => Number(item.value || 0) !== 0);
 
-  // 🔹 Sort descending by value
+  //  Sort descending by value
   const sortedData = [...filteredData].sort(
     (a, b) => (Number(b.value) || 0) - (Number(a.value) || 0)
   );
@@ -232,9 +331,19 @@ const RevenueBarChart = ({
 
     fill: {
       colors: sortedData.map((item) => {
-        if (item.name === selectedCategory) return "#4669FA"; // blue highlight
-        if (item.value === maxValue && item.value > 0) return "#34D399"; // green max
-        return "#c3c3c3"; // default grey
+        // If a building is selected from dashboard filter
+        if (selectedBuilding && item.buildingId === selectedBuilding) {
+          return "#34D399"; // blue highlight for selected building
+        }
+        // If a category is selected from bar click
+        if (item.name === selectedCategory) {
+          return "#34D399"; // blue highlight
+        }
+        // Highlight the max value bar (only if no selection is made)
+        // if (!selectedBuilding && !selectedCategory && item.value === maxValue && item.value > 0) {
+        //   return "#34D399"; // green for max value
+        // }
+        return "#4098ab"; // default grey for all other bars
       }),
     },
 
@@ -249,19 +358,20 @@ const RevenueBarChart = ({
       axisTicks: { show: false },
     },
 
-yaxis: {
-  opposite: isRtl,
-  labels: {
-    style: {
-      colors: isDark ? "#CBD5E1" : "#475569",
-      fontFamily: "Inter",
+    yaxis: {
+      opposite: isRtl,
+      labels: {
+        style: {
+          colors: isDark ? "#CBD5E1" : "#475569",
+          fontFamily: "Inter",
+        },
+        formatter: function (value) {
+          // Format the value without decimals
+          return Math.round(value).toLocaleString();
+        },
+      },
     },
-    formatter: function (value) {
-      // Format the value without decimals
-      return Math.round(value).toLocaleString();
-    },
-  },
-},
+    
     tooltip: { y: { formatter: (val) => `${val.toLocaleString()} tCO₂e` } },
 
     legend: { show: false },

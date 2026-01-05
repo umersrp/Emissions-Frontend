@@ -70,7 +70,7 @@ export const processEmissionFactors = {
   "Bioethanol Fermentation": 1100,
   "Hydrogen from Electrolysis (if carbonates used)": 440,
   "Carbonate / Bicarbonate Neutralization in API Synthesis": 440,
-  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": 1,
+  "Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": 1,
   "Neutralization or Buffer Preparation Using Carbonates": 440,
   "Lyophilization or Freeze-Drying Using CO₂ Refrigerants": 30,
   "Anaerobic Wastewater or Biowaste Treatment (On-site)": 13.44,
@@ -82,9 +82,9 @@ export const processEmissionFactors = {
   "Ethylene Oxide / Ethylene Glycol Production": 0.7,
   "Urea Production (kg)": 0.733,
   "Methanol Synthesis": 0.5,
-  "Other GHG Emission Process Activities": 1,
+  "other GHG Emission Process Activities": 1,
   "Non Kyoto protocol / Other Non GHG Emissions": 1,
-  "Other Biogenic GHG Emission Process Activities": 1
+  "other Biogenic GHG Emission Process Activities": 1
 };
 
 // All Kyoto/standard GHG processes (everything except Non-Kyoto, VOs, Biogenic)
@@ -162,7 +162,7 @@ export const GHG_ACTIVITIES = [
   "Ethylene Oxide / Ethylene Glycol Production",
   "Urea Production",
   "Methanol Synthesis",
-  "Other GHG Emission Process Activities",
+  "other GHG Emission Process Activities",
 ];
 
 // Non-Kyoto activities
@@ -185,6 +185,6 @@ export const VO_ACTIVITIES = [
 export const BIOGENIC_ACTIVITIES = [
   "Biomass Gasification or Pyrolysis",
   "Bioethanol Fermentation",
-  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (Biogenic)",
-  "Other Biogenic GHG Emission Process Activities",
+  "Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)",
+  "other Biogenic GHG Emission Process Activities",
 ];

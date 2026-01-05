@@ -1497,7 +1497,7 @@ useEffect(() => {
                     name="distanceTravelled"
                     value={formData.distanceTravelled}
                     onChange={handleInputChange}
-                    placeholder="Enter Value"
+                    placeholder="e.g., 1000"
                     className="input-field rounded-r-none"
                     disabled={isView}
                   />

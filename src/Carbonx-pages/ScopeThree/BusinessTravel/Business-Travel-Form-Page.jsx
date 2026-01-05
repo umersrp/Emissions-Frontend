@@ -1011,7 +1011,7 @@ const handleSubmit = async (e) => {
                     value={findOptionByValue(fuelOptions, formData.carFuelType)}
                     options={fuelOptions}
                     onChange={handleCarFuelTypeChange}
-                    placeholder={formData.carType ? "Select Fuel Type" : "Select Car Type first"}
+                    placeholder={formData.carType ? "Select Fuel Type" : "Select Car Type First"}
                     isDisabled={!formData.carType || isView}
                     className={errors.carFuelType ? 'border-red-500' : ''}
                   />

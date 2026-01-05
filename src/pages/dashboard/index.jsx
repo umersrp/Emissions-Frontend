@@ -16,27 +16,29 @@ import {
   VO_ACTIVITIES,
   BIOGENIC_ACTIVITIES,
 } from "@/constant/scope1/calculate-process-emission";
+import Logo from "@/assets/images/logo/SrpLogo.png";
+
 // import { GHG_ACTIVITIES } from "@/constant/scope1/calculate-process-emission";
 
 // Helper functions
 const isNonKyotoMaterial = (materialRefrigerant) => {
   if (!materialRefrigerant) return false;
-  
-  return NON_KYOTO_GASES.some(gas => 
+
+  return NON_KYOTO_GASES.some(gas =>
     materialRefrigerant.toLowerCase().includes(gas.toLowerCase())
   );
 };
 
 const isExcludedActivity = (activityType) => {
   if (!activityType) return false;
-  
+
   const excludedActivities = [
     ...NON_KYOTO_ACTIVITIES,
     ...VO_ACTIVITIES,
     ...BIOGENIC_ACTIVITIES
   ];
-  
-  return excludedActivities.some(activity => 
+
+  return excludedActivities.some(activity =>
     activityType.toLowerCase().includes(activity.toLowerCase())
   );
 };
@@ -46,7 +48,7 @@ const calculateFugitiveEmissions = (fugitiveListData = []) => {
     if (isNonKyotoMaterial(record.materialRefrigerant)) {
       return sum;
     }
-    
+
     const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
     return sum + emissionValue;
   }, 0);
@@ -55,7 +57,7 @@ const calculateFugitiveEmissions = (fugitiveListData = []) => {
 //   const filteredData = fugitiveListData.filter(record => 
 //     GHG_ACTIVITIES.includes(record.materialRefrigerant)
 //   );
-  
+
 //   return filteredData.reduce((sum, record) => {
 //     const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
 //     return sum + emissionValue;
@@ -67,7 +69,7 @@ const calculateFugitiveEmissions = (fugitiveListData = []) => {
 //     if (isExcludedActivity(record.activityType)) {
 //       return sum;
 //     }
-    
+
 //     const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
 //     return sum + emissionValue;
 //   }, 0);
@@ -89,39 +91,44 @@ const calculateProcessEmissions = (emissionActivityListData = []) => {
 const Dashboard = () => {
   const [buildings, setBuildings] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
-  const [selectedBuilding, setSelectedBuilding] = useState([]);
+  // const [selectedBuilding, setSelectedBuilding] = useState([]);
 
   const [loading, setLoading] = useState(false);
   const [selectedDepartments, setSelectedDepartments] = useState([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const [appliedBuilding, setAppliedBuilding] = useState(null);
 
 
   // Fetch buildings list on mount
-  useEffect(() => {
-    const fetchBuildings = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?page=1&limit=100000`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setBuildings(res.data?.data?.buildings || []);
-      } catch (error) {
-        console.error("Error fetching buildings:", error);
-      }
-    };
-    fetchBuildings();
-  }, []);
-
-  // Fetch dashboard data when selected building changes
-  useEffect(() => {
-    if (!selectedBuilding) {
-      setDashboardData(null);
-      return;
+ useEffect(() => {
+  const fetchBuildings = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?page=1&limit=100000`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      // Sort buildings A-Z by buildingName
+      const sortedBuildings = (res.data?.data?.buildings || []).sort((a, b) => {
+        const nameA = (a.buildingName || a.name || "").toLowerCase();
+        const nameB = (b.buildingName || b.name || "").toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+      
+      setBuildings(sortedBuildings);
+    } catch (error) {
+      console.error("Error fetching buildings:", error);
     }
+  };
+  fetchBuildings();
+}, []);
 
-    const fetchDashboardData = async () => {
+  // Initial data fetch when component mounts
+  useEffect(() => {
+    const fetchInitialData = async () => {
       setLoading(true);
       try {
         const token = localStorage.getItem("token");
@@ -129,52 +136,111 @@ const Dashboard = () => {
           `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
           {
             headers: { Authorization: `Bearer ${token}` },
-            params: { buildingId: selectedBuilding },
           }
         );
         setDashboardData(response.data.data);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error("Error fetching initial dashboard data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDashboardData();
-  }, [selectedBuilding]);
+    fetchInitialData();
+  }, []); // Empty dependency array - runs once on mount
+  // 
+  //  const fetchDashboardData = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const token = localStorage.getItem("token");
+  //       const response = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
+  //         {
+  //           headers: { Authorization: `Bearer ${token}` },
+  //           params: selectedBuilding ? { buildingId: selectedBuilding } : {},
+  //           // If no building is selected, don't send buildingId param to get all data
+  //         }
+  //       );
+  //       setDashboardData(response.data.data);
+  //     } catch (error) {
+  //       console.error("Error fetching dashboard data:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-  const applyFilters = async () => {
-    if (!selectedBuilding) return;
+  //   fetchDashboardData();
+  // }, [selectedBuilding]; // Add closing parenthesis and dependency array
 
+ const applyFilters = async () => {
+  setLoading(true);
+  try {
+    const token = localStorage.getItem("token");
+    const params = {};
+
+    // Set applied building from the current dropdown selection
+    setAppliedBuilding(selectedBuilding);
+    
+    if (selectedBuilding) {
+      params.buildingId = selectedBuilding;
+    }
+    if (selectedDepartments.length > 0) {
+      params.departments = selectedDepartments;
+    }
+    if (fromDate) {
+      params.fromDate = fromDate;
+    }
+    if (toDate) {
+      params.toDate = toDate;
+    }
+
+    const res = await axios.get(
+      `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params,
+      }
+    );
+    setDashboardData(res.data.data);
+  } catch (err) {
+    console.error("Filter error", err);
+  } finally {
+    setLoading(false);
+  }
+};
+  // const clearFilters = () => {
+  //   setSelectedDepartments([]);
+  //   setFromDate("");
+  //   setToDate("");
+  // };
+ const clearFilters = () => {
+  setSelectedDepartments([]);
+  setFromDate("");
+  setToDate("");
+  setSelectedBuilding(null); // Clear dropdown selection
+  setAppliedBuilding(null); // Clear applied building
+  
+  // Optional: Refetch initial data when clearing filters
+  const fetchInitialData = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get(
+      const response = await axios.get(
         `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
         {
           headers: { Authorization: `Bearer ${token}` },
-          params: {
-            buildingId: selectedBuilding,
-            departments: selectedDepartments,
-            fromDate,
-            toDate,
-          },
         }
       );
-      setDashboardData(res.data.data);
-    } catch (err) {
-      console.error("Filter error", err);
+      setDashboardData(response.data.data);
+    } catch (error) {
+      console.error("Error fetching initial dashboard data:", error);
     } finally {
       setLoading(false);
     }
   };
-
-  const clearFilters = () => {
-    setSelectedDepartments([]);
-    setFromDate("");
-    setToDate("");
-  };
-
+  
+  fetchInitialData();
+};
   // --- Calculate emissions ---
   const purchasedElectricity = dashboardData?.scope2?.purchasedElectricity;
 
@@ -185,22 +251,22 @@ const Dashboard = () => {
   //   // (dashboardData?.scope1?.emissionActivity?.totalEmissionTCo2e || 0) +
   //   (dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0) +
   //   (dashboardData?.scope1?.processEmissions?.totalEmissionTCo2e || 0);
-    const scope1Emission = useMemo(() => {
+  const scope1Emission = useMemo(() => {
     const stationary = dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0;
     const transport = dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0;
     const fugitive = calculateFugitiveEmissions(dashboardData?.scope1?.fugitiveListData);
     const process = calculateProcessEmissions(dashboardData?.scope1?.EmissionActivityListData);
 
-  console.log("Scope 1 Calculation Debug");
-  console.log("Stationary:", stationary);
-  console.log("Transport:", transport);
-  console.log("Fugitive emissions calculated:", fugitive);
-  console.log("Process emissions calculated:", process);
-  // console.log("Fugitive list data:", dashboardData?.scope1?.fugitiveListData);
-   console.log("Process list data:", dashboardData?.scope1?.EmissionActivityListData);
-  console.log("Total scope1Emission:", stationary + transport + fugitive + process);
-  console.log("=== End Debug ===");
-      return stationary + transport + fugitive + process;
+    console.log("Scope 1 Calculation Debug");
+    console.log("Stationary:", stationary);
+    console.log("Transport:", transport);
+    console.log("Fugitive emissions calculated:", fugitive);
+    console.log("Process emissions calculated:", process);
+    // console.log("Fugitive list data:", dashboardData?.scope1?.fugitiveListData);
+    console.log("Process list data:", dashboardData?.scope1?.EmissionActivityListData);
+    console.log("Total scope1Emission:", stationary + transport + fugitive + process);
+    console.log("=== End Debug ===");
+    return stationary + transport + fugitive + process;
   }, [dashboardData]);
 
   // Scope 2: sum of purchased electricity (location + market)
@@ -355,16 +421,47 @@ const Dashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
+      {loading && (
+        <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center">
+            <img
+              src={Logo}
+              alt="Loading..."
+              className="w-52 h-24 mx-auto animate-pulse"
+            />
+            {/* <p className="mt-4 text-gray-600 font-medium">Loading dashboard data...</p> */}
+          </div>
+        </div>
+      )}
+
       {/* Sidebar: Building filter */}
       {/* Main content */}
-      <main className="flex-1 p-6 overflow-auto">
+      <main className={`flex-1 p-6 overflow-auto scrollbar-hide  ${loading ? 'opacity-100' : ''}`}>
         <div className="flex flex-wrap gap-4 mb-6 items-end bg-white p-4 rounded-xl shadow-lg">
           {/* Building filter */}
           <div>
             <label className="block font-semibold text-gray-700 mb-1">Building</label>
-            <Select
+            {/* <Select
               value={selectedBuilding[0] ? { value: selectedBuilding[0], label: buildingMap[selectedBuilding[0]] } : null}
               onChange={(option) => setSelectedBuilding(option ? [option.value] : [])}
+              options={buildings.map((b) => ({
+                value: b._id,
+                label: b.buildingName || b.name,
+              }))}
+              isClearable
+              placeholder="Select a building"
+              className="w-48"
+            />
+           */}
+            <Select
+              value={selectedBuilding ? {
+                value: selectedBuilding,
+                label: buildingMap[selectedBuilding]
+              } : null}
+              onChange={(option) => {
+                const buildingId = option ? option.value : null;
+                setSelectedBuilding(buildingId); // Only update temporary selection
+              }}
               options={buildings.map((b) => ({
                 value: b._id,
                 label: b.buildingName || b.name,
@@ -436,20 +533,20 @@ const Dashboard = () => {
 
         {/* Summary cards */}
         <div className="flex gap-4 mb-6 flex-wrap">
-          <Card className="flex-1 text-black p-6 rounded-lg shadow-lg min-w-[220px]">
+          <Card className="flex-1 text-black p-2 rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Total GHG Emissions</h3>
             <p className="text-2xl text-red-500 font-bold mt-2">
               {formatNumber(totalEmission)} <span className="text-base font-normal">tCO₂e</span>
             </p>
           </Card>
 
-          <Card className="flex-1 p-6 rounded-lg shadow-lg min-w-[220px]">
+          <Card className="flex-1 p-2 rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Scope 1 Emissions</h3>
             <p className="text-2xl text-green-500 font-bold mt-2">{formatNumber(scope1Emission)} tCO₂e</p>
             <p className="text-sm text-gray-600">Direct emissions</p>
           </Card>
 
-          <Card className="flex-1 p-6 rounded-lg shadow-lg min-w-[220px]">
+          <Card className="flex-1 p-2 rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Scope 2 Emissions</h3>
 
             {/* TOTAL (same size as Scope 1) */}
@@ -482,10 +579,7 @@ const Dashboard = () => {
             </p>
           </Card>
 
-
-
-
-          <Card className="flex-1 p-6 rounded-lg shadow-lg min-w-[220px]">
+          <Card className="flex-1 p-2 rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Scope 3 Emissions</h3>
             <p className="text-2xl text-purple-500 font-bold mt-2">{formatNumber(scope3Emission)} tCO₂e</p>
             <p className="text-sm text-gray-600">Other indirect emissions</p>
@@ -504,7 +598,7 @@ const Dashboard = () => {
             <GroupChart1 chartData={pieData} loading={loading} />
           </Card>
 
-          <Card className="flex-1  min-w-[320px] col-span-2">
+          {/* <Card className="flex-1  min-w-[320px] col-span-2">
             <h3 className="font-semibold  text-xl flex items-center gap-2">
               Building-wise GHG Emissions
               <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e.">
@@ -519,10 +613,29 @@ const Dashboard = () => {
                 // navigate(`/dashboard?buildingId=${building.buildingId}`);
               }}
             />
+          </Card> */}
+          <Card className="flex-1  min-w-[320px] col-span-2">
+            <h3 className="font-semibold  text-xl flex items-center gap-2">
+              Building-wise GHG Emissions
+              <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e. The selected building will be highlighted in blue.">
+                <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
+              </Tooltip>
+            </h3>
+
+            <RevenueBarChart
+              chartData={barChartData}
+              onBarClick={(building) => {
+                console.log("Clicked building:", building);
+                // If you want clicking to also select the building in the filter
+                // setSelectedBuilding([building.buildingId]);
+                // setSelectedBuilding(building.buildingId);
+              }}
+              selectedBuilding={appliedBuilding} // Pass the selected building ID
+            />
           </Card>
         </div>
 
-
+        {/* Category-Wise GHG Emissions */}
         <div className="mb-5">
           <Card className="flex-1 min-w-[320px]" title="Category-Wise GHG Emissions">
             <div className="flex items-center gap-2 mb-4">
@@ -539,17 +652,19 @@ const Dashboard = () => {
           </Card>
         </div>
 
-
+        {/* scope 1 */}
         <div className="mb-5">
           <Card className="flex-1  min-w-[320px]" title="Scope 1 Emissions by Category">
             <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} />
           </Card>
         </div>
+         {/* scope 2 */}
         <div>
           <Card className="flex-1  min-w-[320px]" title="Scope 2 Emissions by Category">
             <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} />
           </Card>
         </div>
+         {/* scope 3 */}
         <div>
           <Card className="flex-1 p-4 min-w-[320px]">
             <Scope3EmissionsSection dashboardData={dashboardData} loading={loading} />

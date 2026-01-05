@@ -753,9 +753,9 @@ const CompanyProfileForm = () => {
                         {errors.unitsManufacturedPerAnnum && <p className="text-red-500">{errors.unitsManufacturedPerAnnum}</p>}
                     </div>
 
-                    {/* Production Volume Tonne Per Annum */}
+                    {/* Production Volume Tonnes per Annum */}
                     <div className="">
-                        <label className="field-label">Production Volume (Tonne Per Annum)</label>
+                        <label className="field-label">Production Volume (Tonnes per Annum)</label>
                         <input
                             type="number"
                             name="productionVolumeTonnePerAnnum"

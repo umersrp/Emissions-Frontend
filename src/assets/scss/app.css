@@ -648,6 +648,7 @@
   ul.custom-list ul li {
     @apply ltr:pl-6 rtl:pr-6;
   }
+
   .lits-by-numbaring {
     counter-reset: listitem;
   }

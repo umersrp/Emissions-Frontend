@@ -71,7 +71,7 @@ const ProcessEmissionsListing = () => {
       let result;
       
       // SPECIAL RULE: If word is "a" or "A", preserve original case
-      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
+      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT" || coreWord === "if") {
         result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
       }
       // Single letters (except "a" already handled)
