@@ -229,10 +229,11 @@ import RevenueBarChart from "@/components/partials/widget/chart/revenue-bar-char
 import { Tooltip } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 
-
 const categoryColors = {
   "Location-Based": "bg-blue-100 text-blue-800",
+  "Location Based": "bg-blue-100 text-blue-800", // Add this for consistency
   "Market-Based": "bg-green-100 text-green-800",
+  "Market Based": "bg-green-100 text-green-800", // Add this for consistency
 };
 
 const unitColors = {
@@ -249,16 +250,15 @@ const normalizeUnit = (unit) => {
   return unit;
 };
 
-
 const getTopEntriesByMethod = (list = [], methodType, limit = 3) => {
   if (!list.length) return [];
 
   // Filter entries by method type
   const filteredEntries = list.filter((item) => {
     const method = (item.method || "").toLowerCase();
-    if (methodType === "Location-Based") {
+    if (methodType === "Location-Based" || methodType === "Location Based") {
       return method === "location_based";
-    } else if (methodType === "Market-Based") {
+    } else if (methodType === "Market-Based" || methodType === "Market Based") {
       return method === "market_based";
     }
     return false;
@@ -283,7 +283,6 @@ const getTopEntriesByMethod = (list = [], methodType, limit = 3) => {
   }));
 };
 
-
 const Scope2EmissionsSection = ({ dashboardData, loading }) => {
   if (!dashboardData?.scope2) return null;
 
@@ -295,47 +294,44 @@ const Scope2EmissionsSection = ({ dashboardData, loading }) => {
   const [rowLimit, setRowLimit] = React.useState(3);
 
   /* ---------- Bar Chart ---------- */
-  let barChartData = [];
+  const barChartData = React.useMemo(() => {
+    if (!scope2.purchasedElectricity) return [];
 
-  if (scope2.purchasedElectricity) {
-    barChartData.push({
-      name: "Location-Based",
-      value: Number(scope2.purchasedElectricity.totalLocationTCo2e ?? 0),
-      type: "location"
-    });
-
-    barChartData.push({
-      name: "Market-Based",
-      value: Number(scope2.purchasedElectricity.totalMarketTCo2e ?? 0),
-      type: "market"
-    });
-  }
-
-  // Filter to selected building if any
-  if (selectedBuildingName) {
-    barChartData = barChartData.filter(
-      (b) => b.name === selectedBuildingName
-    );
-  }
+    return [
+      {
+        name: "Location Based",
+        displayName: "Location Based", // Explicit display name
+        categoryKey: "Location-Based", // For table filtering
+        value: Number(scope2.purchasedElectricity.totalLocationTCo2e ?? 0),
+        type: "location"
+      },
+      {
+        name: "Market Based", 
+        displayName: "Market Based", // Explicit display name
+        categoryKey: "Market-Based", // For table filtering
+        value: Number(scope2.purchasedElectricity.totalMarketTCo2e ?? 0),
+        type: "market"
+      }
+    ].filter(item => item.value > 0); // Only show items with value > 0
+  }, [scope2]);
 
   /* ---------- Table Data ---------- */
-  // Get top entries for each category based on method
-  const topLocationEntries = getTopEntriesByMethod(
-    scope2.electricityListData || [],
-    "Location-Based",
-    selectedCategory === "Location-Based" ? 10 : 3
-  );
+  const getTopEntries = React.useCallback((methodType, limit) => {
+    return getTopEntriesByMethod(
+      scope2.electricityListData || [],
+      methodType,
+      limit
+    );
+  }, [scope2.electricityListData]);
 
-  const topMarketEntries = getTopEntriesByMethod(
-    scope2.electricityListData || [],
-    "Market-Based",
-    selectedCategory === "Market-Based" ? 10 : 3
-  );
-
-  const topScope2Categories = {
-    "Location-Based": topLocationEntries,
-    "Market-Based": topMarketEntries
-  };
+  const topScope2Categories = React.useMemo(() => {
+    const limit = rowLimit;
+    
+    return {
+      "Location-Based": getTopEntries("Location-Based", limit),
+      "Market-Based": getTopEntries("Market-Based", limit)
+    };
+  }, [getTopEntries, rowLimit]);
 
   /* ---------- Total Emissions ---------- */
   const totalScope2 = barChartData.reduce((sum, item) => sum + item.value, 0);
@@ -345,17 +341,11 @@ const Scope2EmissionsSection = ({ dashboardData, loading }) => {
   /* ---------- Handlers ---------- */
   const handleBarClick = (data) => {
     if (!data?.name) return;
-    const category = data.name;
-
-    if (selectedCategory === category) {
-      // If same category is clicked again, reset
-      resetView();
-    } else {
-      // Set selected category and show top 10 entries
-      setSelectedCategory(category);
-      setRowLimit(10);
-      setSelectedBuildingName(category);
-    }
+    
+    // Use the categoryKey for filtering, fallback to name
+    const category = data.categoryKey || data.name;
+    setSelectedCategory(category);
+    setRowLimit(10);
   };
 
   /* ---------- Reset View ---------- */
@@ -365,19 +355,17 @@ const Scope2EmissionsSection = ({ dashboardData, loading }) => {
     setRowLimit(3);
   };
 
+  // Get the display name for a category
+  const getCategoryDisplayName = (categoryKey) => {
+    const chartItem = barChartData.find(item => 
+      item.categoryKey === categoryKey || item.name === categoryKey
+    );
+    return chartItem?.displayName || chartItem?.name || categoryKey;
+  };
+
   return (
     <div className="flex flex-col gap-6">
       {/* ================= Total Card ================= */}
-      <div className="flex justify-end">
-        <div className="p-4 btn-dark text-white rounded-xl shadow-md border border-black-400 font-semibold text-lg w-max">
-          <div>Total Scope 2 Emissions: {totalScope2.toFixed(3)} tCO₂e</div>
-          <div className="text-sm mt-1 opacity-90">
-            <span className="mr-4">Location: {locationTotal.toFixed(3)} tCO₂e</span>
-            <span>Market: {marketTotal.toFixed(3)} tCO₂e</span>
-          </div>
-        </div>
-      </div>
-
       <div className="flex flex-col md:flex-row gap-8">
         {/* ================= Chart Card ================= */}
         <div className="flex-1 p-6 bg-white rounded-2xl shadow-lg border border-gray-200">
@@ -399,9 +387,10 @@ const Scope2EmissionsSection = ({ dashboardData, loading }) => {
           </div>
           <RevenueBarChart
             chartData={barChartData}
-            selectedCategory={selectedCategory || selectedBuildingName}
+            selectedCategory={selectedCategory}
             height={400}
             onBarClick={handleBarClick}
+            loading={loading}
           />
         </div>
 
@@ -437,53 +426,60 @@ const Scope2EmissionsSection = ({ dashboardData, loading }) => {
           </div>
 
           <div className="space-y-6">
-            {Object.entries(topScope2Categories).map(([category, entries]) => {
+            {Object.entries(topScope2Categories).map(([categoryKey, entries]) => {
               // Skip showing this category if another is selected
-              if (selectedCategory && selectedCategory !== category) {
+              if (selectedCategory && selectedCategory !== categoryKey) {
                 return null;
               }
 
-              const itemsToShow = selectedCategory === category ? 10 : 3;
+              const displayName = getCategoryDisplayName(categoryKey);
 
               if (!entries.length) {
                 return (
                   <div
-                    key={category}
-                    className={`border border-gray-300 rounded p-2 font-semibold ${categoryColors[category]}`}
+                    key={categoryKey}
+                    className={`border border-gray-300 rounded p-2 font-semibold ${categoryColors[categoryKey] || 'bg-gray-100 text-gray-800'}`}
                   >
-                    {category} - <span className="italic text-gray-400">No data available</span>
+                    {displayName} - <span className="italic text-gray-400">No data available</span>
                   </div>
                 );
               }
 
               return (
-                <div key={category} className="border border-gray-300 rounded p-3">
+                <div key={categoryKey} className="border border-gray-300 rounded p-3">
                   {/* Category Label */}
-                  <div className={`font-semibold mb-3 p-2 rounded-md scrollbar-hide ${categoryColors[category]}`}>
-                    {category}
+                  <div className={`font-semibold mb-3 p-2 rounded-md scrollbar-hide ${categoryColors[categoryKey] || 'bg-gray-100 text-gray-800'}`}>
+                    {displayName}
                   </div>
 
                   {/* Grid for entries */}
                   <div
-                    className={`grid gap-2 w-full ${selectedCategory === category
+                    className={`grid gap-2 w-full ${selectedCategory === categoryKey
                         ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
                         : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
                       }`}
                   >
-                    {entries.slice(0, itemsToShow).map((entry) => (
+                    {entries.map((entry) => (
                       <div key={entry._id} className="flex-1 min-w-0 border border-gray-300 rounded overflow-hidden">
                         {/* Unit name */}
-                        <div className="p-2 font-medium border-b text-center truncate">
+                        <div className="p-2 font-medium border-b text-center truncate bg-gray-50">
                           {entry.unit}
                         </div>
 
                         {/* Emission value */}
-                        <div className={`p-2 font-semibold text-center truncate ${category === "Location-Based" ? "text-red-600" : "text-blue-600"
-                          }`}>
+                        <div className={`p-2 font-semibold text-center truncate ${categoryKey === "Location-Based" ? "text-red-600" : "text-blue-600"}`}>
                           {entry.emissionTCo2e.toLocaleString(undefined, {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })} tCO₂e
+                        </div>
+                        
+                        {/* Electricity Consumption */}
+                        <div className="p-2 text-gray-700 font-medium text-center truncate border-t">
+                          {entry.totalElectricityConsumed.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })} {entry.unit.toLowerCase().includes('kwh') ? 'kWh' : 'MWh'}
                         </div>
                       </div>
                     ))}

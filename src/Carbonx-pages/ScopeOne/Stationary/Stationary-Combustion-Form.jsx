@@ -48,14 +48,7 @@ const StationaryCombustionFormPage = () => {
   const [errors, setErrors] = useState({});
 
 
-  // const formatNumber = (num) => {
-  //   if (!num || isNaN(num)) return "0";
-  //   if (Math.abs(num) < 0.001 && num !== 0) {
-  //     return num.toExponential(5);
-  //   }
-  //   // For normal numbers, show up to 5 decimals without trailing zeros
-  //   return parseFloat(num.toFixed(2)).toString();
-  // };
+  
     const formatNumber = (num) => {
     try {
       if (num === null || num === undefined || num === "") {
@@ -320,13 +313,13 @@ const StationaryCombustionFormPage = () => {
             ? result.totalEmissionInScope
             : "",
           calculatedEmissionTCo2e: result.totalEmissionInScope
-            ? formatNumber(result.totalEmissionInScope / 1000)
+            ? (result.totalEmissionInScope / 1000)
             : "",
           calculatedBioEmissionKgCo2e: result.totalEmissionOutScope
             ? result.totalEmissionOutScope
             : "",
           calculatedBioEmissionTCo2e: result.totalEmissionOutScope
-            ? formatNumber(result.totalEmissionOutScope / 1000)
+            ? (result.totalEmissionOutScope / 1000)
             : "",
         }));
       }

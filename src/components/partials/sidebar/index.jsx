@@ -147,17 +147,23 @@ const Sidebar = () => {
 
   // Hover + Pin states
   const [menuHover, setMenuHover] = useState(false);
-  const [isPinned, setIsPinned] = useState(false);
 
-  // Set initial collapsed state based on route
+  // Track if user has manually interacted
+  const [userHasInteracted, setUserHasInteracted] = useState(false);
+
+  // Check if on dashboard route
+  const isDashboardRoute = location.pathname === "/dashboard";
+
+  // Set initial collapsed state based on route ONLY if user hasn't interacted
   useEffect(() => {
-    const isDashboardRoute = location.pathname === "/dashboard";
-    if (isDashboardRoute && !collapsed) {
-      setMenuCollapsed(true);
-    } else if (!isDashboardRoute && collapsed) {
-      setMenuCollapsed(false);
+    if (!userHasInteracted) {
+      if (isDashboardRoute && !collapsed) {
+        setMenuCollapsed(true);
+      } else if (!isDashboardRoute && collapsed) {
+        setMenuCollapsed(false);
+      }
     }
-  }, [location.pathname]);
+  }, [location.pathname, userHasInteracted]);
 
   // Scroll detection
   useEffect(() => {
@@ -175,16 +181,22 @@ const Sidebar = () => {
     return () => node?.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Handle pin/unpin click
-  const handlePinToggle = () => {
-    setIsPinned(!isPinned);
-    if (!isPinned) {
-      // When pinning, ensure sidebar is expanded
+  // Toggle handler for manual control
+  const handleToggle = () => {
+    setUserHasInteracted(true);
+    setMenuCollapsed(!collapsed);
+  };
+
+  // Mouse handlers - only work on dashboard
+  const handleMouseEnter = () => {
+    if (isDashboardRoute) {
       setMenuCollapsed(false);
-    } else {
-      // When unpinning, revert to route-based collapsed state
-      const isDashboardRoute = location.pathname === "/dashboard";
-      setMenuCollapsed(isDashboardRoute);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isDashboardRoute) {
+      setMenuCollapsed(true);
     }
   };
 
@@ -205,36 +217,11 @@ const Sidebar = () => {
               : "shadow-base"
           }
         `}
-        onMouseEnter={() => {
-          if (!isPinned) {
-            setMenuCollapsed(false);
-            setMenuHover(true);
-          }
-        }}
-        onMouseLeave={() => {
-          if (!isPinned) {
-            setMenuHover(false);
-            // Only collapse if on dashboard route
-            const isDashboardRoute = location.pathname === "/dashboard";
-            if (isDashboardRoute) {
-              setMenuCollapsed(true);
-            }
-          }
-        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         {/* Logo */}
-        <SidebarLogo menuHover={menuHover} />
-
-        {/* Pin / Unpin Button */}
-        <button
-          onClick={handlePinToggle}
-          className="absolute top-4 right-3 z-50 text-slate-500 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-800 w-6 h-6 flex items-center justify-center rounded border border-slate-200 dark:border-slate-700"
-          title={isPinned ? "Unpin sidebar" : "Pin sidebar"}
-        >
-          <span className="text-xs font-bold">
-            {isPinned ? "«" : "»"}
-          </span>
-        </button>
+        <SidebarLogo menuHover={menuHover} onToggle={handleToggle} />
 
         {/* Shadow on scroll */}
         <div

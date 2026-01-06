@@ -189,20 +189,6 @@ const normalizeToArray = (data) => {
   return Array.isArray(data) ? data : [data];
 };
 
-/* ------------------ Name Normalizer ------------------ */
-const getItemName = (item) => {
-  return (
-    item?._id ||
-    item?.activityType ||
-    item?.fuelType ||
-    item?.fuelName ||
-    item?.equipmentType ||
-    item?.type ||
-    item?.category ||
-    "N/A"
-  );
-};
-
 /* ------------------ Component ------------------ */
 const Scope3EmissionsSection = ({ dashboardData, loading }) => {
   if (!dashboardData?.scope3) return null;
@@ -225,27 +211,133 @@ const Scope3EmissionsSection = ({ dashboardData, loading }) => {
   const upstreamList = normalizeToArray(s3.Upstreamlist);
   const downstreamList = normalizeToArray(s3.Downstreamlist);
   const fuelAndEnergyList = normalizeToArray(s3.FuelandEnergylist);
+  
+  // Handle Capital Goods Data separately
+  const capitalGoodsData = s3.CapitalGoodsData || [];
+  const capitalGoodsList = capitalGoodsData.length > 0 ? capitalGoodsData[0]?.list || [] : [];
+  
+  // Handle Business Travel Data separately
+  const businessTravelData = s3.BusinessTravelData || [];
+  const businessTravelList = businessTravelData.length > 0 ? businessTravelData[0]?.list || [] : [];
 
-  // Bar chart
+  // Bar chart - Calculate totals for each category
   const barChartData = [
-    { name: "Purchased Goods & Services", value: purchasedGoodsAndServices.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) },
-    { name: "Capital Goods", value: capitalGoods.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) },
-    { name: "Waste Generated in Operations", value: wasteGenerated.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) },
-    { name: "Business Travel", value: businessTravel.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) },
-    { name: "Employee Commuting", value: employeeCommuting.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) },
-    { name: "Upstream Transportations", value: upstreamTransport.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) },
-    { name: "Downstream Transportations", value: downstreamTransport.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) },
-    { name: "Fuel & Energy", value: fuelAndEnergy.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) },
+    { 
+      name: "Purchased Goods & Services", 
+      value: purchasedGoodsAndServices.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) 
+    },
+    { 
+      name: "Capital Goods", 
+      value: capitalGoods.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) 
+    },
+    { 
+      name: "Waste Generated", 
+      value: wasteGenerated.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) 
+    },
+    { 
+      name: "Business Travel", 
+      value: businessTravel.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) 
+    },
+    { 
+      name: "Employee Commuting", 
+      value: employeeCommuting.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) 
+    },
+    { 
+      name: "Upstream Transportations", 
+      value: upstreamTransport.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) 
+    },
+    { 
+      name: "Downstream Transportations", 
+      value: downstreamTransport.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) 
+    },
+    { 
+      name: "Fuel & Energy Related Activities", 
+      value: fuelAndEnergy.reduce((s, i) => s + (i.totalEmissionTCo2e || 0), 0) 
+    },
   ];
 
-  const totalScope3 = barChartData.reduce((sum, i) => sum + i.value, 0);
+  /* ------------------ PROCESS CAPITAL GOODS DATA ------------------ */
+  const processCapitalGoodsData = () => {
+    if (!capitalGoodsList || capitalGoodsList.length === 0) return [];
+    
+    // Group by purchasedActivityType
+    const goodsByCategory = {};
+    
+    capitalGoodsList.forEach(item => {
+      // Use purchasedActivityType or a default category
+      const category = item.purchasedActivityType || item.purchaseCategory || "Other Goods";
+      
+      if (!goodsByCategory[category]) {
+        goodsByCategory[category] = {
+          _id: category,
+          totalEmissionTCo2e: 0,
+          count: 0,
+          amountSpent: 0,
+          items: []
+        };
+      }
+      
+      goodsByCategory[category].totalEmissionTCo2e += 
+        (item.calculatedEmissionTCo2e || 0);
+      goodsByCategory[category].count++;
+      goodsByCategory[category].amountSpent += 
+        parseFloat(item.amountSpent || 0);
+      goodsByCategory[category].items.push(item);
+    });
+    
+    // Convert to array and sort by emissions (highest first)
+    return Object.values(goodsByCategory)
+      .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
+  };
+
+  const capitalGoodsTopCategories = processCapitalGoodsData();
+
+  /* ------------------ PROCESS BUSINESS TRAVEL DATA ------------------ */
+  const processBusinessTravelData = () => {
+    if (!businessTravelList || businessTravelList.length === 0) return [];
+    
+    // Group by stakeholder
+    const travelByStakeholder = {};
+    
+    businessTravelList.forEach(item => {
+      // Use stakeholder or a default category
+      const stakeholder = item.stakeholder || "Other Travel";
+      
+      if (!travelByStakeholder[stakeholder]) {
+        travelByStakeholder[stakeholder] = {
+          _id: stakeholder,
+          totalEmissionTCo2e: 0,
+          count: 0,
+          buildingIds: new Set()
+        };
+      }
+      
+      travelByStakeholder[stakeholder].totalEmissionTCo2e += 
+        (item.calculatedEmissionTCo2e || 0);
+      travelByStakeholder[stakeholder].count++;
+      if (item.buildingId) {
+        travelByStakeholder[stakeholder].buildingIds.add(item.buildingId);
+      }
+    });
+    
+    // Convert to array and sort by emissions (highest first)
+    return Object.values(travelByStakeholder)
+      .map(item => ({
+        ...item,
+        buildingCount: item.buildingIds.size,
+        buildingIds: Array.from(item.buildingIds)
+      }))
+      .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
+  };
+
+  const businessTravelTopCategories = processBusinessTravelData();
 
   /* ------------------ TABLE DATA ------------------ */
   const topScope3Categories = {
     "Purchased Goods & Services": purchasedGoodsAndServices,
-    "Capital Goods": capitalGoods,
+    "Capital Goods": capitalGoodsTopCategories, // Use processed capital goods data
     "Waste Generated in Operations": wasteGenerated,
-    "Business Travel": businessTravel,
+    "Business Travel": businessTravelTopCategories, // Use processed business travel data
     "Employee Commuting": employeeCommuting,
     "Upstream Transportations": upstreamList,
     "Downstream Transportations": downstreamList,
@@ -282,19 +374,13 @@ const Scope3EmissionsSection = ({ dashboardData, loading }) => {
           onBarClick={handleBarClick}
           selectedCategory={selectedCategory}
         />
-        
-        {/* <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <div className="text-gray-700 font-semibold text-lg">
-            Total Scope 3 Emissions: <span className="text-gray-900">{totalScope3.toFixed(2)} tCO₂e</span>
-          </div>
-        </div> */}
       </div>
 
       {/* ==================== TABLE ==================== */}
       <div className="flex-1 min-w-[320px] p-6 bg-white rounded-xl shadow-lg border overflow-auto max-h-[620px] scrollbar-hide">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-xl text-gray-900">
-          Top Categories
+            Top Categories
           </h3>
 
           {selectedCategory && (
@@ -311,6 +397,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading }) => {
           {Object.entries(topScope3Categories)
             .filter(([category]) => (selectedCategory ? category === selectedCategory : true))
             .map(([category, items]) => {
+              // Get top items based on row limit
               const visibleItems = items
                 .sort((a, b) => (b.totalEmissionTCo2e || 0) - (a.totalEmissionTCo2e || 0))
                 .slice(0, rowLimit);
@@ -331,20 +418,22 @@ const Scope3EmissionsSection = ({ dashboardData, loading }) => {
                   {/* Category Label */}
                   <div className={`font-semibold mb-2 p-1 rounded-md ${categoryColors[category]}`}>
                     {category}
+                
                   </div>
 
-                  {/* Grid for items - Same layout as Scope1 */}
+                  {/* Grid for items */}
                   <div
                     className={`grid gap-2 w-full ${selectedCategory
                         ? "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-                        : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                        : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3"
                       }`}
                   >
                     {visibleItems.map((item, idx) => (
                       <div key={idx} className="flex-1 min-w-0 border border-gray-300 rounded overflow-hidden">
                         {/* Item Name */}
-                        <div className="p-2 font-medium border-b text-center truncate">
-                          {getItemName(item)}
+                        <div className="p-2 font-medium border-b text-center truncate bg-gray-50">
+                          {item._id || "N/A"}
+                         
                         </div>
                         
                         {/* Emission Value */}
@@ -355,10 +444,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading }) => {
                           })} tCO₂e
                         </div>
                         
-                        {/* Quantity (if available) */}
-                        {/* <div className="p-2 font-medium text-center truncate">
-                          {item.quantity ? `${item.quantity} ${item.unit || ""}`.trim() : "N/A"}
-                        </div> */}
+                       
                       </div>
                     ))}
                   </div>
