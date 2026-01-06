@@ -156,7 +156,7 @@
 //     return [
 //       {
 //         key: "nonKyoto",
-//         name: "Non Kyoto Protocol /Other Gases Emission",
+//         name: "Non Kyoto Protocol / Other Gases Emission",
 //         kg: nonKyotoTotal,
 //         t: nonKyotoTotal / 1000,
 //         bg: "bg-cyan-50",
@@ -805,31 +805,31 @@ const summaryCards = useMemo(() => {
   const biogenicTotal = biogenicFromStationary + biogenicFromProcess;
 
   // Console logs for each card
-  console.group("📊 SUMMARY CARDS BREAKDOWN");
+  console.group("SUMMARY CARDS BREAKDOWN");
   
-  console.group("🔹 Non Kyoto Protocol / Other Gases Emission:");
+  console.group(" Non Kyoto Protocol / Other Gases Emission:");
   console.log(`   From Fugitive: ${formatNumber(nonKyotoFromFugitive)} kg (${nonKyotoFromFugitive > 0 ? ((nonKyotoFromFugitive/nonKyotoTotal)*100).toFixed(1) : 0}%)`);
   console.log(`   From Process: ${formatNumber(nonKyotoFromProcess)} kg (${nonKyotoFromProcess > 0 ? ((nonKyotoFromProcess/nonKyotoTotal)*100).toFixed(1) : 0}%)`);
   console.log(`   Total: ${formatNumber(nonKyotoTotal)} kg CO₂e`);
   console.groupEnd();
 
-  console.group("🔹 VOCs:");
+  console.group(" VOCs:");
   console.log(`   From Process: ${formatNumber(vocsTotal)} kg (100%)`);
   console.log(`   Total: ${formatNumber(vocsTotal)} kg`);
   console.groupEnd();
 
-  console.group("🔹 NOx:");
+  console.group(" NOx:");
   console.log(`   Total: ${formatNumber(noxTotal)} kg`);
   console.groupEnd();
 
-  console.group("🔹 Biogenic CO₂ Emissions:");
+  console.group(" Biogenic CO₂ Emissions:");
   console.log(`   From Stationary: ${formatNumber(biogenicFromStationary)} kg (${biogenicFromStationary > 0 ? ((biogenicFromStationary/biogenicTotal)*100).toFixed(1) : 0}%)`);
   console.log(`   From Process: ${formatNumber(biogenicFromProcess)} kg (${biogenicFromProcess > 0 ? ((biogenicFromProcess/biogenicTotal)*100).toFixed(1) : 0}%)`);
   console.log(`   Total: ${formatNumber(biogenicTotal)} kg CO₂e`);
   console.groupEnd();
 
   // Summary of all sources
-  console.group("📈 ALL SOURCES SUMMARY");
+  console.group("ALL SOURCES SUMMARY");
   console.log(`Fugitive Total: ${formatNumber(nonKyotoFromFugitive)} kg`);
   console.log(`Process Total: ${formatNumber(nonKyotoFromProcess + vocsFromProcess + biogenicFromProcess)} kg`);
   console.log(`  ↳ Non-Kyoto Process: ${formatNumber(nonKyotoFromProcess)} kg`);
@@ -843,7 +843,7 @@ const summaryCards = useMemo(() => {
   return [
     {
       key: "nonKyoto",
-      name: "Non Kyoto Protocol /Other Gases Emission",
+      name: "Non Kyoto Protocol / Other Gases Emission",
       kg: nonKyotoTotal,
       t: nonKyotoTotal / 1000,
       bg: "bg-cyan-50",

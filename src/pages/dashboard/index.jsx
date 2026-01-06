@@ -53,27 +53,7 @@ const calculateFugitiveEmissions = (fugitiveListData = []) => {
     return sum + emissionValue;
   }, 0);
 };
-// const calculateFugitiveEmissions = (fugitiveListData = []) => {
-//   const filteredData = fugitiveListData.filter(record => 
-//     GHG_ACTIVITIES.includes(record.materialRefrigerant)
-//   );
 
-//   return filteredData.reduce((sum, record) => {
-//     const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
-//     return sum + emissionValue;
-//   }, 0);
-// };
-
-// const calculateProcessEmissions = (emissionActivityListData = []) => {
-//   return emissionActivityListData.reduce((sum, record) => {
-//     if (isExcludedActivity(record.activityType)) {
-//       return sum;
-//     }
-
-//     const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
-//     return sum + emissionValue;
-//   }, 0);
-// };
 const calculateProcessEmissions = (emissionActivityListData = []) => {
   let includedCount = 0;
   const result = emissionActivityListData.reduce((sum, record) => {
@@ -92,14 +72,12 @@ const Dashboard = () => {
   const [buildings, setBuildings] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
   // const [selectedBuilding, setSelectedBuilding] = useState([]);
-
   const [loading, setLoading] = useState(false);
   const [selectedDepartments, setSelectedDepartments] = useState([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [appliedBuilding, setAppliedBuilding] = useState(null);
-
 
   // Fetch buildings list on mount
  useEffect(() => {
@@ -148,29 +126,7 @@ const Dashboard = () => {
 
     fetchInitialData();
   }, []); // Empty dependency array - runs once on mount
-  // 
-  //  const fetchDashboardData = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const token = localStorage.getItem("token");
-  //       const response = await axios.get(
-  //         `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
-  //         {
-  //           headers: { Authorization: `Bearer ${token}` },
-  //           params: selectedBuilding ? { buildingId: selectedBuilding } : {},
-  //           // If no building is selected, don't send buildingId param to get all data
-  //         }
-  //       );
-  //       setDashboardData(response.data.data);
-  //     } catch (error) {
-  //       console.error("Error fetching dashboard data:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchDashboardData();
-  // }, [selectedBuilding]; // Add closing parenthesis and dependency array
+  
 
  const applyFilters = async () => {
   setLoading(true);
@@ -208,11 +164,7 @@ const Dashboard = () => {
     setLoading(false);
   }
 };
-  // const clearFilters = () => {
-  //   setSelectedDepartments([]);
-  //   setFromDate("");
-  //   setToDate("");
-  // };
+  
  const clearFilters = () => {
   setSelectedDepartments([]);
   setFromDate("");
@@ -245,12 +197,6 @@ const Dashboard = () => {
   const purchasedElectricity = dashboardData?.scope2?.purchasedElectricity;
 
   // Scope 1: sum of stationary, transport, fugitive, emissionActivity
-  // const scope1Emission =
-  //   (dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0) +
-  //   (dashboardData?.scope1?.fugitive?.totalEmissionTCo2e || 0) +
-  //   // (dashboardData?.scope1?.emissionActivity?.totalEmissionTCo2e || 0) +
-  //   (dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0) +
-  //   (dashboardData?.scope1?.processEmissions?.totalEmissionTCo2e || 0);
   const scope1Emission = useMemo(() => {
     const stationary = dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0;
     const transport = dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0;
@@ -322,14 +268,6 @@ const Dashboard = () => {
     return 0;
   };
 
-
-  // const scope3Emission = dashboardData?.scope3
-  //   ? sumEmissionTCo2e(dashboardData.scope3.businessTravel) +
-  //   sumEmissionTCo2e(dashboardData.scope3.purchasedGoodsAndServices) +
-  //   sumEmissionTCo2e(dashboardData.scope3.wasteGeneratedInOperations)
-  //   : 0;
-
-
   const allModelEmissionData = dashboardData
     ? [
       // Scope 1
@@ -338,11 +276,11 @@ const Dashboard = () => {
         value: dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0,
       },
       {
-        name: "Auto Mobile Combustion",
+        name: "Mobile Combustion",
         value: dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0,
       },
       {
-        name: "Fugitive",
+        name: "Fugitive Emissions",
         value: dashboardData?.scope1?.fugitive?.totalEmissionTCo2e || 0,
       },
       {
@@ -352,17 +290,17 @@ const Dashboard = () => {
 
       // Scope 2
       {
-        name: "Purchased Electricity L",
+        name: "Purchased Electricity Loaction Based ",
         value: dashboardData?.scope2?.purchasedElectricity?.totalLocationTCo2e || 0,
       },
       {
-        name: "Purchased Electricity M",
+        name: "Purchased Electricity Market Based ",
         value: dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0,
       },
 
       // Scope 3
       {
-        name: "Purchased Goods",
+        name: "Purchased Goods & Services",
         value: sumEmissionTCo2e(
           dashboardData?.scope3?.purchasedGoodsAndServices
         ),
@@ -379,32 +317,32 @@ const Dashboard = () => {
           dashboardData?.scope3?.wasteGeneratedInOperations
         ),
       },
+      // {
+      //   name: "Purchased Goods",
+      //   value: sumEmissionTCo2e(
+      //     dashboardData?.scope3?.purchasedGoods
+      //   ),
+      // },
       {
-        name: "Purchased Goods",
-        value: sumEmissionTCo2e(
-          dashboardData?.scope3?.purchasedGoods
-        ),
-      },
-      {
-        name: "Fuel and Energy",
+        name: "Fuel & Energy Related Activities",
         value: sumEmissionTCo2e(
           dashboardData?.scope3?.FuelAndEnergys
         ),
       },
       {
-        name: "UpStream",
+        name: "Upstream Transportation",
         value: sumEmissionTCo2e(
           dashboardData?.scope3?.UpstreamTransportations
         ),
       },
       {
-        name: "DownStream",
+        name: "Downstream Transportation",
         value: sumEmissionTCo2e(
           dashboardData?.scope3?.DownstreamTransportations
         ),
       },
       {
-        name: "CapitalGoods",
+        name: "Capital Goods",
         value: sumEmissionTCo2e(
           dashboardData?.scope3?.CapitalGoods
         ),
