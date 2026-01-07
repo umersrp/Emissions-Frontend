@@ -25,7 +25,7 @@ export const processEmissionFactors = {
   "Urea Production": 200,
   "Methanol production": 800,
   "Hydrogen production (SMR – Steam Methane Reforming)": 10,
-  "Amine-based gas sweetening (acid gas removal)": 1.5,
+  "Amine-Based gas sweetening (acid gas removal)": 1.5,
   "Sulfur recovery units (Claus process)": 18,
   "Natural gas dehydration (glycol regeneration)": 2.5,
   "Isomerization and alkylation processes": 200,
@@ -108,7 +108,7 @@ export const GHG_ACTIVITIES = [
   "Urea Production (kg)",   /////////
   "Methanol production",
   "Hydrogen production (SMR – Steam Methane Reforming)",
-  "Amine-based gas sweetening (acid gas removal)",
+  "Amine-Based gas sweetening (acid gas removal)",
   "Sulfur recovery units (Claus process)",
   "Natural gas dehydration (glycol regeneration)",
   "Isomerization and alkylation processes",
