@@ -231,14 +231,16 @@ const Sidebar = () => {
         />
 
         {/* Menu */}
+        <div className="">
         <SimpleBar
-          className="sidebar-menu px-4 h-[calc(100%-80px)]"
+          className="sidebar-menu px-3 h-[calc(100%-80px)]"
           scrollableNodeProps={{ ref: scrollableNodeRef }}
         >
           <Navmenu menus={menuItems} />
 
           <div className="px-5 py-5" />
         </SimpleBar>
+        </div>
       </div>
     </div>
   );

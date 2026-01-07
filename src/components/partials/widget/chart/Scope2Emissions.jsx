@@ -223,7 +223,6 @@
 // };
 
 // export default Scope2EmissionsSection;
-
 import React from "react";
 import RevenueBarChart from "@/components/partials/widget/chart/revenue-bar-chart";
 import { Tooltip } from "@mui/material";
@@ -253,32 +252,44 @@ const normalizeUnit = (unit) => {
 const getTopEntriesByMethod = (list = [], methodType, limit = 3) => {
   if (!list.length) return [];
 
-  // Filter entries by method type
+  // Filter entries that have data for the requested method type
   const filteredEntries = list.filter((item) => {
-    const method = (item.method || "").toLowerCase();
     if (methodType === "Location-Based" || methodType === "Location Based") {
-      return method === "location_based";
+      // Check if location-based emission exists and is non-zero
+      const locationEmission = Number(item.calculatedEmissionTCo2e || 0);
+      return locationEmission > 0;
     } else if (methodType === "Market-Based" || methodType === "Market Based") {
-      return method === "market_based";
+      // Check if market-based emission exists and is non-zero
+      const marketEmission = Number(item.calculatedEmissionMarketTCo2e || 0);
+      return marketEmission > 0;
     }
     return false;
   });
 
-  // Sort entries by calculatedEmissionTCo2e (descending)
+  // Sort entries by the appropriate emission value (descending)
   const sortedEntries = [...filteredEntries].sort((a, b) => {
-    const aVal = Number(a.calculatedEmissionTCo2e || 0);
-    const bVal = Number(b.calculatedEmissionTCo2e || 0);
-    return bVal - aVal;
+    if (methodType === "Location-Based" || methodType === "Location Based") {
+      const aVal = Number(a.calculatedEmissionTCo2e || 0);
+      const bVal = Number(b.calculatedEmissionTCo2e || 0);
+      return bVal - aVal;
+    } else {
+      // Market-Based
+      const aVal = Number(a.calculatedEmissionMarketTCo2e || 0);
+      const bVal = Number(b.calculatedEmissionMarketTCo2e || 0);
+      return bVal - aVal;
+    }
   });
 
-  // Take top N entries
+  // Take top N entries and format them
   return sortedEntries.slice(0, limit).map((item, index) => ({
     _id: item._id,
     unit: normalizeUnit(item.unit),
     totalElectricityConsumed: Number(item.totalElectricity || 0),
-    emissionTCo2e: Number(item.calculatedEmissionTCo2e || 0),
+    emissionTCo2e: methodType === "Location-Based" || methodType === "Location Based"
+      ? Number(item.calculatedEmissionTCo2e || 0)
+      : Number(item.calculatedEmissionMarketTCo2e || 0),
     rank: index + 1,
-    // Original data
+    // Original data for reference
     originalData: item
   }));
 };
@@ -398,7 +409,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading }) => {
         <div className="flex-1 min-w-[320px] p-6 bg-white rounded-xl shadow-lg border overflow-auto max-h-[520px]">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-xl text-gray-900">
-              Top Emission Entries by Method
+              Top Categories
             </h3>
 
             <div className="flex items-center gap-4">
