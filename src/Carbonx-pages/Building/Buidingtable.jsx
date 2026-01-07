@@ -55,6 +55,60 @@ const BuildingTable = () => {
     }
   };
 
+   const capitalizeLabel = (text) => {
+  if (!text) return "N/A";
+
+  const exceptions = [
+    "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+    "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+    "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+    "n.e.c.", "cc", "cc+",
+  ];
+
+  // Special handling for "a" and other special cases
+  return text
+    .split(" ")
+    .map((word, index) => {
+      const hasOpenParen = word.startsWith("(");
+      const hasCloseParen = word.endsWith(")");
+      
+      let coreWord = word;
+      if (hasOpenParen) coreWord = coreWord.slice(1);
+      if (hasCloseParen) coreWord = coreWord.slice(0, -1);
+
+      const lowerCore = coreWord.toLowerCase();
+      let result;
+      
+      // SPECIAL RULE: If word is "a" or "A", preserve original case
+      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT" || coreWord === "if") {
+        result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
+      }
+      // Single letters (except "a" already handled)
+      else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
+        result = coreWord.toUpperCase();
+      }
+      // First word OR word after opening parenthesis should be capitalized
+      else if (index === 0 || (index > 0 && text.split(" ")[index-1]?.endsWith("("))) {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      }
+      // Exception words (excluding "a" which we already handled)
+      else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
+        result = lowerCore;
+      }
+      // Normal capitalization
+      else {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      }
+      
+      // Reattach parentheses
+      if (hasOpenParen) result = "(" + result;
+      if (hasCloseParen) result = result + ")";
+
+      return result;
+    })
+    .join(" ");
+};
+
   // **Fetch data when page, size, or filter changes**
   useEffect(() => {
     const delay = setTimeout(() => {
@@ -93,11 +147,8 @@ const BuildingTable = () => {
     { Header: "Sr.No", id: "serialNo", Cell: ({ row }) => <span>{row.index + 1 + controlledPageIndex * controlledPageSize}</span> },
     { Header: "Name", accessor: "buildingName" },
     { Header: "Country", accessor: "country",Cell: ({ cell }) => cell.value || "N/A", },
-    { Header: "Location", accessor: "buildingLocation",Cell: ({ cell }) => cell.value || "N/A", },
-    { Header: "Type", accessor: "buildingType", Cell: ({ cell }) => {
-    const value = cell.value || "N/A";
-    return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-  } },
+    { Header: "Location", accessor: "buildingLocation",Cell: ({ value }) => capitalizeLabel(value),},
+    { Header: "Type", accessor: "buildingType", Cell: ({ value }) => capitalizeLabel(value), },
     { Header: "Area (m²)", accessor: "buildingArea",Cell: ({ cell }) => cell.value || "N/A", },
     { Header: "Employees", accessor: "numberOfEmployees",Cell: ({ cell }) => cell.value || "N/A", },
     { Header: "Cooling Type", accessor: "coolingType",Cell: ({ cell }) => cell.value || "N/A", },
