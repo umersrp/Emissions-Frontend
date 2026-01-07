@@ -286,16 +286,16 @@ const Dashboard = () => {
       },
       {
         name: "Process Emission",
-        value: dashboardData?.scope1?.emissionActivity?.totalEmissionTCo2e || 0,
+        value: dashboardData?.scope1?.processEmissions?.totalEmissionTCo2e || 0,
       },
 
       // Scope 2
       {
-        name: "Purchased Electricity Location Based ",
+        name: "Purchased Electricity Location Based",
         value: dashboardData?.scope2?.purchasedElectricity?.totalLocationTCo2e || 0,
       },
       {
-        name: "Purchased Electricity Market Based ",
+        name: "Purchased Electricity Market Based",
         value: dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0,
       },
 
@@ -303,7 +303,7 @@ const Dashboard = () => {
       {
         name: "Purchased Goods & Services",
         value: sumEmissionTCo2e(
-          dashboardData?.scope3?.purchasedGoodsAndServices
+          dashboardData?.scope3?.purchasedGoods
         ),
       },
       {
@@ -315,7 +315,7 @@ const Dashboard = () => {
       {
         name: "Waste Generated",
         value: sumEmissionTCo2e(
-          dashboardData?.scope3?.wasteGeneratedInOperations
+          dashboardData?.scope3?.wasteGenerateTotal
         ),
       },
       // {
@@ -496,25 +496,25 @@ const Dashboard = () => {
             <h3 className="text-lg font-semibold">Scope 2 Emissions</h3>
 
             {/* TOTAL (same size as Scope 1) */}
-            <p className="text-2xl font-bold text-orange-500 mt-2">
+            {/* <p className="text-2xl font-bold text-orange-500 mt-2">
               {formatNumber(
                 (purchasedElectricity?.totalLocationTCo2e || 0) +
                 (purchasedElectricity?.totalMarketTCo2e || 0)
               )}{" "}
               tCO₂e
-            </p>
+            </p> */}
 
             {/* Breakdown (smaller, subtle) */}
             <div className="mt-1 space-y-1">
-              <p className="text-xs text-gray-500">
+              <p className="text-xl text-black-500">
                 Location:{" "}
-                <span className="font-medium text-orange-500">
+                <span className="text-2xl font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)}
                 </span>
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xl text-black-500">
                 Market:{" "}
-                <span className="font-medium text-orange-500">
+                <span className="text-2xl font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)}
                 </span>
               </p>
