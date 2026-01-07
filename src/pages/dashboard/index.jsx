@@ -17,6 +17,7 @@ import {
   BIOGENIC_ACTIVITIES,
 } from "@/constant/scope1/calculate-process-emission";
 import Logo from "@/assets/images/logo/SrpLogo.png";
+import { stakeholderOptions } from "@/constant/scope1/stationary-data";
 
 // import { GHG_ACTIVITIES } from "@/constant/scope1/calculate-process-emission";
 
@@ -80,29 +81,29 @@ const Dashboard = () => {
   const [appliedBuilding, setAppliedBuilding] = useState(null);
 
   // Fetch buildings list on mount
- useEffect(() => {
-  const fetchBuildings = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?page=1&limit=100000`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      // Sort buildings A-Z by buildingName
-      const sortedBuildings = (res.data?.data?.buildings || []).sort((a, b) => {
-        const nameA = (a.buildingName || a.name || "").toLowerCase();
-        const nameB = (b.buildingName || b.name || "").toLowerCase();
-        return nameA.localeCompare(nameB);
-      });
-      
-      setBuildings(sortedBuildings);
-    } catch (error) {
-      console.error("Error fetching buildings:", error);
-    }
-  };
-  fetchBuildings();
-}, []);
+  useEffect(() => {
+    const fetchBuildings = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?page=1&limit=100000`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        // Sort buildings A-Z by buildingName
+        const sortedBuildings = (res.data?.data?.buildings || []).sort((a, b) => {
+          const nameA = (a.buildingName || a.name || "").toLowerCase();
+          const nameB = (b.buildingName || b.name || "").toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+
+        setBuildings(sortedBuildings);
+      } catch (error) {
+        console.error("Error fetching buildings:", error);
+      }
+    };
+    fetchBuildings();
+  }, []);
 
   // Initial data fetch when component mounts
   useEffect(() => {
@@ -126,73 +127,73 @@ const Dashboard = () => {
 
     fetchInitialData();
   }, []); // Empty dependency array - runs once on mount
-  
 
- const applyFilters = async () => {
-  setLoading(true);
-  try {
-    const token = localStorage.getItem("token");
-    const params = {};
 
-    // Set applied building from the current dropdown selection
-    setAppliedBuilding(selectedBuilding);
-    
-    if (selectedBuilding) {
-      params.buildingId = selectedBuilding;
-    }
-    if (selectedDepartments.length > 0) {
-      params.departments = selectedDepartments;
-    }
-    if (fromDate) {
-      params.fromDate = fromDate;
-    }
-    if (toDate) {
-      params.toDate = toDate;
-    }
-
-    const res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        params,
-      }
-    );
-    setDashboardData(res.data.data);
-  } catch (err) {
-    console.error("Filter error", err);
-  } finally {
-    setLoading(false);
-  }
-};
-  
- const clearFilters = () => {
-  setSelectedDepartments([]);
-  setFromDate("");
-  setToDate("");
-  setSelectedBuilding(null); // Clear dropdown selection
-  setAppliedBuilding(null); // Clear applied building
-  
-  // Optional: Refetch initial data when clearing filters
-  const fetchInitialData = async () => {
+  const applyFilters = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
+      const params = {};
+
+      // Set applied building from the current dropdown selection
+      setAppliedBuilding(selectedBuilding);
+
+      if (selectedBuilding) {
+        params.buildingId = selectedBuilding;
+      }
+      if (selectedDepartments.length > 0) {
+        params.stakeholder = selectedDepartments;
+      }
+      if (fromDate) {
+        params.fromDate = fromDate;
+      }
+      if (toDate) {
+        params.toDate = toDate;
+      }
+
+      const res = await axios.get(
         `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
         {
           headers: { Authorization: `Bearer ${token}` },
+          params,
         }
       );
-      setDashboardData(response.data.data);
-    } catch (error) {
-      console.error("Error fetching initial dashboard data:", error);
+      setDashboardData(res.data.data);
+    } catch (err) {
+      console.error("Filter error", err);
     } finally {
       setLoading(false);
     }
   };
-  
-  fetchInitialData();
-};
+
+  const clearFilters = () => {
+    setSelectedDepartments([]);
+    setFromDate("");
+    setToDate("");
+    setSelectedBuilding(null); // Clear dropdown selection
+    setAppliedBuilding(null); // Clear applied building
+    window.location.reload();
+    // Optional: Refetch initial data when clearing filters
+    const fetchInitialData = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setDashboardData(response.data.data);
+      } catch (error) {
+        console.error("Error fetching initial dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  };
   // --- Calculate emissions ---
   const purchasedElectricity = dashboardData?.scope2?.purchasedElectricity;
 
@@ -290,7 +291,7 @@ const Dashboard = () => {
 
       // Scope 2
       {
-        name: "Purchased Electricity Loaction Based ",
+        name: "Purchased Electricity Location Based ",
         value: dashboardData?.scope2?.purchasedElectricity?.totalLocationTCo2e || 0,
       },
       {
@@ -379,18 +380,7 @@ const Dashboard = () => {
           {/* Building filter */}
           <div>
             <label className="block font-semibold text-gray-700 mb-1">Building</label>
-            {/* <Select
-              value={selectedBuilding[0] ? { value: selectedBuilding[0], label: buildingMap[selectedBuilding[0]] } : null}
-              onChange={(option) => setSelectedBuilding(option ? [option.value] : [])}
-              options={buildings.map((b) => ({
-                value: b._id,
-                label: b.buildingName || b.name,
-              }))}
-              isClearable
-              placeholder="Select a building"
-              className="w-48"
-            />
-           */}
+
             <Select
               value={selectedBuilding ? {
                 value: selectedBuilding,
@@ -411,7 +401,7 @@ const Dashboard = () => {
           </div>
 
           {/* Department filter */}
-          <div>
+          {/* <div>
             <label className="block font-semibold text-gray-700 mb-1">Departments</label>
             <select
 
@@ -422,7 +412,6 @@ const Dashboard = () => {
               }}
               className="border rounded-md px-3 py-2 text-sm w-48"
               placeholder="Select Departments"
-
             >
               {["Select Departments", "Operations", "Finance", "HR", "IT", "Maintenance"].map((dept) => (
                 <option key={dept} value={dept}>
@@ -430,6 +419,25 @@ const Dashboard = () => {
                 </option>
               ))}
             </select>
+          </div> */}
+          <div>
+            <label className="block font-semibold text-gray-700 mb-1">
+              Departments
+            </label>
+            <Select
+              options={stakeholderOptions}
+              placeholder="Select Department"
+              className="w-48 text-sm"
+              isClearable
+              value={
+                stakeholderOptions.find(
+                  opt => opt.value === selectedDepartments
+                ) || null
+              }
+              onChange={(option) => {
+                setSelectedDepartments(option ? option.value : null);
+              }}
+            />
           </div>
 
           {/* Date range filter */}
@@ -596,13 +604,13 @@ const Dashboard = () => {
             <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} />
           </Card>
         </div>
-         {/* scope 2 */}
+        {/* scope 2 */}
         <div>
           <Card className="flex-1  min-w-[320px]" title="Scope 2 Emissions by Category">
             <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} />
           </Card>
         </div>
-         {/* scope 3 */}
+        {/* scope 3 */}
         <div>
           <Card className="flex-1 p-4 min-w-[320px]">
             <Scope3EmissionsSection dashboardData={dashboardData} loading={loading} />
