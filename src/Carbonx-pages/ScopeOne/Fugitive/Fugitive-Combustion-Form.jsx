@@ -45,27 +45,6 @@ const FugitiveCombustionFormPage = () => {
   };
 
   // --- Fetch Buildings ---
-  // useEffect(() => {
-  //   const fetchBuildings = async () => {
-  //     try {
-  //       const res = await axios.get(
-  //         `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=10000`,
-  //         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-  //       );
-
-  //       const formatted =
-  //         res.data?.data?.buildings?.map((b) => ({
-  //           value: b._id,
-  //           label: b.buildingName,
-  //         })) || [];
-
-  //       setBuildingOptions(formatted);
-  //     } catch {
-  //       toast.error("Failed to load buildings");
-  //     }
-  //   };
-  //   fetchBuildings();
-  // }, []);
   useEffect(() => {
     const fetchBuildings = async () => {
         try {
@@ -151,8 +130,8 @@ const FugitiveCombustionFormPage = () => {
         // );
         setFormData((prev) => ({
           ...prev,
-          calculatedEmissionKgCo2e: kgEmission.toFixed(5),
-          calculatedEmissionTCo2e: tEmission.toFixed(5),
+          calculatedEmissionKgCo2e: kgEmission,
+          calculatedEmissionTCo2e: tEmission,
         }));
       }
     }
@@ -174,8 +153,8 @@ const FugitiveCombustionFormPage = () => {
         // );
         setFormData((prev) => ({
           ...prev,
-          calculatedEmissionKgCo2e: kgEmission.toFixed(2),
-          calculatedEmissionTCo2e: tEmission.toFixed(4),
+          calculatedEmissionKgCo2e: kgEmission,
+          calculatedEmissionTCo2e: tEmission,
         }));
       }
     }

@@ -295,7 +295,7 @@ const RevenueBarChart = ({
           } else if (screenWidth < 1024) {
             maxCharsPerLine = 10;
           } else {
-            maxCharsPerLine = 15;
+            maxCharsPerLine = 20;
           }
           
           if (value.length <= maxCharsPerLine) return value;
@@ -322,7 +322,7 @@ const RevenueBarChart = ({
         rotateAlways: true,
         hideOverlappingLabels: false,
         trim: false,
-        minHeight: 80,
+        minHeight: 23,
         style: { 
           colors: isDark ? "#CBD5E1" : "#475569", 
           fontFamily: "Inter",
@@ -333,75 +333,7 @@ const RevenueBarChart = ({
       axisTicks: { show: false },
       tickPlacement: 'on'
     },
-//     xaxis: {
-//   categories: displayNames,
-//   labels: { 
-//     formatter: function (value) {
-//       if (!value || typeof value !== 'string') {
-//         return value || '';
-//       }
-      
-//       // Static conditions for specific labels
-//       if (value === "Purchased Electricity Location Based") {
-//         return this.getLinesForFixedWidth(value, 22);
-//       }
-      
-//       if (value === "Purchased Electricity Market Based") {
-//         return this.getLinesForFixedWidth(value, 22);
-//       }
-      
-//       if (value === "Fuel & Energy Related Activities") {
-//         return this.getLinesForFixedWidth(value, 19);
-//       }
-      
-//       // Original responsive logic for other labels
-//       const screenWidth = window.innerWidth;
-//       let maxCharsPerLine;
-      
-//       if (screenWidth < 640) {
-//         maxCharsPerLine = 8;
-//       } else if (screenWidth < 1024) {
-//         maxCharsPerLine = 10;
-//       } else {
-//         maxCharsPerLine = 15;
-//       }
-      
-//       if (value.length <= maxCharsPerLine) return value;
-      
-//       const words = value.split(' ');
-//       let lines = [];
-//       let currentLine = '';
-      
-//       for (let word of words) {
-//         if ((currentLine + word).length <= maxCharsPerLine) {
-//           currentLine += (currentLine ? ' ' : '') + word;
-//         } else {
-//           if (currentLine) lines.push(currentLine);
-//           currentLine = word;
-//         }
-//       }
-      
-//       if (currentLine) lines.push(currentLine);
-      
-//       return lines.length > 0 ? lines : value;
-//     },
-//     show: true,
-//     rotate: -45,
-//     rotateAlways: true,
-//     hideOverlappingLabels: false,
-//     trim: false,
-//     minHeight: 80,
-//     style: { 
-//       colors: isDark ? "#CBD5E1" : "#475569", 
-//       fontFamily: "Inter",
-//       fontSize: '10px'
-//     } 
-//   },
-//   axisBorder: { show: false },
-//   axisTicks: { show: false },
-//   tickPlacement: 'on'
-// },
-    yaxis: {
+     yaxis: {
       opposite: isRtl,
       labels: {
         style: {

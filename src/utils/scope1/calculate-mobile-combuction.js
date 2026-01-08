@@ -6,7 +6,7 @@
 //   distanceTraveled,
 //   distanceUnit,
 //   vehicleType,
-//   vehicleClassification, // 👈 new default
+//   vehicleClassification, // new default
 // ) => {
 //   if (!fuelName || !distanceTraveled || !distanceUnit) return null;
 

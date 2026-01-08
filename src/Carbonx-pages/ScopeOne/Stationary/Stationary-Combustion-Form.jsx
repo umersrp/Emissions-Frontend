@@ -49,30 +49,31 @@ const StationaryCombustionFormPage = () => {
 
 
   
-    const formatNumber = (num) => {
-    try {
-      if (num === null || num === undefined || num === "") {
-        return 0;
-      }
-      const number = Number(num);
-      if (isNaN(number) || !isFinite(number)) {
-        return 0;
-      }
-      const rounded = Number(number.toFixed(2));
-      const integerPart = Math.floor(Math.abs(rounded));
-      if (
-        rounded !== 0 &&
-        (Math.abs(rounded) < 0.0001 ||
-          (Math.abs(rounded) >= 1e6 && integerPart === 0))
-      ) {
-        return rounded.toExponential(5);
-      }
-      return rounded;
-    } catch (error) {
-      console.error("Error in formatEmission:", error, "num:", num);
-      return 0;
-    }
-  };
+  //   const formatNumber = (num) => {
+  //   try {
+  //     if (num === null || num === undefined || num === "") {
+  //       return 0;
+  //     }
+  //     const number = Number(num);
+  //     if (isNaN(number) || !isFinite(number)) {
+  //       return 0;
+  //     }
+  //     const rounded = Number(number.toFixed(2));
+  //     const integerPart = Math.floor(Math.abs(rounded));
+  //     if (
+  //       rounded !== 0 &&
+  //       (Math.abs(rounded) < 0.0001 ||
+  //         (Math.abs(rounded) >= 1e6 && integerPart === 0))
+  //     ) {
+  //       return rounded.toExponential(5);
+  //     }
+  //     return rounded;
+  //   } catch (error) {
+  //     console.error("Error in formatEmission:", error, "num:", num);
+  //     return 0;
+  //   }
+  // };
+ 
   const capitalizeFirstLetter = (text) => {
     if (!text) return "";
     return text.charAt(0).toUpperCase() + text.slice(1);

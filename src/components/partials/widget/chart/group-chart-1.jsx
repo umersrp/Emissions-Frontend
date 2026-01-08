@@ -39,14 +39,15 @@ const GroupChart1 = ({ chartData = [], loading }) => {
     },
     labels,
     colors,
-    stroke: {
-      width: 0,
-    },
+   stroke: {
+  width: 2,
+  colors: ['#ffffff'],
+},
     legend: {
       show: false, // custom legend below
     },
     dataLabels: {
-      enabled: true,
+      enabled: false,
       // Show original percentages
       formatter: function(val, opts) {
         const dataIndex = opts.seriesIndex;
@@ -99,13 +100,41 @@ const GroupChart1 = ({ chartData = [], loading }) => {
         endAngle: 270,
       },
     },
+    // tooltip: {
+    //   y: {
+    //     formatter: function(val) {
+    //       return val.toLocaleString() + ' tCO₂e';
+    //     }
+    //   }
+    // },
     tooltip: {
-      y: {
-        formatter: function(val) {
-          return val.toLocaleString() + ' tCO₂e';
-        }
+  y: {
+    formatter: function(val, { seriesIndex, w }) {
+      // Show both value and percentage in tooltip
+      const percentage = originalPercentages[seriesIndex];
+      let percentText = '0%';
+      
+      if (percentage === 0) {
+        percentText = '0%';
+      } else if (percentage < 0.1) {
+        percentText = '<0.1%';
+      } else if (percentage < 1) {
+        percentText = percentage.toFixed(1) + '%';
+      } else {
+        percentText = Math.round(percentage) + '%';
       }
-    },
+      
+      return `${val.toLocaleString()} tCO₂e (${percentText})`;
+    }
+  },
+  style: {
+    fontSize: '14px',
+    fontFamily: 'inherit'
+  },
+  marker: {
+    show: true,
+  }
+},
     responsive: [{
       breakpoint: 480,
       options: {

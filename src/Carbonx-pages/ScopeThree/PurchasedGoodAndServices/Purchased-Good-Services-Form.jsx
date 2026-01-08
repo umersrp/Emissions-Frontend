@@ -49,14 +49,6 @@ const PurchasedGoodServicesFormPage = () => {
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
 
-  const formatEmission = (num) => {
-    const rounded = Number(num.toFixed(2));
-    if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
-      return rounded.toExponential(5);
-    }
-    return rounded;
-  };
-
 
   // Fetch Buildings
  useEffect(() => {
@@ -191,8 +183,8 @@ const PurchasedGoodServicesFormPage = () => {
         });
 
         if (result) {
-          const formattedKg = formatEmission(result.calculatedEmissionKgCo2e);
-          const formattedT = formatEmission(result.calculatedEmissionTCo2e);
+          const formattedKg = result.calculatedEmissionKgCo2e;
+          const formattedT = result.calculatedEmissionTCo2e;
 
           updatedData.calculatedEmissionKgCo2e = formattedKg;
           updatedData.calculatedEmissionTCo2e = formattedT;
@@ -228,8 +220,8 @@ const PurchasedGoodServicesFormPage = () => {
         });
 
         if (result) {
-          const formattedKg = formatEmission(result.calculatedEmissionKgCo2e);
-          const formattedT = formatEmission(result.calculatedEmissionTCo2e);
+          const formattedKg = result.calculatedEmissionKgCo2e;
+          const formattedT = result.calculatedEmissionTCo2e;
           updatedData.calculatedEmissionKgCo2e = formattedKg;
           updatedData.calculatedEmissionTCo2e = formattedT;
           // toast.info(`Emissions Calculated: ${formattedKg} kgCO2e / ${formattedT} tCO2e`);

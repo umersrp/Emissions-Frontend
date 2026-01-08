@@ -172,7 +172,7 @@ const Dashboard = () => {
     setToDate("");
     setSelectedBuilding(null); // Clear dropdown selection
     setAppliedBuilding(null); // Clear applied building
-    window.location.reload();
+    // window.location.reload();
     // Optional: Refetch initial data when clearing filters
     const fetchInitialData = async () => {
       setLoading(true);
@@ -380,7 +380,6 @@ const Dashboard = () => {
           {/* Building filter */}
           <div>
             <label className="block font-semibold text-gray-700 mb-1">Building</label>
-
             <Select
               value={selectedBuilding ? {
                 value: selectedBuilding,
@@ -401,25 +400,6 @@ const Dashboard = () => {
           </div>
 
           {/* Department filter */}
-          {/* <div>
-            <label className="block font-semibold text-gray-700 mb-1">Departments</label>
-            <select
-
-              value={selectedDepartments}
-              onChange={(e) => {
-                const options = Array.from(e.target.selectedOptions, (option) => option.value);
-                setSelectedDepartments(options);
-              }}
-              className="border rounded-md px-3 py-2 text-sm w-48"
-              placeholder="Select Departments"
-            >
-              {["Select Departments", "Operations", "Finance", "HR", "IT", "Maintenance"].map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
-                </option>
-              ))}
-            </select>
-          </div> */}
           <div>
             <label className="block font-semibold text-gray-700 mb-1">
               Departments

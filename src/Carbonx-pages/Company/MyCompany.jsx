@@ -233,7 +233,7 @@ const MyCompany = () => {
                             value={formData.companyName}
                             onChange={handleChange}
                             className={"input-field"}
-                            placeholder="Enter company name"
+                            placeholder="Enter Company Name"
                         />
                         {errors.companyName && <p className="text-red-500">{errors.companyName}</p>}
                     </div>
@@ -294,7 +294,7 @@ const MyCompany = () => {
                                     boundary: null,
                                 }));
                             }}
-                            placeholder="Select boundary"
+                            placeholder="Select Boundary"
                             classNamePrefix="react-select"
                             className={`w-full ${errors.boundary ? "border border-red-500 rounded-md" : ""}`}
                         />
@@ -480,7 +480,7 @@ const MyCompany = () => {
                             value={formData.province}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter province"
+                            placeholder="Enter Province"
                         />
                         {errors.province && <p className="text-red-500">{errors.province}</p>}
                     </div>
@@ -506,7 +506,7 @@ const MyCompany = () => {
                             value={formData.address}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter address"
+                            placeholder="Enter Address"
                         />
                         {errors.address && <p className="text-red-500">{errors.address}</p>}
                     </div>
@@ -520,7 +520,7 @@ const MyCompany = () => {
                             value={formData.totalEmployees}
                             onChange={handleChange}
                             className={"input-field"}
-                            placeholder="Enter total employees"
+                            placeholder="Enter Total Employees"
                         />
                         {errors.totalEmployees && <p className="text-red-500">{errors.totalEmployees}</p>}
                     </div>
@@ -552,7 +552,7 @@ const MyCompany = () => {
                             value={formData.headquarterLocation}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter headquarter location"
+                            placeholder="Enter Headquarter Location"
                         />
                         {errors.headquarterLocation && <p className="text-red-500">{errors.headquarterLocation}</p>}
                     </div>
@@ -590,7 +590,7 @@ const MyCompany = () => {
                             value={formData.totalSites}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter sites/buildings"
+                            placeholder="Enter Sites / Buildings"
                         />
                         {errors.totalSites && <p className="text-red-500">{errors.totalSites}</p>}
                     </div>
@@ -604,7 +604,7 @@ const MyCompany = () => {
                             value={formData.totalAreaSqM}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter area in sq m"
+                            placeholder="Enter Area in sq m"
                         />
                         {errors.totalAreaSqM && <p className="text-red-500">{errors.totalAreaSqM}</p>}
                     </div>
@@ -618,7 +618,7 @@ const MyCompany = () => {
                             value={formData.unitsManufacturedPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter Manufactured units "
+                            placeholder="Enter Manufactured Units "
                         />
                         {errors.unitsManufacturedPerAnnum && <p className="text-red-500">{errors.unitsManufacturedPerAnnum}</p>}
                     </div>
@@ -632,7 +632,7 @@ const MyCompany = () => {
                             value={formData.productionVolumeTonnePerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter production volume "
+                            placeholder="Enter Production Volume "
                         />
                         {errors.productionVolumeTonnePerAnnum && <p className="text-red-500">{errors.productionVolumeTonnePerAnnum}</p>}
                     </div>
@@ -646,7 +646,7 @@ const MyCompany = () => {
                             value={formData.unitsSoldPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter Sold units "
+                            placeholder="Enter Sold Units "
                         />
                         {errors.unitsSoldPerAnnum && <p className="text-red-500">{errors.unitsSoldPerAnnum}</p>}
                     </div>
@@ -660,7 +660,7 @@ const MyCompany = () => {
                             value={formData.electricityGeneratedMWhPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter electricity generated"
+                            placeholder="Enter Electricity Generated"
                         />
                         {errors.electricityGeneratedMWhPerAnnum && <p className="text-red-500">{errors.electricityGeneratedMWhPerAnnum}</p>}
                     </div>
@@ -674,7 +674,7 @@ const MyCompany = () => {
                             value={formData.energyGeneratedGJPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter energy generated"
+                            placeholder="Enter Energy Generated"
                         />
                         {errors.energyGeneratedGJPerAnnum && <p className="text-red-500">{errors.energyGeneratedGJPerAnnum}</p>}
                     </div>
@@ -688,7 +688,7 @@ const MyCompany = () => {
                             value={formData.revenuePerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter revenue"
+                            placeholder="Enter Revenue"
                         />
                         {errors.revenuePerAnnum && <p className="text-red-500">{errors.revenuePerAnnum}</p>}
                     </div>
@@ -702,7 +702,7 @@ const MyCompany = () => {
                             value={formData.totalManHoursPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter total man"
+                            placeholder="Enter Total Man Hours"
                         />
                         {errors.totalManHoursPerAnnum && <p className="text-red-500">{errors.totalManHoursPerAnnum}</p>}
                     </div>

@@ -244,9 +244,8 @@ useEffect(() => {
       formData.vehicleClassification?.value || formData.vehicleClassification,
       isHGV ? formData.weightLoaded?.value || formData.weightLoaded : null
     );
-
-    const calculatedEmissionKgCo2e = result ? Number(result.totalEmissionKg.toFixed(2)) : 0;
-    const calculatedEmissionTCo2e = result ? Number(result.totalEmissionTonnes.toFixed(2)) : 0;
+       const calculatedEmissionKgCo2e = result ? result.totalEmissionKg : "0";
+       const calculatedEmissionTCo2e = result ? result.totalEmissionTonnes : "0";
 
     //   Merge updated values into formData before sending
     const payload = {
@@ -324,8 +323,8 @@ useEffect(() => {
       //  Update formData with calculated emissions
       setFormData((prev) => ({
         ...prev,
-        calculatedEmissionKgCo2e: parseFloat(result.totalEmissionKg.toFixed(2)),
-        calculatedEmissionTCo2e: parseFloat(result.totalEmissionTonnes.toFixed(2)),
+        calculatedEmissionKgCo2e: parseFloat(result.totalEmissionKg),
+        calculatedEmissionTCo2e: parseFloat(result.totalEmissionTonnes),
       }));
 
       //  Show formatted toast
