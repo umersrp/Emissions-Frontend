@@ -335,6 +335,7 @@ const RevenueBarChart = ({
     },
      yaxis: {
       opposite: isRtl,
+      tickAmount: 3,
       labels: {
         style: {
           colors: isDark ? "#CBD5E1" : "#475569",

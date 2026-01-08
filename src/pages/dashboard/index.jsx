@@ -216,6 +216,9 @@ const Dashboard = () => {
     return stationary + transport + fugitive + process;
   }, [dashboardData]);
 
+   // Scope 2(Market): sum of market based for pie
+  const scope2MarketEmission = Number(dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0);
+
   // Scope 2: sum of purchased electricity (location + market)
   const scope2Emission =
     Number(dashboardData?.scope2?.purchasedElectricity?.totalLocationTCo2e || 0) +
@@ -234,9 +237,10 @@ const Dashboard = () => {
   // Pie chart data
   const pieData = [
     { name: "Scope 1", value: Number(scope1Emission) || 0 },
-    { name: "Scope 2", value: Number(scope2Emission) || 0 },
+    { name: "Scope 2", value: Number(scope2MarketEmission) || 0 },
     { name: "Scope 3", value: Number(scope3Emission) || 0 },
   ];
+  
   const buildingMap = {};
   buildings.forEach((b) => {
     buildingMap[b._id] = b.buildingName;
@@ -459,20 +463,20 @@ const Dashboard = () => {
 
         {/* Summary cards */}
         <div className="flex gap-4 mb-6 flex-wrap">
-          <Card className="flex-1 text-black p-2 rounded-lg shadow-lg min-w-[220px]">
-            <h3 className="text-lg font-semibold">Total GHG Emissions</h3>
-            <p className="text-2xl text-red-500 font-bold mt-2">
-              {formatNumber(totalEmission)} <span className="text-base font-normal">tCO₂e</span>
+          <Card className="flex-1 text-black rounded-lg shadow-lg min-w-[220px]">
+            <h3 className="text-lg font-semibold mt-6">Total GHG Emissions</h3>
+            <p className="text-2xl text-red-500 font-bold ">
+              {formatNumber(totalEmission)} tCO₂e
             </p>
           </Card>
 
-          <Card className="flex-1 p-2 rounded-lg shadow-lg min-w-[220px]">
-            <h3 className="text-lg font-semibold">Scope 1 Emissions</h3>
-            <p className="text-2xl text-green-500 font-bold mt-2">{formatNumber(scope1Emission)} tCO₂e</p>
+          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
+            <h3 className="text-lg font-semibold mt-6" >Scope 1 Emissions</h3>
+            <p className="text-2xl text-green-500 font-bold ">{formatNumber(scope1Emission)} tCO₂e</p>
             <p className="text-sm text-gray-600">Direct emissions</p>
           </Card>
 
-          <Card className="flex-1 p-2 rounded-lg shadow-lg min-w-[220px]">
+          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Scope 2 Emissions</h3>
 
             {/* TOTAL (same size as Scope 1) */}
@@ -486,16 +490,16 @@ const Dashboard = () => {
 
             {/* Breakdown (smaller, subtle) */}
             <div className="mt-1 space-y-1">
-              <p className="text-xl text-black-500">
-                Location:{" "}
+              <p className="text-xl text-black-500 ">
+                Location Based:{" "}
                 <span className="text-2xl font-bold text-orange-500">
-                  {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)}
+                  {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)} tCO₂e
                 </span>
               </p>
               <p className="text-xl text-black-500">
-                Market:{" "}
+                Market Based:{" "}
                 <span className="text-2xl font-bold text-orange-500">
-                  {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)}
+                  {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)} tCO₂e
                 </span>
               </p>
             </div>
@@ -505,15 +509,15 @@ const Dashboard = () => {
             </p>
           </Card>
 
-          <Card className="flex-1 p-2 rounded-lg shadow-lg min-w-[220px]">
-            <h3 className="text-lg font-semibold">Scope 3 Emissions</h3>
-            <p className="text-2xl text-purple-500 font-bold mt-2">{formatNumber(scope3Emission)} tCO₂e</p>
+          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
+            <h3 className="text-lg font-semibold mt-6">Scope 3 Emissions</h3>
+            <p className="text-2xl text-purple-500 font-bold">{formatNumber(scope3Emission)} tCO₂e</p>
             <p className="text-sm text-gray-600">Other indirect emissions</p>
           </Card>
         </div>
 
         {/* Charts */}
-        <div className="grid gap-6 grid-cols-3 mb-5">
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 mb-5">
           <Card className="flex-1  min-w-[320px]">
             <h3 className="font-semibold mb-20 text-xl flex items-center gap-2">
               GHG Emissions by Scopes

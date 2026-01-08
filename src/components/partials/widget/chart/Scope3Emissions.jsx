@@ -579,7 +579,8 @@ const Scope3EmissionsSection = ({ dashboardData, loading }) => {
 
     return itemsToProcess
       .map(item => ({
-        _id: item.purchasedActivityType || item.purchaseCategory || "Uncategorized",
+        _id: item.purchasedGoodsServicesType || item.purchaseCategory || "Uncategorized",
+         amount: item.amountSpent,
         databaseId: item._id,
         totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
         originalItem: item
@@ -594,7 +595,8 @@ const Scope3EmissionsSection = ({ dashboardData, loading }) => {
     if (!capitalGoodsList || capitalGoodsList.length === 0) return [];
 
     return capitalGoodsList.map(item => ({
-      _id: item.purchasedActivityType || "Uncategorized",
+      _id: item.purchasedGoodsServicesType || "Uncategorized",
+      amount: item.amountSpent,
       databaseId: item._id,
       totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
       originalItem: item
@@ -618,6 +620,7 @@ const processWasteGeneratedData = () => {
     .map(item => ({
       _id: item.wasteType || item.activityType || "Uncategorized",
       databaseId: item._id,
+      amount: item.unit,
       totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
       originalItem: item
     }))
@@ -828,6 +831,10 @@ const fuelEnergyTopCategories = processFuelEnergyData();
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })} tCO₂e
+                        </div>
+
+                         <div className="p-2 font-medium border-b text-center truncate bg-gray-50">
+                          {item.amount || "N/A"}
                         </div>
                       </div>
                     ))}
