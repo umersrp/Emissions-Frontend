@@ -231,7 +231,6 @@ const Sidebar = () => {
         />
 
         {/* Menu */}
-        <div className="">
         <SimpleBar
           className="sidebar-menu px-3 h-[calc(100%-80px)]"
           scrollableNodeProps={{ ref: scrollableNodeRef }}
@@ -240,7 +239,6 @@ const Sidebar = () => {
 
           <div className="px-5 py-5" />
         </SimpleBar>
-        </div>
       </div>
     </div>
   );

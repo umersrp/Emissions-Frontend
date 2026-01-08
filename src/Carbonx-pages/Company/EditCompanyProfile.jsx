@@ -182,7 +182,7 @@ const EditCompanyProfile = () => {
                             onChange={handleChange}
                             className={"input-field"}
 
-                            placeholder="Enter company name"
+                            placeholder="Enter Company Name"
                         />
                         {errors.companyName && <p className="text-red-500">{errors.companyName}</p>}
                     </div>
@@ -306,7 +306,7 @@ const EditCompanyProfile = () => {
                             value={formData.boundary}
                             onChange={handleChange}
                             className={`input ${errors.boundary ? "border-red-500" : "input-field"}`}
-                            placeholder="Enter boundary"
+                            placeholder="Enter Boundary"
                         />
                         {errors.boundary && <p className="text-red-500">{errors.boundary}</p>}
                     </div>
@@ -336,7 +336,7 @@ const EditCompanyProfile = () => {
                             value={formData.province}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter province"
+                            placeholder="Enter Province"
                         />
                     </div>
 
@@ -361,7 +361,7 @@ const EditCompanyProfile = () => {
                             value={formData.address}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter address"
+                            placeholder="Enter Address"
                         />
                     </div>
 
@@ -374,7 +374,7 @@ const EditCompanyProfile = () => {
                             value={formData.totalEmployees}
                             onChange={handleChange}
                             className={`input ${errors.totalEmployees ? "border-red-500" : "input-field"}`}
-                            placeholder="Enter total employees"
+                            placeholder="Enter Total Employees"
                         />
                         {errors.totalEmployees && <p className="text-red-500">{errors.totalEmployees}</p>}
                     </div>
@@ -429,7 +429,7 @@ const EditCompanyProfile = () => {
                             value={formData.headquarterLocation}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter headquarter location"
+                            placeholder="Enter Headquarter Location"
                         />
                     </div>
                     {/* Sector Dropdown */}
@@ -522,7 +522,7 @@ const EditCompanyProfile = () => {
                             value={formData.totalSites}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter total sites"
+                            placeholder="Enter Total Sites"
                         />
                     </div>
 
@@ -535,7 +535,7 @@ const EditCompanyProfile = () => {
                             value={formData.totalAreaSqM}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter total area in square meters"
+                            placeholder="Enter Total Area in sq m"
                         />
                     </div>
 
@@ -549,7 +549,7 @@ const EditCompanyProfile = () => {
                             value={formData.unitsManufacturedPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter units manufactured per annum"
+                            placeholder="Enter Units Manufactured per Annum"
                         />
                     </div>
 
@@ -562,7 +562,7 @@ const EditCompanyProfile = () => {
                             value={formData.productionVolumeTonnePerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter production volume in tonnes per annum"
+                            placeholder="Enter Production Volume in Tonnes per Annum"
                         />
                     </div>
 
@@ -575,7 +575,7 @@ const EditCompanyProfile = () => {
                             value={formData.unitsSoldPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter units sold per annum"
+                            placeholder="Enter Units Sold per Annum"
                         />
                     </div>
 
@@ -588,7 +588,7 @@ const EditCompanyProfile = () => {
                             value={formData.electricityGeneratedMWhPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter electricity generated in MWh per annum"
+                            placeholder="Enter Electricity Generated in MWh per Annum"
                         />
                     </div>
 
@@ -601,7 +601,7 @@ const EditCompanyProfile = () => {
                             value={formData.energyGeneratedGJPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter energy generated in GJ per annum"
+                            placeholder="Enter Energy Generated in GJ per Annum"
                         />
                     </div>
 
@@ -614,7 +614,7 @@ const EditCompanyProfile = () => {
                             value={formData.revenuePerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter revenue per annum"
+                            placeholder="Enter Revenue per Annum"
                         />
                     </div>
 
@@ -627,10 +627,9 @@ const EditCompanyProfile = () => {
                             value={formData.totalManHoursPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter total man hours per annum"
+                            placeholder="Enter Total Man Hours per Annum"
                         />
                     </div>
-
                     {/* Submit Button */}
                 </form>
             </div>

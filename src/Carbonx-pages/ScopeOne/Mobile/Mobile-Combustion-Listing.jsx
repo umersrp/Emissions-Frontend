@@ -180,9 +180,6 @@ const capitalizeLabel = (text) => {
           if (isNaN(numValue)) {
             return "N/A";
           }
-          if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
-            return numValue.toExponential(2);
-          }
           return numValue.toFixed(2);
         } },
       { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",

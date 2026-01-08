@@ -9,7 +9,7 @@ const Scope3 = () => {
 
   const upstream_categories = [
     {
-      title: "Purchased Good and Services",
+      title: "Purchased Goods and Services",
       path: "/Purchased-Good-Services",
       icon: "mdi:factory",
       bg: "bg-cyan-50",
