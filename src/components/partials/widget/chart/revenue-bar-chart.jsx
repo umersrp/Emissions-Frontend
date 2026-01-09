@@ -245,7 +245,7 @@ const RevenueBarChart = ({
     },
     grid: {
       padding: {
-        bottom: 20
+        bottom: 19
       }
     },
     plotOptions: {
@@ -322,7 +322,7 @@ const RevenueBarChart = ({
         rotateAlways: true,
         hideOverlappingLabels: false,
         trim: false,
-        minHeight: 23,
+        minHeight: 50,
         style: { 
           colors: isDark ? "#CBD5E1" : "#475569", 
           fontFamily: "Inter",
