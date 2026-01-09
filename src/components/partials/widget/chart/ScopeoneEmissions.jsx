@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import RevenueBarChart from "@/components/partials/widget/chart/revenue-bar-chart";
 import { Tooltip } from "@mui/material";
-
+import { FOR_UNIT_KG, FOR_UNIT_NM3, FOR_UNIT_THOUSAND_M3, FOR_UNIT_THOUSAND_KWH, FOR_UNIT_THOUSAND_KGCO2E} from "@/constant/scope1/calculate-process-emission";
 /* -------------------- CATEGORY COLORS -------------------- */
 const categoryColors = {
   Stationary: "bg-blue-100 text-blue-800",
@@ -126,11 +126,33 @@ const getQuantityDisplay = (fuel, category) => {
       }
       return "—";
     
-    case "Process":
+    // case "Process":
+    //   // For Process, show amountOfEmissions if available
+    //   if (fuel?.amountOfEmissions !== undefined) {
+    //     // Hardcoded unit as "tonnes"
+    //     return `${fuel.amountOfEmissions} tonnes`;
+    //   }
+     case "Process":
       // For Process, show amountOfEmissions if available
-      if (fuel?.amountOfEmissions !== undefined) {
-        // Hardcoded unit as "tonnes"
-        return `${fuel.amountOfEmissions} tonnes`;
+      if (fuel?.amountOfEmissions !== undefined && fuel?.activityType) {
+        const activityType = fuel.activityType.trim();
+        const amount = fuel.amountOfEmissions;
+        
+        // Check conditions based on activityType
+        if (FOR_UNIT_KG.includes(activityType)) {
+          return `${amount} kg`;
+        } else if (activityType === FOR_UNIT_NM3) {
+          return `${amount} Nm³`;
+        } else if (activityType === FOR_UNIT_THOUSAND_M3) {
+          return `${amount} m³`;
+        } else if (activityType === FOR_UNIT_THOUSAND_KWH) {
+          return `${amount} kWh`;
+        } else if (FOR_UNIT_THOUSAND_KGCO2E.includes(activityType)) {
+          return `${amount} kgCO₂e`;
+        } else {
+          // Default for all other process activities
+          return `${amount} tonnes`;
+        }
       }
       return "—";
     

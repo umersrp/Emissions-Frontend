@@ -105,6 +105,34 @@ const GroupChart1 = ({ chartData = [], loading }) => {
     //     }
     //   }
     // },
+// tooltip: {
+//   custom: function({ series, seriesIndex, w }) {
+//     const percentage = originalPercentages[seriesIndex];
+//     let percentText = '0%';
+    
+//     if (percentage === 0) {
+//       percentText = '0%';
+//     } else if (percentage < 0.1) {
+//       percentText = '<0.1%';
+//     } else if (percentage < 1) {
+//       percentText = percentage.toFixed(1) + '%';
+//     } else {
+//       percentText = Math.round(percentage) + '%';
+//     }
+//    return `<div style="
+//               padding: 8px 12px; 
+//               border-radius: 6px; 
+//               background:#333; 
+//               color: #fff; 
+//               font-size: 14px;
+//               display: flex;
+//               gap: 2px;
+//             ">
+//               <span>(${percentText})</span>
+//               <span style="color: #fffff; font-weight: 600;">${series[seriesIndex].toLocaleString()} tCO₂e</span>
+//             </div>`;
+//   }
+// },
 tooltip: {
   custom: function({ series, seriesIndex, w }) {
     const percentage = originalPercentages[seriesIndex];
@@ -119,7 +147,14 @@ tooltip: {
     } else {
       percentText = Math.round(percentage) + '%';
     }
-   return `<div style="
+    
+    // Format the value to 2 decimal places
+    const formattedValue = series[seriesIndex].toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+    
+    return `<div style="
               padding: 8px 12px; 
               border-radius: 6px; 
               background:#333; 
@@ -129,7 +164,7 @@ tooltip: {
               gap: 2px;
             ">
               <span>(${percentText})</span>
-              <span style="color: #fffff; font-weight: 600;">${series[seriesIndex].toLocaleString()} tCO₂e</span>
+              <span style="color: #fffff; font-weight: 600;">${formattedValue} tCO₂e</span>
             </div>`;
   }
 },
