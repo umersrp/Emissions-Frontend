@@ -188,3 +188,41 @@ export const BIOGENIC_ACTIVITIES = [
   "Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)",
   "other Biogenic GHG Emission Process Activities",
 ];
+
+///// for dashboard unit 
+export const FOR_UNIT_KG =[
+"Solvent use in paints and coatings",
+"Dry cleaning operations",
+"Printing operations (ink solvents)",
+"Adhesive and sealant application",
+"Surface coating and finishing",
+"Fuel dispensing at service stations",
+"Industrial cleaning agents",
+ "Hydrogen production (SMR – Steam Methane Reforming)",
+"Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)",
+"Lyophilization or Freeze-Drying Using CO₂ Refrigerants",
+"Anaerobic Wastewater or Biowaste Treatment (On-site)",
+"Use of Nitrous Oxide in Sterilization or Anaesthesia",
+"Neutralization of Waste Streams (Carbonate Reactions)",
+"Steam Cracking of Naphtha",
+"Steam Cracking of Ethane",
+"Ethylene Oxide / Ethylene Glycol Production",
+"Urea Production (kg)",
+"Methanol Synthesis",
+"Non Kyoto protocol / Other Non GHG Emissions",
+];
+
+//Nm3
+export const FOR_UNIT_NM3 ="Amine-Based gas sweetening (acid gas removal)"
+
+//1000 m3
+export const FOR_UNIT_THOUSAND_M3 ="Natural gas dehydration (glycol regeneration)"
+
+//kWh
+export const FOR_UNIT_THOUSAND_KWH ="geothermal fluid degassing (natural release of CO₂ from underground reservoirs)"
+
+//kgco2e
+export const FOR_UNIT_THOUSAND_KGCO2E =[
+  "other GHG Emission Process Activities",
+  "other Biogenic GHG Emission Process Activities"
+];

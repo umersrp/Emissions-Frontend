@@ -98,10 +98,10 @@ const FuelEnergyForm = () => {
                     trainType: formData.trainType,
                 });
 
-                toast.info(
-                    `Emission: ${emission.totalEmissions_KgCo2e.toFixed(2)} kg CO2e (${emission.totalEmissions_TCo2e.toFixed(2)} t CO2e)`,
-                    { autoClose: 2000 }
-                );
+                // toast.info(
+                //     `Emission: ${emission.totalEmissions_KgCo2e.toFixed(2)} kg CO2e (${emission.totalEmissions_TCo2e.toFixed(2)} t CO2e)`,
+                //     { autoClose: 2000 }
+                // );
             }
         }
     }, [

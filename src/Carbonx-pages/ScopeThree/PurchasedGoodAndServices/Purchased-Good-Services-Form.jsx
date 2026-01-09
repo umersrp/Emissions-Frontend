@@ -405,7 +405,7 @@ const PurchasedGoodServicesFormPage = () => {
               </label>
               <div className="flex items-center gap-4 mt-2">
                 <label className="inline-flex items-center cursor-pointer">
-                  <InputGroup
+                  <input
                     type="checkbox"
                     checked={formData.isCapitalGoods}
                     onChange={(e) =>

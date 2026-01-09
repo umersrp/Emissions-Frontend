@@ -79,6 +79,7 @@ const Dashboard = () => {
   const [toDate, setToDate] = useState("");
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [appliedBuilding, setAppliedBuilding] = useState(null);
+  const [resetTrigger, setResetTrigger] = useState(0);
 
   // Fetch buildings list on mount
   useEffect(() => {
@@ -173,7 +174,9 @@ const Dashboard = () => {
     setSelectedBuilding(null); // Clear dropdown selection
     setAppliedBuilding(null); // Clear applied building
     // window.location.reload();
+    setResetTrigger(prev => prev + 1);
     // Optional: Refetch initial data when clearing filters
+
     const fetchInitialData = async () => {
       setLoading(true);
       try {
@@ -216,7 +219,7 @@ const Dashboard = () => {
     return stationary + transport + fugitive + process;
   }, [dashboardData]);
 
-   // Scope 2(Market): sum of market based for pie
+  // Scope 2(Market): sum of market based for pie
   const scope2MarketEmission = Number(dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0);
 
   // Scope 2: sum of purchased electricity (location + market)
@@ -226,10 +229,20 @@ const Dashboard = () => {
 
   // Scope 3: default 0 if not available
   const scope3Emission = dashboardData?.scope3
-    ? Object.values(dashboardData.scope3).reduce(
-      (sum, item) => sum + (item?.totalEmissionTCo2e || 0),
-      0
-    )
+    ? Object.values(dashboardData.scope3).reduce((sum, item) => {
+      if (Array.isArray(item)) {
+        return (
+          sum +
+          item.reduce(
+            (subSum, subItem) =>
+              subSum + Number(subItem?.totalEmissionTCo2e || 0),
+            0
+          )
+        );
+      }
+
+      return sum + Number(item?.totalEmissionTCo2e || 0);
+    }, 0)
     : 0;
 
   const totalEmission = scope1Emission + scope2Emission + scope3Emission;
@@ -240,7 +253,7 @@ const Dashboard = () => {
     { name: "Scope 2", value: Number(scope2MarketEmission) || 0 },
     { name: "Scope 3", value: Number(scope3Emission) || 0 },
   ];
-  
+
   const buildingMap = {};
   buildings.forEach((b) => {
     buildingMap[b._id] = b.buildingName;
@@ -358,8 +371,12 @@ const Dashboard = () => {
 
   // Format numbers helper
   const formatNumber = (num) => {
-    if (!num && num !== 0) return "0";
-    return num.toLocaleString();
+    if (num === null || num === undefined) return "0";
+
+    return num.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   };
 
   return (
@@ -490,14 +507,14 @@ const Dashboard = () => {
 
             {/* Breakdown (smaller, subtle) */}
             <div className="mt-1 space-y-1">
-              <p className="text-xl text-black-500 ">
-                Location Based:{" "}
+              <p className="text-xl text-black-500 flex flex-col">
+                Location Based
                 <span className="text-2xl font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)} tCO₂e
                 </span>
               </p>
-              <p className="text-xl text-black-500">
-                Market Based:{" "}
+              <p className="text-xl text-black-500 flex flex-col">
+                <span> Market Based</span>
                 <span className="text-2xl font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)} tCO₂e
                 </span>
@@ -585,19 +602,19 @@ const Dashboard = () => {
         {/* scope 1 */}
         <div className="mb-5">
           <Card className="flex-1  min-w-[320px]" title="Scope 1 Emissions by Category">
-            <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} />
+            <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>
         {/* scope 2 */}
         <div>
           <Card className="flex-1  min-w-[320px]" title="Scope 2 Emissions by Category">
-            <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} />
+            <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>
         {/* scope 3 */}
         <div>
           <Card className="flex-1 p-4 min-w-[320px]">
-            <Scope3EmissionsSection dashboardData={dashboardData} loading={loading} />
+            <Scope3EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>
       </main>
