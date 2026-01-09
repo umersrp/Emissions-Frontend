@@ -70,7 +70,7 @@ export const processEmissionFactors = {
   "Bioethanol Fermentation": 1100,
   "Hydrogen from Electrolysis (if carbonates used)": 440,
   "Carbonate / Bicarbonate Neutralization in API Synthesis": 440,
-  "Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": 1,
+  "Fermentation-Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": 1,
   "Neutralization or Buffer Preparation Using Carbonates": 440,
   "Lyophilization or Freeze-Drying Using CO₂ Refrigerants": 30,
   "Anaerobic Wastewater or Biowaste Treatment (On-site)": 13.44,
@@ -185,7 +185,7 @@ export const VO_ACTIVITIES = [
 export const BIOGENIC_ACTIVITIES = [
   "Biomass Gasification or Pyrolysis",
   "Bioethanol Fermentation",
-  "Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)",
+  "Fermentation-Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)",
   "other Biogenic GHG Emission Process Activities",
 ];
 
@@ -199,7 +199,7 @@ export const FOR_UNIT_KG =[
 "Fuel dispensing at service stations",
 "Industrial cleaning agents",
  "Hydrogen production (SMR – Steam Methane Reforming)",
-"Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)",
+"Fermentation-Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)",
 "Lyophilization or Freeze-Drying Using CO₂ Refrigerants",
 "Anaerobic Wastewater or Biowaste Treatment (On-site)",
 "Use of Nitrous Oxide in Sterilization or Anaesthesia",

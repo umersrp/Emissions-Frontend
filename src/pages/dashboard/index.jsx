@@ -415,7 +415,7 @@ const Dashboard = () => {
                 label: b.buildingName || b.name,
               }))}
               isClearable
-              placeholder="Select a building"
+              placeholder="Select a Building"
               className="w-48"
             />
           </div>
@@ -490,46 +490,37 @@ const Dashboard = () => {
           <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold mt-6" >Scope 1 Emissions</h3>
             <p className="text-2xl text-green-500 font-bold ">{formatNumber(scope1Emission)} tCO₂e</p>
-            <p className="text-sm text-gray-600">Direct emissions</p>
+            <p className="text-sm text-gray-600">Direct Emissions</p>
           </Card>
 
           <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Scope 2 Emissions</h3>
 
-            {/* TOTAL (same size as Scope 1) */}
-            {/* <p className="text-2xl font-bold text-orange-500 mt-2">
-              {formatNumber(
-                (purchasedElectricity?.totalLocationTCo2e || 0) +
-                (purchasedElectricity?.totalMarketTCo2e || 0)
-              )}{" "}
-              tCO₂e
-            </p> */}
-
             {/* Breakdown (smaller, subtle) */}
-            <div className="mt-1 space-y-1">
-              <p className="text-xl text-black-500 flex flex-col">
+            <div className="space-y-1">
+              <p className="text-sm text-black-500 flex flex-col">
                 Location Based
-                <span className="text-2xl font-bold text-orange-500">
+                <span className="text-xl font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)} tCO₂e
                 </span>
               </p>
-              <p className="text-xl text-black-500 flex flex-col">
+              <p className="text-sm text-black-500 flex flex-col">
                 <span> Market Based</span>
-                <span className="text-2xl font-bold text-orange-500">
+                <span className="text-xl font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)} tCO₂e
                 </span>
               </p>
             </div>
 
-            <p className="text-sm text-gray-600 mt-2">
-              Indirect emissions
+            <p className="text-sm text-gray-600 ">
+              Indirect Emissions
             </p>
           </Card>
 
           <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold mt-6">Scope 3 Emissions</h3>
             <p className="text-2xl text-purple-500 font-bold">{formatNumber(scope3Emission)} tCO₂e</p>
-            <p className="text-sm text-gray-600">Other indirect emissions</p>
+            <p className="text-sm text-gray-600">Other Indirect Emissions</p>
           </Card>
         </div>
 
@@ -545,25 +536,10 @@ const Dashboard = () => {
             <GroupChart1 chartData={pieData} loading={loading} />
           </Card>
 
-          {/* <Card className="flex-1  min-w-[320px] col-span-2">
-            <h3 className="font-semibold  text-xl flex items-center gap-2">
-              Building-wise GHG Emissions
-              <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e.">
-                <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
-              </Tooltip>
-            </h3>
-
-            <RevenueBarChart
-              chartData={barChartData}
-              onBarClick={(building) => {
-                console.log("Clicked building:", building);
-                // navigate(`/dashboard?buildingId=${building.buildingId}`);
-              }}
-            />
-          </Card> */}
+        
           <Card className="flex-1  min-w-[320px] col-span-2">
             <h3 className="font-semibold  text-xl flex items-center gap-2">
-              Building-wise GHG Emissions
+              Building-Wise GHG Emissions
               <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e. The selected building will be highlighted in blue.">
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
               </Tooltip>

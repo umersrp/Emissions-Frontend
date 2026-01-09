@@ -735,7 +735,7 @@ export const activityTypeOptions = [
   { value: "Bioethanol Fermentation", label: "Bioethanol Fermentation" },
   { value: "Hydrogen from Electrolysis (if carbonates used)", label: "Hydrogen from Electrolysis (if carbonates used)" },
   { value: "Carbonate / Bicarbonate Neutralization in API Synthesis", label: "Carbonate / Bicarbonate Neutralization in API Synthesis" },
-  { value: "Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)", label: "Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)" },
+  { value: "Fermentation-Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)", label: "Fermentation-Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)" },
   { value: "Neutralization or Buffer Preparation Using Carbonates", label: "Neutralization or Buffer Preparation Using Carbonates" },
   { value: "Lyophilization or Freeze-Drying Using CO₂ Refrigerants", label: "Lyophilization or Freeze-Drying Using CO₂ Refrigerants" },
   { value: "Anaerobic Wastewater or Biowaste Treatment (On-site)", label: "Anaerobic Wastewater or Biowaste Treatment (On-site)" },
@@ -812,7 +812,7 @@ export const activityMetadata = {
   "waste incineration with chemical additives or catalysts": { gasEmitted: "CO₂ and N₂O emissions", amountLabel: "How many tonnes of waste are incinerated?" },
 
   "geothermal fluid degassing (natural release of CO₂ from underground reservoirs)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kWh of energy are produced?" },
-  
+
   "chemical reactions in concentrated solar thermal systems (heat transfer fluids degradation)": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of heat transfer fluid (HTF) are used?" },
   "fly ash or bottom ash treatment and neutralization (lime or acid reactions)": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of calcium carbonate are used in the reaction?" },
   "Sulphur Recovery Units (Claus Process)": { gasEmitted: "SO₂, CO₂ emissions", amountLabel: "How many tonnes of sulphur are recovered?" },
@@ -835,7 +835,7 @@ export const activityMetadata = {
   "Hydrogen from Electrolysis (if carbonates used)": { gasEmitted: "CO₂ (trace) emissions", amountLabel: "How many tonnes of calcium carbonate are decomposed?" },
   "Carbonate / Bicarbonate Neutralization in API Synthesis": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of calcium carbonate are neutralized?" },
 
-  "Fermentation Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of glucose are consumed?" },
+  "Fermentation-Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of glucose are consumed?" },
 
   "Neutralization or Buffer Preparation Using Carbonates": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of calcium carbonate or sodium carbonate are neutralized?" },
 
