@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Card from "@/components/ui/Card";
 import GroupChart1 from "@/components/partials/widget/chart/group-chart-1"; // Pie/donut chart
@@ -9,6 +9,8 @@ import Scope3EmissionsSection from "@/components/partials/widget/chart/Scope3Emi
 import Select from "@/components/ui/Select";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Tooltip } from '@mui/material';
+import { GHG_ACTIVITIES } from "@/constant/scope1/calculate-process-emission";
+import { KYOTO_GASES } from "@/constant/scope1/calculate-fugitive-emission";
 
 
 
@@ -95,6 +97,32 @@ const Dashboard = () => {
     }
   };
 
+  const filteredFugitiveEmission = useMemo(() => {
+    const fugitiveList = dashboardData?.scope1?.fugitive?.list || [];
+
+    return fugitiveList
+      .filter((item) => KYOTO_GASES.includes(item.activityType))
+      .reduce(
+        (sum, item) =>
+          sum + Number(item.calculatedEmissionTCo2e || 0),
+        0
+      );
+  }, [dashboardData]);
+
+
+  const filteredProcessEmission = useMemo(() => {
+    const processList =
+      dashboardData?.scope1?.processEmissions?.list || [];
+
+    return processList
+      .filter((item) => GHG_ACTIVITIES.includes(item.activityType))
+      .reduce(
+        (sum, item) =>
+          sum + Number(item.calculatedEmissionTCo2e || 0),
+        0
+      );
+  }, [dashboardData]);
+
 
   const clearFilters = () => {
     setSelectedDepartments([]);
@@ -110,10 +138,10 @@ const Dashboard = () => {
   // Scope 1: sum of stationary, transport, fugitive, emissionActivity
   const scope1Emission =
     (dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0) +
-    (dashboardData?.scope1?.fugitive?.totalEmissionTCo2e || 0) +
+    filteredFugitiveEmission +
     (dashboardData?.scope1?.emissionActivity?.totalEmissionTCo2e || 0) +
     (dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0) +
-    (dashboardData?.scope1?.processEmissions?.totalEmissionTCo2e || 0);
+    filteredProcessEmission;
 
   // Scope 2: sum of purchased electricity (location + market)
   const scope2Emission =
