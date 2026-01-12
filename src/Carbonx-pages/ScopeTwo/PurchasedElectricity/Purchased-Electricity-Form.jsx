@@ -53,6 +53,7 @@ const PurchasedElectricityFormPage = () => {
     calculatedEmissionTCo2e: "",
     calculatedEmissionMarketKgCo2e: "",
     calculatedEmissionMarketTCo2e: "",
+    postingDate: "",
   };
   const [formData, setFormData] = useState(initialFormData);
 
@@ -154,6 +155,9 @@ const PurchasedElectricityFormPage = () => {
               calculatedEmissionTCo2e: data.calculatedEmissionTCo2e || "",
               calculatedEmissionMarketKgCo2e: data.calculatedEmissionMarketKgCo2e || "",
               calculatedEmissionMarketTCo2e: data.calculatedEmissionMarketTCo2e || "",
+              postingDate: data.postingDate
+                ? new Date(data.postingDate).toISOString().split('T')[0]
+                : "",
             });
           }
         } catch {
@@ -343,7 +347,8 @@ const PurchasedElectricityFormPage = () => {
 
     if (formData.method?.value === "location_based") {
       if (!formData.totalElectricity) newErrors.totalElectricity = "Required";
-      if (!formData.unit) newErrors.unit = "Required";
+      if (!formData.unit) newErrors.unit = "Unit is Required";
+      if (!formData.postingDate) newErrors.postingDate = "Posting is DateRequired";
 
       // At least one of these two fields must be filled
       if (!formData.totalGrossElectricityGrid && !formData.totalOtherSupplierElectricity) {
@@ -364,7 +369,9 @@ const PurchasedElectricityFormPage = () => {
       if (!formData.totalGrossElectricityGrid) newErrors.totalGrossElectricityGrid = "Required";
       if (!formData.gridStation) newErrors.gridStation = "Required";
       if (!formData.qualityControl) newErrors.qualityControl = "Required";
-      if (!formData.unit) newErrors.unit = "Required";
+      if (!formData.unit) newErrors.unit = "Unit is Required";
+      if (!formData.postingDate) newErrors.postingDate = "Posting is DateRequired";
+
       // Check if at least one toggle is selected
       const hasAtLeastOneToggle =
         formData.hasSolarPanels ||
@@ -484,6 +491,7 @@ const PurchasedElectricityFormPage = () => {
       calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e !== "" ? formData.calculatedEmissionTCo2e : null,
       calculatedEmissionMarketKgCo2e: formData.calculatedEmissionMarketKgCo2e !== "" ? formData.calculatedEmissionMarketKgCo2e : null,
       calculatedEmissionMarketTCo2e: formData.calculatedEmissionMarketTCo2e !== "" ? formData.calculatedEmissionMarketTCo2e : null,
+      postingDate: formData.postingDate,
     };
 
     try {
@@ -715,6 +723,19 @@ const PurchasedElectricityFormPage = () => {
                     <p className="text-red-500 text-sm">{errors.qualityControl}</p>
                   )}
                 </div>
+                {/* posting Date */}
+                <div>
+                  <label className="field-label">Posting Date</label>
+                  <InputGroup
+                    type="date"
+                    name="postingDate"
+                    value={formData.postingDate}
+                    onChange={handleInputChange}
+                    className="border-[2px] w-full h-10 p-2 rounded-md"
+                    disabled={isView}
+                  />
+                  {errors.postingDate && <p className="text-red-500 text-sm mt-1">{errors.postingDate}</p>}
+                </div>
               </div>
 
               <div className="col-span-full">
@@ -828,6 +849,19 @@ const PurchasedElectricityFormPage = () => {
                   {errors.qualityControl && (
                     <p className="text-red-500 text-sm">{errors.qualityControl}</p>
                   )}
+                </div>
+                {/* posting Date */}
+                <div>
+                  <label className="field-label">Posting Date</label>
+                  <InputGroup
+                    type="date"
+                    name="postingDate"
+                    value={formData.postingDate}
+                    onChange={handleInputChange}
+                    className="border-[2px] w-full h-10 p-2 rounded-md"
+                    disabled={isView}
+                  />
+                  {errors.postingDate && <p className="text-red-500 text-sm mt-1">{errors.postingDate}</p>}
                 </div>
               </div>
 
@@ -1155,20 +1189,20 @@ const PurchasedElectricityFormPage = () => {
                     <div>
                       <label className="field-label">How much of your total electricity consumption (excluding solar generation and PPA-covered electricity) is covered by valid renewable energy attributes or market-based instruments?<span className="text-red-500">*</span></label>
                       <div className="grid grid-cols-[14fr_1fr]">
-                      <InputGroup
-                        type="number"
-                        onWheel={handleNumberInputWheel}
-                        name="renewableAttributesElectricity"
-                        value={formData.renewableAttributesElectricity}
-                        onChange={handleInputChange}
-                        placeholder="Enter Value"
-                        className="input-field rounded-r-none w-full"
-                        disabled={isView}
-                      />
-                      <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                      {selectedUnit}
-                    </div>
-                    </div>
+                        <InputGroup
+                          type="number"
+                          onWheel={handleNumberInputWheel}
+                          name="renewableAttributesElectricity"
+                          value={formData.renewableAttributesElectricity}
+                          onChange={handleInputChange}
+                          placeholder="Enter Value"
+                          className="input-field rounded-r-none w-full"
+                          disabled={isView}
+                        />
+                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                          {selectedUnit}
+                        </div>
+                      </div>
                       {errors.renewableAttributesElectricity && (
                         <p className="text-red-500 text-sm">{errors.renewableAttributesElectricity}</p>
                       )}

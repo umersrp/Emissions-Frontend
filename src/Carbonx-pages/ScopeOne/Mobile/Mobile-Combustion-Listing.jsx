@@ -39,64 +39,64 @@ const MobileCombustionListing = () => {
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
 
-const capitalizeLabel = (text) => {
-  if (!text) return "N/A";
-  const exceptions = [
-    "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
-    "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
-    "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
-    "n.e.c.", "cc", "cc+","up"
-  ];
+  const capitalizeLabel = (text) => {
+    if (!text) return "N/A";
+    const exceptions = [
+      "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+      "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+      "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+      "n.e.c.", "cc", "cc+", "up"
+    ];
 
-  // Add spaces around slashes first
-  const textWithSpaces = text.replace(/\s*\/\s*/g, ' / ');
+    // Add spaces around slashes first
+    const textWithSpaces = text.replace(/\s*\/\s*/g, ' / ');
 
-  // Special handling for "a" and other special cases
-  return textWithSpaces
-    .split(" ")
-    .map((word, index) => {
-      //  If word is just "/", keep it as is
-      if (word === "/") return word;
-      
-      const hasOpenParen = word.startsWith("(");
-      const hasCloseParen = word.endsWith(")");
-      
-      let coreWord = word;
-      if (hasOpenParen) coreWord = coreWord.slice(1);
-      if (hasCloseParen) coreWord = coreWord.slice(0, -1);
+    // Special handling for "a" and other special cases
+    return textWithSpaces
+      .split(" ")
+      .map((word, index) => {
+        //  If word is just "/", keep it as is
+        if (word === "/") return word;
 
-      const lowerCore = coreWord.toLowerCase();
-      let result;
-      
-      // SPECIAL RULE: If word is "a" or "A", preserve original case
-      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
-        result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
-      }
-      // Single letters (except "a" already handled)
-      else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
-        result = coreWord.toUpperCase();
-      }
-      // First word OR word after opening parenthesis should be capitalized
-      else if (index === 0 || (index > 0 && textWithSpaces.split(" ")[index-1]?.endsWith("("))) {
-        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
-      }
-      // Exception words (excluding "a" which we already handled)
-      else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
-        result = lowerCore;
-      }
-      // Normal capitalization
-      else {
-        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
-      }
-      
-      // Reattach parentheses
-      if (hasOpenParen) result = "(" + result;
-      if (hasCloseParen) result = result + ")";
+        const hasOpenParen = word.startsWith("(");
+        const hasCloseParen = word.endsWith(")");
 
-      return result;
-    })
-    .join(" ");
-};
+        let coreWord = word;
+        if (hasOpenParen) coreWord = coreWord.slice(1);
+        if (hasCloseParen) coreWord = coreWord.slice(0, -1);
+
+        const lowerCore = coreWord.toLowerCase();
+        let result;
+
+        // SPECIAL RULE: If word is "a" or "A", preserve original case
+        if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
+          result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
+        }
+        // Single letters (except "a" already handled)
+        else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
+          result = coreWord.toUpperCase();
+        }
+        // First word OR word after opening parenthesis should be capitalized
+        else if (index === 0 || (index > 0 && textWithSpaces.split(" ")[index - 1]?.endsWith("("))) {
+          result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+        }
+        // Exception words (excluding "a" which we already handled)
+        else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
+          result = lowerCore;
+        }
+        // Normal capitalization
+        else {
+          result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+        }
+
+        // Reattach parentheses
+        if (hasOpenParen) result = "(" + result;
+        if (hasCloseParen) result = result + ")";
+
+        return result;
+      })
+      .join(" ");
+  };
   const fetchRecords = async (page = 1, limit = 10, search = "") => {
     setLoading(true);
     try {
@@ -169,9 +169,10 @@ const capitalizeLabel = (text) => {
       { Header: "Fuel Name", accessor: "fuelName", Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Distance Travelled ", accessor: "distanceTraveled", Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Distance Unit", accessor: "distanceUnit", Cell: ({ cell }) => cell.value || "N/A" },
-      { Header: "Quality Control", accessor: "qualityControl" , Cell: ({ cell }) => cell.value || "N/A"},
+      { Header: "Quality Control", accessor: "qualityControl", Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Weight Loaded (kg)", accessor: "weightLoaded", Cell: ({ cell }) => cell.value || "N/A" },
-      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", Cell: ({ cell }) => {
+      {
+        Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", Cell: ({ cell }) => {
           const rawValue = cell.value;
           if (rawValue === null || rawValue === undefined || rawValue === "") {
             return "N/A";
@@ -181,9 +182,11 @@ const capitalizeLabel = (text) => {
             return "N/A";
           }
           return numValue.toFixed(2);
-        } },
-      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",
-         Cell: ({ cell }) => {
+        }
+      },
+      {
+        Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",
+        Cell: ({ cell }) => {
           const rawValue = cell.value;
           if (rawValue === null || rawValue === undefined || rawValue === "") {
             return "N/A";
@@ -197,11 +200,26 @@ const capitalizeLabel = (text) => {
           }
           return numValue.toFixed(2);
         }
-       },
+      },
+      {
+        Header: "Posting Date", accessor: "postingDate", Cell: ({ cell }) => {
+          if (!cell.value) return "N/A";
+          try {
+            const date = new Date(cell.value);
+            return date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            });  
+          } catch {
+            return "Invalid Date";
+          }
+        }
+      },
       {
         Header: "Remarks",
         accessor: "remarks",
-       Cell: ({ cell }) => cell.value || "N/A" 
+        Cell: ({ cell }) => cell.value || "N/A"
       },
       {
         Header: "Created By",
@@ -213,7 +231,7 @@ const capitalizeLabel = (text) => {
         accessor: "updatedBy.name",
         Cell: ({ cell }) => cell.value || "N/A",
       },
-     
+
       {
         Header: "Created At",
         accessor: "createdAt",

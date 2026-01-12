@@ -41,6 +41,7 @@ const MobileCombustionFormPage = () => {
     calculatedEmissionKgCo2e: "",
     calculatedEmissionTCo2e: "",
     remarks: "",
+    postingDate: "",
   });
   const [errors, setErrors] = useState({});
   const [buildingOptions, setBuildingOptions] = useState([]);
@@ -52,42 +53,42 @@ const MobileCombustionFormPage = () => {
 
 
   // Fetch all buildings for dropdown  
-useEffect(() => {
+  useEffect(() => {
     const fetchBuildings = async () => {
-        try {
-            const res = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
-                {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                }
-            );
-            
-            // Get buildings from response
-            const buildings = res.data?.data?.buildings || [];
-            
-            // Sort buildings alphabetically by buildingName
-            const sortedBuildings = [...buildings].sort((a, b) => {
-                const nameA = (a.buildingName || '').toUpperCase();
-                const nameB = (b.buildingName || '').toUpperCase();
-                
-                if (nameA < nameB) return -1;
-                if (nameA > nameB) return 1;
-                return 0;
-            });
-            
-            // Format sorted buildings for dropdown
-            const formatted = sortedBuildings.map((b) => ({
-                value: b._id,
-                label: b.buildingName || 'Unnamed Building',
-            }));
-            
-            setBuildingOptions(formatted);
-        } catch {
-            toast.error("Failed to load buildings");
-        }
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          }
+        );
+
+        // Get buildings from response
+        const buildings = res.data?.data?.buildings || [];
+
+        // Sort buildings alphabetically by buildingName
+        const sortedBuildings = [...buildings].sort((a, b) => {
+          const nameA = (a.buildingName || '').toUpperCase();
+          const nameB = (b.buildingName || '').toUpperCase();
+
+          if (nameA < nameB) return -1;
+          if (nameA > nameB) return 1;
+          return 0;
+        });
+
+        // Format sorted buildings for dropdown
+        const formatted = sortedBuildings.map((b) => ({
+          value: b._id,
+          label: b.buildingName || 'Unnamed Building',
+        }));
+
+        setBuildingOptions(formatted);
+      } catch {
+        toast.error("Failed to load buildings");
+      }
     };
     fetchBuildings();
-}, []);
+  }, []);
 
   // Fetch record by ID when Edit or View
   useEffect(() => {
@@ -122,6 +123,9 @@ useEffect(() => {
             ? weightLoadedOptions.find((w) => w.value === data.weightLoaded) || null
             : null,
           remarks: data.remarks || "",
+          postingDate: data.postingDate
+            ? new Date(data.postingDate).toISOString().split('T')[0]
+            : "",
         });
       } catch (err) {
         toast.error("Failed to fetch record details");
@@ -221,6 +225,7 @@ useEffect(() => {
     if (!formData.distanceTraveled) newErrors.distanceTraveled = "Distance Travelled is required";
     if (!formData.distanceUnit) newErrors.distanceUnit = "Distance Unit is required";
     if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
+    if (!formData.postingDate) newErrors.postingDate = "Posting Date is required";
     if (formData.distanceTraveled && Number(formData.distanceTraveled) < 0) {
       newErrors.distanceTraveled = "Value cannot be negative.";
     }
@@ -244,8 +249,8 @@ useEffect(() => {
       formData.vehicleClassification?.value || formData.vehicleClassification,
       isHGV ? formData.weightLoaded?.value || formData.weightLoaded : null
     );
-       const calculatedEmissionKgCo2e = result ? result.totalEmissionKg : "0";
-       const calculatedEmissionTCo2e = result ? result.totalEmissionTonnes : "0";
+    const calculatedEmissionKgCo2e = result ? result.totalEmissionKg : "0";
+    const calculatedEmissionTCo2e = result ? result.totalEmissionTonnes : "0";
 
     //   Merge updated values into formData before sending
     const payload = {
@@ -261,6 +266,7 @@ useEffect(() => {
       calculatedEmissionKgCo2e,
       calculatedEmissionTCo2e,
       remarks: capitalizeFirstLetter(formData.remarks),
+      postingDate: formData.postingDate,
     };
 
     try {
@@ -394,14 +400,12 @@ useEffect(() => {
               <Select name="distanceUnit" value={formData.distanceUnit} options={distanceUnitOptions} onChange={handleSelectChange} placeholder="Select Unit" isDisabled={isView} />
               {errors.distanceUnit && <p className="text-red-500 text-sm mt-1">{errors.distanceUnit}</p>}
             </div>
-
             {/* Quality Control */}
             <div>
               <label className="field-label">Quality Control</label>
               <Select name="qualityControl" value={formData.qualityControl} options={qualityControlOptions} onChange={handleSelectChange} placeholder="Select Quality" isDisabled={isView} />
               {errors.qualityControl && <p className="text-red-500 text-sm mt-1">{errors.qualityControl}</p>}
             </div>
-
             {/* Weight Loaded (conditional) */}
             {["Heavy Good Vehicles (HGVs All Diesel)", "Heavy Good Vehicles (Refrigerated HGVs All Diesel)"].includes(formData.vehicleClassification?.value) && (
               <div>
@@ -417,8 +421,20 @@ useEffect(() => {
                 {errors.weightLoaded && <p className="text-red-500 text-sm mt-1">{errors.weightLoaded}</p>}
               </div>
             )}
+            {/* posting Date */}
+            <div>
+              <label className="field-label">Posting Date</label>
+              <InputGroup
+                type="date"
+                name="postingDate"
+                value={formData.postingDate}
+                onChange={handleInputChange}
+                className="border-[2px] w-full h-10 p-2 rounded-md"
+                disabled={isView}
+              />
+              {errors.postingDate && <p className="text-red-500 text-sm mt-1">{errors.postingDate}</p>}
+            </div>
           </div>
-
           {/* Remarks */}
           <div>
             <label className="field-label">Remarks</label>

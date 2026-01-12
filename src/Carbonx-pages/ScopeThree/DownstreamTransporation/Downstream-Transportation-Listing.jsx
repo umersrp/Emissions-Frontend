@@ -265,6 +265,22 @@ const DownstreamTransportationListing = () => {
           return numValue.toFixed(2);
         } 
       },
+         {
+        Header: "Posting Date", accessor: "postingDate", Cell: ({ cell }) => {
+          if (!cell.value) return "N/A";
+
+          try {
+            const date = new Date(cell.value);
+            return date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            });  
+          } catch {
+            return "Invalid Date";
+          }
+        }
+      },
       {
         Header: "Remarks",
         accessor: "remarks",

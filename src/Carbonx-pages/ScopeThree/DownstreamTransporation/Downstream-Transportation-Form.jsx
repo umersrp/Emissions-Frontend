@@ -47,6 +47,7 @@ const DownstreamTransportationFormPage = () => {
     remarks: "",
     calculatedEmissionKgCo2e: "",
     calculatedEmissionTCo2e: "",
+    postingDate: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -222,6 +223,9 @@ const DownstreamTransportationFormPage = () => {
             processQualityControlOptions.find(q => q.value === (data.qualityControl ? "Certain" : "Uncertain")) || null
             : null,
           remarks: data.remarks || "",
+          postingDate: data.postingDate
+            ? new Date(data.postingDate).toISOString().split('T')[0]
+            : "",
         });
       } catch (err) {
         console.error(err);
@@ -230,7 +234,6 @@ const DownstreamTransportationFormPage = () => {
     };
     fetchById();
   }, [id, isAdd, buildingOptions]);
-  // Handle dropdown changes
   // Handle dropdown changes
   const handleSelectChange = (value, { name }) => {
     if (isView) return;
@@ -276,6 +279,7 @@ const DownstreamTransportationFormPage = () => {
     if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder is required";
     if (!formData.buildingId) newErrors.buildingId = "Building is required";
     if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder is required";
+    if (!formData.postingDate) newErrors.postingDate = "Posting Date is required";
     if (!formData.transportationCategory)
       newErrors.transportationCategory = "Transportation Category is required";
     if (!formData.soldProductActivityType)
@@ -337,6 +341,7 @@ const DownstreamTransportationFormPage = () => {
       // Ensure these are numbers, not strings
       calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e,
       calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
+      postingDate: formData.postingDate,
     };
     console.log("Form data before sending:", {
       kgCO2e: formData.calculatedEmissionKgCo2e,
@@ -634,6 +639,19 @@ const DownstreamTransportationFormPage = () => {
               {errors.qualityControl && (
                 <p className="text-red-500 text-sm mt-1">{errors.qualityControl}</p>
               )}
+            </div>
+            {/* posting Date */}
+            <div>
+              <label className="field-label">Posting Date</label>
+              <InputGroup
+                type="date"
+                name="postingDate"
+                value={formData.postingDate}
+                onChange={handleInputChange}
+                className="border-[2px] w-full h-10 p-2 rounded-md"
+                disabled={isView}
+              />
+              {errors.postingDate && <p className="text-red-500 text-sm mt-1">{errors.postingDate}</p>}
             </div>
 
           </div>
