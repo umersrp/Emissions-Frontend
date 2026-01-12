@@ -480,48 +480,58 @@ const Dashboard = () => {
 
         {/* Summary cards */}
         <div className="flex gap-4 mb-6 flex-wrap">
-          <Card className="flex-1 text-black rounded-lg shadow-lg min-w-[220px]">
-            <h3 className="text-lg font-semibold mt-6">Total GHG Emissions</h3>
-            <p className="text-2xl text-red-500 font-bold ">
-              {formatNumber(totalEmission)} tCO₂e
+          {/* Total GHG Emissions */}
+          <div className="flex-1 bg-white rounded-xl shadow-lg max-w-[450px]  h-[170px]  p-3">
+            <h3 className="text-2xl font-semibold">Total GHG Emissions</h3>
+            <p className="text-xl text-red-500 font-bold flex flex-col mt-2">
+              {formatNumber(totalEmission)}
+              <span>tCO₂e</span>
             </p>
-          </Card>
+          </div>
 
-          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
-            <h3 className="text-lg font-semibold mt-6" >Scope 1 Emissions</h3>
-            <p className="text-2xl text-green-500 font-bold ">{formatNumber(scope1Emission)} tCO₂e</p>
+          {/* Scope 1 Emissions */}
+          <div className="flex-1 bg-white rounded-xl shadow-lg max-w-[200px] h-[150px] mt-2 p-3">
+            <h3 className="text-lg font-semibold">Scope 1 Emissions</h3>
+            <p className="text-xl text-green-500 font-bold flex flex-col">
+              {formatNumber(scope1Emission)}
+              <span>tCO₂e</span>
+            </p>
             <p className="text-sm text-gray-600">Direct Emissions</p>
-          </Card>
+          </div>
 
-          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
+          {/* Scope 2 Emissions */}
+          <div className="flex-1 bg-white rounded-xl shadow-lg max-w-[200px] h-[150px] mt-2 p-3">
             <h3 className="text-lg font-semibold">Scope 2 Emissions</h3>
 
             {/* Breakdown (smaller, subtle) */}
             <div className="space-y-1">
-              <p className="text-sm text-black-500 flex flex-col">
+              <p className="text-[12px] text-black-500 flex flex-col">
                 Location Based
-                <span className="text-xl font-bold text-orange-500">
+                <span className="text-sm font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)} tCO₂e
                 </span>
               </p>
               <p className="text-sm text-black-500 flex flex-col">
-                <span> Market Based</span>
-                <span className="text-xl font-bold text-orange-500">
+                <span>Market Based</span>
+                <span className="text-[12px]  font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)} tCO₂e
                 </span>
               </p>
             </div>
-
-            <p className="text-sm text-gray-600 ">
+            <p className="text-sm text-gray-600">
               Indirect Emissions
             </p>
-          </Card>
+          </div>
 
-          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
-            <h3 className="text-lg font-semibold mt-6">Scope 3 Emissions</h3>
-            <p className="text-2xl text-purple-500 font-bold">{formatNumber(scope3Emission)} tCO₂e</p>
+          {/* Scope 3 Emissions */}
+          <div className="flex-1 bg-white rounded-xl shadow-lg max-w-[200px] h-[150px] mt-2 p-3">
+            <h3 className="text-lg font-semibold">Scope 3 Emissions</h3>
+            <p className="text-xl text-purple-500 font-bold flex flex-col">
+              {formatNumber(scope3Emission)}
+              <span>tCO₂e</span>
+            </p>
             <p className="text-sm text-gray-600">Other Indirect Emissions</p>
-          </Card>
+          </div>
         </div>
 
         {/* Charts */}
@@ -536,7 +546,7 @@ const Dashboard = () => {
             <GroupChart1 chartData={pieData} loading={loading} />
           </Card>
 
-        
+
           <Card className="flex-1  min-w-[320px] col-span-2">
             <h3 className="font-semibold  text-xl flex items-center gap-2">
               Building-Wise GHG Emissions

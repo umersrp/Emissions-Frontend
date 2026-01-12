@@ -42,13 +42,14 @@ const StationaryCombustionFormPage = () => {
     calculatedEmissionTCo2e: "",
     calculatedBioEmissionKgCo2e: "",
     calculatedBioEmissionTCo2e: "",
+    postingDate: "",
   });
   console.log("StationaryCombustionFormPage re-rendered");
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
 
 
-  
+
   //   const formatNumber = (num) => {
   //   try {
   //     if (num === null || num === undefined || num === "") {
@@ -73,7 +74,7 @@ const StationaryCombustionFormPage = () => {
   //     return 0;
   //   }
   // };
- 
+
   const capitalizeFirstLetter = (text) => {
     if (!text) return "";
     return text.charAt(0).toUpperCase() + text.slice(1);
@@ -153,7 +154,7 @@ const StationaryCombustionFormPage = () => {
           consumptionUnit: data.consumptionUnit
             ? {
               value: data.consumptionUnit,
-              label: formatUnitDisplay(data.consumptionUnit)  
+              label: formatUnitDisplay(data.consumptionUnit)
             }
             : null,
           fuelConsumption: data.fuelConsumption || "",
@@ -162,6 +163,9 @@ const StationaryCombustionFormPage = () => {
           calculatedEmissionTCo2e: data.calculatedEmissionTCo2e || "",
           calculatedBioEmissionKgCo2e: data.calculatedBioEmissionKgCo2e || "",
           calculatedBioEmissionTCo2e: data.calculatedBioEmissionTCo2e || "",
+            postingDate: data.postingDate
+              ? new Date(data.postingDate).toISOString().split('T')[0]
+              : "",
         });
       } catch (err) {
         console.error(err);
@@ -232,6 +236,7 @@ const StationaryCombustionFormPage = () => {
       "fuelConsumption",
       "qualityControl",
       "consumptionUnit",
+      "postingDate",
     ];
 
     requiredFields.forEach((f) => {
@@ -271,6 +276,7 @@ const StationaryCombustionFormPage = () => {
       calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
       calculatedBioEmissionKgCo2e: formData.calculatedBioEmissionKgCo2e,
       calculatedBioEmissionTCo2e: formData.calculatedBioEmissionTCo2e,
+      postingDate: formData.postingDate,
     };
 
     try {
@@ -479,6 +485,19 @@ const StationaryCombustionFormPage = () => {
               {errors.consumptionUnit && (
                 <p className="text-red-500 text-sm mt-1">{errors.consumptionUnit}</p>
               )}
+            </div>
+            {/* posting Date */}
+            <div>
+              <label className="field-label">Posting Date</label>
+              <InputGroup
+                type="date"
+                name="postingDate"
+                value={formData.postingDate}
+                onChange={handleInputChange}
+                className="border-[2px] w-full h-10 p-2 rounded-md"
+                disabled={isView}
+              />
+              {errors.postingDate && <p className="text-red-500 text-sm mt-1">{errors.postingDate}</p>}
             </div>
           </div>
           {/* --- Remarks --- */}

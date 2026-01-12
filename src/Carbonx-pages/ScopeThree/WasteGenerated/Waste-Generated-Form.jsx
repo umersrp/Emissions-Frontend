@@ -37,48 +37,49 @@ const WasteGeneratedFormPage = () => {
     unit: { value: "Tonnes", label: "Tonnes" },
     totalWasteQty: "",
     qualityControl: null,
-    remarks: ""
+    remarks: "",
+    postingDate: "",
   });
 
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
 
-useEffect(() => {
+  useEffect(() => {
     const fetchBuildings = async () => {
-        try {
-            const res = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
-                {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                }
-            );
-            
-            // Get buildings from response
-            const buildings = res.data?.data?.buildings || [];
-            
-            // Sort buildings alphabetically by buildingName
-            const sortedBuildings = [...buildings].sort((a, b) => {
-                const nameA = (a.buildingName || '').toUpperCase();
-                const nameB = (b.buildingName || '').toUpperCase();
-                
-                if (nameA < nameB) return -1;
-                if (nameA > nameB) return 1;
-                return 0;
-            });
-            
-            // Format sorted buildings for dropdown
-            const formatted = sortedBuildings.map((b) => ({
-                value: b._id,
-                label: b.buildingName || 'Unnamed Building',
-            }));
-            
-            setBuildingOptions(formatted);
-        } catch {
-            toast.error("Failed to load buildings");
-        }
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          }
+        );
+
+        // Get buildings from response
+        const buildings = res.data?.data?.buildings || [];
+
+        // Sort buildings alphabetically by buildingName
+        const sortedBuildings = [...buildings].sort((a, b) => {
+          const nameA = (a.buildingName || '').toUpperCase();
+          const nameB = (b.buildingName || '').toUpperCase();
+
+          if (nameA < nameB) return -1;
+          if (nameA > nameB) return 1;
+          return 0;
+        });
+
+        // Format sorted buildings for dropdown
+        const formatted = sortedBuildings.map((b) => ({
+          value: b._id,
+          label: b.buildingName || 'Unnamed Building',
+        }));
+
+        setBuildingOptions(formatted);
+      } catch {
+        toast.error("Failed to load buildings");
+      }
     };
     fetchBuildings();
-}, []);
+  }, []);
 
   useEffect(() => {
     const qty = formData.totalWasteQty;
@@ -99,7 +100,7 @@ useEffect(() => {
       //   `Emission: ${formattedKg} kg CO₂e (${formattedT} t CO₂e)`,
       //   { autoClose: 2000 }
       // );
-    }   
+    }
   }, [
     formData.totalWasteQty,
     formData.wasteType,
@@ -138,7 +139,10 @@ useEffect(() => {
           qualityControl: data.qualityControl
             ? { value: data.qualityControl, label: data.qualityControl }
             : null,
-          remarks: data.remarks || ""
+          remarks: data.remarks || "",
+          postingDate: data.postingDate
+            ? new Date(data.postingDate).toISOString().split('T')[0]
+            : "",
         });
 
       } catch {
@@ -189,6 +193,7 @@ useEffect(() => {
     if (!formData.wasteTreatmentMethod) newErrors.wasteTreatmentMethod = "Waste Treatment is required";
     if (!formData.totalWasteQty) newErrors.totalWasteQty = "Quantity is required";
     if (!formData.qualityControl) newErrors.qualityControl = "Quality control is required";
+    if (!formData.postingDate) newErrors.postingDate = "Posting Date is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -215,7 +220,8 @@ useEffect(() => {
       calculatedEmissionTCo2e,
       remarks: formData.remarks,
       createdBy: userId,
-      updatedBy: userId
+      updatedBy: userId,
+      postingDate: formData.postingDate,
     };
 
     try {
@@ -345,7 +351,6 @@ useEffect(() => {
                 <p className="text-red-500 text-sm">{errors.totalWasteQty}</p>
               )}
             </div>
-
             {/* Quality Control */}
             <div>
               <label className="field-label">Quality Control <span className="text-red-500">*</span></label>
@@ -360,6 +365,19 @@ useEffect(() => {
                 <p className="text-red-500 text-sm">{errors.qualityControl}</p>
               )}
             </div>
+            {/* posting Date */}
+            <div>
+              <label className="field-label">Posting Date</label>
+              <InputGroup
+                type="date"
+                name="postingDate"
+                value={formData.postingDate}
+                onChange={handleInputChange}
+                className="border-[2px] w-full h-10 p-2 rounded-md"
+                disabled={isView}
+              />
+              {errors.postingDate && <p className="text-red-500 text-sm mt-1">{errors.postingDate}</p>}
+            </div>
 
           </div>
 
@@ -367,7 +385,7 @@ useEffect(() => {
           <div>
             <label className="field-label">Remarks</label>
             <InputGroup
-     type="textarea"          name="remarks"
+              type="textarea" name="remarks"
               placeholder="Enter Remarks"
               value={formData.remarks}
               onChange={handleInputChange}

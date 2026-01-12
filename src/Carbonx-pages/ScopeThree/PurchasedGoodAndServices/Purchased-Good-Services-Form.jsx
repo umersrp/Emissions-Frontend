@@ -37,6 +37,7 @@ const PurchasedGoodServicesFormPage = () => {
     unit: { value: "USD", label: "$" },
     qualityControl: null,
     remarks: "",
+     postingDate: "",
   });
 
   const [buildingOptions, setBuildingOptions] = useState([]);
@@ -114,6 +115,9 @@ const PurchasedGoodServicesFormPage = () => {
               unit: { value: data.unit, label: data.unit },
               qualityControl: data.qualityControl ? { value: data.qualityControl, label: data.qualityControl } : null,
               remarks: data.remarks || "",
+               postingDate: data.postingDate
+            ? new Date(data.postingDate).toISOString().split('T')[0]
+            : "",
             });
           }
         } catch (err) {
@@ -241,6 +245,7 @@ const PurchasedGoodServicesFormPage = () => {
     if (!formData.purchasedGoodsServicesType) newErrors.purchasedGoodsServicesType = "Purchased Goods or Services Type is required";
     if (!formData.amountSpent) newErrors.amountSpent = "Amount Spent is required";
     if (!formData.qualityControl) newErrors.qualityControl = "Quality Control is required";
+    if (!formData.postingDate) newErrors.postingDate = "Posting Date is required";
     if (formData.amountSpent && Number(formData.amountSpent) < 0) {
       newErrors.amountSpent = "Value cannot be negative.";
     }
@@ -283,6 +288,7 @@ const PurchasedGoodServicesFormPage = () => {
       updatedBy: userId,
       calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e || 0,
       calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e || 0,
+      postingDate: formData.postingDate,
     };
     try {
       if (isEdit) {
@@ -462,7 +468,7 @@ const PurchasedGoodServicesFormPage = () => {
               />
             </div>
           </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Quality Control */}
           <div>
             <label className="field-label">Quality Control *</label>
@@ -475,6 +481,20 @@ const PurchasedGoodServicesFormPage = () => {
               isDisabled={isView}
             />
             {errors.qualityControl && <p className="text-red-500 text-sm">{errors.qualityControl}</p>}
+          </div>
+            {/* posting Date */}
+            <div>
+              <label className="field-label">Posting Date</label>
+              <InputGroup
+                type="date"
+                name="postingDate"
+                value={formData.postingDate}
+                onChange={handleInputChange}
+                className="border-[2px] w-full h-10 p-2 rounded-md"
+                disabled={isView}
+              />
+              {errors.postingDate && <p className="text-red-500 text-sm mt-1">{errors.postingDate}</p>}
+            </div>
           </div>
 
           {/* Remarks */}

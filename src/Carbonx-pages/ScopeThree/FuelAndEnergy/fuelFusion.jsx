@@ -75,58 +75,58 @@ const FuelFusion = () => {
     }, [pageIndex, pageSize, globalFilterValue]);
 
     const capitalizeLabel = (text) => {
-  if (!text) return "N/A";
+        if (!text) return "N/A";
 
-  const exceptions = [
-    "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
-    "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
-    "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
-    "n.e.c.", "cc", "cc+","up"
-  ];
+        const exceptions = [
+            "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+            "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+            "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+            "n.e.c.", "cc", "cc+", "up"
+        ];
 
-  // Special handling for "a" and other special cases
-  return text
-    .split(" ")
-    .map((word, index) => {
-      const hasOpenParen = word.startsWith("(");
-      const hasCloseParen = word.endsWith(")");
-      
-      let coreWord = word;
-      if (hasOpenParen) coreWord = coreWord.slice(1);
-      if (hasCloseParen) coreWord = coreWord.slice(0, -1);
+        // Special handling for "a" and other special cases
+        return text
+            .split(" ")
+            .map((word, index) => {
+                const hasOpenParen = word.startsWith("(");
+                const hasCloseParen = word.endsWith(")");
 
-      const lowerCore = coreWord.toLowerCase();
-      let result;
-      
-      // SPECIAL RULE: If word is "a" or "A", preserve original case
-      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
-        result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
-      }
-      // Single letters (except "a" already handled)
-      else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
-        result = coreWord.toUpperCase();
-      }
-      // First word OR word after opening parenthesis should be capitalized
-      else if (index === 0 || (index > 0 && text.split(" ")[index-1]?.endsWith("("))) {
-        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
-      }
-      // Exception words (excluding "a" which we already handled)
-      else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
-        result = lowerCore;
-      }
-      // Normal capitalization
-      else {
-        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
-      }
-      
-      // Reattach parentheses
-      if (hasOpenParen) result = "(" + result;
-      if (hasCloseParen) result = result + ")";
+                let coreWord = word;
+                if (hasOpenParen) coreWord = coreWord.slice(1);
+                if (hasCloseParen) coreWord = coreWord.slice(0, -1);
 
-      return result;
-    })
-    .join(" ");
-};
+                const lowerCore = coreWord.toLowerCase();
+                let result;
+
+                // SPECIAL RULE: If word is "a" or "A", preserve original case
+                if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
+                    result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
+                }
+                // Single letters (except "a" already handled)
+                else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
+                    result = coreWord.toUpperCase();
+                }
+                // First word OR word after opening parenthesis should be capitalized
+                else if (index === 0 || (index > 0 && text.split(" ")[index - 1]?.endsWith("("))) {
+                    result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+                }
+                // Exception words (excluding "a" which we already handled)
+                else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
+                    result = lowerCore;
+                }
+                // Normal capitalization
+                else {
+                    result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+                }
+
+                // Reattach parentheses
+                if (hasOpenParen) result = "(" + result;
+                if (hasCloseParen) result = result + ")";
+
+                return result;
+            })
+            .join(" ");
+    };
 
     // Delete Record
     const handleDelete = async (id) => {
@@ -212,6 +212,22 @@ const FuelFusion = () => {
                     }
                     return numValue.toFixed(2);
                 },
+            },
+            {
+                Header: "Posting Date", accessor: "postingDate", Cell: ({ cell }) => {
+                    if (!cell.value) return "N/A";
+
+                    try {
+                        const date = new Date(cell.value);
+                        return date.toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit'
+                        });
+                    } catch {
+                        return "Invalid Date";
+                    }
+                }
             },
             { Header: "Remarks", accessor: "remarks", Cell: ({ value }) => capitalizeLabel(value) },
 
