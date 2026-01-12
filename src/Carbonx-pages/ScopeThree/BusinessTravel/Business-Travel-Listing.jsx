@@ -49,67 +49,67 @@ const BusinessTravel = () => {
     const renderNA = (value) => {
         return value === null || value === undefined || value === "" ? "N/A" : value;
     };
-    const capitalizeLabel = (text) => {
-        if (!text) return "N/A";
+const capitalizeLabel = (text) => {
+  if (!text) return "N/A";
 
-        const exceptions = [
-            "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
-            "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
-            "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
-            "n.e.c.", "cc", "cc+", "up"
-        ];
+  const exceptions = [
+    "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+    "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+    "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+    "n.e.c.", "cc", "cc+", "up"
+  ];
 
-        // First, add spaces around forward slashes if not already present
-        // This handles cases like "word1/word2" to become "word1 / word2"
-        const spacedText = text.replace(/(\S)\/(\S)/g, '$1 / $2');
+  // First, add spaces around forward slashes if not already present
+  // This handles cases like "word1/word2" to become "word1 / word2"
+  const spacedText = text.replace(/(\S)\/(\S)/g, '$1 / $2');
 
-        // Special handling for "a" and other special cases
-        return spacedText
-            .split(" ")
-            .map((word, index) => {
-                const hasOpenParen = word.startsWith("(");
-                const hasCloseParen = word.endsWith(")");
+  // Special handling for "a" and other special cases
+  return spacedText
+    .split(" ")
+    .map((word, index) => {
+      const hasOpenParen = word.startsWith("(");
+      const hasCloseParen = word.endsWith(")");
+      
+      let coreWord = word;
+      if (hasOpenParen) coreWord = coreWord.slice(1);
+      if (hasCloseParen) coreWord = coreWord.slice(0, -1);
 
-                let coreWord = word;
-                if (hasOpenParen) coreWord = coreWord.slice(1);
-                if (hasCloseParen) coreWord = coreWord.slice(0, -1);
+      const lowerCore = coreWord.toLowerCase();
+      let result;
+      
+      // SPECIAL RULE: If word is "a" or "A", preserve original case
+      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
+        result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
+      }
+      // Handle forward slash as a separate "word" (after our space addition)
+      else if (coreWord === "/") {
+        result = "/";
+      }
+      // Single letters (except "a" already handled)
+      else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
+        result = coreWord.toUpperCase();
+      }
+      // First word OR word after opening parenthesis should be capitalized
+      else if (index === 0 || (index > 0 && text.split(" ")[index-1]?.endsWith("("))) {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      }
+      // Exception words (excluding "a" which we already handled)
+      else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
+        result = lowerCore;
+      }
+      // Normal capitalization
+      else {
+        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+      }
+      
+      // Reattach parentheses
+      if (hasOpenParen) result = "(" + result;
+      if (hasCloseParen) result = result + ")";
 
-                const lowerCore = coreWord.toLowerCase();
-                let result;
-
-                // SPECIAL RULE: If word is "a" or "A", preserve original case
-                if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
-                    result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
-                }
-                // Handle forward slash as a separate "word" (after our space addition)
-                else if (coreWord === "/") {
-                    result = "/";
-                }
-                // Single letters (except "a" already handled)
-                else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
-                    result = coreWord.toUpperCase();
-                }
-                // First word OR word after opening parenthesis should be capitalized
-                else if (index === 0 || (index > 0 && text.split(" ")[index - 1]?.endsWith("("))) {
-                    result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
-                }
-                // Exception words (excluding "a" which we already handled)
-                else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
-                    result = lowerCore;
-                }
-                // Normal capitalization
-                else {
-                    result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
-                }
-
-                // Reattach parentheses
-                if (hasOpenParen) result = "(" + result;
-                if (hasCloseParen) result = result + ")";
-
-                return result;
-            })
-            .join(" ");
-    };
+      return result;
+    })
+    .join(" ");
+};
     // Fetch data from server with pagination
     const fetchData = async () => {
         setLoading(true);

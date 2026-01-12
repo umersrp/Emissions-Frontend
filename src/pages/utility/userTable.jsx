@@ -50,6 +50,7 @@ const UserPage = () => {
   const [hasNextPage, setHasNextPage] = useState(false);
   const user = useSelector((state) => state.auth.user);
   const [loading, setLoading] = useState(true); // Loading state
+  
 
 
   const fetchData = async (pageIndex, pageSize) => {
@@ -293,7 +294,7 @@ const UserPage = () => {
     //   },
     // },
     {
-      Header: "action",
+      Header: "Action",
       accessor: "_id",
       Cell: ({ cell }) => (
         <div className="flex space-x-3 rtl:space-x-reverse">
