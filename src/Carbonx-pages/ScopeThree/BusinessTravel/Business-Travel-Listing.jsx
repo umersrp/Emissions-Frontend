@@ -205,7 +205,7 @@ const capitalizeLabel = (text) => {
 
             { Header: "Business Travel by Car", accessor: "travelByCar", Cell: ({ value }) => (value ? "Yes" : "No") },
             { Header: "Distance Travelled", accessor: "carDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
-            { Header: "Car Type", accessor: "carType", Cell: ({ value }) => capitalizeLabel(value)  },
+            { Header: "Car Type", accessor: "carType", Cell: ({ value }) => capitalizeLabel(value) },
             { Header: "Car Fuel Type", accessor: "carFuelType", Cell: ({ value }) => capitalizeLabel(value) },
 
             { Header: "Hotel Stay", accessor: "hotelStay", Cell: ({ value }) => (value ? "Yes" : "No") },
@@ -215,38 +215,36 @@ const capitalizeLabel = (text) => {
             {
                 Header: "Calculated Emissions (kgCO₂e)",
                 accessor: "calculatedEmissionKgCo2e",
-               Cell: ({ cell }) => {
-          const rawValue = cell.value;
-          if (rawValue === null || rawValue === undefined || rawValue === "") {
-            return "N/A";
-          }
-          const numValue = Number(rawValue);
-          if (isNaN(numValue)) {
-            return "N/A";
-          }
-          return numValue.toFixed(2);
-        }
+                Cell: ({ cell }) => {
+                    const rawValue = cell.value;
+                    if (rawValue === null || rawValue === undefined || rawValue === "") {
+                        return "N/A";
+                    }
+                    const numValue = Number(rawValue);
+                    if (isNaN(numValue)) {
+                        return "N/A";
+                    }
+                    return numValue.toFixed(2);
+                }
             },
             {
                 Header: "Calculated Emissions (tCO₂e)",
                 accessor: "calculatedEmissionTCo2e",
-               Cell: ({ cell }) => {
-          const rawValue = cell.value;
-          if (rawValue === null || rawValue === undefined || rawValue === "") {
-            return "N/A";
-          }
-          const numValue = Number(rawValue);
-          if (isNaN(numValue)) {
-            return "N/A";
-          }
-          if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
-            return numValue.toExponential(2);
-          }
-          return numValue.toFixed(2);
-        }
+                Cell: ({ cell }) => {
+                    const rawValue = cell.value;
+                    if (rawValue === null || rawValue === undefined || rawValue === "") {
+                        return "N/A";
+                    }
+                    const numValue = Number(rawValue);
+                    if (isNaN(numValue)) {
+                        return "N/A";
+                    }
+                    if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
+                        return numValue.toExponential(2);
+                    }
+                    return numValue.toFixed(2);
+                }
             },
-
-
             {
                 Header: "Remarks",
                 accessor: "remarks",

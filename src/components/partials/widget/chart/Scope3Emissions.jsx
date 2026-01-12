@@ -1,4 +1,4 @@
-import React, { useState ,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import RevenueBarChart from "@/components/partials/widget/chart/revenue-bar-chart";
 import { Tooltip } from "@mui/material";
 import Button from "@/components/ui/Button";
@@ -7,12 +7,12 @@ import Button from "@/components/ui/Button";
 const categoryColors = {
   "Purchased Goods & Services": "bg-blue-100 text-blue-800",
   "Capital Goods": "bg-indigo-100 text-indigo-800",
+  "Fuel & Energy": "bg-blue-100 text-pink-800",
   "Waste Generated": "bg-green-100 text-green-800",
   "Business Travel": "bg-purple-100 text-purple-800",
   "Employee Commuting": "bg-orange-100 text-orange-800",
   "Upstream Transportations": "bg-red-100 text-red-800",
   "Downstream Transportations": "bg-yellow-100 text-yellow-800",
-  "Fuel & Energy": "bg-pink-100 text-pink-800",
   "Commute Records": "bg-gray-100 text-gray-800",
 };
 
@@ -51,7 +51,7 @@ const getTotalEmissions = (dataArray) => {
 };
 
 /* ------------------ Component ------------------ */
-const Scope3EmissionsSection = ({ dashboardData, loading,  resetTrigger = 0,  // Add default value here
+const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0,  // Add default value here
   onRegisterReset }) => {
   if (!dashboardData?.scope3) return null;
 
@@ -64,6 +64,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading,  resetTrigger = 0,  //
   // Normalize all categories
   const purchasedGoodsAndServices = normalizeToArray(s3.purchasedGoodsAndServices);
   const capitalGoods = normalizeToArray(s3.CapitalGoods);
+  const fuelAndEnergyList = normalizeToArray(s3.FuelandEnergylist);
   const wasteGenerated = normalizeToArray(s3.wasteGeneratedInOperations);
   const businessTravel = normalizeToArray(s3.businessTravel);
   const employeeCommuting = normalizeToArray(s3.CommuteRecords);
@@ -72,7 +73,6 @@ const Scope3EmissionsSection = ({ dashboardData, loading,  resetTrigger = 0,  //
   const fuelAndEnergy = normalizeToArray(s3.FuelAndEnergys);
   const upstreamList = normalizeToArray(s3.Upstreamlist);
   const downstreamList = normalizeToArray(s3.Downstreamlist);
-  const fuelAndEnergyList = normalizeToArray(s3.FuelandEnergylist);
 
   // Handle Capital Goods Data separately
   const capitalGoodsData = s3.CapitalGoodsData || [];
@@ -91,6 +91,10 @@ const Scope3EmissionsSection = ({ dashboardData, loading,  resetTrigger = 0,  //
     {
       name: "Capital Goods",
       value: getTotalEmissions(capitalGoods)
+    },
+    {
+      name: "Fuel & Energy Related Activities",
+      value: getTotalEmissions(fuelAndEnergy)
     },
     {
       name: "Waste Generated",
@@ -112,10 +116,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading,  resetTrigger = 0,  //
       name: "Downstream Transportations",
       value: getTotalEmissions(downstreamTransport)
     },
-    {
-      name: "Fuel & Energy Related Activities",
-      value: getTotalEmissions(fuelAndEnergy)
-    },
+
   ];
 
   // Debug: Log the bar chart data to see what's happening
@@ -137,7 +138,8 @@ const Scope3EmissionsSection = ({ dashboardData, loading,  resetTrigger = 0,  //
     return itemsToProcess
       .map(item => ({
         _id: item.purchasedGoodsServicesType || item.purchaseCategory || "Uncategorized",
-         amount: item.amountSpent,
+        amount: item.amountSpent,
+        unit: item.unit,
         databaseId: item._id,
         totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
         originalItem: item
@@ -154,6 +156,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading,  resetTrigger = 0,  //
     return capitalGoodsList.map(item => ({
       _id: item.purchasedGoodsServicesType || "Uncategorized",
       amount: item.amountSpent,
+       unit: item.unit,
       databaseId: item._id,
       totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
       originalItem: item
@@ -162,29 +165,53 @@ const Scope3EmissionsSection = ({ dashboardData, loading,  resetTrigger = 0,  //
   };
   const capitalGoodsTopCategories = processCapitalGoodsData();
 
-  /* ------------------ PROCESS WASTE GENERATED DATA ------------------ */
-const processWasteGeneratedData = () => {
-  if (!wasteGenerated || wasteGenerated.length === 0) return [];
-  
-  // First, extract all individual items (flattening lists if they exist)
-  const allItems = wasteGenerated.flatMap(item => 
-    item.list && Array.isArray(item.list) ? item.list : [item]
-  );
-  
-  // Map individual items
-  return allItems
-    .filter(item => item && typeof item === 'object')
-    .map(item => ({
-      _id: item.wasteType || item.activityType || "Uncategorized",
-      databaseId: item._id,
-      amount: item.unit,
-      totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
-      originalItem: item
-    }))
-    .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
-};
+  /* ------------------ PROCESS FUEL & ENERGY DATA ------------------ */
+  const processFuelEnergyData = () => {
+    if (!fuelAndEnergyList || fuelAndEnergyList.length === 0) return [];
 
-const wasteGeneratedTopCategories = processWasteGeneratedData();
+    // Extract individual items from list property if available
+    const allItems = fuelAndEnergyList.flatMap(item =>
+      item.list && Array.isArray(item.list) ? item.list : [item]
+    );
+
+    // Map individual items
+    return allItems
+      .filter(item => item && typeof item === 'object')
+      .map(item => ({
+        _id: item.fuelType || item.activityType || "Uncategorized",
+        databaseId: item._id,
+        totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
+        originalItem: item
+      }))
+      .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
+  };
+
+  const fuelEnergyTopCategories = processFuelEnergyData();
+
+  /* ------------------ PROCESS WASTE GENERATED DATA ------------------ */
+  const processWasteGeneratedData = () => {
+    if (!wasteGenerated || wasteGenerated.length === 0) return [];
+
+    // First, extract all individual items (flattening lists if they exist)
+    const allItems = wasteGenerated.flatMap(item =>
+      item.list && Array.isArray(item.list) ? item.list : [item]
+    );
+
+    // Map individual items
+    return allItems
+      .filter(item => item && typeof item === 'object')
+      .map(item => ({
+        _id: item.wasteType || item.activityType || "Uncategorized",
+        databaseId: item._id,
+        amount: item.totalWasteQty,
+        unit: item.unit,
+        totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
+        originalItem: item
+      }))
+      .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
+  };
+
+  const wasteGeneratedTopCategories = processWasteGeneratedData();
   /* ------------------ PROCESS BUSINESS TRAVEL DATA ------------------ */
   const processBusinessTravelData = () => {
     if (!businessTravelList || businessTravelList.length === 0) return [];
@@ -215,83 +242,61 @@ const wasteGeneratedTopCategories = processWasteGeneratedData();
 
   /* ------------------ PROCESS UPSTREAM TRANSPORT DATA ------------------ */
   const processUpstreamTransportData = () => {
-  if (!upstreamList || upstreamList.length === 0) return [];
-  
-  // Extract individual items from list property if available
-  const allItems = upstreamList.flatMap(item => 
-    item.list && Array.isArray(item.list) ? item.list : [item]
-  );
-  
-  // Map individual items
-  return allItems
-    .filter(item => item && typeof item === 'object')
-    .map(item => ({
-      _id: item.transportType || item.activityType || "Uncategorized",
-      databaseId: item._id,
-      totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
-      originalItem: item
-    }))
-    .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
-};
+    if (!upstreamList || upstreamList.length === 0) return [];
 
-const upstreamTransportTopCategories = processUpstreamTransportData();
+    // Extract individual items from list property if available
+    const allItems = upstreamList.flatMap(item =>
+      item.list && Array.isArray(item.list) ? item.list : [item]
+    );
+
+    // Map individual items
+    return allItems
+      .filter(item => item && typeof item === 'object')
+      .map(item => ({
+        _id: item.transportType || item.activityType || "Uncategorized",
+        databaseId: item._id,
+        totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
+        originalItem: item
+      }))
+      .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
+  };
+
+  const upstreamTransportTopCategories = processUpstreamTransportData();
 
   /* ------------------ PROCESS DOWNSTREAM TRANSPORT DATA ------------------ */
-const processDownstreamTransportData = () => {
-  if (!downstreamList || downstreamList.length === 0) return [];
-  
-  // Extract individual items from list property if available
-  const allItems = downstreamList.flatMap(item => 
-    item.list && Array.isArray(item.list) ? item.list : [item]
-  );
-  
-  // Map individual items
-  return allItems
-    .filter(item => item && typeof item === 'object')
-    .map(item => ({
-      _id: item.transportType || item.soldProductActivityType || "Uncategorized",
-      databaseId: item._id,
-      totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
-      originalItem: item
-    }))
-    .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
-};
+  const processDownstreamTransportData = () => {
+    if (!downstreamList || downstreamList.length === 0) return [];
 
-const downstreamTransportTopCategories = processDownstreamTransportData();
+    // Extract individual items from list property if available
+    const allItems = downstreamList.flatMap(item =>
+      item.list && Array.isArray(item.list) ? item.list : [item]
+    );
 
-  /* ------------------ PROCESS FUEL & ENERGY DATA ------------------ */
-  const processFuelEnergyData = () => {
-  if (!fuelAndEnergyList || fuelAndEnergyList.length === 0) return [];
+    // Map individual items
+    return allItems
+      .filter(item => item && typeof item === 'object')
+      .map(item => ({
+        _id: item.transportType || item.soldProductActivityType || "Uncategorized",
+        databaseId: item._id,
+        totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
+        originalItem: item
+      }))
+      .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
+  };
+
+  const downstreamTransportTopCategories = processDownstreamTransportData();
+
   
-  // Extract individual items from list property if available
-  const allItems = fuelAndEnergyList.flatMap(item => 
-    item.list && Array.isArray(item.list) ? item.list : [item]
-  );
-  
-  // Map individual items
-  return allItems
-    .filter(item => item && typeof item === 'object')
-    .map(item => ({
-      _id: item.fuelType || item.activityType || "Uncategorized",
-      databaseId: item._id,
-      totalEmissionTCo2e: item.calculatedEmissionTCo2e || 0,
-      originalItem: item
-    }))
-    .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
-};
-
-const fuelEnergyTopCategories = processFuelEnergyData();
-
   /* ------------------ TABLE DATA ------------------ */
   const topScope3Categories = {
     "Purchased Goods & Services": purchasedGoodsTopCategories,
     "Capital Goods": capitalGoodsTopCategories,
+    "Fuel & Energy Related Activities": fuelEnergyTopCategories,
     "Waste Generated": wasteGeneratedTopCategories,
     "Business Travel": businessTravelTopCategories,
     "Employee Commuting": employeeCommutingTopCategories,
     "Upstream Transportations": upstreamTransportTopCategories,
     "Downstream Transportations": downstreamTransportTopCategories,
-    "Fuel & Energy Related Activities": fuelEnergyTopCategories,
   };
 
   /* ------------------ BAR CLICK HANDLER ------------------ */
@@ -396,8 +401,8 @@ const fuelEnergyTopCategories = processFuelEnergyData();
                           })} tCO₂e
                         </div>
 
-                         <div className="p-2 font-medium border-b text-center truncate bg-gray-50">
-                          {item.amount || "N/A"}
+                        <div className="p-2 font-medium border-b text-center truncate bg-gray-50">
+                          {item.amount || "N/A"}{" "}{item.unit === 'USD' ? '$' : item.unit || ''}
                         </div>
                       </div>
                     ))}
