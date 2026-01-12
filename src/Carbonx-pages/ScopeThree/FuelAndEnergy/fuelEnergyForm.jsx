@@ -49,7 +49,7 @@ const FuelEnergyForm = () => {
         trainPassengers: "",
         trainDistanceKm: "",
         trainType: "",
-
+        postingDate: "",
     });
     const [buildingOptions, setBuildingOptions] = useState([]);
     const [fuel, setFuel] = useState([]);
@@ -130,7 +130,7 @@ const FuelEnergyForm = () => {
         return text.charAt(0).toUpperCase() + text.slice(1);
     };
 
-   useEffect(() => {
+    useEffect(() => {
         const fetchBuildings = async () => {
             try {
                 const res = await axios.get(
@@ -239,6 +239,9 @@ const FuelEnergyForm = () => {
                                 ? { value: data.qualityControl, label: data.qualityControl }
                                 : null,
                             remarks: data.remarks || "",
+                            postingDate: data.postingDate
+                                ? new Date(data.postingDate).toISOString().split('T')[0]
+                                : "",
                         }));
 
                         setToggleOptions({
@@ -387,6 +390,7 @@ const FuelEnergyForm = () => {
         if (!formData.fuel) newErrors.fuel = "Fuel is required";
         // if (!formData.fuelConsumptionUnit) newErrors.fuelConsumptionUnit = "Fuel consumption unit is required";
         if (!formData.fuelType) newErrors.fuelType = "Fuel type is required";
+        if (!formData.postingDate) newErrors.postingDate = "Posting Date is required";
         // if (!formData.unit) newErrors.unit = "Unit is required";
         if (!formData.qualityControl) newErrors.qualityControl = "Quality control is required";
 
@@ -546,6 +550,7 @@ const FuelEnergyForm = () => {
             // totalGrossElectricityPurchased: electricityValue,
             totalGrossElectricityPurchased: formData.totalGrossElectricityPurchased === "" ? null : handleEmptyValue(formData.totalGrossElectricityPurchased),
             unit: electricityUnit,
+            postingDate: formData.postingDate,
             qualityControl: formData.qualityControl?.value,
             remarks: capitalizeFirstLetter(formData.remarks),
             calculatedEmissionKgCo2e: emission.totalEmissions_KgCo2e,
@@ -750,18 +755,33 @@ const FuelEnergyForm = () => {
                                 {errors.unit && <p className="text-red-500 text-sm mt-2">{errors.unit}</p>}
                             </div>
                         </div>
-                        {/* Quality Control */}
-                        <div>
-                            <label className="field-label">Quality Control <span className="text-red-500">*</span></label>
-                            <CustomSelect
-                                name="qualityControl"
-                                options={qualityControlOptions}
-                                value={formData.qualityControl}
-                                onChange={(value) => handleSelectChange("qualityControl", value)}
-                                placeholder="Select Quality"
-                                isDisabled={isView}
-                            />
-                            {errors.qualityControl && <p className="text-red-500 text-sm mt-2">{errors.qualityControl}</p>}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Quality Control */}
+                            <div>
+                                <label className="field-label">Quality Control <span className="text-red-500">*</span></label>
+                                <CustomSelect
+                                    name="qualityControl"
+                                    options={qualityControlOptions}
+                                    value={formData.qualityControl}
+                                    onChange={(value) => handleSelectChange("qualityControl", value)}
+                                    placeholder="Select Quality"
+                                    isDisabled={isView}
+                                />
+                                {errors.qualityControl && <p className="text-red-500 text-sm mt-2">{errors.qualityControl}</p>}
+                            </div>
+                            {/* posting Date */}
+                            <div>
+                                <label className="field-label">Posting Date</label>
+                                <InputGroup
+                                    type="date"
+                                    name="postingDate"
+                                    value={formData.postingDate}
+                                    onChange={handleInputChange}
+                                    className="border-[2px] w-full h-10 p-2 rounded-md"
+                                    disabled={isView}
+                                />
+                                {errors.postingDate && <p className="text-red-500 text-sm mt-1">{errors.postingDate}</p>}
+                            </div>
                         </div>
                         {/* Remarks */}
                         <div>
@@ -1122,19 +1142,19 @@ const FuelEnergyForm = () => {
                                         <div>
                                             <label className="field-label">Distance Travelled<span className="text-red-500">*</span></label>
                                             <div className="grid grid-cols-[14fr_1fr]">
-                                            <InputGroup
-                                                type="number"
-                                                name="trainDistanceKm"
-                                                onWheel={handleNumberInputWheel}
-                                                value={formData.trainDistanceKm ?? ""}
-                                                onChange={handleInputChange}
-                                                placeholder="e.g., 200"
-                                                className="input-field rounded-r-none w-full"
-                                                disabled={isView}
-                                            />
-                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                                                km
-                                            </div>
+                                                <InputGroup
+                                                    type="number"
+                                                    name="trainDistanceKm"
+                                                    onWheel={handleNumberInputWheel}
+                                                    value={formData.trainDistanceKm ?? ""}
+                                                    onChange={handleInputChange}
+                                                    placeholder="e.g., 200"
+                                                    className="input-field rounded-r-none w-full"
+                                                    disabled={isView}
+                                                />
+                                                <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                    km
+                                                </div>
                                             </div>
                                             {errors.trainDistanceKm && (
                                                 <p className="text-red-500 text-sm mt-1">{errors.trainDistanceKm}</p>

@@ -32,8 +32,9 @@ const ProcessEmissionsFormPage = () => {
     amountOfEmissions: "",
     qualityControl: null,
     remarks: "",
-    calculatedEmissionKgCo2e: "",      // new
+    calculatedEmissionKgCo2e: "",
     calculatedEmissionTCo2e: "",
+    postingDate: "",
   });
 
   const [amountLabel, setAmountLabel] = useState("Amount of Emissions"); // dynamic label
@@ -46,42 +47,42 @@ const ProcessEmissionsFormPage = () => {
   };
 
   // Fetch all buildings for dropdown
- useEffect(() => {
+  useEffect(() => {
     const fetchBuildings = async () => {
-        try {
-            const res = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
-                {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                }
-            );
-            
-            // Get buildings from response
-            const buildings = res.data?.data?.buildings || [];
-            
-            // Sort buildings alphabetically by buildingName
-            const sortedBuildings = [...buildings].sort((a, b) => {
-                const nameA = (a.buildingName || '').toUpperCase();
-                const nameB = (b.buildingName || '').toUpperCase();
-                
-                if (nameA < nameB) return -1;
-                if (nameA > nameB) return 1;
-                return 0;
-            });
-            
-            // Format sorted buildings for dropdown
-            const formatted = sortedBuildings.map((b) => ({
-                value: b._id,
-                label: b.buildingName || 'Unnamed Building',
-            }));
-            
-            setBuildingOptions(formatted);
-        } catch {
-            toast.error("Failed to load buildings");
-        }
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          }
+        );
+
+        // Get buildings from response
+        const buildings = res.data?.data?.buildings || [];
+
+        // Sort buildings alphabetically by buildingName
+        const sortedBuildings = [...buildings].sort((a, b) => {
+          const nameA = (a.buildingName || '').toUpperCase();
+          const nameB = (b.buildingName || '').toUpperCase();
+
+          if (nameA < nameB) return -1;
+          if (nameA > nameB) return 1;
+          return 0;
+        });
+
+        // Format sorted buildings for dropdown
+        const formatted = sortedBuildings.map((b) => ({
+          value: b._id,
+          label: b.buildingName || 'Unnamed Building',
+        }));
+
+        setBuildingOptions(formatted);
+      } catch {
+        toast.error("Failed to load buildings");
+      }
     };
     fetchBuildings();
-}, []);
+  }, []);
 
   // Fetch record by ID (Edit / View)
   useEffect(() => {
@@ -126,6 +127,9 @@ const ProcessEmissionsFormPage = () => {
               (q) => q.value === data.qualityControl
             ) || { label: data.qualityControl, value: data.qualityControl },
           remarks: data.remarks || "",
+          postingDate: data.postingDate
+            ? new Date(data.postingDate).toISOString().split('T')[0]
+            : "",
         });
       } catch (err) {
         console.error(err);
@@ -135,7 +139,7 @@ const ProcessEmissionsFormPage = () => {
     fetchById();
   }, [id, isAdd, buildingOptions]);
 
- 
+
   const handleSelectChange = (value, { name }) => {
     if (isView) return;
 
@@ -172,7 +176,7 @@ const ProcessEmissionsFormPage = () => {
     // Update local state
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
-      
+
       // Trigger calculation when amountOfEmissions changes
       if (name === "amountOfEmissions" && updated.activityType?.value) {
         const result = calculateProcessEmission({
@@ -188,8 +192,8 @@ const ProcessEmissionsFormPage = () => {
           updated.calculatedEmissionTCo2e = t;
 
         }
-          //   toast.info(
-          // `Emissions Calculated: ${updated.calculatedEmissionKgCo2e} kg CO2e / ${updated.calculatedEmissionTCo2e} t CO2e`
+        //   toast.info(
+        // `Emissions Calculated: ${updated.calculatedEmissionKgCo2e} kg CO2e / ${updated.calculatedEmissionTCo2e} t CO2e`
         // );
       }
 
@@ -212,6 +216,8 @@ const ProcessEmissionsFormPage = () => {
       newErrors.amountOfEmissions = "Amount of Emissions is required";
     if (!formData.qualityControl)
       newErrors.qualityControl = "Quality Control is required";
+    if (!formData.postingDate)
+      newErrors.postingDate = "Posting Date is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -236,6 +242,7 @@ const ProcessEmissionsFormPage = () => {
       remarks: capitalizeFirstLetter(formData.remarks),
       calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e,  // added
       calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
+      postingDate: formData.postingDate,
     };
 
     try {
@@ -368,12 +375,25 @@ const ProcessEmissionsFormPage = () => {
                 <p className="text-red-500 text-sm mt-1">{errors.qualityControl}</p>
               )}
             </div>
+            {/* posting Date */}
+            <div>
+              <label className="field-label">Posting Date</label>
+              <InputGroup
+                type="date"
+                name="postingDate"
+                value={formData.postingDate}
+                onChange={handleInputChange}
+                className="border-[2px] w-full h-10 p-2 rounded-md"
+                disabled={isView}
+              />
+              {errors.postingDate && <p className="text-red-500 text-sm mt-1">{errors.postingDate}</p>}
+            </div>
           </div>
 
           {/* Remarks */}
           <div>
             <label className="field-label">Remarks</label>
-           
+
             <InputGroup
               type="textarea"
               name="remarks"

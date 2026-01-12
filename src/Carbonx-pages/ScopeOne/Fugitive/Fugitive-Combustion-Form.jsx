@@ -34,12 +34,13 @@ const FugitiveCombustionFormPage = () => {
     consumptionUnit: { value: "kg", label: "kg" },
     qualityControl: null,
     remarks: "",
+    postingDate: "",
   });
 
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
 
-    const capitalizeFirstLetter = (text) => {
+  const capitalizeFirstLetter = (text) => {
     if (!text) return "";
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
@@ -47,40 +48,40 @@ const FugitiveCombustionFormPage = () => {
   // --- Fetch Buildings ---
   useEffect(() => {
     const fetchBuildings = async () => {
-        try {
-            const res = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
-                {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                }
-            );
-            
-            // Get buildings from response
-            const buildings = res.data?.data?.buildings || [];
-            
-            // Sort buildings alphabetically by buildingName
-            const sortedBuildings = [...buildings].sort((a, b) => {
-                const nameA = (a.buildingName || '').toUpperCase();
-                const nameB = (b.buildingName || '').toUpperCase();
-                
-                if (nameA < nameB) return -1;
-                if (nameA > nameB) return 1;
-                return 0;
-            });
-            
-            // Format sorted buildings for dropdown
-            const formatted = sortedBuildings.map((b) => ({
-                value: b._id,
-                label: b.buildingName || 'Unnamed Building',
-            }));
-            
-            setBuildingOptions(formatted);
-        } catch {
-            toast.error("Failed to load buildings");
-        }
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          }
+        );
+
+        // Get buildings from response
+        const buildings = res.data?.data?.buildings || [];
+
+        // Sort buildings alphabetically by buildingName
+        const sortedBuildings = [...buildings].sort((a, b) => {
+          const nameA = (a.buildingName || '').toUpperCase();
+          const nameB = (b.buildingName || '').toUpperCase();
+
+          if (nameA < nameB) return -1;
+          if (nameA > nameB) return 1;
+          return 0;
+        });
+
+        // Format sorted buildings for dropdown
+        const formatted = sortedBuildings.map((b) => ({
+          value: b._id,
+          label: b.buildingName || 'Unnamed Building',
+        }));
+
+        setBuildingOptions(formatted);
+      } catch {
+        toast.error("Failed to load buildings");
+      }
     };
     fetchBuildings();
-}, []);
+  }, []);
 
   // --- If in Edit/View mode, fetch record by ID ---
   useEffect(() => {
@@ -102,6 +103,9 @@ const FugitiveCombustionFormPage = () => {
               consumptionUnit: { value: data.consumptionUnit, label: data.consumptionUnit },
               qualityControl: { value: data.qualityControl, label: data.qualityControl },
               remarks: data.remarks || "",
+              postingDate: data.postingDate
+                ? new Date(data.postingDate).toISOString().split('T')[0]
+                : "",
             });
           }
         } catch (err) {
@@ -173,6 +177,7 @@ const FugitiveCombustionFormPage = () => {
       "leakageValue",
       "qualityControl",
       "consumptionUnit",
+      "postingDate",
     ];
 
     requiredFields.forEach((f) => {
@@ -216,6 +221,7 @@ const FugitiveCombustionFormPage = () => {
       remarks: capitalizeFirstLetter(formData.remarks),
       createdBy: userId,
       updatedBy: userId,
+      postingDate: formData.postingDate,
     };
 
 
@@ -357,38 +363,51 @@ const FugitiveCombustionFormPage = () => {
                 <p className="text-red-500 text-sm">{errors.qualityControl}</p>
               )}
             </div>
+            {/* posting Date */}
+            <div>
+              <label className="field-label">Posting Date</label>
+              <InputGroup
+                type="date"
+                name="postingDate"
+                value={formData.postingDate}
+                onChange={handleInputChange}
+                className="border-[2px] w-full h-10 p-2 rounded-md"
+                disabled={isView}
+              />
+              {errors.postingDate && <p className="text-red-500 text-sm mt-1">{errors.postingDate}</p>}
+            </div>
           </div>
 
-          {/* --- Remarks --- */}
-          <div className="col-span-full">
-            <label className="field-label">Remarks</label>
-            <InputGroup
+        {/* --- Remarks --- */}
+        <div className="col-span-full">
+          <label className="field-label">Remarks</label>
+          <InputGroup
             type="textarea"
-              name="remarks"
-              value={formData.remarks}
-              onChange={handleInputChange}
-              rows={3}
-              placeholder="Enter Remarks"
-              className="border-[2px] border-gray-400 rounded-md"
-              disabled={isView}
-            />
-          </div>
+            name="remarks"
+            value={formData.remarks}
+            onChange={handleInputChange}
+            rows={3}
+            placeholder="Enter Remarks"
+            className="border-[2px] border-gray-400 rounded-md"
+            disabled={isView}
+          />
+        </div>
 
-          {/* --- Buttons --- */}
-          <div className="col-span-full flex justify-end gap-4 pt-6">
-            <Button
-              text={isView ? "Back" : "Cancel"}
-              className={isView ? "btn-primary" : "btn-light"}
-              type="button"
-              onClick={() => navigate("/Fugitive-Emissions")}
-            />
-            {!isView && (
-              <Button text={isEdit ? "Update" : "Add"} className="btn-primary" type="submit" />
-            )}
-          </div>
-        </form>
-      </Card>
-    </div>
+        {/* --- Buttons --- */}
+        <div className="col-span-full flex justify-end gap-4 pt-6">
+          <Button
+            text={isView ? "Back" : "Cancel"}
+            className={isView ? "btn-primary" : "btn-light"}
+            type="button"
+            onClick={() => navigate("/Fugitive-Emissions")}
+          />
+          {!isView && (
+            <Button text={isEdit ? "Update" : "Add"} className="btn-primary" type="submit" />
+          )}
+        </div>
+      </form>
+    </Card>
+    </div >
   );
 };
 

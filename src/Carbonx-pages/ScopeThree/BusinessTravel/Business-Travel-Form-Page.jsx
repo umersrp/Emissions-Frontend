@@ -45,7 +45,6 @@ const BusinessTravelFormPage = () => {
     buildingId: "",
     stakeholder: "",
     qualityControl: "",
-
     travelByAir: false,
     travelByMotorbike: false,
     travelByTaxi: false,
@@ -53,35 +52,28 @@ const BusinessTravelFormPage = () => {
     travelByTrain: false,
     travelByCar: false,
     hotelStay: false,
-
     airPassengers: "",
     airDistanceKm: "",
     airTravelClass: "",
     airFlightType: "",
-
     motorbikeDistanceKm: "",
     motorbikeType: "",
-
     taxiPassengers: "",
     taxiDistanceKm: "",
     taxiType: "",
-
     busPassengers: "",
     busDistanceKm: "",
     busType: "",
-
     trainPassengers: "",
     trainDistanceKm: "",
     trainType: "",
-
     carDistanceKm: "",
     carType: "",
     carFuelType: "",
-
     hotelRooms: "",
     hotelNights: "",
-
     remarks: "",
+    postingDate: "",
   });
 
   const recalculateEmissions = useCallback((data) => {
@@ -257,7 +249,6 @@ const BusinessTravelFormPage = () => {
       }
     }
 
-  
     // ADD: Hide toggle error if user selects any toggle
     const anyToggle =
       updated.travelByAir ||
@@ -366,6 +357,9 @@ useEffect(() => {
           hotelNights: data.hotelNights || "",
 
           remarks: data.remarks || "",
+           postingDate: data.postingDate
+              ? new Date(data.postingDate).toISOString().split('T')[0]
+              : "",
         };
 
         setFormData(updatedFormData);
@@ -388,6 +382,7 @@ useEffect(() => {
     if (!formData.buildingId) newErrors.buildingId = "Building is required";
     if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder/Department is required";
     if (!formData.qualityControl) newErrors.qualityControl = "Quality control is required";
+    if (!formData.postingDate) newErrors.postingDate = "Posting Date is required";
 
     // Toggle group validation
     const anyToggle =
@@ -401,7 +396,7 @@ useEffect(() => {
 
     setShowToggleError(!anyToggle);
 
-    // ✈️ Air Travel validation
+    //  Air Travel validation
     if (formData.travelByAir) {
       if (!formData.airPassengers) newErrors.airPassengers = "Number of passengers is required";
       else if (Number(formData.airPassengers) <= 0) newErrors.airPassengers = "Passengers must be greater than 0";
@@ -413,7 +408,7 @@ useEffect(() => {
       if (!formData.airFlightType) newErrors.airFlightType = "Flight type is required";
     }
 
-    // 🏍️ Motorbike Travel validation
+    //  Motorbike Travel validation
     if (formData.travelByMotorbike) {
       if (!formData.motorbikeDistanceKm) newErrors.motorbikeDistanceKm = "Distance is required";
       else if (Number(formData.motorbikeDistanceKm) <= 0) newErrors.motorbikeDistanceKm = "Distance must be greater than 0";
@@ -421,7 +416,7 @@ useEffect(() => {
       if (!formData.motorbikeType) newErrors.motorbikeType = "Motorbike type is required";
     }
 
-    // 🚕 Taxi Travel validation
+    //  Taxi Travel validation
     if (formData.travelByTaxi) {
       if (!formData.taxiPassengers) newErrors.taxiPassengers = "Number of passengers is required";
       else if (Number(formData.taxiPassengers) <= 0) newErrors.taxiPassengers = "Passengers must be greater than 0";
@@ -432,7 +427,7 @@ useEffect(() => {
       if (!formData.taxiType) newErrors.taxiType = "Taxi type is required";
     }
 
-    // 🚌 Bus Travel validation
+    // Bus Travel validation
     if (formData.travelByBus) {
       if (!formData.busPassengers) newErrors.busPassengers = "Number of passengers is required";
       else if (Number(formData.busPassengers) <= 0) newErrors.busPassengers = "Passengers must be greater than 0";
@@ -501,9 +496,7 @@ const handleSubmit = async (e) => {
     calculatedEmissionKgCo2e: latestKgCo2e,
     calculatedEmissionTCo2e: latestTCo2e,
   };
-
   console.log("Submitting payload:", payload);
-
   try {
     if (isEdit) {
       await axios.put(
@@ -592,6 +585,19 @@ const handleSubmit = async (e) => {
               {errors.qualityControl && (
                 <p className="text-red-500 text-sm mt-1">{errors.qualityControl}</p>
               )}
+            </div>
+             {/* posting Date */}
+            <div>
+              <label className="field-label">Posting Date</label>
+              <InputGroup
+                type="date"
+                name="postingDate"
+                value={formData.postingDate}
+                onChange={handleChange}
+                className="border-[2px] w-full h-10 p-2 rounded-md"
+                disabled={isView}
+              />
+              {errors.postingDate && <p className="text-red-500 text-sm mt-1">{errors.postingDate}</p>}
             </div>
           </div>
 
