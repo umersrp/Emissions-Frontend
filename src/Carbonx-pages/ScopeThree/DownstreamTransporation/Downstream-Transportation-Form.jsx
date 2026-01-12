@@ -53,131 +53,108 @@ const DownstreamTransportationFormPage = () => {
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [activityTypeOptions, setActivityTypeOptions] = useState([]);
   const [soldGoodsTypeOptions, setSoldGoodsTypeOptions] = useState([]);
-  const formatEmission = (num) => {
-    try {
-      if (num === null || num === undefined || num === "") {
-        return 0;
-      }
-      const number = Number(num);
-      if (isNaN(number) || !isFinite(number)) {
-        return 0;
-      }
-      const rounded = Number(number.toFixed(2));
-      const integerPart = Math.floor(Math.abs(rounded));
-      if (
-        rounded !== 0 &&
-        (Math.abs(rounded) < 0.0001 ||
-          (Math.abs(rounded) >= 1e6 && integerPart === 0))
-      ) {
-        return rounded.toExponential(5);
-      }
-      return rounded;
-    } catch (error) {
-      console.error("Error in formatEmission:", error, "num:", num);
-      return 0;
-    }
-  };
+
   const capitalizeFirstLetter = (text) => {
     if (!text) return "";
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
-useEffect(() => {
-  if (isView) return;
-  
-  const { transportationCategory } = formData;
-  
-  // Clear calculations first
-  setFormData(prev => ({
-    ...prev,
-    calculatedEmissionKgCo2e: "",
-    calculatedEmissionTCo2e: "",
-  }));
-  
-  // Only calculate for "Sold Goods" category
-  if (transportationCategory?.value === "Sold Goods") {
-    const { weightLoaded, distanceTravelled, transportationVehicleCategory, transportationVehicleType } = formData;
-    
-    // Check if we have all required fields for calculation
-    const hasAllRequired = weightLoaded && 
-                          distanceTravelled && 
-                          transportationVehicleCategory?.value;
-    
-    if (hasAllRequired) {
-      console.log("🔍 All required fields present, calculating...");
-      
-      const result = calculateDownstreamTransportationEmission({
-        transportationCategory: "Sold Goods",
-        weightLoaded: parseFloat(weightLoaded),
-        distanceTravelled: parseFloat(distanceTravelled),
-        transportationVehicleCategory: transportationVehicleCategory.value,
-        transportationVehicleType: transportationVehicleType?.value,
-      });
-      
-      if (result) {
-        console.log(" Calculation successful:", {
-          kgCO2e: result.calculatedEmissionKgCo2e,
-          tCO2e: result.calculatedEmissionTCo2e
+  useEffect(() => {
+    if (isView) return;
+
+    const { transportationCategory } = formData;
+
+    // Clear calculations first
+    setFormData(prev => ({
+      ...prev,
+      calculatedEmissionKgCo2e: "",
+      calculatedEmissionTCo2e: "",
+    }));
+
+    // Only calculate for "Sold Goods" category
+    if (transportationCategory?.value === "Sold Goods") {
+      const { weightLoaded, distanceTravelled, transportationVehicleCategory, transportationVehicleType } = formData;
+
+      // Check if we have all required fields for calculation
+      const hasAllRequired = weightLoaded &&
+        distanceTravelled &&
+        transportationVehicleCategory?.value;
+
+      if (hasAllRequired) {
+        console.log("🔍 All required fields present, calculating...");
+
+        const result = calculateDownstreamTransportationEmission({
+          transportationCategory: "Sold Goods",
+          weightLoaded: parseFloat(weightLoaded),
+          distanceTravelled: parseFloat(distanceTravelled),
+          transportationVehicleCategory: transportationVehicleCategory.value,
+          transportationVehicleType: transportationVehicleType?.value,
         });
-        
-        setFormData(prev => ({
-          ...prev,
-          calculatedEmissionKgCo2e: result.calculatedEmissionKgCo2e.toString(),
-          calculatedEmissionTCo2e: result.calculatedEmissionTCo2e.toString(),
-        }));
+
+        if (result) {
+          console.log(" Calculation successful:", {
+            kgCO2e: result.calculatedEmissionKgCo2e,
+            tCO2e: result.calculatedEmissionTCo2e
+          });
+
+          setFormData(prev => ({
+            ...prev,
+            calculatedEmissionKgCo2e: result.calculatedEmissionKgCo2e.toString(),
+            calculatedEmissionTCo2e: result.calculatedEmissionTCo2e.toString(),
+          }));
+        } else {
+          console.log("⚠️ Calculation returned null - check input values");
+        }
       } else {
-        console.log("⚠️ Calculation returned null - check input values");
+        console.log("⚠️ Missing required fields for calculation");
       }
     } else {
-      console.log("⚠️ Missing required fields for calculation");
+      console.log("ℹ️ Not 'Sold Goods' category or no category selected");
     }
-  } else {
-    console.log("ℹ️ Not 'Sold Goods' category or no category selected");
-  }
-}, [
-  formData.transportationCategory,
-  formData.weightLoaded,
-  formData.distanceTravelled,
-  formData.transportationVehicleCategory,
-  formData.transportationVehicleType,
-  isView
-]);
+  }, [
+    formData.transportationCategory,
+    formData.weightLoaded,
+    formData.distanceTravelled,
+    formData.transportationVehicleCategory,
+    formData.transportationVehicleType,
+    isView
+  ]);
   // Fetch all buildings for dropdown
-useEffect(() => {
+  useEffect(() => {
     const fetchBuildings = async () => {
-        try {
-            const res = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
-                {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-                }
-            );
-            
-            // Get buildings from response
-            const buildings = res.data?.data?.buildings || [];
-            
-            // Sort buildings alphabetically by buildingName
-            const sortedBuildings = [...buildings].sort((a, b) => {
-                const nameA = (a.buildingName || '').toUpperCase();
-                const nameB = (b.buildingName || '').toUpperCase();
-                
-                if (nameA < nameB) return -1;
-                if (nameA > nameB) return 1;
-                return 0;
-            });
-            
-            // Format sorted buildings for dropdown
-            const formatted = sortedBuildings.map((b) => ({
-                value: b._id,
-                label: b.buildingName || 'Unnamed Building',
-            }));
-            
-            setBuildingOptions(formatted);
-        } catch {
-            toast.error("Failed to load buildings");
-        }
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+          }
+        );
+
+        // Get buildings from response
+        const buildings = res.data?.data?.buildings || [];
+
+        // Sort buildings alphabetically by buildingName
+        const sortedBuildings = [...buildings].sort((a, b) => {
+          const nameA = (a.buildingName || '').toUpperCase();
+          const nameB = (b.buildingName || '').toUpperCase();
+
+          if (nameA < nameB) return -1;
+          if (nameA > nameB) return 1;
+          return 0;
+        });
+
+        // Format sorted buildings for dropdown
+        const formatted = sortedBuildings.map((b) => ({
+          value: b._id,
+          label: b.buildingName || 'Unnamed Building',
+        }));
+
+        setBuildingOptions(formatted);
+      } catch {
+        toast.error("Failed to load buildings");
+      }
     };
     fetchBuildings();
-}, []);
+  }, []);
 
   // Fetch record by ID (Edit / View)
   useEffect(() => {
@@ -358,19 +335,15 @@ useEffect(() => {
       qualityControl: formData.qualityControl?.value === "Certain",
       remarks: capitalizeFirstLetter(formData.remarks),
       // Ensure these are numbers, not strings
-      // calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e ?
-      //   parseFloat(formData.calculatedEmissionKgCo2e) : 0,
-      // calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e ?
-      //   parseFloat(formData.calculatedEmissionTCo2e) : 0,
-    calculatedEmissionKgCo2e: formatEmission(formData.calculatedEmissionKgCo2e),
-    calculatedEmissionTCo2e: formatEmission(formData.calculatedEmissionTCo2e),
+      calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e,
+      calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
     };
-console.log("Form data before sending:", {
-  kgCO2e: formData.calculatedEmissionKgCo2e,
-  tCO2e: formData.calculatedEmissionTCo2e,
-  parsedKgCO2e: formData.calculatedEmissionKgCo2e ? parseFloat(formData.calculatedEmissionKgCo2e) : 0,
-  parsedTCO2e: formData.calculatedEmissionTCo2e ? parseFloat(formData.calculatedEmissionTCo2e) : 0,
-});
+    console.log("Form data before sending:", {
+      kgCO2e: formData.calculatedEmissionKgCo2e,
+      tCO2e: formData.calculatedEmissionTCo2e,
+      parsedKgCO2e: formData.calculatedEmissionKgCo2e ? parseFloat(formData.calculatedEmissionKgCo2e) : 0,
+      parsedTCO2e: formData.calculatedEmissionTCo2e ? parseFloat(formData.calculatedEmissionTCo2e) : 0,
+    });
     console.log("Sending payload:", payload); // Debug log
 
     try {
@@ -464,16 +437,16 @@ console.log("Form data before sending:", {
               )}
             </div> */}
             <div className="col-span-2">
-  <label className="field-label">Transportation and Distribution Category</label>
-  <div className="flex items-center h-10 px-3 border border-gray-300 rounded-md bg-gray-100">
-    Sold Goods
-  </div>
-  <input 
-    type="hidden" 
-    name="transportationCategory" 
-    value="Sold Goods" 
-  />
-</div>
+              <label className="field-label">Transportation and Distribution Category</label>
+              <div className="flex items-center h-10 px-3 border border-gray-300 rounded-md bg-gray-100">
+                Sold Goods
+              </div>
+              <input
+                type="hidden"
+                name="transportationCategory"
+                value="Sold Goods"
+              />
+            </div>
 
             {/* Sold Product Activity Type */}
             <div>
@@ -492,38 +465,38 @@ console.log("Form data before sending:", {
             </div>
 
             {/* Sold Goods Type */}
-              <div>
-                <div className="flex items-center gap-2 ">
-                  <label className="field-label">Sold Goods Type</label>
-                  <Tippy
-                    content="Select the specific type of goods based on the chosen activity type."
-                    placement="top"
+            <div>
+              <div className="flex items-center gap-2 ">
+                <label className="field-label">Sold Goods Type</label>
+                <Tippy
+                  content="Select the specific type of goods based on the chosen activity type."
+                  placement="top"
+                >
+                  <button
+                    type="button"
+                    className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
+                    aria-label="Information about sold goods type"
                   >
-                    <button
-                      type="button"
-                      className="w-5 h-5 mb-1 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-medium hover:bg-blue-200 transition-colors"
-                      aria-label="Information about sold goods type"
-                    >
-                      i
-                    </button>
-                  </Tippy>
-                </div>
-                <Select
-                  name="soldGoodsType"
-                  value={formData.soldGoodsType}
-                  options={soldGoodsTypeOptions}
-                  onChange={handleSelectChange}
-                  placeholder={formData.soldProductActivityType ? `Select ${formData.soldProductActivityType.label} Type` : "Select Goods Type"}
-                  isDisabled={isView || !formData.soldProductActivityType}
-                  isClearable={true}
-                />
-                {errors.soldGoodsType && (
-                  <p className="text-red-500 text-sm mt-1">{errors.soldGoodsType}</p>
-                )}
-                {formData.soldProductActivityType && soldGoodsTypeOptions.length === 0 && (
-                  <p className="text-gray-500 text-sm mt-1">No options available for this activity type</p>
-                )}
+                    i
+                  </button>
+                </Tippy>
               </div>
+              <Select
+                name="soldGoodsType"
+                value={formData.soldGoodsType}
+                options={soldGoodsTypeOptions}
+                onChange={handleSelectChange}
+                placeholder={formData.soldProductActivityType ? `Select ${formData.soldProductActivityType.label} Type` : "Select Goods Type"}
+                isDisabled={isView || !formData.soldProductActivityType}
+                isClearable={true}
+              />
+              {errors.soldGoodsType && (
+                <p className="text-red-500 text-sm mt-1">{errors.soldGoodsType}</p>
+              )}
+              {formData.soldProductActivityType && soldGoodsTypeOptions.length === 0 && (
+                <p className="text-gray-500 text-sm mt-1">No options available for this activity type</p>
+              )}
+            </div>
 
             {/* Transportation Vehicle Category */}
             <div>
@@ -595,7 +568,7 @@ console.log("Form data before sending:", {
                   </button>
                 </Tippy>
               </div>
-              <div className="flex">
+              <div className="grid grid-cols-[14fr_1fr]">
                 <InputGroup
                   type="number"
                   name="weightLoaded"
@@ -628,13 +601,13 @@ console.log("Form data before sending:", {
                   </button>
                 </Tippy>
               </div>
-              <div className="flex">
+              <div className="grid grid-cols-[14fr_1fr]">
                 <InputGroup
                   type="number"
                   name="distanceTravelled"
                   value={formData.distanceTravelled}
                   onChange={handleInputChange}
-                  placeholder="Enter Value"
+                  placeholder="e.g., 1000"
                   className="input-field rounded-r-none"
                   disabled={isView}
                 />
@@ -669,7 +642,7 @@ console.log("Form data before sending:", {
           <div>
             <label className="field-label">Remarks</label>
             <InputGroup
-     type="textarea"          name="remarks"
+              type="textarea" name="remarks"
               value={formData.remarks}
               onChange={handleInputChange}
               rows={3}

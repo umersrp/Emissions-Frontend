@@ -265,35 +265,35 @@ const ScopeTwoReport = () => {
         </p>
       </motion.div> */}
       <div className="grid grid-cols-2 gap-6">
-      <motion.div
-        className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl p-6 mb-8"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-      >
-        <h2 className="text-2xl font-semibold mb-4 text-white">Total Location Based Emissions</h2>
+        <motion.div
+          className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl p-6 mb-8"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <h2 className="text-2xl font-semibold mb-4 text-white">Total Scope 2 Emissions Location Based </h2>
 
-        <div className="space-y-2 text-white">
-          <p className="text-lg font-medium">
-             {formatNumber(totalLocationKg)} KgCO₂e |
-            {formatNumber(totalLocationT)} tCO₂e
-          </p>
-        </div>
-      </motion.div>
-      <motion.div
-        className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl p-6 mb-8"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-      >
-        <h2 className="text-2xl font-semibold mb-4 text-white">Total Market Based Emissions</h2>
+          <div className="space-y-2 text-white">
+            <p className="text-lg font-medium">
+              {formatNumber(totalLocationKg)} KgCO₂e |{" "} 
+              {formatNumber(totalLocationT)} tCO₂e
+            </p>
+          </div>
+        </motion.div>
+        <motion.div
+          className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl p-6 mb-8"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+        >
+          <h2 className="text-2xl font-semibold mb-4 text-white">Total Scope 2 Emissions Market Based </h2>
 
-        <div className="space-y-2 text-white">
-          <p className="text-lg font-medium">
-             {formatNumber(totalMarketKg)} KgCO₂e |
-            {formatNumber(totalMarketT)} tCO₂e
-          </p>
-        </div>
-      </motion.div>
-       </div>
+          <div className="space-y-2 text-white">
+            <p className="text-lg font-medium">
+              {formatNumber(totalMarketKg)} KgCO₂e |{" "} 
+              {formatNumber(totalMarketT)} tCO₂e
+            </p>
+          </div>
+        </motion.div>
+      </div>
 
       {/* Individual Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
@@ -347,7 +347,7 @@ const ScopeTwoReport = () => {
             {emissionType === "all"
               ? "All Scope 2"
               : emissionType.charAt(0).toUpperCase() + emissionType.slice(1)}
-              {" "} Emissions (Building-Wise)
+            {" "} Emissions (Building-Wise)
           </h6>
           <div className="w-64">
             <Select

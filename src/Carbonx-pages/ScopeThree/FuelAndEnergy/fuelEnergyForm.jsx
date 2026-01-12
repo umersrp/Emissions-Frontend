@@ -98,10 +98,10 @@ const FuelEnergyForm = () => {
                     trainType: formData.trainType,
                 });
 
-                // toast.info(
-                //     `Emission: ${emission.totalEmissions_KgCo2e.toFixed(2)} kg CO2e (${emission.totalEmissions_TCo2e.toFixed(2)} t CO2e)`,
-                //     { autoClose: 2000 }
-                // );
+                toast.info(
+                    `Emission: ${emission.totalEmissions_KgCo2e.toFixed(2)} kg CO2e (${emission.totalEmissions_TCo2e.toFixed(2)} t CO2e)`,
+                    { autoClose: 2000 }
+                );
             }
         }
     }, [
@@ -129,36 +129,8 @@ const FuelEnergyForm = () => {
         if (!text) return "";
         return text.charAt(0).toUpperCase() + text.slice(1);
     };
-    const formatEmission = (num) => {
-        const rounded = Number(num.toFixed(2));
-        if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
-            return rounded.toExponential(5);
-        }
-        return rounded;
-    };
 
-    // Fetch Buildings
-    // useEffect(() => {
-    //     const fetchBuildings = async () => {
-    //         try {
-    //             const res = await axios.get(
-    //                 `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
-    //                 {
-    //                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-    //                 }
-    //             );
-    //             const formatted = res.data?.data?.buildings?.map((b) => ({
-    //                 value: b._id,
-    //                 label: b.buildingName,
-    //             })) || [];
-    //             setBuildingOptions(formatted);
-    //         } catch {
-    //             toast.error("Failed to load buildings");
-    //         }
-    //     };
-    //     fetchBuildings();
-    // }, []);
-    useEffect(() => {
+   useEffect(() => {
         const fetchBuildings = async () => {
             try {
                 const res = await axios.get(
@@ -406,76 +378,6 @@ const FuelEnergyForm = () => {
         }
     }, [toggleOptions]);
 
-    // Validation
-    // const validate = () => {
-    //     const newErrors = {};
-
-    //     // Basic field validations
-    //     if (!formData.buildingId) newErrors.buildingId = "Building is required";
-    //     if (!formData.stakeholder) newErrors.stakeholder = "Stakeholder/Department is required";
-    //     if (!formData.fuel) newErrors.fuel = "Fuel is required";
-    //     if (!formData.fuelConsumptionUnit) newErrors.fuelConsumptionUnit = "Fuel consumption unit is required";
-    //     if (!formData.fuelType) newErrors.fuelType = "Fuel type is required";
-    //     if (!formData.totalFuelConsumption) newErrors.totalFuelConsumption = "Total fuel consumption is required";
-    //     if (!formData.totalGrossElectricityPurchased) newErrors.totalGrossElectricityPurchased = "Total gross electricity purchased is required";
-    //     if (!formData.unit) newErrors.unit = "Unit is required";
-    //     if (!formData.qualityControl) newErrors.qualityControl = "Quality control is required";
-
-    //     // Validate for negative values (only if field has a value)
-    //     const numberFields = ['totalFuelConsumption', 'totalGrossElectricityPurchased', 'airPassengers',
-    //         'airDistanceKm', 'taxiPassengers', 'taxiDistanceKm', 'busPassengers',
-    //         'busDistanceKm', 'trainPassengers', 'trainDistanceKm'];
-
-    //     numberFields.forEach(field => {
-    //         if (formData[field] && Number(formData[field]) < 0) {
-    //             newErrors[field] = "Value cannot be negative.";
-    //         }
-    //     });
-
-    //     // Check if at least one travel toggle is selected
-    //     const anyTravelSelected = Object.values(toggleOptions).some(value => value === true);
-
-    //     // Show/hide toggle error
-    //     if (!anyTravelSelected) {
-    //         setShowToggleError(true);
-    //     } else {
-    //         setShowToggleError(false);
-    //     }
-
-    //     // Validate opened toggle fields
-    //     if (toggleOptions.didTravelByAir) {
-    //         if (!formData.airPassengers) newErrors.airPassengers = "Number of passengers is required";
-    //         if (!formData.airDistanceKm) newErrors.airDistanceKm = "Distance is required";
-    //         if (!formData.airFlightType) newErrors.airFlightType = "Flight type is required";
-    //         if (!formData.airTravelClass) newErrors.airTravelClass = "Travel class is required";
-    //     }
-
-    //     if (toggleOptions.didTravelByTaxi) {
-    //         if (!formData.taxiPassengers) newErrors.taxiPassengers = "Number of passengers is required";
-    //         if (!formData.taxiDistanceKm) newErrors.taxiDistanceKm = "Distance is required";
-    //         if (!formData.taxiType) newErrors.taxiType = "Taxi type is required";
-    //     }
-
-    //     if (toggleOptions.didTravelByBus) {
-    //         if (!formData.busPassengers) newErrors.busPassengers = "Number of passengers is required";
-    //         if (!formData.busDistanceKm) newErrors.busDistanceKm = "Distance is required";
-    //         if (!formData.busType) newErrors.busType = "Bus type is required";
-    //     }
-
-    //     if (toggleOptions.didTravelByTrain) {
-    //         if (!formData.trainPassengers) newErrors.trainPassengers = "Number of passengers is required";
-    //         if (!formData.trainDistanceKm) newErrors.trainDistanceKm = "Distance is required";
-    //         if (!formData.trainType) newErrors.trainType = "Train type is required";
-    //     }
-
-    //     setErrors(newErrors);
-
-    //     // Form is valid only if:
-    //     // 1. No field errors
-    //     // 2. At least one travel toggle is selected
-    //     // 3. All opened toggle fields are filled
-    //     return Object.keys(newErrors).length === 0 && anyTravelSelected;
-    // };
     const validate = () => {
         const newErrors = {};
 
@@ -646,8 +548,8 @@ const FuelEnergyForm = () => {
             unit: electricityUnit,
             qualityControl: formData.qualityControl?.value,
             remarks: capitalizeFirstLetter(formData.remarks),
-            calculatedEmissionKgCo2e: formatEmission(emission.totalEmissions_KgCo2e),
-            calculatedEmissionTCo2e: formatEmission(emission.totalEmissions_TCo2e),
+            calculatedEmissionKgCo2e: emission.totalEmissions_KgCo2e,
+            calculatedEmissionTCo2e: emission.totalEmissions_TCo2e,
             didTravelByAir: toggleOptions.didTravelByAir,
             didTravelByTaxi: toggleOptions.didTravelByTaxi,
             didTravelByBus: toggleOptions.didTravelByBus,
@@ -704,7 +606,7 @@ const FuelEnergyForm = () => {
     };
     return (
         <div>
-            <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Fuel and Energy Related Activity Record`}>
+            <Card title={`${isView ? "View" : isEdit ? "Edit" : "Add"} Fuel and Energy Related Activities Record`}>
                 <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4">
                     <p className="text-gray-700">
                         This category includes emissions related to the production of fuels and energy purchased and consumed by the reporting company in the reporting year that are not included in scope 1 or scope 2.</p>
@@ -1084,7 +986,7 @@ const FuelEnergyForm = () => {
                                                 options={TAXI_TYPES}
                                                 value={formData.taxiType}
                                                 onChange={(value) => handleSelectChange("taxiType", value)}
-                                                placeholder="Select Taxi type"
+                                                placeholder="Select Taxi Type"
                                                 isDisabled={isView}
                                             />
                                             {errors.taxiType && (

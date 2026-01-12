@@ -293,7 +293,7 @@ const CompanyProfileForm = () => {
                             value={formData.companyName}
                             onChange={handleChange}
                             className={"input-field"}
-                            placeholder="Enter company name"
+                            placeholder="Enter Company Name"
                         />
                         {errors.companyName && <p className="text-red-500">{errors.companyName}</p>}
                     </div>
@@ -354,7 +354,7 @@ const CompanyProfileForm = () => {
                                     boundary: null,
                                 }));
                             }}
-                            placeholder="Select boundary"
+                            placeholder="Select Boundary"
                             classNamePrefix="react-select"
                             className={`w-full ${errors.boundary ? "border border-red-500 rounded-md" : ""}`}
                         />
@@ -542,7 +542,7 @@ const CompanyProfileForm = () => {
                             value={formData.province}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter province"
+                            placeholder="Enter Province"
                         />
                         {errors.province && <p className="text-red-500">{errors.province}</p>}
                     </div>
@@ -568,7 +568,7 @@ const CompanyProfileForm = () => {
                             value={formData.address}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter address"
+                            placeholder="Enter Address"
                         />
                         {errors.address && <p className="text-red-500">{errors.address}</p>}
                     </div>
@@ -582,7 +582,7 @@ const CompanyProfileForm = () => {
                             value={formData.totalEmployees}
                             onChange={handleChange}
                             className={"input-field"}
-                            placeholder="Enter total employees"
+                            placeholder="Enter Total Employees"
                         />
                         {errors.totalEmployees && <p className="text-red-500">{errors.totalEmployees}</p>}
                     </div>
@@ -614,7 +614,7 @@ const CompanyProfileForm = () => {
                             value={formData.headquarterLocation}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter headquarter location"
+                            placeholder="Enter Headquarter Location"
                         />
                         {errors.headquarterLocation && <p className="text-red-500">{errors.headquarterLocation}</p>}
                     </div>
@@ -689,7 +689,7 @@ const CompanyProfileForm = () => {
                             onChange={(selected) =>
                                 setFormData({ ...formData, sectorId: selected?.value || "" })
                             }
-                            placeholder="Choose a sector"
+                            placeholder="Select a Sector"
                             className="react-select"
                         />
                         {errors.sectorId && <p className="text-red-500">{errors.sectorId}</p>}
@@ -704,7 +704,7 @@ const CompanyProfileForm = () => {
                             onChange={(selected) =>
                                 setFormData({ ...formData, industryId: selected?.value || "" })
                             }
-                            placeholder="Choose an industry"
+                            placeholder="Select an Industry"
                             className="react-select"
                         />
                         {errors.industryId && <p className="text-red-500">{errors.industryId}</p>}
@@ -719,7 +719,7 @@ const CompanyProfileForm = () => {
                             value={formData.totalSites}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter sites/buildings"
+                            placeholder="Enter Sites / Buildings"
                         />
                         {errors.totalSites && <p className="text-red-500">{errors.totalSites}</p>}
                     </div>
@@ -733,7 +733,7 @@ const CompanyProfileForm = () => {
                             value={formData.totalAreaSqM}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter area in sq m"
+                            placeholder="Enter Area in sq m"
                         />
                         {errors.totalAreaSqM && <p className="text-red-500">{errors.totalAreaSqM}</p>}
                     </div>
@@ -748,21 +748,21 @@ const CompanyProfileForm = () => {
                             value={formData.unitsManufacturedPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter Manufactured units "
+                            placeholder="Enter Manufactured Units "
                         />
                         {errors.unitsManufacturedPerAnnum && <p className="text-red-500">{errors.unitsManufacturedPerAnnum}</p>}
                     </div>
 
-                    {/* Production Volume Tonne Per Annum */}
+                    {/* Production Volume Tonnes per Annum */}
                     <div className="">
-                        <label className="field-label">Production Volume (Tonne Per Annum)</label>
+                        <label className="field-label">Production Volume (Tonnes per Annum)</label>
                         <input
                             type="number"
                             name="productionVolumeTonnePerAnnum"
                             value={formData.productionVolumeTonnePerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter production volume "
+                            placeholder="Enter Production Volume "
                         />
                         {errors.productionVolumeTonnePerAnnum && <p className="text-red-500">{errors.productionVolumeTonnePerAnnum}</p>}
                     </div>
@@ -776,7 +776,7 @@ const CompanyProfileForm = () => {
                             value={formData.unitsSoldPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter Sold units "
+                            placeholder="Enter Sold Units "
                         />
                         {errors.unitsSoldPerAnnum && <p className="text-red-500">{errors.unitsSoldPerAnnum}</p>}
                     </div>
@@ -790,7 +790,7 @@ const CompanyProfileForm = () => {
                             value={formData.electricityGeneratedMWhPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter electricity generated"
+                            placeholder="Enter Electricity Generated"
                         />
                         {errors.electricityGeneratedMWhPerAnnum && <p className="text-red-500">{errors.electricityGeneratedMWhPerAnnum}</p>}
                     </div>
@@ -804,7 +804,7 @@ const CompanyProfileForm = () => {
                             value={formData.energyGeneratedGJPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter energy generated"
+                            placeholder="Enter Energy Generated"
                         />
                         {errors.energyGeneratedGJPerAnnum && <p className="text-red-500">{errors.energyGeneratedGJPerAnnum}</p>}
                     </div>
@@ -818,7 +818,7 @@ const CompanyProfileForm = () => {
                             value={formData.revenuePerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter revenue"
+                            placeholder="Enter Revenue"
                         />
                         {errors.revenuePerAnnum && <p className="text-red-500">{errors.revenuePerAnnum}</p>}
                     </div>
@@ -832,7 +832,7 @@ const CompanyProfileForm = () => {
                             value={formData.totalManHoursPerAnnum}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter total man"
+                            placeholder="Enter Total Man Hours"
                         />
                         {errors.totalManHoursPerAnnum && <p className="text-red-500">{errors.totalManHoursPerAnnum}</p>}
                     </div>
@@ -846,7 +846,7 @@ const CompanyProfileForm = () => {
                             value={formData.email}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter company email"
+                            placeholder="Enter Company Email"
                         />
                         {errors.email && <p className="text-red-500">{errors.email}</p>}
                     </div>
@@ -860,7 +860,7 @@ const CompanyProfileForm = () => {
                             value={formData.password}
                             onChange={handleChange}
                             className="input-field"
-                            placeholder="Enter password"
+                            placeholder="Enter Password"
                         />
                         {errors.password && <p className="text-red-500">{errors.password}</p>}
                     </div>

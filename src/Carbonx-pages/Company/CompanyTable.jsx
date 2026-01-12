@@ -192,7 +192,7 @@ const CompanyTable = () => {
             accessor: "unitsManufacturedPerAnnum",
         },
         {
-            Header: "Production Volume (Tonne Per Annum)",
+            Header: "Production Volume (Tonnes per Annum)",
             accessor: "productionVolumeTonnePerAnnum",
         },
         {

@@ -9,16 +9,16 @@ const Scope3 = () => {
 
   const upstream_categories = [
     {
-      title: "Purchased Good and Services",
+      title: "Purchased Goods and Services",
       path: "/Purchased-Good-Services",
-      icon: "heroicons:shopping-bag",
+      icon: "mdi:factory",
       bg: "bg-cyan-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
     },
     {
       title: "Capital Goods",
       path: "/Capital-Goods",
-      icon: "heroicons:building-office",
+      icon: "heroicons:cube-transparent",
       bg: "bg-red-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
     },
@@ -53,7 +53,7 @@ const Scope3 = () => {
     },
     {
       title: "Employee Commuting",
-      path: "",
+      path: "/Commuting",
       icon: "heroicons:user-group",
       bg: "bg-amber-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#fcc7d8] to-[#f56b8b]"

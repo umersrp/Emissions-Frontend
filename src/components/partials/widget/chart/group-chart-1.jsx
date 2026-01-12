@@ -2,13 +2,8 @@ import React from "react";
 import Chart from "react-apexcharts";
 
 const GroupChart1 = ({ chartData = [], loading }) => {
-  // chartData example:
-  // [
-  //   { name: "Scope 1", value: 720 },
-  //   { name: "Scope 2", value: 1105 },
-  //   { name: "Scope 3", value: 685 },
-  // ]
-
+  
+  
   // Calculate total and percentages from ORIGINAL values
   const originalValues = chartData.map(d => Number(d.value) || 0);
   const total = originalValues.reduce((sum, val) => sum + val, 0);
@@ -19,34 +14,38 @@ const GroupChart1 = ({ chartData = [], loading }) => {
   );
 
   // Create series for chart - use ACTUAL VALUES but ensure tiny slices are visible
-  const series = originalValues.map((value, index) => {
-    const percentage = originalPercentages[index];
-    // For very small but non-zero percentages, ensure they're visible
-    if (percentage > 0 && percentage < 1) {
-      // Calculate a minimum visible value (at least 1% of total)
-      return Math.max(value, total * 0.01);
-    }
-    return value;
-  });
+  const series = originalValues; 
+  // const series = originalValues.map((value, index) => {
+  //   const percentage = originalPercentages[index];
+  //   // For very small but non-zero percentages, ensure they're visible
+  //   if (percentage > 0 && percentage < 1) {
+  //     // Calculate a minimum visible value (at least 1% of total)
+  //     return Math.max(value, total * 0.01);
+  //   }
+  //   return value;
+  // });
   
   const labels = chartData.map((d) => d.name);
 
-  const colors = ["#22C55E", "#22D3EE", "#FACC15"]; // green, cyan, yellow
+  // const colors = ["#22C55E", "#22D3EE", "#FACC15"]; // green, cyan, yellow
+  const colors = ["#22C55E","#F43F5E", "#FACC15"]; // green, cyan, yellow
+
 
   const options = {
     chart: {
-      type: "donut",
+      type: "pie",
     },
     labels,
     colors,
-    stroke: {
-      width: 0,
-    },
+   stroke: {
+  width: 2,
+  colors: ['#ffffff'],
+},
     legend: {
       show: false, // custom legend below
     },
     dataLabels: {
-      enabled: true,
+      enabled: false,
       // Show original percentages
       formatter: function(val, opts) {
         const dataIndex = opts.seriesIndex;
@@ -73,7 +72,7 @@ const GroupChart1 = ({ chartData = [], loading }) => {
     plotOptions: {
       pie: {
         donut: {
-          size: "65%",
+          size: "0%",
           labels: {
             show: false,
             total: {
@@ -99,13 +98,41 @@ const GroupChart1 = ({ chartData = [], loading }) => {
         endAngle: 270,
       },
     },
-    tooltip: {
-      y: {
-        formatter: function(val) {
-          return val.toLocaleString() + ' tCO₂e';
-        }
-      }
-    },
+    // tooltip: {
+    //   y: {
+    //     formatter: function(val) {
+    //       return val.toLocaleString() + ' tCO₂e';
+    //     }
+    //   }
+    // },
+tooltip: {
+  custom: function({ series, seriesIndex, w }) {
+    const percentage = originalPercentages[seriesIndex];
+    let percentText = '0%';
+    
+    if (percentage === 0) {
+      percentText = '0%';
+    } else if (percentage < 0.1) {
+      percentText = '<0.1%';
+    } else if (percentage < 1) {
+      percentText = percentage.toFixed(1) + '%';
+    } else {
+      percentText = Math.round(percentage) + '%';
+    }
+   return `<div style="
+              padding: 8px 12px; 
+              border-radius: 6px; 
+              background:#333; 
+              color: #fff; 
+              font-size: 14px;
+              display: flex;
+              gap: 2px;
+            ">
+              <span>(${percentText})</span>
+              <span style="color: #fffff; font-weight: 600;">${series[seriesIndex].toLocaleString()} tCO₂e</span>
+            </div>`;
+  }
+},
     responsive: [{
       breakpoint: 480,
       options: {

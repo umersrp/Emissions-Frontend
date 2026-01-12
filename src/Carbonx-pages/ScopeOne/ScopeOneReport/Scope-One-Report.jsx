@@ -437,7 +437,15 @@ const formatNumber = (num) => {
   }
   return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
 };
-
+const normalizeActivityName = (name) => {
+  if (!name) return '';
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s]/g, '') // Remove special characters
+    .replace(/\s+/g, ' ') // Normalize spaces
+    .replace(/\s*\([^)]*\)/g, ''); // Remove parentheses content (optional)
+};
 const ScopeOneReport = () => {
   const [data, setData] = useState({ stationary: [], mobile: [], fugitive: [], process: [] });
   const [loading, setLoading] = useState(false);
@@ -451,8 +459,12 @@ const ScopeOneReport = () => {
   });
   const navigate = useNavigate();
 
-  // Fetch data
-  useEffect(() => {
+ // Create normalized version of GHG_ACTIVITIES for comparison
+  const NORMALIZED_GHG_ACTIVITIES = useMemo(() => 
+    GHG_ACTIVITIES.map(activity => normalizeActivityName(activity)),
+    []
+  );
+ useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -473,6 +485,35 @@ const ScopeOneReport = () => {
           }),
         ]);
 
+        // Process the data with normalized comparison
+        const processData = processRes.data.data || [];
+        const filteredProcess = processData.filter((item) => {
+          if (!item.activityType) return false;
+          const normalizedApiType = normalizeActivityName(item.activityType);
+          return NORMALIZED_GHG_ACTIVITIES.includes(normalizedApiType);
+        });
+
+        // Log debugging info
+        console.log(`Total process records from API: ${processData.length}`);
+        console.log(`Filtered process records: ${filteredProcess.length}`);
+        console.log(`Excluded records: ${processData.length - filteredProcess.length}`);
+
+        // Find which records are being excluded
+        if (processData.length > filteredProcess.length) {
+          const excludedRecords = processData.filter((item) => {
+            if (!item.activityType) return false;
+            const normalizedApiType = normalizeActivityName(item.activityType);
+            return !NORMALIZED_GHG_ACTIVITIES.includes(normalizedApiType);
+          });
+          
+          if (excludedRecords.length > 0) {
+            console.log("Excluded activity types:");
+            excludedRecords.forEach((item, idx) => {
+              console.log(`${idx + 1}. Original: "${item.activityType}", Normalized: "${normalizeActivityName(item.activityType)}"`);
+            });
+          }
+        }
+
         setData({
           stationary: stationaryRes.data.data || [],
           mobile: mobileRes.data.data || [],
@@ -480,10 +521,7 @@ const ScopeOneReport = () => {
             fugitiveRes.data.data?.filter((item) =>
               KYOTO_GASES.includes(item.materialRefrigerant)
             ) || [],
-          process:
-            processRes.data.data?.filter((item) =>
-              GHG_ACTIVITIES.includes(item.activityType)
-            ) || [],
+          process: filteredProcess,
         });
       } catch (err) {
         console.error(err);
@@ -494,7 +532,8 @@ const ScopeOneReport = () => {
     };
 
     fetchData();
-  }, []);
+  }, [NORMALIZED_GHG_ACTIVITIES]);
+
 
   // Filter data based on dropdown
 const filteredData = useMemo(() => {
@@ -613,6 +652,25 @@ console.log("Building Data:", buildingData);
       0
     );
     console.log("Process Kg:", processKg);
+
+  //   // Console log for process emissions
+  // console.log("=== PROCESS EMISSIONS SUMMARY ===");
+  // console.log(`Total process records: ${data.process?.length || 0}`);
+  // console.log(`Records included in sum: ${data.process?.filter(item => item.calculatedEmissionKgCo2e).length || 0}`);
+  // console.log(`Process emission total: ${processKg} kg`);
+  
+  // // Log each process record
+  // if (data.process?.length > 0) {
+  //   console.log("Individual process records:");
+  //   data.process.forEach((record, index) => {
+  //     console.log(`${index + 1}. Activity: ${record.activityType || 'N/A'}, ` +
+  //                 `Emission: ${record.calculatedEmissionKgCo2e || 0} kg, ` +
+  //                 `Building: ${record.buildingId?.buildingName || record.buildingId || 'N/A'}`);
+  //   });
+  // }
+  // console.log("=== END PROCESS SUMMARY ===");
+   console.log(`PROCESS: ${data.process?.length || 0} records, Total: ${processKg} kg`);
+
     return stationaryKg + mobileKg + fugitiveKg + processKg;
   }, [data]);
 

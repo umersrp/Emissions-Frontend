@@ -155,23 +155,11 @@ const ProcessEmissionsFormPage = () => {
         });
 
         if (result) {
-          const formatEmission = (num) => {
-            const rounded = Number(num.toFixed(2));
-            if (
-              rounded !== 0 &&
-              (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)
-            ) {
-              return rounded.toExponential(5);
-            }
-            return rounded;
-          };
-
-          updated.calculatedEmissionKgCo2e = formatEmission(result.calculatedEmissionKgCo2e);
-          updated.calculatedEmissionTCo2e = formatEmission(result.calculatedEmissionTCo2e);
+          updated.calculatedEmissionKgCo2e = result.calculatedEmissionKgCo2e;
+          updated.calculatedEmissionTCo2e = result.calculatedEmissionTCo2e;
         }
       }
     }
-
     setFormData(updated);
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
@@ -184,14 +172,7 @@ const ProcessEmissionsFormPage = () => {
     // Update local state
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
-      const formatEmission = (num) => {
-        const rounded = Number(num.toFixed(2));
-        if (rounded !== 0 && (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6)) {
-          return rounded.toExponential(5);
-        }
-        return rounded;
-      };
-
+      
       // Trigger calculation when amountOfEmissions changes
       if (name === "amountOfEmissions" && updated.activityType?.value) {
         const result = calculateProcessEmission({
@@ -203,12 +184,12 @@ const ProcessEmissionsFormPage = () => {
           const kg = result.calculatedEmissionKgCo2e;
           const t = kg / 1000;
 
-          updated.calculatedEmissionKgCo2e = formatEmission(kg);
-          updated.calculatedEmissionTCo2e = formatEmission(t);
+          updated.calculatedEmissionKgCo2e = kg;
+          updated.calculatedEmissionTCo2e = t;
 
         }
-        //     toast.info(
-        //   `Emissions Calculated: ${updated.calculatedEmissionKgCo2e} kg CO2e / ${updated.calculatedEmissionTCo2e} t CO2e`
+          //   toast.info(
+          // `Emissions Calculated: ${updated.calculatedEmissionKgCo2e} kg CO2e / ${updated.calculatedEmissionTCo2e} t CO2e`
         // );
       }
 

@@ -271,7 +271,7 @@ export const menuItems = [
         childlink: "Capital-Goods",
       },
       {
-        childtitle: "Fuels and Energy Related Activity",
+        childtitle: "Fuels and Energy Related Activities",
         childlink: "fuel-energy",
       },
        {
