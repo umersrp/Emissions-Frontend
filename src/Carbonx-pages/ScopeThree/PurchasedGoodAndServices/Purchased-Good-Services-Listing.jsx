@@ -47,37 +47,7 @@ const PurchasedGoodServicesListing = () => {
   const [goToValue, setGoToValue] = useState(pageIndex);
 
 
-  // Fetch data from server with pagination
-  // const fetchData = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const res = await axios.get(
-  //       `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
-  //       {
-  //         params: {
-  //           page: pageIndex,
-  //           limit: pageSize,
-  //           search: globalFilterValue || "",
-  //         },
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //         },
-  //       }
-  //     );
 
-  //     const data = res.data?.data || [];
-  //     const meta = res.data?.meta || {};
-
-  //     setRecords(data);
-  //     setTotalPages(meta.totalPages || 1);
-  //     setTotalRecords(meta.totalRecords || 0);
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast.error("Failed to fetch records");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
  const capitalizeLabel = (text) => {
   if (!text) return "N/A";
 
@@ -211,9 +181,6 @@ const fetchData = async () => {
           const numValue = Number(rawValue);
           if (isNaN(numValue)) {
             return "N/A";
-          }
-          if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
-            return numValue.toExponential(2);
           }
           return numValue.toFixed(2);
         }  },

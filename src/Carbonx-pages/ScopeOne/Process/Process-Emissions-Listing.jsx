@@ -71,7 +71,7 @@ const ProcessEmissionsListing = () => {
       let result;
       
       // SPECIAL RULE: If word is "a" or "A", preserve original case
-      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
+      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT" || coreWord === "if") {
         result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
       }
       // Single letters (except "a" already handled)
@@ -187,9 +187,6 @@ const ProcessEmissionsListing = () => {
           const numValue = Number(rawValue);
           if (isNaN(numValue)) {
             return "N/A";
-          }
-          if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
-            return numValue.toExponential(2);
           }
           return numValue.toFixed(2);
         }

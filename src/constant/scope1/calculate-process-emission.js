@@ -25,7 +25,7 @@ export const processEmissionFactors = {
   "Urea Production": 200,
   "Methanol production": 800,
   "Hydrogen production (SMR – Steam Methane Reforming)": 10,
-  "Amine-based gas sweetening (acid gas removal)": 1.5,
+  "Amine-Based gas sweetening (acid gas removal)": 1.5,
   "Sulfur recovery units (Claus process)": 18,
   "Natural gas dehydration (glycol regeneration)": 2.5,
   "Isomerization and alkylation processes": 200,
@@ -70,7 +70,7 @@ export const processEmissionFactors = {
   "Bioethanol Fermentation": 1100,
   "Hydrogen from Electrolysis (if carbonates used)": 440,
   "Carbonate / Bicarbonate Neutralization in API Synthesis": 440,
-  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": 1,
+  "Fermentation-Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": 1,
   "Neutralization or Buffer Preparation Using Carbonates": 440,
   "Lyophilization or Freeze-Drying Using CO₂ Refrigerants": 30,
   "Anaerobic Wastewater or Biowaste Treatment (On-site)": 13.44,
@@ -82,9 +82,9 @@ export const processEmissionFactors = {
   "Ethylene Oxide / Ethylene Glycol Production": 0.7,
   "Urea Production (kg)": 0.733,
   "Methanol Synthesis": 0.5,
-  "Other GHG Emission Process Activities": 1,
+  "other GHG Emission Process Activities": 1,
   "Non Kyoto protocol / Other Non GHG Emissions": 1,
-  "Other Biogenic GHG Emission Process Activities": 1
+  "other Biogenic GHG Emission Process Activities": 1
 };
 
 // All Kyoto/standard GHG processes (everything except Non-Kyoto, VOs, Biogenic)
@@ -108,7 +108,7 @@ export const GHG_ACTIVITIES = [
   "Urea Production (kg)",   /////////
   "Methanol production",
   "Hydrogen production (SMR – Steam Methane Reforming)",
-  "Amine-based gas sweetening (acid gas removal)",
+  "Amine-Based gas sweetening (acid gas removal)",
   "Sulfur recovery units (Claus process)",
   "Natural gas dehydration (glycol regeneration)",
   "Isomerization and alkylation processes",
@@ -162,7 +162,7 @@ export const GHG_ACTIVITIES = [
   "Ethylene Oxide / Ethylene Glycol Production",
   "Urea Production",
   "Methanol Synthesis",
-  "Other GHG Emission Process Activities",
+  "other GHG Emission Process Activities",
 ];
 
 // Non-Kyoto activities
@@ -185,6 +185,44 @@ export const VO_ACTIVITIES = [
 export const BIOGENIC_ACTIVITIES = [
   "Biomass Gasification or Pyrolysis",
   "Bioethanol Fermentation",
-  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (Biogenic)",
-  "Other Biogenic GHG Emission Process Activities",
+  "Fermentation-Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)",
+  "other Biogenic GHG Emission Process Activities",
+];
+
+///// for dashboard unit 
+export const FOR_UNIT_KG =[
+"Solvent use in paints and coatings",
+"Dry cleaning operations",
+"Printing operations (ink solvents)",
+"Adhesive and sealant application",
+"Surface coating and finishing",
+"Fuel dispensing at service stations",
+"Industrial cleaning agents",
+ "Hydrogen production (SMR – Steam Methane Reforming)",
+"Fermentation-Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)",
+"Lyophilization or Freeze-Drying Using CO₂ Refrigerants",
+"Anaerobic Wastewater or Biowaste Treatment (On-site)",
+"Use of Nitrous Oxide in Sterilization or Anaesthesia",
+"Neutralization of Waste Streams (Carbonate Reactions)",
+"Steam Cracking of Naphtha",
+"Steam Cracking of Ethane",
+"Ethylene Oxide / Ethylene Glycol Production",
+"Urea Production (kg)",
+"Methanol Synthesis",
+"Non Kyoto protocol / Other Non GHG Emissions",
+];
+
+//Nm3
+export const FOR_UNIT_NM3 ="Amine-Based gas sweetening (acid gas removal)"
+
+//1000 m3
+export const FOR_UNIT_THOUSAND_M3 ="Natural gas dehydration (glycol regeneration)"
+
+//kWh
+export const FOR_UNIT_THOUSAND_KWH ="geothermal fluid degassing (natural release of CO₂ from underground reservoirs)"
+
+//kgco2e
+export const FOR_UNIT_THOUSAND_KGCO2E =[
+  "other GHG Emission Process Activities",
+  "other Biogenic GHG Emission Process Activities"
 ];

@@ -124,6 +124,7 @@ const UserViewPage = () => {
                 <input
                   type="text"
                   className="border-[3px] h-10 w-full mb-3 p-2"
+                  readOnly
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
@@ -133,6 +134,7 @@ const UserViewPage = () => {
                 <input
                   type="text"
                   className="border-[3px] h-10 w-full mb-3 p-2"
+                  readOnly
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 />
@@ -159,6 +161,7 @@ const UserViewPage = () => {
                 <label className="form-label">Email</label>
                 <input
                   type="email"
+                  readOnly
                   className="border-[3px] h-10 w-full mb-3 p-2"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}

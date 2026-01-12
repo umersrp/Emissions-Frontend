@@ -66,8 +66,8 @@ const UserEditPage = () => {
     if (!formData.username) errors.username = "Username is required";
     if (!formData.email) errors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = "Email address is invalid";
-    if (!formData.phone) errors.phone = "Phone number is required";
-    else if (!/^\d{11}$/.test(formData.phone)) errors.phone = "Phone number is invalid";
+    // if (!formData.phone) errors.phone = "Phone number is required";
+    // else if (!/^\d{11}$/.test(formData.phone)) errors.phone = "Phone number is invalid";
     return errors;
   };
 

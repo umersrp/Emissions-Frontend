@@ -9,21 +9,77 @@ import Scope3EmissionsSection from "@/components/partials/widget/chart/Scope3Emi
 import Select from "@/components/ui/Select";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Tooltip } from '@mui/material';
-import { GHG_ACTIVITIES } from "@/constant/scope1/calculate-process-emission";
-import { KYOTO_GASES } from "@/constant/scope1/calculate-fugitive-emission";
+// Import constants
+import { NON_KYOTO_GASES } from "@/constant/scope1/calculate-fugitive-emission";
+import {
+  NON_KYOTO_ACTIVITIES,
+  VO_ACTIVITIES,
+  BIOGENIC_ACTIVITIES,
+} from "@/constant/scope1/calculate-process-emission";
+import Logo from "@/assets/images/logo/SrpLogo.png";
+import { stakeholderOptions } from "@/constant/scope1/stationary-data";
 
+// import { GHG_ACTIVITIES } from "@/constant/scope1/calculate-process-emission";
 
+// Helper functions
+const isNonKyotoMaterial = (materialRefrigerant) => {
+  if (!materialRefrigerant) return false;
+
+  return NON_KYOTO_GASES.some(gas =>
+    materialRefrigerant.toLowerCase().includes(gas.toLowerCase())
+  );
+};
+
+const isExcludedActivity = (activityType) => {
+  if (!activityType) return false;
+
+  const excludedActivities = [
+    ...NON_KYOTO_ACTIVITIES,
+    ...VO_ACTIVITIES,
+    ...BIOGENIC_ACTIVITIES
+  ];
+
+  return excludedActivities.some(activity =>
+    activityType.toLowerCase().includes(activity.toLowerCase())
+  );
+};
+
+const calculateFugitiveEmissions = (fugitiveListData = []) => {
+  return fugitiveListData.reduce((sum, record) => {
+    if (isNonKyotoMaterial(record.materialRefrigerant)) {
+      return sum;
+    }
+
+    const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
+    return sum + emissionValue;
+  }, 0);
+};
+
+const calculateProcessEmissions = (emissionActivityListData = []) => {
+  let includedCount = 0;
+  const result = emissionActivityListData.reduce((sum, record) => {
+    if (isExcludedActivity(record.activityType)) {
+      return sum;
+    }
+    includedCount++;
+    const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
+    return sum + emissionValue;
+  }, 0);
+  console.log(`PROCESS EMISSIONS: ${includedCount}/${emissionActivityListData.length} records included, Total: ${result} tCO₂e`);
+  return result;
+};
 
 const Dashboard = () => {
   const [buildings, setBuildings] = useState([]);
   const [dashboardData, setDashboardData] = useState(null);
-  const [selectedBuilding, setSelectedBuilding] = useState([]);
-
+  // const [selectedBuilding, setSelectedBuilding] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedDepartments, setSelectedDepartments] = useState([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const [appliedBuilding, setAppliedBuilding] = useState(null);
+  const [resetTrigger, setResetTrigger] = useState(0);
 
   // Fetch buildings list on mount
   useEffect(() => {
@@ -34,7 +90,15 @@ const Dashboard = () => {
           `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?page=1&limit=100000`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        setBuildings(res.data?.data?.buildings || []);
+
+        // Sort buildings A-Z by buildingName
+        const sortedBuildings = (res.data?.data?.buildings || []).sort((a, b) => {
+          const nameA = (a.buildingName || a.name || "").toLowerCase();
+          const nameB = (b.buildingName || b.name || "").toLowerCase();
+          return nameA.localeCompare(nameB);
+        });
+
+        setBuildings(sortedBuildings);
       } catch (error) {
         console.error("Error fetching buildings:", error);
       }
@@ -42,14 +106,9 @@ const Dashboard = () => {
     fetchBuildings();
   }, []);
 
-  // Fetch dashboard data when selected building changes
+  // Initial data fetch when component mounts
   useEffect(() => {
-    if (!selectedBuilding) {
-      setDashboardData(null);
-      return;
-    }
-
-    const fetchDashboardData = async () => {
+    const fetchInitialData = async () => {
       setLoading(true);
       try {
         const token = localStorage.getItem("token");
@@ -57,36 +116,47 @@ const Dashboard = () => {
           `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
           {
             headers: { Authorization: `Bearer ${token}` },
-            params: { buildingId: selectedBuilding },
           }
         );
         setDashboardData(response.data.data);
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error("Error fetching initial dashboard data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDashboardData();
-  }, [selectedBuilding]);
+    fetchInitialData();
+  }, []); // Empty dependency array - runs once on mount
+
 
   const applyFilters = async () => {
-    if (!selectedBuilding) return;
-
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
+      const params = {};
+
+      // Set applied building from the current dropdown selection
+      setAppliedBuilding(selectedBuilding);
+
+      if (selectedBuilding) {
+        params.buildingId = selectedBuilding;
+      }
+      if (selectedDepartments.length > 0) {
+        params.stakeholder = selectedDepartments;
+      }
+      if (fromDate) {
+        params.fromDate = fromDate;
+      }
+      if (toDate) {
+        params.toDate = toDate;
+      }
+
       const res = await axios.get(
         `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
         {
           headers: { Authorization: `Bearer ${token}` },
-          params: {
-            buildingId: selectedBuilding,
-            departments: selectedDepartments,
-            fromDate,
-            toDate,
-          },
+          params,
         }
       );
       setDashboardData(res.data.data);
@@ -97,64 +167,82 @@ const Dashboard = () => {
     }
   };
 
-  const filteredFugitiveEmission = useMemo(() => {
-    const fugitiveList = dashboardData?.scope1?.fugitive?.list || [];
-
-    return fugitiveList
-      .filter((item) => KYOTO_GASES.includes(item.activityType))
-      .reduce(
-        (sum, item) =>
-          sum + Number(item.calculatedEmissionTCo2e || 0),
-        0
-      );
-  }, [dashboardData]);
-
-
-  const filteredProcessEmission = useMemo(() => {
-    const processList =
-      dashboardData?.scope1?.processEmissions?.list || [];
-
-    return processList
-      .filter((item) => GHG_ACTIVITIES.includes(item.activityType))
-      .reduce(
-        (sum, item) =>
-          sum + Number(item.calculatedEmissionTCo2e || 0),
-        0
-      );
-  }, [dashboardData]);
-
-
   const clearFilters = () => {
     setSelectedDepartments([]);
     setFromDate("");
     setToDate("");
+    setSelectedBuilding(null); // Clear dropdown selection
+    setAppliedBuilding(null); // Clear applied building
+    // window.location.reload();
+    setResetTrigger(prev => prev + 1);
+    // Optional: Refetch initial data when clearing filters
+
+    const fetchInitialData = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        setDashboardData(response.data.data);
+      } catch (error) {
+        console.error("Error fetching initial dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialData();
   };
-
-
   // --- Calculate emissions ---
   const purchasedElectricity = dashboardData?.scope2?.purchasedElectricity;
 
-
   // Scope 1: sum of stationary, transport, fugitive, emissionActivity
-  const scope1Emission =
-    (dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0) +
-    filteredFugitiveEmission +
-    (dashboardData?.scope1?.emissionActivity?.totalEmissionTCo2e || 0) +
-    (dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0) +
-    filteredProcessEmission;
+  const scope1Emission = useMemo(() => {
+    const stationary = dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0;
+    const transport = dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0;
+    const fugitive = calculateFugitiveEmissions(dashboardData?.scope1?.fugitiveListData);
+    const process = calculateProcessEmissions(dashboardData?.scope1?.EmissionActivityListData);
+
+    console.log("Scope 1 Calculation Debug");
+    console.log("Stationary:", stationary);
+    console.log("Transport:", transport);
+    console.log("Fugitive emissions calculated:", fugitive);
+    console.log("Process emissions calculated:", process);
+    // console.log("Fugitive list data:", dashboardData?.scope1?.fugitiveListData);
+    console.log("Process list data:", dashboardData?.scope1?.EmissionActivityListData);
+    console.log("Total scope1Emission:", stationary + transport + fugitive + process);
+    console.log("=== End Debug ===");
+    return stationary + transport + fugitive + process;
+  }, [dashboardData]);
+
+  // Scope 2(Market): sum of market based for pie
+  const scope2MarketEmission = Number(dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0);
 
   // Scope 2: sum of purchased electricity (location + market)
   const scope2Emission =
     Number(dashboardData?.scope2?.purchasedElectricity?.totalLocationTCo2e || 0) +
     Number(dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0);
 
-
   // Scope 3: default 0 if not available
   const scope3Emission = dashboardData?.scope3
-    ? Object.values(dashboardData.scope3).reduce(
-      (sum, item) => sum + (item?.totalEmissionTCo2e || 0),
-      0
-    )
+    ? Object.values(dashboardData.scope3).reduce((sum, item) => {
+      if (Array.isArray(item)) {
+        return (
+          sum +
+          item.reduce(
+            (subSum, subItem) =>
+              subSum + Number(subItem?.totalEmissionTCo2e || 0),
+            0
+          )
+        );
+      }
+
+      return sum + Number(item?.totalEmissionTCo2e || 0);
+    }, 0)
     : 0;
 
   const totalEmission = scope1Emission + scope2Emission + scope3Emission;
@@ -162,10 +250,9 @@ const Dashboard = () => {
   // Pie chart data
   const pieData = [
     { name: "Scope 1", value: Number(scope1Emission) || 0 },
-    { name: "Scope 2", value: Number(scope2Emission) || 0 },
+    { name: "Scope 2", value: Number(scope2MarketEmission) || 0 },
     { name: "Scope 3", value: Number(scope3Emission) || 0 },
   ];
-
 
   const buildingMap = {};
   buildings.forEach((b) => {
@@ -199,14 +286,6 @@ const Dashboard = () => {
     return 0;
   };
 
-
-  // const scope3Emission = dashboardData?.scope3
-  //   ? sumEmissionTCo2e(dashboardData.scope3.businessTravel) +
-  //   sumEmissionTCo2e(dashboardData.scope3.purchasedGoodsAndServices) +
-  //   sumEmissionTCo2e(dashboardData.scope3.wasteGeneratedInOperations)
-  //   : 0;
-
-
   const allModelEmissionData = dashboardData
     ? [
       // Scope 1
@@ -215,33 +294,33 @@ const Dashboard = () => {
         value: dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0,
       },
       {
-        name: "Auto Mobile Combustion",
+        name: "Mobile Combustion",
         value: dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0,
       },
       {
-        name: "Fugitive",
+        name: "Fugitive Emissions",
         value: dashboardData?.scope1?.fugitive?.totalEmissionTCo2e || 0,
       },
       {
         name: "Process Emission",
-        value: dashboardData?.scope1?.emissionActivity?.totalEmissionTCo2e || 0,
+        value: dashboardData?.scope1?.processEmissions?.totalEmissionTCo2e || 0,
       },
 
       // Scope 2
       {
-        name: "Purchased Electricity L",
+        name: "Purchased Electricity Location Based",
         value: dashboardData?.scope2?.purchasedElectricity?.totalLocationTCo2e || 0,
       },
       {
-        name: "Purchased Electricity M",
+        name: "Purchased Electricity Market Based",
         value: dashboardData?.scope2?.purchasedElectricity?.totalMarketTCo2e || 0,
       },
 
       // Scope 3
       {
-        name: "Purchased Goods",
+        name: "Purchased Goods & Services",
         value: sumEmissionTCo2e(
-          dashboardData?.scope3?.purchasedGoodsAndServices
+          dashboardData?.scope3?.purchasedGoods
         ),
       },
       {
@@ -253,35 +332,35 @@ const Dashboard = () => {
       {
         name: "Waste Generated",
         value: sumEmissionTCo2e(
-          dashboardData?.scope3?.wasteGeneratedInOperations
+          dashboardData?.scope3?.wasteGenerateTotal
         ),
       },
+      // {
+      //   name: "Purchased Goods",
+      //   value: sumEmissionTCo2e(
+      //     dashboardData?.scope3?.purchasedGoods
+      //   ),
+      // },
       {
-        name: "Purchased Goods",
-        value: sumEmissionTCo2e(
-          dashboardData?.scope3?.purchasedGoods
-        ),
-      },
-      {
-        name: "Fuel and Energy",
+        name: "Fuel & Energy Related Activities",
         value: sumEmissionTCo2e(
           dashboardData?.scope3?.FuelAndEnergys
         ),
       },
       {
-        name: "UpStream",
+        name: "Upstream Transportation",
         value: sumEmissionTCo2e(
           dashboardData?.scope3?.UpstreamTransportations
         ),
       },
       {
-        name: "DownStream",
+        name: "Downstream Transportation",
         value: sumEmissionTCo2e(
           dashboardData?.scope3?.DownstreamTransportations
         ),
       },
       {
-        name: "CapitalGoods",
+        name: "Capital Goods",
         value: sumEmissionTCo2e(
           dashboardData?.scope3?.CapitalGoods
         ),
@@ -290,63 +369,77 @@ const Dashboard = () => {
     ]
     : [];
 
-
-
-
-
   // Format numbers helper
   const formatNumber = (num) => {
-    if (!num && num !== 0) return "0";
-    return num.toLocaleString();
+    if (num === null || num === undefined) return "0";
+
+    return num.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   };
 
   return (
     <div className="flex h-screen bg-gray-100">
+      {loading && (
+        <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="text-center">
+            <img
+              src={Logo}
+              alt="Loading..."
+              className="w-52 h-24 mx-auto animate-pulse"
+            />
+            {/* <p className="mt-4 text-gray-600 font-medium">Loading dashboard data...</p> */}
+          </div>
+        </div>
+      )}
+
       {/* Sidebar: Building filter */}
-
-
-
       {/* Main content */}
-      <main className="flex-1 p-6 overflow-auto">
+      <main className={`flex-1 p-6 overflow-auto scrollbar-hide  ${loading ? 'opacity-100' : ''}`}>
         <div className="flex flex-wrap gap-4 mb-6 items-end bg-white p-4 rounded-xl shadow-lg">
           {/* Building filter */}
           <div>
             <label className="block font-semibold text-gray-700 mb-1">Building</label>
             <Select
-              value={selectedBuilding[0] ? { value: selectedBuilding[0], label: buildingMap[selectedBuilding[0]] } : null}
-              onChange={(option) => setSelectedBuilding(option ? [option.value] : [])}
+              value={selectedBuilding ? {
+                value: selectedBuilding,
+                label: buildingMap[selectedBuilding]
+              } : null}
+              onChange={(option) => {
+                const buildingId = option ? option.value : null;
+                setSelectedBuilding(buildingId); // Only update temporary selection
+              }}
               options={buildings.map((b) => ({
                 value: b._id,
                 label: b.buildingName || b.name,
               }))}
               isClearable
-              placeholder="Select a building"
+              placeholder="Select a Building"
               className="w-48"
             />
           </div>
 
           {/* Department filter */}
           <div>
-            <label className="block font-semibold text-gray-700 mb-1">Departments</label>
-            <select
-
-              value={selectedDepartments}
-              onChange={(e) => {
-                const options = Array.from(e.target.selectedOptions, (option) => option.value);
-                setSelectedDepartments(options);
+            <label className="block font-semibold text-gray-700 mb-1">
+              Departments
+            </label>
+            <Select
+              options={stakeholderOptions}
+              placeholder="Select Department"
+              className="w-48 text-sm"
+              isClearable
+              value={
+                stakeholderOptions.find(
+                  opt => opt.value === selectedDepartments
+                ) || null
+              }
+              onChange={(option) => {
+                setSelectedDepartments(option ? option.value : null);
               }}
-              className="border rounded-md px-3 py-2 text-sm w-48"
-              placeholder="Select Departments"
-
-            >
-              {["Select Departments", "Operations", "Finance", "HR", "IT", "Maintenance"].map((dept) => (
-                <option key={dept} value={dept}>
-                  {dept}
-                </option>
-              ))}
-            </select>
+            />
           </div>
-
 
           {/* Date range filter */}
           <div>
@@ -387,64 +480,52 @@ const Dashboard = () => {
 
         {/* Summary cards */}
         <div className="flex gap-4 mb-6 flex-wrap">
-          <Card className="flex-1 text-black p-6 rounded-lg shadow-lg min-w-[220px]">
-            <h3 className="text-lg font-semibold">Total GHG Emissions</h3>
-            <p className="text-2xl text-red-500 font-bold mt-2">
-              {formatNumber(totalEmission)} <span className="text-base font-normal">tCO₂e</span>
+          <Card className="flex-1 text-black rounded-lg shadow-lg min-w-[220px]">
+            <h3 className="text-lg font-semibold mt-6">Total GHG Emissions</h3>
+            <p className="text-2xl text-red-500 font-bold ">
+              {formatNumber(totalEmission)} tCO₂e
             </p>
           </Card>
 
-          <Card className="flex-1 p-6 rounded-lg shadow-lg min-w-[220px]">
-            <h3 className="text-lg font-semibold">Scope 1 Emissions</h3>
-            <p className="text-2xl text-green-500 font-bold mt-2">{formatNumber(scope1Emission)} tCO₂e</p>
-            <p className="text-sm text-gray-600">Direct emissions</p>
+          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
+            <h3 className="text-lg font-semibold mt-6" >Scope 1 Emissions</h3>
+            <p className="text-2xl text-green-500 font-bold ">{formatNumber(scope1Emission)} tCO₂e</p>
+            <p className="text-sm text-gray-600">Direct Emissions</p>
           </Card>
 
-          <Card className="flex-1 p-6 rounded-lg shadow-lg min-w-[220px]">
+          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
             <h3 className="text-lg font-semibold">Scope 2 Emissions</h3>
 
-            {/* TOTAL (same size as Scope 1) */}
-            <p className="text-2xl font-bold text-orange-500 mt-2">
-              {formatNumber(
-                (purchasedElectricity?.totalLocationTCo2e || 0) +
-                (purchasedElectricity?.totalMarketTCo2e || 0)
-              )}{" "}
-              tCO₂e
-            </p>
-
             {/* Breakdown (smaller, subtle) */}
-            <div className="mt-1 space-y-1">
-              <p className="text-xs text-gray-500">
-                Location:{" "}
-                <span className="font-medium text-orange-500">
-                  {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)}
+            <div className="space-y-1">
+              <p className="text-sm text-black-500 flex flex-col">
+                Location Based
+                <span className="text-xl font-bold text-orange-500">
+                  {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)} tCO₂e
                 </span>
               </p>
-              <p className="text-xs text-gray-500">
-                Market:{" "}
-                <span className="font-medium text-orange-500">
-                  {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)}
+              <p className="text-sm text-black-500 flex flex-col">
+                <span> Market Based</span>
+                <span className="text-xl font-bold text-orange-500">
+                  {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)} tCO₂e
                 </span>
               </p>
             </div>
 
-            <p className="text-sm text-gray-600 mt-2">
-              Indirect emissions
+            <p className="text-sm text-gray-600 ">
+              Indirect Emissions
             </p>
           </Card>
 
-
-
-
-          <Card className="flex-1 p-6 rounded-lg shadow-lg min-w-[220px]">
-            <h3 className="text-lg font-semibold">Scope 3 Emissions</h3>
-            <p className="text-2xl text-purple-500 font-bold mt-2">{formatNumber(scope3Emission)} tCO₂e</p>
-            <p className="text-sm text-gray-600">Other indirect emissions</p>
+          <Card className="flex-1  rounded-lg shadow-lg min-w-[220px]">
+            <h3 className="text-lg font-semibold mt-6">Scope 3 Emissions</h3>
+            <p className="text-2xl text-purple-500 font-bold">{formatNumber(scope3Emission)} tCO₂e</p>
+            <p className="text-sm text-gray-600">Other Indirect Emissions</p>
           </Card>
         </div>
 
         {/* Charts */}
-        <div className="grid gap-6 grid-cols-3 mb-5">
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 mb-5">
           <Card className="flex-1  min-w-[320px]">
             <h3 className="font-semibold mb-20 text-xl flex items-center gap-2">
               GHG Emissions by Scopes
@@ -455,10 +536,11 @@ const Dashboard = () => {
             <GroupChart1 chartData={pieData} loading={loading} />
           </Card>
 
+        
           <Card className="flex-1  min-w-[320px] col-span-2">
             <h3 className="font-semibold  text-xl flex items-center gap-2">
-              Building-wise GHG Emissions
-              <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e.">
+              Building-Wise GHG Emissions
+              <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e. The selected building will be highlighted in blue.">
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
               </Tooltip>
             </h3>
@@ -467,13 +549,16 @@ const Dashboard = () => {
               chartData={barChartData}
               onBarClick={(building) => {
                 console.log("Clicked building:", building);
-                // navigate(`/dashboard?buildingId=${building.buildingId}`);
+                // If you want clicking to also select the building in the filter
+                // setSelectedBuilding([building.buildingId]);
+                // setSelectedBuilding(building.buildingId);
               }}
+              selectedBuilding={appliedBuilding} // Pass the selected building ID
             />
           </Card>
         </div>
 
-
+        {/* Category-Wise GHG Emissions */}
         <div className="mb-5">
           <Card className="flex-1 min-w-[320px]" title="Category-Wise GHG Emissions">
             <div className="flex items-center gap-2 mb-4">
@@ -490,20 +575,22 @@ const Dashboard = () => {
           </Card>
         </div>
 
-
+        {/* scope 1 */}
         <div className="mb-5">
           <Card className="flex-1  min-w-[320px]" title="Scope 1 Emissions by Category">
-            <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} />
+            <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>
+        {/* scope 2 */}
         <div>
           <Card className="flex-1  min-w-[320px]" title="Scope 2 Emissions by Category">
-            <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} />
+            <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>
+        {/* scope 3 */}
         <div>
           <Card className="flex-1 p-4 min-w-[320px]">
-            <Scope3EmissionsSection dashboardData={dashboardData} loading={loading} />
+            <Scope3EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>
       </main>

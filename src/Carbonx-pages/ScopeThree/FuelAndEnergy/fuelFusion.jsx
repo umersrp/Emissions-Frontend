@@ -156,7 +156,7 @@ const FuelFusion = () => {
             { Header: "Fuel Name", accessor: "fuel", Cell: ({ value }) => capitalizeLabel(value) },
             { Header: "Total Fuel Consumption", accessor: "totalFuelConsumption", Cell: ({ value }) => value === "0" || value === 0 || value === null ? "N/A" : value },
             { Header: "Consumption Unit", accessor: "fuelConsumptionUnit", Cell: ({ cell }) => cell.value || "N/A" },
-            { Header: "Total Gross Electricity Purchased from Grid, Specific Supplier or under PPA", accessor: "totalGrossElectricityPurchased", Cell: ({ value }) => value === "0" || value === 0 || value === null ? "N/A" : value },
+            { Header: "Total Purchased Electricity (Grid / Supplier Specific / PPA)", accessor: "totalGrossElectricityPurchased", Cell: ({ value }) => value === "0" || value === 0 || value === null ? "N/A" : value },
             { Header: "Unit", accessor: "unit", Cell: ({ cell }) => cell.value || "N/A" },
 
             { Header: "Business Travel By Air", accessor: "didTravelByAir", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
@@ -191,9 +191,6 @@ const FuelFusion = () => {
                     const numValue = Number(rawValue);
                     if (isNaN(numValue)) {
                         return "N/A";
-                    }
-                    if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
-                        return numValue.toExponential(2);
                     }
                     return numValue.toFixed(2);
                 }
@@ -323,7 +320,7 @@ const FuelFusion = () => {
         <>
             <Card noborder>
                 <div className="md:flex pb-6 items-center">
-                    <h6 className="flex-1 md:mb-0 ">Fuel and Energy Related Activity Records</h6>
+                    <h6 className="flex-1 md:mb-0 ">Fuel and Energy Related Activities Records</h6>
 
                     <div className="md:flex md:space-x-3 items-center">
                         <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />

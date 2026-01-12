@@ -187,7 +187,7 @@ const BuildingFormPage = () => {
         buildingName: capitalizeFirstLetter(formData.buildingName.trim()),
         country: formData.country?.value || "",
         buildingLocation: capitalizeFirstLetter(formData.buildingLocation.trim()),
-        buildingType: formData.buildingType?.value || "",
+        buildingType: capitalizeFirstLetter(formData.buildingType.trim()),
         ownership: formData.ownership?.value || "",
         heatingType: capitalizeFirstLetter(formData.heatingType.trim()),
         coolingType: capitalizeFirstLetter(formData.coolingType.trim()),

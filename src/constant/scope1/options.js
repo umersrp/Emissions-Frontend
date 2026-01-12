@@ -690,7 +690,7 @@ export const activityTypeOptions = [
   { value: "Urea Production", label: "Urea Production" },
   { value: "Methanol production", label: "Methanol production" },
   { value: "Hydrogen production (SMR – Steam Methane Reforming)", label: "Hydrogen production (SMR – Steam Methane Reforming)" },
-  { value: "Amine-based gas sweetening (acid gas removal)", label: "Amine-based gas sweetening (acid gas removal)" },
+  { value: "Amine-Based gas sweetening (acid gas removal)", label: "Amine-Based gas sweetening (acid gas removal)" },
   { value: "Sulfur recovery units (Claus process)", label: "Sulfur recovery units (Claus process)" },
   { value: "Natural gas dehydration (glycol regeneration)", label: "Natural gas dehydration (glycol regeneration)" },
   { value: "Isomerization and alkylation processes", label: "Isomerization and alkylation processes" },
@@ -735,7 +735,7 @@ export const activityTypeOptions = [
   { value: "Bioethanol Fermentation", label: "Bioethanol Fermentation" },
   { value: "Hydrogen from Electrolysis (if carbonates used)", label: "Hydrogen from Electrolysis (if carbonates used)" },
   { value: "Carbonate / Bicarbonate Neutralization in API Synthesis", label: "Carbonate / Bicarbonate Neutralization in API Synthesis" },
-  { value: "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (Biogenic)", label: "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (Biogenic)" },
+  { value: "Fermentation-Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)", label: "Fermentation-Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)" },
   { value: "Neutralization or Buffer Preparation Using Carbonates", label: "Neutralization or Buffer Preparation Using Carbonates" },
   { value: "Lyophilization or Freeze-Drying Using CO₂ Refrigerants", label: "Lyophilization or Freeze-Drying Using CO₂ Refrigerants" },
   { value: "Anaerobic Wastewater or Biowaste Treatment (On-site)", label: "Anaerobic Wastewater or Biowaste Treatment (On-site)" },
@@ -747,9 +747,9 @@ export const activityTypeOptions = [
   { value: "Ethylene Oxide / Ethylene Glycol Production", label: "Ethylene Oxide / Ethylene Glycol Production" },
   { value: "Urea Production (kg)", label: "Urea Production (kg)" },
   { value: "Methanol Synthesis", label: "Methanol Synthesis" },
-  { value: "Other GHG Emission Process Activities", label: "Other GHG Emission Process Activities" },
+  { value: "other GHG Emission Process Activities", label: "other GHG Emission Process Activities" },
   { value: "Non Kyoto protocol / Other Non GHG Emissions", label: "Non Kyoto protocol / Other Non GHG Emissions" },
-  { value: "Other Biogenic GHG Emission Process Activities", label: "Other Biogenic GHG Emission Process Activities" },
+  { value: "other Biogenic GHG Emission Process Activities", label: "other Biogenic GHG Emission Process Activities" },
 ];
 
 
@@ -765,6 +765,7 @@ export const activityMetadata = {
   "Carbide production": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of carbide (CaC₂) are produced?" },
   "Titanium dioxide production": { gasEmitted: "CO₂ / Cl₂ emissions", amountLabel: "How many tonnes of titanium dioxide are produced?" },
   "Ethylene production (cracking process)": { gasEmitted: "CO₂ / CH₄ emissions", amountLabel: "How many tonnes of ethylene are produced?" },
+
   "Solvent use in paints and coatings": { gasEmitted: "VOCs emissions", amountLabel: "How many kilograms of paint are applied?" },
   "Dry cleaning operations": { gasEmitted: "VOCs (perchloroethylene, hydrocarbons) emissions", amountLabel: "How many kilograms of garments are cleaned?" },
   "Printing operations (ink solvents)": { gasEmitted: "VOCs emissions", amountLabel: "How many kilograms of ink are used?" },
@@ -772,6 +773,7 @@ export const activityMetadata = {
   "Surface coating and finishing": { gasEmitted: "VOCs emissions", amountLabel: "How many kilograms of coating are applied?" },
   "Fuel dispensing at service stations": { gasEmitted: "VOCs emissions", amountLabel: "How many kilograms of fuel are dispensed?" },
   "Industrial cleaning agents": { gasEmitted: "VOCs emissions", amountLabel: "How many kilograms of cleaning product (solvent) are used?" },
+
   "Nitric acid production (N₂O)": { gasEmitted: "N₂O emissions", amountLabel: "How many tonnes of nitric acid are produced?" },
   "Adipic acid production (N₂O)": { gasEmitted: "N₂O emissions", amountLabel: "How many tonnes of adipic acid are produced?" },
   "Magnesium production (SF₆)": { gasEmitted: "SF₆ emissions", amountLabel: "How many tonnes of magnesium are produced?" },
@@ -780,15 +782,20 @@ export const activityMetadata = {
   "Ammonia production": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of ammonia are produced?" },
   "Urea Production": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of urea are produced?" },
   "Methanol production": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of methanol are produced?" },
+  ///namaz break
   "Hydrogen production (SMR – Steam Methane Reforming)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of Hydrogen are produced?" },
-  "Amine-based gas sweetening (acid gas removal)": { gasEmitted: "CO₂ emissions", amountLabel: "How many Nm³ (normal cubic meters) of acid gas is treated?" },
+
+  "Amine-Based gas sweetening (acid gas removal)": { gasEmitted: "CO₂ emissions", amountLabel: "How many Nm³ (normal cubic meters) of acid gas is treated?" },
+
   "Sulfur recovery units (Claus process)": { gasEmitted: "CO₂ and SO₂ emissions", amountLabel: "How many tonnes of sulphur are recovered?" },
+
   "Natural gas dehydration (glycol regeneration)": { gasEmitted: "CO₂ and CH₄ emissions", amountLabel: "How many thousand meter cube (1000 m3) of gas is treated ?" },
+
   "Isomerization and alkylation processes": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of product are produced after the process?" },
   "Coke calcination (in delayed coking)": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of calcined coke are produced?" },
   "Ethylene and Propylene production (via steam cracking)": { gasEmitted: "CO₂ and CH₄ emissions", amountLabel: "How many tonnes of ethylene are produced?" },
   "Methanol synthesis (from natural gas reforming)": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of methanol are produced?" },
-  "Ammonia production (via Haber-Bosch process)": { gasEmitted: "CO₂ emissions", amountLabel: "How many Tonnes of Ammonia are produced?" },
+  "Ammonia production (via Haber-Bosch process)": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of ammonia are produced?" },
   "Nitric acid production": { gasEmitted: "CO₂ and N₂O emissions", amountLabel: "How many tonnes of nitric acid are produced?" },
   "Adipic acid production": { gasEmitted: "CO₂ and N₂O emissions", amountLabel: "How many tonnes of adipic acid are produced?" },
   "Carbon black manufacturing": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of carbon black are manufactured?" },
@@ -803,7 +810,9 @@ export const activityMetadata = {
   "active pharmaceutical ingredient (API) synthesis reactions": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of API are synthesized?" },
   "buffer preparation (if involving carbonates or bicarbonates)": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of calcium carbonate are used in the reaction?" },
   "waste incineration with chemical additives or catalysts": { gasEmitted: "CO₂ and N₂O emissions", amountLabel: "How many tonnes of waste are incinerated?" },
+
   "geothermal fluid degassing (natural release of CO₂ from underground reservoirs)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kWh of energy are produced?" },
+
   "chemical reactions in concentrated solar thermal systems (heat transfer fluids degradation)": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of heat transfer fluid (HTF) are used?" },
   "fly ash or bottom ash treatment and neutralization (lime or acid reactions)": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of calcium carbonate are used in the reaction?" },
   "Sulphur Recovery Units (Claus Process)": { gasEmitted: "SO₂, CO₂ emissions", amountLabel: "How many tonnes of sulphur are recovered?" },
@@ -825,21 +834,28 @@ export const activityMetadata = {
   "Bioethanol Fermentation": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of ethanol are fermented?" },
   "Hydrogen from Electrolysis (if carbonates used)": { gasEmitted: "CO₂ (trace) emissions", amountLabel: "How many tonnes of calcium carbonate are decomposed?" },
   "Carbonate / Bicarbonate Neutralization in API Synthesis": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of calcium carbonate are neutralized?" },
-  "Fermentation-based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of glucose are consumed?" },
+
+  "Fermentation-Based Production of Antibiotics, Vitamins, Enzymes (Biogenic)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of glucose are consumed?" },
+
   "Neutralization or Buffer Preparation Using Carbonates": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of calcium carbonate or sodium carbonate are neutralized?" },
+
   "Lyophilization or Freeze-Drying Using CO₂ Refrigerants": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of product are treated?" },
   "Anaerobic Wastewater or Biowaste Treatment (On-site)": { gasEmitted: "CH₄ emissions (biogenic)", amountLabel: "How many kilograms of BOD are removed?" },
   "Use of Nitrous Oxide in Sterilization or Anaesthesia": { gasEmitted: "N₂O emissions", amountLabel: "How many kilograms of nitrous oxide are used?" },
+
   "Catalyst Regeneration with Carbonates or Acids": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of calcium carbonate reacted?" },
+
   "Neutralization of Waste Streams (Carbonate Reactions)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of carbonate reacted?" },
   "Steam Cracking of Naphtha": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of ethylene are produced?" },
   "Steam Cracking of Ethane": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of ethylene are produced?" },
   "Ethylene Oxide / Ethylene Glycol Production": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of ethylene oxide are produced?" },
   "Urea Production (kg)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of urea are produced?" },
   "Methanol Synthesis": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of methanol are synthesized?" },
-  "Other GHG Emission Process Activities": { gasEmitted: "GHG Gases", amountLabel: "Please write the total Process emissions in KgCo2e." },
-  "Non Kyoto protocol / Other Non GHG Emissions": { gasEmitted: "Non GHG Gases", amountLabel: "Please write the total Process emissions in Kg." },
-  "Other Biogenic GHG Emission Process Activities": { gasEmitted: "Biogenic Gases", amountLabel: "Please write the total Process emissions in KgCo2e." },
+
+  "other GHG Emission Process Activities": { gasEmitted: "GHG Gases", amountLabel: "Please write the total process emissions in KgCO2e." },
+  "Non Kyoto protocol / Other Non GHG Emissions": { gasEmitted: "Non GHG Gases", amountLabel: "Please write the total process emissions in Kg." },
+  "other Biogenic GHG Emission Process Activities": { gasEmitted: "Biogenic Gases", amountLabel: "Please write the total process emissions in KgCO2e." },
+
   "Vinyl chloride monomer (VCM) production": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of VCM are produced?" },
   
 };

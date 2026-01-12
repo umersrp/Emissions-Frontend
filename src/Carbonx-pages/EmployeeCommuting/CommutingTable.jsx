@@ -101,7 +101,7 @@ const EMISSION_FACTORS = {
             "Battery Electric Vehicle": 0.05202
         }
     },
-    
+
     // Motorbikes
     motorbikes: {
         "Small": 0.08319,
@@ -113,7 +113,7 @@ const EMISSION_FACTORS = {
         "Large (>500cc)": 0.13252,
         "Electric Motorbike": 0.03688 // Using Small car BEV as proxy
     },
-    
+
     // Taxis
     taxis: {
         "Regular taxi": 0.14861,
@@ -125,7 +125,7 @@ const EMISSION_FACTORS = {
         "Electric Taxi": 0.03688,
         "Shared Taxi/Pool": 0.14861
     },
-    
+
     // Buses
     buses: {
         "Green Line Bus": 0.02776,
@@ -138,10 +138,10 @@ const EMISSION_FACTORS = {
         "Electric Bus": 0.03688,
         "Private Company Bus": 0.12525
     },
-    
+
     // Trains
     trains: {
-      "National Rail": 0.03546,
+        "National Rail": 0.03546,
         "Subway/Metro": 0.02860,
         "Light Rail": 0.02860,
         "Commuter Rail": 0.03546,
@@ -154,29 +154,29 @@ const calculateEmissions = (data) => {
     let distance = 0;
     let passengers = 1;
     let factor = 0;
-    
+
     // Determine commute type and get appropriate values
     if (data.commuteByMotorbike) {
         distance = Number(data.motorbikeDistance) || 0;
         passengers = 1; // Motorbike typically carries 1 person
         const motorbikeType = data.motorbikeType || "Average";
         factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
-    } 
+    }
     else if (data.commuteByCar) {
         distance = Number(data.carDistance) || 0;
         passengers = Number(data.personsCarriedCar || 0) + 1; // Including driver
         const carType = data.carType || "Average car - Unknown engine size";
         const fuelType = data.carFuelType || "Unknown";
-        
+
         // Find the correct emission factor based on car type and fuel
         if (EMISSION_FACTORS.cars[carType]) {
             factor = EMISSION_FACTORS.cars[carType][fuelType] || EMISSION_FACTORS.cars[carType]["Unknown"];
         } else {
             // Default to average car
-            factor = EMISSION_FACTORS.cars["Average car - Unknown engine size"][fuelType] || 
-                     EMISSION_FACTORS.cars["Average car - Unknown engine size"]["Unknown"];
+            factor = EMISSION_FACTORS.cars["Average car - Unknown engine size"][fuelType] ||
+                EMISSION_FACTORS.cars["Average car - Unknown engine size"]["Unknown"];
         }
-        
+
         // For carpooling, emissions are allocated per passenger
         factor = factor / passengers;
     }
@@ -185,7 +185,7 @@ const calculateEmissions = (data) => {
         passengers = Number(data.taxiPassengers || 1);
         const taxiType = data.taxiType || "Regular taxi";
         factor = EMISSION_FACTORS.taxis[taxiType] || EMISSION_FACTORS.taxis["Regular taxi"];
-        
+
         // For shared taxi, emissions are allocated per passenger
         factor = factor / passengers;
     }
@@ -201,11 +201,11 @@ const calculateEmissions = (data) => {
         const trainType = data.trainType || "National rail";
         factor = EMISSION_FACTORS.trains[trainType] || EMISSION_FACTORS.trains["National rail"];
     }
-    
+
     // Calculate total emissions
     const totalEmissionsKg = distance * passengers * factor;
     const totalEmissionsTonnes = totalEmissionsKg / 1000;
-    
+
     return {
         distance,
         passengers,
@@ -233,29 +233,92 @@ const CommutingTable = () => {
     const fetchCommutingData = async () => {
         setLoading(true);
         try {
-            const res = await axios.get(`${process.env.REACT_APP_BASE_URL}/employee-commute/List`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-                params: { 
-                    page: controlledPageIndex + 1, 
-                    limit: controlledPageSize, 
-                    search: globalFilterValue 
+            const search = globalFilterValue.trim();
+            
+            // Build aggregation pipeline
+            const aggregationPipeline = [
+                // Lookup to join with building collection
+                {
+                    $lookup: {
+                        from: "buildings",
+                        localField: "buildingId",
+                        foreignField: "_id",
+                        as: "building"
+                    }
                 },
-            });
+                { $unwind: { path: "$building", preserveNullAndEmptyArrays: true } },
+                
+                // Search filter if search term exists
+                ...(search
+                    ? [{
+                        $match: {
+                            $or: [
+                                { "building.name": { $regex: search, $options: "i" } },
+                                { stakeholderDepartment: { $regex: search, $options: "i" } },
+                                { submittedByEmail: { $regex: search, $options: "i" } },
+                            ],
+                        },
+                    }]
+                    : []),
+                
+                // Add additional search fields (vehicle types, etc.)
+                ...(search
+                    ? [{
+                        $match: {
+                            $or: [
+                                { motorbikeType: { $regex: search, $options: "i" } },
+                                { carType: { $regex: search, $options: "i" } },
+                                { busType: { $regex: search, $options: "i" } },
+                                { taxiType: { $regex: search, $options: "i" } },
+                                { trainType: { $regex: search, $options: "i" } },
+                                { reportingYear: { $regex: search, $options: "i" } },
+                            ],
+                        },
+                    }]
+                    : []),
+                
+                // Count total documents for pagination
+                {
+                    $facet: {
+                        metadata: [{ $count: "total" }],
+                        data: [
+                            { $sort: { createdAt: -1 } },
+                            { $skip: controlledPageIndex * controlledPageSize },
+                            { $limit: controlledPageSize }
+                        ]
+                    }
+                }
+            ];
+
+            const res = await axios.post(
+                `${process.env.REACT_APP_BASE_URL}/employee-commute/aggregate`,
+                { pipeline: aggregationPipeline },
+                {
+                    headers: { 
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            const result = res.data.data[0] || {};
+            const data = result.data || [];
+            const total = result.metadata?.[0]?.total || 0;
             
-            const data = res.data.data || [];
-            const pagination = res.data.data?.pagination || {};
-            
+            // Calculate total pages
+            const totalPages = Math.ceil(total / controlledPageSize);
+
             // Calculate emissions for each record
             const dataWithEmissions = data.map(item => ({
                 ...item,
                 emissions: calculateEmissions(item)
             }));
-            
+
             setCommutingData(dataWithEmissions);
-            setPageCount(pagination.totalPages || 1);
+            setPageCount(totalPages || 1);
         } catch (err) {
             console.error("Error fetching commuting data:", err);
-            toast.error("Failed to fetch employee commuting data");
+            // toast.error("Failed to fetch employee commuting data");
         } finally {
             setLoading(false);
             setIsPaginationLoading(false);
@@ -266,7 +329,7 @@ const CommutingTable = () => {
     useEffect(() => {
         const delay = setTimeout(() => {
             fetchCommutingData();
-        }, 300);
+        }, 500); // Increased debounce for better UX
 
         return () => clearTimeout(delay);
     }, [controlledPageIndex, controlledPageSize, globalFilterValue]);
@@ -295,6 +358,27 @@ const CommutingTable = () => {
         }
     };
 
+    // Enhanced Global Filter component with search tips
+    const EnhancedGlobalFilter = () => (
+        <div className="flex items-center space-x-2">
+            <div className="relative">
+                <GlobalFilter 
+                    filter={globalFilterValue} 
+                    setFilter={setGlobalFilterValue}
+                    placeholder="Search by building, department, email, or vehicle type..."
+                />
+                {globalFilterValue && (
+                    <Tippy content="Search in: Building name, Department, Email, Vehicle Types, Reporting Year">
+                        <Icon 
+                            icon="heroicons:information-circle" 
+                            className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400"
+                        />
+                    </Tippy>
+                )}
+            </div>
+        </div>
+    );
+
     const COLUMNS = useMemo(() => [
         {
             Header: "Sr.No",
@@ -304,14 +388,14 @@ const CommutingTable = () => {
             ),
         },
         {
-            Header: "SITE / BUILDING NAME",
+            Header: "SITE / Building name",
             accessor: "building.buildingName",
-            Cell: ({ cell }) => cell.value || "-",
+            Cell: ({ cell }) => cell.value || "N/A",
         },
         {
             Header: "Reporting Year",
             accessor: "reportingYear",
-            Cell: ({ cell }) => cell.value || "-",
+            Cell: ({ cell }) => cell.value || "N/A",
         },
         {
             Header: "Commute Mode",
@@ -330,20 +414,31 @@ const CommutingTable = () => {
             Header: "Vehicle Type",
             Cell: ({ row }) => {
                 const d = row.original;
-                if (d.commuteByMotorbike) return d.motorbikeType || "-";
-                if (d.commuteByCar) return d.carType || "-";
-                if (d.commuteByBus) return d.busType || "-";
-                if (d.commuteByTaxi) return d.taxiType || "-";
-                if (d.commuteByTrain) return d.trainType || "-";
-                return "-";
+
+                // Helper function to format text to Title Case
+                const toTitleCase = (str) => {
+                    if (!str) return "N/A";
+                    return str
+                        .toLowerCase()
+                        .split(' ')
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ');
+                };
+
+                if (d.commuteByMotorbike) return toTitleCase(d.motorbikeType);
+                if (d.commuteByCar) return toTitleCase(d.carType);
+                if (d.commuteByBus) return toTitleCase(d.busType);
+                if (d.commuteByTaxi) return toTitleCase(d.taxiType);
+                if (d.commuteByTrain) return toTitleCase(d.trainType);
+                return "N/A";
             },
         },
         {
             Header: "Fuel Type",
             Cell: ({ row }) => {
                 const d = row.original;
-                if (d.commuteByCar) return d.carFuelType || "-";
-                return "-";
+                if (d.commuteByCar) return d.carFuelType || "N/A";
+                return "N/A";
             },
         },
         {
@@ -370,39 +465,39 @@ const CommutingTable = () => {
             },
         },
         {
-            Header: "EMISSION FACTOR (kgCO₂e/passenger.km)",
+            Header: "Emission Factor (kgCO₂e/passenger.km)",
             Cell: ({ row }) => {
                 const emissions = row.original.emissions;
-                if (!emissions) return "-";
-                return emissions.factor.toFixed(5);
+                if (!emissions) return "N/A";
+                return emissions.factor.toFixed(2);
             },
         },
         {
-            Header: "CALCULATED EMISSION (kgCO₂e)",
+            Header: "Calculate Emission (kgCO₂e)",
             Cell: ({ row }) => {
                 const emissions = row.original.emissions;
-                if (!emissions) return "-";
+                if (!emissions) return "N/A";
                 return emissions.totalEmissionsKg.toFixed(2);
             },
         },
         {
-            Header: "CALCULATED EMISSION (tCO₂e)",
+            Header: "Calculate Emissions (tCO₂e)",
             Cell: ({ row }) => {
                 const emissions = row.original.emissions;
-                if (!emissions) return "-";
-                return emissions.totalEmissionsTonnes.toFixed(4);
+                if (!emissions) return "N/A";
+                return emissions.totalEmissionsTonnes.toFixed(2);
             },
         },
         {
             Header: "Submitted By",
             accessor: "submittedByEmail",
-            Cell: ({ cell }) => cell.value || "-",
+            Cell: ({ cell }) => cell.value || "N/A",
         },
         {
             Header: "Department",
             Cell: ({ row }) => {
                 const d = row.original;
-                return d.stakeholderDepartment || "-";
+                return d.stakeholderDepartment || "N/A";
             },
         },
         {
@@ -410,7 +505,7 @@ const CommutingTable = () => {
             Cell: ({ row }) => {
                 const d = row.original;
                 let dateRange = null;
-                
+
                 if (d.commuteByMotorbike && d.motorbikeDateRange) {
                     dateRange = d.motorbikeDateRange;
                 } else if (d.commuteByCar && d.carDateRange) {
@@ -424,13 +519,13 @@ const CommutingTable = () => {
                 } else if (d.workFromHome && d.workFromHomeDateRange) {
                     dateRange = d.workFromHomeDateRange;
                 }
-                
+
                 if (dateRange && dateRange.startDate && dateRange.endDate) {
                     const start = new Date(dateRange.startDate).toLocaleDateString();
                     const end = new Date(dateRange.endDate).toLocaleDateString();
                     return `${start} to ${end}`;
                 }
-                return "-";
+                return "N/A";
             },
         },
         {
@@ -442,7 +537,6 @@ const CommutingTable = () => {
                         <button
                             className="action-btn"
                             onClick={() => {
-                                // Navigate to view details page
                                 navigate(`/employee-commuting/view/${cell.value}`);
                             }}
                         >
@@ -479,11 +573,11 @@ const CommutingTable = () => {
         useRowSelect,
         (hooks) => {
             hooks.visibleColumns.push((columns) => [
-                { 
-                    id: "selection", 
+                {
+                    id: "selection",
                     Header: ({ getToggleAllRowsSelectedProps }) => (
                         <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-                    ), 
+                    ),
                     Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
                 },
                 ...columns,
@@ -543,9 +637,14 @@ const CommutingTable = () => {
                         <p className="text-sm text-gray-600">
                             Using UK Government GHG Conversion Factors 2025 for Scope 3 emissions
                         </p>
+                        {globalFilterValue && (
+                            <p className="text-xs text-blue-600 mt-1">
+                                Showing results for: "{globalFilterValue}"
+                            </p>
+                        )}
                     </div>
                     <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
-                        <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
+                        <EnhancedGlobalFilter />
                         <Button
                             icon="heroicons-outline:document-download"
                             text="Export Data"
@@ -623,7 +722,10 @@ const CommutingTable = () => {
                                                 <td colSpan={COLUMNS.length + 1}>
                                                     <div className="flex justify-center items-center py-16">
                                                         <span className="text-gray-500 text-lg font-medium">
-                                                            No employee commuting data available.
+                                                            {globalFilterValue 
+                                                                ? `No results found for "${globalFilterValue}"`
+                                                                : "No employee commuting data available."
+                                                            }
                                                         </span>
                                                     </div>
                                                 </td>
@@ -672,6 +774,11 @@ const CommutingTable = () => {
                         </span>
                         <span className="text-sm font-medium text-slate-600">
                             Page {controlledPageIndex + 1} of {pageCount}
+                            {globalFilterValue && (
+                                <span className="text-xs text-gray-500 ml-2">
+                                    (Filtered results)
+                                </span>
+                            )}
                         </span>
                     </div>
 
@@ -686,16 +793,29 @@ const CommutingTable = () => {
                                 Prev
                             </button>
                         </li>
-                        {Array.from({ length: pageCount }, (_, i) => (
-                            <li key={i}>
-                                <button
-                                    className={`${i === controlledPageIndex ? "bg-slate-900 text-white font-medium" : "bg-slate-100 text-slate-900"} text-sm rounded h-6 w-6 flex items-center justify-center`}
-                                    onClick={() => handlePageChange(i)}
-                                >
-                                    {i + 1}
-                                </button>
-                            </li>
-                        ))}
+                        {Array.from({ length: Math.min(pageCount, 5) }, (_, i) => {
+                            // Show limited page numbers for better UX
+                            let pageNum;
+                            if (pageCount <= 5) {
+                                pageNum = i;
+                            } else if (controlledPageIndex < 2) {
+                                pageNum = i;
+                            } else if (controlledPageIndex > pageCount - 3) {
+                                pageNum = pageCount - 5 + i;
+                            } else {
+                                pageNum = controlledPageIndex - 2 + i;
+                            }
+                            return (
+                                <li key={pageNum}>
+                                    <button
+                                        className={`${pageNum === controlledPageIndex ? "bg-slate-900 text-white font-medium" : "bg-slate-100 text-slate-900"} text-sm rounded h-6 w-6 flex items-center justify-center`}
+                                        onClick={() => handlePageChange(pageNum)}
+                                    >
+                                        {pageNum + 1}
+                                    </button>
+                                </li>
+                            );
+                        })}
                         <li>
                             <button onClick={() => controlledPageIndex < pageCount - 1 && handlePageChange(controlledPageIndex + 1)} disabled={controlledPageIndex === pageCount - 1}>
                                 Next
@@ -732,9 +852,9 @@ const CommutingTable = () => {
                 footerContent={
                     <>
                         <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
-                        <Button text="Delete" className="btn-danger" onClick={async () => { 
-                            await handleDelete(selectedRecordId); 
-                            setDeleteModalOpen(false); 
+                        <Button text="Delete" className="btn-danger" onClick={async () => {
+                            await handleDelete(selectedRecordId);
+                            setDeleteModalOpen(false);
                         }} />
                     </>
                 }

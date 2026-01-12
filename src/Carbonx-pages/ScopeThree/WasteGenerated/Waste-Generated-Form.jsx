@@ -15,7 +15,6 @@ import {
   wasteTreatmentOptions
 } from "@/constant/scope3/wasteGenerated";
 import { calculateWasteEmission } from "@/utils/Scope3/calculateWasteGenerated";
-import { formatEmission } from "@/components/ui/FormateEmission";
 import InputGroup from "@/components/ui/InputGroup";
 
 const WasteGeneratedFormPage = () => {
@@ -92,15 +91,15 @@ useEffect(() => {
     }
     const emissionKg = calculateWasteEmission(qty, wasteType, treatment);
     if (emissionKg !== null) {
-      const formattedKg = formatEmission(emissionKg);
-      const formattedT = formatEmission(emissionKg / 1000);
+      const formattedKg = emissionKg;
+      const formattedT = emissionKg / 1000;
       setCalculatedEmissionKgCo2e(formattedKg);
       setCalculatedEmissionTCo2e(formattedT);
       // toast.info(
       //   `Emission: ${formattedKg} kg CO₂e (${formattedT} t CO₂e)`,
       //   { autoClose: 2000 }
       // );
-    }
+    }   
   }, [
     formData.totalWasteQty,
     formData.wasteType,

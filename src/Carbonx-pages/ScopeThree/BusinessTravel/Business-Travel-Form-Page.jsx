@@ -369,16 +369,6 @@ useEffect(() => {
         };
 
         setFormData(updatedFormData);
-        // const anyToggle =
-        //   updatedFormData.travelByAir ||
-        //   updatedFormData.travelByMotorbike ||
-        //   updatedFormData.travelByTaxi ||
-        //   updatedFormData.travelByBus ||
-        //   updatedFormData.travelByTrain ||
-        //   updatedFormData.travelByCar ||
-        //   updatedFormData.hotelStay;
-
-        // setShowToggleError(!anyToggle && !isView);
         recalculateEmissions(updatedFormData);
       } catch (err) {
         toast.error("Failed to fetch record");
@@ -832,7 +822,7 @@ const handleSubmit = async (e) => {
             {formData.travelByBus && (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <div>
-                  <label className="field-label">Passengers</label>
+                  <label className="field-label">Number of Passengers</label>
                   <InputGroup
                     type="number"
                     name="busPassengers"
@@ -900,7 +890,7 @@ const handleSubmit = async (e) => {
             {formData.travelByTrain && (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                 <div>
-                  <label className="field-label">Passengers</label>
+                  <label className="field-label">Number of Passengers</label>
                   <InputGroup
                     type="number"
                     name="trainPassengers"
@@ -1011,7 +1001,7 @@ const handleSubmit = async (e) => {
                     value={findOptionByValue(fuelOptions, formData.carFuelType)}
                     options={fuelOptions}
                     onChange={handleCarFuelTypeChange}
-                    placeholder={formData.carType ? "Select Fuel Type" : "Select Car Type first"}
+                    placeholder={formData.carType ? "Select Fuel Type" : "Select Car Type First"}
                     isDisabled={!formData.carType || isView}
                     className={errors.carFuelType ? 'border-red-500' : ''}
                   />

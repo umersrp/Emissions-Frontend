@@ -59,19 +59,6 @@ const PurchasedElectricityFormPage = () => {
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [errors, setErrors] = useState({});
 
-
-  const formatEmission = (num) => {
-    if (num === null || num === undefined) return "N/A"; // handle empty values
-    if (num === 0) return 0; // exact zero
-
-    const rounded = Number(num.toFixed(2));
-    if (Math.abs(rounded) < 0.0001 || Math.abs(rounded) >= 1e6) {
-      return rounded.toExponential(5);
-    }
-    return rounded;
-  };
-
-
   const capitalizeFirstLetter = (text) => {
     if (!text) return "";
     return text.charAt(0).toUpperCase() + text.slice(1);
@@ -216,19 +203,13 @@ const PurchasedElectricityFormPage = () => {
     const result = calculatePurchasedElectricity(calculationData, GridStationEmissionFactors);
 
     if (result) {
-      const formattedKg = formatEmission(result.calculatedEmissionKgCo2e);
-      const formattedT = formatEmission(result.calculatedEmissionTCo2e);
-      // const formattedMarketKg = result.calculatedEmissionMarketKgCo2e
-      //   ? formatEmission(result.calculatedEmissionMarketKgCo2e)
-      //   : null;
-      // const formattedMarketT = result.calculatedEmissionMarketTCo2e
-      //   ? formatEmission(result.calculatedEmissionMarketTCo2e)
-      //   : null;
+      const formattedKg = result.calculatedEmissionKgCo2e;
+      const formattedT = result.calculatedEmissionTCo2e;
       const formattedMarketKg = result.calculatedEmissionMarketKgCo2e !== null && result.calculatedEmissionMarketKgCo2e !== undefined
-        ? formatEmission(result.calculatedEmissionMarketKgCo2e)
+        ? result.calculatedEmissionMarketKgCo2e
         : null;
       const formattedMarketT = result.calculatedEmissionMarketTCo2e !== null && result.calculatedEmissionMarketTCo2e !== undefined
-        ? formatEmission(result.calculatedEmissionMarketTCo2e)
+        ? result.calculatedEmissionMarketTCo2e
         : null;
 
       setFormData((prev) => ({
@@ -876,7 +857,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <InputGroup
+                    <input
                       type="checkbox"
                       checked={formData.hasSolarPanels}
                       onChange={() => handleToggleChange("hasSolarPanels")}
@@ -964,7 +945,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <InputGroup
+                    <input
                       type="checkbox"
                       checked={formData.purchasesSupplierSpecific}
                       onChange={() => handleToggleChange("purchasesSupplierSpecific")}
@@ -1061,7 +1042,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <InputGroup
+                    <input
                       type="checkbox"
                       checked={formData.hasPPA}
                       onChange={() => handleToggleChange("hasPPA")}
@@ -1156,7 +1137,7 @@ const PurchasedElectricityFormPage = () => {
               <div className="border-t pt-6">
                 <div className="flex items-center gap-3 mb-4">
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <InputGroup
+                    <input
                       type="checkbox"
                       checked={formData.hasRenewableAttributes}
                       onChange={() => handleToggleChange("hasRenewableAttributes")}
