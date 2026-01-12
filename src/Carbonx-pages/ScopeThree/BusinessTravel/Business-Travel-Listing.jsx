@@ -49,67 +49,67 @@ const BusinessTravel = () => {
     const renderNA = (value) => {
         return value === null || value === undefined || value === "" ? "N/A" : value;
     };
-const capitalizeLabel = (text) => {
-  if (!text) return "N/A";
+    const capitalizeLabel = (text) => {
+        if (!text) return "N/A";
 
-  const exceptions = [
-    "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
-    "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
-    "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
-    "n.e.c.", "cc", "cc+", "up"
-  ];
+        const exceptions = [
+            "and", "or", "in", "of", "from", "at", "to", "the", "a", "an", "for", "on", "with",
+            "but", "by", "is", "it", "as", "be", "this", "that", "these", "those", "such",
+            "if", "e.g.,", "i.e.", "kg", "via", "etc.", "vs.", "per", "e.g.", "on-site", "can", "will", "not", "cause", "onsite",
+            "n.e.c.", "cc", "cc+", "up"
+        ];
 
-  // First, add spaces around forward slashes if not already present
-  // This handles cases like "word1/word2" to become "word1 / word2"
-  const spacedText = text.replace(/(\S)\/(\S)/g, '$1 / $2');
+        // First, add spaces around forward slashes if not already present
+        // This handles cases like "word1/word2" to become "word1 / word2"
+        const spacedText = text.replace(/(\S)\/(\S)/g, '$1 / $2');
 
-  // Special handling for "a" and other special cases
-  return spacedText
-    .split(" ")
-    .map((word, index) => {
-      const hasOpenParen = word.startsWith("(");
-      const hasCloseParen = word.endsWith(")");
-      
-      let coreWord = word;
-      if (hasOpenParen) coreWord = coreWord.slice(1);
-      if (hasCloseParen) coreWord = coreWord.slice(0, -1);
+        // Special handling for "a" and other special cases
+        return spacedText
+            .split(" ")
+            .map((word, index) => {
+                const hasOpenParen = word.startsWith("(");
+                const hasCloseParen = word.endsWith(")");
 
-      const lowerCore = coreWord.toLowerCase();
-      let result;
-      
-      // SPECIAL RULE: If word is "a" or "A", preserve original case
-      if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
-        result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
-      }
-      // Handle forward slash as a separate "word" (after our space addition)
-      else if (coreWord === "/") {
-        result = "/";
-      }
-      // Single letters (except "a" already handled)
-      else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
-        result = coreWord.toUpperCase();
-      }
-      // First word OR word after opening parenthesis should be capitalized
-      else if (index === 0 || (index > 0 && text.split(" ")[index-1]?.endsWith("("))) {
-        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
-      }
-      // Exception words (excluding "a" which we already handled)
-      else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
-        result = lowerCore;
-      }
-      // Normal capitalization
-      else {
-        result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
-      }
-      
-      // Reattach parentheses
-      if (hasOpenParen) result = "(" + result;
-      if (hasCloseParen) result = result + ")";
+                let coreWord = word;
+                if (hasOpenParen) coreWord = coreWord.slice(1);
+                if (hasCloseParen) coreWord = coreWord.slice(0, -1);
 
-      return result;
-    })
-    .join(" ");
-};
+                const lowerCore = coreWord.toLowerCase();
+                let result;
+
+                // SPECIAL RULE: If word is "a" or "A", preserve original case
+                if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
+                    result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
+                }
+                // Handle forward slash as a separate "word" (after our space addition)
+                else if (coreWord === "/") {
+                    result = "/";
+                }
+                // Single letters (except "a" already handled)
+                else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
+                    result = coreWord.toUpperCase();
+                }
+                // First word OR word after opening parenthesis should be capitalized
+                else if (index === 0 || (index > 0 && text.split(" ")[index - 1]?.endsWith("("))) {
+                    result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+                }
+                // Exception words (excluding "a" which we already handled)
+                else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
+                    result = lowerCore;
+                }
+                // Normal capitalization
+                else {
+                    result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
+                }
+
+                // Reattach parentheses
+                if (hasOpenParen) result = "(" + result;
+                if (hasCloseParen) result = result + ")";
+
+                return result;
+            })
+            .join(" ");
+    };
     // Fetch data from server with pagination
     const fetchData = async () => {
         setLoading(true);
@@ -205,7 +205,7 @@ const capitalizeLabel = (text) => {
 
             { Header: "Business Travel by Car", accessor: "travelByCar", Cell: ({ value }) => (value ? "Yes" : "No") },
             { Header: "Distance Travelled", accessor: "carDistanceKm", Cell: ({ value }) => capitalizeLabel(value) },
-            { Header: "Car Type", accessor: "carType", Cell: ({ value }) => capitalizeLabel(value)  },
+            { Header: "Car Type", accessor: "carType", Cell: ({ value }) => capitalizeLabel(value) },
             { Header: "Car Fuel Type", accessor: "carFuelType", Cell: ({ value }) => capitalizeLabel(value) },
 
             { Header: "Hotel Stay", accessor: "hotelStay", Cell: ({ value }) => (value ? "Yes" : "No") },
@@ -215,38 +215,36 @@ const capitalizeLabel = (text) => {
             {
                 Header: "Calculated Emissions (kgCO₂e)",
                 accessor: "calculatedEmissionKgCo2e",
-               Cell: ({ cell }) => {
-          const rawValue = cell.value;
-          if (rawValue === null || rawValue === undefined || rawValue === "") {
-            return "N/A";
-          }
-          const numValue = Number(rawValue);
-          if (isNaN(numValue)) {
-            return "N/A";
-          }
-          return numValue.toFixed(2);
-        }
+                Cell: ({ cell }) => {
+                    const rawValue = cell.value;
+                    if (rawValue === null || rawValue === undefined || rawValue === "") {
+                        return "N/A";
+                    }
+                    const numValue = Number(rawValue);
+                    if (isNaN(numValue)) {
+                        return "N/A";
+                    }
+                    return numValue.toFixed(2);
+                }
             },
             {
                 Header: "Calculated Emissions (tCO₂e)",
                 accessor: "calculatedEmissionTCo2e",
-               Cell: ({ cell }) => {
-          const rawValue = cell.value;
-          if (rawValue === null || rawValue === undefined || rawValue === "") {
-            return "N/A";
-          }
-          const numValue = Number(rawValue);
-          if (isNaN(numValue)) {
-            return "N/A";
-          }
-          if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
-            return numValue.toExponential(2);
-          }
-          return numValue.toFixed(2);
-        }
+                Cell: ({ cell }) => {
+                    const rawValue = cell.value;
+                    if (rawValue === null || rawValue === undefined || rawValue === "") {
+                        return "N/A";
+                    }
+                    const numValue = Number(rawValue);
+                    if (isNaN(numValue)) {
+                        return "N/A";
+                    }
+                    if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
+                        return numValue.toExponential(2);
+                    }
+                    return numValue.toFixed(2);
+                }
             },
-
-
             {
                 Header: "Remarks",
                 accessor: "remarks",
