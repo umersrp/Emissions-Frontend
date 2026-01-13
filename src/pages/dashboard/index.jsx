@@ -446,21 +446,29 @@ const Dashboard = () => {
             <label className="block font-semibold text-gray-700 mb-1">From Date</label>
             <input
               type="date"
-              className="border rounded-md px-3 py-2 text-sm"
+              className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm 
+              focus:border-black focus:outline-none focus:ring-0
+              hover:border-black transition-colors duration-200
+              disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+              h-[40px]"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
             />
           </div>
+
           <div>
             <label className="block font-semibold text-gray-700 mb-1">To Date</label>
             <input
               type="date"
-              className="border rounded-md px-3 py-2 text-sm"
+              className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm 
+              focus:border-black focus:outline-none focus:ring-0
+              hover:border-black transition-colors duration-200
+              disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+              h-[40px]"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
             />
           </div>
-
           {/* Buttons */}
           <div className="flex gap-2">
             <button
@@ -479,10 +487,10 @@ const Dashboard = () => {
         </div>
 
         {/* Summary cards */}
-        <div className="flex gap-4 mb-6 flex-wrap">
+        <div className="grid grid-cols-5 gap-4 mb-6 ">
           {/* Total GHG Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg max-w-[450px]  h-[170px]  p-3">
-            <h3 className="text-2xl font-semibold">Total GHG Emissions</h3>
+          <div className="col-span-2 bg-white rounded-xl shadow-lg   h-[170px]  p-3">
+            <h3 className="text-2xl font-semibold mt-2">Total GHG Emissions</h3>
             <p className="text-xl text-red-500 font-bold flex flex-col mt-2">
               {formatNumber(totalEmission)}
               <span>tCO₂e</span>
@@ -490,8 +498,8 @@ const Dashboard = () => {
           </div>
 
           {/* Scope 1 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg max-w-[200px] h-[150px] mt-2 p-3">
-            <h3 className="text-lg font-semibold">Scope 1 Emissions</h3>
+          <div className="flex-1 bg-white rounded-xl shadow-lg  h-[150px] mt-2 p-3">
+            <h3 className="text-lg font-semibold -mt-2">Scope 1 Emissions</h3>
             <p className="text-xl text-green-500 font-bold flex flex-col">
               {formatNumber(scope1Emission)}
               <span>tCO₂e</span>
@@ -500,8 +508,8 @@ const Dashboard = () => {
           </div>
 
           {/* Scope 2 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg max-w-[200px] h-[150px] mt-2 p-3">
-            <h3 className="text-lg font-semibold">Scope 2 Emissions</h3>
+          <div className="flex-1 bg-white rounded-xl shadow-lg  h-[150px] mt-2 p-3">
+            <h3 className="text-lg font-semibold -mt-2">Scope 2 Emissions</h3>
 
             {/* Breakdown (smaller, subtle) */}
             <div className="space-y-1">
@@ -524,8 +532,8 @@ const Dashboard = () => {
           </div>
 
           {/* Scope 3 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg max-w-[200px] h-[150px] mt-2 p-3">
-            <h3 className="text-lg font-semibold">Scope 3 Emissions</h3>
+          <div className="flex-1 bg-white rounded-xl shadow-lg  h-[150px] mt-2 p-3">
+            <h3 className="text-lg font-semibold -mt-2">Scope 3 Emissions</h3>
             <p className="text-xl text-purple-500 font-bold flex flex-col">
               {formatNumber(scope3Emission)}
               <span>tCO₂e</span>
@@ -592,14 +600,14 @@ const Dashboard = () => {
           </Card>
         </div>
         {/* scope 2 */}
-        <div>
+        <div className="mb-5">
           <Card className="flex-1  min-w-[320px]" title="Scope 2 Emissions by Category">
             <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>
         {/* scope 3 */}
         <div>
-          <Card className="flex-1 p-4 min-w-[320px]">
+          <Card className="flex-1  min-w-[320px]"  title="Scope 3 Emissions by Category">
             <Scope3EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>

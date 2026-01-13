@@ -3,6 +3,21 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Card from "@/components/ui/Card";
 import { Icon } from "@iconify/react";
+import buildingIcon  from "@/assets/images/icon/building.png";
+ import bulletTrainIcon  from "@/assets/images/icon/bullet-train.png";
+ import cargoShipIcon from "@/assets/images/icon/cargo-ship.png";
+import factoryIcon from "@/assets/images/icon/factory.png";
+import twoTruckIcon from "@/assets/images/icon/tow-truck.png";
+import charcoalIcon from "@/assets/images/icon/charcoal.png";
+import garbageIcon from "@/assets/images/icon/garbage.png";
+import planeIcon from "@/assets/images/icon/plane.png";
+import lightIcon from "@/assets/images/icon/light.png";
+import recycleBinIcon from "@/assets/images/icon/recycle-bin.png";
+
+
+
+
+import { icon } from "leaflet";
 
 const Scope3 = () => {
   const navigate = useNavigate();
@@ -11,28 +26,35 @@ const Scope3 = () => {
     {
       title: "Purchased Goods and Services",
       path: "/Purchased-Good-Services",
-      icon: "mdi:factory",
+      // icon: "mdi:factory",
+      icon: factoryIcon,
+      iconType: "png",
       bg: "bg-cyan-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
     },
     {
       title: "Capital Goods",
       path: "/Capital-Goods",
-      icon: "heroicons:cube-transparent",
+      // icon: "heroicons:cube-transparent",
+       icon: twoTruckIcon,
+      iconType: "png",
       bg: "bg-red-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
     },
     {
       title: "Fuel and Energy Related Activities",
       path: "/fuel-energy",
-      icon: "heroicons:bolt",
+      icon: charcoalIcon,
+      iconType: "png",
       bg: "bg-purple-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#d8bbf7] to-[#a66ee0]"
     },
     {
       title: "Upstream Transportation & Distribution",
       path: "/Upstream-Transportation",
-      icon: "heroicons:arrow-down-tray",
+      // icon: "heroicons:arrow-down-tray",
+      icon: cargoShipIcon,
+      iconType: "png",
       bg: "bg-green-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebc0] to-[#6fcf97]"
     },
@@ -40,28 +62,33 @@ const Scope3 = () => {
     {
       title: "Waste Generated in Operations",
       path: "/Waste-Generated",
-      icon: "heroicons:trash",
+      icon: garbageIcon,
+      iconType: "png",
       bg: "bg-yellow-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#fdf3b7] to-[#f5d742]"
     },
     {
       title: "Business Travel",
       path: "/Business-Travel",
-      icon: "heroicons:briefcase",
+      icon: planeIcon,
+      iconType: "png",
       bg: "bg-blue-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#c6dcff] to-[#7fb3ff]"
     },
     {
       title: "Employee Commuting",
       path: "/Commuting",
-      icon: "heroicons:user-group",
+      // icon: "heroicons:user-group",
+      icon: bulletTrainIcon,
+      iconType: "png",
       bg: "bg-amber-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#fcc7d8] to-[#f56b8b]"
     },
     {
       title: "Upstream Leased Assets",
       path: "",
-      icon: "heroicons:building-library",
+      icon: buildingIcon,
+      iconType: "png",
       bg: "bg-stone-100",
       hoverGradient: "hover:bg-gradient-to-r from-[#ffd7b0] to-[#ff9f45]"
     },
@@ -71,104 +98,135 @@ const Scope3 = () => {
     {
       title: "Downstream Transportation & Distribution",
       path: "/Downstream-Transportation",
-      icon: "heroicons:arrow-up-tray",
+      icon: cargoShipIcon,
+      iconType: "png",
       bg: "bg-cyan-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
     },
     {
       title: "Processing of Sold Products",
       path: "",
-      icon: "heroicons:truck",
+      icon: factoryIcon,
+      iconType: "png",
       bg: "bg-red-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
     },
     {
       title: "Use of Sold Products",
       path: "",
-      icon: "heroicons:cloud",
+      icon: lightIcon,
+      iconType: "png",
       bg: "bg-purple-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#d8bbf7] to-[#a66ee0]"
     },
     {
       title: "End-of-Life Treatment of Sold Products",
       path: "",
-      icon: "heroicons:cog-6-tooth",
+      icon: recycleBinIcon,
+      iconType: "png",
       bg: "bg-green-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebc0] to-[#6fcf97]"
     },
     {
       title: "Downstream Leased Assets",
       path: "",
-      icon: "heroicons:fire",
+       icon: buildingIcon,
+      iconType: "png",
       bg: "bg-cyan-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
     },
     {
       title: "Franchises",
       path: "",
-      icon: "heroicons:truck",
+      icon: "heroicons:building-storefront",
+      iconType: "iconify",
       bg: "bg-red-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
     },
     {
       title: " Investments",
       path: "",
-      icon: "heroicons:cloud",
+      icon: "heroicons:banknotes",
+      iconType: "iconify",
       bg: "bg-purple-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#d8bbf7] to-[#a66ee0]"
     },
   ];
 
   return (
-  <div className="w-full">      {/* Header Section */}
+    <div className="w-full">      {/* Header Section */}
       <Card title={"Scope 3: Direct GHG Emissions"}
-       className="w-full  flex flex-col justify-center pb-44 min-h-screen">
-          <div className="space-y-6 w-full">
-        <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
-          Scope 3 emissions are a consequence of the activities of the company, but occur from sources not owned or controlled by the company, it refers to indirect greenhouse gas emissions from a <span className="font-extrabold "> company's value chain</span> that are not owned or controlled by the company itself. This broad category includes emissions from activities such as the production of purchased goods and services, employee commuting, business travel, and the use and disposal of sold products.
-        </p>
-        {/* <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
+        className="w-full  flex flex-col justify-center pb-44 min-h-screen">
+        <div className="space-y-6 w-full">
+          <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
+            Scope 3 emissions are a consequence of the activities of the company, but occur from sources not owned or controlled by the company, it refers to indirect greenhouse gas emissions from a <span className="font-extrabold "> company's value chain</span> that are not owned or controlled by the company itself. This broad category includes emissions from activities such as the production of purchased goods and services, employee commuting, business travel, and the use and disposal of sold products.
+          </p>
+          {/* <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
           <span className="font-semibold ">Note:</span> Direct CO₂ emissions from the combustion of biomass shall not be included in scope 1 but reported separately.
         </p> */}
 
-        {/*Upstream Categories */}
-        <label className="w-full font-extrabold text-2xl text-slate-700 pb-8 text-center">
-          Upstream Categories
-        </label>
-        <div className="grid sm:grid-cols-4 gap-10 pl-10 pr-10 pb-10">
-          {upstream_categories.map((cat, index) => (
-            <div
-              key={index}
-              onClick={() => navigate(cat.path)}
-              className={`h-40 flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer ${cat.bg} ${cat.hoverGradient}`}
-            >
-              <Icon icon={cat.icon} className="text-4xl mb-3 text-gray-700 hover:text-white" />
-              <h3 className="text-lg font-semibold text-center text-gray-700 hover:text-white">
-                {cat.title}
-              </h3>
-            </div>
-          ))}
-        </div>
+          {/*Upstream Categories */}
+          <label className="w-full font-extrabold text-2xl text-slate-700 pb-8 text-center">
+            Upstream Categories
+          </label>
+          <div className="grid sm:grid-cols-4 gap-10 pl-10 pr-10 pb-10">
+            {upstream_categories.map((cat, index) => (
+              <div
+                key={index}
+                onClick={() => navigate(cat.path)}
+                className={`h-40 flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer ${cat.bg} ${cat.hoverGradient}`}
+              >
+                {/* Conditionally render PNG or Iconify icon */}
+                {cat.iconType === "png" ? (
+                  <img
+                    src={cat.icon}
+                    alt={cat.title}
+                    className="w-10 h-10 mb-3 object-contain filter grayscale opacity-60 transition-all duration-300"
+                  />
+                ) : (
+                  <Icon
+                    icon={cat.icon}
+                    className="text-4xl mb-3 text-gray-700 hover:text-white"
+                  />
+                )}
+                <h3 className="text-lg font-semibold text-center text-gray-700 hover:text-white px-2">
+                  {cat.title}
+                </h3>
+              </div>
+            ))}
+          </div>
 
 
-        {/* Downstream Categories */}
-        <label className="w-full font-extrabold text-2xl text-slate-700 pb-8 text-center">
-          Downstream Categories
-        </label>
-        <div className="grid sm:grid-cols-4 gap-10 pb-10">
-          {downstream_categories.map((cat, index) => (
-            <div
-              key={index}
-              onClick={() => navigate(cat.path)}
-              className={`h-40 flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer ${cat.bg} ${cat.hoverGradient}`}
-            >
-              <Icon icon={cat.icon} className="text-4xl mb-3 text-gray-700 hover:text-white" />
-              <h3 className="text-lg font-semibold text-center text-gray-700 hover:text-white">
-                {cat.title}
-              </h3>
-            </div>
-          ))}
-        </div>
+          {/* Downstream Categories */}
+          <label className="w-full font-extrabold text-2xl text-slate-700 pb-8 text-center">
+            Downstream Categories
+          </label>
+          <div className="grid sm:grid-cols-4 gap-10 pl-10 pr-10 pb-10">
+            {downstream_categories.map((cat, index) => (
+              <div
+                key={index}
+                onClick={() => navigate(cat.path)}
+                className={`h-40 flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer ${cat.bg} ${cat.hoverGradient}`}
+              >
+                {/* Conditionally render PNG or Iconify icon */}
+                {cat.iconType === "png" ? (
+                  <img
+                    src={cat.icon}
+                    alt={cat.title}
+                    className="w-10 h-10 mb-3 object-contain filter grayscale opacity-60 transition-all duration-300"
+                  />
+                ) : (
+                  <Icon
+                    icon={cat.icon}
+                    className="text-4xl mb-3 text-gray-700 hover:text-white"
+                  />
+                )}
+                <h3 className="text-lg font-semibold text-center text-gray-700 hover:text-white px-2">
+                  {cat.title}
+                </h3>
+              </div>
+            ))}
+          </div>
         </div>
       </Card>
     </div>

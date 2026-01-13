@@ -18,7 +18,7 @@ const Footer = ({ className = "custom-class" }) => {
       <div className="site-footer px-6 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 py-4">
         <div className="flex flex-col md:flex-row items-center justify-between text-sm">
           <div className="text-center md:text-left">
-            COPYRIGHT &copy; 2024 Srptechs, All rights Reserved
+            COPYRIGHT &copy; 2026 Srptechs, All rights Reserved
           </div>
           <div className="text-center md:text-right mt-2 md:mt-0">
             Made by{" "}

@@ -8,16 +8,18 @@ import { Icon } from "@iconify/react";
 import { useNavigate } from "react-router-dom";
 import { map } from "leaflet";
 import { Business } from "@mui/icons-material";
+import buildingIcon from "@/assets/images/icon/building.png";
+import bulletTrainIcon from "@/assets/images/icon/bullet-train.png";
+import cargoShipIcon from "@/assets/images/icon/cargo-ship.png";
+import factoryIcon from "@/assets/images/icon/factory.png";
+import twoTruckIcon from "@/assets/images/icon/tow-truck.png";
+import charcoalIcon from "@/assets/images/icon/charcoal.png";
+import garbageIcon from "@/assets/images/icon/garbage.png";
+import planeIcon from "@/assets/images/icon/plane.png";
+import lightIcon from "@/assets/images/icon/light.png";
+import recycleBinIcon from "@/assets/images/icon/recycle-bin.png";
 
-// Utility for formatting numbers
-// const formatNumber = (num) => {
-//   const value = Number(num);
-//   if (!num || value === 0) return "N/A";
-//   if (Math.abs(value) < 0.01) {
-//     return value.toExponential(2);
-//   }
-//   return value.toLocaleString(undefined, { maximumFractionDigits: 2 });
-// };
+
 const formatNumber = (num, decimalPlaces = 2) => {
   const value = Number(num);
   if (!num || value === 0) return "N/A";
@@ -210,21 +212,21 @@ const ScopeThreeReport = () => {
       (sum, item) => sum + Number(item.calculatedEmissionKgCo2e || 0),
       0
     );
-console.log("all purchased good",goodsAndServicesKg/1000),
-  console.log("all cap",capitalGoodsKg/1000),
-   console.log("all fuel ",fuelAndEnergyKg/1000),
-    console.log("all waste",wasteGeneratedKg/1000),
-      console.log("all business ",businessKg/1000),
-   console.log("all upstream ",upstreamTransportationKg/1000),
-    console.log("all down ",downstreamTransportationKg/1000)
+    console.log("all purchased good", goodsAndServicesKg / 1000),
+      console.log("all cap", capitalGoodsKg / 1000),
+      console.log("all fuel ", fuelAndEnergyKg / 1000),
+      console.log("all waste", wasteGeneratedKg / 1000),
+      console.log("all business ", businessKg / 1000),
+      console.log("all upstream ", upstreamTransportationKg / 1000),
+      console.log("all down ", downstreamTransportationKg / 1000)
 
     // console.log("Process Kg:", processKg);
     return goodsAndServicesKg + capitalGoodsKg + fuelAndEnergyKg + wasteGeneratedKg + businessKg + upstreamTransportationKg + downstreamTransportationKg + employeeCommuteKg;
-   
+
   }, [data]);
 
   const allTotalT = allTotalKg / 1000;
- 
+
 
   const summaryCards = useMemo(() => {
     console.log(" STARTING SUMMARY CALCULATION FOR ALL CATEGORIES");
@@ -340,7 +342,8 @@ console.log("all purchased good",goodsAndServicesKg/1000),
         t: goodsAndServicesKg / 1000,
         bg: "bg-cyan-50",
         count: goodsAndServicesItems.length,
-        items: goodsAndServicesItems
+        items: goodsAndServicesItems,
+        pngIcon: factoryIcon, // Add this
       },
       {
         name: "Capital Goods",
@@ -348,7 +351,8 @@ console.log("all purchased good",goodsAndServicesKg/1000),
         t: capitalGoodsKg / 1000,
         bg: "bg-red-50",
         count: capitalGoodsItems.length,
-        items: capitalGoodsItems
+        items: capitalGoodsItems,
+        pngIcon: buildingIcon, // Add this
       },
       {
         name: "Fuel and Energy Related Activities",
@@ -356,7 +360,8 @@ console.log("all purchased good",goodsAndServicesKg/1000),
         t: fuelAndEnergyKg / 1000,
         bg: "bg-purple-50",
         count: fuelAndEnergyItems.length,
-        items: fuelAndEnergyItems
+        items: fuelAndEnergyItems,
+        pngIcon: charcoalIcon, // Add this
       },
       {
         name: "Waste Generated in Operation",
@@ -364,15 +369,17 @@ console.log("all purchased good",goodsAndServicesKg/1000),
         t: wasteGeneratedKg / 1000,
         bg: "bg-green-50",
         count: wasteGeneratedItems.length,
-        items: wasteGeneratedItems
+        items: wasteGeneratedItems,
+        pngIcon: garbageIcon, // Add this
       },
       {
         name: "Business Travel",
         kg: businessKg,
         t: businessKg / 1000,
-        bg: "bg-green-50",
+        bg: "bg-blue-50",
         count: businessItems.length,
-        items: businessItems
+        items: businessItems,
+        pngIcon: planeIcon, // Add this
       },
       {
         name: "Upstream Transportation",
@@ -380,23 +387,26 @@ console.log("all purchased good",goodsAndServicesKg/1000),
         t: upstreamTransportationKg / 1000,
         bg: "bg-yellow-50",
         count: upstreamTransportationItems.length,
-        items: upstreamTransportationItems
+        items: upstreamTransportationItems,
+        pngIcon: cargoShipIcon, // Add this
       },
       {
         name: "Downstream Transportation",
         kg: downstreamTransportationKg,
         t: downstreamTransportationKg / 1000,
-        bg: "bg-blue-50",
+        bg: "bg-indigo-50",
         count: downstreamTransportationItems.length,
-        items: downstreamTransportationItems
+        items: downstreamTransportationItems,
+        pngIcon: twoTruckIcon, // Add this
       },
       {
         name: "Employee Commuting",
         kg: employeeCommuteKg,
         t: employeeCommuteKg / 1000,
-        bg: "bg-red-50",
+        bg: "bg-pink-50",
         count: employeeCommuteItems.length,
-        items: employeeCommuteItems
+        items: employeeCommuteItems,
+        pngIcon: bulletTrainIcon, // Add this
       },
     ];
   }, [data]);
@@ -437,48 +447,30 @@ console.log("all purchased good",goodsAndServicesKg/1000),
       </motion.div>
       {/* Individual Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
-        {summaryCards.map((item, idx) => {
-          const iconMap = {
-            "Purchased Goods and Services": "heroicons:shopping-bag",
-            "Capital Goods": "heroicons:building-office",
-            "Fuel and Energy Related Activities": "heroicons:bolt",
-            "Waste Generated in Operation": "heroicons:trash",
-            "Business Travel": "heroicons:briefcase",
-            "Upstream Transportation": "heroicons:arrow-up-tray",
-            "Downstream Transportation": "heroicons:arrow-down-tray",
-            "Employee Commuting": "heroicons:user-group",
-          };
-          return (
-            <div
-              key={idx}
-              className={`${item.bg} rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 p-3`}
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <Icon
-                  icon={iconMap[item.name] || "heroicons:circle-stack"}
-                  className="text-gray-700 text-2xl"
-                />
-                <h2 className="text-xl font-semibold mb-1 text-gray-700">{item.name}</h2>
-              </div>
-              {/* <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
-                <span>
-                  {formatNumber(item.kg)}<span className="text-black-500"> KgCO₂e</span>
-                </span>
-                <span>
-                  {formatNumber(item.t)}<span className="text-black-500"> tCO₂e</span>
-                </span>
-              </p> */}
-              <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
-                <span>
-                  {formatNumber(item.kg, 2)}<span className="text-black-500"> KgCO₂e</span>
-                </span>
-                <span>
-                  {formatNumber(item.t, 2)}<span className="text-black-500"> tCO₂e</span>
-                </span>
-              </p>
+        {summaryCards.map((item, idx) => (
+          <div
+            key={idx}
+            className={`${item.bg} rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 p-3`}
+          >
+            <div className="flex items-center gap-2 mb-1">
+              {/* Use PNG icons instead of Iconify */}
+              <img
+                src={item.pngIcon}
+                alt={item.name}
+                className="w-6 h-6 object-contain filter grayscale "
+              />
+              <h2 className="text-xl font-semibold mb-1 text-gray-700">{item.name}</h2>
             </div>
-          );
-        })}
+            <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
+              <span>
+                {formatNumber(item.kg, 2)}<span className="text-black-500"> KgCO₂e</span>
+              </span>
+              <span>
+                {formatNumber(item.t, 2)}<span className="text-black-500"> tCO₂e</span>
+              </span>
+            </p>
+          </div>
+        ))}
       </div>
       {/* Building-wise Table + Filter */}
       <Card>

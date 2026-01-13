@@ -311,7 +311,7 @@ const ScopeTwoReport = () => {
             >
               <div className="flex items-center gap-2 mb-1">
                 <Icon
-                  icon={iconMap[item.name] || "heroicons:circle-stack"}
+                  icon={iconMap[item.name] || "mdi:power-plug"}
                   className="text-gray-700 text-2xl"
                 />
                 <h2 className="text-xl font-semibold mb-1 text-gray-700">{item.name}</h2>

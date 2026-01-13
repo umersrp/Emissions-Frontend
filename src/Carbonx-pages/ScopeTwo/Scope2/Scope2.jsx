@@ -11,7 +11,7 @@ const Scope2 = () => {
     { 
       title: "Purchased Electricity", 
       path: "/Purchased-Electricity",
-      icon: "heroicons:fire", 
+      icon: "mdi:power-plug", 
       bg: "bg-cyan-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
     },
