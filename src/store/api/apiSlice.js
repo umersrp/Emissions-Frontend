@@ -5,8 +5,8 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${process.env.REACT_APP_BASE_URL}/auth/login`,
     prepareHeaders: (headers, { getState }) => {
-      headers.set("x-mock-disable", "true");
-      
+      // headers.set("x-mock-disable", "true");
+      headers.set("Content-Type", "application/json");
       return headers;
     },
   }),
