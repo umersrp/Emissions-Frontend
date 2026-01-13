@@ -141,6 +141,8 @@ const icons = [
 
   { name: "heroicons:rectangle-stack" },
   { name: "heroicons:rocket-launch" },
+  { name: "heroicons:banknotes" },
+  { name: "heroicons:building-storefront" },
   { name: "heroicons:window" },
   { name: "heroicons:wifi" },
   { name: "heroicons:wallet" },
