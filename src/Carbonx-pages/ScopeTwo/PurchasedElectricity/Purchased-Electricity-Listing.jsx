@@ -10,6 +10,7 @@ import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
 import Logo from "@/assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
 import { useNavigate, useLocation } from "react-router-dom";
+import Select from "@/components/ui/Select";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -181,7 +182,7 @@ const PurchasedElectricityListing = () => {
     { Header: "Power Purchase Agreements (PPAs)", accessor: "hasPPA", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
     { Header: "Electricity Purchased / Covered Under PPAs", accessor: "ppaElectricity", Cell: ({ cell }) => renderNA(cell.value) },
 
-    { Header: "Renewable Energy Attributes/Certificates", accessor: "hasRenewableAttributes", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
+    { Header: "Renewable Energy Attributes / Certificates", accessor: "hasRenewableAttributes", Cell: ({ cell }) => cell.value ? "Yes" : "No" },
     { Header: "Electricity Covered by Renewable Attributes", accessor: "renewableAttributesElectricity", Cell: ({ cell }) => renderNA(cell.value) },
 
     //{ Header: "Total Onsite Solar Consumption", accessor: "totalOnsiteSolarConsumption" },
@@ -222,21 +223,6 @@ const PurchasedElectricityListing = () => {
   // Additional common columns after emission columns
   const FINAL_COLUMNS = [
     { Header: "Quality Control", accessor: "qualityControl", Cell: ({ cell }) => renderNA(cell.value) },
-    {
-        Header: "Posting Date", accessor: "postingDate", Cell: ({ cell }) => {
-          if (!cell.value) return "N/A";
-          try {
-            const date = new Date(cell.value);
-            return date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit'
-            });
-          } catch {
-            return "Invalid Date";
-          }
-        }
-      },
     { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => renderNA(cell.value) },
     {
       Header: "Created By",
@@ -247,6 +233,21 @@ const PurchasedElectricityListing = () => {
       Header: "Updated By",
       accessor: "updatedBy.name",
       Cell: ({ cell }) => cell.value || "N/A",
+    },
+    {
+      Header: "Posting Date", accessor: "postingDate", Cell: ({ cell }) => {
+        if (!cell.value) return "N/A";
+        try {
+          const date = new Date(cell.value);
+          return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          });
+        } catch {
+          return "Invalid Date";
+        }
+      }
     },
     {
       Header: "Created At",
@@ -341,18 +342,62 @@ const PurchasedElectricityListing = () => {
             {/* Emission Filter Dropdown */}
             <div className="flex items-center space-x-2">
               <label className="text-sm font-medium text-slate-600">Filter:</label>
-              <select
+              {/* <select
                 value={emissionFilter}
                 onChange={(e) => {
                   setEmissionFilter(e.target.value);
-                  setPageIndex(1); // Reset to first page when filter changes
+                  setPageIndex(1); 
                 }}
                 className="form-select py-2 w-44 rounded"
               >
                 <option value="">Select Method</option>
                 <option value="location_based">Location Based</option>
                 <option value="market_based">Market Based</option>
-              </select>
+              </select> */}
+              <Select
+                options={[
+                  { value: "", label: "Select Method" },
+                  { value: "location_based", label: "Location Based" },
+                  { value: "market_based", label: "Market Based" },
+                ]}
+                value={
+                  emissionFilter
+                    ? {
+                      value: emissionFilter,
+                      label: emissionFilter === "location_based"
+                        ? "Location Based"
+                        : emissionFilter === "market_based"
+                          ? "Market Based"
+                          : "Select Method"
+                    }
+                    : { value: "", label: "Select Method" }
+                }
+                onChange={(selected) => {
+                  setEmissionFilter(selected ? selected.value : "");
+                  setPageIndex(1);
+                }}
+                className="w-44"
+                classNamePrefix="react-select"
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    minHeight: "38px", // Match your original height
+                    borderColor: "#d1d5db", // gray-300
+                    borderRadius: "0.375rem", // rounded
+                    "&:hover": {
+                      borderColor: "#9ca3af", // gray-400
+                    },
+                  }),
+                  option: (base, state) => ({
+                    ...base,
+                    backgroundColor: state.isSelected ? "#3b82f6" : "white", // blue-500 when selected
+                    color: state.isSelected ? "white" : "#374151", // gray-700
+                    "&:hover": {
+                      backgroundColor: "#f3f4f6", // gray-100
+                    },
+                  }),
+                }}
+              />
             </div>
 
             {/* Global Search */}

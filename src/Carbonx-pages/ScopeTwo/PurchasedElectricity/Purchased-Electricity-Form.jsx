@@ -652,7 +652,7 @@ const PurchasedElectricityFormPage = () => {
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="">
+                <div className="col-span-2">
                   <label className="field-label">Total Gross Electricity Purchased from Grid Station</label>
                   <div className="grid grid-cols-[4fr_1fr]">
                     <InputGroup
@@ -725,7 +725,7 @@ const PurchasedElectricityFormPage = () => {
                 </div>
                 {/* posting Date */}
                 <div>
-                  <label className="field-label">Posting Date</label>
+                  <label className="field-label">Posting Date <span className="text-red-500">*</span></label>
                   <InputGroup
                     type="date"
                     name="postingDate"
