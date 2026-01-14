@@ -352,7 +352,7 @@ const ScopeThreeReport = () => {
         bg: "bg-red-50",
         count: capitalGoodsItems.length,
         items: capitalGoodsItems,
-        pngIcon: buildingIcon, // Add this
+        pngIcon: twoTruckIcon, // Add this
       },
       {
         name: "Fuel and Energy Related Activities",
@@ -397,7 +397,7 @@ const ScopeThreeReport = () => {
         bg: "bg-indigo-50",
         count: downstreamTransportationItems.length,
         items: downstreamTransportationItems,
-        pngIcon: twoTruckIcon, // Add this
+        pngIcon: charcoalIcon, // Add this
       },
       {
         name: "Employee Commuting",

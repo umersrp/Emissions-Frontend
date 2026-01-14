@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import InputGroup from "@/components/ui/InputGroup";
 import CustomSelect from "@/components/ui/Select";
+import ToggleButton from "@/components/ui/ToggleButton";
 
 const EmailSent = () => {
     const [formData, setFormData] = useState({
@@ -38,20 +39,19 @@ const EmailSent = () => {
                 const token = localStorage.getItem("token");
 
                 const response = await axios.get(
-                    `${process.env.REACT_APP_BASE_URL}/auth/getCompanyUsers`,
+                    `${process.env.REACT_APP_BASE_URL}/auth/getCompanyUsers?limit=1000`,
                     {
                         headers: { Authorization: `Bearer ${token}` },
-                        params: { page: 1, limit: formData.minEmployeesRequired },
                     }
                 );
 
                 const users = response.data.data.users || [];
 
-                // ✅ CHANGED: include userId
+                //  CHANGED: include userId
                 const options = users.map((u) => ({
                     value: u.email,
                     label: `${u.name} (${u.email})`,
-                    userId: u._id, // ✅ ADDED
+                    userId: u._id, //  ADDED
                 }));
 
                 setEmployeesOptions(options);
@@ -63,9 +63,6 @@ const EmailSent = () => {
 
         fetchCompanyUsers();
     }, [formData.minEmployeesRequired]);
-
-    // ===============================
-
 
     // Update email count whenever selectedEmployees change
     useEffect(() => {
@@ -137,7 +134,7 @@ const EmailSent = () => {
                 totalEmployees: formData.selectedEmployees.length,
                 minEmployeesRequired: Number(formData.minEmployeesRequired),
 
-                // ✅ CHANGED: send email + userId
+                //  CHANGED: send email + userId
                 emails: formData.selectedEmployees.map((e) => ({
                     email: e.value,
                     userId: e.userId,
@@ -220,7 +217,7 @@ const EmailSent = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <InputGroup
                             label="User name *"
-                            placeholder="Enter your name"
+                            placeholder="Enter Name"
                             value={formData.userName}
                             onChange={(e) => handleInputChange("userName", e.target.value)}
                             required
@@ -228,7 +225,7 @@ const EmailSent = () => {
                         <InputGroup
                             label="User Email"
                             type="email"
-                            placeholder="your.email@company.com"
+                            placeholder="Enter Email"
                             value={formData.userEmailId}
                             onChange={(e) => handleInputChange("userEmailId", e.target.value)}
                             required
@@ -239,17 +236,17 @@ const EmailSent = () => {
                 {/* Employee Info */}
                 <div className="mb-8">
                     <h3 className="text-lg font-medium text-gray-700 mb-4">Employee Information</h3>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <Textinput
+                        <InputGroup
                             label="Total Number of Employees"
                             type="number"
-                            placeholder="Auto-calculated"
+                            placeholder="Auto Calculated"
                             value={formData.selectedEmployees.length}
                         />
-                        <Textinput
+                        <InputGroup
                             label="Minimum Number of Employees Required *"
                             type="number"
+                            placeholder="e.g., 1, 2, 3"
                             value={formData.minEmployeesRequired}
                             onChange={(e) =>
                                 handleInputChange("minEmployeesRequired", Number(e.target.value))
@@ -260,17 +257,50 @@ const EmailSent = () => {
 
                     </div>
 
-                    <CustomSelect
+                    {/* <CustomSelect
                         isMulti
                         options={employeesOptions}
                         value={formData.selectedEmployees}
                         onChange={(selected) => handleInputChange("selectedEmployees", selected)}
-                        placeholder="Select Employees..."
-                        isOptionDisabled={() =>
-                            formData.selectedEmployees.length >= Number(formData.minEmployeesRequired)
+                        placeholder="Select Employees"
+                        // isOptionDisabled={() =>
+                        //     formData.selectedEmployees.length >= Number(formData.minEmployeesRequired)
+                        // }
+                        isOptionDisabled={(option) => {
+                            const maxLimit = Number(formData.minEmployeesRequired);   
+                            const selectedCount = formData.selectedEmployees.length;
+
+                            // Allow deselection: if option is already selected, don't disable it
+                            const isAlreadySelected = formData.selectedEmployees.some(
+                                selected => selected.value === option.value
+                            );
+
+                            // Disable new selections only if limit reached AND option is not already selected
+                            return !isAlreadySelected && selectedCount >= maxLimit;
+                        }}
+                    /> */}
+                    <CustomSelect
+                        isMulti
+                        options={employeesOptions.filter(option =>
+                            // Hide options that are already selected
+                            !formData.selectedEmployees.some(
+                                selected => selected.value === option.value
+                            )
+                        )}
+                        value={formData.selectedEmployees}
+                        onChange={(selected) => {
+                            const maxLimit = Number(formData.minEmployeesRequired);
+                            if (selected.length <= maxLimit) {
+                                handleInputChange("selectedEmployees", selected);
+                            }
+                        }}
+                        placeholder={`Select Employees`}
+                        noOptionsMessage={() =>
+                            employeesOptions.length === 0
+                                ? "No employees available"
+                                : "All available employees have been selected"
                         }
                     />
-
 
                     <p className="text-xs text-gray-500 mt-1">
                         {emailCount >= Number(formData.minEmployeesRequired) ? (
@@ -286,9 +316,6 @@ const EmailSent = () => {
                 {/* Email Configuration */}
                 <div className="mb-8">
                     <h3 className="text-lg font-medium text-gray-700 mb-4">Email Configuration</h3>
-
-
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <InputGroup
                             label="Data Collection Initiation Date & Time *"
@@ -296,7 +323,6 @@ const EmailSent = () => {
                             value={formData.startDateTime}
                             onChange={(e) => handleInputChange("startDateTime", e.target.value)}
                         />
-
                         <InputGroup
                             label="Data Collection End Date & Time *"
                             type="datetime-local"
@@ -304,14 +330,13 @@ const EmailSent = () => {
                             onChange={(e) => handleInputChange("endDateTime", e.target.value)}
                         />
                     </div>
-                        <InputGroup
-                            label="Email Message *"
-                            placeholder="Employee Commuting Data – Action Required"
-                            value={formData.subject}
-                            onChange={(e) => handleInputChange("subject", e.target.value)}
-                            className="mb-4"
-                        />
-
+                    <InputGroup
+                        label="Email Message *"
+                        placeholder="Employee Commuting Data – Action Required"
+                        value={formData.subject}
+                        onChange={(e) => handleInputChange("subject", e.target.value)}
+                        className="mb-4"
+                    />
                     <InputGroup
                         label="Form Link *"
                         placeholder="https://carbonx4.vercel.app/AddfromEmployee"
@@ -320,17 +345,16 @@ const EmailSent = () => {
                         className="mb-6"
                         disabled
                     />
-
                 </div>
 
                 {/* Reminder Configuration */}
                 <div className="mb-8">
                     <h3 className="text-lg font-medium text-gray-700 mb-4">Reminder Configuration</h3>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
                         <InputGroup
                             label="Total Reminders"
                             type="number"
+                            placeholder="e.g., 1, 2, 3"
                             min="0"
                             max="10"
                             value={formData.totalReminders}
@@ -338,24 +362,30 @@ const EmailSent = () => {
                         />
 
                         {/* Toggle Row */}
-                        <div className="flex flex-col justify-between">
-                            <div>
+                        <div className="mt-9">
+                            {/* <div>
                                 <label className="block text-sm font-medium text-gray-700">
                                     Reminder Interval (Days or Time)
                                 </label>
 
-                            </div>
-                            <button
+                            </div> */}
+                            {/* <button
                                 type="button"
                                 onClick={() => setShowReminderDates(!showReminderDates)}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${showReminderDates ? 'bg-primary' : 'bg-gray-300'
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${showReminderDates ? 'bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]' : 'bg-gray-300'
                                     }`}
                             >
                                 <span
                                     className={`inline-block h-3 w-4 transform rounded-full bg-white transition-transform ${showReminderDates ? 'translate-x-6' : 'translate-x-1'
                                         }`}
                                 />
-                            </button>
+                            </button> */}
+                            <ToggleButton
+                                label="Reminder Interval (Days or Time)" // Optional: You can add a label if needed
+                                checked={showReminderDates}
+                                onChange={() => setShowReminderDates(!showReminderDates)}
+                                disabled={false} // Set to true if you want to disable it
+                            />
                         </div>
                         {showReminderDates && (
                             <InputGroup
@@ -366,10 +396,8 @@ const EmailSent = () => {
                                 helperText="Enter dates in format: YYYY-MM-DDTHH:MM"
                             />
                         )}
-
                         {/* Conditionally show the input field */}
                     </div>
-
                     <InputGroup
                         label="Email Subject"
                         placeholder="Reminder – Employee Commuting Data Form Submission"
@@ -377,7 +405,6 @@ const EmailSent = () => {
                         onChange={(e) => handleInputChange("reminderSubject", e.target.value)}
                         className="mb-4"
                     />
-
                     <label className="block text-sm font-medium mb-2">Reminder Email Message </label>
                     <textarea
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm min-h-[80px]"

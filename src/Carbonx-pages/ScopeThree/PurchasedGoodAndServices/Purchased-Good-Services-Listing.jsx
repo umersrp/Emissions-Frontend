@@ -199,7 +199,18 @@ const fetchData = async () => {
           return numValue.toFixed(2);
         }  },
       { Header: "Quality Control", accessor: "qualityControl",Cell: ({ cell }) => cell.value || "N/A" },
+      { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A" },
+        {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
       {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
+       {
         Header: "Posting Date", accessor: "postingDate", Cell: ({ cell }) => {
           if (!cell.value) return "N/A";
 
@@ -214,17 +225,6 @@ const fetchData = async () => {
             return "Invalid Date";
           }
         }
-      },
-      { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A" },
-        {
-        Header: "Created By",
-        accessor: "createdBy.name",
-        Cell: ({ cell }) => cell.value || "N/A",
-      },
-      {
-        Header: "Updated By",
-        accessor: "updatedBy.name",
-        Cell: ({ cell }) => cell.value || "N/A",
       },
       {
         Header: "Created At",

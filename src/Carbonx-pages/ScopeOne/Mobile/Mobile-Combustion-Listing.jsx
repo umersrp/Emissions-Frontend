@@ -202,21 +202,6 @@ const MobileCombustionListing = () => {
         }
       },
       {
-        Header: "Posting Date", accessor: "postingDate", Cell: ({ cell }) => {
-          if (!cell.value) return "N/A";
-          try {
-            const date = new Date(cell.value);
-            return date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit'
-            });  
-          } catch {
-            return "Invalid Date";
-          }
-        }
-      },
-      {
         Header: "Remarks",
         accessor: "remarks",
         Cell: ({ cell }) => cell.value || "N/A"
@@ -230,6 +215,21 @@ const MobileCombustionListing = () => {
         Header: "Updated By",
         accessor: "updatedBy.name",
         Cell: ({ cell }) => cell.value || "N/A",
+      },
+       {
+        Header: "Posting Date", accessor: "postingDate", Cell: ({ cell }) => {
+          if (!cell.value) return "N/A";
+          try {
+            const date = new Date(cell.value);
+            return date.toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            });  
+          } catch {
+            return "Invalid Date";
+          }
+        }
       },
 
       {

@@ -218,6 +218,20 @@ const StationaryCombustionListing = () => {
           return numValue.toFixed(2);
         }
       },
+      
+      // { Header: "Calculated Bio Emissions (kgCO₂e)", accessor: "calculatedBioEmissionKgCo2e", },
+      // { Header: "Calculated Bio Emissions (tCO₂e)", accessor: "calculatedBioEmissionTCo2e", },
+      { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => cell.value || "N/A" },
+      {
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
+      {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
       {
         Header: "Posting Date", accessor: "postingDate", Cell: ({ cell }) => {
           if (!cell.value) return "N/A";
@@ -233,19 +247,6 @@ const StationaryCombustionListing = () => {
             return "Invalid Date";
           }
         }
-      },
-      // { Header: "Calculated Bio Emissions (kgCO₂e)", accessor: "calculatedBioEmissionKgCo2e", },
-      // { Header: "Calculated Bio Emissions (tCO₂e)", accessor: "calculatedBioEmissionTCo2e", },
-      { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => cell.value || "N/A" },
-      {
-        Header: "Created By",
-        accessor: "createdBy.name",
-        Cell: ({ cell }) => cell.value || "N/A",
-      },
-      {
-        Header: "Updated By",
-        accessor: "updatedBy.name",
-        Cell: ({ cell }) => cell.value || "N/A",
       },
       {
         Header: "Created At",

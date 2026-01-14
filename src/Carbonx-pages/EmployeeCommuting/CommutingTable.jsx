@@ -388,7 +388,7 @@ const CommutingTable = () => {
             ),
         },
         {
-            Header: "SITE / Building name",
+            Header: "Building",
             accessor: "building.buildingName",
             Cell: ({ cell }) => cell.value || "N/A",
         },
@@ -453,7 +453,7 @@ const CommutingTable = () => {
             },
         },
         {
-            Header: "Distance (km)",
+            Header: "Distance Travelled",
             Cell: ({ row }) => {
                 const d = row.original;
                 if (d.commuteByMotorbike) return Number(d.motorbikeDistance || 0).toFixed(2);
@@ -465,7 +465,7 @@ const CommutingTable = () => {
             },
         },
         {
-            Header: "Emission Factor (kgCO₂e/passenger.km)",
+            Header: "Emission Factor (kgCO₂e / passenger.km)",
             Cell: ({ row }) => {
                 const emissions = row.original.emissions;
                 if (!emissions) return "N/A";
