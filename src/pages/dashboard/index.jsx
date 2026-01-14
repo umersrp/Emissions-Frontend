@@ -492,7 +492,7 @@ const Dashboard = () => {
         {/* Summary cards */}
         <div className="grid grid-cols-5 gap-4 mb-6 ">
           {/* Total GHG Emissions */}
-          <div className="col-span-2 bg-white rounded-xl shadow-lg   h-[170px]   p-3">
+          <div className="col-span-2 bg-white rounded-xl shadow-lg md:h-[190px]  h-[170px]   p-3">
             <h3 className="text-2xl font-semibold mt-2">Total GHG Emissions</h3>
             <p className="text-xl text-red-500 font-bold flex flex-col mt-2">
               {formatNumber(totalEmission)}
@@ -501,7 +501,7 @@ const Dashboard = () => {
           </div>
 
           {/* Scope 1 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg  h-[150px]  mt-2.5 p-3">
+          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]  h-[150px]  mt-2.5 p-3">
             <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 1 Emissions</h3>
             <p className="text-xl text-green-500 font-bold flex flex-col">
               {formatNumber(scope1Emission)}
@@ -511,7 +511,7 @@ const Dashboard = () => {
           </div>
 
           {/* Scope 2 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg  h-[150px] mt-2.5 p-3">
+          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]   h-[150px] mt-2.5 p-3">
             <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 2 Emissions</h3>
 
             {/* Breakdown (smaller, subtle) */}
@@ -535,7 +535,7 @@ const Dashboard = () => {
           </div>
 
           {/* Scope 3 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg  h-[150px]  mt-2.5 p-3">
+          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]   h-[150px]  mt-2.5 p-3">
             <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 3 Emissions</h3>
             <p className="text-xl text-purple-500 font-bold flex flex-col">
               {formatNumber(scope3Emission)}

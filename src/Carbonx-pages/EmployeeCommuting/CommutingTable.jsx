@@ -465,7 +465,7 @@ const CommutingTable = () => {
             },
         },
         {
-            Header: "Emission Factor (kgCO₂e / passenger.km)",
+            Header: "Emission Factor (kgCO₂e / Passenger.km)",
             Cell: ({ row }) => {
                 const emissions = row.original.emissions;
                 if (!emissions) return "N/A";
@@ -633,7 +633,7 @@ const CommutingTable = () => {
             <Card noborder>
                 <div className="md:flex pb-6 items-center">
                     <div className="flex-1">
-                        <h6 className="mb-2">Employee Commuting Data</h6>
+                        <h6 className="mb-2">Employee Commuting</h6>
                         <p className="text-sm text-gray-600">
                             Using UK Government GHG Conversion Factors 2025 for Scope 3 emissions
                         </p>

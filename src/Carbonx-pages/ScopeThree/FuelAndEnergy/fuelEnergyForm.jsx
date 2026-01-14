@@ -869,7 +869,6 @@ const FuelEnergyForm = () => {
                                                 <p className="text-red-500 text-sm mt-1">{errors.airPassengers}</p>
                                             )}
                                         </div>
-
                                         <div>
                                             <label className="field-label">Distance Travelled<span className="text-red-500">*</span></label>
                                             <div className="grid grid-cols-[14fr_1fr]">
