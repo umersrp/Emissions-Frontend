@@ -19,9 +19,9 @@ const EmailSent = () => {
         endDateTime: "",
         subject: "Employee Commuting Data – Action Required",
         formLink: "https://ksvvmxbk-5173.inc1.devtunnels.ms/AddfromEmployee",
-        totalReminders: 3,
+        totalReminders: 1,
         reminderDates: "",
-        reminderSubject: "Reminder – Employee Commuting Data Form Submission",
+        reminderSubject: "Reminder Employee Commuting Data Form Submission",
         reminderMessageBody:
             "This is a kind reminder to please complete the Employee Commuting Data Form if you have not yet submitted your response. Your participation is important for our sustainability reporting.",
     });
@@ -390,6 +390,7 @@ const EmailSent = () => {
                         {showReminderDates && (
                             <InputGroup
                                 label="1st Reminder Date & Time "
+                                type="datetime-local"
                                 placeholder="2025-12-05T10:00, 2025-12-10T10:00"
                                 value={formData.reminderDates || ""}
                                 onChange={(e) => handleInputChange("reminderDates", e.target.value)}
@@ -400,13 +401,15 @@ const EmailSent = () => {
                     </div>
                     <InputGroup
                         label="Email Subject"
-                        placeholder="Reminder – Employee Commuting Data Form Submission"
+                        placeholder="Reminder Employee Commuting Data Form Submission"
                         value={formData.reminderSubject}
                         onChange={(e) => handleInputChange("reminderSubject", e.target.value)}
                         className="mb-4"
                     />
-                    <label className="block text-sm font-medium mb-2">Reminder Email Message </label>
-                    <textarea
+                    {/* <label className="block text-sm font-medium mb-2">Reminder Email Message </label> */}
+                    <InputGroup
+                        type="textarea"
+                        label="Reminder Email Message"
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm min-h-[80px]"
                         placeholder="This is a kind reminder to please complete the Employee Commuting Data Form..."
                         value={formData.reminderMessageBody}
