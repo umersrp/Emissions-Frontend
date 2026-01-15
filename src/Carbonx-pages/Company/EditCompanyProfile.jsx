@@ -173,7 +173,7 @@ const EditCompanyProfile = () => {
                 <form className="lg:grid-cols-3 grid gap-8 grid-cols-1">
                     {/* Company Name */}
                     <div className="">
-                        <label className="field-label">Company Name *</label>
+                        <label className="field-label">Company Name  <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             name="companyName"
@@ -189,7 +189,7 @@ const EditCompanyProfile = () => {
 
                     {/* Reporting Year Type */}
                     <div className="flex-1 mb-4">
-                        <label className="field-label">Reporting Year Type *</label>
+                        <label className="field-label">Reporting Year Type  <span className="text-red-500">*</span></label>
                         <Select
                             options={[
                                 { value: "calendar", label: "Calendar Year" },
@@ -299,7 +299,7 @@ const EditCompanyProfile = () => {
 
                     {/* Boundary */}
                     <div className="">
-                        <label className="field-label">Boundary *</label>
+                        <label className="field-label">Boundary  <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             name="boundary"
@@ -313,7 +313,7 @@ const EditCompanyProfile = () => {
 
                     {/* Country */}
                     <div className="">
-                        <label className="field-label">Country *</label>
+                        <label className="field-label">Country  <span className="text-red-500">*</span></label>
                         <Select
                             options={countries.map((c) => ({ value: c, label: c }))}
                             value={formData.country ? { value: formData.country, label: formData.country } : null}
@@ -367,7 +367,7 @@ const EditCompanyProfile = () => {
 
                     {/* Total Employees */}
                     <div className="">
-                        <label className="field-label">Total Employees *</label>
+                        <label className="field-label">Total Employees  <span className="text-red-500">*</span></label>
                         <input
                             type="number"
                             name="totalEmployees"
@@ -381,7 +381,7 @@ const EditCompanyProfile = () => {
 
                     {/* Currency */}
                     <div className="">
-                        <label className="field-label">Currency *</label>
+                        <label className="field-label">Currency  <span className="text-red-500">*</span></label>
 
                         {/* <select
                             name="currency"
@@ -434,7 +434,7 @@ const EditCompanyProfile = () => {
                     </div>
                     {/* Sector Dropdown */}
                     <div className="">
-                        <label className="field-label">Sector *</label>
+                        <label className="field-label">Sector  <span className="text-red-500">*</span></label>
                         {/* <select
                             value={formData.sectorId}
                             className="input-field"
@@ -475,7 +475,7 @@ const EditCompanyProfile = () => {
 
                     {/* Industry Dropdown */}
                     <div className="">
-                        <label className="field-label">Industry *</label>
+                        <label className="field-label">Industry  <span className="text-red-500">*</span></label>
                         {/* <select
                             value={formData.industryId}
                             className="input-field"

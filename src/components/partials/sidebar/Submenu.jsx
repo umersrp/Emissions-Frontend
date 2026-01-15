@@ -15,7 +15,7 @@ const Submenu = ({
     <Collapse isOpened={activeSubmenu === i}>
       <ul className="sub-menu  space-y-4  ">
         {item.child?.map((subItem, j) => (
-          <li key={j} className="block pl-4 pr-1 first:pt-4  last:pb-4">
+          <li key={j} className="block pl-4 pr-1 first:pt-4  ">
             {subItem?.multi_menu ? (
               <div>
                 <div

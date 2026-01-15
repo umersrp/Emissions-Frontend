@@ -237,7 +237,7 @@ const Sidebar = () => {
         >
           <Navmenu menus={menuItems} />
 
-          <div className="px-5 py-5" />
+          {/* <div className="px-5 py-5" /> */}
         </SimpleBar>
       </div>
     </div>

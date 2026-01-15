@@ -215,21 +215,25 @@ const EmailSent = () => {
                 <div className="mb-8">
                     <h3 className="text-lg font-medium text-gray-700 mb-4">User Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <InputGroup
-                            label="User name *"
-                            placeholder="Enter Name"
-                            value={formData.userName}
-                            onChange={(e) => handleInputChange("userName", e.target.value)}
-                            required
-                        />
-                        <InputGroup
-                            label="User Email"
-                            type="email"
-                            placeholder="Enter Email"
-                            value={formData.userEmailId}
-                            onChange={(e) => handleInputChange("userEmailId", e.target.value)}
-                            required
-                        />
+                        <div>
+                            <label className="field-label">User Name <span className="text-red-500">*</span></label>
+                            <InputGroup
+                                placeholder="Enter Name"
+                                value={formData.userName}
+                                onChange={(e) => handleInputChange("userName", e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="field-label">User Email <span className="text-red-500">*</span></label>
+                            <InputGroup
+                                type="email"
+                                placeholder="Enter Email"
+                                value={formData.userEmailId}
+                                onChange={(e) => handleInputChange("userEmailId", e.target.value)}
+                                required
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -237,24 +241,27 @@ const EmailSent = () => {
                 <div className="mb-8">
                     <h3 className="text-lg font-medium text-gray-700 mb-4">Employee Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <InputGroup
-                            label="Total Number of Employees"
-                            type="number"
-                            placeholder="Auto Calculated"
-                            value={formData.selectedEmployees.length}
-                        />
-                        <InputGroup
-                            label="Minimum Number of Employees Required *"
-                            type="number"
-                            placeholder="e.g., 1, 2, 3"
-                            value={formData.minEmployeesRequired}
-                            onChange={(e) =>
-                                handleInputChange("minEmployeesRequired", Number(e.target.value))
-                            }
-                            min="1"
-                            required
-                        />
-
+                        <div>
+                            <label className="field-label">Total Number of Employees</label>
+                            <InputGroup
+                                type="number"
+                                placeholder="Auto Calculated"
+                                value={formData.selectedEmployees.length}
+                            />
+                        </div>
+                        <div>
+                            <label className="field-label">Minimum Number of Employees Required <span className="text-red-500">*</span></label>
+                            <InputGroup
+                                type="number"
+                                placeholder="e.g., 1, 2, 3"
+                                value={formData.minEmployeesRequired}
+                                onChange={(e) =>
+                                    handleInputChange("minEmployeesRequired", Number(e.target.value))
+                                }
+                                min="1"
+                                required
+                            />
+                        </div>
                     </div>
 
                     {/* <CustomSelect
@@ -317,69 +324,61 @@ const EmailSent = () => {
                 <div className="mb-8">
                     <h3 className="text-lg font-medium text-gray-700 mb-4">Email Configuration</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label className="field-label">Data Collection Initiation Date & Time <span className="text-red-500">*</span></label>
+                            <InputGroup
+                                type="datetime-local"
+                                value={formData.startDateTime}
+                                onChange={(e) => handleInputChange("startDateTime", e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label className="field-label">Data Collection End Date & Time <span className="text-red-500">*</span></label>
+                            <InputGroup
+                                type="datetime-local"
+                                value={formData.endDateTime}
+                                onChange={(e) => handleInputChange("endDateTime", e.target.value)}
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="field-label">Email Message <span className="text-red-500">*</span></label>
                         <InputGroup
-                            label="Data Collection Initiation Date & Time *"
-                            type="datetime-local"
-                            value={formData.startDateTime}
-                            onChange={(e) => handleInputChange("startDateTime", e.target.value)}
-                        />
-                        <InputGroup
-                            label="Data Collection End Date & Time *"
-                            type="datetime-local"
-                            value={formData.endDateTime}
-                            onChange={(e) => handleInputChange("endDateTime", e.target.value)}
+                            placeholder="Employee Commuting Data – Action Required"
+                            value={formData.subject}
+                            onChange={(e) => handleInputChange("subject", e.target.value)}
+                            className="mb-4"
                         />
                     </div>
-                    <InputGroup
-                        label="Email Message *"
-                        placeholder="Employee Commuting Data – Action Required"
-                        value={formData.subject}
-                        onChange={(e) => handleInputChange("subject", e.target.value)}
-                        className="mb-4"
-                    />
-                    <InputGroup
-                        label="Form Link *"
-                        placeholder="https://carbonx4.vercel.app/AddfromEmployee"
-                        value={formData.formLink}
-                        onChange={(e) => handleInputChange("formLink", e.target.value)}
-                        className="mb-6"
-                        disabled
-                    />
+                    <div>
+                        <label className="field-label">Form Link <span className="text-red-500">*</span></label>
+                        <InputGroup
+                            placeholder="https://carbonx4.vercel.app/AddfromEmployee"
+                            value={formData.formLink}
+                            onChange={(e) => handleInputChange("formLink", e.target.value)}
+                            className="mb-6"
+                            disabled
+                        />
+                    </div>
                 </div>
 
                 {/* Reminder Configuration */}
                 <div className="mb-8">
                     <h3 className="text-lg font-medium text-gray-700 mb-4">Reminder Configuration</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
-                        <InputGroup
-                            label="Total Reminders"
-                            type="number"
-                            placeholder="e.g., 1, 2, 3"
-                            min="0"
-                            max="10"
-                            value={formData.totalReminders}
-                            onChange={(e) => handleInputChange("totalReminders", e.target.value)}
-                        />
-
+                        <div>
+                            <label className="field-label">Total Reminders</label>
+                            <InputGroup
+                                type="number"
+                                placeholder="e.g., 1, 2, 3"
+                                min="0"
+                                max="10"
+                                value={formData.totalReminders}
+                                onChange={(e) => handleInputChange("totalReminders", e.target.value)}
+                            />
+                        </div>
                         {/* Toggle Row */}
-                        <div className="mt-9">
-                            {/* <div>
-                                <label className="block text-sm font-medium text-gray-700">
-                                    Reminder Interval (Days or Time)
-                                </label>
-
-                            </div> */}
-                            {/* <button
-                                type="button"
-                                onClick={() => setShowReminderDates(!showReminderDates)}
-                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${showReminderDates ? 'bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]' : 'bg-gray-300'
-                                    }`}
-                            >
-                                <span
-                                    className={`inline-block h-3 w-4 transform rounded-full bg-white transition-transform ${showReminderDates ? 'translate-x-6' : 'translate-x-1'
-                                        }`}
-                                />
-                            </button> */}
+                        <div className="mt-7">
                             <ToggleButton
                                 label="Reminder Interval (Days or Time)" // Optional: You can add a label if needed
                                 checked={showReminderDates}
@@ -388,33 +387,38 @@ const EmailSent = () => {
                             />
                         </div>
                         {showReminderDates && (
-                            <InputGroup
-                                label="1st Reminder Date & Time "
-                                type="datetime-local"
-                                placeholder="2025-12-05T10:00, 2025-12-10T10:00"
-                                value={formData.reminderDates || ""}
-                                onChange={(e) => handleInputChange("reminderDates", e.target.value)}
-                                helperText="Enter dates in format: YYYY-MM-DDTHH:MM"
-                            />
+                            <div>
+                                <label className="field-label">1st Reminder Date & Time</label>
+                                <InputGroup
+                                    type="datetime-local"
+                                    placeholder="2025-12-05T10:00, 2025-12-10T10:00"
+                                    value={formData.reminderDates || ""}
+                                    onChange={(e) => handleInputChange("reminderDates", e.target.value)}
+                                    helperText="Enter dates in format: YYYY-MM-DDTHH:MM"
+                                />
+                            </div>
                         )}
                         {/* Conditionally show the input field */}
                     </div>
-                    <InputGroup
-                        label="Email Subject"
-                        placeholder="Reminder Employee Commuting Data Form Submission"
-                        value={formData.reminderSubject}
-                        onChange={(e) => handleInputChange("reminderSubject", e.target.value)}
-                        className="mb-4"
-                    />
-                    {/* <label className="block text-sm font-medium mb-2">Reminder Email Message </label> */}
-                    <InputGroup
-                        type="textarea"
-                        label="Reminder Email Message"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm min-h-[80px]"
-                        placeholder="This is a kind reminder to please complete the Employee Commuting Data Form..."
-                        value={formData.reminderMessageBody}
-                        onChange={(e) => handleInputChange("reminderMessageBody", e.target.value)}
-                    />
+                    <div>
+                        <label className="field-label">Email Subject</label>
+                        <InputGroup
+                            placeholder="Reminder Employee Commuting Data Form Submission"
+                            value={formData.reminderSubject}
+                            onChange={(e) => handleInputChange("reminderSubject", e.target.value)}
+                            className="mb-4"
+                        />
+                    </div>
+                    <div>
+                        <label className="field-label">Reminder Email Message</label>   
+                          <InputGroup            
+                            type="textarea"
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm min-h-[80px]"
+                            placeholder="This is a kind reminder to please complete the Employee Commuting Data Form..."
+                            value={formData.reminderMessageBody}
+                            onChange={(e) => handleInputChange("reminderMessageBody", e.target.value)}
+                        />
+                    </div>
                 </div>
 
                 {/* Action Buttons */}
