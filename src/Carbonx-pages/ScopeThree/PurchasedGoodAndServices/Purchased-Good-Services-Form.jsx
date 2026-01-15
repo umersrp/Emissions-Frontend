@@ -328,7 +328,7 @@ const PurchasedGoodServicesFormPage = () => {
           {/* Building and Stakeholder */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="field-label">Site / Building Name *</label>
+              <label className="field-label">Site / Building Name  <span className="text-red-500">*</span></label>
               <CustomSelect
                 name="buildingId"
                 options={buildingOptions}
@@ -341,7 +341,7 @@ const PurchasedGoodServicesFormPage = () => {
             </div>
 
             <div>
-              <label className="field-label">Stakeholder / Department *</label>
+              <label className="field-label">Stakeholder / Department  <span className="text-red-500">*</span></label>
               <CustomSelect
                 name="stakeholder"
                 options={stakeholderOptions}
@@ -357,7 +357,7 @@ const PurchasedGoodServicesFormPage = () => {
           {/* Purchase Category and Activity Type */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="field-label">Purchase Category *</label>
+              <label className="field-label">Purchase Category  <span className="text-red-500">*</span></label>
               <CustomSelect
                 name="purchaseCategory"
                 options={purchaseCategoryOptions}
@@ -370,7 +370,7 @@ const PurchasedGoodServicesFormPage = () => {
             </div>
 
             <div>
-              <label className="field-label">Purchased Activity Type *</label>
+              <label className="field-label">Purchased Activity Type  <span className="text-red-500">*</span></label>
               <CustomSelect
                 name="purchasedActivityType"
                 options={activityTypeOptions}
@@ -442,7 +442,7 @@ const PurchasedGoodServicesFormPage = () => {
           {/* Amount Spent and Unit */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="field-label">Amount Spent *</label>
+              <label className="field-label">Amount Spent  <span className="text-red-500">*</span></label>
               <InputGroup
                 type="number"
                 name="amountSpent"
@@ -457,7 +457,7 @@ const PurchasedGoodServicesFormPage = () => {
             </div>
 
             <div>
-              <label className="field-label">Unit *</label>
+              <label className="field-label">Unit  <span className="text-red-500">*</span></label>
               <CustomSelect
                 name="unit"
                 options={currencyUnitOptions}
@@ -471,7 +471,7 @@ const PurchasedGoodServicesFormPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Quality Control */}
           <div>
-            <label className="field-label">Quality Control *</label>
+            <label className="field-label">Quality Control  <span className="text-red-500">*</span></label>
             <CustomSelect
               name="qualityControl"
               options={qualityControlOptions}

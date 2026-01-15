@@ -145,7 +145,7 @@ const Dashboard = () => {
       // if (selectedDepartments.length > 0) {
       //   params.stakeholder = selectedDepartments;
       // }
-       if (selectedDepartments && selectedDepartments.length > 0) {
+      if (selectedDepartments && selectedDepartments.length > 0) {
         params.stakeholder = selectedDepartments;
       }
       if (fromDate) {
@@ -385,7 +385,7 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       {loading && (
-        <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="text-center">
             <img
               src={Logo}
@@ -449,7 +449,7 @@ const Dashboard = () => {
             <label className="block font-semibold text-gray-700 mb-1">From Date</label>
             <input
               type="date"
-              className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm 
+              className="w-full border-2 border-gray-300 rounded-lg px-4 text-sm 
               focus:border-black focus:outline-none focus:ring-0
               hover:border-black transition-colors duration-200
               disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
@@ -463,7 +463,7 @@ const Dashboard = () => {
             <label className="block font-semibold text-gray-700 mb-1">To Date</label>
             <input
               type="date"
-              className="w-full border-2 border-gray-300 rounded-lg px-3 py-2 text-sm 
+              className="w-full border-2 border-gray-300 rounded-lg px-4  text-sm 
               focus:border-black focus:outline-none focus:ring-0
               hover:border-black transition-colors duration-200
               disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
@@ -503,15 +503,15 @@ const Dashboard = () => {
           {/* Scope 1 Emissions */}
           <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]  h-[150px]  mt-2.5 p-3">
             <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 1 Emissions</h3>
-            <p className="text-xl text-green-500 font-bold flex flex-col">
+             <p className="text-xl text-purple-500 font-bold break-words">
               {formatNumber(scope1Emission)}
-              <span>tCO₂e</span>
+              <span className="block">tCO₂e</span>
             </p>
-            <p className="text-sm text-gray-600">Direct Emissions</p>
+            <p className="text-[12px] text-gray-600">Direct Emissions</p>
           </div>
 
           {/* Scope 2 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]   h-[150px] mt-2.5 p-3">
+          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px] h-[150px] mt-2.5 p-3">
             <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 2 Emissions</h3>
 
             {/* Breakdown (smaller, subtle) */}
@@ -522,14 +522,14 @@ const Dashboard = () => {
                   {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)} tCO₂e
                 </span>
               </p>
-              <p className="text-sm text-black-500 flex flex-col">
-                <span>Market Based</span>
+              <p className="text-[12px] text-black-500 flex flex-col">
+                Market Based
                 <span className="text-[12px]  font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)} tCO₂e
                 </span>
               </p>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-[12px] text-gray-600">
               Indirect Emissions
             </p>
           </div>
@@ -537,11 +537,11 @@ const Dashboard = () => {
           {/* Scope 3 Emissions */}
           <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]   h-[150px]  mt-2.5 p-3">
             <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 3 Emissions</h3>
-            <p className="text-xl text-purple-500 font-bold flex flex-col">
+            <p className="text-xl text-purple-500 font-bold break-words">
               {formatNumber(scope3Emission)}
-              <span>tCO₂e</span>
+              <span className="block">tCO₂e</span>
             </p>
-            <p className="text-sm text-gray-600">Other Indirect Emissions</p>
+            <p className="text-[12px] text-gray-600">Other Indirect Emissions</p>
           </div>
         </div>
 
@@ -601,7 +601,7 @@ const Dashboard = () => {
           <Card className="flex-1  min-w-[320px]" title="Scope 1 Emissions by Category">
             <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
-        </div>  
+        </div>
         {/* scope 2 */}
         <div className="mb-5">
           <Card className="flex-1  min-w-[320px]" title="Scope 2 Emissions by Category">
@@ -610,7 +610,7 @@ const Dashboard = () => {
         </div>
         {/* scope 3 */}
         <div>
-          <Card className="flex-1  min-w-[320px]"  title="Scope 3 Emissions by Category">
+          <Card className="flex-1  min-w-[320px]" title="Scope 3 Emissions by Category">
             <Scope3EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>

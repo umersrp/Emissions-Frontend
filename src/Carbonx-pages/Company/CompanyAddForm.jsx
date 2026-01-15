@@ -286,7 +286,7 @@ const CompanyProfileForm = () => {
                 <form className="lg:grid-cols-3 grid gap-8 grid-cols-1">
                     {/* Company Name */}
                     <div className="">
-                        <label className="field-label">Company / Organization Name *</label>
+                        <label className="field-label">Company / Organization Name  <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             name="companyName"
@@ -300,7 +300,7 @@ const CompanyProfileForm = () => {
 
                     {/* Reporting Year Type */}
                     <div className="flex-1">
-                        <label className="field-label">Reporting Year Type *</label>
+                        <label className="field-label">Reporting Year Type  <span className="text-red-500">*</span></label>
                         <Select
                             options={[
                                 { value: "calendar", label: "Calendar Year" },
@@ -342,7 +342,7 @@ const CompanyProfileForm = () => {
 
                     {/* Boundary */}
                     <div className="">
-                        <label className="field-label">Boundary *</label>
+                        <label className="field-label">Boundary  <span className="text-red-500">*</span></label>
                         <Select
                             name="boundary"
                             options={boundaryOptions}
@@ -518,7 +518,7 @@ const CompanyProfileForm = () => {
                     )}
                     {/* Country */}
                     <div>
-                        <label className="field-label">Country of Operation *</label>
+                        <label className="field-label">Country of Operation  <span className="text-red-500">*</span></label>
                         <Select
                             options={countries}
                             value={countries.find((c) => c.value === formData.country) || null}
@@ -575,7 +575,7 @@ const CompanyProfileForm = () => {
 
                     {/* Total Employees */}
                     <div className="">
-                        <label className="field-label">Total Employees *</label>
+                        <label className="field-label">Total Employees  <span className="text-red-500">*</span></label>
                         <input
                             type="number"
                             name="totalEmployees"
@@ -589,7 +589,7 @@ const CompanyProfileForm = () => {
 
                     {/* Currency */}
                     <div>
-                        <label className="field-label">Currency *</label>
+                        <label className="field-label">Currency  <span className="text-red-500">*</span></label>
                         <Select
                             options={currencies}
                             value={currencies.find((c) => c.value === formData.currency) || null}
@@ -621,7 +621,7 @@ const CompanyProfileForm = () => {
 
                     {/* Sector Dropdown */}
                     {/* <div className="">
-                        <label className="field-label">Sector *</label>
+                        <label className="field-label">Sector  <span className="text-red-500">*</span></label>
                         <Select
                             value={formData.sectorId}
                             readOnly
@@ -641,7 +641,7 @@ const CompanyProfileForm = () => {
 
                     {/* Industry Dropdown */}
                     {/* <div className="">
-                        <label className="field-label">Industry *</label>
+                        <label className="field-label">Industry  <span className="text-red-500">*</span></label>
                         <Select
                             value={formData.industryId}
                             readOnly
@@ -659,7 +659,7 @@ const CompanyProfileForm = () => {
                     </div> */}
                     {/* Sector (read-only) */}
                     {/* <div className="">
-                        <label className="field-label">Sector *</label>
+                        <label className="field-label">Sector  <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             name="sector"
@@ -671,7 +671,7 @@ const CompanyProfileForm = () => {
 
                     {/* Industry (read-only) */}
                     {/* <div className="">
-                        <label className="field-label">Industry *</label>
+                        <label className="field-label">Industry  <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             name="industry"
@@ -682,7 +682,7 @@ const CompanyProfileForm = () => {
                     </div> */}
                     {/* Sector Dropdown */}
                     <div>
-                        <label className="field-label">Select Sector *</label>
+                        <label className="field-label">Select Sector  <span className="text-red-500">*</span></label>
                         <Select
                             options={sectors}
                             value={sectors.find((opt) => opt.value === formData.sectorId) || null}
@@ -697,7 +697,7 @@ const CompanyProfileForm = () => {
 
                     {/* Industry Dropdown */}
                     <div>
-                        <label className="field-label">Select Industry *</label>
+                        <label className="field-label">Select Industry  <span className="text-red-500">*</span></label>
                         <Select
                             options={industries}
                             value={industries.find((opt) => opt.value === formData.industryId) || null}
@@ -839,7 +839,7 @@ const CompanyProfileForm = () => {
 
                     {/* email */}
                     <div>
-                        <label className="field-label">Email *</label>
+                        <label className="field-label">Email  <span className="text-red-500">*</span></label>
                         <input
                             type="email"
                             name="email"
@@ -853,7 +853,7 @@ const CompanyProfileForm = () => {
 
                     {/* password */}
                     <div>
-                        <label className="field-label">Password *</label>
+                        <label className="field-label">Password  <span className="text-red-500">*</span></label>
                         <input
                             type="password"
                             name="password"

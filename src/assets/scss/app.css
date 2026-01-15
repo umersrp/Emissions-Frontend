@@ -1106,7 +1106,7 @@
     @apply top-full visible opacity-100;
   }
   .main-menu > ul > li.menu-item-has-children > ul.sub-menu li {
-    @apply relative pb-2 last:pb-0;
+    @apply relative pb-0 last:pb-0;
   }
   .main-menu > ul > li.menu-item-has-children > ul.sub-menu li a {
     @apply text-sm  font-normal   text-slate-600 dark:text-slate-300 dark:hover:text-primary-500 capitalize py-1 last:pb-0 block hover:text-primary-500;

@@ -226,7 +226,7 @@ const MyCompany = () => {
                 <form className="lg:grid-cols-3 grid gap-8 grid-cols-1">
                     {/* Company Name */}
                     <div className="">
-                        <label className="field-label">Company / Organization Name *</label>
+                        <label className="field-label">Company / Organization Name  <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             name="companyName"
@@ -240,7 +240,7 @@ const MyCompany = () => {
 
                     {/* Reporting Year Type */}
                     <div className="flex-1">
-                        <label className="field-label">Reporting Year Type *</label>
+                        <label className="field-label">Reporting Year Type  <span className="text-red-500">*</span></label>
                         <Select
                             options={[
                                 { value: "calendar", label: "Calendar Year" },
@@ -282,7 +282,7 @@ const MyCompany = () => {
 
                     {/* Boundary */}
                     <div className="">
-                        <label className="field-label">Boundary *</label>
+                        <label className="field-label">Boundary  <span className="text-red-500">*</span></label>
                         <Select
                             name="boundary"
                             options={boundaryOptions}
@@ -456,7 +456,7 @@ const MyCompany = () => {
                     )}
                     {/* Country */}
                     <div>
-                        <label className="field-label">Country of Operation *</label>
+                        <label className="field-label">Country of Operation  <span className="text-red-500">*</span></label>
                         <Select
                             options={countries}
                             value={countries.find((c) => c.value === formData.country) || null}
@@ -513,7 +513,7 @@ const MyCompany = () => {
 
                     {/* Total Employees */}
                     <div className="">
-                        <label className="field-label">Total Employees *</label>
+                        <label className="field-label">Total Employees  <span className="text-red-500">*</span></label>
                         <input
                             type="number"
                             name="totalEmployees"
@@ -527,7 +527,7 @@ const MyCompany = () => {
 
                     {/* Currency */}
                     <div>
-                        <label className="field-label">Currency *</label>
+                        <label className="field-label">Currency  <span className="text-red-500">*</span></label>
                         <Select
                             options={currencies}
                             value={currencies.find((c) => c.value === formData.currency) || null}
@@ -559,7 +559,7 @@ const MyCompany = () => {
 
                     {/* Sector (read-only) */}
                     <div className="">
-                        <label className="field-label">Sector *</label>
+                        <label className="field-label">Sector  <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             name="sector"
@@ -571,7 +571,7 @@ const MyCompany = () => {
 
                     {/* Industry (read-only) */}
                     <div className="">
-                        <label className="field-label">Industry *</label>
+                        <label className="field-label">Industry  <span className="text-red-500">*</span></label>
                         <input
                             type="text"
                             name="industry"

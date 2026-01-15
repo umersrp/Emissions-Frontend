@@ -29,7 +29,8 @@
     @apply relative;
   }
   .single-sidebar-menu .ReactCollapse--collapse {
-    transition: height 400ms;
+    transition: height auto;
+     overflow: hidden;
   }
   .space-xy-5 {
     > div,

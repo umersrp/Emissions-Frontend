@@ -151,21 +151,24 @@ const RevenueBarChart = ({
         },
       },
     },
-    tooltip: {
-      y: {
-        // formatter: (val) => `${val.toLocaleString()} tCO₂e`
-        formatter: (val) => `${val.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        })} tCO₂e`
-      },
-      x: {
-        formatter: function (value, { seriesIndex, dataPointIndex }) {
-          // Return the display name for tooltip
-          return displayNames[dataPointIndex];
-        }
-      }
-    },
+   tooltip: {
+  enabled: true,
+  shared: false,
+  followCursor: true, // Tooltip follows cursor
+  intersect: false, // KEY: Show tooltip even when not directly on the bar
+  y: {
+    formatter: (val) => `${val.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })} tCO₂e`
+  },
+  x: {
+    formatter: function (value, { seriesIndex, dataPointIndex }) {
+      // Return the display name for tooltip
+      return displayNames[dataPointIndex];
+    }
+  }
+},
     legend: { show: false },
     // grid: { show: false },
   };

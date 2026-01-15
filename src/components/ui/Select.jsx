@@ -323,7 +323,7 @@ const customStyles = {
     ...base,
     minHeight: "40px",
     borderRadius: "8px",
-    padding: "0 4px",
+   // padding: "0 4px",
     fontSize: "14px",
     borderWidth: "2px",
     borderColor: state.isDisabled
