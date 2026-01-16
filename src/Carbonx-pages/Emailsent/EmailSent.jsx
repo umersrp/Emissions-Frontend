@@ -17,13 +17,16 @@ const EmailSent = () => {
         selectedEmployees: [], // Store selected employee objects { value, label }
         startDateTime: "",
         endDateTime: "",
-        subject: "Employee Commuting Data – Action Required",
+        subject:"",
+        //subject: "Employee Commuting Data – Action Required",
         formLink: "https://ksvvmxbk-5173.inc1.devtunnels.ms/AddfromEmployee",
         totalReminders: 1,
         reminderDates: "",
-        reminderSubject: "Reminder Employee Commuting Data Form Submission",
-        reminderMessageBody:
-            "This is a kind reminder to please complete the Employee Commuting Data Form if you have not yet submitted your response. Your participation is important for our sustainability reporting.",
+        reminderSubject: "",
+        // reminderSubject: "Reminder Employee Commuting Data Form Submission",
+        reminderMessageBody:""
+        // reminderMessageBody:
+        //     "This is a kind reminder to please complete the Employee Commuting Data Form if you have not yet submitted your response. Your participation is important for our sustainability reporting.",
     });
 
     const [loading, setLoading] = useState(false);
@@ -205,14 +208,23 @@ const EmailSent = () => {
     };
 
     return (
-        <div className="max-w-6xl mx-auto p-6 space-y-6">
-            <Card>
-                <h2 className="text-xl font-semibold mb-6 text-gray-800">
-                    Employee Commuting – Email Configuration
-                </h2>
+        <div className="max-w-6xl mx-auto p-6 space-y-6 ">
+            <Card title="Employee Commuting – Email Configuration" >
+                <div className="text-slate-700 leading-relaxed mb-4 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4  justify-center">
+                    <p className="text-gray-700 items-center">
+                        This category includes emissions from the transportation of employees between their homes and their worksites in<span className="font-semibold"> vehicles not owned or operated by the reporting company</span>. You may also include emissions from teleworking (i.e., employees working remotely) in this category.
+                        <br />
+                        Emissions from employee commuting may arise from:
+                        <br />• Automobile travel
+                        <br />• Bus travel
+                        <br />• Rail travel
+                        <br />• Air travel
+                        <br />• Other modes of transportation (e.g., subway, bicycling, walking).
+                    </p>
+                </div>
 
                 {/* User Info */}
-                <div className="mb-8">
+                <div className="mb-4">
                     <h3 className="text-lg font-medium text-gray-700 mb-4">User Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
@@ -225,7 +237,7 @@ const EmailSent = () => {
                             />
                         </div>
                         <div>
-                            <label className="field-label">User Email <span className="text-red-500">*</span></label>
+                            <label className="field-label">User Email ID<span className="text-red-500">*</span></label>
                             <InputGroup
                                 type="email"
                                 placeholder="Enter Email"
@@ -238,8 +250,8 @@ const EmailSent = () => {
                 </div>
 
                 {/* Employee Info */}
-                <div className="mb-8">
-                    <h3 className="text-lg font-medium text-gray-700 mb-4">Employee Information</h3>
+                <div className="mb-4">
+                    {/* <h3 className="text-lg font-medium text-gray-700 mb-4">Employee Information</h3> */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label className="field-label">Total Number of Employees</label>
@@ -250,7 +262,7 @@ const EmailSent = () => {
                             />
                         </div>
                         <div>
-                            <label className="field-label">Minimum Number of Employees Required <span className="text-red-500">*</span></label>
+                            <label className="field-label">Minimum Number of Employees Required to Submit Data <span className="text-red-500">*</span></label>
                             <InputGroup
                                 type="number"
                                 placeholder="e.g., 1, 2, 3"
@@ -263,30 +275,7 @@ const EmailSent = () => {
                             />
                         </div>
                     </div>
-
-                    {/* <CustomSelect
-                        isMulti
-                        options={employeesOptions}
-                        value={formData.selectedEmployees}
-                        onChange={(selected) => handleInputChange("selectedEmployees", selected)}
-                        placeholder="Select Employees"
-                        // isOptionDisabled={() =>
-                        //     formData.selectedEmployees.length >= Number(formData.minEmployeesRequired)
-                        // }
-                        isOptionDisabled={(option) => {
-                            const maxLimit = Number(formData.minEmployeesRequired);   
-                            const selectedCount = formData.selectedEmployees.length;
-
-                            // Allow deselection: if option is already selected, don't disable it
-                            const isAlreadySelected = formData.selectedEmployees.some(
-                                selected => selected.value === option.value
-                            );
-
-                            // Disable new selections only if limit reached AND option is not already selected
-                            return !isAlreadySelected && selectedCount >= maxLimit;
-                        }}
-                    /> */}
-                    <CustomSelect
+                    <CustomSelect className="mt-2"
                         isMulti
                         options={employeesOptions.filter(option =>
                             // Hide options that are already selected
@@ -309,7 +298,7 @@ const EmailSent = () => {
                         }
                     />
 
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 mt-1 mb-4">
                         {emailCount >= Number(formData.minEmployeesRequired) ? (
                             <span className="text-green-600">✓ Minimum requirement met</span>
                         ) : (
@@ -318,12 +307,7 @@ const EmailSent = () => {
                             </span>
                         )}
                     </p>
-                </div>
-
-                {/* Email Configuration */}
-                <div className="mb-8">
-                    <h3 className="text-lg font-medium text-gray-700 mb-4">Email Configuration</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 ">
                         <div>
                             <label className="field-label">Data Collection Initiation Date & Time <span className="text-red-500">*</span></label>
                             <InputGroup
@@ -332,7 +316,7 @@ const EmailSent = () => {
                                 onChange={(e) => handleInputChange("startDateTime", e.target.value)}
                             />
                         </div>
-                        <div>
+                        <div >
                             <label className="field-label">Data Collection End Date & Time <span className="text-red-500">*</span></label>
                             <InputGroup
                                 type="datetime-local"
@@ -341,8 +325,23 @@ const EmailSent = () => {
                             />
                         </div>
                     </div>
+
+                </div>
+
+                {/* Email Configuration */}
+                <div className="mb-4">
+                    <h3 className="text-lg font-medium text-gray-700 mb-4">Email Configuration</h3>
                     <div>
-                        <label className="field-label">Email Message <span className="text-red-500">*</span></label>
+                        <label className="field-label">Email Subject Line</label>
+                        <InputGroup
+                            placeholder="Reminder Employee Commuting Data Form Submission"
+                            value={formData.reminderSubject}
+                            onChange={(e) => handleInputChange("reminderSubject", e.target.value)}
+                            className="mb-4"
+                        />
+                    </div>
+                    <div>
+                        <label className="field-label">Email Message Body<span className="text-red-500">*</span></label>
                         <InputGroup
                             placeholder="Employee Commuting Data – Action Required"
                             value={formData.subject}
@@ -356,18 +355,17 @@ const EmailSent = () => {
                             placeholder="https://carbonx4.vercel.app/AddfromEmployee"
                             value={formData.formLink}
                             onChange={(e) => handleInputChange("formLink", e.target.value)}
-                            className="mb-6"
                             disabled
                         />
                     </div>
                 </div>
 
                 {/* Reminder Configuration */}
-                <div className="mb-8">
-                    <h3 className="text-lg font-medium text-gray-700 mb-4">Reminder Configuration</h3>
+                <div className="mb-4">
+                    {/* <h3 className="text-lg font-medium text-gray-700 mb-4">Reminder Configuration</h3> */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-4">
                         <div>
-                            <label className="field-label">Total Reminders</label>
+                            <label className="field-label">Total Number of Reminders You Want</label>
                             <InputGroup
                                 type="number"
                                 placeholder="e.g., 1, 2, 3"
@@ -400,8 +398,9 @@ const EmailSent = () => {
                         )}
                         {/* Conditionally show the input field */}
                     </div>
+                     <h3 className="text-lg font-medium text-gray-700 mb-4">Reminder Email Configuration</h3>
                     <div>
-                        <label className="field-label">Email Subject</label>
+                        <label className="field-label">Email Subject Line</label>
                         <InputGroup
                             placeholder="Reminder Employee Commuting Data Form Submission"
                             value={formData.reminderSubject}
@@ -410,8 +409,8 @@ const EmailSent = () => {
                         />
                     </div>
                     <div>
-                        <label className="field-label">Reminder Email Message</label>   
-                          <InputGroup            
+                        <label className="field-label">Email Message Body</label>
+                        <InputGroup
                             type="textarea"
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm min-h-[80px]"
                             placeholder="This is a kind reminder to please complete the Employee Commuting Data Form..."
