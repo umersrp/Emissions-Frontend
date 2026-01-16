@@ -197,7 +197,7 @@ export const menuItems = [
     link: "Building"
   },
   {
-    title: "Add Employee",
+    title: "Employees",
     isHide: true,
     icon: "heroicons:user",
     link: "Employee",
