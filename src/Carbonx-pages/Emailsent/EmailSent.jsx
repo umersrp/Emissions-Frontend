@@ -333,7 +333,7 @@ const EmailSent = () => {
 
                 {/* Email Configuration */}
                 <div className="mb-4">
-                    <h3 className="text-lg font-medium text-gray-700 mb-4">Email Configuration</h3>
+                    <h3 className="text-lg font-medium text-gray-700 mb-4">Email Content Configuration</h3>
                     <div>
                         <label className="field-label">Email Subject Line</label>
                         <InputGroup
