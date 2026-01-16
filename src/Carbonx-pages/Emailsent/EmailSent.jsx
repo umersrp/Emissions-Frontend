@@ -212,7 +212,7 @@ const EmailSent = () => {
             <Card title="Employee Commuting – Email Configuration" >
                 <div className="text-slate-700 leading-relaxed mb-4 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4  justify-center">
                     <p className="text-gray-700 items-center">
-                        This category includes emissions from the transportation of employees between their homes and their worksites in<span className="font-semibold"> vehicles not owned or operated by the reporting company</span>. You may also include emissions from teleworking (i.e., employees working remotely) in this category.
+                        This category includes emissions from the transportation of employees between their homes and their worksites in<span className="font-semibold"> vehicles not owned or operated by the reporting company</span>. Companies may also include emissions from teleworking (i.e., employees working remotely) in this category.
                         <br />
                         Emissions from employee commuting may arise from:
                         <br />• Automobile travel
@@ -275,6 +275,8 @@ const EmailSent = () => {
                             />
                         </div>
                     </div>
+                     <div>
+                            <label className="field-label">Employees Email List</label>
                     <CustomSelect className="mt-2"
                         isMulti
                         options={employeesOptions.filter(option =>
@@ -297,6 +299,7 @@ const EmailSent = () => {
                                 : "All available employees have been selected"
                         }
                     />
+                          </div>
 
                     <p className="text-xs text-gray-500 mt-1 mb-4">
                         {emailCount >= Number(formData.minEmployeesRequired) ? (
