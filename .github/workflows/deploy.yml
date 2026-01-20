@@ -1,49 +1,56 @@
-name: Deploy to EC2 (Main Only)
+name: Deploy Emissions Frontend
 
 on:
   push:
     branches:
-      - main
+      - main  # or master, depending on your default branch
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
-      - name: Deploy to EC2 (main)
-        env:
-          EC2_HOST_MAIN: ${{ secrets.EC2_HOST_MAIN }}
-        run: |
-          echo "Connecting to EC2 and deploying carbon-backend..."
-
-          ssh -o StrictHostKeyChecking=no ec2-user@$EC2_HOST_MAIN << 'EOF'
-            set -ex
-
-            echo "Navigating to project directory..."
-            cd /repos/Emissions-Frontend
-
-            echo "Pulling latest changes using SSH..."
-            git remote set-url origin git@github.com:umersrp/Emissions-Frontend.git
-            git fetch origin
-            git reset --hard origin/main
-
-            echo "Stopping and removing existing containers..."
-            docker compose down
-
-            echo "Cleaning up unused Docker resources..."
-            docker system prune -f
-            docker volume prune -f
-
-            echo "Rebuilding and starting containers with .env..."
-            docker compose up --build -d
-
-            echo "Deployment completed successfully!"
-          EOF
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'  # Adjust to your Node version
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build project
+      run: npm run build
+      env:
+        # Add your environment variables here
+        REACT_APP_API_URL: ${{ secrets.API_URL }}
+        # VITE_API_URL: ${{ secrets.API_URL }}  # If using Vite
+        # NEXT_PUBLIC_API_URL: ${{ secrets.API_URL }}  # If using Next.js
+    
+    - name: Copy build files via SSH
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ec2-user
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: 22
+        source: "dist/*"  # Change to "build/*" if using Create React App
+        target: "/var/www/html/emissions-frontend/"
+        strip_components: 1  # This removes the "dist" folder from path
+        rm: true  # Remove old files before uploading
+    
+    - name: Execute remote commands
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ec2-user
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: 22
+        script: |
+          cd /var/www/html/emissions-frontend
+          sudo chown -R ec2-user:nginx /var/www/html/emissions-frontend
+          sudo chmod -R 755 /var/www/html/emissions-frontend
+          sudo systemctl reload nginx
