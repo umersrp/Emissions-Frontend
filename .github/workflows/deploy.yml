@@ -33,9 +33,9 @@ jobs:
     - name: Copy build files via SSH
       uses: appleboy/scp-action@master
       with:
-        host: ${{ secrets.SERVER_HOST }}
+        host: ${{ secrets.EC2_HOST_MAIN }}
         username: ec2-user
-        key: ${{ secrets.SERVER_SSH_KEY }}
+        key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         source: "dist/*"  # Change to "build/*" if using Create React App
         target: "/var/www/html/emissions-frontend/"
@@ -45,9 +45,9 @@ jobs:
     - name: Execute remote commands
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ secrets.SERVER_HOST }}
+        host: ${{ secrets.EC2_HOST_MAIN }}
         username: ec2-user
-        key: ${{ secrets.SERVER_SSH_KEY }}
+        key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
           cd /var/www/html/emissions-frontend
