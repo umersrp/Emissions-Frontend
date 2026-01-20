@@ -1,3 +1,216 @@
+//employee commuting options
+export  const departmentOptions = [
+        { value: 'Assembly', label: 'Assembly' },
+        { value: 'Asset Integrity / Technical Integrity', label: 'Asset Integrity / Technical Integrity' },
+        { value: 'Batching Plant', label: 'Batching Plant' },
+        { value: 'Boiler', label: 'Boiler' },
+        { value: 'Civil Construction', label: 'Civil Construction' },
+        { value: 'Commissioning', label: 'Commissioning' },
+        { value: 'Commercial', label: 'Commercial' },
+        { value: 'Compressor', label: 'Compressor' },
+        { value: 'Construction', label: 'Construction' },
+        { value: 'Contracts', label: 'Contracts' },
+        { value: 'Control Systems', label: 'Control Systems' },
+        { value: 'Crane', label: 'Crane' },
+        { value: 'Cyber Security', label: 'Cyber Security' },
+        { value: 'Deaerator', label: 'Deaerator' },
+        { value: 'Design', label: 'Design' },
+        { value: 'Dewatering', label: 'Dewatering' },
+        { value: 'Drilling', label: 'Drilling' },
+        { value: 'Dust Collection / Handling', label: 'Dust Collection / Handling' },
+        { value: 'Earthworks', label: 'Earthworks' },
+        { value: 'EHS', label: 'EHS' },
+        { value: 'Electrical', label: 'Electrical' },
+        { value: 'Engineering', label: 'Engineering' },
+        { value: 'Environment', label: 'Environment' },
+        { value: 'Excavation', label: 'Excavation' },
+        { value: 'Expansion', label: 'Expansion' },
+        { value: 'Fabrication', label: 'Fabrication' },
+        { value: 'Finance', label: 'Finance' },
+        { value: 'Fire Protection', label: 'Fire Protection' },
+        { value: 'Fuel Handling', label: 'Fuel Handling' },
+        { value: 'General Services', label: 'General Services' },
+        { value: 'Geotechnical', label: 'Geotechnical' },
+        { value: 'GGBS Handling', label: 'GGBS Handling' },
+        { value: 'Grouting', label: 'Grouting' },
+        { value: 'Health', label: 'Health' },
+        { value: 'Heavy Lift', label: 'Heavy Lift' },
+        { value: 'HEMP', label: 'HEMP' },
+        { value: 'High Voltage', label: 'High Voltage' },
+        { value: 'HR', label: 'HR' },
+        { value: 'HVAC', label: 'HVAC' },
+        { value: 'Industrial Gases', label: 'Industrial Gases' },
+        { value: 'Infrastructure', label: 'Infrastructure' },
+        { value: 'Installation', label: 'Installation' },
+        { value: 'Instrumentation', label: 'Instrumentation' },
+        { value: 'Insulation', label: 'Insulation' },
+        { value: 'IT', label: 'IT' },
+        { value: 'Legal', label: 'Legal' },
+        { value: 'Lighting', label: 'Lighting' },
+        { value: 'Logistics', label: 'Logistics' },
+        { value: 'Low Voltage', label: 'Low Voltage' },
+        { value: 'Maintenance', label: 'Maintenance' },
+        { value: 'Management', label: 'Management' },
+        { value: 'Manufacturing', label: 'Manufacturing' },
+        { value: 'Material Handling', label: 'Material Handling' },
+        { value: 'Materials', label: 'Materials' },
+        { value: 'Mechanical', label: 'Mechanical' },
+        { value: 'MEP', label: 'MEP' },
+        { value: 'Mining', label: 'Mining' },
+        { value: 'Motor Control Centre', label: 'Motor Control Centre' },
+        { value: 'Operations', label: 'Operations' },
+        { value: 'Piling', label: 'Piling' },
+        { value: 'Planning', label: 'Planning' },
+        { value: 'Power Distribution', label: 'Power Distribution' },
+        { value: 'Process', label: 'Process' },
+        { value: 'Procurement', label: 'Procurement' },
+        { value: 'Production', label: 'Production' },
+        { value: 'Project Controls', label: 'Project Controls' },
+        { value: 'Project Management', label: 'Project Management' },
+        { value: 'QA/QC', label: 'QA/QC' },
+        { value: 'Quantity Surveying', label: 'Quantity Surveying' },
+        { value: 'Quarry', label: 'Quarry' },
+        { value: 'Reinforcement', label: 'Reinforcement' },
+        { value: 'Risk', label: 'Risk' },
+        { value: 'Safety', label: 'Safety' },
+        { value: 'Scaffolding', label: 'Scaffolding' },
+        { value: 'Security', label: 'Security' },
+        { value: 'Sewage Treatment', label: 'Sewage Treatment' },
+        { value: 'Site Infrastructure', label: 'Site Infrastructure' },
+        { value: 'Stacker / Reclaimer', label: 'Stacker / Reclaimer' },
+        { value: 'Static', label: 'Static' },
+        { value: 'Steel', label: 'Steel' },
+        { value: 'Structural', label: 'Structural' },
+        { value: 'Supply Chain', label: 'Supply Chain' },
+        { value: 'Survey', label: 'Survey' },
+        { value: 'Switchgear', label: 'Switchgear' },
+        { value: 'Telecom', label: 'Telecom' },
+        { value: 'Temporary Works', label: 'Temporary Works' },
+        { value: 'Training', label: 'Training' },
+        { value: 'Transportation', label: 'Transportation' },
+        { value: 'Utilities', label: 'Utilities' },
+        { value: 'Warehouse', label: 'Warehouse' },
+        { value: 'Water Treatment', label: 'Water Treatment' },
+        { value: 'Welding', label: 'Welding' },
+        { value: 'Workshop', label: 'Workshop' },
+        { value: 'Other', label: 'Other' },
+    ];
+
+   
+    // Transportation type options
+export const transportationOptions = {
+        motorbikeTypes: [
+            { value: 'Small', label: 'Small (<125cc)' },
+            { value: 'Medium', label: 'Medium (125-500cc)' },
+            { value: 'Large', label: 'Large (>500cc)' },
+            { value: 'Electric', label: 'Electric Motorbike' },
+        ],
+
+        taxiTypes: [
+            { value: 'Regular taxi', label: 'Regular Taxi' },
+            { value: 'Business class taxi', label: 'Business class taxi' },
+        ],
+
+        busTypes: [
+            { value: 'Green Line Bus', label: 'Green Line Bus' },
+            { value: 'Local bus', label: 'Local Bus' },
+            { value: 'Intercity Bus (Non A.C)', label: 'Intercity Bus (Non A.C)' },
+            { value: 'Intercity Bus (A.C)', label: 'Intercity Bus (A.C)' },
+        ],
+
+        trainTypes: [
+            { value: 'National rail', label: 'National Rail' },
+            { value: 'Subway/Metro', label: 'Subway/Metro' },
+            { value: 'Green Line Train', label: 'Green Line Train' },
+            { value: 'Metro', label: 'Metro' },
+        ],
+
+        carTypes: [
+            {
+                value: 'Small car - Petrol/LPG/CNG - up to 1.4-litre engine',
+                label: 'Small car - Petrol/LPG/CNG - up to 1.4-litre engine'
+            },
+            {
+                value: 'Small car - Diesel - up to a 1.7-litre engine',
+                label: 'Small car - Diesel - up to a 1.7-litre engine'
+            },
+            {
+                value: 'Medium car - Petrol/LPG/CNG - from 1.4-litre to 2.0-litre engine',
+                label: 'Medium car - Petrol/LPG/CNG - from 1.4-litre to 2.0-litre engine'
+            },
+            {
+                value: 'Medium car - Diesel - from 1.7-litre to 2.0-litre engine',
+                label: 'Medium car - Diesel - from 1.7-litre to 2.0-litre engine'
+            },
+            {
+                value: 'Large car - Petrol/LPG/CNG - 2.0-litre engine (+)',
+                label: 'Large car - Petrol/LPG/CNG - 2.0-litre engine (+)'
+            },
+            {
+                value: 'Large car - Diesel - 2.0-litre engine (+)',
+                label: 'Large car - Diesel - 2.0-litre engine (+)'
+            },
+            {
+                value: 'Average car - Unknown engine size',
+                label: 'Average car - Unknown engine size'
+            },
+            {
+                value: 'Executive - Large Executive or E-Segment Passenger Cars (2000 cc - 3500+ cc)',
+                label: 'Executive - Large Executive or E-Segment Passenger Cars (2000 cc - 3500+ cc)'
+            },
+            {
+                value: 'Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000 cc - 6000 cc)',
+                label: 'Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000 cc - 6000 cc)'
+            },
+            {
+                value: 'Sports - High Performance - High Speed Vehicles (2000 cc - 4000 cc+)',
+                label: 'Sports - High Performance - High Speed Vehicles (2000 cc - 4000 cc+)'
+            },
+            {
+                value: 'Dual purpose 4X4 - SUVs 4 wheel Drive or All Wheel Drive (1500 cc - 6000 cc)',
+                label: 'Dual purpose 4X4 - SUVs 4 wheel Drive or All Wheel Drive (1500 cc - 6000 cc)'
+            },
+            {
+                value: 'MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace, Suzuki APV, Vans etc.)',
+                label: 'MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace, Suzuki APV, Vans etc.)'
+            },
+        ],
+
+        fuelTypes: [
+            { value: 'Petrol', label: 'Petrol' },
+            { value: 'Diesel', label: 'Diesel' },
+            { value: 'CNG', label: 'CNG' },
+            { value: 'LPG', label: 'LPG' },
+            { value: 'Electric', label: 'Electric' },
+            { value: 'Hybrid', label: 'Hybrid (Petrol/Electric)' },
+        ],
+
+        personOptions: [
+            { value: '0', label: '0 persons' },
+            { value: '1', label: '1 person' },
+            { value: '2', label: '2 persons' },
+            { value: '3', label: '3 persons' },
+            { value: '4', label: '4 persons' },
+            { value: '5', label: '5+ persons' },
+        ],
+
+        taxiPassengerOptions: [
+            { value: '1', label: '1 passenger' },
+            { value: '2', label: '2 passengers' },
+            { value: '3', label: '3 passengers' },
+            { value: '4', label: '4 passengers' },
+            { value: '5', label: '5+ passengers' },
+        ]
+    };
+
+    // Mode options for all transport types
+export const modeOptions = [
+        { value: 'individual', label: 'Individual' },
+        { value: 'carpool', label: 'Carpool' },
+        { value: 'both', label: 'Both (Individual & Carpool)' },
+    ];
+
+
 export const stakeholderOptions = [
   { value: "Assembly", label: "Assembly" },
   { value: "Asset Integrity / Technical Integrity", label: "Asset Integrity / Technical Integrity" },

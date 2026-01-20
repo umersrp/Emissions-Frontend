@@ -32,7 +32,7 @@ const EmailSent = () => {
         //subject: "Employee Commuting Data – Action Required",
         // formLink: "https://ksvvmxbk-5173.inc1.devtunnels.ms/AddfromEmployee",
         formLink: "https://drksmd8t-5173.asse.devtunnels.ms/",
-        totalReminders: 1,
+        totalReminders: "",
         reminderDates: "",
         reminderSubject: "",
         // reminderSubject: "Reminder Employee Commuting Data Form Submission",
@@ -127,11 +127,64 @@ const EmailSent = () => {
                 `Minimum ${minRequired} employees required. Currently selected ${emailCount}.`
             );
 
+
+        const totalReminders = Number(formData.totalReminders);
+        if (isNaN(totalReminders) || totalReminders <= 0) {
+            errors.push("Total number of reminders must be greater than 0");
+        }
+        if (totalReminders > 3) {
+            errors.push("Maximum 3 reminders allowed");
+        }
+
+        // ADDED: Validation for reminder dates when they are shown AND totalReminders is valid (1-3)
+        if (showReminderDates && totalReminders > 0 && totalReminders <= 3) {
+            for (let i = 1; i <= totalReminders; i++) {
+                const reminderDate = formData[`reminderDate${i}`];
+
+                if (!reminderDate || !reminderDate.trim()) {
+                    errors.push(`${i}${getOrdinalSuffix(i)} reminder date is required`);
+                } else {
+                    // Validate that reminder date is after start date
+                    if (formData.startDateTime && new Date(reminderDate) <= new Date(formData.startDateTime)) {
+                        errors.push(`${i}${getOrdinalSuffix(i)} reminder date must be after the start date`);
+                    }
+
+                    // Validate that reminder date is before end date
+                    if (formData.endDateTime && new Date(reminderDate) >= new Date(formData.endDateTime)) {
+                        errors.push(`${i}${getOrdinalSuffix(i)} reminder date must be before the end date`);
+                    }
+                }
+            }
+
+            // Additional validation: Ensure reminder dates are in chronological order
+            for (let i = 1; i < totalReminders; i++) {
+                const currentReminder = formData[`reminderDate${i}`];
+                const nextReminder = formData[`reminderDate${i + 1}`];
+
+                if (currentReminder && nextReminder && new Date(nextReminder) <= new Date(currentReminder)) {
+                    errors.push(`${i + 1}${getOrdinalSuffix(i + 1)} reminder date must be after ${i}${getOrdinalSuffix(i)} reminder date`);
+                }
+            }
+        }
         return errors;
     };
 
     // Parse reminder dates
+    // Parse reminder dates
     const parseReminderDates = (datesString) => {
+        // If reminder dates are shown and totalReminders is valid (1-3), use individual fields
+        if (showReminderDates && formData.totalReminders > 0 && formData.totalReminders <= 3) {
+            const dates = [];
+            for (let i = 1; i <= formData.totalReminders; i++) {
+                const dateValue = formData[`reminderDate${i}`];
+                if (dateValue && dateValue.trim()) {
+                    dates.push(new Date(dateValue).toISOString());
+                }
+            }
+            return dates;
+        }
+
+        // Fallback to old method if datesString is provided
         if (!datesString) return [];
         return datesString
             .split(",")
@@ -459,7 +512,7 @@ const EmailSent = () => {
                         {/* Container with relative positioning for sticky elements */}
                         <div className="relative border border-gray-300 rounded-lg mb-4">
                             {/* Sticky "Dear Employee," at the top */}
-                            <div className="sticky top-0  border-gray-300 px-3 py-2 text-sm font-small">
+                            <div className="top-0  border-gray-300 px-3 py-2 text-sm font-small">
                                 Dear Employee,
                             </div>
 
@@ -490,7 +543,7 @@ Thank you for your cooperation."
                             />
 
                             {/* Auto-filled information at the bottom */}
-                            <div className="sticky bottom-0  border-gray-300 px-3 py-2 text-sm text-gray-900">
+                            <div className=" bottom-0  border-gray-300 px-3 py-2 text-sm text-gray-900">
                                 <div className="mb-1 text-sm font-small">
                                     Data Collection Start Date and Time: {formData.startDateTime ?
                                         new Date(formData.startDateTime).toLocaleDateString('en-US', {
@@ -553,20 +606,29 @@ Thank you for your cooperation."
                             <InputGroup
                                 type="number"
                                 placeholder="e.g., 1, 2, 3"
-                                min="1"
-                                max="3"
                                 value={formData.totalReminders}
                                 onChange={(e) => {
                                     const value = parseInt(e.target.value);
-                                    // Ensure value is between 1 and 3
-                                    if (value >= 1 && value <= 3) {
+                                    if (!isNaN(value)) {
+                                        // Show toast error immediately if value is greater than 3
+                                        if (value > 3) {
+                                            toast.error("Maximum 3 reminders allowed");
+                                            // Still update the value so user can see what they typed
+                                            handleInputChange("totalReminders", value);
+
+                                            // Clear the field after 1 second
+                                            setTimeout(() => {
+                                                handleInputChange("totalReminders", "");
+                                            }, 6000);
+
+                                            return;
+                                        }
                                         handleInputChange("totalReminders", value);
-                                    } else if (value > 3) {
-                                        handleInputChange("totalReminders", 3);
-                                        toast.warning("Maximum 3 reminders allowed");
+                                    } else {
+                                        handleInputChange("totalReminders", "");
                                     }
                                 }}
-                                helperText="Maximum 3 reminders allowed"
+                                helperText="Enter a number between 1 and 3"
                             />
                         </div>
 
@@ -582,7 +644,8 @@ Thank you for your cooperation."
                     </div>
 
                     {/* Dynamic reminder date fields based on totalReminders */}
-                    {showReminderDates && formData.totalReminders > 0 && (
+                    {/* Dynamic reminder date fields based on totalReminders */}
+                    {showReminderDates && formData.totalReminders > 0 && formData.totalReminders <= 3 && (
                         <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
                             {Array.from({ length: formData.totalReminders }, (_, index) => (
                                 <div key={index}>
@@ -619,7 +682,7 @@ Thank you for your cooperation."
                         {/* Container with relative positioning for sticky elements */}
                         <div className="relative border border-gray-300 rounded-lg mb-4">
                             {/* Sticky "Dear Employee," at the top */}
-                            <div className="sticky top-0  border-gray-300 px-3 py-2 text-sm font-small">
+                            <div className="top-0  border-gray-300 px-3 py-2 text-sm font-small">
                                 Dear Employee,
                             </div>
 
@@ -640,7 +703,7 @@ Kindly ensure that you submit the form before the closing date. "
                             />
 
                             {/* Auto-filled information at the bottom */}
-                            <div className="sticky bottom-0  border-gray-300 px-3 py-2 text-sm text-gray-700">
+                            <div className=" bottom-0  border-gray-300 px-3 py-2 text-sm text-gray-700">
                                 <div className="mb-1 text-sm font-small">
                                     Data Collection End Date and Time: {formData.endDateTime ?
                                         new Date(formData.endDateTime).toLocaleDateString('en-US', {

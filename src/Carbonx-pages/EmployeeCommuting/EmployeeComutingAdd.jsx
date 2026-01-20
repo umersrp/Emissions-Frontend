@@ -9,6 +9,10 @@ import Textarea from '@/components/ui/Textarea';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import Datepicker from "react-tailwindcss-datepicker";
+import { departmentOptions, transportationOptions, modeOptions } from '@/constant/scope3/options';
+import InputGroup from '@/components/ui/InputGroup';
+import CustomSelect from '@/components/ui/Select';
+import ToggleButton from '@/components/ui/ToggleButton';
 
 const EmployeeCommutingForm = () => {
     const location = useLocation();
@@ -35,7 +39,6 @@ const EmployeeCommutingForm = () => {
         // Basic Information
         siteBuildingName: null,
         stakeholderDepartment: null,
-
         // Motorbike Commute
         commuteByMotorbike: false,
         motorbikeMode: 'both', // possible values: 'individual', 'carpool', 'both'
@@ -50,7 +53,6 @@ const EmployeeCommutingForm = () => {
         motorbikeTravelPassengerEmails: [''],
         motorbikeTravelPassengerUserIds: [''],
         motorbikeDateRange: null,
-
         // Taxi Commute
         commuteByTaxi: false,
         taxiMode: 'both', // possible values: 'individual', 'carpool', 'both'
@@ -62,19 +64,16 @@ const EmployeeCommutingForm = () => {
         taxiPassengerEmails: [''],
         taxiPassengerUserIds: [''],
         taxiDateRange: null,
-
         // Bus Commute
         commuteByBus: false,
         busDistance: '',
         busType: { value: 'Green Line Bus', label: 'Green Line Bus' },
         busDateRange: null,
-
         // Train Commute
         commuteByTrain: false,
         trainDistance: '',
         trainType: { value: 'National rail', label: 'National Rail' },
         trainDateRange: null,
-
         // Car Commute
         commuteByCar: false,
         carMode: 'both', // possible values: 'individual', 'carpool', 'both'
@@ -90,16 +89,11 @@ const EmployeeCommutingForm = () => {
         carTravelPassengerEmails: [''],
         carTravelPassengerUserIds: [''],
         carDateRange: null,
-
         // Work From Home
         workFromHome: false,
         fteWorkingHours: '',
         workFromHomeDateRange: null,
-
-        // Quality Control
         qualityControlRemarks: '',
-
-        // Submitted By
         submittedByEmail: '',
     });
 
@@ -114,7 +108,6 @@ const EmployeeCommutingForm = () => {
     const [userLoading, setUserLoading] = useState(true);
     const [companyData, setCompanyData] = useState(null); // Company user data (from token)
     const [targetUserData, setTargetUserData] = useState(null); // Target user data (from URL)
-
     const [companyUsers, setCompanyUsers] = useState([]);
     const [companyUsersLoading, setCompanyUsersLoading] = useState(false);
     const [token, setToken] = useState('');
@@ -129,11 +122,9 @@ const EmployeeCommutingForm = () => {
     // Helper function to convert date range to individual dates
     const dateRangeToDates = (dateRange) => {
         if (!dateRange || !dateRange.startDate || !dateRange.endDate) return [];
-
         const startDate = new Date(dateRange.startDate);
         const endDate = new Date(dateRange.endDate);
         const dates = [];
-
         // Reset hours to avoid timezone issues
         startDate.setHours(0, 0, 0, 0);
         endDate.setHours(0, 0, 0, 0);
@@ -148,216 +139,6 @@ const EmployeeCommutingForm = () => {
         return dates;
     };
 
-    // Department options
-    const departmentOptions = [
-        { value: 'Assembly', label: 'Assembly' },
-        { value: 'Asset Integrity / Technical Integrity', label: 'Asset Integrity / Technical Integrity' },
-        { value: 'Batching Plant', label: 'Batching Plant' },
-        { value: 'Boiler', label: 'Boiler' },
-        { value: 'Civil Construction', label: 'Civil Construction' },
-        { value: 'Commissioning', label: 'Commissioning' },
-        { value: 'Commercial', label: 'Commercial' },
-        { value: 'Compressor', label: 'Compressor' },
-        { value: 'Construction', label: 'Construction' },
-        { value: 'Contracts', label: 'Contracts' },
-        { value: 'Control Systems', label: 'Control Systems' },
-        { value: 'Crane', label: 'Crane' },
-        { value: 'Cyber Security', label: 'Cyber Security' },
-        { value: 'Deaerator', label: 'Deaerator' },
-        { value: 'Design', label: 'Design' },
-        { value: 'Dewatering', label: 'Dewatering' },
-        { value: 'Drilling', label: 'Drilling' },
-        { value: 'Dust Collection / Handling', label: 'Dust Collection / Handling' },
-        { value: 'Earthworks', label: 'Earthworks' },
-        { value: 'EHS', label: 'EHS' },
-        { value: 'Electrical', label: 'Electrical' },
-        { value: 'Engineering', label: 'Engineering' },
-        { value: 'Environment', label: 'Environment' },
-        { value: 'Excavation', label: 'Excavation' },
-        { value: 'Expansion', label: 'Expansion' },
-        { value: 'Fabrication', label: 'Fabrication' },
-        { value: 'Finance', label: 'Finance' },
-        { value: 'Fire Protection', label: 'Fire Protection' },
-        { value: 'Fuel Handling', label: 'Fuel Handling' },
-        { value: 'General Services', label: 'General Services' },
-        { value: 'Geotechnical', label: 'Geotechnical' },
-        { value: 'GGBS Handling', label: 'GGBS Handling' },
-        { value: 'Grouting', label: 'Grouting' },
-        { value: 'Health', label: 'Health' },
-        { value: 'Heavy Lift', label: 'Heavy Lift' },
-        { value: 'HEMP', label: 'HEMP' },
-        { value: 'High Voltage', label: 'High Voltage' },
-        { value: 'HR', label: 'HR' },
-        { value: 'HVAC', label: 'HVAC' },
-        { value: 'Industrial Gases', label: 'Industrial Gases' },
-        { value: 'Infrastructure', label: 'Infrastructure' },
-        { value: 'Installation', label: 'Installation' },
-        { value: 'Instrumentation', label: 'Instrumentation' },
-        { value: 'Insulation', label: 'Insulation' },
-        { value: 'IT', label: 'IT' },
-        { value: 'Legal', label: 'Legal' },
-        { value: 'Lighting', label: 'Lighting' },
-        { value: 'Logistics', label: 'Logistics' },
-        { value: 'Low Voltage', label: 'Low Voltage' },
-        { value: 'Maintenance', label: 'Maintenance' },
-        { value: 'Management', label: 'Management' },
-        { value: 'Manufacturing', label: 'Manufacturing' },
-        { value: 'Material Handling', label: 'Material Handling' },
-        { value: 'Materials', label: 'Materials' },
-        { value: 'Mechanical', label: 'Mechanical' },
-        { value: 'MEP', label: 'MEP' },
-        { value: 'Mining', label: 'Mining' },
-        { value: 'Motor Control Centre', label: 'Motor Control Centre' },
-        { value: 'Operations', label: 'Operations' },
-        { value: 'Piling', label: 'Piling' },
-        { value: 'Planning', label: 'Planning' },
-        { value: 'Power Distribution', label: 'Power Distribution' },
-        { value: 'Process', label: 'Process' },
-        { value: 'Procurement', label: 'Procurement' },
-        { value: 'Production', label: 'Production' },
-        { value: 'Project Controls', label: 'Project Controls' },
-        { value: 'Project Management', label: 'Project Management' },
-        { value: 'QA/QC', label: 'QA/QC' },
-        { value: 'Quantity Surveying', label: 'Quantity Surveying' },
-        { value: 'Quarry', label: 'Quarry' },
-        { value: 'Reinforcement', label: 'Reinforcement' },
-        { value: 'Risk', label: 'Risk' },
-        { value: 'Safety', label: 'Safety' },
-        { value: 'Scaffolding', label: 'Scaffolding' },
-        { value: 'Security', label: 'Security' },
-        { value: 'Sewage Treatment', label: 'Sewage Treatment' },
-        { value: 'Site Infrastructure', label: 'Site Infrastructure' },
-        { value: 'Stacker / Reclaimer', label: 'Stacker / Reclaimer' },
-        { value: 'Static', label: 'Static' },
-        { value: 'Steel', label: 'Steel' },
-        { value: 'Structural', label: 'Structural' },
-        { value: 'Supply Chain', label: 'Supply Chain' },
-        { value: 'Survey', label: 'Survey' },
-        { value: 'Switchgear', label: 'Switchgear' },
-        { value: 'Telecom', label: 'Telecom' },
-        { value: 'Temporary Works', label: 'Temporary Works' },
-        { value: 'Training', label: 'Training' },
-        { value: 'Transportation', label: 'Transportation' },
-        { value: 'Utilities', label: 'Utilities' },
-        { value: 'Warehouse', label: 'Warehouse' },
-        { value: 'Water Treatment', label: 'Water Treatment' },
-        { value: 'Welding', label: 'Welding' },
-        { value: 'Workshop', label: 'Workshop' },
-        { value: 'Other', label: 'Other' },
-    ];
-
-    // Transportation type options
-    const transportationOptions = {
-        motorbikeTypes: [
-            { value: 'Small', label: 'Small (<125cc)' },
-            { value: 'Medium', label: 'Medium (125-500cc)' },
-            { value: 'Large', label: 'Large (>500cc)' },
-            { value: 'Electric', label: 'Electric Motorbike' },
-        ],
-
-        taxiTypes: [
-            { value: 'Regular taxi', label: 'Regular Taxi' },
-            { value: 'Business class taxi', label: 'Business class taxi' },
-        ],
-
-        busTypes: [
-            { value: 'Green Line Bus', label: 'Green Line Bus' },
-            { value: 'Local bus', label: 'Local Bus' },
-            { value: 'Intercity Bus (Non A.C)', label: 'Intercity Bus (Non A.C)' },
-            { value: 'Intercity Bus (A.C)', label: 'Intercity Bus (A.C)' },
-        ],
-
-        trainTypes: [
-            { value: 'National rail', label: 'National Rail' },
-            { value: 'Subway/Metro', label: 'Subway/Metro' },
-            { value: 'Green Line Train', label: 'Green Line Train' },
-            { value: 'Metro', label: 'Metro' },
-        ],
-
-        carTypes: [
-            {
-                value: 'Small car - Petrol/LPG/CNG - up to 1.4-litre engine',
-                label: 'Small car - Petrol/LPG/CNG - up to 1.4-litre engine'
-            },
-            {
-                value: 'Small car - Diesel - up to a 1.7-litre engine',
-                label: 'Small car - Diesel - up to a 1.7-litre engine'
-            },
-            {
-                value: 'Medium car - Petrol/LPG/CNG - from 1.4-litre to 2.0-litre engine',
-                label: 'Medium car - Petrol/LPG/CNG - from 1.4-litre to 2.0-litre engine'
-            },
-            {
-                value: 'Medium car - Diesel - from 1.7-litre to 2.0-litre engine',
-                label: 'Medium car - Diesel - from 1.7-litre to 2.0-litre engine'
-            },
-            {
-                value: 'Large car - Petrol/LPG/CNG - 2.0-litre engine (+)',
-                label: 'Large car - Petrol/LPG/CNG - 2.0-litre engine (+)'
-            },
-            {
-                value: 'Large car - Diesel - 2.0-litre engine (+)',
-                label: 'Large car - Diesel - 2.0-litre engine (+)'
-            },
-            {
-                value: 'Average car - Unknown engine size',
-                label: 'Average car - Unknown engine size'
-            },
-            {
-                value: 'Executive - Large Executive or E-Segment Passenger Cars (2000 cc - 3500+ cc)',
-                label: 'Executive - Large Executive or E-Segment Passenger Cars (2000 cc - 3500+ cc)'
-            },
-            {
-                value: 'Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000 cc - 6000 cc)',
-                label: 'Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000 cc - 6000 cc)'
-            },
-            {
-                value: 'Sports - High Performance - High Speed Vehicles (2000 cc - 4000 cc+)',
-                label: 'Sports - High Performance - High Speed Vehicles (2000 cc - 4000 cc+)'
-            },
-            {
-                value: 'Dual purpose 4X4 - SUVs 4 wheel Drive or All Wheel Drive (1500 cc - 6000 cc)',
-                label: 'Dual purpose 4X4 - SUVs 4 wheel Drive or All Wheel Drive (1500 cc - 6000 cc)'
-            },
-            {
-                value: 'MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace, Suzuki APV, Vans etc.)',
-                label: 'MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace, Suzuki APV, Vans etc.)'
-            },
-        ],
-
-        fuelTypes: [
-            { value: 'Petrol', label: 'Petrol' },
-            { value: 'Diesel', label: 'Diesel' },
-            { value: 'CNG', label: 'CNG' },
-            { value: 'LPG', label: 'LPG' },
-            { value: 'Electric', label: 'Electric' },
-            { value: 'Hybrid', label: 'Hybrid (Petrol/Electric)' },
-        ],
-
-        personOptions: [
-            { value: '0', label: '0 persons' },
-            { value: '1', label: '1 person' },
-            { value: '2', label: '2 persons' },
-            { value: '3', label: '3 persons' },
-            { value: '4', label: '4 persons' },
-            { value: '5', label: '5+ persons' },
-        ],
-
-        taxiPassengerOptions: [
-            { value: '1', label: '1 passenger' },
-            { value: '2', label: '2 passengers' },
-            { value: '3', label: '3 passengers' },
-            { value: '4', label: '4 passengers' },
-            { value: '5', label: '5+ passengers' },
-        ]
-    };
-
-    // Mode options for all transport types
-    const modeOptions = [
-        { value: 'individual', label: 'Individual' },
-        { value: 'carpool', label: 'Carpool' },
-        { value: 'both', label: 'Both (Individual & Carpool)' },
-    ];
 
     // Get the token from URL or localStorage
     const getToken = () => {
@@ -431,24 +212,17 @@ const EmployeeCommutingForm = () => {
     const fetchUserData = async (authToken) => {
         try {
             setUserLoading(true);
-
-            // 1. Get company user ID from token
             const companyUserId = getUserIdFromToken(authToken);
-
-            // 2. Get target user ID from URL parameter
             const targetUserId = urlUserId;
-
             if (!companyUserId && !targetUserId) {
                 toast.error('Unable to identify user from token or URL');
                 return;
             }
-
             console.log('Debug - User IDs:', {
                 companyUserId,
                 targetUserId,
                 hasToken: !!authToken
             });
-
             // 3. Fetch company user data (from token)
             let companyUserData = null;
             if (companyUserId) {
@@ -473,11 +247,9 @@ const EmployeeCommutingForm = () => {
                     // Continue execution without company data
                 }
             }
-
             // 4. Fetch target user data (from URL)
             let targetUserData = null;
             let formUserData = null; // Data to use for form filling
-
             if (targetUserId) {
                 try {
                     const targetResponse = await axios.get(
@@ -526,14 +298,12 @@ const EmployeeCommutingForm = () => {
                         submittedByEmail: formUserData.email
                     }));
                 }
-
                 // Auto-fill department field
                 if (formUserData.department) {
                     const userDept = departmentOptions.find(
                         dept => dept.value === formUserData.department ||
                             dept.label === formUserData.department
                     );
-
                     if (userDept) {
                         setFormData(prev => ({
                             ...prev,
@@ -754,11 +524,11 @@ const EmployeeCommutingForm = () => {
         // If unchecked, clear the date range for that transport type
         if (!value) {
             const transportType = field.replace('commuteBy', '').toLowerCase();
-            if (transportType === 'motorbike' || transportType === 'taxi' || transportType === 'bus' || 
+            if (transportType === 'motorbike' || transportType === 'taxi' || transportType === 'bus' ||
                 transportType === 'train' || transportType === 'car' || transportType === 'workfromhome') {
                 const dateRangeField = `${transportType}DateRange`;
                 setFormData(prev => ({ ...prev, [dateRangeField]: null }));
-                
+
                 // Update selected date ranges
                 setSelectedDateRanges(prev => ({ ...prev, [transportType]: null }));
             }
@@ -980,18 +750,18 @@ const EmployeeCommutingForm = () => {
     // Function to check if a specific month is already covered
     const isMonthAlreadyCovered = (month, existingRanges) => {
         const targetMonth = parseInt(month);
-        
+
         for (const [transportType, dateRange] of Object.entries(existingRanges)) {
             if (dateRange && dateRange.startDate && dateRange.endDate) {
                 const startDate = new Date(dateRange.startDate);
                 const endDate = new Date(dateRange.endDate);
-                
+
                 // Check if target month falls within this date range
                 const startMonth = startDate.getMonth() + 1;
                 const endMonth = endDate.getMonth() + 1;
                 const startYear = startDate.getFullYear();
                 const endYear = endDate.getFullYear();
-                
+
                 // If same year, check month range
                 if (startYear === reportingYear && endYear === reportingYear) {
                     if (targetMonth >= startMonth && targetMonth <= endMonth) {
@@ -1000,7 +770,7 @@ const EmployeeCommutingForm = () => {
                 }
             }
         }
-        
+
         return null;
     };
 
@@ -1029,11 +799,11 @@ const EmployeeCommutingForm = () => {
                 if (otherRange && checkDateRangeOverlap(value, otherRange)) {
                     hasOverlap = true;
                     overlappingTransportType = otherType;
-                    
+
                     // Find overlapping months
                     const overlapStart = new Date(Math.max(startDate, new Date(otherRange.startDate)));
                     const overlapEnd = new Date(Math.min(endDate, new Date(otherRange.endDate)));
-                    
+
                     for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
                         const month = d.getMonth() + 1;
                         if (!overlappingMonths.includes(month)) {
@@ -1050,7 +820,7 @@ const EmployeeCommutingForm = () => {
                     <div>
                         <div className="font-semibold mb-1">Date Range Conflict!</div>
                         <div className="text-sm mb-2">
-                            Your selected date range overlaps with {overlappingTransportType} commute 
+                            Your selected date range overlaps with {overlappingTransportType} commute
                             in month(s): {monthNames}. Please select a different date range.
                         </div>
                     </div>,
@@ -1218,7 +988,7 @@ const EmployeeCommutingForm = () => {
                             <div className="text-sm text-red-700">
                                 <p className="font-medium mb-1">Warning: Date Range Overlap!</p>
                                 <p>
-                                    This date range overlaps with your {overlappingInfo.type} commute selection. 
+                                    This date range overlaps with your {overlappingInfo.type} commute selection.
                                     Please adjust the dates to avoid overlap.
                                 </p>
                             </div>
@@ -1468,7 +1238,7 @@ const EmployeeCommutingForm = () => {
                                 </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div>
-                                        <Select
+                                        <CustomSelect
                                             placeholder="Select colleague from list"
                                             options={companyUsers}
                                             value={selectedUser || null}
@@ -1487,7 +1257,7 @@ const EmployeeCommutingForm = () => {
                                         )}
                                     </div>
                                     <div>
-                                        <Textinput
+                                        <InputGroup
                                             type="email"
                                             placeholder="Or enter email address manually"
                                             value={currentEmail}
@@ -1553,7 +1323,7 @@ const EmployeeCommutingForm = () => {
 
         if (buildings.length === 0 && !buildingsLoading) {
             return (
-                <Textinput
+                <InputGroup
                     label="Site / Building Name *"
                     placeholder="e.g., Main Office, Building A"
                     value={formData.siteBuildingName?.label || formData.siteBuildingName || ''}
@@ -1565,24 +1335,28 @@ const EmployeeCommutingForm = () => {
         }
 
         return (
-            <Select
-                label="Site / Building Name *"
-                placeholder="Select a building"
-                options={buildings}
-                value={formData.siteBuildingName}
-                onChange={(selectedOption) => handleSelectChange('siteBuildingName', selectedOption)}
-                required
-                isLoading={buildingsLoading}
-                disabled={buildingsLoading}
-                helperText={
-                    buildingsLoading ? "Loading buildings..." :
-                        userInfo && userInfo.buildingId && formData.siteBuildingName ?
-                            `Auto-selected building: ${userInfo.buildingId.buildingName || formData.siteBuildingName.label}` :
-                            userInfo && userInfo.buildingId ?
-                                `Your building: ${userInfo.buildingId.buildingName || userInfo.buildingId._id.substring(0, 8)}...` :
-                                "Select your work location"
-                }
-            />
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Site / Building
+                </label>
+                <CustomSelect
+                    placeholder="Select Building"
+                    options={buildings}
+                    value={formData.siteBuildingName}
+                    onChange={(selectedOption) => handleSelectChange('siteBuildingName', selectedOption)}
+                    required
+                    isLoading={buildingsLoading}
+                    disabled={buildingsLoading}
+                    helperText={
+                        buildingsLoading ? "Loading buildings..." :
+                            userInfo && userInfo.buildingId && formData.siteBuildingName ?
+                                `Auto-selected building: ${userInfo.buildingId.buildingName || formData.siteBuildingName.label}` :
+                                userInfo && userInfo.buildingId ?
+                                    `Your building: ${userInfo.buildingId.buildingName || userInfo.buildingId._id.substring(0, 8)}...` :
+                                    "Select your work location"
+                    }
+                />
+            </div>
         );
     };
 
@@ -1787,22 +1561,22 @@ const EmployeeCommutingForm = () => {
             overlaps.forEach(overlap => {
                 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                     'July', 'August', 'September', 'October', 'November', 'December'];
-                
+
                 // Find overlapping months
                 const start1 = new Date(overlap.range1.startDate);
                 const end1 = new Date(overlap.range1.endDate);
                 const start2 = new Date(overlap.range2.startDate);
                 const end2 = new Date(overlap.range2.endDate);
-                
+
                 const overlapStart = new Date(Math.max(start1, start2));
                 const overlapEnd = new Date(Math.min(end1, end2));
-                
+
                 const overlappingMonths = [];
                 for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
                     const month = d.getMonth() + 1;
                     overlappingMonths.push(monthNames[month - 1]);
                 }
-                
+
                 errors.push(`Date range overlap between ${overlap.type1} and ${overlap.type2} in month(s): ${overlappingMonths.join(', ')}`);
             });
         }
@@ -1824,7 +1598,6 @@ const EmployeeCommutingForm = () => {
                 errors.push(`Missing months: ${uncoveredMonthNames.join(', ')}`);
             }
         }
-
         // Validate passenger emails
         const validatePassengerEmails = (emails, transportType) => {
             emails.forEach((email, index) => {
@@ -1833,7 +1606,6 @@ const EmployeeCommutingForm = () => {
                 }
             });
         };
-
         // Motorbike carpool validation (only when mode is carpool or both)
         if (formData.commuteByMotorbike && (formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both')) {
             if (formData.carryOthersMotorbike) {
@@ -1843,7 +1615,6 @@ const EmployeeCommutingForm = () => {
                 validatePassengerEmails(formData.motorbikeTravelPassengerEmails, 'motorbike (traveling with others)');
             }
         }
-
         // Car carpool validation (only when mode is carpool or both)
         if (formData.commuteByCar && (formData.carMode === 'carpool' || formData.carMode === 'both')) {
             if (formData.carryOthersCar) {
@@ -1853,12 +1624,10 @@ const EmployeeCommutingForm = () => {
                 validatePassengerEmails(formData.carTravelPassengerEmails, 'car (traveling with others)');
             }
         }
-
         // Taxi carpool validation (only when mode is carpool or both)
         if (formData.commuteByTaxi && (formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && formData.travelWithOthersTaxi) {
             validatePassengerEmails(formData.taxiPassengerEmails, 'taxi');
         }
-
         // Validate submitted by email
         if (!formData.submittedByEmail.trim()) {
             errors.push('Your email address is required');
@@ -2023,10 +1792,7 @@ const EmployeeCommutingForm = () => {
                     workFromHomeDates: workFromHomeDates.map(date => date.toISOString()),
                     workFromHomeDateRange: formData.workFromHomeDateRange,
                 }),
-
-                // Quality Control
                 qualityControlRemarks: String(formData.qualityControlRemarks || ''),
-
                 submittedAt: new Date().toISOString(),
             };
 
@@ -2054,7 +1820,6 @@ const EmployeeCommutingForm = () => {
                     setFormData({
                         siteBuildingName: null,
                         stakeholderDepartment: null,
-
                         // Motorbike Commute
                         commuteByMotorbike: false,
                         motorbikeMode: 'both',
@@ -2069,7 +1834,6 @@ const EmployeeCommutingForm = () => {
                         motorbikeTravelPassengerEmails: [''],
                         motorbikeTravelPassengerUserIds: [''],
                         motorbikeDateRange: null,
-
                         // Taxi Commute
                         commuteByTaxi: false,
                         taxiMode: 'both',
@@ -2081,19 +1845,16 @@ const EmployeeCommutingForm = () => {
                         taxiPassengerEmails: [''],
                         taxiPassengerUserIds: [''],
                         taxiDateRange: null,
-
                         // Bus Commute
                         commuteByBus: false,
                         busDistance: '',
                         busType: { value: 'Green Line Bus', label: 'Green Line Bus' },
                         busDateRange: null,
-
                         // Train Commute
                         commuteByTrain: false,
                         trainDistance: '',
                         trainType: { value: 'National rail', label: 'National Rail' },
                         trainDateRange: null,
-
                         // Car Commute
                         commuteByCar: false,
                         carMode: 'both',
@@ -2109,19 +1870,14 @@ const EmployeeCommutingForm = () => {
                         carTravelPassengerEmails: [''],
                         carTravelPassengerUserIds: [''],
                         carDateRange: null,
-
                         // Work From Home
                         workFromHome: false,
                         fteWorkingHours: '',
                         workFromHomeDateRange: null,
-
-                        // Quality Control
                         qualityControlRemarks: '',
-
-                        // Submitted By
                         submittedByEmail: '',
                     });
-                    
+
                     // Clear selected date ranges
                     setSelectedDateRanges({
                         motorbike: null,
@@ -2131,7 +1887,7 @@ const EmployeeCommutingForm = () => {
                         car: null,
                         workFromHome: null
                     });
-                    
+
                     setSubmitted(false);
                 }, 3000);
             }
@@ -2199,15 +1955,13 @@ const EmployeeCommutingForm = () => {
 
     return (
         <div className="max-w-6xl mx-auto p-6">
-            <Card>
+            <Card title={"Employee Commuting Data Collection"}>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-8">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-                            <h1 className="text-2xl font-bold text-gray-800">
-                                Employee Commuting Data Collection
-                            </h1>
+
                             <div className="w-full md:w-48">
-                                <Select
+                                <CustomSelect
                                     label="Reporting Year"
                                     options={yearOptions}
                                     value={yearOptions.find(option => option.value === reportingYear)}
@@ -2216,25 +1970,32 @@ const EmployeeCommutingForm = () => {
                                 />
                             </div>
                         </div>
-                        <p className="text-gray-600">
-                            Please provide accurate information about your commuting methods for {reportingYear} sustainability reporting.
-                            Select date ranges for each commute method to indicate when you used that transportation.
-                        </p>
+                        <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 ">
+                            <p className="text-gray-600">
+                                This category includes emissions from the transportation of employees between their homes and their worksites in vehicles not owned or operated by the reporting company . You may also include emissions from teleworking (i.e., employees working remotely) in this category.
+                                Emissions from employee commuting may arise from: <br />
+                                • Automobile travel
+                                <br />• Bus travel
+                                <br />• Rail travel
+                                <br />• Air travel
+                                <br />• Other modes of transportation (e.g., subway, bicycling, walking).
+                            </p>
+                        </div>
 
                         {/* User welcome message */}
                         {userInfo && (
-                            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 ">
                                 <div className="flex items-start">
-                                    <div className="flex-shrink-0">
-                                        <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <div className="flex-shrink-0 ">
+                                        <svg className="h-5 w-5 text-black-700" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                                         </svg>
                                     </div>
                                     <div className="ml-3">
-                                        <h3 className="text-sm font-medium text-blue-800">
+                                        <h3 className="text-sm font-medium text-black-800">
                                             {targetUserData ? `Admin Mode: Filling for ${targetUserData.name || targetUserData.email}` : `Welcome, ${userInfo.name || userInfo.email || 'User'}!`}
                                         </h3>
-                                        <div className="mt-1 text-sm text-blue-700">
+                                        <div className="mt-1 text-sm text-black-700">
                                             {userInfo.buildingId && userInfo.buildingId.buildingName && (
                                                 <p>Selected building: <span className="font-semibold">{userInfo.buildingId.buildingName}</span></p>
                                             )}
@@ -2271,21 +2032,41 @@ const EmployeeCommutingForm = () => {
 
                     {/* Basic Information Section */}
                     <div className="mb-8">
-                        <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">
-                            Basic Information
-                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                            <div>
+                                <label className="field-label">Employee Name</label>
+                                <InputGroup
+                                    type="text"
+                                    name="employeeName"
+                                    placeholder="Enter Employee Name"
+                                    className="input-field w-full"
+                                />
+                            </div>
+                            <div>
+                                <label className="field-label">Employee ID</label>
+                                <div>
+                                    <InputGroup
+                                        type="text"
+                                        name="employeeID"
+                                        placeholder="Enter Employee ID"
+                                        className="input-field w-full"
+                                    />
+                                </div>
+                            </div>
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {renderBuildingInput()}
-
-                            <Select
-                                label="Stakeholder / Department *"
-                                placeholder="Select your department"
-                                options={departmentOptions}
-                                value={formData.stakeholderDepartment}
-                                onChange={(selectedOption) => handleSelectChange('stakeholderDepartment', selectedOption)}
-                                required
-                                helperText={userInfo && userInfo.department ? `Auto-selected: ${userInfo.department}` : "Select your department"}
-                            />
+                            <div>
+                                <label className="field-label">Stakeholder / Department</label>
+                                <CustomSelect
+                                    placeholder="Select Stakeholder / Department"
+                                    options={departmentOptions}
+                                    value={formData.stakeholderDepartment}
+                                    onChange={(selectedOption) => handleSelectChange('stakeholderDepartment', selectedOption)}
+                                    required
+                                    helperText={userInfo && userInfo.department ? `Auto-selected: ${userInfo.department}` : "Select your department"}
+                                />
+                            </div>
                         </div>
 
                         {!buildingsLoading && buildings.length === 0 && (
@@ -2425,9 +2206,9 @@ const EmployeeCommutingForm = () => {
                     </div>
 
                     {/* Motorbike Commute Section */}
-                    <div className="mb-8 p-4 border rounded-lg">
+                    <div className="border-b pb-4 mt-4">
                         <div className="flex items-center mb-4">
-                            <Checkbox
+                            <ToggleButton
                                 label="Do you commute to the office by motorbike during the reporting year?"
                                 checked={formData.commuteByMotorbike}
                                 onChange={(e) => handleCheckboxChange('commuteByMotorbike', e.target.checked)}
@@ -2462,23 +2243,31 @@ const EmployeeCommutingForm = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <Textinput
-                                        label="Distance Travelled (km) *"
-                                        type="number"
-                                        step="0.1"
-                                        min="0"
-                                        placeholder="e.g., 15.5"
-                                        value={formData.motorbikeDistance}
-                                        onChange={(e) => handleInputChange('motorbikeDistance', e.target.value)}
-                                        required
-                                        helperText="One-way distance for each trip"
-                                    />
-                                    <Select
-                                        label="Motorbike Type"
-                                        options={transportationOptions.motorbikeTypes}
-                                        value={formData.motorbikeType}
-                                        onChange={(selectedOption) => handleSelectChange('motorbikeType', selectedOption)}
-                                    />
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Distance Travelled (km) *
+                                        </label>
+                                        <InputGroup
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            placeholder="e.g., 15.5"
+                                            value={formData.motorbikeDistance}
+                                            onChange={(e) => handleInputChange('motorbikeDistance', e.target.value)}
+                                            required
+                                            helperText="One-way distance for each trip"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Motorbike Type*
+                                        </label>
+                                        <CustomSelect
+                                            options={transportationOptions.motorbikeTypes}
+                                            value={formData.motorbikeType}
+                                            onChange={(selectedOption) => handleSelectChange('motorbikeType', selectedOption)}
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Date range picker for motorbike */}
@@ -2487,7 +2276,7 @@ const EmployeeCommutingForm = () => {
                                 {/* Show additional questions only when Carpool or Both is selected */}
                                 {(formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && (
                                     <>
-                                        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <div className="mt-4 ">
                                             <div className="mb-4">
                                                 <Checkbox
                                                     label="Do you carry any other employee to this organization?"
@@ -2499,24 +2288,31 @@ const EmployeeCommutingForm = () => {
                                             {formData.carryOthersMotorbike && (
                                                 <>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <Select
-                                                            label="How many persons do you carry?"
-                                                            options={transportationOptions.personOptions}
-                                                            value={formData.personsCarriedMotorbike}
-                                                            onChange={(selectedOption) => handlePersonsChange('personsCarriedMotorbike', selectedOption)}
-                                                        />
-                                                        <Textinput
-                                                            label="Distance Travelled (km) *"
-                                                            type="number"
-                                                            step="0.1"
-                                                            min="0"
-                                                            placeholder="e.g., 15.5"
-                                                            value={formData.motorbikeDistanceCarpool}
-                                                            onChange={(e) => handleInputChange('motorbikeDistanceCarpool', e.target.value)}
-                                                            required
-                                                            helperText="One-way distance for each trip"
-                                                        />
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                                How many persons do you carry?
+                                                            </label>
+                                                            <CustomSelect
+                                                                options={transportationOptions.personOptions}
+                                                                value={formData.personsCarriedMotorbike}
+                                                                onChange={(selectedOption) => handlePersonsChange('personsCarriedMotorbike', selectedOption)}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <InputGroup
+                                                                label="Distance Travelled (km) *"
+                                                                type="number"
+                                                                step="0.1"
+                                                                min="0"
+                                                                placeholder="e.g., 15.5"
+                                                                value={formData.motorbikeDistanceCarpool}
+                                                                onChange={(e) => handleInputChange('motorbikeDistanceCarpool', e.target.value)}
+                                                                required
+                                                                helperText="One-way distance for each trip"
+                                                            />
+                                                        </div>
                                                     </div>
+
 
                                                     {renderPassengerEmails(
                                                         'motorbike',
@@ -2527,35 +2323,6 @@ const EmployeeCommutingForm = () => {
                                                     )}
                                                 </>
                                             )}
-
-                                            {/* <div className="mt-4">
-                                                <Checkbox
-                                                    label="Do you travel with any other employee to this organization?"
-                                                    checked={formData.travelWithOthersMotorbike}
-                                                    onChange={(e) => handleCheckboxChange('travelWithOthersMotorbike', e.target.checked)}
-                                                />
-                                            </div>
-
-                                            {formData.travelWithOthersMotorbike && (
-                                                <>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <Select
-                                                            label="How many persons do you travel with?"
-                                                            options={transportationOptions.personOptions}
-                                                            value={formData.personsTravelWithMotorbike}
-                                                            onChange={(selectedOption) => handlePersonsChange('personsTravelWithMotorbike', selectedOption)}
-                                                        />
-                                                    </div>
-
-                                                    {renderPassengerEmails(
-                                                        'motorbikeTravel',
-                                                        'personsTravelWithMotorbike',
-                                                        'motorbikeTravelPassengerEmails',
-                                                        'motorbikeTravelPassengerUserIds',
-                                                        'List down all email addresses of colleagues you travel with'
-                                                    )}
-                                                </>
-                                            )} */}
                                         </div>
                                     </>
                                 )}
@@ -2564,9 +2331,9 @@ const EmployeeCommutingForm = () => {
                     </div>
 
                     {/* Taxi Commute Section */}
-                    <div className="mb-8 p-4 border rounded-lg">
+                    <div className="border-b pb-4 mt-4">
                         <div className="flex items-center mb-4">
-                            <Checkbox
+                            <ToggleButton
                                 label="Do you commute to the office by taxi during the reporting year?"
                                 checked={formData.commuteByTaxi}
                                 onChange={(e) => handleCheckboxChange('commuteByTaxi', e.target.checked)}
@@ -2601,29 +2368,41 @@ const EmployeeCommutingForm = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <Select
-                                        label="Number of Passengers (including yourself)"
-                                        options={transportationOptions.taxiPassengerOptions}
-                                        value={formData.taxiPassengers}
-                                        onChange={(selectedOption) => handleSelectChange('taxiPassengers', selectedOption)}
-                                    />
-                                    <Textinput
-                                        label="Distance Travelled (km) *"
-                                        type="number"
-                                        step="0.1"
-                                        min="0"
-                                        placeholder="e.g., 20.0"
-                                        value={formData.taxiDistance}
-                                        onChange={(e) => handleInputChange('taxiDistance', e.target.value)}
-                                        required
-                                        helperText="One-way distance for each trip"
-                                    />
-                                    <Select
-                                        label="Taxi Type"
-                                        options={transportationOptions.taxiTypes}
-                                        value={formData.taxiType}
-                                        onChange={(selectedOption) => handleSelectChange('taxiType', selectedOption)}
-                                    />
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Number of Passengers (including yourself)
+                                        </label>
+                                        <CustomSelect
+                                            options={transportationOptions.taxiPassengerOptions}
+                                            value={formData.taxiPassengers}
+                                            onChange={(selectedOption) => handleSelectChange('taxiPassengers', selectedOption)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Distance Travelled (km) *
+                                        </label>
+                                        <InputGroup
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            placeholder="e.g., 20.0"
+                                            value={formData.taxiDistance}
+                                            onChange={(e) => handleInputChange('taxiDistance', e.target.value)}
+                                            required
+                                            helperText="One-way distance for each trip"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Taxi Type
+                                        </label>
+                                        <CustomSelect
+                                            options={transportationOptions.taxiTypes}
+                                            value={formData.taxiType}
+                                            onChange={(selectedOption) => handleSelectChange('taxiType', selectedOption)}
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Date range picker for taxi */}
@@ -2631,8 +2410,8 @@ const EmployeeCommutingForm = () => {
 
                                 {/* Show travel with others only when Carpool or Both is selected */}
                                 {(formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && (
-                                    <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                                        <div className="mt-4">
+                                    <div className="mt-4 ">
+                                        <div className="mb-4">
                                             <Checkbox
                                                 label="Do you travel with any other employee to this organization?"
                                                 checked={formData.travelWithOthersTaxi}
@@ -2643,16 +2422,22 @@ const EmployeeCommutingForm = () => {
                                         {formData.travelWithOthersTaxi && (
                                             <>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <Select
-                                                        label="How many persons do you travel with?"
-                                                        options={transportationOptions.personOptions}
-                                                        value={formData.personsTravelWithTaxi}
-                                                        onChange={(selectedOption) => handlePersonsChange('personsTravelWithTaxi', selectedOption)}
-                                                    />
-
                                                     <div>
-                                                        <Textinput
-                                                            label="Distance Travelled (km) *"
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                            How many persons do you travel with?
+                                                        </label>
+                                                        <CustomSelect
+                                                            label=""
+                                                            options={transportationOptions.personOptions}
+                                                            value={formData.personsTravelWithTaxi}
+                                                            onChange={(selectedOption) => handlePersonsChange('personsTravelWithTaxi', selectedOption)}
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                            Distance Travelled (km) *
+                                                        </label>
+                                                        <InputGroup
                                                             type="number"
                                                             step="0.1"
                                                             min="0"
@@ -2681,9 +2466,9 @@ const EmployeeCommutingForm = () => {
                     </div>
 
                     {/* Bus Commute Section */}
-                    <div className="mb-8 p-4 border rounded-lg">
+                    <div className="border-b pb-4 mt-4">
                         <div className="flex items-center mb-4">
-                            <Checkbox
+                            <ToggleButton
                                 label="Do you commute to the office by bus during the reporting year?"
                                 checked={formData.commuteByBus}
                                 onChange={(e) => handleCheckboxChange('commuteByBus', e.target.checked)}
@@ -2693,23 +2478,32 @@ const EmployeeCommutingForm = () => {
                         {formData.commuteByBus && (
                             <div className="ml-6 space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <Textinput
-                                        label="Distance Travelled (km) *"
-                                        type="number"
-                                        step="0.1"
-                                        min="0"
-                                        placeholder="e.g., 25.0"
-                                        value={formData.busDistance}
-                                        onChange={(e) => handleInputChange('busDistance', e.target.value)}
-                                        required
-                                        helperText="One-way distance for each trip"
-                                    />
-                                    <Select
-                                        label="Bus Type"
-                                        options={transportationOptions.busTypes}
-                                        value={formData.busType}
-                                        onChange={(selectedOption) => handleSelectChange('busType', selectedOption)}
-                                    />
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Distance Travelled (km) *
+                                        </label>
+                                        <InputGroup
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            placeholder="e.g., 25.0"
+                                            value={formData.busDistance}
+                                            onChange={(e) => handleInputChange('busDistance', e.target.value)}
+                                            required
+                                            helperText="One-way distance for each trip"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Bus Type
+                                        </label>
+                                        <CustomSelect
+                                            options={transportationOptions.busTypes}
+                                            value={formData.busType}
+                                            placeholder={"Select Bus Type"}
+                                            onChange={(selectedOption) => handleSelectChange('busType', selectedOption)}
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Date range picker for bus */}
@@ -2719,9 +2513,9 @@ const EmployeeCommutingForm = () => {
                     </div>
 
                     {/* Train Commute Section */}
-                    <div className="mb-8 p-4 border rounded-lg">
+                    <div className="border-b pb-4 mt-4">   
                         <div className="flex items-center mb-4">
-                            <Checkbox
+                            <ToggleButton
                                 label="Do you commute to the office by train during the reporting year?"
                                 checked={formData.commuteByTrain}
                                 onChange={(e) => handleCheckboxChange('commuteByTrain', e.target.checked)}
@@ -2731,23 +2525,32 @@ const EmployeeCommutingForm = () => {
                         {formData.commuteByTrain && (
                             <div className="ml-6 space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <Textinput
-                                        label="Distance Travelled (km) *"
-                                        type="number"
-                                        step="0.1"
-                                        min="0"
-                                        placeholder="e.g., 30.0"
-                                        value={formData.trainDistance}
-                                        onChange={(e) => handleInputChange('trainDistance', e.target.value)}
-                                        required
-                                        helperText="One-way distance for each trip"
-                                    />
-                                    <Select
-                                        label="Train Type"
-                                        options={transportationOptions.trainTypes}
-                                        value={formData.trainType}
-                                        onChange={(selectedOption) => handleSelectChange('trainType', selectedOption)}
-                                    />
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Distance Travelled (km) *
+                                        </label>
+                                        <InputGroup
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            placeholder="e.g., 30.0"
+                                            value={formData.trainDistance}
+                                            onChange={(e) => handleInputChange('trainDistance', e.target.value)}
+                                            required
+                                            helperText="One-way distance for each trip"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Train Type
+                                        </label>
+                                        <CustomSelect
+                                            options={transportationOptions.trainTypes}
+                                            value={formData.trainType}
+                                            placeholder={"Select Train Type"}
+                                            onChange={(selectedOption) => handleSelectChange('trainType', selectedOption)}
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Date range picker for train */}
@@ -2757,9 +2560,9 @@ const EmployeeCommutingForm = () => {
                     </div>
 
                     {/* Car Commute Section */}
-                    <div className="mb-8 p-4 border rounded-lg">
+                    <div className="border-b pb-4 mt-4">
                         <div className="flex items-center mb-4">
-                            <Checkbox
+                            <ToggleButton
                                 label="Do you commute to the office by car during the reporting year?"
                                 checked={formData.commuteByCar}
                                 onChange={(e) => handleCheckboxChange('commuteByCar', e.target.checked)}
@@ -2794,7 +2597,7 @@ const EmployeeCommutingForm = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <Textinput
+                                    <InputGroup
                                         label="Distance Travelled (km) *"
                                         type="number"
                                         step="0.1"
@@ -2805,13 +2608,13 @@ const EmployeeCommutingForm = () => {
                                         required
                                         helperText="One-way distance for each trip"
                                     />
-                                    <Select
+                                    <CustomSelect
                                         label="Car Type"
                                         options={transportationOptions.carTypes}
                                         value={formData.carType}
                                         onChange={(selectedOption) => handleSelectChange('carType', selectedOption)}
                                     />
-                                    <Select
+                                    <CustomSelect
                                         label="Car Fuel Type"
                                         options={transportationOptions.fuelTypes}
                                         value={formData.carFuelType}
@@ -2825,7 +2628,7 @@ const EmployeeCommutingForm = () => {
                                 {/* Show additional questions only when Carpool or Both is selected */}
                                 {(formData.carMode === 'carpool' || formData.carMode === 'both') && (
                                     <>
-                                        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <div className="mt-4 p-4 ">
                                             <div className="mb-4">
                                                 <Checkbox
                                                     label="Do you carry any other employee to this organization?"
@@ -2837,14 +2640,14 @@ const EmployeeCommutingForm = () => {
                                             {formData.carryOthersCar && (
                                                 <>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <Select
+                                                        <CustomSelect
                                                             label="How many persons do you carry?"
                                                             options={transportationOptions.personOptions}
                                                             value={formData.personsCarriedCar}
                                                             onChange={(selectedOption) => handlePersonsChange('personsCarriedCar', selectedOption)}
                                                         />
                                                         <div>
-                                                            <Textinput
+                                                            <InputGroup
                                                                 label="Distance Travelled (km) *"
                                                                 type="number"
                                                                 step="0.1"
@@ -2867,35 +2670,6 @@ const EmployeeCommutingForm = () => {
                                                     )}
                                                 </>
                                             )}
-
-                                            {/* <div className="mt-4">
-                                                <Checkbox
-                                                    label="Do you travel with any other employee to this organization?"
-                                                    checked={formData.travelWithOthersCar}
-                                                    onChange={(e) => handleCheckboxChange('travelWithOthersCar', e.target.checked)}
-                                                />
-                                            </div>
-
-                                            {formData.travelWithOthersCar && (
-                                                <>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <Select
-                                                            label="How many persons do you travel with?"
-                                                            options={transportationOptions.personOptions}
-                                                            value={formData.personsTravelWithCar}
-                                                            onChange={(selectedOption) => handlePersonsChange('personsTravelWithCar', selectedOption)}
-                                                        />
-                                                    </div>
-
-                                                    {renderPassengerEmails(
-                                                        'carTravel',
-                                                        'personsTravelWithCar',
-                                                        'carTravelPassengerEmails',
-                                                        'carTravelPassengerUserIds',
-                                                        'List down all email addresses of colleagues you travel with'
-                                                    )}
-                                                </>
-                                            )} */}
                                         </div>
                                     </>
                                 )}
@@ -2904,9 +2678,9 @@ const EmployeeCommutingForm = () => {
                     </div>
 
                     {/* Work From Home Section */}
-                    <div className="mb-8 p-4 border rounded-lg">
+                    <div className="border-b pb-4 mt-4">
                         <div className="flex items-center mb-4">
-                            <Checkbox
+                            <ToggleButton
                                 label="Do you work from home during the reporting year?"
                                 checked={formData.workFromHome}
                                 onChange={(e) => handleCheckboxChange('workFromHome', e.target.checked)}
@@ -2916,7 +2690,7 @@ const EmployeeCommutingForm = () => {
                         {formData.workFromHome && (
                             <div className="ml-6 space-y-4">
                                 <div className="max-w-xs">
-                                    <Textinput
+                                    <InputGroup
                                         label="FTE Working Hours per employee *"
                                         type="number"
                                         step="0.5"
@@ -2955,7 +2729,7 @@ const EmployeeCommutingForm = () => {
                         <h3 className="text-lg font-medium text-blue-800 mb-3">
                             Submission Information
                         </h3>
-                        <Textinput
+                        <InputGroup
                             label="Your Email Address *"
                             type="email"
                             placeholder="your.email@company.com"
