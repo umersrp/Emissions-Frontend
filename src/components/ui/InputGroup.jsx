@@ -270,7 +270,7 @@ const InputGroup = ({
     onChange: type === "number" ? handleNumberChange : onChange, // Use custom handler for numbers
     onWheel: type === "number" ? handleNumberInputWheel : undefined, // Add wheel handler for numbers
     min: type === "number" && min !== undefined ? min : undefined, // Add min attribute for numbers
-    className: `${combinedError ? "has-error border-red-500" : "border-[2px] border-gray-400"} rounded-md input-group-control block w-full focus:outline-none py-2 ${placeholderClasses} ${className}`,
+    className: `${combinedError ? "has-error border-red-500" : "border-[2px] border-gray-300"} rounded-md input-group-control block w-full focus:outline-none py-2 ${placeholderClasses} ${className}`,
     ...rest,
   };
 
