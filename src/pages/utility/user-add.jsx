@@ -7,6 +7,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CryptoJS from "crypto-js";
 import Select from "@/components/ui/Select";
+import CustomSelect from "@/components/ui/Select";
 
 
 const UserAddPage = () => {
@@ -47,7 +48,7 @@ const UserAddPage = () => {
     const fetchBuildings = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings`,
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -112,7 +113,7 @@ const UserAddPage = () => {
           email: formData.email.toLowerCase(),
           password: encryptedPassword,
           companyId: formData.companyId,
-          buildingId: selectedBuilding?.value, // ✅ IMPORTANT
+          buildingId: selectedBuilding?.value, // IMPORTANT
           type: "user",
         },
         {
@@ -253,12 +254,14 @@ const UserAddPage = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Building
               </label>
-              <Select
+              <CustomSelect
                 options={buildingOptions}
                 value={selectedBuilding}
                 onChange={(option) => setSelectedBuilding(option)}
                 placeholder="Select Building"
                 className="w-full"
+                maxMenuHeight={150}  // Add this
+                menuHeight={150}
               />
               {selectedBuilding && (
                 <p className="text-xs text-gray-600 mt-1">
