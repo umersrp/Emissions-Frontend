@@ -227,6 +227,9 @@ const EmailSent = () => {
         } else if (totalReminders > 3) {
             newErrors.totalReminders = "Maximum 3 reminders allowed";
         }
+        if (!displayText.trim()) {
+            newErrors.displayText = "Email Subject line is required";
+        }
 
         // Reminder dates validation
         if (showReminderDates && totalReminders > 0 && totalReminders <= 3) {
@@ -261,19 +264,18 @@ const EmailSent = () => {
         }
 
         // Reminder Subject
-        if (totalReminders > 0 && !formData.reminderSubject.trim()) {
+        if (!formData.reminderSubject.trim()) {
             newErrors.reminderSubject = "Reminder subject is required";
         }
 
         // Reminder Message Body
-        if (totalReminders > 0 && !formData.reminderMessageBody.trim()) {
+        if (!formData.reminderMessageBody.trim()) {
             newErrors.reminderMessageBody = "Reminder message body is required";
         }
 
         return newErrors;
     };
 
-    // Parse reminder dates
     // Parse reminder dates
     const parseReminderDates = (datesString) => {
         // If reminder dates are shown and totalReminders is valid (1-3), use individual fields
@@ -303,20 +305,44 @@ const EmailSent = () => {
         const newErrors = validateForm();
 
         // If there are errors, set them in state and show toast
+        // if (Object.keys(newErrors).length > 0) {
+        //     setErrors(newErrors);
+
+        //     // Show a general error toast
+        //     toast.error("Please fix the errors in the form");
+
+        //     // Scroll to first error field
+        //     const firstErrorField = Object.keys(newErrors)[0];
+        //     const element = document.querySelector(`[data-field="${firstErrorField}"]`);
+        //     if (element) {
+        //         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        //     }
+        //     return;
+        // }
         if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
+        setErrors(newErrors);
 
-            // Show a general error toast
-            toast.error("Please fix the errors in the form");
+        // Show a general error toast
+        toast.error("Please fix the errors in the form");
 
-            // Scroll to first error field
-            const firstErrorField = Object.keys(newErrors)[0];
-            const element = document.querySelector(`[data-field="${firstErrorField}"]`);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-            return;
+        // Scroll to top of the form
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+
+        // Alternatively, scroll to the form container
+        const formContainer = document.querySelector('.max-w-6xl');
+        if (formContainer) {
+            formContainer.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
         }
+
+        return;
+    }
+    
 
         // Clear errors if validation passes
         setErrors({});
@@ -491,53 +517,53 @@ const EmailSent = () => {
                             <ErrorMessage message={errors.minEmployeesRequired} />
                         </div>
                     </div>
-                     <div>
-                            <label className="field-label">Employees Email List</label>
-                    <CustomSelect className="mt-2"
-                        isMulti
-                        options={employeesOptions.filter(option =>
-                            // Hide options that are already selected
-                            !formData.selectedEmployees.some(
-                                selected => selected.value === option.value
-                            )
-                        )}
-                        value={formData.selectedEmployees}
-                        onChange={(selected) => {
-                            const maxLimit = Number(formData.minEmployeesRequired);
-                            if (selected.length > maxLimit) {
-                                // Show error toast
-                                toast.error(`Cannot select more than ${maxLimit} employees.`, {
-                                    autoClose: 3000,
-                                    position: "top-right"
-                                });
-                                // Don't update the selection
-                                return;
-                            }
-                            handleInputChange("selectedEmployees", selected);
-                        }}
-                        onClick={(e) => {
-                            // Only set initial value if textarea is empty
-                            if (!formData.subject.trim()) {
-                                handleInputChange("subject", "As part of our sustainability reporting...");
-
-                                // Clear error if it exists
-                                if (errors.subject) {
-                                    setErrors(prev => ({ ...prev, subject: undefined }));
+                    <div>
+                        <label className="field-label">Employees Email List</label>
+                        <CustomSelect className="mt-2"
+                            isMulti
+                            options={employeesOptions.filter(option =>
+                                // Hide options that are already selected
+                                !formData.selectedEmployees.some(
+                                    selected => selected.value === option.value
+                                )
+                            )}
+                            value={formData.selectedEmployees}
+                            onChange={(selected) => {
+                                const maxLimit = Number(formData.minEmployeesRequired);
+                                if (selected.length > maxLimit) {
+                                    // Show error toast
+                                    toast.error(`Cannot select more than ${maxLimit} employees.`, {
+                                        autoClose: 3000,
+                                        position: "top-right"
+                                    });
+                                    // Don't update the selection
+                                    return;
                                 }
+                                handleInputChange("selectedEmployees", selected);
+                            }}
+                            onClick={(e) => {
+                                // Only set initial value if textarea is empty
+                                if (!formData.subject.trim()) {
+                                    handleInputChange("subject", "As part of our sustainability reporting...");
 
-                                setTimeout(() => {
-                                    e.target.setSelectionRange(e.target.value.length, e.target.value.length);
-                                }, 0);
+                                    // Clear error if it exists
+                                    if (errors.subject) {
+                                        setErrors(prev => ({ ...prev, subject: undefined }));
+                                    }
+
+                                    setTimeout(() => {
+                                        e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+                                    }, 0);
+                                }
+                            }}
+                            placeholder={`Select Employees (Max: ${formData.minEmployeesRequired})`}
+                            noOptionsMessage={() =>
+                                employeesOptions.length === 0
+                                    ? "No employees available"
+                                    : "All available employees have been selected"
                             }
-                        }}
-                        placeholder={`Select Employees (Max: ${formData.minEmployeesRequired})`}
-                        noOptionsMessage={() =>
-                            employeesOptions.length === 0
-                                ? "No employees available"
-                                : "All available employees have been selected"
-                        }
-                    />
-                          </div>
+                        />
+                    </div>
 
 
                     <p className="text-xs text-gray-500 mt-1 mb-4">
@@ -551,7 +577,7 @@ const EmailSent = () => {
                         )}
                     </p>
 
-                    <div className="grid grid-rows-1 md:grid-rows-2 gap-4 mb-4">   
+                    <div className="grid grid-rows-1 md:grid-rows-2 gap-4 mb-4">
                         <div>
                             <div className="grid grid-cols-2 gap-2">
                                 <div>
@@ -652,10 +678,17 @@ const EmailSent = () => {
                         <InputGroup
                             placeholder="Employee Commuting Data Form Submission"
                             value={displayText}
-                            onChange={(e) => setDisplayText(e.target.value)}
+                            onChange={(e) => {
+                                setDisplayText(e.target.value);
+                                // Clear error when user types
+                                if (errors.displayText) {
+                                    setErrors(prev => ({ ...prev, displayText: undefined }));
+                                }
+                            }}
                         />
-                        <ErrorMessage message={"Email Subject line is required"} />
+                        <ErrorMessage message={errors.displayText} />
                     </div>
+
 
                     <div className="mb-4">
                         <label className="field-label">Email Message Body<span className="text-red-500">*</span></label>
