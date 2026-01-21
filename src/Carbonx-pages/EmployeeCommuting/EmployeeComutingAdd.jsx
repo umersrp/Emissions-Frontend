@@ -41,9 +41,9 @@ const EmployeeCommutingForm = () => {
         stakeholderDepartment: null,
         // Motorbike Commute
         commuteByMotorbike: false,
-        motorbikeMode: 'both', // possible values: 'individual', 'carpool', 'both'
+        motorbikeMode: '', // possible values: 'individual', 'carpool', 'both'
         motorbikeDistance: '',
-        motorbikeType: { value: 'Small', label: 'Small (<125cc)' },
+        motorbikeType: null,
         carryOthersMotorbike: false,
         personsCarriedMotorbike: null,
         motorbikePassengerEmails: [''],
@@ -55,10 +55,10 @@ const EmployeeCommutingForm = () => {
         motorbikeDateRange: null,
         // Taxi Commute
         commuteByTaxi: false,
-        taxiMode: 'both', // possible values: 'individual', 'carpool', 'both'
-        taxiPassengers: { value: '1', label: '1 passenger' },
+        taxiMode: '', // possible values: 'individual', 'carpool', 'both'
+        taxiPassengers: null,
         taxiDistance: '',
-        taxiType: { value: 'Regular taxi', label: 'Regular Taxi' },
+        taxiType: null,
         travelWithOthersTaxi: false,
         personsTravelWithTaxi: null,
         taxiPassengerEmails: [''],
@@ -67,19 +67,19 @@ const EmployeeCommutingForm = () => {
         // Bus Commute
         commuteByBus: false,
         busDistance: '',
-        busType: { value: 'Green Line Bus', label: 'Green Line Bus' },
+        busType: null,
         busDateRange: null,
         // Train Commute
         commuteByTrain: false,
         trainDistance: '',
-        trainType: { value: 'National rail', label: 'National Rail' },
+        trainType: null,
         trainDateRange: null,
         // Car Commute
         commuteByCar: false,
-        carMode: 'both', // possible values: 'individual', 'carpool', 'both'
+        carMode: '', // possible values: 'individual', 'carpool', 'both'
         carDistance: '',
-        carType: { value: 'Average car', label: 'Average car - Unknown engine size' },
-        carFuelType: { value: 'Diesel', label: 'Diesel' },
+        carType: null,
+        carFuelType: null,
         carryOthersCar: false,
         personsCarriedCar: null,
         carPassengerEmails: [''],
@@ -1961,8 +1961,10 @@ const EmployeeCommutingForm = () => {
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
 
                             <div className="w-full md:w-48">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Reporting Year
+                                </label>
                                 <CustomSelect
-                                    label="Reporting Year"
                                     options={yearOptions}
                                     value={yearOptions.find(option => option.value === reportingYear)}
                                     onChange={handleReportingYearChange}
@@ -2247,16 +2249,22 @@ const EmployeeCommutingForm = () => {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Distance Travelled (km) *
                                         </label>
-                                        <InputGroup
-                                            type="number"
-                                            step="0.1"
-                                            min="0"
-                                            placeholder="e.g., 15.5"
-                                            value={formData.motorbikeDistance}
-                                            onChange={(e) => handleInputChange('motorbikeDistance', e.target.value)}
-                                            required
-                                            helperText="One-way distance for each trip"
-                                        />
+                                        <div className="grid grid-cols-[14fr_1fr]">
+                                            <InputGroup
+                                                type="number"
+                                                step="0.1"
+                                                min="0"
+                                                placeholder="e.g., 15.5"
+                                                value={formData.motorbikeDistance}
+                                                onChange={(e) => handleInputChange('motorbikeDistance', e.target.value)}
+                                                required
+                                                className="input-field rounded-r-none w-full"
+                                                helperText="One-way distance for each trip"
+                                            />
+                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                Km
+                                            </div>
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -2265,6 +2273,7 @@ const EmployeeCommutingForm = () => {
                                         <CustomSelect
                                             options={transportationOptions.motorbikeTypes}
                                             value={formData.motorbikeType}
+                                            placeholder={"Select Type"}
                                             onChange={(selectedOption) => handleSelectChange('motorbikeType', selectedOption)}
                                         />
                                     </div>
@@ -2295,25 +2304,32 @@ const EmployeeCommutingForm = () => {
                                                             <CustomSelect
                                                                 options={transportationOptions.personOptions}
                                                                 value={formData.personsCarriedMotorbike}
+                                                                placeholder="e.g., 1, 2, 3"
                                                                 onChange={(selectedOption) => handlePersonsChange('personsCarriedMotorbike', selectedOption)}
                                                             />
                                                         </div>
                                                         <div>
-                                                            <InputGroup
-                                                                label="Distance Travelled (km) *"
-                                                                type="number"
-                                                                step="0.1"
-                                                                min="0"
-                                                                placeholder="e.g., 15.5"
-                                                                value={formData.motorbikeDistanceCarpool}
-                                                                onChange={(e) => handleInputChange('motorbikeDistanceCarpool', e.target.value)}
-                                                                required
-                                                                helperText="One-way distance for each trip"
-                                                            />
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                                Distance Travelled (km) *
+                                                            </label>
+                                                            <div className="grid grid-cols-[14fr_1fr]">
+                                                                <InputGroup
+                                                                    type="number"
+                                                                    step="0.1"
+                                                                    min="0"
+                                                                    placeholder="e.g., 15.5"
+                                                                    value={formData.motorbikeDistanceCarpool}
+                                                                    onChange={(e) => handleInputChange('motorbikeDistanceCarpool', e.target.value)}
+                                                                    required
+                                                                    className="input-field rounded-r-none w-full"
+                                                                    helperText="One-way distance for each trip"
+                                                                />
+                                                                <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                                    km
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-
-
                                                     {renderPassengerEmails(
                                                         'motorbike',
                                                         'personsCarriedMotorbike',
@@ -2375,6 +2391,7 @@ const EmployeeCommutingForm = () => {
                                         <CustomSelect
                                             options={transportationOptions.taxiPassengerOptions}
                                             value={formData.taxiPassengers}
+                                            placeholder="Select No of Passengers"
                                             onChange={(selectedOption) => handleSelectChange('taxiPassengers', selectedOption)}
                                         />
                                     </div>
@@ -2382,16 +2399,23 @@ const EmployeeCommutingForm = () => {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Distance Travelled (km) *
                                         </label>
-                                        <InputGroup
-                                            type="number"
-                                            step="0.1"
-                                            min="0"
-                                            placeholder="e.g., 20.0"
-                                            value={formData.taxiDistance}
-                                            onChange={(e) => handleInputChange('taxiDistance', e.target.value)}
-                                            required
-                                            helperText="One-way distance for each trip"
-                                        />
+                                        <div className="grid grid-cols-[14fr_1fr]">
+                                            <InputGroup
+                                                type="number"
+                                                step="0.1"
+                                                min="0"
+                                                placeholder="e.g., 20.0"
+                                                value={formData.taxiDistance}
+                                                onChange={(e) => handleInputChange('taxiDistance', e.target.value)}
+                                                required
+
+                                                className="input-field rounded-r-none w-full"
+                                                helperText="One-way distance for each trip"
+                                            />
+                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                km
+                                            </div>
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -2400,6 +2424,7 @@ const EmployeeCommutingForm = () => {
                                         <CustomSelect
                                             options={transportationOptions.taxiTypes}
                                             value={formData.taxiType}
+                                            placeholder="Select Type"
                                             onChange={(selectedOption) => handleSelectChange('taxiType', selectedOption)}
                                         />
                                     </div>
@@ -2430,6 +2455,7 @@ const EmployeeCommutingForm = () => {
                                                             label=""
                                                             options={transportationOptions.personOptions}
                                                             value={formData.personsTravelWithTaxi}
+                                                            placeholder="e.g., 1, 2, 3"
                                                             onChange={(selectedOption) => handlePersonsChange('personsTravelWithTaxi', selectedOption)}
                                                         />
                                                     </div>
@@ -2437,16 +2463,22 @@ const EmployeeCommutingForm = () => {
                                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                                             Distance Travelled (km) *
                                                         </label>
-                                                        <InputGroup
-                                                            type="number"
-                                                            step="0.1"
-                                                            min="0"
-                                                            placeholder="e.g., 15.5"
-                                                            value={formData.taxiDistanceCarpool}
-                                                            onChange={(e) => handleInputChange('taxiDistanceCarpool', e.target.value)}
-                                                            required
-                                                            helperText="One-way distance for each trip"
-                                                        />
+                                                        <div className="grid grid-cols-[14fr_1fr]">
+                                                            <InputGroup
+                                                                type="number"
+                                                                step="0.1"
+                                                                min="0"
+                                                                placeholder="e.g., 15.5"
+                                                                value={formData.taxiDistanceCarpool}
+                                                                onChange={(e) => handleInputChange('taxiDistanceCarpool', e.target.value)}
+                                                                required
+                                                                className="input-field rounded-r-none w-full"
+                                                                helperText="One-way distance for each trip"
+                                                            />
+                                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                                km
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -2482,16 +2514,22 @@ const EmployeeCommutingForm = () => {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Distance Travelled (km) *
                                         </label>
-                                        <InputGroup
-                                            type="number"
-                                            step="0.1"
-                                            min="0"
-                                            placeholder="e.g., 25.0"
-                                            value={formData.busDistance}
-                                            onChange={(e) => handleInputChange('busDistance', e.target.value)}
-                                            required
-                                            helperText="One-way distance for each trip"
-                                        />
+                                        <div className="grid grid-cols-[14fr_1fr]">
+                                            <InputGroup
+                                                type="number"
+                                                step="0.1"
+                                                min="0"
+                                                placeholder="e.g., 25.0"
+                                                value={formData.busDistance}
+                                                onChange={(e) => handleInputChange('busDistance', e.target.value)}
+                                                required
+                                                className="input-field rounded-r-none w-full"
+                                                helperText="One-way distance for each trip"
+                                            />
+                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                km
+                                            </div>
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -2500,7 +2538,7 @@ const EmployeeCommutingForm = () => {
                                         <CustomSelect
                                             options={transportationOptions.busTypes}
                                             value={formData.busType}
-                                            placeholder={"Select Bus Type"}
+                                            placeholder={"Select Type"}
                                             onChange={(selectedOption) => handleSelectChange('busType', selectedOption)}
                                         />
                                     </div>
@@ -2513,7 +2551,7 @@ const EmployeeCommutingForm = () => {
                     </div>
 
                     {/* Train Commute Section */}
-                    <div className="border-b pb-4 mt-4">   
+                    <div className="border-b pb-4 mt-4">
                         <div className="flex items-center mb-4">
                             <ToggleButton
                                 label="Do you commute to the office by train during the reporting year?"
@@ -2529,16 +2567,23 @@ const EmployeeCommutingForm = () => {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Distance Travelled (km) *
                                         </label>
-                                        <InputGroup
-                                            type="number"
-                                            step="0.1"
-                                            min="0"
-                                            placeholder="e.g., 30.0"
-                                            value={formData.trainDistance}
-                                            onChange={(e) => handleInputChange('trainDistance', e.target.value)}
-                                            required
-                                            helperText="One-way distance for each trip"
-                                        />
+                                        <div className="grid grid-cols-[14fr_1fr]">
+                                            <InputGroup
+                                                type="number"
+                                                step="0.1"
+                                                min="0"
+                                                placeholder="e.g., 30.0"
+                                                value={formData.trainDistance}
+                                                onChange={(e) => handleInputChange('trainDistance', e.target.value)}
+                                                required
+                                                className="input-field rounded-r-none w-full"
+                                                helperText="One-way distance for each trip"
+                                            />
+                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                km
+                                            </div>
+                                        </div>
+
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -2547,7 +2592,7 @@ const EmployeeCommutingForm = () => {
                                         <CustomSelect
                                             options={transportationOptions.trainTypes}
                                             value={formData.trainType}
-                                            placeholder={"Select Train Type"}
+                                            placeholder={"Select Type"}
                                             onChange={(selectedOption) => handleSelectChange('trainType', selectedOption)}
                                         />
                                     </div>
@@ -2599,38 +2644,47 @@ const EmployeeCommutingForm = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Distance Travelled (km) *
-                                    </label>
-                                    <InputGroup
-                                        type="number"
-                                        step="0.1"
-                                        min="0"
-                                        placeholder="e.g., 18.5"
-                                        value={formData.carDistance}
-                                        onChange={(e) => handleInputChange('carDistance', e.target.value)}
-                                        required
-                                        helperText="One-way distance for each trip"
-                                    />
+                                            Distance Travelled (km) *
+                                        </label>
+                                        <div className="grid grid-cols-[14fr_1fr]">
+                                            <InputGroup
+                                                type="number"
+                                                step="0.1"
+                                                min="0"
+                                                placeholder="e.g., 18.5"
+                                                value={formData.carDistance}
+                                                onChange={(e) => handleInputChange('carDistance', e.target.value)}
+                                                required
+                                                className="input-field rounded-r-none w-full"
+                                                helperText="One-way distance for each trip"
+                                            />
+                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                km
+                                            </div>
+                                        </div>
+
                                     </div>
                                     <div className="col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Car Type
-                                    </label>
-                                    <CustomSelect
-                                        options={transportationOptions.carTypes}
-                                        value={formData.carType}
-                                        onChange={(selectedOption) => handleSelectChange('carType', selectedOption)}
-                                    />
+                                            Car Type
+                                        </label>
+                                        <CustomSelect
+                                            options={transportationOptions.carTypes}
+                                            value={formData.carType}
+                                            placeholder="Select Type"
+                                            onChange={(selectedOption) => handleSelectChange('carType', selectedOption)}
+                                        />
                                     </div>
                                     <div >
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Car Fuel Type
-                                    </label>
-                                    <CustomSelect
-                                        options={transportationOptions.fuelTypes}
-                                        value={formData.carFuelType}
-                                        onChange={(selectedOption) => handleSelectChange('carFuelType', selectedOption)}
-                                    />
+                                            Car Fuel Type
+                                        </label>
+                                        <CustomSelect
+                                            options={transportationOptions.fuelTypes}
+                                            value={formData.carFuelType}
+                                            placeholder="Select Type"
+                                            onChange={(selectedOption) => handleSelectChange('carFuelType', selectedOption)}
+                                        />
                                     </div>
                                 </div>
 
@@ -2640,7 +2694,7 @@ const EmployeeCommutingForm = () => {
                                 {/* Show additional questions only when Carpool or Both is selected */}
                                 {(formData.carMode === 'carpool' || formData.carMode === 'both') && (
                                     <>
-                                        <div className="mt-4 p-4 ">
+                                        <div className="mt-4  ">
                                             <div className="mb-4">
                                                 <Checkbox
                                                     label="Do you carry any other employee to this organization?"
@@ -2652,24 +2706,38 @@ const EmployeeCommutingForm = () => {
                                             {formData.carryOthersCar && (
                                                 <>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <CustomSelect
-                                                            label="How many persons do you carry?"
-                                                            options={transportationOptions.personOptions}
-                                                            value={formData.personsCarriedCar}
-                                                            onChange={(selectedOption) => handlePersonsChange('personsCarriedCar', selectedOption)}
-                                                        />
                                                         <div>
-                                                            <InputGroup
-                                                                label="Distance Travelled (km) *"
-                                                                type="number"
-                                                                step="0.1"
-                                                                min="0"
-                                                                placeholder="e.g., 18.5"
-                                                                value={formData.carDistanceCarpool}
-                                                                onChange={(e) => handleInputChange('carDistanceCarpool', e.target.value)}
-                                                                required
-                                                                helperText="One-way distance for each trip"
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                                How many persons do you carry?
+                                                            </label>
+                                                            <CustomSelect
+                                                                options={transportationOptions.personOptions}
+                                                                value={formData.personsCarriedCar}
+                                                                placeholder={"e.g., 1, 2, 3"}
+                                                                onChange={(selectedOption) => handlePersonsChange('personsCarriedCar', selectedOption)}
                                                             />
+                                                        </div>
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                                Distance Travelled (km) *
+                                                            </label>
+
+                                                            <div className="grid grid-cols-[14fr_1fr]">
+                                                                <InputGroup
+                                                                    type="number"
+                                                                    step="0.1"
+                                                                    min="0"
+                                                                    placeholder="e.g., 18.5"
+                                                                    value={formData.carDistanceCarpool}
+                                                                    onChange={(e) => handleInputChange('carDistanceCarpool', e.target.value)}
+                                                                    required
+                                                                    className="input-field rounded-r-none w-full"
+                                                                    helperText="One-way distance for each trip"
+                                                                />
+                                                                <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                                    km
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -2723,8 +2791,8 @@ const EmployeeCommutingForm = () => {
                     </div>
 
                     {/* Quality Control Section */}
-                    <div className="mb-8">
-                        <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b">
+                    <div className="mb-8 mt-8">
+                        <h2 className="text-xl font-semibold text-gray-800 mb-2 pb-2 ">
                             Quality Control & Remarks
                         </h2>
                         <Textarea
