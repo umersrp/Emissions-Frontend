@@ -412,25 +412,30 @@ const BuildingFormPage = () => {
 
             {/* --- Building Area --- */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Building Area (m2)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Building Area </label>
+               <div className="grid grid-cols-[14fr_1fr]">
               <InputGroup
                 type="number"
                 name="buildingArea"
-
                 onWheel={handleNumberInputWheel}
                 placeholder="Building Area"
                 value={formData.buildingArea}
                 onChange={handleInputChange}
-                className={`border-[2px] w-full h-10 p-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
+                className={`input-field rounded-r-none ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
                   }`}
                 readOnly={isViewMode}
               />
+               <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                         m²
+                        </div>
+                        </div>
               {errors.buildingArea && <p className="text-red-500 text-sm mt-1">{errors.buildingArea}</p>}
             </div>
 
             {/* --- Electricity Consumption --- */}
             <div>
-              <label className="field-label">Electricity Consumption (kWh)</label>
+              <label className="field-label">Electricity Consumption</label>
+              <div className="grid grid-cols-[14fr_1fr]">
               <InputGroup
                 type="number"
 
@@ -439,10 +444,14 @@ const BuildingFormPage = () => {
                 placeholder="Electricity Consumption (kWh)"
                 value={formData.electricityConsumption}
                 onChange={handleInputChange}
-                className={`border-[2px] w-full h-10 p-2 rounded-md ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
+                className={`input-field rounded-r-none ${isViewMode ? "bg-gray-100 cursor-not-allowed" : ""
                   }`}
                 readOnly={isViewMode}
               />
+               <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                         kWh
+                        </div>
+                        </div>
               {errors.electricityConsumption && <p className="text-red-500 text-sm mt-1">{errors.electricityConsumption}</p>}
             </div>
           </div>
