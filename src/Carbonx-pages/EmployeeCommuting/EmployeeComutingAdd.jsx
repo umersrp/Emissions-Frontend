@@ -2597,8 +2597,11 @@ const EmployeeCommutingForm = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Distance Travelled (km) *
+                                    </label>
                                     <InputGroup
-                                        label="Distance Travelled (km) *"
                                         type="number"
                                         step="0.1"
                                         min="0"
@@ -2608,18 +2611,27 @@ const EmployeeCommutingForm = () => {
                                         required
                                         helperText="One-way distance for each trip"
                                     />
+                                    </div>
+                                    <div className="col-span-2">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Car Type
+                                    </label>
                                     <CustomSelect
-                                        label="Car Type"
                                         options={transportationOptions.carTypes}
                                         value={formData.carType}
                                         onChange={(selectedOption) => handleSelectChange('carType', selectedOption)}
                                     />
+                                    </div>
+                                    <div >
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Car Fuel Type
+                                    </label>
                                     <CustomSelect
-                                        label="Car Fuel Type"
                                         options={transportationOptions.fuelTypes}
                                         value={formData.carFuelType}
                                         onChange={(selectedOption) => handleSelectChange('carFuelType', selectedOption)}
                                     />
+                                    </div>
                                 </div>
 
                                 {/* Date range picker for car */}
