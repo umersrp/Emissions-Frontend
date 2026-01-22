@@ -853,7 +853,7 @@ Thank you for your cooperation."
                         <ErrorMessage message={errors.reminderSubject} />
                     </div>
                     <div className="mt-4">
-                        <label className="field-label">Reminder Email Message Body</label>
+                        <label className="field-label">Email Message Body</label>
 
                         {/* Container with relative positioning for sticky elements */}
                         <div className="relative border border-gray-300 rounded-lg ">

@@ -521,16 +521,129 @@ const EmployeeCommutingForm = () => {
             [field]: value,
         }));
 
-        // If unchecked, clear the date range for that transport type
+        // If unchecked, clear all related fields for that transport type
         if (!value) {
-            const transportType = field.replace('commuteBy', '').toLowerCase();
+            let transportType;
+
+            // Determine transport type based on field name
+            if (field.startsWith('commuteBy')) {
+                transportType = field.replace('commuteBy', '').toLowerCase();
+            } else if (field === 'workFromHome') {
+                transportType = 'workfromhome';
+            } else {
+                return; // Not a transport/work from home field
+            }
+
             if (transportType === 'motorbike' || transportType === 'taxi' || transportType === 'bus' ||
                 transportType === 'train' || transportType === 'car' || transportType === 'workfromhome') {
+
+                // Reset date range
                 const dateRangeField = `${transportType}DateRange`;
                 setFormData(prev => ({ ...prev, [dateRangeField]: null }));
-
-                // Update selected date ranges
                 setSelectedDateRanges(prev => ({ ...prev, [transportType]: null }));
+
+                // Additional reset logic for specific transport types
+                if (transportType === 'motorbike') {
+                    setFormData(prev => ({
+                        ...prev,
+                        motorbikeMode: '',
+                        motorbikeDistance: '',
+                        motorbikeType: '',
+                        motorbikeStartDate: '',
+                        motorbikeEndDate: '',
+                        carryOthersMotorbike: false,
+                        personsCarriedMotorbike: '',
+                        motorbikeDistanceCarpool: '',
+                        motorbikePassengerEmails: [],
+                        motorbikePassengerUserIds: []
+                    }));
+                }
+
+                if (transportType === 'taxi') {
+                    setTimeout(() => {
+                        setFormData(prev => ({
+                            ...prev,
+                            taxiMode: '',
+                            taxiPassengers: '',
+                            taxiDistance: '',
+                            taxiType: '',
+                            taxiStartDate: '',
+                            taxiEndDate: '',
+                            travelWithOthersTaxi: false,
+                            personsTravelWithTaxi: '',
+                            taxiDistanceCarpool: '',
+                            taxiPassengerEmails: [],
+                            taxiPassengerUserIds: []
+                        }));
+                    }, 50);
+                }
+
+                // Reset bus fields
+                if (transportType === 'bus') {
+                    setTimeout(() => {
+                        setFormData(prev => ({
+                            ...prev,
+                            busDistance: '',
+                            busType: '',
+                            busStartDate: '',
+                            busEndDate: ''
+                        }));
+                    }, 50);
+                }
+
+                // Reset train fields
+                if (transportType === 'train') {
+                    setTimeout(() => {
+                        setFormData(prev => ({
+                            ...prev,
+                            trainDistance: '',
+                            trainType: '',
+                            trainStartDate: '',
+                            trainEndDate: ''
+                        }));
+                    }, 50);
+                }
+
+                // Reset car fields
+                if (transportType === 'car') {
+                    setTimeout(() => {
+                        setFormData(prev => ({
+                            ...prev,
+                            carMode: '',
+                            carDistance: '',
+                            carType: '',
+                            carFuelType: '',
+                            carStartDate: '',
+                            carEndDate: '',
+                            carryOthersCar: false,
+                            personsCarriedCar: '',
+                            carDistanceCarpool: '',
+                            carPassengerEmails: [],
+                            carPassengerUserIds: []
+                        }));
+                    }, 50);
+                }
+
+                // Reset work from home fields
+                if (transportType === 'workfromhome') {
+                    setTimeout(() => {
+                        setFormData(prev => ({
+                            ...prev,
+                            fteWorkingHours: '',
+                            // Clear the date range field
+                            workFromHomeDateRange: null,
+                            // Also clear individual date fields if they exist
+                            workFromHomeStartDate: '',
+                            workFromHomeEndDate: ''
+                        }));
+                    }, 50);
+
+                    // Clear the selected date ranges state
+                    setSelectedDateRanges(prev => ({
+                        ...prev,
+                        workFromHome: null
+                    }));
+                }
             }
         }
     };
@@ -2247,7 +2360,7 @@ const EmployeeCommutingForm = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Distance Travelled (km) *
+                                            Distance Travelled *
                                         </label>
                                         <div className="grid grid-cols-[14fr_1fr]">
                                             <InputGroup
@@ -2310,7 +2423,7 @@ const EmployeeCommutingForm = () => {
                                                         </div>
                                                         <div>
                                                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                                Distance Travelled (km) *
+                                                                Distance Travelled *
                                                             </label>
                                                             <div className="grid grid-cols-[14fr_1fr]">
                                                                 <InputGroup
@@ -2397,7 +2510,7 @@ const EmployeeCommutingForm = () => {
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Distance Travelled (km) *
+                                            Distance Travelled *
                                         </label>
                                         <div className="grid grid-cols-[14fr_1fr]">
                                             <InputGroup
@@ -2461,7 +2574,7 @@ const EmployeeCommutingForm = () => {
                                                     </div>
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                            Distance Travelled (km) *
+                                                            Distance Travelled *
                                                         </label>
                                                         <div className="grid grid-cols-[14fr_1fr]">
                                                             <InputGroup
@@ -2512,7 +2625,7 @@ const EmployeeCommutingForm = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Distance Travelled (km) *
+                                            Distance Travelled *
                                         </label>
                                         <div className="grid grid-cols-[14fr_1fr]">
                                             <InputGroup
@@ -2565,7 +2678,7 @@ const EmployeeCommutingForm = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Distance Travelled (km) *
+                                            Distance Travelled *
                                         </label>
                                         <div className="grid grid-cols-[14fr_1fr]">
                                             <InputGroup
@@ -2644,7 +2757,7 @@ const EmployeeCommutingForm = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Distance Travelled (km) *
+                                            Distance Travelled *
                                         </label>
                                         <div className="grid grid-cols-[14fr_1fr]">
                                             <InputGroup
@@ -2719,7 +2832,7 @@ const EmployeeCommutingForm = () => {
                                                         </div>
                                                         <div>
                                                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                                Distance Travelled (km) *
+                                                                Distance Travelled *
                                                             </label>
 
                                                             <div className="grid grid-cols-[14fr_1fr]">
