@@ -40,7 +40,7 @@ const EmailSent = () => {
         subject: "",
         //subject: "Employee Commuting Data – Action Required",
         // formLink: "https://ksvvmxbk-5173.inc1.devtunnels.ms/AddfromEmployee",
-        formLink: "https://drksmd8t-5173.asse.devtunnels.ms/",
+        formLink: "http://carbonx.srptechs.com/AddfromEmployee",
         totalReminders: "",
         reminderDates: "",
         reminderSubject: "",
@@ -320,29 +320,29 @@ const EmailSent = () => {
         //     return;
         // }
         if (Object.keys(newErrors).length > 0) {
-        setErrors(newErrors);
+            setErrors(newErrors);
 
-        // Show a general error toast
-        toast.error("Please fix the errors in the form");
+            // Show a general error toast
+            toast.error("Please fix the errors in the form");
 
-        // Scroll to top of the form
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-
-        // Alternatively, scroll to the form container
-        const formContainer = document.querySelector('.max-w-6xl');
-        if (formContainer) {
-            formContainer.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
+            // Scroll to top of the form
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
             });
+
+            // Alternatively, scroll to the form container
+            const formContainer = document.querySelector('.max-w-6xl');
+            if (formContainer) {
+                formContainer.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+
+            return;
         }
 
-        return;
-    }
-    
 
         // Clear errors if validation passes
         setErrors({});
@@ -389,14 +389,23 @@ const EmailSent = () => {
                 minEmployeesRequired: 0,
                 selectedEmployees: [],
                 startDateTime: "",
+                startDate: "", // Add this
+                startTime: "", // Add this
                 endDateTime: "",
+                endDate: "", // Add this
+                endTime: "",
                 subject: "",
-                formLink: "https://drksmd8t-5173.asse.devtunnels.ms/",
+                formLink: "httpshttps://carbonx.srptechs.com/AddfromEmployee",
                 totalReminders: "",
                 reminderDates: "",
                 reminderSubject: "",
-                reminderMessageBody: ""
+                reminderMessageBody: "",
+
             });
+            setShowReminderDates(false);
+
+            // Reset the display text for subject line
+            setDisplayText("");
 
         } catch (error) {
             console.error(error);
@@ -607,10 +616,10 @@ const EmailSent = () => {
                                         value={formData.startTime || ""}
                                         onChange={(e) => {
                                             const time = e.target.value;
-                                            const date = formData.startTime || new Date().toISOString().split('T')[0];
+                                            const date = formData.startDate || new Date().toISOString().split('T')[0]; // Fixed
                                             const dateTime = date && time ? `${date}T${time}` : "";
-                                            if (errors.startDate) {
-                                                setErrors(prev => ({ ...prev, startDate: undefined }));
+                                            if (errors.startDateTime) {
+                                                setErrors(prev => ({ ...prev, startDateTime: undefined }));
                                             }
                                             handleInputChange("startDateTime", dateTime);
                                             handleInputChange("startTime", time);
@@ -652,7 +661,7 @@ const EmailSent = () => {
                                         value={formData.endTime || ""}
                                         onChange={(e) => {
                                             const time = e.target.value;
-                                            const date = formData.endDate || new Date().toISOString().split('T')[0];
+                                            const date = formData.endDate || new Date().toISOString().split('T')[0]; // Fixed
                                             const dateTime = date && time ? `${date}T${time}` : "";
                                             if (errors.endTime) {
                                                 setErrors(prev => ({ ...prev, startDate: undefined }));
