@@ -14,6 +14,17 @@ import InputGroup from '@/components/ui/InputGroup';
 import CustomSelect from '@/components/ui/Select';
 import ToggleButton from '@/components/ui/ToggleButton';
 
+
+const ErrorMessage = ({ message }) => {
+    if (!message) return null;
+
+    return (
+        <div className="mt-1 text-sm text-red-600">
+            {message}
+        </div>
+    );
+};
+
 const EmployeeCommutingForm = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -23,6 +34,7 @@ const EmployeeCommutingForm = () => {
     // Current year for reporting
     const currentYear = new Date().getFullYear();
     const [reportingYear, setReportingYear] = useState(currentYear);
+    const [errors, setErrors] = useState({});
 
     // Track all selected date ranges for validation
     const [selectedDateRanges, setSelectedDateRanges] = useState({
@@ -514,6 +526,29 @@ const EmployeeCommutingForm = () => {
         });
     };
 
+    // Function to clear specific field error
+    const clearFieldError = (fieldName) => {
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            // Clear the specific field error
+            delete newErrors[fieldName];
+
+            // Also clear related commute method error if any commute toggle is enabled
+            const hasAnyCommuteMethod =
+                formData.commuteByMotorbike ||
+                formData.commuteByTaxi ||
+                formData.commuteByBus ||
+                formData.commuteByTrain ||
+                formData.commuteByCar ||
+                formData.workFromHome;
+
+            if (hasAnyCommuteMethod) {
+                delete newErrors['commuteMethodRequired'];
+            }
+
+            return newErrors;
+        });
+    };
     // Handle checkbox changes
     const handleCheckboxChange = (field, value) => {
         setFormData(prev => ({
@@ -521,10 +556,52 @@ const EmployeeCommutingForm = () => {
             [field]: value,
         }));
 
+        // Immediately clear the commute method required error when any toggle is changed to true
+        if (value === true) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.commuteMethodRequired;
+                return newErrors;
+            });
+        }
+
+        // Clear all field-specific errors for this toggle when it's turned off
+        if (value === false) {
+            // Determine which transport type was turned off
+            let transportType = '';
+            if (field.startsWith('commuteBy')) {
+                transportType = field.replace('commuteBy', '').toLowerCase();
+            } else if (field === 'workFromHome') {
+                transportType = 'workFromHome';
+            }
+
+            // Clear all related errors for this transport type
+            setErrors(prev => {
+                const newErrors = { ...prev };
+
+                // Remove errors related to this transport type
+                Object.keys(newErrors).forEach(errorKey => {
+                    if (errorKey.includes(transportType) ||
+                        (transportType === 'motorbike' && errorKey.includes('motorbike')) ||
+                        (transportType === 'taxi' && errorKey.includes('taxi')) ||
+                        (transportType === 'bus' && errorKey.includes('bus')) ||
+                        (transportType === 'train' && errorKey.includes('train')) ||
+                        (transportType === 'car' && errorKey.includes('car')) ||
+                        (transportType === 'workFromHome' && errorKey.includes('workFromHome'))) {
+                        delete newErrors[errorKey];
+                    }
+                });
+
+                return newErrors;
+            });
+        }
+
         // If unchecked, clear all related fields for that transport type
         if (!value) {
             let transportType;
-
+            if (field.startsWith('commuteBy') || field === 'workFromHome') {
+                clearFieldError('commuteMethodRequired');
+            }
             // Determine transport type based on field name
             if (field.startsWith('commuteBy')) {
                 transportType = field.replace('commuteBy', '').toLowerCase();
@@ -1016,7 +1093,8 @@ const EmployeeCommutingForm = () => {
         const currentRange = formData[`${transportType}DateRange`];
         let monthsCovered = 0;
         let progressPercentage = 0;
-
+const errorKey = `${transportType}DateRange`;
+    const hasError = errors[errorKey];
         if (currentRange && currentRange.startDate && currentRange.endDate) {
             monthsCovered = calculateRemainingMonths(currentRange.startDate, currentRange.endDate, reportingYear);
             progressPercentage = Math.round((monthsCovered / 12) * 100);
@@ -1052,6 +1130,16 @@ const EmployeeCommutingForm = () => {
                             Select dates that cover the entire year for accurate reporting
                         </p>
                     </div>
+                      {hasError && (
+                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
+                    <div className="flex items-center">
+                        <svg className="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm text-red-600">{hasError}</span>
+                    </div>
+                </div>
+            )}
 
                     {/* Progress indicator */}
                     {currentRange && currentRange.startDate && currentRange.endDate && (
@@ -1444,6 +1532,7 @@ const EmployeeCommutingForm = () => {
                     required
                     helperText="Building list could not be loaded. Please enter building name manually."
                 />
+
             );
         }
 
@@ -1469,7 +1558,9 @@ const EmployeeCommutingForm = () => {
                                     "Select your work location"
                     }
                 />
+                <ErrorMessage message={errors.siteBuildingName} />
             </div>
+
         );
     };
 
@@ -1567,199 +1658,741 @@ const EmployeeCommutingForm = () => {
         return overlaps;
     };
 
+    // // Validate form
+    // const validateForm = () => {
+    //     // const errors = [];
+    //     const errors = {};  
+
+    //     // Basic Information validation
+    //     if (!formData.siteBuildingName) errors.siteBuildingName='Site / Building Name is required';
+    //     if (!formData.stakeholderDepartment) errors.stakeholderDepartment='Stakeholder / Department is required';
+
+    //     // Check if at least one commute method is selected
+    //     const commuteMethods = [
+    //         formData.commuteByMotorbike,
+    //         formData.commuteByTaxi,
+    //         formData.commuteByBus,
+    //         formData.commuteByTrain,
+    //         formData.commuteByCar,
+    //         formData.workFromHome,
+    //     ];
+
+    //     if (!commuteMethods.some(method => method)) {
+    //         errors.push('Please select at least one commute method or work from home option');
+    //     }
+
+    //     // Validate distance fields for selected commute methods
+    //     if (formData.commuteByMotorbike && !formData.motorbikeDistance) {
+    //         errors.push('Motorbike distance is required');
+    //     }
+    //     if (formData.commuteByTaxi && !formData.taxiDistance) {
+    //         errors.push('Taxi distance is required');
+    //     }
+    //     if (formData.commuteByBus && !formData.busDistance) {
+    //         errors.push('Bus distance is required');
+    //     }
+    //     if (formData.commuteByTrain && !formData.trainDistance) {
+    //         errors.push('Train distance is required');
+    //     }
+    //     if (formData.commuteByCar && !formData.carDistance) {
+    //         errors.push('Car distance is required');
+    //     }
+
+    //     // Validate date range for each selected commute method
+    //     const validateDateRange = (dateRange, methodName) => {
+    //         if (!dateRange || !dateRange.startDate || !dateRange.endDate) {
+    //             errors.push(`${methodName}: Please select a date range`);
+    //             return false;
+    //         }
+
+    //         const startDate = new Date(dateRange.startDate);
+    //         const endDate = new Date(dateRange.endDate);
+
+    //         if (startDate > endDate) {
+    //             errors.push(`${methodName}: Start date must be before end date`);
+    //             return false;
+    //         }
+
+    //         if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+    //             errors.push(`${methodName}: Date range must be within ${reportingYear}`);
+    //             return false;
+    //         }
+
+    //         return true;
+    //     };
+
+    //     if (formData.commuteByMotorbike) {
+    //         validateDateRange(formData.motorbikeDateRange, 'Motorbike commute');
+    //     }
+    //     if (formData.commuteByTaxi) {
+    //         validateDateRange(formData.taxiDateRange, 'Taxi commute');
+    //     }
+    //     if (formData.commuteByBus) {
+    //         validateDateRange(formData.busDateRange, 'Bus commute');
+    //     }
+    //     if (formData.commuteByTrain) {
+    //         validateDateRange(formData.trainDateRange, 'Train commute');
+    //     }
+    //     if (formData.commuteByCar) {
+    //         validateDateRange(formData.carDateRange, 'Car commute');
+    //     }
+    //     if (formData.workFromHome) {
+    //         validateDateRange(formData.workFromHomeDateRange, 'Work from home');
+    //     }
+
+    //     // Validate FTE hours for work from home
+    //     if (formData.workFromHome && !formData.fteWorkingHours) {
+    //         errors.push('FTE Working Hours are required for work from home');
+    //     }
+
+    //     // Validate mode selections
+    //     if (formData.commuteByMotorbike && !formData.motorbikeMode) {
+    //         errors.push('Please select Individual, Carpool, or Both for motorbike commute');
+    //     }
+    //     if (formData.commuteByTaxi && !formData.taxiMode) {
+    //         errors.push('Please select Individual, Carpool, or Both for taxi commute');
+    //     }
+    //     if (formData.commuteByCar && !formData.carMode) {
+    //         errors.push('Please select Individual, Carpool, or Both for car commute');
+    //     }
+
+    //     // Check for date range overlaps
+    //     const overlaps = checkAllDateRangeOverlaps();
+    //     if (overlaps.length > 0) {
+    //         overlaps.forEach(overlap => {
+    //             const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+    //                 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    //             // Find overlapping months
+    //             const start1 = new Date(overlap.range1.startDate);
+    //             const end1 = new Date(overlap.range1.endDate);
+    //             const start2 = new Date(overlap.range2.startDate);
+    //             const end2 = new Date(overlap.range2.endDate);
+
+    //             const overlapStart = new Date(Math.max(start1, start2));
+    //             const overlapEnd = new Date(Math.min(end1, end2));
+
+    //             const overlappingMonths = [];
+    //             for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
+    //                 const month = d.getMonth() + 1;
+    //                 overlappingMonths.push(monthNames[month - 1]);
+    //             }
+
+    //             errors.push(`Date range overlap between ${overlap.type1} and ${overlap.type2} in month(s): ${overlappingMonths.join(', ')}`);
+    //         });
+    //     }
+
+    //     // Validate 12-month coverage
+    //     const monthCoverage = validateMonthCoverage();
+    //     if (!monthCoverage.isComplete) {
+    //         errors.push(`You have only covered ${monthCoverage.totalCovered} out of 12 months. Please ensure your date ranges cover all 12 months of ${reportingYear}.`);
+
+    //         // Add detailed information about uncovered months
+    //         if (monthCoverage.uncoveredMonths.length > 0) {
+    //             const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+    //                 'July', 'August', 'September', 'October', 'November', 'December'];
+    //             const uncoveredMonthNames = monthCoverage.uncoveredMonths.map(month => {
+    //                 const monthNum = parseInt(month.split('-')[1]);
+    //                 return monthNames[monthNum - 1];
+    //             });
+
+    //             errors.push(`Missing months: ${uncoveredMonthNames.join(', ')}`);
+    //         }
+    //     }
+    //     // Validate passenger emails
+    //     const validatePassengerEmails = (emails, transportType) => {
+    //         emails.forEach((email, index) => {
+    //             if (email.trim() && !isValidEmail(email)) {
+    //                 errors.push(`Invalid email address for ${transportType} passenger ${index + 1}`);
+    //             }
+    //         });
+    //     };
+    //     // Motorbike carpool validation (only when mode is carpool or both)
+    //     if (formData.commuteByMotorbike && (formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both')) {
+    //         if (formData.carryOthersMotorbike) {
+    //             validatePassengerEmails(formData.motorbikePassengerEmails, 'motorbike (carrying others)');
+    //         }
+    //         if (formData.travelWithOthersMotorbike) {
+    //             validatePassengerEmails(formData.motorbikeTravelPassengerEmails, 'motorbike (traveling with others)');
+    //         }
+    //     }
+    //     // Car carpool validation (only when mode is carpool or both)
+    //     if (formData.commuteByCar && (formData.carMode === 'carpool' || formData.carMode === 'both')) {
+    //         if (formData.carryOthersCar) {
+    //             validatePassengerEmails(formData.carPassengerEmails, 'car (carrying others)');
+    //         }
+    //         if (formData.travelWithOthersCar) {
+    //             validatePassengerEmails(formData.carTravelPassengerEmails, 'car (traveling with others)');
+    //         }
+    //     }
+    //     // Taxi carpool validation (only when mode is carpool or both)
+    //     if (formData.commuteByTaxi && (formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && formData.travelWithOthersTaxi) {
+    //         validatePassengerEmails(formData.taxiPassengerEmails, 'taxi');
+    //     }
+    //     // Validate submitted by email
+    //     if (!formData.submittedByEmail.trim()) {
+    //         errors.push('Your email address is required');
+    //     } else if (!isValidEmail(formData.submittedByEmail)) {
+    //         errors.push('Please enter a valid email address for submission');
+    //     }
+
+    //     return errors;
+    // };
+    // Validate form
     // Validate form
     const validateForm = () => {
-        const errors = [];
+        console.log('validate form called');
+
+        const errors = {};
 
         // Basic Information validation
-        if (!formData.siteBuildingName) {
-            errors.push('Site / Building Name is required');
-        }
-        if (!formData.stakeholderDepartment) {
-            errors.push('Stakeholder / Department is required');
-        }
+        if (!formData.siteBuildingName) errors.siteBuildingName = 'Site / Building Name is required';
+        if (!formData.stakeholderDepartment) errors.stakeholderDepartment = 'Stakeholder / Department is required';
 
-        // Check if at least one commute method is selected
-        const commuteMethods = [
-            formData.commuteByMotorbike,
-            formData.commuteByTaxi,
-            formData.commuteByBus,
-            formData.commuteByTrain,
-            formData.commuteByCar,
-            formData.workFromHome,
-        ];
+        // Check if at least one commute method or work from home is selected
+        const hasCommuteMethod =
+            formData.commuteByMotorbike ||
+            formData.commuteByTaxi ||
+            formData.commuteByBus ||
+            formData.commuteByTrain ||
+            formData.commuteByCar ||
+            formData.workFromHome;
 
-        if (!commuteMethods.some(method => method)) {
-            errors.push('Please select at least one commute method or work from home option');
+        // Only show commute method error if NO method is selected
+        if (!hasCommuteMethod) {
+            errors.commuteMethodRequired = 'Please select at least one commute method or enable work from home';
         }
 
-        // Validate distance fields for selected commute methods
-        if (formData.commuteByMotorbike && !formData.motorbikeDistance) {
-            errors.push('Motorbike distance is required');
-        }
-        if (formData.commuteByTaxi && !formData.taxiDistance) {
-            errors.push('Taxi distance is required');
-        }
-        if (formData.commuteByBus && !formData.busDistance) {
-            errors.push('Bus distance is required');
-        }
-        if (formData.commuteByTrain && !formData.trainDistance) {
-            errors.push('Train distance is required');
-        }
-        if (formData.commuteByCar && !formData.carDistance) {
-            errors.push('Car distance is required');
-        }
-
-        // Validate date range for each selected commute method
-        const validateDateRange = (dateRange, methodName) => {
-            if (!dateRange || !dateRange.startDate || !dateRange.endDate) {
-                errors.push(`${methodName}: Please select a date range`);
-                return false;
-            }
-
-            const startDate = new Date(dateRange.startDate);
-            const endDate = new Date(dateRange.endDate);
-
-            if (startDate > endDate) {
-                errors.push(`${methodName}: Start date must be before end date`);
-                return false;
-            }
-
-            if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                errors.push(`${methodName}: Date range must be within ${reportingYear}`);
-                return false;
-            }
-
-            return true;
-        };
-
+        // // Validate specific fields only if their toggle is enabled
+        // if (formData.commuteByMotorbike) {
+        //     if (!formData.motorbikeDistance || formData.motorbikeDistance.trim() === '') {
+        //         errors.motorbikeDistance = 'Motorbike distance is required';
+        //     }
+        //     if (!formData.motorbikeMode) {
+        //         errors.motorbikeMode = 'Please select how you commute by motorbike';
+        //     }
+        //     if (!formData.motorbikeType) {
+        //         errors.motorbikeType = 'Motorbike type is required';
+        //     }
+        //     if (!formData.motorbikeDateRange || !formData.motorbikeDateRange.startDate || !formData.motorbikeDateRange.endDate) {
+        //         errors.motorbikeDateRange = 'Please select a date range for motorbike commute';
+        //     }
+        // }
         if (formData.commuteByMotorbike) {
-            validateDateRange(formData.motorbikeDateRange, 'Motorbike commute');
-        }
-        if (formData.commuteByTaxi) {
-            validateDateRange(formData.taxiDateRange, 'Taxi commute');
-        }
-        if (formData.commuteByBus) {
-            validateDateRange(formData.busDateRange, 'Bus commute');
-        }
-        if (formData.commuteByTrain) {
-            validateDateRange(formData.trainDateRange, 'Train commute');
-        }
-        if (formData.commuteByCar) {
-            validateDateRange(formData.carDateRange, 'Car commute');
-        }
-        if (formData.workFromHome) {
-            validateDateRange(formData.workFromHomeDateRange, 'Work from home');
-        }
+            if (!formData.motorbikeDistance || formData.motorbikeDistance.trim() === '') {
+                errors.motorbikeDistance = 'Motorbike distance is required';
+            }
+            if (!formData.motorbikeMode) {
+                errors.motorbikeMode = 'Please select how you commute by motorbike';
+            }
+            if (!formData.motorbikeType) {
+                errors.motorbikeType = 'Motorbike type is required';
+            }
+            if (!formData.motorbikeDateRange || !formData.motorbikeDateRange.startDate || !formData.motorbikeDateRange.endDate) {
+                errors.motorbikeDateRange = 'Please select a date range for motorbike commute';
+            }
 
-        // Validate FTE hours for work from home
-        if (formData.workFromHome && !formData.fteWorkingHours) {
-            errors.push('FTE Working Hours are required for work from home');
-        }
-
-        // Validate mode selections
-        if (formData.commuteByMotorbike && !formData.motorbikeMode) {
-            errors.push('Please select Individual, Carpool, or Both for motorbike commute');
-        }
-        if (formData.commuteByTaxi && !formData.taxiMode) {
-            errors.push('Please select Individual, Carpool, or Both for taxi commute');
-        }
-        if (formData.commuteByCar && !formData.carMode) {
-            errors.push('Please select Individual, Carpool, or Both for car commute');
-        }
-
-        // Check for date range overlaps
-        const overlaps = checkAllDateRangeOverlaps();
-        if (overlaps.length > 0) {
-            overlaps.forEach(overlap => {
-                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'];
-
-                // Find overlapping months
-                const start1 = new Date(overlap.range1.startDate);
-                const end1 = new Date(overlap.range1.endDate);
-                const start2 = new Date(overlap.range2.startDate);
-                const end2 = new Date(overlap.range2.endDate);
-
-                const overlapStart = new Date(Math.max(start1, start2));
-                const overlapEnd = new Date(Math.min(end1, end2));
-
-                const overlappingMonths = [];
-                for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
-                    const month = d.getMonth() + 1;
-                    overlappingMonths.push(monthNames[month - 1]);
+            // Validate fields when mode is carpool or both
+            if (formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') {
+                // Carry others checkbox is required
+                if (formData.carryOthersMotorbike === false || formData.carryOthersMotorbike === null) {
+                    errors.carryOthersMotorbike = 'Please indicate if you carry other employees';
                 }
 
-                errors.push(`Date range overlap between ${overlap.type1} and ${overlap.type2} in month(s): ${overlappingMonths.join(', ')}`);
-            });
-        }
-
-        // Validate 12-month coverage
-        const monthCoverage = validateMonthCoverage();
-        if (!monthCoverage.isComplete) {
-            errors.push(`You have only covered ${monthCoverage.totalCovered} out of 12 months. Please ensure your date ranges cover all 12 months of ${reportingYear}.`);
-
-            // Add detailed information about uncovered months
-            if (monthCoverage.uncoveredMonths.length > 0) {
-                const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'];
-                const uncoveredMonthNames = monthCoverage.uncoveredMonths.map(month => {
-                    const monthNum = parseInt(month.split('-')[1]);
-                    return monthNames[monthNum - 1];
-                });
-
-                errors.push(`Missing months: ${uncoveredMonthNames.join(', ')}`);
+                // Validate when checkbox is checked
+                if (formData.carryOthersMotorbike) {
+                    if (!formData.personsCarriedMotorbike) {
+                        errors.personsCarriedMotorbike = 'Please select how many persons you carry';
+                    }
+                    if (!formData.motorbikeDistanceCarpool || formData.motorbikeDistanceCarpool.trim() === '') {
+                        errors.motorbikeDistanceCarpool = 'Motorbike carpool distance is required';
+                    }
+                }
             }
         }
+
+        if (formData.commuteByTaxi) {
+            if (!formData.taxiDistance) {
+                errors.taxiDistance = 'Taxi distance is required';
+            }
+            if (!formData.taxiMode) {
+                errors.taxiMode = 'Please select how you commute by taxi';
+            }
+            if (!formData.taxiPassengers) {
+                errors.taxiPassengers = 'Number of taxi passengers is required';
+            }
+            if (!formData.taxiType) {
+                errors.taxiType = 'Taxi type is required';
+            }
+            if (!formData.taxiDateRange || !formData.taxiDateRange.startDate || !formData.taxiDateRange.endDate) {
+                errors.taxiDateRange = 'Please select a date range for taxi commute';
+            }
+            if (formData.taxiMode === 'carpool' || formData.taxiMode === 'both') {
+                // Carry others checkbox is required
+                if (formData.travelWithOthersTaxi === false || formData.travelWithOthersTaxi === null) {
+                    errors.travelWithOthersTaxi = 'Please indicate if you carry other employees';
+                }
+
+                // Validate when checkbox is checked
+                if (formData.travelWithOthersTaxi) {
+                    if (!formData.personsTravelWithTaxi) {
+                        errors.personsTravelWithTaxi = 'Please select how many persons you carry';
+                    }
+                    if (!formData.taxiDistanceCarpool || formData.taxiDistanceCarpool.trim() === '') {
+                        errors.taxiDistanceCarpool = 'Taxi carpool distance is required';
+                    }
+                }
+            }
+
+        }
+
+        if (formData.commuteByBus) {
+            if (!formData.busDistance) {
+                errors.busDistance = 'Bus distance is required';
+            }
+            if (!formData.busType) {
+                errors.busType = 'Bus type is required';
+            }
+            if (!formData.busDateRange || !formData.busDateRange.startDate || !formData.busDateRange.endDate) {
+                errors.busDateRange = 'Please select a date range for bus commute';
+            }
+        }
+
+        if (formData.commuteByTrain) {
+            if (!formData.trainDistance) {
+                errors.trainDistance = 'Train distance is required';
+            }
+            if (!formData.trainType) {
+                errors.trainType = 'Train type is required';
+            }
+            if (!formData.trainDateRange || !formData.trainDateRange.startDate || !formData.trainDateRange.endDate) {
+                errors.trainDateRange = 'Please select a date range for train commute';
+            }
+        }
+
+        if (formData.commuteByCar) {
+            if (!formData.carDistance) {
+                errors.carDistance = 'Car distance is required';
+            }
+            if (!formData.carMode) {
+                errors.carMode = 'Please select how you commute by car';
+            }
+            if (!formData.carType) {
+                errors.carType = 'Car type is required';
+            }
+            if (!formData.carFuelType) {
+                errors.carFuelType = 'Car fuel type is required';
+            }
+            if (!formData.carDateRange || !formData.carDateRange.startDate || !formData.carDateRange.endDate) {
+                errors.carDateRange = 'Please select a date range for car commute';
+            }
+            if (formData.taxiMode === 'carpool' || formData.taxiMode === 'both') {
+            // Carry others checkbox is required
+            if (formData.carryOthersCar === false || formData.carryOthersCar === null) {
+                errors.carryOthersCar = 'Please indicate if you carry other employees';
+            }
+
+            // Validate when checkbox is checked
+            if (formData.carryOthersCar) {
+                if (!formData.personsCarriedCar) {
+                    errors.personsCarriedCar = 'Please select how many persons you carry';
+                }
+                if (!formData.carDistanceCarpool || formData.carDistanceCarpool.trim() === '') {
+                    errors.carDistanceCarpool = 'Car carpool distance is required';
+                }
+            }
+            }
+        }
+
+        if (formData.workFromHome) {
+            if (!formData.fteWorkingHours) {
+                errors.fteWorkingHours = 'FTE Working Hours are required for work from home';
+            }
+            if (!formData.workFromHomeDateRange || !formData.workFromHomeDateRange.startDate || !formData.workFromHomeDateRange.endDate) {
+                errors.workFromHomeDateRange = 'Please select a date range for work from home';
+            }
+        }
+
+        // // Validate date range specifics (only for enabled toggles)
+        // const validateDateRange = (dateRange, methodName) => {
+        //     if (!dateRange || !dateRange.startDate || !dateRange.endDate) {
+        //         return false;
+        //     }
+
+        //     const startDate = new Date(dateRange.startDate);
+        //     const endDate = new Date(dateRange.endDate);
+
+        //     if (startDate > endDate) {
+        //         errors[`${methodName}DateRange`] = 'Start date must be before end date';
+        //         return false;
+        //     }
+
+        //     if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+        //         errors[`${methodName}DateRange`] = `Date range must be within ${reportingYear}`;
+        //         return false;
+        //     }
+
+        //     return true;
+        // };
+
+        // // Only validate date ranges for enabled methods
+        // if (formData.commuteByMotorbike) {
+        //     validateDateRange(formData.motorbikeDateRange, 'motorbike');
+        // }
+        // if (formData.commuteByTaxi) {
+        //     validateDateRange(formData.taxiDateRange, 'taxi');
+        // }
+        // if (formData.commuteByBus) {
+        //     validateDateRange(formData.busDateRange, 'bus');
+        // }
+        // if (formData.commuteByTrain) {
+        //     validateDateRange(formData.trainDateRange, 'train');
+        // }
+        // if (formData.commuteByCar) {
+        //     validateDateRange(formData.carDateRange, 'car');
+        // }
+        // if (formData.workFromHome) {
+        //     validateDateRange(formData.workFromHomeDateRange, 'workFromHome');
+        // }
+
+        // // Check for date range overlaps only between enabled methods
+        // const enabledTransportMethods = [];
+        // if (formData.commuteByMotorbike) enabledTransportMethods.push({ type: 'motorbike', range: formData.motorbikeDateRange });
+        // if (formData.commuteByTaxi) enabledTransportMethods.push({ type: 'taxi', range: formData.taxiDateRange });
+        // if (formData.commuteByBus) enabledTransportMethods.push({ type: 'bus', range: formData.busDateRange });
+        // if (formData.commuteByTrain) enabledTransportMethods.push({ type: 'train', range: formData.trainDateRange });
+        // if (formData.commuteByCar) enabledTransportMethods.push({ type: 'car', range: formData.carDateRange });
+        // if (formData.workFromHome) enabledTransportMethods.push({ type: 'workFromHome', range: formData.workFromHomeDateRange });
+
+        // const overlaps = [];
+        // for (let i = 0; i < enabledTransportMethods.length; i++) {
+        //     for (let j = i + 1; j < enabledTransportMethods.length; j++) {
+        //         if (checkDateRangeOverlap(enabledTransportMethods[i].range, enabledTransportMethods[j].range)) {
+        //             overlaps.push({
+        //                 type1: enabledTransportMethods[i].type,
+        //                 type2: enabledTransportMethods[j].type
+        //             });
+        //         }
+        //     }
+        // }
+
+        // if (overlaps.length > 0) {
+        //     errors.dateRangeOverlap = 'Date ranges cannot overlap between different commute methods';
+        // }
+        // Motorbike date range validation
+if (formData.commuteByMotorbike) {
+    if (!formData.motorbikeDateRange || !formData.motorbikeDateRange.startDate || !formData.motorbikeDateRange.endDate) {
+        errors.motorbikeDateRange = 'Please select a date range for motorbike commute';
+    } else {
+        // Validate date range specifics
+        const startDate = new Date(formData.motorbikeDateRange.startDate);
+        const endDate = new Date(formData.motorbikeDateRange.endDate);
+        
+        if (startDate > endDate) {
+            errors.motorbikeDateRange = 'Start date must be before end date';
+        }
+        
+        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+            errors.motorbikeDateRange = `Date range must be within ${reportingYear}`;
+        }
+    }
+}
+
+// Taxi date range validation
+if (formData.commuteByTaxi) {
+    if (!formData.taxiDateRange || !formData.taxiDateRange.startDate || !formData.taxiDateRange.endDate) {
+        errors.taxiDateRange = 'Please select a date range for taxi commute';
+    } else {
+        // Validate date range specifics
+        const startDate = new Date(formData.taxiDateRange.startDate);
+        const endDate = new Date(formData.taxiDateRange.endDate);
+        
+        if (startDate > endDate) {
+            errors.taxiDateRange = 'Start date must be before end date';
+        }
+        
+        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+            errors.taxiDateRange = `Date range must be within ${reportingYear}`;
+        }
+    }
+}
+
+// Bus date range validation
+if (formData.commuteByBus) {
+    if (!formData.busDateRange || !formData.busDateRange.startDate || !formData.busDateRange.endDate) {
+        errors.busDateRange = 'Please select a date range for bus commute';
+    } else {
+        // Validate date range specifics
+        const startDate = new Date(formData.busDateRange.startDate);
+        const endDate = new Date(formData.busDateRange.endDate);
+        
+        if (startDate > endDate) {
+            errors.busDateRange = 'Start date must be before end date';
+        }
+        
+        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+            errors.busDateRange = `Date range must be within ${reportingYear}`;
+        }
+    }
+}
+
+// Train date range validation
+if (formData.commuteByTrain) {
+    if (!formData.trainDateRange || !formData.trainDateRange.startDate || !formData.trainDateRange.endDate) {
+        errors.trainDateRange = 'Please select a date range for train commute';
+    } else {
+        // Validate date range specifics
+        const startDate = new Date(formData.trainDateRange.startDate);
+        const endDate = new Date(formData.trainDateRange.endDate);
+        
+        if (startDate > endDate) {
+            errors.trainDateRange = 'Start date must be before end date';
+        }
+        
+        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+            errors.trainDateRange = `Date range must be within ${reportingYear}`;
+        }
+    }
+}
+
+// Car date range validation
+if (formData.commuteByCar) {
+    if (!formData.carDateRange || !formData.carDateRange.startDate || !formData.carDateRange.endDate) {
+        errors.carDateRange = 'Please select a date range for car commute';
+    } else {
+        // Validate date range specifics
+        const startDate = new Date(formData.carDateRange.startDate);
+        const endDate = new Date(formData.carDateRange.endDate);
+        
+        if (startDate > endDate) {
+            errors.carDateRange = 'Start date must be before end date';
+        }
+        
+        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+            errors.carDateRange = `Date range must be within ${reportingYear}`;
+        }
+    }
+}
+
+// Work from home date range validation
+if (formData.workFromHome) {
+    if (!formData.workFromHomeDateRange || !formData.workFromHomeDateRange.startDate || !formData.workFromHomeDateRange.endDate) {
+        errors.workFromHomeDateRange = 'Please select a date range for work from home';
+    } else {
+        // Validate date range specifics
+        const startDate = new Date(formData.workFromHomeDateRange.startDate);
+        const endDate = new Date(formData.workFromHomeDateRange.endDate);
+        
+        if (startDate > endDate) {
+            errors.workFromHomeDateRange = 'Start date must be before end date';
+        }
+        
+        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+            errors.workFromHomeDateRange = `Date range must be within ${reportingYear}`;
+        }
+    }
+}
+
+        // Validate 12-month coverage only if at least one method is selected
+        if (hasCommuteMethod) {
+            const monthCoverage = validateMonthCoverage();
+            if (!monthCoverage.isComplete) {
+                errors.monthCoverage = `Only ${monthCoverage.totalCovered} out of 12 months covered`;
+            }
+        }
+
         // Validate passenger emails
         const validatePassengerEmails = (emails, transportType) => {
             emails.forEach((email, index) => {
                 if (email.trim() && !isValidEmail(email)) {
-                    errors.push(`Invalid email address for ${transportType} passenger ${index + 1}`);
+                    errors[`${transportType}PassengerEmail${index}`] = `Invalid email address for ${transportType} passenger ${index + 1}`;
                 }
             });
         };
-        // Motorbike carpool validation (only when mode is carpool or both)
+
+        // Motorbike carpool validation
         if (formData.commuteByMotorbike && (formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both')) {
             if (formData.carryOthersMotorbike) {
-                validatePassengerEmails(formData.motorbikePassengerEmails, 'motorbike (carrying others)');
+                validatePassengerEmails(formData.motorbikePassengerEmails, 'motorbike');
             }
             if (formData.travelWithOthersMotorbike) {
-                validatePassengerEmails(formData.motorbikeTravelPassengerEmails, 'motorbike (traveling with others)');
+                validatePassengerEmails(formData.motorbikeTravelPassengerEmails, 'motorbikeTravel');
             }
         }
-        // Car carpool validation (only when mode is carpool or both)
+
+        // Car carpool validation
         if (formData.commuteByCar && (formData.carMode === 'carpool' || formData.carMode === 'both')) {
             if (formData.carryOthersCar) {
-                validatePassengerEmails(formData.carPassengerEmails, 'car (carrying others)');
+                validatePassengerEmails(formData.carPassengerEmails, 'car');
             }
             if (formData.travelWithOthersCar) {
-                validatePassengerEmails(formData.carTravelPassengerEmails, 'car (traveling with others)');
+                validatePassengerEmails(formData.carTravelPassengerEmails, 'carTravel');
             }
         }
-        // Taxi carpool validation (only when mode is carpool or both)
+
+        // Taxi carpool validation
         if (formData.commuteByTaxi && (formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && formData.travelWithOthersTaxi) {
             validatePassengerEmails(formData.taxiPassengerEmails, 'taxi');
         }
+
         // Validate submitted by email
         if (!formData.submittedByEmail.trim()) {
-            errors.push('Your email address is required');
+            errors.submittedByEmail = 'Your email address is required';
         } else if (!isValidEmail(formData.submittedByEmail)) {
-            errors.push('Please enter a valid email address for submission');
+            errors.submittedByEmail = 'Please enter a valid email address';
         }
 
         return errors;
     };
 
+    // Add this function after validateForm()
+const scrollToFirstError = (errors) => {
+    const errorFields = Object.keys(errors);
+    
+    if (errorFields.length === 0) return;
+    
+    const firstErrorField = errorFields[0];
+    
+    // Map form field names to data attributes or IDs
+    const fieldMapping = {
+        // Basic fields
+        siteBuildingName: 'siteBuildingName',
+        stakeholderDepartment: 'stakeholderDepartment',
+        submittedByEmail: 'submittedByEmail',
+        commuteMethodRequired: 'commuteMethodRequired',
+        
+        // Motorbike fields
+        motorbikeDistance: 'motorbikeDistance',
+        motorbikeMode: 'motorbikeMode',
+        motorbikeType: 'motorbikeType',
+        motorbikeDateRange: 'motorbikeDateRange',
+        carryOthersMotorbike: 'carryOthersMotorbike',
+        personsCarriedMotorbike: 'personsCarriedMotorbike',
+        motorbikeDistanceCarpool: 'motorbikeDistanceCarpool',
+        
+        // Taxi fields
+        taxiDistance: 'taxiDistance',
+        taxiMode: 'taxiMode',
+        taxiPassengers: 'taxiPassengers',
+        taxiType: 'taxiType',
+        taxiDateRange: 'taxiDateRange',
+        travelWithOthersTaxi: 'travelWithOthersTaxi',
+        personsTravelWithTaxi: 'personsTravelWithTaxi',
+        taxiDistanceCarpool: 'taxiDistanceCarpool',
+        
+        // Bus fields
+        busDistance: 'busDistance',
+        busType: 'busType',
+        busDateRange: 'busDateRange',
+        
+        // Train fields
+        trainDistance: 'trainDistance',
+        trainType: 'trainType',
+        trainDateRange: 'trainDateRange',
+        
+        // Car fields
+        carDistance: 'carDistance',
+        carMode: 'carMode',
+        carType: 'carType',
+        carFuelType: 'carFuelType',
+        carDateRange: 'carDateRange',
+        carryOthersCar: 'carryOthersCar',
+        personsCarriedCar: 'personsCarriedCar',
+        carDistanceCarpool: 'carDistanceCarpool',
+        
+        // Work from home
+        fteWorkingHours: 'fteWorkingHours',
+        workFromHomeDateRange: 'workFromHomeDateRange',
+        
+        // Other errors
+        dateRangeOverlap: 'dateRangeOverlap',
+        monthCoverage: 'monthCoverage',
+    };
+
+    // Try to find the element by data-error attribute
+    const fieldName = fieldMapping[firstErrorField] || firstErrorField;
+    
+    // First try to find by name attribute
+    let element = document.querySelector(`[name="${fieldName}"]`);
+    
+    // If not found, try to find by ID
+    if (!element) {
+        element = document.getElementById(fieldName);
+    }
+    
+    // If still not found, try to find by error message container
+    if (!element) {
+        element = document.querySelector(`[data-error-field="${firstErrorField}"]`);
+    }
+    
+    // Special handling for toggle errors (commuteMethodRequired)
+    if (firstErrorField === 'commuteMethodRequired') {
+        element = document.querySelector('.toggle-section:first-of-type');
+    }
+    
+    // Special handling for date range errors
+    if (firstErrorField.includes('DateRange')) {
+        // Find the date range section for this transport type
+        const transportType = firstErrorField.replace('DateRange', '');
+        element = document.querySelector(`[data-transport="${transportType}"]`);
+        
+        // If not found, scroll to the transport section
+        if (!element) {
+            const sectionHeader = document.querySelector(`h3:contains('${transportType} Commute')`);
+            if (sectionHeader) {
+                element = sectionHeader.closest('.border-b');
+            }
+        }
+    }
+    
+    if (element) {
+        element.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center'
+        });
+        
+        // Add visual highlight
+        element.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.5)';
+        element.style.transition = 'box-shadow 0.3s';
+        
+        setTimeout(() => {
+            element.style.boxShadow = '';
+        }, 3000);
+    }
+};
     // Handle form submission
     const handleSubmit = async (e) => {
+        console.log('handleSubmit() =======>', 'validationErrors');
         e.preventDefault();
 
-        const errors = validateForm();
-        if (errors.length > 0) {
-            errors.forEach(error => toast.error(error));
-            return;
-        }
+      
+        // const validationErrors = validateForm();
+
+        // if (Object.keys(validationErrors).length > 0) {
+        //     setErrors(validationErrors);
+        //     // Scroll to first error if needed
+        //     const firstErrorField = Object.keys(validationErrors)[0];
+        //     document.querySelector(`[name="${firstErrorField}"]`)?.scrollIntoView({ behavior: 'smooth' });
+        //     return;
+        // }
+
+    const validationErrors = validateForm();
+
+    if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        
+        // Show general error toast
+        toast.error(`Please fix ${Object.keys(validationErrors).length} error(s) in the form`);
+        
+        // Find the first error and scroll to it
+        setTimeout(() => {
+            scrollToFirstError(validationErrors);
+        }, 100);
+        
+        return;
+    }
+
+
 
         setLoading(true);
 
@@ -2020,6 +2653,8 @@ const EmployeeCommutingForm = () => {
         }
     };
 
+    console.log({ errors, formData });
+
     if (submitted) {
         return (
             <div className="max-w-4xl mx-auto p-6">
@@ -2069,508 +2704,383 @@ const EmployeeCommutingForm = () => {
     return (
         <div className="max-w-6xl mx-auto p-6">
             <Card title={"Employee Commuting Data Collection"}>
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-8">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                {/* <form onSubmit={handleSubmit}> */}
+                <div className="mb-8">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
 
-                            <div className="w-full md:w-48">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Reporting Year
-                                </label>
-                                <CustomSelect
-                                    options={yearOptions}
-                                    value={yearOptions.find(option => option.value === reportingYear)}
-                                    onChange={handleReportingYearChange}
-                                    helperText="Select the year you're reporting for"
-                                />
-                            </div>
+                        <div className="w-full md:w-48">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Reporting Year
+                            </label>
+                            <CustomSelect
+                                options={yearOptions}
+                                value={yearOptions.find(option => option.value === reportingYear)}
+                                onChange={handleReportingYearChange}
+                                helperText="Select the year you're reporting for"
+                            />
                         </div>
+                    </div>
+                    <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 ">
+                        <p className="text-gray-600">
+                            This category includes emissions from the transportation of employees between their homes and their worksites in vehicles not owned or operated by the reporting company . You may also include emissions from teleworking (i.e., employees working remotely) in this category.
+                            Emissions from employee commuting may arise from: <br />
+                            • Automobile travel
+                            <br />• Bus travel
+                            <br />• Rail travel
+                            <br />• Air travel
+                            <br />• Other modes of transportation (e.g., subway, bicycling, walking).
+                        </p>
+                    </div>
+
+                    {/* User welcome message */}
+                    {userInfo && (
                         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 ">
-                            <p className="text-gray-600">
-                                This category includes emissions from the transportation of employees between their homes and their worksites in vehicles not owned or operated by the reporting company . You may also include emissions from teleworking (i.e., employees working remotely) in this category.
-                                Emissions from employee commuting may arise from: <br />
-                                • Automobile travel
-                                <br />• Bus travel
-                                <br />• Rail travel
-                                <br />• Air travel
-                                <br />• Other modes of transportation (e.g., subway, bicycling, walking).
-                            </p>
-                        </div>
-
-                        {/* User welcome message */}
-                        {userInfo && (
-                            <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 ">
-                                <div className="flex items-start">
-                                    <div className="flex-shrink-0 ">
-                                        <svg className="h-5 w-5 text-black-700" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <div className="ml-3">
-                                        <h3 className="text-sm font-medium text-black-800">
-                                            {targetUserData ? `Admin Mode: Filling for ${targetUserData.name || targetUserData.email}` : `Welcome, ${userInfo.name || userInfo.email || 'User'}!`}
-                                        </h3>
-                                        <div className="mt-1 text-sm text-black-700">
-                                            {userInfo.buildingId && userInfo.buildingId.buildingName && (
-                                                <p>Selected building: <span className="font-semibold">{userInfo.buildingId.buildingName}</span></p>
-                                            )}
-                                            {userInfo.department && (
-                                                <p>Department: <span className="font-semibold">{userInfo.department}</span></p>
-                                            )}
-                                            {userInfo.email && (
-                                                <p>Email: <span className="font-semibold">{userInfo.email}</span></p>
-                                            )}
-                                            {companyData && targetUserData && (
-                                                <p className="text-xs text-gray-600 mt-1">
-                                                    You are submitting on behalf of {targetUserData.name || targetUserData.email}
-                                                </p>
-                                            )}
-                                        </div>
+                            <div className="flex items-start">
+                                <div className="flex-shrink-0 ">
+                                    <svg className="h-5 w-5 text-black-700" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                                <div className="ml-3">
+                                    <h3 className="text-sm font-medium text-black-800">
+                                        {targetUserData ? `Admin Mode: Filling for ${targetUserData.name || targetUserData.email}` : `Welcome, ${userInfo.name || userInfo.email || 'User'}!`}
+                                    </h3>
+                                    <div className="mt-1 text-sm text-black-700">
+                                        {userInfo.buildingId && userInfo.buildingId.buildingName && (
+                                            <p>Selected building: <span className="font-semibold">{userInfo.buildingId.buildingName}</span></p>
+                                        )}
+                                        {userInfo.department && (
+                                            <p>Department: <span className="font-semibold">{userInfo.department}</span></p>
+                                        )}
+                                        {userInfo.email && (
+                                            <p>Email: <span className="font-semibold">{userInfo.email}</span></p>
+                                        )}
+                                        {companyData && targetUserData && (
+                                            <p className="text-xs text-gray-600 mt-1">
+                                                You are submitting on behalf of {targetUserData.name || targetUserData.email}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
-                        )}
-                    </div>
-
-                    {pooledEmailWarnings.length > 0 && (
-                        <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <h3 className="text-lg font-medium text-yellow-800 mb-2">
-                                ⚠ Carpool Partner Notifications Sent
-                            </h3>
-                            <ul className="list-disc pl-5 text-yellow-700">
-                                {pooledEmailWarnings.map((warning, index) => (
-                                    <li key={index} className="mb-1">{warning}</li>
-                                ))}
-                            </ul>
                         </div>
                     )}
+                </div>
 
-                    {/* Basic Information Section */}
-                    <div className="mb-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                {pooledEmailWarnings.length > 0 && (
+                    <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <h3 className="text-lg font-medium text-yellow-800 mb-2">
+                            ⚠ Carpool Partner Notifications Sent
+                        </h3>
+                        <ul className="list-disc pl-5 text-yellow-700">
+                            {pooledEmailWarnings.map((warning, index) => (
+                                <li key={index} className="mb-1">{warning}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
+                {/* Basic Information Section */}
+                <div className="mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div>
+                            <label className="field-label">Employee Name</label>
+                            <InputGroup
+                                type="text"
+                                name="employeeName"
+                                placeholder="Enter Employee Name"
+                                className="input-field w-full"
+                            />
+                            <ErrorMessage message={errors.employeeName} />
+                        </div>
+                        <div>
+                            <label className="field-label">Employee ID</label>
                             <div>
-                                <label className="field-label">Employee Name</label>
                                 <InputGroup
                                     type="text"
-                                    name="employeeName"
-                                    placeholder="Enter Employee Name"
+                                    name="employeeID"
+                                    placeholder="Enter Employee ID"
                                     className="input-field w-full"
                                 />
-                            </div>
-                            <div>
-                                <label className="field-label">Employee ID</label>
-                                <div>
-                                    <InputGroup
-                                        type="text"
-                                        name="employeeID"
-                                        placeholder="Enter Employee ID"
-                                        className="input-field w-full"
-                                    />
-                                </div>
+                                <ErrorMessage message={errors.employeeID} />
                             </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {renderBuildingInput()}
-                            <div>
-                                <label className="field-label">Stakeholder / Department</label>
-                                <CustomSelect
-                                    placeholder="Select Stakeholder / Department"
-                                    options={departmentOptions}
-                                    value={formData.stakeholderDepartment}
-                                    onChange={(selectedOption) => handleSelectChange('stakeholderDepartment', selectedOption)}
-                                    required
-                                    helperText={userInfo && userInfo.department ? `Auto-selected: ${userInfo.department}` : "Select your department"}
-                                />
-                            </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {renderBuildingInput()}
+                        <div>
+                            <label className="field-label">Stakeholder / Department</label>
+                            <CustomSelect
+                                placeholder="Select Stakeholder / Department"
+                                options={departmentOptions}
+                                value={formData.stakeholderDepartment}
+                                onChange={(selectedOption) => handleSelectChange('stakeholderDepartment', selectedOption)}
+                                required
+                                helperText={userInfo && userInfo.department ? `Auto-selected: ${userInfo.department}` : "Select your department"}
+                            />
+                            <ErrorMessage message={errors.stakeholderDepartment} />
                         </div>
-
-                        {!buildingsLoading && buildings.length === 0 && (
-                            <div className="mt-4">
-                                <Button
-                                    text="Retry Loading Buildings"
-                                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm"
-                                    onClick={() => fetchBuildings(getToken())}
-                                    disabled={buildingsLoading}
-                                />
-                            </div>
-                        )}
                     </div>
 
-                    {/* Month Coverage Summary */}
-                    <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-3">Month Coverage Summary</h3>
-
-                        {(() => {
-                            const coverage = validateMonthCoverage();
-                            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                                'July', 'August', 'September', 'October', 'November', 'December'];
-
-                            return (
-                                <div className="space-y-3">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <span className="text-sm font-medium text-gray-700">Coverage Progress:</span>
-                                            <span className={`ml-2 text-sm font-semibold ${coverage.isComplete ? 'text-green-600' : 'text-yellow-600'}`}>
-                                                {coverage.totalCovered} / 12 months
-                                            </span>
-                                        </div>
-                                        <div className={`px-3 py-1 rounded-full text-xs font-medium ${coverage.isComplete ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                                            {coverage.isComplete ? '✓ Complete Coverage' : '⚠ Incomplete'}
-                                        </div>
-                                    </div>
-
-                                    <div className="w-full bg-gray-200 rounded-full h-3">
-                                        <div
-                                            className={`h-3 rounded-full ${coverage.isComplete ? 'bg-green-500' : 'bg-yellow-500'}`}
-                                            style={{ width: `${(coverage.totalCovered / 12) * 100}%` }}
-                                        ></div>
-                                    </div>
-
-                                    {!coverage.isComplete && (
-                                        <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded">
-                                            <p className="text-sm text-blue-700 font-medium mb-1">To complete your submission:</p>
-                                            <ul className="text-sm text-blue-600 list-disc pl-4 space-y-1">
-                                                <li>Ensure your date ranges cover all 12 months of {reportingYear}</li>
-                                                <li>Use the "Full Year ✓" shortcut in each date picker</li>
-                                                <li>If you commute by different methods in different months, select appropriate date ranges for each method</li>
-                                                <li>You can combine methods (e.g., Car for 6 months, Bus for 6 months) to cover all 12 months</li>
-                                            </ul>
-                                        </div>
-                                    )}
-
-                                    {/* Month-by-month breakdown */}
-                                    <div className="mt-4">
-                                        <p className="text-sm font-medium text-gray-700 mb-2">Month-by-Month Breakdown:</p>
-                                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
-                                            {monthNames.map((month, index) => {
-                                                const monthKey = `${reportingYear}-${String(index + 1).padStart(2, '0')}`;
-                                                const isCovered = coverage.coveredMonths.includes(monthKey);
-
-                                                return (
-                                                    <div
-                                                        key={month}
-                                                        className={`p-2 rounded border text-center ${isCovered ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}
-                                                    >
-                                                        <div className="text-xs font-medium">{month.substring(0, 3)}</div>
-                                                        <div className={`text-xs ${isCovered ? 'text-green-600' : 'text-red-600'}`}>
-                                                            {isCovered ? '✓' : '✗'}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-
-                                    {/* Methods coverage summary */}
-                                    <div className="mt-4 pt-4 border-t border-gray-200">
-                                        <p className="text-sm font-medium text-gray-700 mb-2">Methods Used by Month:</p>
-                                        <div className="space-y-2">
-                                            {formData.commuteByMotorbike && formData.motorbikeDateRange && (
-                                                <div className="flex items-center text-sm">
-                                                    <span className="w-24 text-gray-600">Motorbike:</span>
-                                                    <span className="text-gray-800">
-                                                        {calculateRemainingMonths(formData.motorbikeDateRange.startDate, formData.motorbikeDateRange.endDate, reportingYear)} months
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {formData.commuteByTaxi && formData.taxiDateRange && (
-                                                <div className="flex items-center text-sm">
-                                                    <span className="w-24 text-gray-600">Taxi:</span>
-                                                    <span className="text-gray-800">
-                                                        {calculateRemainingMonths(formData.taxiDateRange.startDate, formData.taxiDateRange.endDate, reportingYear)} months
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {formData.commuteByBus && formData.busDateRange && (
-                                                <div className="flex items-center text-sm">
-                                                    <span className="w-24 text-gray-600">Bus:</span>
-                                                    <span className="text-gray-800">
-                                                        {calculateRemainingMonths(formData.busDateRange.startDate, formData.busDateRange.endDate, reportingYear)} months
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {formData.commuteByTrain && formData.trainDateRange && (
-                                                <div className="flex items-center text-sm">
-                                                    <span className="w-24 text-gray-600">Train:</span>
-                                                    <span className="text-gray-800">
-                                                        {calculateRemainingMonths(formData.trainDateRange.startDate, formData.trainDateRange.endDate, reportingYear)} months
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {formData.commuteByCar && formData.carDateRange && (
-                                                <div className="flex items-center text-sm">
-                                                    <span className="w-24 text-gray-600">Car:</span>
-                                                    <span className="text-gray-800">
-                                                        {calculateRemainingMonths(formData.carDateRange.startDate, formData.carDateRange.endDate, reportingYear)} months
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {formData.workFromHome && formData.workFromHomeDateRange && (
-                                                <div className="flex items-center text-sm">
-                                                    <span className="w-24 text-gray-600">Work From Home:</span>
-                                                    <span className="text-gray-800">
-                                                        {calculateRemainingMonths(formData.workFromHomeDateRange.startDate, formData.workFromHomeDateRange.endDate, reportingYear)} months
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })()}
-                    </div>
-
-                    {/* Motorbike Commute Section */}
-                    <div className="border-b pb-4 mt-4">
-                        <div className="flex items-center mb-4">
-                            <ToggleButton
-                                label="Do you commute to the office by motorbike during the reporting year?"
-                                checked={formData.commuteByMotorbike}
-                                onChange={(e) => handleCheckboxChange('commuteByMotorbike', e.target.checked)}
+                    {!buildingsLoading && buildings.length === 0 && (
+                        <div className="mt-4">
+                            <Button
+                                text="Retry Loading Buildings"
+                                className="bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm"
+                                onClick={() => fetchBuildings(getToken())}
+                                disabled={buildingsLoading}
                             />
                         </div>
+                    )}
+                </div>
 
-                        {formData.commuteByMotorbike && (
-                            <div className="ml-6 space-y-4">
-                                {/* Updated: Individual vs Carpool vs Both selection */}
-                                <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        How do you commute by motorbike? *
-                                    </label>
-                                    <div className="flex flex-wrap gap-4">
-                                        {modeOptions.map((option) => (
-                                            <div key={option.value} className="flex items-center">
-                                                <input
-                                                    type="radio"
-                                                    id={`motorbike-${option.value}`}
-                                                    name="motorbikeMode"
-                                                    value={option.value}
-                                                    checked={formData.motorbikeMode === option.value}
-                                                    onChange={(e) => handleInputChange('motorbikeMode', e.target.value)}
-                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                                />
-                                                <label htmlFor={`motorbike-${option.value}`} className="ml-2 block text-sm text-gray-700">
-                                                    {option.label}
-                                                </label>
-                                            </div>
-                                        ))}
+                {/* Month Coverage Summary */}
+                <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Month Coverage Summary</h3>
+
+                    {(() => {
+                        const coverage = validateMonthCoverage();
+                        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                            'July', 'August', 'September', 'October', 'November', 'December'];
+
+                        return (
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <span className="text-sm font-medium text-gray-700">Coverage Progress:</span>
+                                        <span className={`ml-2 text-sm font-semibold ${coverage.isComplete ? 'text-green-600' : 'text-yellow-600'}`}>
+                                            {coverage.totalCovered} / 12 months
+                                        </span>
+                                    </div>
+                                    <div className={`px-3 py-1 rounded-full text-xs font-medium ${coverage.isComplete ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                                        {coverage.isComplete ? '✓ Complete Coverage' : '⚠ Incomplete'}
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Distance Travelled *
-                                        </label>
-                                        <div className="grid grid-cols-[14fr_1fr]">
-                                            <InputGroup
-                                                type="number"
-                                                step="0.1"
-                                                min="0"
-                                                placeholder="e.g., 15.5"
-                                                value={formData.motorbikeDistance}
-                                                onChange={(e) => handleInputChange('motorbikeDistance', e.target.value)}
-                                                required
-                                                className="input-field rounded-r-none w-full"
-                                                helperText="One-way distance for each trip"
-                                            />
-                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                                                Km
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Motorbike Type*
-                                        </label>
-                                        <CustomSelect
-                                            options={transportationOptions.motorbikeTypes}
-                                            value={formData.motorbikeType}
-                                            placeholder={"Select Type"}
-                                            onChange={(selectedOption) => handleSelectChange('motorbikeType', selectedOption)}
-                                        />
-                                    </div>
+                                <div className="w-full bg-gray-200 rounded-full h-3">
+                                    <div
+                                        className={`h-3 rounded-full ${coverage.isComplete ? 'bg-green-500' : 'bg-yellow-500'}`}
+                                        style={{ width: `${(coverage.totalCovered / 12) * 100}%` }}
+                                    ></div>
                                 </div>
 
-                                {/* Date range picker for motorbike */}
-                                {renderDateRangePicker('motorbike', 'Motorbike Commute Date Range')}
-
-                                {/* Show additional questions only when Carpool or Both is selected */}
-                                {(formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && (
-                                    <>
-                                        <div className="mt-4 ">
-                                            <div className="mb-4">
-                                                <Checkbox
-                                                    label="Do you carry any other employee to this organization?"
-                                                    checked={formData.carryOthersMotorbike}
-                                                    onChange={(e) => handleCheckboxChange('carryOthersMotorbike', e.target.checked)}
-                                                />
-                                            </div>
-
-                                            {formData.carryOthersMotorbike && (
-                                                <>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <div>
-                                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                                How many persons do you carry?
-                                                            </label>
-                                                            <CustomSelect
-                                                                options={transportationOptions.personOptions}
-                                                                value={formData.personsCarriedMotorbike}
-                                                                placeholder="e.g., 1, 2, 3"
-                                                                onChange={(selectedOption) => handlePersonsChange('personsCarriedMotorbike', selectedOption)}
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                                Distance Travelled *
-                                                            </label>
-                                                            <div className="grid grid-cols-[14fr_1fr]">
-                                                                <InputGroup
-                                                                    type="number"
-                                                                    step="0.1"
-                                                                    min="0"
-                                                                    placeholder="e.g., 15.5"
-                                                                    value={formData.motorbikeDistanceCarpool}
-                                                                    onChange={(e) => handleInputChange('motorbikeDistanceCarpool', e.target.value)}
-                                                                    required
-                                                                    className="input-field rounded-r-none w-full"
-                                                                    helperText="One-way distance for each trip"
-                                                                />
-                                                                <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                                                                    km
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    {renderPassengerEmails(
-                                                        'motorbike',
-                                                        'personsCarriedMotorbike',
-                                                        'motorbikePassengerEmails',
-                                                        'motorbikePassengerUserIds',
-                                                        'List down all email addresses of colleagues you carry'
-                                                    )}
-                                                </>
-                                            )}
-                                        </div>
-                                    </>
+                                {!coverage.isComplete && (
+                                    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded">
+                                        <p className="text-sm text-blue-700 font-medium mb-1">To complete your submission:</p>
+                                        <ul className="text-sm text-blue-600 list-disc pl-4 space-y-1">
+                                            <li>Ensure your date ranges cover all 12 months of {reportingYear}</li>
+                                            <li>Use the "Full Year ✓" shortcut in each date picker</li>
+                                            <li>If you commute by different methods in different months, select appropriate date ranges for each method</li>
+                                            <li>You can combine methods (e.g., Car for 6 months, Bus for 6 months) to cover all 12 months</li>
+                                        </ul>
+                                    </div>
                                 )}
+
+                                {/* Month-by-month breakdown */}
+                                <div className="mt-4">
+                                    <p className="text-sm font-medium text-gray-700 mb-2">Month-by-Month Breakdown:</p>
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
+                                        {monthNames.map((month, index) => {
+                                            const monthKey = `${reportingYear}-${String(index + 1).padStart(2, '0')}`;
+                                            const isCovered = coverage.coveredMonths.includes(monthKey);
+
+                                            return (
+                                                <div
+                                                    key={month}
+                                                    className={`p-2 rounded border text-center ${isCovered ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}
+                                                >
+                                                    <div className="text-xs font-medium">{month.substring(0, 3)}</div>
+                                                    <div className={`text-xs ${isCovered ? 'text-green-600' : 'text-red-600'}`}>
+                                                        {isCovered ? '✓' : '✗'}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Methods coverage summary */}
+                                <div className="mt-4 pt-4 border-t border-gray-200">
+                                    <p className="text-sm font-medium text-gray-700 mb-2">Methods Used by Month:</p>
+                                    <div className="space-y-2">
+                                        {formData.commuteByMotorbike && formData.motorbikeDateRange && (
+                                            <div className="flex items-center text-sm">
+                                                <span className="w-24 text-gray-600">Motorbike:</span>
+                                                <span className="text-gray-800">
+                                                    {calculateRemainingMonths(formData.motorbikeDateRange.startDate, formData.motorbikeDateRange.endDate, reportingYear)} months
+                                                </span>
+                                            </div>
+                                        )}
+                                        {formData.commuteByTaxi && formData.taxiDateRange && (
+                                            <div className="flex items-center text-sm">
+                                                <span className="w-24 text-gray-600">Taxi:</span>
+                                                <span className="text-gray-800">
+                                                    {calculateRemainingMonths(formData.taxiDateRange.startDate, formData.taxiDateRange.endDate, reportingYear)} months
+                                                </span>
+                                            </div>
+                                        )}
+                                        {formData.commuteByBus && formData.busDateRange && (
+                                            <div className="flex items-center text-sm">
+                                                <span className="w-24 text-gray-600">Bus:</span>
+                                                <span className="text-gray-800">
+                                                    {calculateRemainingMonths(formData.busDateRange.startDate, formData.busDateRange.endDate, reportingYear)} months
+                                                </span>
+                                            </div>
+                                        )}
+                                        {formData.commuteByTrain && formData.trainDateRange && (
+                                            <div className="flex items-center text-sm">
+                                                <span className="w-24 text-gray-600">Train:</span>
+                                                <span className="text-gray-800">
+                                                    {calculateRemainingMonths(formData.trainDateRange.startDate, formData.trainDateRange.endDate, reportingYear)} months
+                                                </span>
+                                            </div>
+                                        )}
+                                        {formData.commuteByCar && formData.carDateRange && (
+                                            <div className="flex items-center text-sm">
+                                                <span className="w-24 text-gray-600">Car:</span>
+                                                <span className="text-gray-800">
+                                                    {calculateRemainingMonths(formData.carDateRange.startDate, formData.carDateRange.endDate, reportingYear)} months
+                                                </span>
+                                            </div>
+                                        )}
+                                        {formData.workFromHome && formData.workFromHomeDateRange && (
+                                            <div className="flex items-center text-sm">
+                                                <span className="w-24 text-gray-600">Work From Home:</span>
+                                                <span className="text-gray-800">
+                                                    {calculateRemainingMonths(formData.workFromHomeDateRange.startDate, formData.workFromHomeDateRange.endDate, reportingYear)} months
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
-                        )}
+                        );
+                    })()}
+                </div>
+                {/* toggle error  */}
+                {errors.commuteMethodRequired && (
+                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <div className="flex items-center">
+                            <svg className="h-5 w-5 text-red-400 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            </svg>
+                            <div>
+                                <span className="text-red-700 font-medium block mb-1">{errors.commuteMethodRequired}</span>
+                                <p className="text-sm text-red-600">
+                                    Please enable at least one commute method (Motorbike, Taxi, Bus, Train, or Car)
+                                    or enable Work From Home to proceed.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+
+                {/* Motorbike Commute Section */}
+                <div className="border-b pb-4 mt-4">
+                    <div className="flex items-center mb-4">
+                        <ToggleButton
+                            label="Do you commute to the office by motorbike during the reporting year?"
+                            checked={formData.commuteByMotorbike}
+                            onChange={(e) => handleCheckboxChange('commuteByMotorbike', e.target.checked)}
+                        />
                     </div>
 
-                    {/* Taxi Commute Section */}
-                    <div className="border-b pb-4 mt-4">
-                        <div className="flex items-center mb-4">
-                            <ToggleButton
-                                label="Do you commute to the office by taxi during the reporting year?"
-                                checked={formData.commuteByTaxi}
-                                onChange={(e) => handleCheckboxChange('commuteByTaxi', e.target.checked)}
-                            />
-                        </div>
-
-                        {formData.commuteByTaxi && (
-                            <div className="ml-6 space-y-4">
-                                {/* Updated: Individual/Carpool/Both selection for taxi */}
-                                <div className="mb-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        How do you commute by taxi? *
-                                    </label>
-                                    <div className="flex flex-wrap gap-4">
-                                        {modeOptions.map((option) => (
-                                            <div key={option.value} className="flex items-center">
-                                                <input
-                                                    type="radio"
-                                                    id={`taxi-${option.value}`}
-                                                    name="taxiMode"
-                                                    value={option.value}
-                                                    checked={formData.taxiMode === option.value}
-                                                    onChange={(e) => handleInputChange('taxiMode', e.target.value)}
-                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                                />
-                                                <label htmlFor={`taxi-${option.value}`} className="ml-2 block text-sm text-gray-700">
-                                                    {option.label}
-                                                </label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Number of Passengers (including yourself)
-                                        </label>
-                                        <CustomSelect
-                                            options={transportationOptions.taxiPassengerOptions}
-                                            value={formData.taxiPassengers}
-                                            placeholder="Select No of Passengers"
-                                            onChange={(selectedOption) => handleSelectChange('taxiPassengers', selectedOption)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Distance Travelled *
-                                        </label>
-                                        <div className="grid grid-cols-[14fr_1fr]">
-                                            <InputGroup
-                                                type="number"
-                                                step="0.1"
-                                                min="0"
-                                                placeholder="e.g., 20.0"
-                                                value={formData.taxiDistance}
-                                                onChange={(e) => handleInputChange('taxiDistance', e.target.value)}
-                                                required
-
-                                                className="input-field rounded-r-none w-full"
-                                                helperText="One-way distance for each trip"
+                    {formData.commuteByMotorbike && (
+                        <div className="ml-6 space-y-4">
+                            {/* Updated: Individual vs Carpool vs Both selection */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    How do you commute by motorbike? *
+                                </label>
+                                <div className="flex flex-wrap gap-4">
+                                    {modeOptions.map((option) => (
+                                        <div key={option.value} className="flex items-center">
+                                            <input
+                                                type="radio"
+                                                id={`motorbike-${option.value}`}
+                                                name="motorbikeMode"
+                                                value={option.value}
+                                                checked={formData.motorbikeMode === option.value}
+                                                onChange={(e) => handleInputChange('motorbikeMode', e.target.value)}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                                             />
-                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                                                km
-                                            </div>
+                                            <label htmlFor={`motorbike-${option.value}`} className="ml-2 block text-sm text-gray-700">
+                                                {option.label}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+                                <ErrorMessage message={errors.motorbikeMode} />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Distance Travelled *
+                                    </label>
+                                    <div className="grid grid-cols-[14fr_1fr]">
+                                        <InputGroup
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            placeholder="e.g., 15.5"
+                                            value={formData.motorbikeDistance}
+                                            onChange={(e) => handleInputChange('motorbikeDistance', e.target.value)}
+                                            required
+                                            className="input-field rounded-r-none w-full"
+                                            helperText="One-way distance for each trip"
+                                        />
+                                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                            Km
                                         </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Taxi Type
-                                        </label>
-                                        <CustomSelect
-                                            options={transportationOptions.taxiTypes}
-                                            value={formData.taxiType}
-                                            placeholder="Select Type"
-                                            onChange={(selectedOption) => handleSelectChange('taxiType', selectedOption)}
-                                        />
-                                    </div>
+                                    <ErrorMessage message={errors.motorbikeDistance} />
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Motorbike Type*
+                                    </label>
+                                    <CustomSelect
+                                        options={transportationOptions.motorbikeTypes}
+                                        value={formData.motorbikeType}
+                                        placeholder={"Select Type"}
+                                        onChange={(selectedOption) => handleSelectChange('motorbikeType', selectedOption)}
+                                    />
+                                    <ErrorMessage message={errors.motorbikeType} />
+                                </div>
+                            </div>
 
-                                {/* Date range picker for taxi */}
-                                {renderDateRangePicker('taxi', 'Taxi Commute Date Range')}
+                            {/* Date range picker for motorbike */}
+                            {renderDateRangePicker('motorbike', 'Motorbike Commute Date Range')}
 
-                                {/* Show travel with others only when Carpool or Both is selected */}
-                                {(formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && (
+                            {/* Show additional questions only when Carpool or Both is selected */}
+                            {(formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && (
+                                <>
                                     <div className="mt-4 ">
                                         <div className="mb-4">
                                             <Checkbox
-                                                label="Do you travel with any other employee to this organization?"
-                                                checked={formData.travelWithOthersTaxi}
-                                                onChange={(e) => handleCheckboxChange('travelWithOthersTaxi', e.target.checked)}
+                                                label="Do you carry any other employee to this organization?"
+                                                checked={formData.carryOthersMotorbike}
+                                                onChange={(e) => handleCheckboxChange('carryOthersMotorbike', e.target.checked)}
                                             />
+                                            <ErrorMessage message={errors.carryOthersMotorbike} />
                                         </div>
 
-                                        {formData.travelWithOthersTaxi && (
+                                        {formData.carryOthersMotorbike && (
                                             <>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                            How many persons do you travel with?
+                                                            How many persons do you carry?
                                                         </label>
                                                         <CustomSelect
-                                                            label=""
                                                             options={transportationOptions.personOptions}
-                                                            value={formData.personsTravelWithTaxi}
+                                                            value={formData.personsCarriedMotorbike}
                                                             placeholder="e.g., 1, 2, 3"
-                                                            onChange={(selectedOption) => handlePersonsChange('personsTravelWithTaxi', selectedOption)}
+                                                            onChange={(selectedOption) => handlePersonsChange('personsCarriedMotorbike', selectedOption)}
                                                         />
+                                                        <ErrorMessage message={errors.personsCarriedMotorbike} />
                                                     </div>
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -2582,8 +3092,8 @@ const EmployeeCommutingForm = () => {
                                                                 step="0.1"
                                                                 min="0"
                                                                 placeholder="e.g., 15.5"
-                                                                value={formData.taxiDistanceCarpool}
-                                                                onChange={(e) => handleInputChange('taxiDistanceCarpool', e.target.value)}
+                                                                value={formData.motorbikeDistanceCarpool}
+                                                                onChange={(e) => handleInputChange('motorbikeDistanceCarpool', e.target.value)}
                                                                 required
                                                                 className="input-field rounded-r-none w-full"
                                                                 helperText="One-way distance for each trip"
@@ -2592,362 +3102,531 @@ const EmployeeCommutingForm = () => {
                                                                 km
                                                             </div>
                                                         </div>
+                                                        <ErrorMessage message={errors.motorbikeDistanceCarpool} />
                                                     </div>
                                                 </div>
-
                                                 {renderPassengerEmails(
-                                                    'taxi',
-                                                    'personsTravelWithTaxi',
-                                                    'taxiPassengerEmails',
-                                                    'taxiPassengerUserIds',
-                                                    'List down all email addresses of colleagues you travel with'
+                                                    'motorbike',
+                                                    'personsCarriedMotorbike',
+                                                    'motorbikePassengerEmails',
+                                                    'motorbikePassengerUserIds',
+                                                    'List down all email addresses of colleagues you carry'
                                                 )}
                                             </>
                                         )}
                                     </div>
-                                )}
-                            </div>
-                        )}
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* Taxi Commute Section */}
+                <div className="border-b pb-4 mt-4">
+                    <div className="flex items-center mb-4">
+                        <ToggleButton
+                            label="Do you commute to the office by taxi during the reporting year?"
+                            checked={formData.commuteByTaxi}
+                            onChange={(e) => handleCheckboxChange('commuteByTaxi', e.target.checked)}
+                        />
                     </div>
 
-                    {/* Bus Commute Section */}
-                    <div className="border-b pb-4 mt-4">
-                        <div className="flex items-center mb-4">
-                            <ToggleButton
-                                label="Do you commute to the office by bus during the reporting year?"
-                                checked={formData.commuteByBus}
-                                onChange={(e) => handleCheckboxChange('commuteByBus', e.target.checked)}
-                            />
-                        </div>
-
-                        {formData.commuteByBus && (
-                            <div className="ml-6 space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Distance Travelled *
-                                        </label>
-                                        <div className="grid grid-cols-[14fr_1fr]">
-                                            <InputGroup
-                                                type="number"
-                                                step="0.1"
-                                                min="0"
-                                                placeholder="e.g., 25.0"
-                                                value={formData.busDistance}
-                                                onChange={(e) => handleInputChange('busDistance', e.target.value)}
-                                                required
-                                                className="input-field rounded-r-none w-full"
-                                                helperText="One-way distance for each trip"
+                    {formData.commuteByTaxi && (
+                        <div className="ml-6 space-y-4">
+                            {/* Updated: Individual/Carpool/Both selection for taxi */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    How do you commute by taxi? *
+                                </label>
+                                <div className="flex flex-wrap gap-4">
+                                    {modeOptions.map((option) => (
+                                        <div key={option.value} className="flex items-center">
+                                            <input
+                                                type="radio"
+                                                id={`taxi-${option.value}`}
+                                                name="taxiMode"
+                                                value={option.value}
+                                                checked={formData.taxiMode === option.value}
+                                                onChange={(e) => handleInputChange('taxiMode', e.target.value)}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                                             />
-                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                                                km
-                                            </div>
+                                            <label htmlFor={`taxi-${option.value}`} className="ml-2 block text-sm text-gray-700">
+                                                {option.label}
+                                            </label>
                                         </div>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Bus Type
-                                        </label>
-                                        <CustomSelect
-                                            options={transportationOptions.busTypes}
-                                            value={formData.busType}
-                                            placeholder={"Select Type"}
-                                            onChange={(selectedOption) => handleSelectChange('busType', selectedOption)}
-                                        />
-                                    </div>
+                                    ))}
                                 </div>
-
-                                {/* Date range picker for bus */}
-                                {renderDateRangePicker('bus', 'Bus Commute Date Range')}
+                                <ErrorMessage message={errors.taxiMode} />
                             </div>
-                        )}
-                    </div>
 
-                    {/* Train Commute Section */}
-                    <div className="border-b pb-4 mt-4">
-                        <div className="flex items-center mb-4">
-                            <ToggleButton
-                                label="Do you commute to the office by train during the reporting year?"
-                                checked={formData.commuteByTrain}
-                                onChange={(e) => handleCheckboxChange('commuteByTrain', e.target.checked)}
-                            />
-                        </div>
-
-                        {formData.commuteByTrain && (
-                            <div className="ml-6 space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Distance Travelled *
-                                        </label>
-                                        <div className="grid grid-cols-[14fr_1fr]">
-                                            <InputGroup
-                                                type="number"
-                                                step="0.1"
-                                                min="0"
-                                                placeholder="e.g., 30.0"
-                                                value={formData.trainDistance}
-                                                onChange={(e) => handleInputChange('trainDistance', e.target.value)}
-                                                required
-                                                className="input-field rounded-r-none w-full"
-                                                helperText="One-way distance for each trip"
-                                            />
-                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                                                km
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Train Type
-                                        </label>
-                                        <CustomSelect
-                                            options={transportationOptions.trainTypes}
-                                            value={formData.trainType}
-                                            placeholder={"Select Type"}
-                                            onChange={(selectedOption) => handleSelectChange('trainType', selectedOption)}
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Date range picker for train */}
-                                {renderDateRangePicker('train', 'Train Commute Date Range')}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Car Commute Section */}
-                    <div className="border-b pb-4 mt-4">
-                        <div className="flex items-center mb-4">
-                            <ToggleButton
-                                label="Do you commute to the office by car during the reporting year?"
-                                checked={formData.commuteByCar}
-                                onChange={(e) => handleCheckboxChange('commuteByCar', e.target.checked)}
-                            />
-                        </div>
-
-                        {formData.commuteByCar && (
-                            <div className="ml-6 space-y-4">
-                                {/* Updated: Individual vs Carpool vs Both selection for car */}
-                                <div className="mb-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        How do you commute by car? *
+                                        Number of Passengers (including yourself)
                                     </label>
-                                    <div className="flex flex-wrap gap-4">
-                                        {modeOptions.map((option) => (
-                                            <div key={option.value} className="flex items-center">
-                                                <input
-                                                    type="radio"
-                                                    id={`car-${option.value}`}
-                                                    name="carMode"
-                                                    value={option.value}
-                                                    checked={formData.carMode === option.value}
-                                                    onChange={(e) => handleInputChange('carMode', e.target.value)}
-                                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                                />
-                                                <label htmlFor={`car-${option.value}`} className="ml-2 block text-sm text-gray-700">
-                                                    {option.label}
-                                                </label>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <CustomSelect
+                                        options={transportationOptions.taxiPassengerOptions}
+                                        value={formData.taxiPassengers}
+                                        placeholder="Select No of Passengers"
+                                        onChange={(selectedOption) => handleSelectChange('taxiPassengers', selectedOption)}
+                                    />
+                                    <ErrorMessage message={errors.taxiPassengers} />
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Distance Travelled *
+                                    </label>
+                                    <div className="grid grid-cols-[14fr_1fr]">
+                                        <InputGroup
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            placeholder="e.g., 20.0"
+                                            value={formData.taxiDistance}
+                                            onChange={(e) => handleInputChange('taxiDistance', e.target.value)}
+                                            required
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Distance Travelled *
-                                        </label>
-                                        <div className="grid grid-cols-[14fr_1fr]">
-                                            <InputGroup
-                                                type="number"
-                                                step="0.1"
-                                                min="0"
-                                                placeholder="e.g., 18.5"
-                                                value={formData.carDistance}
-                                                onChange={(e) => handleInputChange('carDistance', e.target.value)}
-                                                required
-                                                className="input-field rounded-r-none w-full"
-                                                helperText="One-way distance for each trip"
-                                            />
-                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                                                km
-                                            </div>
+                                            className="input-field rounded-r-none w-full"
+                                            helperText="One-way distance for each trip"
+                                        />
+                                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                            km
                                         </div>
-
                                     </div>
-                                    <div className="col-span-2">
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Car Type
-                                        </label>
-                                        <CustomSelect
-                                            options={transportationOptions.carTypes}
-                                            value={formData.carType}
-                                            placeholder="Select Type"
-                                            onChange={(selectedOption) => handleSelectChange('carType', selectedOption)}
-                                        />
-                                    </div>
-                                    <div >
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Car Fuel Type
-                                        </label>
-                                        <CustomSelect
-                                            options={transportationOptions.fuelTypes}
-                                            value={formData.carFuelType}
-                                            placeholder="Select Type"
-                                            onChange={(selectedOption) => handleSelectChange('carFuelType', selectedOption)}
-                                        />
-                                    </div>
+                                    <ErrorMessage message={errors.taxiDistance} />
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Taxi Type
+                                    </label>
+                                    <CustomSelect
+                                        options={transportationOptions.taxiTypes}
+                                        value={formData.taxiType}
+                                        placeholder="Select Type"
+                                        onChange={(selectedOption) => handleSelectChange('taxiType', selectedOption)}
+                                    />
+                                    <ErrorMessage message={errors.taxiType} />
+                                </div>
+                            </div>
 
-                                {/* Date range picker for car */}
-                                {renderDateRangePicker('car', 'Car Commute Date Range')}
+                            {/* Date range picker for taxi */}
+                            {renderDateRangePicker('taxi', 'Taxi Commute Date Range')}
 
-                                {/* Show additional questions only when Carpool or Both is selected */}
-                                {(formData.carMode === 'carpool' || formData.carMode === 'both') && (
-                                    <>
-                                        <div className="mt-4  ">
-                                            <div className="mb-4">
-                                                <Checkbox
-                                                    label="Do you carry any other employee to this organization?"
-                                                    checked={formData.carryOthersCar}
-                                                    onChange={(e) => handleCheckboxChange('carryOthersCar', e.target.checked)}
-                                                />
-                                            </div>
+                            {/* Show travel with others only when Carpool or Both is selected */}
+                            {(formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && (
+                                <div className="mt-4 ">
+                                    <div className="mb-4">
+                                        <Checkbox
+                                            label="Do you travel with any other employee to this organization?"
+                                            checked={formData.travelWithOthersTaxi}
+                                            onChange={(e) => handleCheckboxChange('travelWithOthersTaxi', e.target.checked)}
+                                        />
+                                        <ErrorMessage message={errors.travelWithOthersTaxi} />
+                                    </div>
 
-                                            {formData.carryOthersCar && (
-                                                <>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <div>
-                                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                                How many persons do you carry?
-                                                            </label>
-                                                            <CustomSelect
-                                                                options={transportationOptions.personOptions}
-                                                                value={formData.personsCarriedCar}
-                                                                placeholder={"e.g., 1, 2, 3"}
-                                                                onChange={(selectedOption) => handlePersonsChange('personsCarriedCar', selectedOption)}
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                                Distance Travelled *
-                                                            </label>
-
-                                                            <div className="grid grid-cols-[14fr_1fr]">
-                                                                <InputGroup
-                                                                    type="number"
-                                                                    step="0.1"
-                                                                    min="0"
-                                                                    placeholder="e.g., 18.5"
-                                                                    value={formData.carDistanceCarpool}
-                                                                    onChange={(e) => handleInputChange('carDistanceCarpool', e.target.value)}
-                                                                    required
-                                                                    className="input-field rounded-r-none w-full"
-                                                                    helperText="One-way distance for each trip"
-                                                                />
-                                                                <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                                                                    km
-                                                                </div>
-                                                            </div>
+                                    {formData.travelWithOthersTaxi && (
+                                        <>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                        How many persons do you travel with?
+                                                    </label>
+                                                    <CustomSelect
+                                                        label=""
+                                                        options={transportationOptions.personOptions}
+                                                        value={formData.personsTravelWithTaxi}
+                                                        placeholder="e.g., 1, 2, 3"
+                                                        onChange={(selectedOption) => handlePersonsChange('personsTravelWithTaxi', selectedOption)}
+                                                    />
+                                                    <ErrorMessage message={errors.personsTravelWithTaxi} />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                        Distance Travelled *
+                                                    </label>
+                                                    <div className="grid grid-cols-[14fr_1fr]">
+                                                        <InputGroup
+                                                            type="number"
+                                                            step="0.1"
+                                                            min="0"
+                                                            placeholder="e.g., 15.5"
+                                                            value={formData.taxiDistanceCarpool}
+                                                            onChange={(e) => handleInputChange('taxiDistanceCarpool', e.target.value)}
+                                                            required
+                                                            className="input-field rounded-r-none w-full"
+                                                            helperText="One-way distance for each trip"
+                                                        />
+                                                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                            km
                                                         </div>
                                                     </div>
+                                                    <ErrorMessage message={errors.taxiDistanceCarpool} />
+                                                </div>
+                                            </div>
 
-                                                    {renderPassengerEmails(
-                                                        'car',
-                                                        'personsCarriedCar',
-                                                        'carPassengerEmails',
-                                                        'carPassengerUserIds',
-                                                        'List down all email addresses of colleagues you carry'
-                                                    )}
-                                                </>
+                                            {renderPassengerEmails(
+                                                'taxi',
+                                                'personsTravelWithTaxi',
+                                                'taxiPassengerEmails',
+                                                'taxiPassengerUserIds',
+                                                'List down all email addresses of colleagues you travel with'
                                             )}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Work From Home Section */}
-                    <div className="border-b pb-4 mt-4">
-                        <div className="flex items-center mb-4">
-                            <ToggleButton
-                                label="Do you work from home during the reporting year?"
-                                checked={formData.workFromHome}
-                                onChange={(e) => handleCheckboxChange('workFromHome', e.target.checked)}
-                            />
-                        </div>
-
-                        {formData.workFromHome && (
-                            <div className="ml-6 space-y-4">
-                                <div className="max-w-xs">
-                                    <InputGroup
-                                        label="FTE Working Hours per employee *"
-                                        type="number"
-                                        step="0.5"
-                                        min="0"
-                                        max="40"
-                                        placeholder="e.g., 8, 20, 40"
-                                        value={formData.fteWorkingHours}
-                                        onChange={(e) => handleInputChange('fteWorkingHours', e.target.value)}
-                                        required
-                                        helperText="Full-Time Equivalent working hours (typically 8 hours per day)"
-                                    />
+                                        </>
+                                    )}
                                 </div>
+                            )}
+                        </div>
+                    )}
+                </div>
 
-                                {/* Date range picker for work from home */}
-                                {renderDateRangePicker('workFromHome', 'Work From Home Date Range')}
+                {/* Bus Commute Section */}
+                <div className="border-b pb-4 mt-4">
+                    <div className="flex items-center mb-4">
+                        <ToggleButton
+                            label="Do you commute to the office by bus during the reporting year?"
+                            checked={formData.commuteByBus}
+                            onChange={(e) => handleCheckboxChange('commuteByBus', e.target.checked)}
+                        />
+                    </div>
+
+                    {formData.commuteByBus && (
+                        <div className="ml-6 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Distance Travelled *
+                                    </label>
+                                    <div className="grid grid-cols-[14fr_1fr]">
+                                        <InputGroup
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            placeholder="e.g., 25.0"
+                                            value={formData.busDistance}
+                                            onChange={(e) => handleInputChange('busDistance', e.target.value)}
+                                            required
+                                            className="input-field rounded-r-none w-full"
+                                            helperText="One-way distance for each trip"
+                                        />
+                                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                            km
+                                        </div>
+                                    </div>
+                                    <ErrorMessage message={errors.busDistance} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Bus Type
+                                    </label>
+                                    <CustomSelect
+                                        options={transportationOptions.busTypes}
+                                        value={formData.busType}
+                                        placeholder={"Select Type"}
+                                        onChange={(selectedOption) => handleSelectChange('busType', selectedOption)}
+                                    />
+                                    <ErrorMessage message={errors.busType} />
+                                </div>
                             </div>
-                        )}
-                    </div>
 
-                    {/* Quality Control Section */}
-                    <div className="mb-8 mt-8">
-                        <h2 className="text-xl font-semibold text-gray-800 mb-2 pb-2 ">
-                            Quality Control & Remarks
-                        </h2>
-                        <Textarea
-                            label="Remarks"
-                            placeholder="Any additional comments, clarifications, or special circumstances regarding your commute..."
-                            rows={4}
-                            value={formData.qualityControlRemarks}
-                            onChange={(e) => handleInputChange('qualityControlRemarks', e.target.value)}
+                            {/* Date range picker for bus */}
+                            {renderDateRangePicker('bus', 'Bus Commute Date Range')}
+                        </div>
+                    )}
+                </div>
+
+                {/* Train Commute Section */}
+                <div className="border-b pb-4 mt-4">
+                    <div className="flex items-center mb-4">
+                        <ToggleButton
+                            label="Do you commute to the office by train during the reporting year?"
+                            checked={formData.commuteByTrain}
+                            onChange={(e) => handleCheckboxChange('commuteByTrain', e.target.checked)}
                         />
                     </div>
 
-                    {/* Submission Information */}
-                    <div className="mb-8 p-4 bg-blue-50 rounded-lg">
-                        <h3 className="text-lg font-medium text-blue-800 mb-3">
-                            Submission Information
-                        </h3>
-                        <InputGroup
-                            label="Your Email Address *"
-                            type="email"
-                            placeholder="your.email@company.com"
-                            value={formData.submittedByEmail}
-                            onChange={(e) => handleInputChange('submittedByEmail', e.target.value)}
-                            required
-                            helperText="This email will be used for confirmation and communication regarding your submission"
+                    {formData.commuteByTrain && (
+                        <div className="ml-6 space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Distance Travelled *
+                                    </label>
+                                    <div className="grid grid-cols-[14fr_1fr]">
+                                        <InputGroup
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            placeholder="e.g., 30.0"
+                                            value={formData.trainDistance}
+                                            onChange={(e) => handleInputChange('trainDistance', e.target.value)}
+                                            required
+                                            className="input-field rounded-r-none w-full"
+                                            helperText="One-way distance for each trip"
+                                        />
+                                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                            km
+                                        </div>
+                                    </div>
+                                    <ErrorMessage message={errors.trainDistance} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Train Type
+                                    </label>
+                                    <CustomSelect
+                                        options={transportationOptions.trainTypes}
+                                        value={formData.trainType}
+                                        placeholder={"Select Type"}
+                                        onChange={(selectedOption) => handleSelectChange('trainType', selectedOption)}
+                                    />
+                                    <ErrorMessage message={errors.trainType} />
+                                </div>
+                            </div>
+
+                            {/* Date range picker for train */}
+                            {renderDateRangePicker('train', 'Train Commute Date Range')}
+                        </div>
+                    )}
+                </div>
+
+                {/* Car Commute Section */}
+                <div className="border-b pb-4 mt-4">
+                    <div className="flex items-center mb-4">
+                        <ToggleButton
+                            label="Do you commute to the office by car during the reporting year?"
+                            checked={formData.commuteByCar}
+                            onChange={(e) => handleCheckboxChange('commuteByCar', e.target.checked)}
                         />
-                        {userInfo && userInfo.email && (
-                            <p className="text-sm text-blue-600 mt-2">
-                                {targetUserData ? `Employee's registered email: ${userInfo.email}` : `Your registered email: ${userInfo.email}`}
-                            </p>
-                        )}
                     </div>
 
-                    {/* Submit Button */}
-                    <div className="flex justify-end pt-6 border-t">
-                        <Button
-                            type="submit"
-                            text={loading ? 'Submitting...' : `Submit ${reportingYear} Commuting Data`}
-                            className="btn-dark"
-                            disabled={loading}
+                    {formData.commuteByCar && (
+                        <div className="ml-6 space-y-4">
+                            {/* Updated: Individual vs Carpool vs Both selection for car */}
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    How do you commute by car? *
+                                </label>
+                                <div className="flex flex-wrap gap-4">
+                                    {modeOptions.map((option) => (
+                                        <div key={option.value} className="flex items-center">
+                                            <input
+                                                type="radio"
+                                                id={`car-${option.value}`}
+                                                name="carMode"
+                                                value={option.value}
+                                                checked={formData.carMode === option.value}
+                                                onChange={(e) => handleInputChange('carMode', e.target.value)}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                            />
+                                            <label htmlFor={`car-${option.value}`} className="ml-2 block text-sm text-gray-700">
+                                                {option.label}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+                                <ErrorMessage message={errors.carMode} />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Distance Travelled *
+                                    </label>
+                                    <div className="grid grid-cols-[14fr_1fr]">
+                                        <InputGroup
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            placeholder="e.g., 18.5"
+                                            value={formData.carDistance}
+                                            onChange={(e) => handleInputChange('carDistance', e.target.value)}
+                                            required
+                                            className="input-field rounded-r-none w-full"
+                                            helperText="One-way distance for each trip"
+                                        />
+                                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                            km
+                                        </div>
+                                    </div>
+                                    <ErrorMessage message={errors.carDistance} />
+                                </div>
+                                <div className="col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Car Type
+                                    </label>
+                                    <CustomSelect
+                                        options={transportationOptions.carTypes}
+                                        value={formData.carType}
+                                        placeholder="Select Type"
+                                        onChange={(selectedOption) => handleSelectChange('carType', selectedOption)}
+                                    />
+                                    <ErrorMessage message={errors.carType} />
+                                </div>
+                                <div >
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        Car Fuel Type
+                                    </label>
+                                    <CustomSelect
+                                        options={transportationOptions.fuelTypes}
+                                        value={formData.carFuelType}
+                                        placeholder="Select Type"
+                                        onChange={(selectedOption) => handleSelectChange('carFuelType', selectedOption)}
+                                    />
+                                    <ErrorMessage message={errors.carFuelType} />
+                                </div>
+                            </div>
+
+                            {/* Date range picker for car */}
+                            {renderDateRangePicker('car', 'Car Commute Date Range')}
+
+                            {/* Show additional questions only when Carpool or Both is selected */}
+                            {(formData.carMode === 'carpool' || formData.carMode === 'both') && (
+                                <>
+                                    <div className="mt-4  ">
+                                        <div className="mb-4">
+                                            <Checkbox
+                                                label="Do you carry any other employee to this organization?"
+                                                checked={formData.carryOthersCar}
+                                                onChange={(e) => handleCheckboxChange('carryOthersCar', e.target.checked)}
+                                            />
+                                            <ErrorMessage message={errors.carryOthersCar} />
+                                        </div>
+
+                                        {formData.carryOthersCar && (
+                                            <>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                            How many persons do you carry?
+                                                        </label>
+                                                        <CustomSelect
+                                                            options={transportationOptions.personOptions}
+                                                            value={formData.personsCarriedCar}
+                                                            placeholder={"e.g., 1, 2, 3"}
+                                                            onChange={(selectedOption) => handlePersonsChange('personsCarriedCar', selectedOption)}
+                                                        />
+                                                        <ErrorMessage message={errors.personsCarriedCar} />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                            Distance Travelled *
+                                                        </label>
+
+                                                        <div className="grid grid-cols-[14fr_1fr]">
+                                                            <InputGroup
+                                                                type="number"
+                                                                step="0.1"
+                                                                min="0"
+                                                                placeholder="e.g., 18.5"
+                                                                value={formData.carDistanceCarpool}
+                                                                onChange={(e) => handleInputChange('carDistanceCarpool', e.target.value)}
+                                                                required
+                                                                className="input-field rounded-r-none w-full"
+                                                                helperText="One-way distance for each trip"
+                                                            />
+                                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                                km
+                                                            </div>
+                                                        </div>
+                                                        <ErrorMessage message={errors.carDistanceCarpool} />
+                                                    </div>
+                                                </div>
+
+                                                {renderPassengerEmails(
+                                                    'car',
+                                                    'personsCarriedCar',
+                                                    'carPassengerEmails',
+                                                    'carPassengerUserIds',
+                                                    'List down all email addresses of colleagues you carry'
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* Work From Home Section */}
+                <div className="border-b pb-4 mt-4">
+                    <div className="flex items-center mb-4">
+                        <ToggleButton
+                            label="Do you work from home during the reporting year?"
+                            checked={formData.workFromHome}
+                            onChange={(e) => handleCheckboxChange('workFromHome', e.target.checked)}
                         />
                     </div>
-                </form>
+
+                    {formData.workFromHome && (
+                        <div className="ml-6 space-y-4">
+                            <div className="max-w-xs">
+                                <InputGroup
+                                    label="FTE Working Hours per employee *"
+                                    type="number"
+                                    step="0.5"
+                                    min="0"
+                                    max="40"
+                                    placeholder="e.g., 8, 20, 40"
+                                    value={formData.fteWorkingHours}
+                                    onChange={(e) => handleInputChange('fteWorkingHours', e.target.value)}
+                                    required
+                                    helperText="Full-Time Equivalent working hours (typically 8 hours per day)"
+                                />
+                                <ErrorMessage message={errors.fteWorkingHours} />
+                            </div>
+
+                            {/* Date range picker for work from home */}
+                            {renderDateRangePicker('workFromHome', 'Work From Home Date Range')}
+                        </div>
+                    )}
+                </div>
+
+                {/* Quality Control Section */}
+                <div className="mb-8 mt-8">
+                    <h2 className="text-xl font-semibold text-gray-800 mb-2 pb-2 ">
+                        Quality Control & Remarks
+                    </h2>
+                    <Textarea
+                        label="Remarks"
+                        placeholder="Any additional comments, clarifications, or special circumstances regarding your commute..."
+                        rows={4}
+                        value={formData.qualityControlRemarks}
+                        onChange={(e) => handleInputChange('qualityControlRemarks', e.target.value)}
+                    />
+                </div>
+
+                {/* Submission Information */}
+                <div className="mb-8 p-4 bg-blue-50 rounded-lg">
+                    <h3 className="text-lg font-medium text-blue-800 mb-3">
+                        Submission Information
+                    </h3>
+                    <InputGroup
+                        label="Your Email Address *"
+                        type="email"
+                        placeholder="your.email@company.com"
+                        value={formData.submittedByEmail}
+                        onChange={(e) => handleInputChange('submittedByEmail', e.target.value)}
+                        required
+                        helperText="This email will be used for confirmation and communication regarding your submission"
+                    />
+                    {userInfo && userInfo.email && (
+                        <p className="text-sm text-blue-600 mt-2">
+                            {targetUserData ? `Employee's registered email: ${userInfo.email}` : `Your registered email: ${userInfo.email}`}
+                        </p>
+                    )}
+                </div>
+
+                {/* Submit Button */}
+                <div className="flex justify-end pt-6 border-t">
+                    <Button
+                        onClick={handleSubmit}
+                        text={loading ? 'Submitting...' : `Submit ${reportingYear} Commuting Data`}
+                        className="btn-dark"
+                        disabled={loading}
+                    />
+                </div>
+                {/* </form> */}
             </Card>
         </div>
     );
