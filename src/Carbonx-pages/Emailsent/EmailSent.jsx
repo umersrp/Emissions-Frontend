@@ -304,21 +304,6 @@ const EmailSent = () => {
         // Validate form and get field-specific errors
         const newErrors = validateForm();
 
-        // If there are errors, set them in state and show toast
-        // if (Object.keys(newErrors).length > 0) {
-        //     setErrors(newErrors);
-
-        //     // Show a general error toast
-        //     toast.error("Please fix the errors in the form");
-
-        //     // Scroll to first error field
-        //     const firstErrorField = Object.keys(newErrors)[0];
-        //     const element = document.querySelector(`[data-field="${firstErrorField}"]`);
-        //     if (element) {
-        //         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        //     }
-        //     return;
-        // }
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
 
