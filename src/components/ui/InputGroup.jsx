@@ -219,12 +219,22 @@ const InputGroup = ({
   };
 
   // Handle number input wheel to prevent scroll from changing value
+  // const handleNumberInputWheel = (e) => {
+  //   if (type === "number") {
+  //     e.target.blur();
+  //     e.preventDefault();
+  //   }
+  // };
   const handleNumberInputWheel = (e) => {
     if (type === "number") {
-      e.target.blur();
-      e.preventDefault();
+        // First blur to prevent scroll from changing the value
+        e.target.blur();
+        // Then prevent default
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
     }
-  };
+};
 
   // Handle number input changes with validation
   const handleNumberChange = (e) => {
