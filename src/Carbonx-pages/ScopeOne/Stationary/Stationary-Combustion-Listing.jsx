@@ -218,7 +218,7 @@ const StationaryCombustionListing = () => {
           return numValue.toFixed(2);
         }
       },
-      
+
       // { Header: "Calculated Bio Emissions (kgCO₂e)", accessor: "calculatedBioEmissionKgCo2e", },
       // { Header: "Calculated Bio Emissions (tCO₂e)", accessor: "calculatedBioEmissionTCo2e", },
       { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => cell.value || "N/A" },
@@ -233,16 +233,11 @@ const StationaryCombustionListing = () => {
         Cell: ({ cell }) => cell.value || "N/A",
       },
       {
-        Header: "Posting Date", accessor: "postingDate", Cell: ({ cell }) => {
+        Header: "Posting Date", accessor: "postingDate",
+        Cell: ({ cell }) => {
           if (!cell.value) return "N/A";
-
           try {
-            const date = new Date(cell.value);
-            return date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit'
-            });  
+            return new Date(cell.value).toLocaleDateString('en-GB');
           } catch {
             return "Invalid Date";
           }

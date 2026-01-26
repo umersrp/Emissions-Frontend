@@ -347,9 +347,6 @@ function App() {
           <Route path="vendor-view" element={<Vendorview />} />
           <Route path="mapl" element={<OpenStreetMapEmbed />} />
 
-
-
-
           <Route path="product-preview" element={<ProductPreviewPage />} />
           <Route path="product-edit" element={<ProductEditPage />} />
           <Route path="invoice-preview" element={<InvoicePreviewPage />} />

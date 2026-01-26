@@ -230,9 +230,9 @@ const InputGroup = ({
         // First blur to prevent scroll from changing the value
         e.target.blur();
         // Then prevent default
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
+        // e.preventDefault();
+        // e.stopPropagation();
+        // return false;
     }
 };
 
