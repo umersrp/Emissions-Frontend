@@ -205,16 +205,11 @@ const CapitalGoodsListing = () => {
         Cell: ({ cell }) => cell.value || "N/A",
       },
       {
-        Header: "Posting Date", accessor: "postingDate", Cell: ({ cell }) => {
+        Header: "Posting Date", accessor: "postingDate",
+          Cell: ({ cell }) => {
           if (!cell.value) return "N/A";
-
           try {
-            const date = new Date(cell.value);
-            return date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit'
-            });
+            return new Date(cell.value).toLocaleDateString('en-GB');
           } catch {
             return "Invalid Date";
           }

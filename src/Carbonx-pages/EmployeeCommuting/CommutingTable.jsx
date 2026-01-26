@@ -465,14 +465,6 @@ const CommutingTable = () => {
             },
         },
         {
-            Header: "Emission Factor (kgCO₂e / Passenger.km)",
-            Cell: ({ row }) => {
-                const emissions = row.original.emissions;
-                if (!emissions) return "N/A";
-                return emissions.factor.toFixed(2);
-            },
-        },
-        {
             Header: "Calculate Emission (kgCO₂e)",
             Cell: ({ row }) => {
                 const emissions = row.original.emissions;

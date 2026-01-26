@@ -220,16 +220,11 @@ const ProcessEmissionsListing = () => {
         Cell: ({ cell }) => cell.value || "N/A",
       },
       {
-        Header: "Posting Date", accessor: "postingDate", Cell: ({ cell }) => {
+        Header: "Posting Date", accessor: "postingDate",
+         Cell: ({ cell }) => {
           if (!cell.value) return "N/A";
-
           try {
-            const date = new Date(cell.value);
-            return date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit'
-            }); 
+            return new Date(cell.value).toLocaleDateString('en-GB');
           } catch {
             return "Invalid Date";
           }
@@ -345,66 +340,6 @@ const ProcessEmissionsListing = () => {
           </div>
         </div>
 
-        {/* TABLE */}
-        {/* <div className="overflow-x-auto -mx-6">
-          <div className="inline-block min-w-full align-middle">
-            <div className="overflow-y-auto max-h-[70vh] overflow-x-auto">
-              {loading ? (
-                <div className="flex justify-center items-center ">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
-                </div>
-              ) : (
-                <table className="min-w-full divide-y divide-slate-100 table-fixed" {...getTableProps()}>
-                  <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
-                    {headerGroups.map((headerGroup, index) => (
-                      <tr {...headerGroup.getHeaderGroupProps()} key={index}>
-                        {headerGroup.headers.map((column) => (
-                          <th
-                            {...column.getHeaderProps(column.getSortByToggleProps())}
-                            className="table-th text-white whitespace-nowrap"
-                            key={column.id}
-                          >
-                            {column.render("Header")}
-                            <span>
-                              {column.isSorted ? (column.isSortedDesc ? " 🔽" : " 🔼") : ""}
-                            </span>
-                          </th>
-                        ))}
-                      </tr>
-                    ))}
-                  </thead>
-
-                  <tbody {...getTableBodyProps()}>
-                    {rows.length === 0 ? (
-                      <tr>
-                        <td colSpan={columns.length + 1}>
-                          <div className="flex justify-center items-center py-16">
-                            <span className="text-gray-500 text-lg font-medium">
-                              No data available.
-                            </span>
-                          </div>
-                        </td>
-                      </tr>
-                    ) : (
-                      rows.map((row) => {
-                        prepareRow(row);
-                        return (
-                          <tr {...row.getRowProps()} className="even:bg-gray-50">
-                            {row.cells.map((cell) => (
-                              <td {...cell.getCellProps()} className="px-6 py-4 whitespace-nowrap">
-                                {cell.render("Cell")}
-                              </td>
-                            ))}
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          </div>
-        </div> */}
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
             {/*  Set fixed height for vertical scroll */}

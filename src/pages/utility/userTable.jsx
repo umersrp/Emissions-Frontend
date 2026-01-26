@@ -481,7 +481,7 @@ const UserPage = () => {
                       ) : (
                         <table
                           className="min-w-full divide-y divide-slate-100 table-fixed"
-                          {...getTableProps()}
+                            {...getTableProps()}
                         >
                           <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
                             {headerGroups.map((headerGroup, index) => (

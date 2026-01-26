@@ -189,7 +189,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading , resetTrigger = 0,  //
         </div>
 
         {/* ================= Table Card ================= */}
-        <div className="flex-1 min-w-[320px] p-6 bg-white rounded-xl shadow-lg border overflow-auto max-h-[520px]">
+        <div className="flex-1 min-w-[320px] p-6 bg-white rounded-xl shadow-lg border overflow-auto scrollbar-hide  max-h-[520px]">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-xl text-gray-900">
               Top Categories

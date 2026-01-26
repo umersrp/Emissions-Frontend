@@ -46,6 +46,8 @@ const EmployeeCommutingForm = () => {
 
     // Form state - store objects for select values
     const [formData, setFormData] = useState({
+        employeeName: '',  // Add this
+        employeeID: '',
         // Basic Information
         siteBuildingName: null,
         stakeholderDepartment: null,
@@ -126,7 +128,7 @@ const EmployeeCommutingForm = () => {
     const yearOptions = [
         { value: currentYear - 1, label: `${currentYear - 1}` },
         { value: currentYear, label: `${currentYear}` },
-        { value: currentYear + 1, label: `${currentYear + 1}` }
+        // { value: currentYear + 1, label: `${currentYear + 1}` }
     ];
 
     // Helper function to convert date range to individual dates
@@ -499,664 +501,664 @@ const EmployeeCommutingForm = () => {
     }, [buildings, userInfo]);
 
     // Handle reporting year change
-   const handleReportingYearChange = (selectedOption) => {
-    setReportingYear(selectedOption.value);
+    const handleReportingYearChange = (selectedOption) => {
+        setReportingYear(selectedOption.value);
 
-    // Clear all date range errors when year changes
-    setErrors(prev => {
-        const newErrors = { ...prev };
-        // Remove all date range related errors
-        Object.keys(newErrors).forEach(key => {
-            if (key.includes('DateRange') || key.includes('Coverage') || key.includes('Overlap')) {
-                delete newErrors[key];
-            }
-        });
-        return newErrors;
-    });
-
-    // Clear all date ranges when year changes
-    setFormData(prev => ({
-        ...prev,
-        motorbikeDateRange: null,
-        taxiDateRange: null,
-        busDateRange: null,
-        trainDateRange: null,
-        carDateRange: null,
-        workFromHomeDateRange: null
-    }));
-
-    // Clear selected date ranges
-    setSelectedDateRanges({
-        motorbike: null,
-        taxi: null,
-        bus: null,
-        train: null,
-        car: null,
-        workFromHome: null
-    });
-};
-
-// Function to clear specific field error
-const clearFieldError = (fieldName) => {
-    setErrors(prev => {
-        const newErrors = { ...prev };
-        // Clear the specific field error
-        delete newErrors[fieldName];
-
-        // Also clear related commute method error if any commute toggle is enabled
-        const hasAnyCommuteMethod =
-            formData.commuteByMotorbike ||
-            formData.commuteByTaxi ||
-            formData.commuteByBus ||
-            formData.commuteByTrain ||
-            formData.commuteByCar ||
-            formData.workFromHome;
-
-        if (hasAnyCommuteMethod) {
-            delete newErrors['commuteMethodRequired'];
-        }
-
-        return newErrors;
-    });
-};
-
-// Handle checkbox changes
-const handleCheckboxChange = (field, value) => {
-    setFormData(prev => ({
-        ...prev,
-        [field]: value,
-    }));
-
-    // Clear error for this specific field
-    if (errors[field]) {
+        // Clear all date range errors when year changes
         setErrors(prev => {
             const newErrors = { ...prev };
-            delete newErrors[field];
-            return newErrors;
-        });
-    }
-
-    // Immediately clear the commute method required error when any toggle is changed to true
-    if (value === true) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors.commuteMethodRequired;
-            return newErrors;
-        });
-    }
-
-    // Clear all field-specific errors for this toggle when it's turned off
-    if (value === false) {
-        // Determine which transport type was turned off
-        let transportType = '';
-        if (field.startsWith('commuteBy')) {
-            transportType = field.replace('commuteBy', '').toLowerCase();
-        } else if (field === 'workFromHome') {
-            transportType = 'workFromHome';
-        }
-
-        // Clear all related errors for this transport type
-        setErrors(prev => {
-            const newErrors = { ...prev };
-
-            // Remove errors related to this transport type
-            Object.keys(newErrors).forEach(errorKey => {
-                if (errorKey.includes(transportType) ||
-                    (transportType === 'motorbike' && errorKey.includes('motorbike')) ||
-                    (transportType === 'taxi' && errorKey.includes('taxi')) ||
-                    (transportType === 'bus' && errorKey.includes('bus')) ||
-                    (transportType === 'train' && errorKey.includes('train')) ||
-                    (transportType === 'car' && errorKey.includes('car')) ||
-                    (transportType === 'workFromHome' && errorKey.includes('workFromHome'))) {
-                    delete newErrors[errorKey];
+            // Remove all date range related errors
+            Object.keys(newErrors).forEach(key => {
+                if (key.includes('DateRange') || key.includes('Coverage') || key.includes('Overlap')) {
+                    delete newErrors[key];
                 }
             });
-
             return newErrors;
         });
-    }
 
-    // If unchecked, clear all related fields for that transport type
-    if (!value) {
-        let transportType;
-        if (field.startsWith('commuteBy') || field === 'workFromHome') {
-            clearFieldError('commuteMethodRequired');
-        }
-        // Determine transport type based on field name
-        if (field.startsWith('commuteBy')) {
-            transportType = field.replace('commuteBy', '').toLowerCase();
-        } else if (field === 'workFromHome') {
-            transportType = 'workfromhome';
-        } else {
-            return; // Not a transport/work from home field
-        }
-
-        if (transportType === 'motorbike' || transportType === 'taxi' || transportType === 'bus' ||
-            transportType === 'train' || transportType === 'car' || transportType === 'workfromhome') {
-
-            // Reset date range
-            const dateRangeField = `${transportType}DateRange`;
-            setFormData(prev => ({ ...prev, [dateRangeField]: null }));
-            setSelectedDateRanges(prev => ({ ...prev, [transportType]: null }));
-
-            // Additional reset logic for specific transport types
-            if (transportType === 'motorbike') {
-                setFormData(prev => ({
-                    ...prev,
-                    motorbikeMode: '',
-                    motorbikeDistance: '',
-                    motorbikeType: '',
-                    motorbikeStartDate: '',
-                    motorbikeEndDate: '',
-                    carryOthersMotorbike: false,
-                    personsCarriedMotorbike: '',
-                    motorbikeDistanceCarpool: '',
-                    motorbikePassengerEmails: [],
-                    motorbikePassengerUserIds: []
-                }));
-            }
-
-            if (transportType === 'taxi') {
-                setTimeout(() => {
-                    setFormData(prev => ({
-                        ...prev,
-                        taxiMode: '',
-                        taxiPassengers: '',
-                        taxiDistance: '',
-                        taxiType: '',
-                        taxiStartDate: '',
-                        taxiEndDate: '',
-                        travelWithOthersTaxi: false,
-                        personsTravelWithTaxi: '',
-                        taxiDistanceCarpool: '',
-                        taxiPassengerEmails: [],
-                        taxiPassengerUserIds: []
-                    }));
-                }, 50);
-            }
-
-            // Reset bus fields
-            if (transportType === 'bus') {
-                setTimeout(() => {
-                    setFormData(prev => ({
-                        ...prev,
-                        busDistance: '',
-                        busType: '',
-                        busStartDate: '',
-                        busEndDate: ''
-                    }));
-                }, 50);
-            }
-
-            // Reset train fields
-            if (transportType === 'train') {
-                setTimeout(() => {
-                    setFormData(prev => ({
-                        ...prev,
-                        trainDistance: '',
-                        trainType: '',
-                        trainStartDate: '',
-                        trainEndDate: ''
-                    }));
-                }, 50);
-            }
-
-            // Reset car fields
-            if (transportType === 'car') {
-                setTimeout(() => {
-                    setFormData(prev => ({
-                        ...prev,
-                        carMode: '',
-                        carDistance: '',
-                        carType: '',
-                        carFuelType: '',
-                        carStartDate: '',
-                        carEndDate: '',
-                        carryOthersCar: false,
-                        personsCarriedCar: '',
-                        carDistanceCarpool: '',
-                        carPassengerEmails: [],
-                        carPassengerUserIds: []
-                    }));
-                }, 50);
-            }
-
-            // Reset work from home fields
-            if (transportType === 'workfromhome') {
-                setTimeout(() => {
-                    setFormData(prev => ({
-                        ...prev,
-                        fteWorkingHours: '',
-                        // Clear the date range field
-                        workFromHomeDateRange: null,
-                        // Also clear individual date fields if they exist
-                        workFromHomeStartDate: '',
-                        workFromHomeEndDate: ''
-                    }));
-                }, 50);
-
-                // Clear the selected date ranges state
-                setSelectedDateRanges(prev => ({
-                    ...prev,
-                    workFromHome: null
-                }));
-            }
-        }
-    }
-};
-
-// Handle input changes for Textinput
-const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Clear error for this specific field
-    if (errors[field]) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors[field];
-            return newErrors;
-        });
-    }
-    
-    // Clear related distance carpool errors
-    if (field.includes('Distance') && field.includes('Carpool')) {
-        const baseField = field.replace('Carpool', '');
-        if (errors[baseField]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[baseField];
-                return newErrors;
-            });
-        }
-    }
-    
-    // Clear related carpool errors when distance changes
-    if (field.includes('Distance') && !field.includes('Carpool')) {
-        const carpoolField = field + 'Carpool';
-        if (errors[carpoolField]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[carpoolField];
-                return newErrors;
-            });
-        }
-    }
-};
-
-// Handle select changes - store the entire option object
-const handleSelectChange = (field, selectedOption) => {
-    setFormData(prev => ({ ...prev, [field]: selectedOption }));
-    
-    // Clear error for this specific field
-    if (errors[field]) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors[field];
-            return newErrors;
-        });
-    }
-    
-    // Clear mode errors when changing transport mode
-    if (field.includes('Mode')) {
-        const transportType = field.replace('Mode', '').toLowerCase();
-        
-        // Clear all related mode-specific errors
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            
-            // Clear carry others checkbox errors
-            delete newErrors[`carryOthers${transportType.charAt(0).toUpperCase() + transportType.slice(1)}`];
-            delete newErrors[`travelWithOthers${transportType.charAt(0).toUpperCase() + transportType.slice(1)}`];
-            
-            // Clear person count errors
-            delete newErrors[`personsCarried${transportType.charAt(0).toUpperCase() + transportType.slice(1)}`];
-            delete newErrors[`personsTravelWith${transportType.charAt(0).toUpperCase() + transportType.slice(1)}`];
-            
-            // Clear carpool distance errors
-            delete newErrors[`${transportType}DistanceCarpool`];
-            
-            return newErrors;
-        });
-    }
-};
-
-// Handle passenger emails (for manual input)
-const handlePassengerEmailsChange = (transportType, index, value) => {
-    // Clear passenger email errors
-    const errorKey = `${transportType}PassengerEmail${index}`;
-    if (errors[errorKey]) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors[errorKey];
-            return newErrors;
-        });
-    }
-
-    setFormData(prev => {
-        let newEmails, newUserIds, personCountField;
-
-        // Determine which fields to use based on transport type
-        if (transportType === 'motorbikeTravel') {
-            newEmails = [...prev.motorbikeTravelPassengerEmails];
-            newUserIds = [...prev.motorbikeTravelPassengerUserIds];
-            personCountField = 'personsTravelWithMotorbike';
-        } else if (transportType === 'carTravel') {
-            newEmails = [...prev.carTravelPassengerEmails];
-            newUserIds = [...prev.carTravelPassengerUserIds];
-            personCountField = 'personsTravelWithCar';
-        } else {
-            newEmails = [...prev[`${transportType}PassengerEmails`]];
-            newUserIds = [...prev[`${transportType}PassengerUserIds`]];
-            personCountField = transportType === 'car' ? 'personsCarriedCar' :
-                transportType === 'motorbike' ? 'personsCarriedMotorbike' :
-                    'personsTravelWithTaxi';
-        }
-
-        newEmails[index] = value;
-        newUserIds[index] = ''; // Clear userId when email is manually entered
-
-        const maxPersons = parseInt(prev[personCountField]?.value || 0);
-
-        if (index === newEmails.length - 1 && value.trim() !== '' && newEmails.length < maxPersons) {
-            newEmails.push('');
-            newUserIds.push('');
-        }
-
-        const updatedData = { ...prev };
-
-        if (transportType === 'motorbikeTravel') {
-            updatedData.motorbikeTravelPassengerEmails = newEmails;
-            updatedData.motorbikeTravelPassengerUserIds = newUserIds;
-        } else if (transportType === 'carTravel') {
-            updatedData.carTravelPassengerEmails = newEmails;
-            updatedData.carTravelPassengerUserIds = newUserIds;
-        } else {
-            updatedData[`${transportType}PassengerEmails`] = newEmails;
-            updatedData[`${transportType}PassengerUserIds`] = newUserIds;
-        }
-
-        return updatedData;
-    });
-};
-
-// Handle passenger selection from dropdown
-const handlePassengerSelect = (transportType, index, selectedOption) => {
-    // Clear passenger email errors
-    const errorKey = `${transportType}PassengerEmail${index}`;
-    if (errors[errorKey]) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors[errorKey];
-            return newErrors;
-        });
-    }
-
-    setFormData(prev => {
-        let newEmails, newUserIds, personCountField;
-
-        // Determine which fields to use based on transport type
-        if (transportType === 'motorbikeTravel') {
-            newEmails = [...prev.motorbikeTravelPassengerEmails];
-            newUserIds = [...prev.motorbikeTravelPassengerUserIds];
-            personCountField = 'personsTravelWithMotorbike';
-        } else if (transportType === 'carTravel') {
-            newEmails = [...prev.carTravelPassengerEmails];
-            newUserIds = [...prev.carTravelPassengerUserIds];
-            personCountField = 'personsTravelWithCar';
-        } else {
-            newEmails = [...prev[`${transportType}PassengerEmails`]];
-            newUserIds = [...prev[`${transportType}PassengerUserIds`]];
-            personCountField = transportType === 'car' ? 'personsCarriedCar' :
-                transportType === 'motorbike' ? 'personsCarriedMotorbike' :
-                    'personsTravelWithTaxi';
-        }
-
-        if (selectedOption) {
-            newEmails[index] = selectedOption.email || '';
-            newUserIds[index] = selectedOption.value || '';
-        } else {
-            newEmails[index] = '';
-            newUserIds[index] = '';
-        }
-
-        const maxPersons = parseInt(prev[personCountField]?.value || 0);
-
-        if (index === newEmails.length - 1 && selectedOption?.value && newEmails.length < maxPersons) {
-            newEmails.push('');
-            newUserIds.push('');
-        }
-
-        const updatedData = { ...prev };
-
-        if (transportType === 'motorbikeTravel') {
-            updatedData.motorbikeTravelPassengerEmails = newEmails;
-            updatedData.motorbikeTravelPassengerUserIds = newUserIds;
-        } else if (transportType === 'carTravel') {
-            updatedData.carTravelPassengerEmails = newEmails;
-            updatedData.carTravelPassengerUserIds = newUserIds;
-        } else {
-            updatedData[`${transportType}PassengerEmails`] = newEmails;
-            updatedData[`${transportType}PassengerUserIds`] = newUserIds;
-        }
-
-        return updatedData;
-    });
-};
-
-// Handle number of persons change
-const handlePersonsChange = (field, selectedOption) => {
-    // Clear error for this field
-    if (errors[field]) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors[field];
-            return newErrors;
-        });
-    }
-
-    setFormData(prev => {
-        // Determine transport type based on field name
-        let transportType = '';
-        let emailField = '';
-        let userIdField = '';
-
-        if (field.includes('Motorbike')) {
-            if (field.includes('Travel')) {
-                transportType = 'motorbikeTravel';
-                emailField = 'motorbikeTravelPassengerEmails';
-                userIdField = 'motorbikeTravelPassengerUserIds';
-            } else {
-                transportType = 'motorbike';
-                emailField = 'motorbikePassengerEmails';
-                userIdField = 'motorbikePassengerUserIds';
-            }
-        } else if (field.includes('Taxi')) {
-            transportType = 'taxi';
-            emailField = 'taxiPassengerEmails';
-            userIdField = 'taxiPassengerUserIds';
-        } else if (field.includes('Car')) {
-            if (field.includes('Travel')) {
-                transportType = 'carTravel';
-                emailField = 'carTravelPassengerEmails';
-                userIdField = 'carTravelPassengerUserIds';
-            } else {
-                transportType = 'car';
-                emailField = 'carPassengerEmails';
-                userIdField = 'carPassengerUserIds';
-            }
-        }
-
-        const currentEmails = prev[emailField] || [''];
-        const currentUserIds = prev[userIdField] || [''];
-        const maxPersons = parseInt(selectedOption?.value || 0);
-
-        const newEmails = Array(Math.max(maxPersons, 1)).fill('').map((_, i) =>
-            i < currentEmails.length ? currentEmails[i] : ''
-        );
-
-        const newUserIds = Array(Math.max(maxPersons, 1)).fill('').map((_, i) =>
-            i < currentUserIds.length ? currentUserIds[i] : ''
-        );
-
-        return {
+        // Clear all date ranges when year changes
+        setFormData(prev => ({
             ...prev,
-            [field]: selectedOption,
-            [emailField]: newEmails,
-            [userIdField]: newUserIds,
-        };
-    });
-};
+            motorbikeDateRange: null,
+            taxiDateRange: null,
+            busDateRange: null,
+            trainDateRange: null,
+            carDateRange: null,
+            workFromHomeDateRange: null
+        }));
 
-// Update the handleDateRangeChange function with error clearing
-const handleDateRangeChange = (transportType, value) => {
-    // Clear date range error when user starts selecting
-    const dateRangeField = `${transportType}DateRange`;
-    if (errors[dateRangeField]) {
+        // Clear selected date ranges
+        setSelectedDateRanges({
+            motorbike: null,
+            taxi: null,
+            bus: null,
+            train: null,
+            car: null,
+            workFromHome: null
+        });
+    };
+
+    // Function to clear specific field error
+    const clearFieldError = (fieldName) => {
         setErrors(prev => {
             const newErrors = { ...prev };
-            delete newErrors[dateRangeField];
-            return newErrors;
-        });
-    }
-    
-    // Clear month coverage error when date range changes
-    if (errors.monthCoverage) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors.monthCoverage;
-            return newErrors;
-        });
-    }
-    
-    // Clear date range overlap error when date range changes
-    if (errors.dateRangeOverlap) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors.dateRangeOverlap;
-            return newErrors;
-        });
-    }
+            // Clear the specific field error
+            delete newErrors[fieldName];
 
-    if (value && value.startDate && value.endDate) {
-        const startDate = new Date(value.startDate);
-        const endDate = new Date(value.endDate);
+            // Also clear related commute method error if any commute toggle is enabled
+            const hasAnyCommuteMethod =
+                formData.commuteByMotorbike ||
+                formData.commuteByTaxi ||
+                formData.commuteByBus ||
+                formData.commuteByTrain ||
+                formData.commuteByCar ||
+                formData.workFromHome;
 
-        // Check if dates are within reporting year
-        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-            toast.warning(`Selected date range is outside ${reportingYear}. Please select dates within the reporting year.`);
-            return;
+            if (hasAnyCommuteMethod) {
+                delete newErrors['commuteMethodRequired'];
+            }
+
+            return newErrors;
+        });
+    };
+
+    // Handle checkbox changes
+    const handleCheckboxChange = (field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: value,
+        }));
+
+        // Clear error for this specific field
+        if (errors[field]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            });
         }
 
-        // Check for overlaps with other selected date ranges
-        const otherRanges = { ...selectedDateRanges };
-        delete otherRanges[transportType];
+        // Immediately clear the commute method required error when any toggle is changed to true
+        if (value === true) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.commuteMethodRequired;
+                return newErrors;
+            });
+        }
 
-        let hasOverlap = false;
-        let overlappingTransportType = '';
-        let overlappingMonths = [];
+        // Clear all field-specific errors for this toggle when it's turned off
+        if (value === false) {
+            // Determine which transport type was turned off
+            let transportType = '';
+            if (field.startsWith('commuteBy')) {
+                transportType = field.replace('commuteBy', '').toLowerCase();
+            } else if (field === 'workFromHome') {
+                transportType = 'workFromHome';
+            }
 
-        // Check each existing date range for overlap
-        for (const [otherType, otherRange] of Object.entries(otherRanges)) {
-            if (otherRange && checkDateRangeOverlap(value, otherRange)) {
-                hasOverlap = true;
-                overlappingTransportType = otherType;
+            // Clear all related errors for this transport type
+            setErrors(prev => {
+                const newErrors = { ...prev };
 
-                // Find overlapping months
-                const overlapStart = new Date(Math.max(startDate, new Date(otherRange.startDate)));
-                const overlapEnd = new Date(Math.min(endDate, new Date(otherRange.endDate)));
-
-                for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
-                    const month = d.getMonth() + 1;
-                    if (!overlappingMonths.includes(month)) {
-                        overlappingMonths.push(month);
+                // Remove errors related to this transport type
+                Object.keys(newErrors).forEach(errorKey => {
+                    if (errorKey.includes(transportType) ||
+                        (transportType === 'motorbike' && errorKey.includes('motorbike')) ||
+                        (transportType === 'taxi' && errorKey.includes('taxi')) ||
+                        (transportType === 'bus' && errorKey.includes('bus')) ||
+                        (transportType === 'train' && errorKey.includes('train')) ||
+                        (transportType === 'car' && errorKey.includes('car')) ||
+                        (transportType === 'workFromHome' && errorKey.includes('workFromHome'))) {
+                        delete newErrors[errorKey];
                     }
-                }
-                break;
+                });
+
+                return newErrors;
+            });
+        }
+
+        // If unchecked, clear all related fields for that transport type
+        if (!value) {
+            let transportType;
+            if (field.startsWith('commuteBy') || field === 'workFromHome') {
+                clearFieldError('commuteMethodRequired');
             }
-        }
-
-        if (hasOverlap) {
-            const monthNames = overlappingMonths.map(m => getMonthName(m)).join(', ');
-            toast.error(
-                <div>
-                    <div className="font-semibold mb-1">Date Range Conflict!</div>
-                    <div className="text-sm mb-2">
-                        Your selected date range overlaps with {overlappingTransportType} commute
-                        in month(s): {monthNames}. Please select a different date range.
-                    </div>
-                </div>,
-                {
-                    autoClose: false,
-                    closeButton: true,
-                }
-            );
-            return;
-        }
-
-        // Calculate how many months are covered
-        const monthsCovered = calculateRemainingMonths(value.startDate, value.endDate, reportingYear);
-        const remainingMonths = 12 - monthsCovered;
-
-        // If less than 12 months are covered, show a warning toast
-        if (remainingMonths > 0) {
-            // Prepare a detailed message based on how many months remain
-            let message = '';
-
-            if (monthsCovered === 1) {
-                message = `You've selected only ${monthsCovered} month. You should select dates to cover the entire year (${remainingMonths} more months needed). Use the "Full Year" shortcut or select manually.`;
+            // Determine transport type based on field name
+            if (field.startsWith('commuteBy')) {
+                transportType = field.replace('commuteBy', '').toLowerCase();
+            } else if (field === 'workFromHome') {
+                transportType = 'workfromhome';
             } else {
-                message = `You've selected ${monthsCovered} month${monthsCovered > 1 ? 's' : ''}. ${remainingMonths} month${remainingMonths > 1 ? 's' : ''} remain${remainingMonths > 1 ? '' : 's'} unselected. Consider selecting the full year for accurate reporting.`;
+                return; // Not a transport/work from home field
             }
 
-            // Create a more prominent toast with action
-            toast.warning(
-                <div>
-                    <div className="font-semibold mb-1">Incomplete Year Coverage</div>
-                    <div className="text-sm mb-2">{message}</div>
-                    <div className="flex gap-2 mt-2">
-                        <button
-                            onClick={() => {
-                                // Set to full year
-                                handleDateRangeChange(transportType, {
-                                    startDate: new Date(`${reportingYear}-01-01`),
-                                    endDate: new Date(`${reportingYear}-12-31`),
-                                });
-                                toast.dismiss();
-                            }}
-                            className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                        >
-                            Select Full Year
-                        </button>
-                        <button
-                            onClick={() => toast.dismiss()}
-                            className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300"
-                        >
-                            Keep Selection
-                        </button>
-                    </div>
-                </div>,
-                {
-                    autoClose: 8000,
-                    closeButton: true,
+            if (transportType === 'motorbike' || transportType === 'taxi' || transportType === 'bus' ||
+                transportType === 'train' || transportType === 'car' || transportType === 'workfromhome') {
+
+                // Reset date range
+                const dateRangeField = `${transportType}DateRange`;
+                setFormData(prev => ({ ...prev, [dateRangeField]: null }));
+                setSelectedDateRanges(prev => ({ ...prev, [transportType]: null }));
+
+                // Additional reset logic for specific transport types
+                if (transportType === 'motorbike') {
+                    setFormData(prev => ({
+                        ...prev,
+                        motorbikeMode: '',
+                        motorbikeDistance: '',
+                        motorbikeType: '',
+                        motorbikeStartDate: '',
+                        motorbikeEndDate: '',
+                        carryOthersMotorbike: false,
+                        personsCarriedMotorbike: '',
+                        motorbikeDistanceCarpool: '',
+                        motorbikePassengerEmails: [],
+                        motorbikePassengerUserIds: []
+                    }));
                 }
-            );
-        } else if (monthsCovered === 12) {
-            toast.success("✓ Full year selected for accurate reporting!");
+
+                if (transportType === 'taxi') {
+                    setTimeout(() => {
+                        setFormData(prev => ({
+                            ...prev,
+                            taxiMode: '',
+                            taxiPassengers: '',
+                            taxiDistance: '',
+                            taxiType: '',
+                            taxiStartDate: '',
+                            taxiEndDate: '',
+                            travelWithOthersTaxi: false,
+                            personsTravelWithTaxi: '',
+                            taxiDistanceCarpool: '',
+                            taxiPassengerEmails: [],
+                            taxiPassengerUserIds: []
+                        }));
+                    }, 50);
+                }
+
+                // Reset bus fields
+                if (transportType === 'bus') {
+                    setTimeout(() => {
+                        setFormData(prev => ({
+                            ...prev,
+                            busDistance: '',
+                            busType: '',
+                            busStartDate: '',
+                            busEndDate: ''
+                        }));
+                    }, 50);
+                }
+
+                // Reset train fields
+                if (transportType === 'train') {
+                    setTimeout(() => {
+                        setFormData(prev => ({
+                            ...prev,
+                            trainDistance: '',
+                            trainType: '',
+                            trainStartDate: '',
+                            trainEndDate: ''
+                        }));
+                    }, 50);
+                }
+
+                // Reset car fields
+                if (transportType === 'car') {
+                    setTimeout(() => {
+                        setFormData(prev => ({
+                            ...prev,
+                            carMode: '',
+                            carDistance: '',
+                            carType: '',
+                            carFuelType: '',
+                            carStartDate: '',
+                            carEndDate: '',
+                            carryOthersCar: false,
+                            personsCarriedCar: '',
+                            carDistanceCarpool: '',
+                            carPassengerEmails: [],
+                            carPassengerUserIds: []
+                        }));
+                    }, 50);
+                }
+
+                // Reset work from home fields
+                if (transportType === 'workfromhome') {
+                    setTimeout(() => {
+                        setFormData(prev => ({
+                            ...prev,
+                            fteWorkingHours: '',
+                            // Clear the date range field
+                            workFromHomeDateRange: null,
+                            // Also clear individual date fields if they exist
+                            workFromHomeStartDate: '',
+                            workFromHomeEndDate: ''
+                        }));
+                    }, 50);
+
+                    // Clear the selected date ranges state
+                    setSelectedDateRanges(prev => ({
+                        ...prev,
+                        workFromHome: null
+                    }));
+                }
+            }
         }
-    }
+    };
 
-    // Update the form data with the selected date range
-    setFormData(prev => ({
-        ...prev,
-        [`${transportType}DateRange`]: value
-    }));
+    // Handle input changes for Textinput
+    const handleInputChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
 
-    // Update the selected date ranges state
-    setSelectedDateRanges(prev => ({
-        ...prev,
-        [transportType]: value
-    }));
-};
+        // Clear error for this specific field
+        if (errors[field]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            });
+        }
+
+        // Clear related distance carpool errors
+        if (field.includes('Distance') && field.includes('Carpool')) {
+            const baseField = field.replace('Carpool', '');
+            if (errors[baseField]) {
+                setErrors(prev => {
+                    const newErrors = { ...prev };
+                    delete newErrors[baseField];
+                    return newErrors;
+                });
+            }
+        }
+
+        // Clear related carpool errors when distance changes
+        if (field.includes('Distance') && !field.includes('Carpool')) {
+            const carpoolField = field + 'Carpool';
+            if (errors[carpoolField]) {
+                setErrors(prev => {
+                    const newErrors = { ...prev };
+                    delete newErrors[carpoolField];
+                    return newErrors;
+                });
+            }
+        }
+    };
+
+    // Handle select changes - store the entire option object
+    const handleSelectChange = (field, selectedOption) => {
+        setFormData(prev => ({ ...prev, [field]: selectedOption }));
+
+        // Clear error for this specific field
+        if (errors[field]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            });
+        }
+
+        // Clear mode errors when changing transport mode
+        if (field.includes('Mode')) {
+            const transportType = field.replace('Mode', '').toLowerCase();
+
+            // Clear all related mode-specific errors
+            setErrors(prev => {
+                const newErrors = { ...prev };
+
+                // Clear carry others checkbox errors
+                delete newErrors[`carryOthers${transportType.charAt(0).toUpperCase() + transportType.slice(1)}`];
+                delete newErrors[`travelWithOthers${transportType.charAt(0).toUpperCase() + transportType.slice(1)}`];
+
+                // Clear person count errors
+                delete newErrors[`personsCarried${transportType.charAt(0).toUpperCase() + transportType.slice(1)}`];
+                delete newErrors[`personsTravelWith${transportType.charAt(0).toUpperCase() + transportType.slice(1)}`];
+
+                // Clear carpool distance errors
+                delete newErrors[`${transportType}DistanceCarpool`];
+
+                return newErrors;
+            });
+        }
+    };
+
+    // Handle passenger emails (for manual input)
+    const handlePassengerEmailsChange = (transportType, index, value) => {
+        // Clear passenger email errors
+        const errorKey = `${transportType}PassengerEmail${index}`;
+        if (errors[errorKey]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[errorKey];
+                return newErrors;
+            });
+        }
+
+        setFormData(prev => {
+            let newEmails, newUserIds, personCountField;
+
+            // Determine which fields to use based on transport type
+            if (transportType === 'motorbikeTravel') {
+                newEmails = [...prev.motorbikeTravelPassengerEmails];
+                newUserIds = [...prev.motorbikeTravelPassengerUserIds];
+                personCountField = 'personsTravelWithMotorbike';
+            } else if (transportType === 'carTravel') {
+                newEmails = [...prev.carTravelPassengerEmails];
+                newUserIds = [...prev.carTravelPassengerUserIds];
+                personCountField = 'personsTravelWithCar';
+            } else {
+                newEmails = [...prev[`${transportType}PassengerEmails`]];
+                newUserIds = [...prev[`${transportType}PassengerUserIds`]];
+                personCountField = transportType === 'car' ? 'personsCarriedCar' :
+                    transportType === 'motorbike' ? 'personsCarriedMotorbike' :
+                        'personsTravelWithTaxi';
+            }
+
+            newEmails[index] = value;
+            newUserIds[index] = ''; // Clear userId when email is manually entered
+
+            const maxPersons = parseInt(prev[personCountField]?.value || 0);
+
+            if (index === newEmails.length - 1 && value.trim() !== '' && newEmails.length < maxPersons) {
+                newEmails.push('');
+                newUserIds.push('');
+            }
+
+            const updatedData = { ...prev };
+
+            if (transportType === 'motorbikeTravel') {
+                updatedData.motorbikeTravelPassengerEmails = newEmails;
+                updatedData.motorbikeTravelPassengerUserIds = newUserIds;
+            } else if (transportType === 'carTravel') {
+                updatedData.carTravelPassengerEmails = newEmails;
+                updatedData.carTravelPassengerUserIds = newUserIds;
+            } else {
+                updatedData[`${transportType}PassengerEmails`] = newEmails;
+                updatedData[`${transportType}PassengerUserIds`] = newUserIds;
+            }
+
+            return updatedData;
+        });
+    };
+
+    // Handle passenger selection from dropdown
+    const handlePassengerSelect = (transportType, index, selectedOption) => {
+        // Clear passenger email errors
+        const errorKey = `${transportType}PassengerEmail${index}`;
+        if (errors[errorKey]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[errorKey];
+                return newErrors;
+            });
+        }
+
+        setFormData(prev => {
+            let newEmails, newUserIds, personCountField;
+
+            // Determine which fields to use based on transport type
+            if (transportType === 'motorbikeTravel') {
+                newEmails = [...prev.motorbikeTravelPassengerEmails];
+                newUserIds = [...prev.motorbikeTravelPassengerUserIds];
+                personCountField = 'personsTravelWithMotorbike';
+            } else if (transportType === 'carTravel') {
+                newEmails = [...prev.carTravelPassengerEmails];
+                newUserIds = [...prev.carTravelPassengerUserIds];
+                personCountField = 'personsTravelWithCar';
+            } else {
+                newEmails = [...prev[`${transportType}PassengerEmails`]];
+                newUserIds = [...prev[`${transportType}PassengerUserIds`]];
+                personCountField = transportType === 'car' ? 'personsCarriedCar' :
+                    transportType === 'motorbike' ? 'personsCarriedMotorbike' :
+                        'personsTravelWithTaxi';
+            }
+
+            if (selectedOption) {
+                newEmails[index] = selectedOption.email || '';
+                newUserIds[index] = selectedOption.value || '';
+            } else {
+                newEmails[index] = '';
+                newUserIds[index] = '';
+            }
+
+            const maxPersons = parseInt(prev[personCountField]?.value || 0);
+
+            if (index === newEmails.length - 1 && selectedOption?.value && newEmails.length < maxPersons) {
+                newEmails.push('');
+                newUserIds.push('');
+            }
+
+            const updatedData = { ...prev };
+
+            if (transportType === 'motorbikeTravel') {
+                updatedData.motorbikeTravelPassengerEmails = newEmails;
+                updatedData.motorbikeTravelPassengerUserIds = newUserIds;
+            } else if (transportType === 'carTravel') {
+                updatedData.carTravelPassengerEmails = newEmails;
+                updatedData.carTravelPassengerUserIds = newUserIds;
+            } else {
+                updatedData[`${transportType}PassengerEmails`] = newEmails;
+                updatedData[`${transportType}PassengerUserIds`] = newUserIds;
+            }
+
+            return updatedData;
+        });
+    };
+
+    // Handle number of persons change
+    const handlePersonsChange = (field, selectedOption) => {
+        // Clear error for this field
+        if (errors[field]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[field];
+                return newErrors;
+            });
+        }
+
+        setFormData(prev => {
+            // Determine transport type based on field name
+            let transportType = '';
+            let emailField = '';
+            let userIdField = '';
+
+            if (field.includes('Motorbike')) {
+                if (field.includes('Travel')) {
+                    transportType = 'motorbikeTravel';
+                    emailField = 'motorbikeTravelPassengerEmails';
+                    userIdField = 'motorbikeTravelPassengerUserIds';
+                } else {
+                    transportType = 'motorbike';
+                    emailField = 'motorbikePassengerEmails';
+                    userIdField = 'motorbikePassengerUserIds';
+                }
+            } else if (field.includes('Taxi')) {
+                transportType = 'taxi';
+                emailField = 'taxiPassengerEmails';
+                userIdField = 'taxiPassengerUserIds';
+            } else if (field.includes('Car')) {
+                if (field.includes('Travel')) {
+                    transportType = 'carTravel';
+                    emailField = 'carTravelPassengerEmails';
+                    userIdField = 'carTravelPassengerUserIds';
+                } else {
+                    transportType = 'car';
+                    emailField = 'carPassengerEmails';
+                    userIdField = 'carPassengerUserIds';
+                }
+            }
+
+            const currentEmails = prev[emailField] || [''];
+            const currentUserIds = prev[userIdField] || [''];
+            const maxPersons = parseInt(selectedOption?.value || 0);
+
+            const newEmails = Array(Math.max(maxPersons, 1)).fill('').map((_, i) =>
+                i < currentEmails.length ? currentEmails[i] : ''
+            );
+
+            const newUserIds = Array(Math.max(maxPersons, 1)).fill('').map((_, i) =>
+                i < currentUserIds.length ? currentUserIds[i] : ''
+            );
+
+            return {
+                ...prev,
+                [field]: selectedOption,
+                [emailField]: newEmails,
+                [userIdField]: newUserIds,
+            };
+        });
+    };
+
+    // Update the handleDateRangeChange function with error clearing
+    const handleDateRangeChange = (transportType, value) => {
+        // Clear date range error when user starts selecting
+        const dateRangeField = `${transportType}DateRange`;
+        if (errors[dateRangeField]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[dateRangeField];
+                return newErrors;
+            });
+        }
+
+        // Clear month coverage error when date range changes
+        if (errors.monthCoverage) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.monthCoverage;
+                return newErrors;
+            });
+        }
+
+        // Clear date range overlap error when date range changes
+        if (errors.dateRangeOverlap) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.dateRangeOverlap;
+                return newErrors;
+            });
+        }
+
+        if (value && value.startDate && value.endDate) {
+            const startDate = new Date(value.startDate);
+            const endDate = new Date(value.endDate);
+
+            // Check if dates are within reporting year
+            if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                toast.warning(`Selected date range is outside ${reportingYear}. Please select dates within the reporting year.`);
+                return;
+            }
+
+            // Check for overlaps with other selected date ranges
+            const otherRanges = { ...selectedDateRanges };
+            delete otherRanges[transportType];
+
+            let hasOverlap = false;
+            let overlappingTransportType = '';
+            let overlappingMonths = [];
+
+            // Check each existing date range for overlap
+            for (const [otherType, otherRange] of Object.entries(otherRanges)) {
+                if (otherRange && checkDateRangeOverlap(value, otherRange)) {
+                    hasOverlap = true;
+                    overlappingTransportType = otherType;
+
+                    // Find overlapping months
+                    const overlapStart = new Date(Math.max(startDate, new Date(otherRange.startDate)));
+                    const overlapEnd = new Date(Math.min(endDate, new Date(otherRange.endDate)));
+
+                    for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
+                        const month = d.getMonth() + 1;
+                        if (!overlappingMonths.includes(month)) {
+                            overlappingMonths.push(month);
+                        }
+                    }
+                    break;
+                }
+            }
+
+            if (hasOverlap) {
+                const monthNames = overlappingMonths.map(m => getMonthName(m)).join(', ');
+                toast.error(
+                    <div>
+                        <div className="font-semibold mb-1">Date Range Conflict!</div>
+                        <div className="text-sm mb-2">
+                            Your selected date range overlaps with {overlappingTransportType} commute
+                            in month(s): {monthNames}. Please select a different date range.
+                        </div>
+                    </div>,
+                    {
+                        autoClose: false,
+                        closeButton: true,
+                    }
+                );
+                return;
+            }
+
+            // Calculate how many months are covered
+            const monthsCovered = calculateRemainingMonths(value.startDate, value.endDate, reportingYear);
+            const remainingMonths = 12 - monthsCovered;
+
+            // If less than 12 months are covered, show a warning toast
+            if (remainingMonths > 0) {
+                // Prepare a detailed message based on how many months remain
+                let message = '';
+
+                if (monthsCovered === 1) {
+                    message = `You've selected only ${monthsCovered} month. You should select dates to cover the entire year (${remainingMonths} more months needed). Use the "Full Year" shortcut or select manually.`;
+                } else {
+                    message = `You've selected ${monthsCovered} month${monthsCovered > 1 ? 's' : ''}. ${remainingMonths} month${remainingMonths > 1 ? 's' : ''} remain${remainingMonths > 1 ? '' : 's'} unselected. Consider selecting the full year for accurate reporting.`;
+                }
+
+                // Create a more prominent toast with action
+                toast.warning(
+                    <div>
+                        <div className="font-semibold mb-1">Incomplete Year Coverage</div>
+                        <div className="text-sm mb-2">{message}</div>
+                        <div className="flex gap-2 mt-2">
+                            <button
+                                onClick={() => {
+                                    // Set to full year
+                                    handleDateRangeChange(transportType, {
+                                        startDate: new Date(`${reportingYear}-01-01`),
+                                        endDate: new Date(`${reportingYear}-12-31`),
+                                    });
+                                    toast.dismiss();
+                                }}
+                                className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                            >
+                                Select Full Year
+                            </button>
+                            <button
+                                onClick={() => toast.dismiss()}
+                                className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300"
+                            >
+                                Keep Selection
+                            </button>
+                        </div>
+                    </div>,
+                    {
+                        autoClose: 8000,
+                        closeButton: true,
+                    }
+                );
+            } else if (monthsCovered === 12) {
+                toast.success("✓ Full year selected for accurate reporting!");
+            }
+        }
+
+        // Update the form data with the selected date range
+        setFormData(prev => ({
+            ...prev,
+            [`${transportType}DateRange`]: value
+        }));
+
+        // Update the selected date ranges state
+        setSelectedDateRanges(prev => ({
+            ...prev,
+            [transportType]: value
+        }));
+    };
 
     // // Handle number of persons change
     // const handlePersonsChange = (field, selectedOption) => {
@@ -1413,8 +1415,8 @@ const handleDateRangeChange = (transportType, value) => {
         const currentRange = formData[`${transportType}DateRange`];
         let monthsCovered = 0;
         let progressPercentage = 0;
-const errorKey = `${transportType}DateRange`;
-    const hasError = errors[errorKey];
+        const errorKey = `${transportType}DateRange`;
+        const hasError = errors[errorKey];
         if (currentRange && currentRange.startDate && currentRange.endDate) {
             monthsCovered = calculateRemainingMonths(currentRange.startDate, currentRange.endDate, reportingYear);
             progressPercentage = Math.round((monthsCovered / 12) * 100);
@@ -1450,16 +1452,16 @@ const errorKey = `${transportType}DateRange`;
                             Select dates that cover the entire year for accurate reporting
                         </p>
                     </div>
-                      {hasError && (
-                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
-                    <div className="flex items-center">
-                        <svg className="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                        </svg>
-                        <span className="text-sm text-red-600">{hasError}</span>
-                    </div>
-                </div>
-            )}
+                    {hasError && (
+                        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
+                            <div className="flex items-center">
+                                <svg className="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                </svg>
+                                <span className="text-sm text-red-600">{hasError}</span>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Progress indicator */}
                     {currentRange && currentRange.startDate && currentRange.endDate && (
@@ -2164,6 +2166,13 @@ const errorKey = `${transportType}DateRange`;
         console.log('validate form called');
 
         const errors = {};
+        if (!formData.employeeName.trim()) {
+            errors.employeeName = 'Employee Name is required';
+        }
+
+        if (!formData.employeeID.trim()) {
+            errors.employeeID = 'Employee ID is required';
+        }
 
         // Basic Information validation
         if (!formData.siteBuildingName) errors.siteBuildingName = 'Site / Building Name is required';
@@ -2307,20 +2316,20 @@ const errorKey = `${transportType}DateRange`;
                 errors.carDateRange = 'Please select a date range for car commute';
             }
             if (formData.taxiMode === 'carpool' || formData.taxiMode === 'both') {
-            // Carry others checkbox is required
-            if (formData.carryOthersCar === false || formData.carryOthersCar === null) {
-                errors.carryOthersCar = 'Please indicate if you carry other employees';
-            }
+                // Carry others checkbox is required
+                if (formData.carryOthersCar === false || formData.carryOthersCar === null) {
+                    errors.carryOthersCar = 'Please indicate if you carry other employees';
+                }
 
-            // Validate when checkbox is checked
-            if (formData.carryOthersCar) {
-                if (!formData.personsCarriedCar) {
-                    errors.personsCarriedCar = 'Please select how many persons you carry';
+                // Validate when checkbox is checked
+                if (formData.carryOthersCar) {
+                    if (!formData.personsCarriedCar) {
+                        errors.personsCarriedCar = 'Please select how many persons you carry';
+                    }
+                    if (!formData.carDistanceCarpool || formData.carDistanceCarpool.trim() === '') {
+                        errors.carDistanceCarpool = 'Car carpool distance is required';
+                    }
                 }
-                if (!formData.carDistanceCarpool || formData.carDistanceCarpool.trim() === '') {
-                    errors.carDistanceCarpool = 'Car carpool distance is required';
-                }
-            }
             }
         }
 
@@ -2400,118 +2409,118 @@ const errorKey = `${transportType}DateRange`;
         //     errors.dateRangeOverlap = 'Date ranges cannot overlap between different commute methods';
         // }
         // Motorbike date range validation
-if (formData.commuteByMotorbike) {
-    if (!formData.motorbikeDateRange || !formData.motorbikeDateRange.startDate || !formData.motorbikeDateRange.endDate) {
-        errors.motorbikeDateRange = 'Please select a date range for motorbike commute';
-    } else {
-        // Validate date range specifics
-        const startDate = new Date(formData.motorbikeDateRange.startDate);
-        const endDate = new Date(formData.motorbikeDateRange.endDate);
-        
-        if (startDate > endDate) {
-            errors.motorbikeDateRange = 'Start date must be before end date';
-        }
-        
-        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-            errors.motorbikeDateRange = `Date range must be within ${reportingYear}`;
-        }
-    }
-}
+        if (formData.commuteByMotorbike) {
+            if (!formData.motorbikeDateRange || !formData.motorbikeDateRange.startDate || !formData.motorbikeDateRange.endDate) {
+                errors.motorbikeDateRange = 'Please select a date range for motorbike commute';
+            } else {
+                // Validate date range specifics
+                const startDate = new Date(formData.motorbikeDateRange.startDate);
+                const endDate = new Date(formData.motorbikeDateRange.endDate);
 
-// Taxi date range validation
-if (formData.commuteByTaxi) {
-    if (!formData.taxiDateRange || !formData.taxiDateRange.startDate || !formData.taxiDateRange.endDate) {
-        errors.taxiDateRange = 'Please select a date range for taxi commute';
-    } else {
-        // Validate date range specifics
-        const startDate = new Date(formData.taxiDateRange.startDate);
-        const endDate = new Date(formData.taxiDateRange.endDate);
-        
-        if (startDate > endDate) {
-            errors.taxiDateRange = 'Start date must be before end date';
-        }
-        
-        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-            errors.taxiDateRange = `Date range must be within ${reportingYear}`;
-        }
-    }
-}
+                if (startDate > endDate) {
+                    errors.motorbikeDateRange = 'Start date must be before end date';
+                }
 
-// Bus date range validation
-if (formData.commuteByBus) {
-    if (!formData.busDateRange || !formData.busDateRange.startDate || !formData.busDateRange.endDate) {
-        errors.busDateRange = 'Please select a date range for bus commute';
-    } else {
-        // Validate date range specifics
-        const startDate = new Date(formData.busDateRange.startDate);
-        const endDate = new Date(formData.busDateRange.endDate);
-        
-        if (startDate > endDate) {
-            errors.busDateRange = 'Start date must be before end date';
+                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                    errors.motorbikeDateRange = `Date range must be within ${reportingYear}`;
+                }
+            }
         }
-        
-        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-            errors.busDateRange = `Date range must be within ${reportingYear}`;
-        }
-    }
-}
 
-// Train date range validation
-if (formData.commuteByTrain) {
-    if (!formData.trainDateRange || !formData.trainDateRange.startDate || !formData.trainDateRange.endDate) {
-        errors.trainDateRange = 'Please select a date range for train commute';
-    } else {
-        // Validate date range specifics
-        const startDate = new Date(formData.trainDateRange.startDate);
-        const endDate = new Date(formData.trainDateRange.endDate);
-        
-        if (startDate > endDate) {
-            errors.trainDateRange = 'Start date must be before end date';
-        }
-        
-        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-            errors.trainDateRange = `Date range must be within ${reportingYear}`;
-        }
-    }
-}
+        // Taxi date range validation
+        if (formData.commuteByTaxi) {
+            if (!formData.taxiDateRange || !formData.taxiDateRange.startDate || !formData.taxiDateRange.endDate) {
+                errors.taxiDateRange = 'Please select a date range for taxi commute';
+            } else {
+                // Validate date range specifics
+                const startDate = new Date(formData.taxiDateRange.startDate);
+                const endDate = new Date(formData.taxiDateRange.endDate);
 
-// Car date range validation
-if (formData.commuteByCar) {
-    if (!formData.carDateRange || !formData.carDateRange.startDate || !formData.carDateRange.endDate) {
-        errors.carDateRange = 'Please select a date range for car commute';
-    } else {
-        // Validate date range specifics
-        const startDate = new Date(formData.carDateRange.startDate);
-        const endDate = new Date(formData.carDateRange.endDate);
-        
-        if (startDate > endDate) {
-            errors.carDateRange = 'Start date must be before end date';
-        }
-        
-        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-            errors.carDateRange = `Date range must be within ${reportingYear}`;
-        }
-    }
-}
+                if (startDate > endDate) {
+                    errors.taxiDateRange = 'Start date must be before end date';
+                }
 
-// Work from home date range validation
-if (formData.workFromHome) {
-    if (!formData.workFromHomeDateRange || !formData.workFromHomeDateRange.startDate || !formData.workFromHomeDateRange.endDate) {
-        errors.workFromHomeDateRange = 'Please select a date range for work from home';
-    } else {
-        // Validate date range specifics
-        const startDate = new Date(formData.workFromHomeDateRange.startDate);
-        const endDate = new Date(formData.workFromHomeDateRange.endDate);
-        
-        if (startDate > endDate) {
-            errors.workFromHomeDateRange = 'Start date must be before end date';
+                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                    errors.taxiDateRange = `Date range must be within ${reportingYear}`;
+                }
+            }
         }
-        
-        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-            errors.workFromHomeDateRange = `Date range must be within ${reportingYear}`;
+
+        // Bus date range validation
+        if (formData.commuteByBus) {
+            if (!formData.busDateRange || !formData.busDateRange.startDate || !formData.busDateRange.endDate) {
+                errors.busDateRange = 'Please select a date range for bus commute';
+            } else {
+                // Validate date range specifics
+                const startDate = new Date(formData.busDateRange.startDate);
+                const endDate = new Date(formData.busDateRange.endDate);
+
+                if (startDate > endDate) {
+                    errors.busDateRange = 'Start date must be before end date';
+                }
+
+                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                    errors.busDateRange = `Date range must be within ${reportingYear}`;
+                }
+            }
         }
-    }
-}
+
+        // Train date range validation
+        if (formData.commuteByTrain) {
+            if (!formData.trainDateRange || !formData.trainDateRange.startDate || !formData.trainDateRange.endDate) {
+                errors.trainDateRange = 'Please select a date range for train commute';
+            } else {
+                // Validate date range specifics
+                const startDate = new Date(formData.trainDateRange.startDate);
+                const endDate = new Date(formData.trainDateRange.endDate);
+
+                if (startDate > endDate) {
+                    errors.trainDateRange = 'Start date must be before end date';
+                }
+
+                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                    errors.trainDateRange = `Date range must be within ${reportingYear}`;
+                }
+            }
+        }
+
+        // Car date range validation
+        if (formData.commuteByCar) {
+            if (!formData.carDateRange || !formData.carDateRange.startDate || !formData.carDateRange.endDate) {
+                errors.carDateRange = 'Please select a date range for car commute';
+            } else {
+                // Validate date range specifics
+                const startDate = new Date(formData.carDateRange.startDate);
+                const endDate = new Date(formData.carDateRange.endDate);
+
+                if (startDate > endDate) {
+                    errors.carDateRange = 'Start date must be before end date';
+                }
+
+                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                    errors.carDateRange = `Date range must be within ${reportingYear}`;
+                }
+            }
+        }
+
+        // Work from home date range validation
+        if (formData.workFromHome) {
+            if (!formData.workFromHomeDateRange || !formData.workFromHomeDateRange.startDate || !formData.workFromHomeDateRange.endDate) {
+                errors.workFromHomeDateRange = 'Please select a date range for work from home';
+            } else {
+                // Validate date range specifics
+                const startDate = new Date(formData.workFromHomeDateRange.startDate);
+                const endDate = new Date(formData.workFromHomeDateRange.endDate);
+
+                if (startDate > endDate) {
+                    errors.workFromHomeDateRange = 'Start date must be before end date';
+                }
+
+                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                    errors.workFromHomeDateRange = `Date range must be within ${reportingYear}`;
+                }
+            }
+        }
 
         // Validate 12-month coverage only if at least one method is selected
         if (hasCommuteMethod) {
@@ -2566,126 +2575,126 @@ if (formData.workFromHome) {
     };
 
     // Add this function after validateForm()
-const scrollToFirstError = (errors) => {
-    const errorFields = Object.keys(errors);
-    
-    if (errorFields.length === 0) return;
-    
-    const firstErrorField = errorFields[0];
-    
-    // Map form field names to data attributes or IDs
-    const fieldMapping = {
-        // Basic fields
-        siteBuildingName: 'siteBuildingName',
-        stakeholderDepartment: 'stakeholderDepartment',
-        submittedByEmail: 'submittedByEmail',
-        commuteMethodRequired: 'commuteMethodRequired',
-        
-        // Motorbike fields
-        motorbikeDistance: 'motorbikeDistance',
-        motorbikeMode: 'motorbikeMode',
-        motorbikeType: 'motorbikeType',
-        motorbikeDateRange: 'motorbikeDateRange',
-        carryOthersMotorbike: 'carryOthersMotorbike',
-        personsCarriedMotorbike: 'personsCarriedMotorbike',
-        motorbikeDistanceCarpool: 'motorbikeDistanceCarpool',
-        
-        // Taxi fields
-        taxiDistance: 'taxiDistance',
-        taxiMode: 'taxiMode',
-        taxiPassengers: 'taxiPassengers',
-        taxiType: 'taxiType',
-        taxiDateRange: 'taxiDateRange',
-        travelWithOthersTaxi: 'travelWithOthersTaxi',
-        personsTravelWithTaxi: 'personsTravelWithTaxi',
-        taxiDistanceCarpool: 'taxiDistanceCarpool',
-        
-        // Bus fields
-        busDistance: 'busDistance',
-        busType: 'busType',
-        busDateRange: 'busDateRange',
-        
-        // Train fields
-        trainDistance: 'trainDistance',
-        trainType: 'trainType',
-        trainDateRange: 'trainDateRange',
-        
-        // Car fields
-        carDistance: 'carDistance',
-        carMode: 'carMode',
-        carType: 'carType',
-        carFuelType: 'carFuelType',
-        carDateRange: 'carDateRange',
-        carryOthersCar: 'carryOthersCar',
-        personsCarriedCar: 'personsCarriedCar',
-        carDistanceCarpool: 'carDistanceCarpool',
-        
-        // Work from home
-        fteWorkingHours: 'fteWorkingHours',
-        workFromHomeDateRange: 'workFromHomeDateRange',
-        
-        // Other errors
-        dateRangeOverlap: 'dateRangeOverlap',
-        monthCoverage: 'monthCoverage',
-    };
+    const scrollToFirstError = (errors) => {
+        const errorFields = Object.keys(errors);
 
-    // Try to find the element by data-error attribute
-    const fieldName = fieldMapping[firstErrorField] || firstErrorField;
-    
-    // First try to find by name attribute
-    let element = document.querySelector(`[name="${fieldName}"]`);
-    
-    // If not found, try to find by ID
-    if (!element) {
-        element = document.getElementById(fieldName);
-    }
-    
-    // If still not found, try to find by error message container
-    if (!element) {
-        element = document.querySelector(`[data-error-field="${firstErrorField}"]`);
-    }
-    
-    // Special handling for toggle errors (commuteMethodRequired)
-    if (firstErrorField === 'commuteMethodRequired') {
-        element = document.querySelector('.toggle-section:first-of-type');
-    }
-    
-    // Special handling for date range errors
-    if (firstErrorField.includes('DateRange')) {
-        // Find the date range section for this transport type
-        const transportType = firstErrorField.replace('DateRange', '');
-        element = document.querySelector(`[data-transport="${transportType}"]`);
-        
-        // If not found, scroll to the transport section
+        if (errorFields.length === 0) return;
+
+        const firstErrorField = errorFields[0];
+
+        // Map form field names to data attributes or IDs
+        const fieldMapping = {
+            // Basic fields
+            siteBuildingName: 'siteBuildingName',
+            stakeholderDepartment: 'stakeholderDepartment',
+            submittedByEmail: 'submittedByEmail',
+            commuteMethodRequired: 'commuteMethodRequired',
+
+            // Motorbike fields
+            motorbikeDistance: 'motorbikeDistance',
+            motorbikeMode: 'motorbikeMode',
+            motorbikeType: 'motorbikeType',
+            motorbikeDateRange: 'motorbikeDateRange',
+            carryOthersMotorbike: 'carryOthersMotorbike',
+            personsCarriedMotorbike: 'personsCarriedMotorbike',
+            motorbikeDistanceCarpool: 'motorbikeDistanceCarpool',
+
+            // Taxi fields
+            taxiDistance: 'taxiDistance',
+            taxiMode: 'taxiMode',
+            taxiPassengers: 'taxiPassengers',
+            taxiType: 'taxiType',
+            taxiDateRange: 'taxiDateRange',
+            travelWithOthersTaxi: 'travelWithOthersTaxi',
+            personsTravelWithTaxi: 'personsTravelWithTaxi',
+            taxiDistanceCarpool: 'taxiDistanceCarpool',
+
+            // Bus fields
+            busDistance: 'busDistance',
+            busType: 'busType',
+            busDateRange: 'busDateRange',
+
+            // Train fields
+            trainDistance: 'trainDistance',
+            trainType: 'trainType',
+            trainDateRange: 'trainDateRange',
+
+            // Car fields
+            carDistance: 'carDistance',
+            carMode: 'carMode',
+            carType: 'carType',
+            carFuelType: 'carFuelType',
+            carDateRange: 'carDateRange',
+            carryOthersCar: 'carryOthersCar',
+            personsCarriedCar: 'personsCarriedCar',
+            carDistanceCarpool: 'carDistanceCarpool',
+
+            // Work from home
+            fteWorkingHours: 'fteWorkingHours',
+            workFromHomeDateRange: 'workFromHomeDateRange',
+
+            // Other errors
+            dateRangeOverlap: 'dateRangeOverlap',
+            monthCoverage: 'monthCoverage',
+        };
+
+        // Try to find the element by data-error attribute
+        const fieldName = fieldMapping[firstErrorField] || firstErrorField;
+
+        // First try to find by name attribute
+        let element = document.querySelector(`[name="${fieldName}"]`);
+
+        // If not found, try to find by ID
         if (!element) {
-            const sectionHeader = document.querySelector(`h3:contains('${transportType} Commute')`);
-            if (sectionHeader) {
-                element = sectionHeader.closest('.border-b');
+            element = document.getElementById(fieldName);
+        }
+
+        // If still not found, try to find by error message container
+        if (!element) {
+            element = document.querySelector(`[data-error-field="${firstErrorField}"]`);
+        }
+
+        // Special handling for toggle errors (commuteMethodRequired)
+        if (firstErrorField === 'commuteMethodRequired') {
+            element = document.querySelector('.toggle-section:first-of-type');
+        }
+
+        // Special handling for date range errors
+        if (firstErrorField.includes('DateRange')) {
+            // Find the date range section for this transport type
+            const transportType = firstErrorField.replace('DateRange', '');
+            element = document.querySelector(`[data-transport="${transportType}"]`);
+
+            // If not found, scroll to the transport section
+            if (!element) {
+                const sectionHeader = document.querySelector(`h3:contains('${transportType} Commute')`);
+                if (sectionHeader) {
+                    element = sectionHeader.closest('.border-b');
+                }
             }
         }
-    }
-    
-    if (element) {
-        element.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center'
-        });
-        
-        // Add visual highlight
-        element.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.5)';
-        element.style.transition = 'box-shadow 0.3s';
-        
-        setTimeout(() => {
-            element.style.boxShadow = '';
-        }, 3000);
-    }
-};
+
+        if (element) {
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+
+            // Add visual highlight
+            element.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.5)';
+            element.style.transition = 'box-shadow 0.3s';
+
+            setTimeout(() => {
+                element.style.boxShadow = '';
+            }, 3000);
+        }
+    };
     // Handle form submission
     const handleSubmit = async (e) => {
         console.log('handleSubmit() =======>', 'validationErrors');
         e.preventDefault();
 
-      
+
         // const validationErrors = validateForm();
 
         // if (Object.keys(validationErrors).length > 0) {
@@ -2696,21 +2705,21 @@ const scrollToFirstError = (errors) => {
         //     return;
         // }
 
-    const validationErrors = validateForm();
+        const validationErrors = validateForm();
 
-    if (Object.keys(validationErrors).length > 0) {
-        setErrors(validationErrors);
-        
-        // Show general error toast
-        toast.error(`Please fix ${Object.keys(validationErrors).length} error(s) in the form`);
-        
-        // Find the first error and scroll to it
-        setTimeout(() => {
-            scrollToFirstError(validationErrors);
-        }, 100);
-        
-        return;
-    }
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+
+            // Show general error toast
+            toast.error(`Please fill all required fields`);
+
+            // Find the first error and scroll to it
+            setTimeout(() => {
+                scrollToFirstError(validationErrors);
+            }, 100);
+
+            return;
+        }
 
 
 
@@ -2734,6 +2743,8 @@ const scrollToFirstError = (errors) => {
 
             // Prepare submission data - extract values from option objects
             const submissionData = {
+                employeeName: String(formData.employeeName || ''),  // Add this
+                employeeID: String(formData.employeeID || ''),
                 // Basic Information
                 siteBuildingName: formData.siteBuildingName?.value || '',
                 stakeholderDepartment: formData.stakeholderDepartment?.value || '',
@@ -2884,6 +2895,8 @@ const scrollToFirstError = (errors) => {
                 // Reset form after 3 seconds
                 setTimeout(() => {
                     setFormData({
+                        employeeName: '',  // Add this
+                        employeeID: '',
                         siteBuildingName: null,
                         stakeholderDepartment: null,
                         // Motorbike Commute
@@ -3107,7 +3120,8 @@ const scrollToFirstError = (errors) => {
                             <label className="field-label">Employee Name</label>
                             <InputGroup
                                 type="text"
-                                name="employeeName"
+                                value={formData.employeeName}
+                                onChange={(e) => handleInputChange('employeeName', e.target.value)}
                                 placeholder="Enter Employee Name"
                                 className="input-field w-full"
                             />
@@ -3115,15 +3129,14 @@ const scrollToFirstError = (errors) => {
                         </div>
                         <div>
                             <label className="field-label">Employee ID</label>
-                            <div>
-                                <InputGroup
-                                    type="text"
-                                    name="employeeID"
-                                    placeholder="Enter Employee ID"
-                                    className="input-field w-full"
-                                />
-                                <ErrorMessage message={errors.employeeID} />
-                            </div>
+                            <InputGroup
+                                type="text"
+                                value={formData.employeeID}
+                                onChange={(e) => handleInputChange('employeeID', e.target.value)}
+                                placeholder="Enter Employee ID"
+                                className="input-field w-full"
+                            />
+                            <ErrorMessage message={errors.employeeID} />
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
