@@ -11,6 +11,7 @@ import { departmentOptions, transportationOptions, modeOptions } from '@/constan
 import InputGroup from '@/components/ui/InputGroup';
 import CustomSelect from '@/components/ui/Select';
 import ToggleButton from '@/components/ui/ToggleButton';
+import { qualityControlOptions } from '@/constant/scope1/options';
 
 
 const ErrorMessage = ({ message }) => {
@@ -106,6 +107,7 @@ const EmployeeCommutingForm = () => {
         fteWorkingHours: '',
         workFromHomeDateRange: null,
         qualityControlRemarks: '',
+        qualityControl: '',
         submittedByEmail: '',
     });
 
@@ -785,9 +787,17 @@ const EmployeeCommutingForm = () => {
         }
     };
 
+
     // Handle select changes - store the entire option object
     const handleSelectChange = (field, selectedOption) => {
-        setFormData(prev => ({ ...prev, [field]: selectedOption }));
+        // If selectedOption is an event (from regular input)
+        if (selectedOption && selectedOption.target) {
+            setFormData(prev => ({ ...prev, [field]: selectedOption.target.value }));
+        }
+        // If selectedOption is an option object (from CustomSelect)
+        else {
+            setFormData(prev => ({ ...prev, [field]: selectedOption }));
+        }
 
         // Clear error for this specific field
         if (errors[field]) {
@@ -821,7 +831,6 @@ const EmployeeCommutingForm = () => {
             });
         }
     };
-
     // Handle passenger emails (for manual input)
     const handlePassengerEmailsChange = (transportType, index, value) => {
         // Clear passenger email errors
@@ -1160,6 +1169,11 @@ const EmployeeCommutingForm = () => {
         }));
     };
 
+    useEffect(() => {
+        if (Object.keys(errors).length > 0) {
+            scrollToFirstError(errors);
+        }
+    }, [errors]);
     // // Handle number of persons change
     // const handlePersonsChange = (field, selectedOption) => {
     //     setFormData(prev => {
@@ -1844,48 +1858,55 @@ const EmployeeCommutingForm = () => {
             );
         }
 
+        // Get safe building display value
+        const getBuildingDisplayValue = () => {
+            if (!formData.siteBuildingName) return '';
+
+            // Check if it's an object with label property
+            if (typeof formData.siteBuildingName === 'object' && formData.siteBuildingName !== null) {
+                return formData.siteBuildingName.label || formData.siteBuildingName.value || '';
+            }
+
+            // If it's a string or other primitive
+            return String(formData.siteBuildingName || '');
+        };
+
         if (buildings.length === 0 && !buildingsLoading) {
             return (
                 <InputGroup
                     label="Site / Building Name *"
                     placeholder="e.g., Main Office, Building A"
-                    value={formData.siteBuildingName?.label || formData.siteBuildingName || ''}
-                    onChange={(e) => handleInputChange('siteBuildingName', { value: e.target.value, label: e.target.value })}
-                    required
+                    value={getBuildingDisplayValue()}
                     helperText="Building list could not be loaded. Please enter building name manually."
+                    disabled={true}
+                    readOnly={true}
                 />
-
             );
         }
 
         return (
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Site / Building
+                    Site / Building *
                 </label>
-                <CustomSelect
+                <InputGroup
                     placeholder="Select Building"
-                    options={buildings}
-                    value={formData.siteBuildingName}
-                    onChange={(selectedOption) => handleSelectChange('siteBuildingName', selectedOption)}
-                    required
+                    value={getBuildingDisplayValue()}
                     isLoading={buildingsLoading}
-                    disabled={buildingsLoading}
+                    disabled={true}
+                    readOnly={true}
                     helperText={
                         buildingsLoading ? "Loading buildings..." :
-                            userInfo && userInfo.buildingId && formData.siteBuildingName ?
-                                `Auto-selected building: ${userInfo.buildingId.buildingName || formData.siteBuildingName.label}` :
-                                userInfo && userInfo.buildingId ?
-                                    `Your building: ${userInfo.buildingId.buildingName || userInfo.buildingId._id.substring(0, 8)}...` :
+                            userInfo?.buildingId && formData.siteBuildingName ?
+                                `Auto-selected building: ${userInfo?.buildingId?.buildingName || getBuildingDisplayValue()}` :
+                                userInfo?.buildingId ?
+                                    `Your building: ${userInfo?.buildingId?.buildingName || (userInfo?.buildingId?._id ? userInfo.buildingId._id.substring(0, 8) + '...' : '')}` :
                                     "Select your work location"
                     }
                 />
-                <ErrorMessage message={errors.siteBuildingName} />
             </div>
-
         );
     };
-
     // Validate email format
     const isValidEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -2166,17 +2187,10 @@ const EmployeeCommutingForm = () => {
         console.log('validate form called');
 
         const errors = {};
-        if (!formData.employeeName.trim()) {
-            errors.employeeName = 'Employee Name is required';
-        }
-
-        if (!formData.employeeID.trim()) {
-            errors.employeeID = 'Employee ID is required';
-        }
 
         // Basic Information validation
-        if (!formData.siteBuildingName) errors.siteBuildingName = 'Site / Building Name is required';
         if (!formData.stakeholderDepartment) errors.stakeholderDepartment = 'Stakeholder / Department is required';
+        if (!formData.qualityControl) errors.qualityControl = 'Quality Control is required';
 
         // Check if at least one commute method or work from home is selected
         const hasCommuteMethod =
@@ -2192,21 +2206,6 @@ const EmployeeCommutingForm = () => {
             errors.commuteMethodRequired = 'Please select at least one commute method or enable work from home';
         }
 
-        // // Validate specific fields only if their toggle is enabled
-        // if (formData.commuteByMotorbike) {
-        //     if (!formData.motorbikeDistance || formData.motorbikeDistance.trim() === '') {
-        //         errors.motorbikeDistance = 'Motorbike distance is required';
-        //     }
-        //     if (!formData.motorbikeMode) {
-        //         errors.motorbikeMode = 'Please select how you commute by motorbike';
-        //     }
-        //     if (!formData.motorbikeType) {
-        //         errors.motorbikeType = 'Motorbike type is required';
-        //     }
-        //     if (!formData.motorbikeDateRange || !formData.motorbikeDateRange.startDate || !formData.motorbikeDateRange.endDate) {
-        //         errors.motorbikeDateRange = 'Please select a date range for motorbike commute';
-        //     }
-        // }
         if (formData.commuteByMotorbike) {
             if (!formData.motorbikeDistance || formData.motorbikeDistance.trim() === '') {
                 errors.motorbikeDistance = 'Motorbike distance is required';
@@ -2341,73 +2340,75 @@ const EmployeeCommutingForm = () => {
                 errors.workFromHomeDateRange = 'Please select a date range for work from home';
             }
         }
+        
+        
 
-        // // Validate date range specifics (only for enabled toggles)
-        // const validateDateRange = (dateRange, methodName) => {
-        //     if (!dateRange || !dateRange.startDate || !dateRange.endDate) {
-        //         return false;
-        //     }
+        // Validate date range specifics (only for enabled toggles)
+        const validateDateRange = (dateRange, methodName) => {
+            if (!dateRange || !dateRange.startDate || !dateRange.endDate) {
+                return false;
+            }
 
-        //     const startDate = new Date(dateRange.startDate);
-        //     const endDate = new Date(dateRange.endDate);
+            const startDate = new Date(dateRange.startDate);
+            const endDate = new Date(dateRange.endDate);
 
-        //     if (startDate > endDate) {
-        //         errors[`${methodName}DateRange`] = 'Start date must be before end date';
-        //         return false;
-        //     }
+            if (startDate > endDate) {
+                errors[`${methodName}DateRange`] = 'Start date must be before end date';
+                return false;
+            }
 
-        //     if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-        //         errors[`${methodName}DateRange`] = `Date range must be within ${reportingYear}`;
-        //         return false;
-        //     }
+            if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                errors[`${methodName}DateRange`] = `Date range must be within ${reportingYear}`;
+                return false;
+            }
 
-        //     return true;
-        // };
+            return true;
+        };
 
-        // // Only validate date ranges for enabled methods
-        // if (formData.commuteByMotorbike) {
-        //     validateDateRange(formData.motorbikeDateRange, 'motorbike');
-        // }
-        // if (formData.commuteByTaxi) {
-        //     validateDateRange(formData.taxiDateRange, 'taxi');
-        // }
-        // if (formData.commuteByBus) {
-        //     validateDateRange(formData.busDateRange, 'bus');
-        // }
-        // if (formData.commuteByTrain) {
-        //     validateDateRange(formData.trainDateRange, 'train');
-        // }
-        // if (formData.commuteByCar) {
-        //     validateDateRange(formData.carDateRange, 'car');
-        // }
-        // if (formData.workFromHome) {
-        //     validateDateRange(formData.workFromHomeDateRange, 'workFromHome');
-        // }
+        // Only validate date ranges for enabled methods
+        if (formData.commuteByMotorbike) {
+            validateDateRange(formData.motorbikeDateRange, 'motorbike');
+        }
+        if (formData.commuteByTaxi) {
+            validateDateRange(formData.taxiDateRange, 'taxi');
+        }
+        if (formData.commuteByBus) {
+            validateDateRange(formData.busDateRange, 'bus');
+        }
+        if (formData.commuteByTrain) {
+            validateDateRange(formData.trainDateRange, 'train');
+        }
+        if (formData.commuteByCar) {
+            validateDateRange(formData.carDateRange, 'car');
+        }
+        if (formData.workFromHome) {
+            validateDateRange(formData.workFromHomeDateRange, 'workFromHome');
+        }
 
-        // // Check for date range overlaps only between enabled methods
-        // const enabledTransportMethods = [];
-        // if (formData.commuteByMotorbike) enabledTransportMethods.push({ type: 'motorbike', range: formData.motorbikeDateRange });
-        // if (formData.commuteByTaxi) enabledTransportMethods.push({ type: 'taxi', range: formData.taxiDateRange });
-        // if (formData.commuteByBus) enabledTransportMethods.push({ type: 'bus', range: formData.busDateRange });
-        // if (formData.commuteByTrain) enabledTransportMethods.push({ type: 'train', range: formData.trainDateRange });
-        // if (formData.commuteByCar) enabledTransportMethods.push({ type: 'car', range: formData.carDateRange });
-        // if (formData.workFromHome) enabledTransportMethods.push({ type: 'workFromHome', range: formData.workFromHomeDateRange });
+        // Check for date range overlaps only between enabled methods
+        const enabledTransportMethods = [];
+        if (formData.commuteByMotorbike) enabledTransportMethods.push({ type: 'motorbike', range: formData.motorbikeDateRange });
+        if (formData.commuteByTaxi) enabledTransportMethods.push({ type: 'taxi', range: formData.taxiDateRange });
+        if (formData.commuteByBus) enabledTransportMethods.push({ type: 'bus', range: formData.busDateRange });
+        if (formData.commuteByTrain) enabledTransportMethods.push({ type: 'train', range: formData.trainDateRange });
+        if (formData.commuteByCar) enabledTransportMethods.push({ type: 'car', range: formData.carDateRange });
+        if (formData.workFromHome) enabledTransportMethods.push({ type: 'workFromHome', range: formData.workFromHomeDateRange });
 
-        // const overlaps = [];
-        // for (let i = 0; i < enabledTransportMethods.length; i++) {
-        //     for (let j = i + 1; j < enabledTransportMethods.length; j++) {
-        //         if (checkDateRangeOverlap(enabledTransportMethods[i].range, enabledTransportMethods[j].range)) {
-        //             overlaps.push({
-        //                 type1: enabledTransportMethods[i].type,
-        //                 type2: enabledTransportMethods[j].type
-        //             });
-        //         }
-        //     }
-        // }
+        const overlaps = [];
+        for (let i = 0; i < enabledTransportMethods.length; i++) {
+            for (let j = i + 1; j < enabledTransportMethods.length; j++) {
+                if (checkDateRangeOverlap(enabledTransportMethods[i].range, enabledTransportMethods[j].range)) {
+                    overlaps.push({
+                        type1: enabledTransportMethods[i].type,
+                        type2: enabledTransportMethods[j].type
+                    });
+                }
+            }
+        }
 
-        // if (overlaps.length > 0) {
-        //     errors.dateRangeOverlap = 'Date ranges cannot overlap between different commute methods';
-        // }
+        if (overlaps.length > 0) {
+            errors.dateRangeOverlap = 'Date ranges cannot overlap between different commute methods';
+        }
         // Motorbike date range validation
         if (formData.commuteByMotorbike) {
             if (!formData.motorbikeDateRange || !formData.motorbikeDateRange.startDate || !formData.motorbikeDateRange.endDate) {
@@ -2575,135 +2576,24 @@ const EmployeeCommutingForm = () => {
     };
 
     // Add this function after validateForm()
-    const scrollToFirstError = (errors) => {
-        const errorFields = Object.keys(errors);
-
-        if (errorFields.length === 0) return;
-
-        const firstErrorField = errorFields[0];
-
-        // Map form field names to data attributes or IDs
-        const fieldMapping = {
-            // Basic fields
-            siteBuildingName: 'siteBuildingName',
-            stakeholderDepartment: 'stakeholderDepartment',
-            submittedByEmail: 'submittedByEmail',
-            commuteMethodRequired: 'commuteMethodRequired',
-
-            // Motorbike fields
-            motorbikeDistance: 'motorbikeDistance',
-            motorbikeMode: 'motorbikeMode',
-            motorbikeType: 'motorbikeType',
-            motorbikeDateRange: 'motorbikeDateRange',
-            carryOthersMotorbike: 'carryOthersMotorbike',
-            personsCarriedMotorbike: 'personsCarriedMotorbike',
-            motorbikeDistanceCarpool: 'motorbikeDistanceCarpool',
-
-            // Taxi fields
-            taxiDistance: 'taxiDistance',
-            taxiMode: 'taxiMode',
-            taxiPassengers: 'taxiPassengers',
-            taxiType: 'taxiType',
-            taxiDateRange: 'taxiDateRange',
-            travelWithOthersTaxi: 'travelWithOthersTaxi',
-            personsTravelWithTaxi: 'personsTravelWithTaxi',
-            taxiDistanceCarpool: 'taxiDistanceCarpool',
-
-            // Bus fields
-            busDistance: 'busDistance',
-            busType: 'busType',
-            busDateRange: 'busDateRange',
-
-            // Train fields
-            trainDistance: 'trainDistance',
-            trainType: 'trainType',
-            trainDateRange: 'trainDateRange',
-
-            // Car fields
-            carDistance: 'carDistance',
-            carMode: 'carMode',
-            carType: 'carType',
-            carFuelType: 'carFuelType',
-            carDateRange: 'carDateRange',
-            carryOthersCar: 'carryOthersCar',
-            personsCarriedCar: 'personsCarriedCar',
-            carDistanceCarpool: 'carDistanceCarpool',
-
-            // Work from home
-            fteWorkingHours: 'fteWorkingHours',
-            workFromHomeDateRange: 'workFromHomeDateRange',
-
-            // Other errors
-            dateRangeOverlap: 'dateRangeOverlap',
-            monthCoverage: 'monthCoverage',
-        };
-
-        // Try to find the element by data-error attribute
-        const fieldName = fieldMapping[firstErrorField] || firstErrorField;
-
-        // First try to find by name attribute
-        let element = document.querySelector(`[name="${fieldName}"]`);
-
-        // If not found, try to find by ID
-        if (!element) {
-            element = document.getElementById(fieldName);
-        }
-
-        // If still not found, try to find by error message container
-        if (!element) {
-            element = document.querySelector(`[data-error-field="${firstErrorField}"]`);
-        }
-
-        // Special handling for toggle errors (commuteMethodRequired)
-        if (firstErrorField === 'commuteMethodRequired') {
-            element = document.querySelector('.toggle-section:first-of-type');
-        }
-
-        // Special handling for date range errors
-        if (firstErrorField.includes('DateRange')) {
-            // Find the date range section for this transport type
-            const transportType = firstErrorField.replace('DateRange', '');
-            element = document.querySelector(`[data-transport="${transportType}"]`);
-
-            // If not found, scroll to the transport section
-            if (!element) {
-                const sectionHeader = document.querySelector(`h3:contains('${transportType} Commute')`);
-                if (sectionHeader) {
-                    element = sectionHeader.closest('.border-b');
-                }
-            }
-        }
-
-        if (element) {
-            element.scrollIntoView({
+    // Enhanced scroll to first error function
+    const scrollToFirstError = () => {
+        // Simply scroll to the top of the form container
+        const formContainer = document.querySelector('.max-w-6xl');
+        if (formContainer) {
+            formContainer.scrollIntoView({
                 behavior: 'smooth',
-                block: 'center'
+                block: 'start'
             });
-
-            // Add visual highlight
-            element.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.5)';
-            element.style.transition = 'box-shadow 0.3s';
-
-            setTimeout(() => {
-                element.style.boxShadow = '';
-            }, 3000);
+        } else {
+            // Fallback: scroll to top of page
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
     // Handle form submission
     const handleSubmit = async (e) => {
         console.log('handleSubmit() =======>', 'validationErrors');
         e.preventDefault();
-
-
-        // const validationErrors = validateForm();
-
-        // if (Object.keys(validationErrors).length > 0) {
-        //     setErrors(validationErrors);
-        //     // Scroll to first error if needed
-        //     const firstErrorField = Object.keys(validationErrors)[0];
-        //     document.querySelector(`[name="${firstErrorField}"]`)?.scrollIntoView({ behavior: 'smooth' });
-        //     return;
-        // }
 
         const validationErrors = validateForm();
 
@@ -2720,9 +2610,6 @@ const EmployeeCommutingForm = () => {
 
             return;
         }
-
-
-
         setLoading(true);
 
         try {
@@ -2870,6 +2757,7 @@ const EmployeeCommutingForm = () => {
                     workFromHomeDateRange: formData.workFromHomeDateRange,
                 }),
                 qualityControlRemarks: String(formData.qualityControlRemarks || ''),
+                qualityControl: String(formData.qualityControl || ''),
                 submittedAt: new Date().toISOString(),
             };
 
@@ -2954,6 +2842,7 @@ const EmployeeCommutingForm = () => {
                         fteWorkingHours: '',
                         workFromHomeDateRange: null,
                         qualityControlRemarks: '',
+                        qualityControl: '',
                         submittedByEmail: '',
                     });
 
@@ -2967,7 +2856,7 @@ const EmployeeCommutingForm = () => {
                         workFromHome: null
                     });
 
-                    setSubmitted(false);
+                    setSubmitted(true);
                 }, 3000);
             }
 
@@ -3076,21 +2965,21 @@ const EmployeeCommutingForm = () => {
                                 </div>
                                 <div className="ml-3">
                                     <h3 className="text-sm font-medium text-black-800">
-                                        {targetUserData ? `Admin Mode: Filling for ${targetUserData.name || targetUserData.email}` : `Welcome, ${userInfo.name || userInfo.email || 'User'}!`}
+                                        {targetUserData ? `Admin Mode: Filling for ${targetUserData?.name || targetUserData?.email || 'User'}` : `Welcome, ${userInfo?.name || userInfo?.email || 'User'}!`}
                                     </h3>
                                     <div className="mt-1 text-sm text-black-700">
-                                        {userInfo.buildingId && userInfo.buildingId.buildingName && (
+                                        {userInfo?.buildingId && userInfo?.buildingId?.buildingName && (
                                             <p>Selected building: <span className="font-semibold">{userInfo.buildingId.buildingName}</span></p>
                                         )}
-                                        {userInfo.department && (
+                                        {userInfo?.department && (
                                             <p>Department: <span className="font-semibold">{userInfo.department}</span></p>
                                         )}
-                                        {userInfo.email && (
+                                        {userInfo?.email && (
                                             <p>Email: <span className="font-semibold">{userInfo.email}</span></p>
                                         )}
                                         {companyData && targetUserData && (
                                             <p className="text-xs text-gray-600 mt-1">
-                                                You are submitting on behalf of {targetUserData.name || targetUserData.email}
+                                                You are submitting on behalf of {targetUserData?.name || targetUserData?.email || 'Employee'}
                                             </p>
                                         )}
                                     </div>
@@ -3120,10 +3009,11 @@ const EmployeeCommutingForm = () => {
                             <label className="field-label">Employee Name</label>
                             <InputGroup
                                 type="text"
-                                value={formData.employeeName}
+                                value={userInfo?.name || ''}
                                 onChange={(e) => handleInputChange('employeeName', e.target.value)}
                                 placeholder="Enter Employee Name"
                                 className="input-field w-full"
+                                readOnly
                             />
                             <ErrorMessage message={errors.employeeName} />
                         </div>
@@ -3131,10 +3021,11 @@ const EmployeeCommutingForm = () => {
                             <label className="field-label">Employee ID</label>
                             <InputGroup
                                 type="text"
-                                value={formData.employeeID}
+                                value={userInfo?.employeeId || ''}
                                 onChange={(e) => handleInputChange('employeeID', e.target.value)}
                                 placeholder="Enter Employee ID"
                                 className="input-field w-full"
+                                readOnly
                             />
                             <ErrorMessage message={errors.employeeID} />
                         </div>
@@ -3902,7 +3793,7 @@ const EmployeeCommutingForm = () => {
                                     max="40"
                                     placeholder="e.g., 8, 20, 40"
                                     value={formData.fteWorkingHours}
-                                    onChange={(e) => handleInputChange('fteWorkingHours', e.target.value)}
+                                    onChange={(value) => handleSelectChange("qualityControl", value)}
                                     required
                                     helperText="Full-Time Equivalent working hours (typically 8 hours per day)"
                                 />
@@ -3920,13 +3811,26 @@ const EmployeeCommutingForm = () => {
                     <h2 className="text-xl font-semibold text-gray-800 mb-2 pb-2 ">
                         Quality Control & Remarks
                     </h2>
-                    <Textarea
-                        label="Remarks"
-                        placeholder="Any additional comments, clarifications, or special circumstances regarding your commute..."
-                        rows={4}
-                        value={formData.qualityControlRemarks}
-                        onChange={(e) => handleInputChange('qualityControlRemarks', e.target.value)}
-                    />
+                    <div>
+                        <label className="field-label">Quality Control</label>
+                        <CustomSelect
+                            name="qualityControl"
+                            options={qualityControlOptions}
+                            value={formData.qualityControl}
+                            onChange={(selectedOption) => handleSelectChange('qualityControl', selectedOption)} // Fixed
+                            placeholder="Select Quality"
+                        />
+                        <ErrorMessage message={errors.qualityControl} />
+                    </div>
+                    <div>
+                        <Textarea
+                            label="Remarks"
+                            placeholder="Enter Remarks"
+                            rows={4}
+                            value={formData.qualityControlRemarks}
+                            onChange={(e) => handleInputChange('qualityControlRemarks', e.target.value)}
+                        />
+                    </div>
                 </div>
 
                 {/* Submission Information */}

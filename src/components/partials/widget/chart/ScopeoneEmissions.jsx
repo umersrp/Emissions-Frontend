@@ -170,6 +170,7 @@ const formatEmissionValue = (value) => {
 };
 
 const ScopeEmissionsSection = ({ dashboardData, loading , resetTrigger = 0,  
+
   onRegisterReset }) => {
   if (!dashboardData?.scope1) return null;
 
@@ -344,3 +345,5 @@ const ScopeEmissionsSection = ({ dashboardData, loading , resetTrigger = 0,
 };
 
 export default ScopeEmissionsSection;
+
+

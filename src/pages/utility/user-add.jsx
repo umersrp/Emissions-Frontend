@@ -203,7 +203,7 @@ const UserAddPage = () => {
 
              <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Employee ID<span className="text-red-500">*</span>
+                Employee ID
               </label>
               <Textinput
                 type="text"
