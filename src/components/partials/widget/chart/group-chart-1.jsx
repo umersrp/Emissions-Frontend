@@ -2,12 +2,12 @@
 // import Chart from "react-apexcharts";
 
 // const GroupChart1 = ({ chartData = [], loading }) => {
-  
-  
+
+
 //   // Calculate total and percentages from ORIGINAL values
 //   const originalValues = chartData.map(d => Number(d.value) || 0);
 //   const total = originalValues.reduce((sum, val) => sum + val, 0);
-  
+
 //   // Calculate original percentages
 //   const originalPercentages = originalValues.map(val => 
 //     total > 0 ? (val / total) * 100 : 0
@@ -24,7 +24,7 @@
 //   //   }
 //   //   return value;
 //   // });
-  
+
 //   const labels = chartData.map((d) => d.name);
 
 //   // const colors = ["#22C55E", "#22D3EE", "#FACC15"]; // green, cyan, yellow
@@ -50,7 +50,7 @@
 //       formatter: function(val, opts) {
 //         const dataIndex = opts.seriesIndex;
 //         const originalPercentage = originalPercentages[dataIndex];
-        
+
 //         // Format based on value
 //         if (originalPercentage === 0) {
 //           return '0%';
@@ -117,12 +117,12 @@
 //         }
 //       }
 //     },
-    
+
 // tooltip: {
 //   custom: function({ series, seriesIndex, w }) {
 //     const percentage = originalPercentages[seriesIndex];
 //     let percentText = '0%';
-    
+
 //     if (percentage === 0) {
 //       percentText = '0%';
 //     } else if (percentage < 0.1) {
@@ -132,13 +132,13 @@
 //     } else {
 //       percentText = Math.round(percentage) + '%';
 //     }
-    
+
 //     // Format the value to 2 decimal places
 //     const formattedValue = series[seriesIndex].toLocaleString(undefined, {
 //       minimumFractionDigits: 2,
 //       maximumFractionDigits: 2
 //     });
-    
+
 //     return `<div style="
 //               padding: 8px 12px; 
 //               border-radius: 6px; 
@@ -195,7 +195,7 @@
 //       <div className="flex gap-4 mt-10">
 //         {chartData.map((item, index) => {
 //           const percent = calculatePercent(item.value, index);
-          
+
 //           return (
 //             <div key={item.name} className="flex items-center gap-2 text-sm">
 //               <span
@@ -219,40 +219,71 @@ import React from "react";
 import Chart from "react-apexcharts";
 
 const GroupChart1 = ({ chartData = [], loading }) => {
-  
-  
+
+
   // Calculate total and percentages from ORIGINAL values
   const originalValues = chartData.map(d => Number(d.value) || 0);
   const total = originalValues.reduce((sum, val) => sum + val, 0);
-  
+
   // Calculate original percentages
-  const originalPercentages = originalValues.map(val => 
-    total > 0 ? (val / total) * 100 : 0
+  const originalPercentages = originalValues.map(val =>
+    // total > 0 ? Math.ceil((val / total) * 100) : 0
+    total > 0 ? ((val / total) * 100) : 0
   );
 
   // Create series for chart - use ACTUAL VALUES but ensure tiny slices are visible
-  const series = originalValues; 
-  
+  const series = originalValues;
+
   const labels = chartData.map((d) => d.name);
 
-  const colors = ["#22C55E","#F43F5E", "#FACC15"]; // green, red, yellow
+  const colors = ["#22C55E", "#F43F5E", "#FACC15"]; // green, red, yellow
 
 
   const options = {
     chart: {
       type: "pie",
       events: {
-        dataPointMouseEnter: function(event, chartContext, config) {
+        // dataPointMouseEnter: function(event, chartContext, config) {
+        //   // Get the slice element
+        //   const slices = event.target.closest('svg').querySelectorAll('.apexcharts-pie-area');
+        //   const slice = slices[config.dataPointIndex];
+
+        //   if (slice) {
+        //     // Get the center point of the pie
+        //     const bbox = slice.getBBox();
+        //     const centerX = bbox.x + bbox.width / 2;
+        //     const centerY = bbox.y + bbox.height / 2;
+
+        //     // Calculate offset direction based on slice position
+        //     const svgRect = slice.closest('svg').getBoundingClientRect();
+        //     const sliceCenter = slice.getBBox();
+        //     const dx = (sliceCenter.x + sliceCenter.width / 2) - (svgRect.width / 2);
+        //     const dy = (sliceCenter.y + sliceCenter.height / 2) - (svgRect.height / 2);
+        //     const distance = Math.sqrt(dx * dx + dy * dy);
+        //     const offsetDistance = 8;
+        //     const offsetX = (dx / distance) * offsetDistance;
+        //     const offsetY = (dy / distance) * offsetDistance;
+        //     const findHighestEmission = originalPercentages.find((perc) => perc > 75)
+        //     slice.style.transition = 'transform 0.5s ease';                 
+        //     if (findHighestEmission) {
+        //       slice.style.transform = `translate(15px, ${0}px)`;
+        //     } else {
+        //       slice.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+        //     }
+        //     console.log('offset  ===+>', offsetX, originalPercentages);
+        //   }
+        // },
+        dataPointMouseEnter: function (event, chartContext, config) {
           // Get the slice element
           const slices = event.target.closest('svg').querySelectorAll('.apexcharts-pie-area');
           const slice = slices[config.dataPointIndex];
-          
+
           if (slice) {
             // Get the center point of the pie
             const bbox = slice.getBBox();
             const centerX = bbox.x + bbox.width / 2;
             const centerY = bbox.y + bbox.height / 2;
-            
+
             // Calculate offset direction based on slice position
             const svgRect = slice.closest('svg').getBoundingClientRect();
             const sliceCenter = slice.getBBox();
@@ -262,15 +293,26 @@ const GroupChart1 = ({ chartData = [], loading }) => {
             const offsetDistance = 8;
             const offsetX = (dx / distance) * offsetDistance;
             const offsetY = (dy / distance) * offsetDistance;
-            
-            slice.style.transition = 'transform 0.5s ease';                 
-            slice.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+
+            // Check if THIS SPECIFIC slice is above 75%
+            const currentSlicePercentage = originalPercentages[config.dataPointIndex];
+
+            slice.style.transition = 'transform 0.5s ease';
+            if (currentSlicePercentage > 60) {
+              // For large slices (>75%), move to the right
+              slice.style.transform = `translate(15px, 0px)`;
+            } else {
+              // For smaller slices, use calculated offset
+              slice.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            }
+
+            console.log('Current slice:', config.dataPointIndex, 'Percentage:', currentSlicePercentage);
           }
         },
-        dataPointMouseLeave: function(event, chartContext, config) {
+        dataPointMouseLeave: function (event, chartContext, config) {
           const slices = event.target.closest('svg').querySelectorAll('.apexcharts-pie-area');
           const slice = slices[config.dataPointIndex];
-          
+
           if (slice) {
             slice.style.transform = 'translate(0, 0)';
           }
@@ -289,10 +331,10 @@ const GroupChart1 = ({ chartData = [], loading }) => {
     dataLabels: {
       enabled: false,
       // Show original percentages
-      formatter: function(val, opts) {
+      formatter: function (val, opts) {
         const dataIndex = opts.seriesIndex;
         const originalPercentage = originalPercentages[dataIndex];
-        
+
         // Format based on value
         if (originalPercentage === 0) {
           return '0%';
@@ -353,12 +395,12 @@ const GroupChart1 = ({ chartData = [], loading }) => {
         }
       }
     },
-    
+
     tooltip: {
-      custom: function({ series, seriesIndex, w }) {
+      custom: function ({ series, seriesIndex, w }) {
         const percentage = originalPercentages[seriesIndex];
         let percentText = '0%';
-        
+
         if (percentage === 0) {
           percentText = '0%';
         } else if (percentage < 0.1) {
@@ -368,13 +410,13 @@ const GroupChart1 = ({ chartData = [], loading }) => {
         } else {
           percentText = Math.round(percentage) + '%';
         }
-        
+
         // Format the value to 2 decimal places
         const formattedValue = series[seriesIndex].toLocaleString(undefined, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2
         });
-        
+
         return `<div style="
                   padding: 8px 12px; 
                   border-radius: 6px; 
@@ -431,14 +473,14 @@ const GroupChart1 = ({ chartData = [], loading }) => {
       <div className="flex gap-4 mt-10">
         {chartData.map((item, index) => {
           const percent = calculatePercent(item.value, index);
-          
+
           return (
             <div key={item.name} className="flex items-center gap-2 text-sm">
               <span
                 className="w-3 h-3 rounded-full"
                 style={{ backgroundColor: colors[index] }}
               />
-              <span className="text-gray-700">
+              <span className="text-gray-700 text-lg">
                 {item.name}
               </span>
             </div>

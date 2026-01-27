@@ -383,7 +383,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex bg-gray-100">
       {loading && (
         <div className="absolute inset-0 bg-white/10 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="text-center">
@@ -503,7 +503,7 @@ const Dashboard = () => {
           {/* Scope 1 Emissions */}
           <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]  h-[150px]  mt-2.5 p-3">
             <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 1 Emissions</h3>
-             <p className="text-xl text-purple-500 font-bold break-words">
+            <p className="text-xl text-purple-500 font-bold break-words">
               {formatNumber(scope1Emission)}
               <span className="block">tCO₂e</span>
             </p>
@@ -557,8 +557,7 @@ const Dashboard = () => {
             <GroupChart1 chartData={pieData} loading={loading} />
           </Card>
 
-
-          <Card className="flex-1  min-w-[320px] col-span-2">
+          {/* <Card className="flex-1  min-w-[320px] col-span-2">
             <h3 className="font-semibold  text-xl flex items-center gap-2">
               Building-Wise GHG Emissions
               <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e. The selected building will be highlighted in blue.">
@@ -576,6 +575,25 @@ const Dashboard = () => {
               }}
               selectedBuilding={appliedBuilding} // Pass the selected building ID
             />
+          </Card> */}
+          <Card className="flex-1 min-w-[320px] col-span-2 ">
+             <h3 className="font-semibold text-xl flex items-center gap-2">
+              Building-Wise GHG Emissions
+              <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e. The selected building will be highlighted in blue.">
+                <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
+              </Tooltip>
+            </h3>
+            <div className="pr-20 min-w-[300px] overflow-x-auto scrollbar-hide "> 
+            <div style={{ minWidth: `${Math.max(barChartData.length * 60, 800)}px` }} >
+              <RevenueBarChart
+                chartData={barChartData}
+                onBarClick={(building) => {
+                  console.log("Clicked building:", building);
+                }}
+                selectedBuilding={appliedBuilding}
+              />
+            </div>
+            </div>
           </Card>
         </div>
 

@@ -206,7 +206,7 @@ const FugitiveCombustionListing = () => {
           }
         }
       },
-      { Header: "Created At", accessor: "createdAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-") },
+      { Header: "Created At", accessor: "createdAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "N/A") },
       {
         Header: "Actions",
         accessor: "_id",
