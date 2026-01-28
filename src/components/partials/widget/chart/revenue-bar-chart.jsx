@@ -9,48 +9,104 @@
 //   onBarClick,
 //   selectedCategory,
 //   selectedBuilding = null,
+//   showZeroValues = true, // New prop to control zero/null value display
+  
 // }) => {
 //   const [isDark] = useDarkMode();
 //   const [isRtl] = useRtl();
 
-//   // Filter out zero-emission categories
-//   const filteredData = chartData.filter((item) => Number(item.value || 0) !== 0);
+//   // Process data based on showZeroValues prop
+//   const processData = () => {
+//     if (showZeroValues) {
+//       // Keep all data, including zero/null values
+//       return chartData.map(item => ({
+//         ...item,
+//         value: Number(item.value) || 0,
+//         displayName: item.displayName || item.name || 'Unknown'
+//       }));
+//     } else {
+//       // Filter out zero/null values
+//       return chartData
+//         .filter(item => {
+//           const val = Number(item.value);
+//           return !isNaN(val) && val !== 0;
+//         })
+//         .map(item => ({
+//           ...item,
+//           value: Number(item.value),
+//           displayName: item.displayName || item.name || 'Unknown'
+//         }));
+//     }
+//   };
 
-//   // Sort descending by value
-//   const sortedData = [...filteredData].sort(
+//   const allData = processData();
+
+//   // Sort descending by value (zeros will be at the end when showZeroValues is true)
+//   const sortedData = [...allData].sort(
 //     (a, b) => (Number(b.value) || 0) - (Number(a.value) || 0)
 //   );
 
 //   const values = sortedData.map((item) => Number(item.value) || 0);
+//   const displayNames = sortedData.map((item) => item.displayName || item.name || 'Unknown');
 
-//   // Use displayName for x-axis labels if available, otherwise use name
-//   const displayNames = sortedData.map((item) => item.displayName || item.name);
+//   // Calculate dynamic bar width based on number of bars
+//   const barCount = sortedData.length;
+//   let columnWidth = "45%"; // default
+
+//   if (barCount > 15) columnWidth = "25%";
+//   else if (barCount > 10) columnWidth = "30%";
+//   else if (barCount > 5) columnWidth = "40%";
+
+//   const maxValue = Math.max(...values, 1); // prevent 0
+
+//   // Create the color array for the bars
+//   const barColors = sortedData.map((item) => {
+//     if (selectedBuilding) {
+//       if (item.buildingId === selectedBuilding) {
+//         return "#34D399";
+//       }
+//       return "#d1d5db";
+//     }
+
+//     // Check if this bar matches the selected category
+//     if (selectedCategory) {
+//       // Handle both cases: if selectedCategory is the categoryKey or the full name
+//       if (item.name === selectedCategory || item.categoryKey === selectedCategory) {
+//         return "#34D399"; // Highlight color
+//       }
+//       return "#d1d5db"; // Dim other bars
+//     }
+
+//     return "#4098ab"; // Default color
+//   });
 
 //   const series = [
 //     {
 //       name: "Emissions",
 //       data: values,
+//       color: "#4098ab", // Default fallback color
 //     },
+//     {
+//       name: "Emission",
+//       data: values.map(v => (v > 0 ? maxValue - v : 0)),
+//       color: "transparent", // Make HoverCap transparent
+//     }
 //   ];
 
 //   const options = {
 //     chart: {
 //       type: 'bar',
+//       stacked: true,
 //       toolbar: { show: false },
 //       zoom: { enabled: false },
 //       events: {
-//     click: function (event, chartContext, config) {
-//       const dataPointIndex = config.dataPointIndex;
-
-//       if (dataPointIndex === -1) return; // clicked outside bars
-
-//       const clickedData = sortedData[dataPointIndex];
-
-//       if (clickedData && onBarClick) {
-//         onBarClick(clickedData);
-//       }
-//     }
-//   },
+//         dataPointSelection: (event, chartContext, config) => {
+//           // Allow clicks on BOTH series (index 0 for actual bar, index 1 for HoverCap)
+//           if (config.seriesIndex !== undefined && config.dataPointIndex !== undefined) {
+//             onBarClick?.(sortedData[config.dataPointIndex]);
+//           }
+//         }
+//       },
 //     },
 //     grid: {
 //       padding: {
@@ -58,37 +114,41 @@
 //       },
 //       show: false
 //     },
+//     states: {
+//       hover: {
+//         filter: {
+//           type: 'none'
+//         }
+//       }
+//     },
 //     plotOptions: {
 //       bar: {
 //         horizontal: false,
-//         endingShape: "rounded",
-//         columnWidth: "45%",
-//         distributed: true,
-//       },
+//         columnWidth: columnWidth,
+//         borderRadius: 4,
+//         distributed: false,
+//         colors: {
+//           // Apply colors to each bar individually
+//           ranges: barColors.map((color, index) => ({
+//             from: index,
+//             to: index,
+//             color: color
+//           }))
+//         }
+//       }
 //     },
+//     colors: barColors, // Set colors for the first series
 //     fill: {
-//       colors: sortedData.map((item) => {
-//         if (selectedBuilding) {
-//           if (item.buildingId === selectedBuilding) {
-//             return "#34D399";
-//           }
-//           return "#d1d5db";
-//         }
-
-//         // Check if this bar matches the selected category
-//         if (selectedCategory) {
-//           // Handle both cases: if selectedCategory is the categoryKey or the full name
-//           if (item.name === selectedCategory || item.categoryKey === selectedCategory) {
-//             return "#34D399"; // Highlight color
-//           }
-//           return "#d1d5db"; // Dim other bars
-//         }
-
-//         return "#4098ab"; // Default color
-//       }),
+//       opacity: 1,
+//       colors: barColors, // Set fill colors
 //     },
-//     dataLabels: { enabled: false },
-//     stroke: { show: true, width: 2, colors: ["transparent"] },
+//     stroke: {
+//       width: [2, 0],
+//       colors: barColors, // Set stroke colors for the first series
+//     },
+//     dataLabels: {
+//       enabled: false
+//     },
 //     xaxis: {
 //       categories: displayNames,
 //       labels: {
@@ -136,74 +196,104 @@
 //         style: {
 //           colors: isDark ? "#CBD5E1" : "#475569",
 //           fontFamily: "Inter",
-//           fontSize: '10px'
+//           fontSize: barCount > 10 ? '9px' : '10px'
 //         }
 //       },
-//       axisBorder: { 
-//       show: true,
-//       color: isDark ? '#4B5563' : '#9CA3AF', // Axis line color
-//       height: 1, // Thickness of the axis line
-//       offsetX: 0,
-//       offsetY: 0
-//     },
-//     axisTicks: { 
-//       show: false // Hide tick marks if you don't want them
-//     },
-//     tickPlacement: 'on'
-  
-      
+//       axisBorder: {
+//         show: true,
+//         color: isDark ? '#4B5563' : '#9CA3AF',
+//         height: 1,
+//         offsetX: 0,
+//         offsetY: 0
+//       },
+//       axisTicks: {
+//         show: false
+//       },
+//       tickPlacement: 'on'
 //     },
 //     yaxis: {
 //       opposite: isRtl,
-//       tickAmount: 3,
+//       tickAmount: 4,
+//       min: 0,
 //       labels: {
 //         style: {
 //           colors: isDark ? "#CBD5E1" : "#475569",
 //           fontFamily: "Inter",
 //         },
 //         formatter: function (value) {
+//           if (value === 0) return '0';
+//           if (value < 1) return value.toFixed(2);
 //           return Math.round(value).toLocaleString();
 //         },
 //       },
 //       axisBorder: {
-//       show: true,
-//       color: isDark ? '#4B5563' : '#9CA3AF', // Axis line color
-//       width: 1, // Thickness of the axis line
-//       offsetX: 0,
-//       offsetY: 0
+//         show: true,
+//         color: isDark ? '#4B5563' : '#9CA3AF',
+//         width: 1,
+//         offsetX: 0,
+//         offsetY: 0
+//       },
+//       axisTicks: {
+//         show: false
+//       }
 //     },
-//     axisTicks: {
-//       show: false // Hide tick marks if you don't want them
-//     }
+//     tooltip: {
+//       intersect: true,
+//       shared: false,
+//       y: {
+//         formatter: (_, { dataPointIndex }) => {
+//           const realVal = values[dataPointIndex];
+//           return `${realVal.toLocaleString(undefined, {
+//             minimumFractionDigits: 2,
+//             maximumFractionDigits: 2
+//           })} tCO₂e`;
+//         }
+//       }
 //     },
-    
-//    tooltip: {
-//   enabled: true,
-//   shared: false,
-//   followCursor: true, // Tooltip follows cursor
-//   intersect: false, // KEY: Show tooltip even when not directly on the bar
-//   y: {
-//     formatter: (val) => `${val.toLocaleString(undefined, {
-//       minimumFractionDigits: 2,
-//       maximumFractionDigits: 2
-//     })} tCO₂e`
-//   },
-//   x: {
-//     formatter: function (value, { seriesIndex, dataPointIndex }) {
-//       // Return the display name for tooltip
-//       return displayNames[dataPointIndex];
-//     }
-//   }
-// },
 //     legend: { show: false },
-//     // grid: { show: false },
+//     annotations: {
+//       yaxis: [{
+//         y: 0,
+//         borderColor: isDark ? '#475569' : '#cbd5e1',
+//         strokeDashArray: 0,
+//         borderWidth: 1
+//       }]
+//     }
 //   };
+
+//   // Check if we should show the no-data message
+//   const shouldShowNoData = () => {
+//     if (showZeroValues) {
+//       // When showing zero values, only show no-data if chartData is empty
+//       return chartData.length === 0;
+//     } else {
+//       // When NOT showing zero values, show no-data if all values are zero or chartData is empty
+//       return chartData.length === 0 || chartData.every(item => {
+//         const val = Number(item.value);
+//         return isNaN(val) || val === 0;
+//       });
+//     }
+//   };
+
+//   if (shouldShowNoData()) {
+//     return (
+//       <div style={{ height: `${height}px`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+//         <div className="text-center">
+//           <p className="text-gray-500 dark:text-gray-400">No emissions data available</p>
+//           <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+//             {showZeroValues 
+//               ? "No categories to display" 
+//               : "All categories show zero emissions"}
+//           </p>
+//         </div>
+//       </div>
+//     );
+//   }
 
 //   return <Chart options={options} series={series} type="bar" height={height} />;
 // };
 
 // export default RevenueBarChart;
-
 
 
 import React from "react";
@@ -217,52 +307,117 @@ const RevenueBarChart = ({
   onBarClick,
   selectedCategory,
   selectedBuilding = null,
+  showZeroValues = true,
+  minBarHeight = 5, // Minimum visual height for bars (in percentage of max value)
 }) => {
   const [isDark] = useDarkMode();
   const [isRtl] = useRtl();
 
-  // Keep all data, including zero/null values
-  const allData = chartData.map(item => ({
-    ...item,
-    value: Number(item.value) || 0, // Ensure value is a number
-    displayName: item.displayName || item.name || 'Unknown'
-  }));
+  // Process data based on showZeroValues prop
+  const processData = () => {
+    if (showZeroValues) {
+      // Keep all data, including zero/null values
+      return chartData.map(item => ({
+        ...item,
+        value: Number(item.value) || 0,
+        displayName: item.displayName || item.name || 'Unknown'
+      }));
+    } else {
+      // Filter out zero/null values
+      return chartData
+        .filter(item => {
+          const val = Number(item.value);
+          return !isNaN(val) && val !== 0;
+        })
+        .map(item => ({
+          ...item,
+          value: Number(item.value),
+          displayName: item.displayName || item.name || 'Unknown'
+        }));
+    }
+  };
 
-  // Sort descending by value (zeros will be at the end)
+  const allData = processData();
+
+  // Sort descending by value (zeros will be at the end when showZeroValues is true)
   const sortedData = [...allData].sort(
     (a, b) => (Number(b.value) || 0) - (Number(a.value) || 0)
   );
 
-  const values = sortedData.map((item) => Number(item.value) || 0);
+  // Get the actual values for tooltip
+  const actualValues = sortedData.map((item) => Number(item.value) || 0);
+  
+  // Find the maximum actual value (excluding zeros for calculation)
+  const maxActualValue = Math.max(...actualValues.filter(v => v > 0), 1);
+  
+  // Calculate minimum bar height as percentage of max value
+  const minHeightValue = (minBarHeight / 100) * maxActualValue;
+  
+  // Create display values - these are what will be shown visually
+  const displayValues = actualValues.map(value => {
+    if (value === 0) return 0;
+    // If value is too small, give it the minimum height
+    if (value < minHeightValue) return minHeightValue;
+    return value;
+  });
+
   const displayNames = sortedData.map((item) => item.displayName || item.name || 'Unknown');
 
   // Calculate dynamic bar width based on number of bars
   const barCount = sortedData.length;
   let columnWidth = "45%"; // default
-  
+
   if (barCount > 15) columnWidth = "25%";
   else if (barCount > 10) columnWidth = "30%";
   else if (barCount > 5) columnWidth = "40%";
 
+  const maxDisplayValue = Math.max(...displayValues, 1); // prevent 0
+
+  // Create the color array for the bars
+  const barColors = sortedData.map((item) => {
+    if (selectedBuilding) {
+      if (item.buildingId === selectedBuilding) {
+        return "#34D399";
+      }
+      return "#d1d5db";
+    }
+
+    // Check if this bar matches the selected category
+    if (selectedCategory) {
+      // Handle both cases: if selectedCategory is the categoryKey or the full name
+      if (item.name === selectedCategory || item.categoryKey === selectedCategory) {
+        return "#34D399"; // Highlight color
+      }
+      return "#d1d5db"; // Dim other bars
+    }
+
+    return "#4098ab"; // Default color
+  });
+
   const series = [
     {
       name: "Emissions",
-      data: values,
+      data: displayValues,
+      color: "#4098ab", // Default fallback color
     },
+    {
+      name: "Emission",
+      data: displayValues.map(v => (v > 0 ? maxDisplayValue - v : 0)),
+      color: "transparent", // Make HoverCap transparent
+    }
   ];
 
   const options = {
     chart: {
       type: 'bar',
+      stacked: true,
       toolbar: { show: false },
       zoom: { enabled: false },
       events: {
-        click: function (event, chartContext, config) {
-          const dataPointIndex = config.dataPointIndex;
-          if (dataPointIndex === -1) return; // clicked outside bars
-          const clickedData = sortedData[dataPointIndex];
-          if (clickedData && onBarClick) {
-            onBarClick(clickedData);
+        dataPointSelection: (event, chartContext, config) => {
+          // Allow clicks on BOTH series (index 0 for actual bar, index 1 for HoverCap)
+          if (config.seriesIndex !== undefined && config.dataPointIndex !== undefined) {
+            onBarClick?.(sortedData[config.dataPointIndex]);
           }
         }
       },
@@ -273,47 +428,40 @@ const RevenueBarChart = ({
       },
       show: false
     },
+    states: {
+      hover: {
+        filter: {
+          type: 'none'
+        }
+      }
+    },
     plotOptions: {
       bar: {
         horizontal: false,
-        endingShape: "rounded",
         columnWidth: columnWidth,
-        distributed: true,
-        borderRadius: 4, // Add slight rounding
-      },
+        borderRadius: 4,
+        distributed: false,
+        colors: {
+          // Apply colors to each bar individually
+          ranges: barColors.map((color, index) => ({
+            from: index,
+            to: index,
+            color: color
+          }))
+        }
+      }
     },
+    colors: barColors, // Set colors for the first series
     fill: {
-      colors: sortedData.map((item) => {
-        // Handle zero values specially - make them more transparent
-        if (item.value === 0) {
-          return isDark ? "#64748b70" : "#94a3b870"; // Semi-transparent gray
-        }
-
-        if (selectedBuilding) {
-          if (item.buildingId === selectedBuilding) {
-            return "#34D399";
-          }
-          return isDark ? "#4b5563" : "#d1d5db"; // Dim other bars
-        }
-
-        // Check if this bar matches the selected category
-        if (selectedCategory) {
-          if (item.name === selectedCategory || item.categoryKey === selectedCategory) {
-            return "#34D399"; // Highlight color
-          }
-          return isDark ? "#4b5563" : "#d1d5db"; // Dim other bars
-        }
-
-        return "#4098ab"; // Default color
-      }),
+      opacity: 1,
+      colors: barColors, // Set fill colors
     },
-    dataLabels: { 
-      enabled: false 
+    stroke: {
+      width: [2, 0],
+      colors: barColors, // Set stroke colors for the first series
     },
-    stroke: { 
-      show: true, 
-      width: 2, 
-      colors: ["transparent"] 
+    dataLabels: {
+      enabled: false
     },
     xaxis: {
       categories: displayNames,
@@ -362,18 +510,18 @@ const RevenueBarChart = ({
         style: {
           colors: isDark ? "#CBD5E1" : "#475569",
           fontFamily: "Inter",
-          fontSize: barCount > 10 ? '9px' : '10px' // Smaller font for many bars
+          fontSize: barCount > 10 ? '9px' : '10px'
         }
       },
-      axisBorder: { 
+      axisBorder: {
         show: true,
         color: isDark ? '#4B5563' : '#9CA3AF',
         height: 1,
         offsetX: 0,
         offsetY: 0
       },
-      axisTicks: { 
-        show: false 
+      axisTicks: {
+        show: false
       },
       tickPlacement: 'on'
     },
@@ -388,7 +536,7 @@ const RevenueBarChart = ({
         },
         formatter: function (value) {
           if (value === 0) return '0';
-          if (value < 1) return value.toFixed(2); // Show decimals for very small values
+          if (value < 1) return value.toFixed(2);
           return Math.round(value).toLocaleString();
         },
       },
@@ -404,23 +552,55 @@ const RevenueBarChart = ({
       }
     },
     tooltip: {
-      enabled: true,
+      intersect: true,
       shared: false,
-      followCursor: true,
-      intersect: false,
-      y: {
-        formatter: (val) => {
-          if (val === 0) return '0.00 tCO₂e';
-          return `${val.toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          })} tCO₂e`;
+      custom: function({ seriesIndex, dataPointIndex, w }) {
+        // Get the actual data for this point
+        const actualVal = actualValues[dataPointIndex];
+        const displayVal = displayValues[dataPointIndex];
+        const categoryName = displayNames[dataPointIndex];
+        
+        // Check if bar was enhanced
+        const isEnhanced = actualVal > 0 && actualVal < displayVal;
+        
+        // Format the value
+        const formattedValue = actualVal.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        
+        // Determine the color based on highlighting
+        let tooltipColor = "#4098ab";
+        if (selectedBuilding) {
+          if (sortedData[dataPointIndex]?.buildingId === selectedBuilding) {
+            tooltipColor = "#34D399";
+          } else {
+            tooltipColor = "#d1d5db";
+          }
+        } else if (selectedCategory) {
+          if (sortedData[dataPointIndex]?.name === selectedCategory || 
+              sortedData[dataPointIndex]?.categoryKey === selectedCategory) {
+            tooltipColor = "#34D399";
+          } else {
+            tooltipColor = "#d1d5db";
+          }
         }
-      },
-      x: {
-        formatter: function (value, { seriesIndex, dataPointIndex }) {
-          return displayNames[dataPointIndex];
-        }
+        
+        // Build the tooltip HTML
+        return `<div class="apexcharts-tooltip-title" style="margin-bottom: 5px;">${categoryName}</div>
+                <div class="apexcharts-tooltip-series-group" style="display: flex; align-items: center;">
+                  <div class="apexcharts-tooltip-marker" style="background-color: ${tooltipColor}; width: 12px; height: 12px; border-radius: 2px; margin-right: 8px;"></div>
+                  <div class="apexcharts-tooltip-text" style="font-family: Inter, sans-serif;">
+                    <div class="apexcharts-tooltip-y-group">
+                      <span class="apexcharts-tooltip-text-label">Emissions: </span>
+                      <span class="apexcharts-tooltip-text-value" style="font-weight: 600;">${formattedValue} tCO₂e</span>
+                    </div>
+                    ${isEnhanced ? 
+                    ''
+                      : ''
+                    }
+                  </div>
+                </div>`;
       }
     },
     legend: { show: false },
@@ -434,16 +614,30 @@ const RevenueBarChart = ({
     }
   };
 
-  // Add no-data message if all values are zero
-  const allZero = values.every(val => val === 0);
-  
-  if (allZero) {
+  // Check if we should show the no-data message
+  const shouldShowNoData = () => {
+    if (showZeroValues) {
+      // When showing zero values, only show no-data if chartData is empty
+      return chartData.length === 0;
+    } else {
+      // When NOT showing zero values, show no-data if all values are zero or chartData is empty
+      return chartData.length === 0 || chartData.every(item => {
+        const val = Number(item.value);
+        return isNaN(val) || val === 0;
+      });
+    }
+  };
+
+  if (shouldShowNoData()) {
     return (
       <div style={{ height: `${height}px`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="text-center">
-          {/* <div className="text-xl text-gray-400 mb-2">📊</div> */}
           <p className="text-gray-500 dark:text-gray-400">No emissions data available</p>
-          <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">All categories show zero emissions</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+            {showZeroValues 
+              ? "No categories to display" 
+              : "All categories show zero emissions"}
+          </p>
         </div>
       </div>
     );

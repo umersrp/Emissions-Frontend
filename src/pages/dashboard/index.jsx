@@ -385,7 +385,7 @@ const Dashboard = () => {
   return (
     <div className="flex bg-gray-100">
       {loading && (
-        <div className="absolute inset-0 bg-white/10 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-white/10 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="text-center">
             <img
               src={Logo}
@@ -583,17 +583,18 @@ const Dashboard = () => {
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
               </Tooltip>
             </h3>
-            <div className="pr-20 min-w-[300px] overflow-x-auto scrollbar-hide "> 
-            <div style={{ minWidth: `${Math.max(barChartData.length * 60, 800)}px` }} >
+            {/* <div className="pr-20 min-w-[300px] overflow-x-auto scrollbar-hide ">  */}
+{/*            <div style={{ minWidth: `${Math.max(barChartData.length * 60, 800)}px` }} > */}
               <RevenueBarChart
                 chartData={barChartData}
+                showZeroValues={false}
                 onBarClick={(building) => {
                   console.log("Clicked building:", building);
                 }}
                 selectedBuilding={appliedBuilding}
               />
-            </div>
-            </div>
+            {/* </div> */}
+          
           </Card>
         </div>
 
