@@ -1917,14 +1917,11 @@ const EmployeeCommutingForm = () => {
     const validateMonthCoverage = () => {
         // Create a set to track all covered months across all transport methods
         const coveredMonths = new Set();
-
         // Helper function to add months from a date range
         const addMonthsFromRange = (dateRange) => {
             if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
-
             const startDate = new Date(dateRange.startDate);
             const endDate = new Date(dateRange.endDate);
-
             // Reset to first day of month for consistent month tracking
             const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
             const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
@@ -1937,24 +1934,12 @@ const EmployeeCommutingForm = () => {
         };
 
         // Add months from all selected commute methods
-        if (formData.commuteByMotorbike && formData.motorbikeDateRange) {
-            addMonthsFromRange(formData.motorbikeDateRange);
-        }
-        if (formData.commuteByTaxi && formData.taxiDateRange) {
-            addMonthsFromRange(formData.taxiDateRange);
-        }
-        if (formData.commuteByBus && formData.busDateRange) {
-            addMonthsFromRange(formData.busDateRange);
-        }
-        if (formData.commuteByTrain && formData.trainDateRange) {
-            addMonthsFromRange(formData.trainDateRange);
-        }
-        if (formData.commuteByCar && formData.carDateRange) {
-            addMonthsFromRange(formData.carDateRange);
-        }
-        if (formData.workFromHome && formData.workFromHomeDateRange) {
-            addMonthsFromRange(formData.workFromHomeDateRange);
-        }
+        if (formData.commuteByMotorbike && formData.motorbikeDateRange) { addMonthsFromRange(formData.motorbikeDateRange);}
+        if (formData.commuteByTaxi && formData.taxiDateRange) { addMonthsFromRange(formData.taxiDateRange);}
+        if (formData.commuteByBus && formData.busDateRange) { addMonthsFromRange(formData.busDateRange);}
+        if (formData.commuteByTrain && formData.trainDateRange) { addMonthsFromRange(formData.trainDateRange); }
+        if (formData.commuteByCar && formData.carDateRange) {addMonthsFromRange(formData.carDateRange);}
+        if (formData.workFromHome && formData.workFromHomeDateRange) {addMonthsFromRange(formData.workFromHomeDateRange);}
 
         // Check which months are covered
         const allMonths = Array.from({ length: 12 }, (_, i) =>
@@ -2185,13 +2170,10 @@ const EmployeeCommutingForm = () => {
     // Validate form
     const validateForm = () => {
         console.log('validate form called');
-
         const errors = {};
-
         // Basic Information validation
         if (!formData.stakeholderDepartment) errors.stakeholderDepartment = 'Stakeholder / Department is required';
         if (!formData.qualityControl) errors.qualityControl = 'Quality Control is required';
-
         // Check if at least one commute method or work from home is selected
         const hasCommuteMethod =
             formData.commuteByMotorbike ||
@@ -2200,12 +2182,10 @@ const EmployeeCommutingForm = () => {
             formData.commuteByTrain ||
             formData.commuteByCar ||
             formData.workFromHome;
-
         // Only show commute method error if NO method is selected
         if (!hasCommuteMethod) {
             errors.commuteMethodRequired = 'Please select at least one commute method or enable work from home';
         }
-
         if (formData.commuteByMotorbike) {
             if (!formData.motorbikeDistance || formData.motorbikeDistance.trim() === '') {
                 errors.motorbikeDistance = 'Motorbike distance is required';
@@ -2238,7 +2218,6 @@ const EmployeeCommutingForm = () => {
                 }
             }
         }
-
         if (formData.commuteByTaxi) {
             if (!formData.taxiDistance) {
                 errors.taxiDistance = 'Taxi distance is required';
@@ -2273,7 +2252,6 @@ const EmployeeCommutingForm = () => {
             }
 
         }
-
         if (formData.commuteByBus) {
             if (!formData.busDistance) {
                 errors.busDistance = 'Bus distance is required';
@@ -2285,7 +2263,6 @@ const EmployeeCommutingForm = () => {
                 errors.busDateRange = 'Please select a date range for bus commute';
             }
         }
-
         if (formData.commuteByTrain) {
             if (!formData.trainDistance) {
                 errors.trainDistance = 'Train distance is required';
@@ -2297,7 +2274,6 @@ const EmployeeCommutingForm = () => {
                 errors.trainDateRange = 'Please select a date range for train commute';
             }
         }
-
         if (formData.commuteByCar) {
             if (!formData.carDistance) {
                 errors.carDistance = 'Car distance is required';
@@ -2331,7 +2307,6 @@ const EmployeeCommutingForm = () => {
                 }
             }
         }
-
         if (formData.workFromHome) {
             if (!formData.fteWorkingHours) {
                 errors.fteWorkingHours = 'FTE Working Hours are required for work from home';
@@ -2340,50 +2315,30 @@ const EmployeeCommutingForm = () => {
                 errors.workFromHomeDateRange = 'Please select a date range for work from home';
             }
         }
-        
-        
-
         // Validate date range specifics (only for enabled toggles)
         const validateDateRange = (dateRange, methodName) => {
             if (!dateRange || !dateRange.startDate || !dateRange.endDate) {
                 return false;
             }
-
             const startDate = new Date(dateRange.startDate);
             const endDate = new Date(dateRange.endDate);
-
             if (startDate > endDate) {
                 errors[`${methodName}DateRange`] = 'Start date must be before end date';
                 return false;
             }
-
             if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
                 errors[`${methodName}DateRange`] = `Date range must be within ${reportingYear}`;
                 return false;
             }
-
             return true;
         };
-
         // Only validate date ranges for enabled methods
-        if (formData.commuteByMotorbike) {
-            validateDateRange(formData.motorbikeDateRange, 'motorbike');
-        }
-        if (formData.commuteByTaxi) {
-            validateDateRange(formData.taxiDateRange, 'taxi');
-        }
-        if (formData.commuteByBus) {
-            validateDateRange(formData.busDateRange, 'bus');
-        }
-        if (formData.commuteByTrain) {
-            validateDateRange(formData.trainDateRange, 'train');
-        }
-        if (formData.commuteByCar) {
-            validateDateRange(formData.carDateRange, 'car');
-        }
-        if (formData.workFromHome) {
-            validateDateRange(formData.workFromHomeDateRange, 'workFromHome');
-        }
+        if (formData.commuteByMotorbike) { validateDateRange(formData.motorbikeDateRange, 'motorbike'); }
+        if (formData.commuteByTaxi) {validateDateRange(formData.taxiDateRange, 'taxi');    }
+        if (formData.commuteByBus) { validateDateRange(formData.busDateRange, 'bus'); }
+        if (formData.commuteByTrain) { validateDateRange(formData.trainDateRange, 'train');}
+        if (formData.commuteByCar) { validateDateRange(formData.carDateRange, 'car'); }
+        if (formData.workFromHome) { validateDateRange(formData.workFromHomeDateRange, 'workFromHome'); }
 
         // Check for date range overlaps only between enabled methods
         const enabledTransportMethods = [];
@@ -2455,14 +2410,9 @@ const EmployeeCommutingForm = () => {
                 // Validate date range specifics
                 const startDate = new Date(formData.busDateRange.startDate);
                 const endDate = new Date(formData.busDateRange.endDate);
-
-                if (startDate > endDate) {
-                    errors.busDateRange = 'Start date must be before end date';
-                }
-
+                if (startDate > endDate) {errors.busDateRange = 'Start date must be before end date'; }
                 if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                    errors.busDateRange = `Date range must be within ${reportingYear}`;
-                }
+                    errors.busDateRange = `Date range must be within ${reportingYear}`;}
             }
         }
 
@@ -2476,9 +2426,7 @@ const EmployeeCommutingForm = () => {
                 const endDate = new Date(formData.trainDateRange.endDate);
 
                 if (startDate > endDate) {
-                    errors.trainDateRange = 'Start date must be before end date';
-                }
-
+                    errors.trainDateRange = 'Start date must be before end date';}
                 if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
                     errors.trainDateRange = `Date range must be within ${reportingYear}`;
                 }
@@ -2889,11 +2837,11 @@ const EmployeeCommutingForm = () => {
                         <p className="text-gray-600 mb-8">
                             Your employee commuting data for {reportingYear} has been successfully submitted.
                         </p>
-                        <Button
+                        {/* <Button
                             text="Submit Another Response"
                             className="bg-blue-500 hover:bg-blue-600 text-white"
                             onClick={() => setSubmitted(false)}
-                        />
+                        /> */}
                     </div>
                 </Card>
             </div>
