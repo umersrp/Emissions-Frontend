@@ -179,6 +179,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading , resetTrigger = 0,  //
               </span>
             </Tooltip>
           </div>
+          <div className="max-w-[320px] ">
           <RevenueBarChart
             chartData={barChartData}
             selectedCategory={selectedCategory}
@@ -186,6 +187,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading , resetTrigger = 0,  //
             onBarClick={handleBarClick}
             loading={loading}
           />
+          </div>
         </div>
 
         {/* ================= Table Card ================= */}

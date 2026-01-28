@@ -508,14 +508,14 @@ const RevenueBarChart = ({
         trim: false,
         minHeight: 50,
         style: {
-          colors: isDark ? "#CBD5E1" : "#475569",
+          colors: "#475569",
           fontFamily: "Inter",
           fontSize: barCount > 10 ? '9px' : '10px'
         }
       },
       axisBorder: {
         show: true,
-        color: isDark ? '#4B5563' : '#9CA3AF',
+        color: '#9CA3AF',
         height: 1,
         offsetX: 0,
         offsetY: 0
@@ -527,11 +527,11 @@ const RevenueBarChart = ({
     },
     yaxis: {
       opposite: isRtl,
-      tickAmount: 4,
+      tickAmount: 2,
       min: 0,
       labels: {
         style: {
-          colors: isDark ? "#CBD5E1" : "#475569",
+          colors: "#475569",
           fontFamily: "Inter",
         },
         formatter: function (value) {
@@ -542,7 +542,7 @@ const RevenueBarChart = ({
       },
       axisBorder: {
         show: true,
-        color: isDark ? '#4B5563' : '#9CA3AF',
+        color: '#9CA3AF',
         width: 1,
         offsetX: 0,
         offsetY: 0
