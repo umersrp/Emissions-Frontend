@@ -150,7 +150,74 @@ const EMISSION_FACTORS = {
 };
 
 // Helper function to calculate emissions
+// const calculateEmissions = (data) => {
+//     let distance = 0;
+//     let passengers = 1;
+//     let factor = 0;
+
+//     // Determine commute type and get appropriate values
+//     if (data.commuteByMotorbike) {
+//         distance = Number(data.motorbikeDistance) || 0;
+//         passengers = 1; // Motorbike typically carries 1 person
+//         const motorbikeType = data.motorbikeType || "Average";
+//         factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
+//     }
+//     else if (data.commuteByCar) {
+//         distance = Number(data.carDistance) || 0;
+//         passengers = Number(data.personsCarriedCar || 0) + 1; // Including driver
+//         const carType = data.carType || "Average car - Unknown engine size";
+//         const fuelType = data.carFuelType || "Unknown";
+
+//         // Find the correct emission factor based on car type and fuel
+//         if (EMISSION_FACTORS.cars[carType]) {
+//             factor = EMISSION_FACTORS.cars[carType][fuelType] || EMISSION_FACTORS.cars[carType]["Unknown"];
+//         } else {
+//             // Default to average car
+//             factor = EMISSION_FACTORS.cars["Average car - Unknown engine size"][fuelType] ||
+//                 EMISSION_FACTORS.cars["Average car - Unknown engine size"]["Unknown"];
+//         }
+
+//         // For carpooling, emissions are allocated per passenger
+//         factor = factor / passengers;
+//     }
+//     else if (data.commuteByTaxi) {
+//         distance = Number(data.taxiDistance) || 0;
+//         passengers = Number(data.taxiPassengers || 1);
+//         const taxiType = data.taxiType || "Regular taxi";
+//         factor = EMISSION_FACTORS.taxis[taxiType] || EMISSION_FACTORS.taxis["Regular taxi"];
+
+//         // For shared taxi, emissions are allocated per passenger
+//         factor = factor / passengers;
+//     }
+//     else if (data.commuteByBus) {
+//         distance = Number(data.busDistance) || 0;
+//         passengers = 1; // Individual passenger
+//         const busType = data.busType || "Green Line Bus";
+//         factor = EMISSION_FACTORS.buses[busType] || EMISSION_FACTORS.buses["Green Line Bus"];
+//     }
+//     else if (data.commuteByTrain) {
+//         distance = Number(data.trainDistance) || 0;
+//         passengers = 1; // Individual passenger
+//         const trainType = data.trainType || "National rail";
+//         factor = EMISSION_FACTORS.trains[trainType] || EMISSION_FACTORS.trains["National rail"];
+//     }
+
+//     // Calculate total emissions
+//     const totalEmissionsKg = distance * passengers * factor;
+//     const totalEmissionsTonnes = totalEmissionsKg / 1000;
+
+//     return {
+//         distance,
+//         passengers,
+//         factor,
+//         totalEmissionsKg,
+//         totalEmissionsTonnes
+//     };
+// };
+// Helper function to calculate emissions
 const calculateEmissions = (data) => {
+    console.log("Calculating emissions for:", data); // Debug
+    
     let distance = 0;
     let passengers = 1;
     let factor = 0;
@@ -164,7 +231,12 @@ const calculateEmissions = (data) => {
     }
     else if (data.commuteByCar) {
         distance = Number(data.carDistance) || 0;
-        passengers = Number(data.personsCarriedCar || 0) + 1; // Including driver
+        // Check if carpooling
+        if (data.carryOthersCar) {
+            passengers = Number(data.personsCarriedCar || 0) + 1; // Including driver
+        } else {
+            passengers = 1; // Only driver
+        }
         const carType = data.carType || "Average car - Unknown engine size";
         const fuelType = data.carFuelType || "Unknown";
 
@@ -182,7 +254,12 @@ const calculateEmissions = (data) => {
     }
     else if (data.commuteByTaxi) {
         distance = Number(data.taxiDistance) || 0;
-        passengers = Number(data.taxiPassengers || 1);
+        // Check if shared taxi
+        if (data.travelWithOthersTaxi) {
+            passengers = Number(data.personsTravelWithTaxi || 1);
+        } else {
+            passengers = Number(data.taxiPassengers || 1);
+        }
         const taxiType = data.taxiType || "Regular taxi";
         factor = EMISSION_FACTORS.taxis[taxiType] || EMISSION_FACTORS.taxis["Regular taxi"];
 
@@ -214,7 +291,6 @@ const calculateEmissions = (data) => {
         totalEmissionsTonnes
     };
 };
-
 const CommutingTable = () => {
     const navigate = useNavigate();
     const [commutingData, setCommutingData] = useState([]);
@@ -230,100 +306,89 @@ const CommutingTable = () => {
     const [isPaginationLoading, setIsPaginationLoading] = useState(false);
 
     // **Reusable fetch function**
-    const fetchCommutingData = async () => {
-        setLoading(true);
-        try {
-            const search = globalFilterValue.trim();
-            
-            // Build aggregation pipeline
-            const aggregationPipeline = [
-                // Lookup to join with building collection
-                {
-                    $lookup: {
-                        from: "buildings",
-                        localField: "buildingId",
-                        foreignField: "_id",
-                        as: "building"
-                    }
-                },
-                { $unwind: { path: "$building", preserveNullAndEmptyArrays: true } },
-                
-                // Search filter if search term exists
-                ...(search
-                    ? [{
-                        $match: {
-                            $or: [
-                                { "building.name": { $regex: search, $options: "i" } },
-                                { stakeholderDepartment: { $regex: search, $options: "i" } },
-                                { submittedByEmail: { $regex: search, $options: "i" } },
-                            ],
-                        },
-                    }]
-                    : []),
-                
-                // Add additional search fields (vehicle types, etc.)
-                ...(search
-                    ? [{
-                        $match: {
-                            $or: [
-                                { motorbikeType: { $regex: search, $options: "i" } },
-                                { carType: { $regex: search, $options: "i" } },
-                                { busType: { $regex: search, $options: "i" } },
-                                { taxiType: { $regex: search, $options: "i" } },
-                                { trainType: { $regex: search, $options: "i" } },
-                                { reportingYear: { $regex: search, $options: "i" } },
-                            ],
-                        },
-                    }]
-                    : []),
-                
-                // Count total documents for pagination
-                {
-                    $facet: {
-                        metadata: [{ $count: "total" }],
-                        data: [
-                            { $sort: { createdAt: -1 } },
-                            { $skip: controlledPageIndex * controlledPageSize },
-                            { $limit: controlledPageSize }
-                        ]
-                    }
-                }
-            ];
-
-            const res = await axios.post(
-                `${process.env.REACT_APP_BASE_URL}/employee-commute/aggregate`,
-                { pipeline: aggregationPipeline },
-                {
-                    headers: { 
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
-
-            const result = res.data.data[0] || {};
-            const data = result.data || [];
-            const total = result.metadata?.[0]?.total || 0;
-            
-            // Calculate total pages
-            const totalPages = Math.ceil(total / controlledPageSize);
-
-            // Calculate emissions for each record
-            const dataWithEmissions = data.map(item => ({
-                ...item,
-                emissions: calculateEmissions(item)
-            }));
-
-            setCommutingData(dataWithEmissions);
-            setPageCount(totalPages || 1);
-        } catch (err) {
-            console.error("Error fetching commuting data:", err);
-            // toast.error("Failed to fetch employee commuting data");
-        } finally {
-            setLoading(false);
-            setIsPaginationLoading(false);
+// **Reusable fetch function**
+const fetchCommutingData = async () => {
+    setLoading(true);
+    try {
+        const search = globalFilterValue.trim();
+        const token = localStorage.getItem("token");
+        
+        if (!token) {
+            toast.error("Authentication token missing. Please login again.");
+            navigate("/login");
+            return;
         }
-    };
+
+        // Build query parameters
+        const params = {
+            page: controlledPageIndex + 1,
+            limit: controlledPageSize
+        };
+        
+        // Add search parameter if exists
+        if (search) {
+            params.search = search;
+        }
+
+        const res = await axios.get(
+            `${process.env.REACT_APP_BASE_URL}/employee-commute/List`,
+            {
+                params,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        console.log("API Response:", res.data); // Debug log
+        
+        // CORRECTED: Access the response data directly
+        const data = res.data.data || [];
+        const meta = res.data.meta || {};
+        
+        const total = meta.total || 0;
+        const totalPages = meta.totalPages || Math.ceil(total / controlledPageSize);
+        
+        // Calculate emissions for each record
+        const dataWithEmissions = data.map(item => {
+            // Ensure building object has buildingName property
+            const buildingData = item.building || {};
+            return {
+                ...item,
+                building: {
+                    ...buildingData,
+                    // Map buildingName correctly (some records might have different field names)
+                    buildingName: buildingData.buildingName || buildingData.name || "Unknown Building"
+                },
+                emissions: calculateEmissions(item)
+            };
+        });
+
+        setCommutingData(dataWithEmissions);
+        setPageCount(totalPages || 1);
+        
+    } catch (err) {
+        console.error("Error fetching commuting data:", err);
+        
+        // Handle specific error cases
+        if (err.response?.status === 401) {
+            toast.error("Session expired. Please login again.");
+            localStorage.removeItem("token");
+            navigate("/login");
+        } else if (err.response?.status === 403) {
+            toast.error("You don't have permission to access this resource.");
+        } else {
+            toast.error("Failed to fetch employee commuting data");
+        }
+        
+        // Set empty data on error
+        setCommutingData([]);
+        setPageCount(1);
+    } finally {
+        setLoading(false);
+        setIsPaginationLoading(false);
+    }
+};
 
     // **Fetch data when page, size, or filter changes**
     useEffect(() => {
