@@ -283,7 +283,7 @@ const EmployeeCommutingForm = () => {
                         console.log('Target user data fetched:', targetUserData);
 
                         // Show admin mode message
-                        toast.info(`Admin mode: Filling form for ${targetUserData.name || targetUserData.email}`);
+                      //  toast.info(`Admin mode: Filling form for ${targetUserData.name || targetUserData.email}`);
                     }
                 } catch (targetError) {
                     console.error('Failed to fetch target user data:', targetError);
@@ -355,12 +355,12 @@ const EmployeeCommutingForm = () => {
 
                     // Show success message
                     if (targetUserId) {
-                        toast.success(`Building auto-selected for employee: ${formUserData.buildingId.buildingName}`);
+                        // toast.success(`Building auto-selected for employee: ${formUserData.buildingId.buildingName}`);
                     } else {
-                        toast.success(`Building auto-selected from your profile: ${formUserData.buildingId.buildingName}`);
+                        //toast.success(`Building auto-selected from your profile: ${formUserData.buildingId.buildingName}`);
                     }
                 } else {
-                    toast.warning('No building information found for this user');
+                 //   toast.warning('No building information found for this user');
                 }
             } else {
                 toast.error('No user data available to fill the form');
@@ -3394,7 +3394,7 @@ const EmployeeCommutingForm = () => {
                     <h2 className="text-xl font-semibold text-gray-800 mb-2 pb-2 ">
                         Quality Control & Remarks
                     </h2>
-                    <div>
+                    <div className='mb-3'>
                         <label className="field-label">Quality Control</label>
                         <CustomSelect
                             name="qualityControl"
