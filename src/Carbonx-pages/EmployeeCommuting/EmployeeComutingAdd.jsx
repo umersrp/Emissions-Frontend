@@ -283,7 +283,7 @@ const EmployeeCommutingForm = () => {
                         console.log('Target user data fetched:', targetUserData);
 
                         // Show admin mode message
-                      //  toast.info(`Admin mode: Filling form for ${targetUserData.name || targetUserData.email}`);
+                        //  toast.info(`Admin mode: Filling form for ${targetUserData.name || targetUserData.email}`);
                     }
                 } catch (targetError) {
                     console.error('Failed to fetch target user data:', targetError);
@@ -360,7 +360,7 @@ const EmployeeCommutingForm = () => {
                         //toast.success(`Building auto-selected from your profile: ${formUserData.buildingId.buildingName}`);
                     }
                 } else {
-                 //   toast.warning('No building information found for this user');
+                    //   toast.warning('No building information found for this user');
                 }
             } else {
                 toast.error('No user data available to fill the form');
@@ -1169,7 +1169,7 @@ const EmployeeCommutingForm = () => {
         }));
     };
 
-   
+
     // Add this helper function to calculate remaining months
     const calculateRemainingMonths = (startDate, endDate, reportingYear) => {
         if (!startDate || !endDate) return 0;
@@ -1241,17 +1241,22 @@ const EmployeeCommutingForm = () => {
         return null;
     };
 
-  const renderDateRangePicker = (transportType, label) => {
+    const renderDateRangePicker = (transportType, label) => {
         // Calculate coverage for current selection
         const currentRange = formData[`${transportType}DateRange`];
         let monthsCovered = 0;
         let progressPercentage = 0;
         const errorKey = `${transportType}DateRange`;
         const hasError = errors[errorKey];
+
         if (currentRange && currentRange.startDate && currentRange.endDate) {
             monthsCovered = calculateRemainingMonths(currentRange.startDate, currentRange.endDate, reportingYear);
             progressPercentage = Math.round((monthsCovered / 12) * 100);
         }
+
+        // Get overall coverage status
+        const overallCoverage = validateMonthCoverage();
+        const isOverallComplete = overallCoverage.isComplete;
 
         // Check for overlaps
         const otherRanges = { ...selectedDateRanges };
@@ -1303,11 +1308,18 @@ const EmployeeCommutingForm = () => {
                                     <span>{monthsCovered}/12 months</span>
                                 </div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div
+                                    {/* <div
                                         className={`h-2 rounded-full ${hasOverlap ? 'bg-red-500' :
                                             progressPercentage === 100 ? 'bg-green-500' :
                                                 progressPercentage >= 50 ? 'bg-yellow-500' :
                                                     'bg-red-500'
+                                            }`}
+                                        style={{ width: `${progressPercentage}%` }}
+                                    ></div> */}
+                                    <div
+                                        className={`h-2 rounded-full ${hasOverlap ? 'bg-red-500' :
+                                            isOverallComplete ? 'bg-green-500' :
+                                                'bg-red-500'
                                             }`}
                                         style={{ width: `${progressPercentage}%` }}
                                     ></div>
@@ -1470,7 +1482,10 @@ const EmployeeCommutingForm = () => {
                                     <p className="text-sm text-blue-600">
                                         {monthsCovered} of 12 months
                                         {monthsCovered < 12 && (
-                                            <span className="block text-xs text-red-600 mt-1">
+                                            // <span className="block text-xs text-red-600 mt-1">
+                                            //     {12 - monthsCovered} month{12 - monthsCovered > 1 ? 's' : ''} remain
+                                            // </span>
+                                            <span className={`block text-xs ${validateMonthCoverage().isComplete ? 'text-blue-600' : 'text-red-600'} mt-1`}>
                                                 {12 - monthsCovered} month{12 - monthsCovered > 1 ? 's' : ''} remain
                                             </span>
                                         )}
@@ -1751,12 +1766,12 @@ const EmployeeCommutingForm = () => {
         };
 
         // Add months from all selected commute methods
-        if (formData.commuteByMotorbike && formData.motorbikeDateRange) { addMonthsFromRange(formData.motorbikeDateRange);}
-        if (formData.commuteByTaxi && formData.taxiDateRange) { addMonthsFromRange(formData.taxiDateRange);}
-        if (formData.commuteByBus && formData.busDateRange) { addMonthsFromRange(formData.busDateRange);}
+        if (formData.commuteByMotorbike && formData.motorbikeDateRange) { addMonthsFromRange(formData.motorbikeDateRange); }
+        if (formData.commuteByTaxi && formData.taxiDateRange) { addMonthsFromRange(formData.taxiDateRange); }
+        if (formData.commuteByBus && formData.busDateRange) { addMonthsFromRange(formData.busDateRange); }
         if (formData.commuteByTrain && formData.trainDateRange) { addMonthsFromRange(formData.trainDateRange); }
-        if (formData.commuteByCar && formData.carDateRange) {addMonthsFromRange(formData.carDateRange);}
-        if (formData.workFromHome && formData.workFromHomeDateRange) {addMonthsFromRange(formData.workFromHomeDateRange);}
+        if (formData.commuteByCar && formData.carDateRange) { addMonthsFromRange(formData.carDateRange); }
+        if (formData.workFromHome && formData.workFromHomeDateRange) { addMonthsFromRange(formData.workFromHomeDateRange); }
 
         // Check which months are covered
         const allMonths = Array.from({ length: 12 }, (_, i) =>
@@ -1969,9 +1984,9 @@ const EmployeeCommutingForm = () => {
         };
         // Only validate date ranges for enabled methods
         if (formData.commuteByMotorbike) { validateDateRange(formData.motorbikeDateRange, 'motorbike'); }
-        if (formData.commuteByTaxi) {validateDateRange(formData.taxiDateRange, 'taxi');    }
+        if (formData.commuteByTaxi) { validateDateRange(formData.taxiDateRange, 'taxi'); }
         if (formData.commuteByBus) { validateDateRange(formData.busDateRange, 'bus'); }
-        if (formData.commuteByTrain) { validateDateRange(formData.trainDateRange, 'train');}
+        if (formData.commuteByTrain) { validateDateRange(formData.trainDateRange, 'train'); }
         if (formData.commuteByCar) { validateDateRange(formData.carDateRange, 'car'); }
         if (formData.workFromHome) { validateDateRange(formData.workFromHomeDateRange, 'workFromHome'); }
 
@@ -2045,9 +2060,10 @@ const EmployeeCommutingForm = () => {
                 // Validate date range specifics
                 const startDate = new Date(formData.busDateRange.startDate);
                 const endDate = new Date(formData.busDateRange.endDate);
-                if (startDate > endDate) {errors.busDateRange = 'Start date must be before end date'; }
+                if (startDate > endDate) { errors.busDateRange = 'Start date must be before end date'; }
                 if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                    errors.busDateRange = `Date range must be within ${reportingYear}`;}
+                    errors.busDateRange = `Date range must be within ${reportingYear}`;
+                }
             }
         }
 
@@ -2061,7 +2077,8 @@ const EmployeeCommutingForm = () => {
                 const endDate = new Date(formData.trainDateRange.endDate);
 
                 if (startDate > endDate) {
-                    errors.trainDateRange = 'Start date must be before end date';}
+                    errors.trainDateRange = 'Start date must be before end date';
+                }
                 if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
                     errors.trainDateRange = `Date range must be within ${reportingYear}`;
                 }
@@ -2171,6 +2188,33 @@ const EmployeeCommutingForm = () => {
         } else {
             // Fallback: scroll to top of page
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    };
+
+    // Add this function after your other helper functions
+    const markUserAsFilled = async (userId, token) => {
+        if (!userId || !token) {
+            console.warn('Cannot mark user as filled - missing userId or token');
+            return false;
+        }
+
+        try {
+            await axios.patch(
+                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/mark-filled`,
+                {
+                    userId: userId
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            return true;
+        } catch (error) {
+            console.error('Failed to mark user as filled:', error);
+            return false;
         }
     };
     // Handle form submission
@@ -2356,91 +2400,195 @@ const EmployeeCommutingForm = () => {
                 }
             );
 
-            if (response.data.warnings && response.data.warnings.length > 0) {
-                setPooledEmailWarnings(response.data.warnings);
-                toast.warning('Some colleagues have been marked as carpool partners. Please review.');
-            } else {
-                toast.success('Employee commuting data submitted successfully!');
-                setSubmitted(true);
+            //         if (response.data.warnings && response.data.warnings.length > 0) {
+            //             setPooledEmailWarnings(response.data.warnings);
+            //             toast.warning('Some colleagues have been marked as carpool partners. Please review.');
+            //         } else {
+            //             toast.success('Employee commuting data submitted successfully!');
+            //             setSubmitted(true);
 
-                // Reset form after 3 seconds
-                setTimeout(() => {
-                    setFormData({
-                        employeeName: '',  // Add this
-                        employeeID: '',
-                        siteBuildingName: null,
-                        stakeholderDepartment: null,
-                        // Motorbike Commute
-                        commuteByMotorbike: false,
-                        motorbikeMode: 'both',
-                        motorbikeDistance: '',
-                        motorbikeType: { value: 'Small', label: 'Small (<125cc)' },
-                        carryOthersMotorbike: false,
-                        personsCarriedMotorbike: null,
-                        motorbikePassengerEmails: [''],
-                        motorbikePassengerUserIds: [''],
-                        travelWithOthersMotorbike: false,
-                        personsTravelWithMotorbike: null,
-                        motorbikeTravelPassengerEmails: [''],
-                        motorbikeTravelPassengerUserIds: [''],
-                        motorbikeDateRange: null,
-                        // Taxi Commute
-                        commuteByTaxi: false,
-                        taxiMode: 'both',
-                        taxiPassengers: { value: '1', label: '1 passenger' },
-                        taxiDistance: '',
-                        taxiType: { value: 'Regular taxi', label: 'Regular Taxi' },
-                        travelWithOthersTaxi: false,
-                        personsTravelWithTaxi: null,
-                        taxiPassengerEmails: [''],
-                        taxiPassengerUserIds: [''],
-                        taxiDateRange: null,
-                        // Bus Commute
-                        commuteByBus: false,
-                        busDistance: '',
-                        busType: { value: 'Green Line Bus', label: 'Green Line Bus' },
-                        busDateRange: null,
-                        // Train Commute
-                        commuteByTrain: false,
-                        trainDistance: '',
-                        trainType: { value: 'National rail', label: 'National Rail' },
-                        trainDateRange: null,
-                        // Car Commute
-                        commuteByCar: false,
-                        carMode: 'both',
-                        carDistance: '',
-                        carType: { value: 'Average car', label: 'Average car - Unknown engine size' },
-                        carFuelType: { value: 'Diesel', label: 'Diesel' },
-                        carryOthersCar: false,
-                        personsCarriedCar: null,
-                        carPassengerEmails: [''],
-                        carPassengerUserIds: [''],
-                        travelWithOthersCar: false,
-                        personsTravelWithCar: null,
-                        carTravelPassengerEmails: [''],
-                        carTravelPassengerUserIds: [''],
-                        carDateRange: null,
-                        // Work From Home
-                        workFromHome: false,
-                        fteWorkingHours: '',
-                        workFromHomeDateRange: null,
-                        qualityControlRemarks: '',
-                        qualityControl: '',
-                        submittedByEmail: '',
-                    });
+            //             // Reset form after 3 seconds
+            //             setTimeout(() => {
+            //                 setFormData({
+            //                     employeeName: '',  // Add this
+            //                     employeeID: '',
+            //                     siteBuildingName: null,
+            //                     stakeholderDepartment: null,
+            //                     // Motorbike Commute
+            //                     commuteByMotorbike: false,
+            //                     motorbikeMode: 'both',
+            //                     motorbikeDistance: '',
+            //                     motorbikeType: { value: 'Small', label: 'Small (<125cc)' },
+            //                     carryOthersMotorbike: false,
+            //                     personsCarriedMotorbike: null,
+            //                     motorbikePassengerEmails: [''],
+            //                     motorbikePassengerUserIds: [''],
+            //                     travelWithOthersMotorbike: false,
+            //                     personsTravelWithMotorbike: null,
+            //                     motorbikeTravelPassengerEmails: [''],
+            //                     motorbikeTravelPassengerUserIds: [''],
+            //                     motorbikeDateRange: null,
+            //                     // Taxi Commute
+            //                     commuteByTaxi: false,
+            //                     taxiMode: 'both',
+            //                     taxiPassengers: { value: '1', label: '1 passenger' },
+            //                     taxiDistance: '',
+            //                     taxiType: { value: 'Regular taxi', label: 'Regular Taxi' },
+            //                     travelWithOthersTaxi: false,
+            //                     personsTravelWithTaxi: null,
+            //                     taxiPassengerEmails: [''],
+            //                     taxiPassengerUserIds: [''],
+            //                     taxiDateRange: null,
+            //                     // Bus Commute
+            //                     commuteByBus: false,
+            //                     busDistance: '',
+            //                     busType: { value: 'Green Line Bus', label: 'Green Line Bus' },
+            //                     busDateRange: null,
+            //                     // Train Commute
+            //                     commuteByTrain: false,
+            //                     trainDistance: '',
+            //                     trainType: { value: 'National rail', label: 'National Rail' },
+            //                     trainDateRange: null,
+            //                     // Car Commute
+            //                     commuteByCar: false,
+            //                     carMode: 'both',
+            //                     carDistance: '',
+            //                     carType: { value: 'Average car', label: 'Average car - Unknown engine size' },
+            //                     carFuelType: { value: 'Diesel', label: 'Diesel' },
+            //                     carryOthersCar: false,
+            //                     personsCarriedCar: null,
+            //                     carPassengerEmails: [''],
+            //                     carPassengerUserIds: [''],
+            //                     travelWithOthersCar: false,
+            //                     personsTravelWithCar: null,
+            //                     carTravelPassengerEmails: [''],
+            //                     carTravelPassengerUserIds: [''],
+            //                     carDateRange: null,
+            //                     // Work From Home
+            //                     workFromHome: false,
+            //                     fteWorkingHours: '',
+            //                     workFromHomeDateRange: null,
+            //                     qualityControlRemarks: '',
+            //                     qualityControl: '',
+            //                     submittedByEmail: '',
+            //                 });
 
-                    // Clear selected date ranges
-                    setSelectedDateRanges({
-                        motorbike: null,
-                        taxi: null,
-                        bus: null,
-                        train: null,
-                        car: null,
-                        workFromHome: null
-                    });
+            //                 // Clear selected date ranges
+            //                 setSelectedDateRanges({
+            //                     motorbike: null,
+            //                     taxi: null,
+            //                     bus: null,
+            //                     train: null,
+            //                     car: null,
+            //                     workFromHome: null
+            //                 });
 
+            //                 setSubmitted(true);
+            //             }, 3000);
+            //         }
+
+            //     } catch (error) {
+            //         console.error('Submission error:', error);
+
+            //         if (error.response) {
+            //             toast.error(`Server error: ${error.response.data?.message || error.response.status}`);
+            //         } else if (error.request) {
+            //             toast.error('Network error. Please check your connection.');
+            //         } else {
+            //             toast.error(`Error: ${error.message}`);
+            //         }
+            //     } finally {
+            //         setLoading(false);
+            //     }
+            // };
+            // Check if form submission was successful
+            if (response.status === 200 || response.status === 201) {
+                // Mark user as filled
+                const userIdToUpdate = targetUserData?._id || companyData?._id || userInfo?._id;
+                await markUserAsFilled(userIdToUpdate, currentToken);
+
+                // Rest of your success handling
+                if (response.data.warnings && response.data.warnings.length > 0) {
+                    setPooledEmailWarnings(response.data.warnings);
+                    toast.warning('Some colleagues have been marked as carpool partners. Please review.');
+                } else {
+                    toast.success('Employee commuting data submitted successfully!');
                     setSubmitted(true);
-                }, 3000);
+
+                    // Reset form after 3 seconds
+                    setTimeout(() => {
+                        setFormData({
+                            employeeName: '',
+                            employeeID: '',
+                            siteBuildingName: null,
+                            stakeholderDepartment: null,
+                            commuteByMotorbike: false,
+                            motorbikeMode: 'both',
+                            motorbikeDistance: '',
+                            motorbikeType: { value: 'Small', label: 'Small (<125cc)' },
+                            carryOthersMotorbike: false,
+                            personsCarriedMotorbike: null,
+                            motorbikePassengerEmails: [''],
+                            motorbikePassengerUserIds: [''],
+                            travelWithOthersMotorbike: false,
+                            personsTravelWithMotorbike: null,
+                            motorbikeTravelPassengerEmails: [''],
+                            motorbikeTravelPassengerUserIds: [''],
+                            motorbikeDateRange: null,
+                            commuteByTaxi: false,
+                            taxiMode: 'both',
+                            taxiPassengers: { value: '1', label: '1 passenger' },
+                            taxiDistance: '',
+                            taxiType: { value: 'Regular taxi', label: 'Regular Taxi' },
+                            travelWithOthersTaxi: false,
+                            personsTravelWithTaxi: null,
+                            taxiPassengerEmails: [''],
+                            taxiPassengerUserIds: [''],
+                            taxiDateRange: null,
+                            commuteByBus: false,
+                            busDistance: '',
+                            busType: { value: 'Green Line Bus', label: 'Green Line Bus' },
+                            busDateRange: null,
+                            commuteByTrain: false,
+                            trainDistance: '',
+                            trainType: { value: 'National rail', label: 'National Rail' },
+                            trainDateRange: null,
+                            commuteByCar: false,
+                            carMode: 'both',
+                            carDistance: '',
+                            carType: { value: 'Average car', label: 'Average car - Unknown engine size' },
+                            carFuelType: { value: 'Diesel', label: 'Diesel' },
+                            carryOthersCar: false,
+                            personsCarriedCar: null,
+                            carPassengerEmails: [''],
+                            carPassengerUserIds: [''],
+                            travelWithOthersCar: false,
+                            personsTravelWithCar: null,
+                            carTravelPassengerEmails: [''],
+                            carTravelPassengerUserIds: [''],
+                            carDateRange: null,
+                            workFromHome: false,
+                            fteWorkingHours: '',
+                            workFromHomeDateRange: null,
+                            qualityControlRemarks: '',
+                            qualityControl: '',
+                            submittedByEmail: '',
+                        });
+
+                        setSelectedDateRanges({
+                            motorbike: null,
+                            taxi: null,
+                            bus: null,
+                            train: null,
+                            car: null,
+                            workFromHome: null
+                        });
+
+                        setSubmitted(true);
+                    }, 3000);
+                }
+            } else {
+                throw new Error(`Unexpected response status: ${response.status}`);
             }
 
         } catch (error) {
@@ -2457,7 +2605,6 @@ const EmployeeCommutingForm = () => {
             setLoading(false);
         }
     };
-
     console.log({ errors, formData });
 
     if (submitted) {

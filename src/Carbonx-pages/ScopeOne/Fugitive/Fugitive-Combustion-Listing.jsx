@@ -127,7 +127,6 @@ const FugitiveCombustionListing = () => {
     }
   };
 
-
   useEffect(() => {
     fetchFugitiveRecords(pageIndex, pageSize, globalFilterValue);
   }, [pageIndex, pageSize, globalFilterValue]);
