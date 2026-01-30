@@ -2200,7 +2200,7 @@ const EmployeeCommutingForm = () => {
 
         try {
             await axios.patch(
-                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/mark-filled`,
+                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/mark-filled/`,
                 {
                     userId: userId
                 },
