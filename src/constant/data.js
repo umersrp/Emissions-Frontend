@@ -281,7 +281,11 @@ export const menuItems = [
       {
         childtitle: "Business Travel",
         childlink: "Business-Travel",
-      },//Upstream-Transportation
+      },//Email-Reporting
+      {
+        childtitle: "Email Reporting",
+        childlink: "Email-Reporting",
+      },
       {
         childtitle: "Employee Email Sent",
         childlink: "EmailSent",

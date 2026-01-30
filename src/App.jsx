@@ -241,6 +241,7 @@ import EmployeeCommutingForm from "./Carbonx-pages/EmployeeCommuting/EmployeeCom
 import UserViewPage from "./pages/utility/userView";
 import EmailSent from "./Carbonx-pages/Emailsent/EmailSent";
 import CommutingTable from "./Carbonx-pages/EmployeeCommuting/CommutingTable";
+import EmailReportListing from "./Carbonx-pages/ScopeThree/EmailReport/Email-Report-Listing";
 
 
 
@@ -501,8 +502,7 @@ function App() {
           <Route path="Downstream-Transportation" element={<DownstreamTransportationListing />} />
           <Route path="EmailSent" element={<EmailSent />} />
           <Route path="Commuting" element={<CommutingTable />} />
-
-
+          <Route path="Email-Reporting" element={<EmailReportListing />} />
 
           <Route path="Coach-edit" element={<CoachEditPage />} />
           <Route path="*" element={<Navigate to="/404" />} />
