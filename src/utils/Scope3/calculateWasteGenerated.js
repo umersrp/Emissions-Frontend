@@ -44,7 +44,7 @@ export const calculateWasteEmission = (
   });
 
   if (!totalWasteQty || !wasteType || !wasteTreatmentMethod) {
-    console.warn("❌ Missing required inputs");
+    console.warn("   Missing required inputs");
     return null;
   }
 
@@ -52,7 +52,7 @@ export const calculateWasteEmission = (
   console.log("Type Factors:", typeFactors);
 
   if (!typeFactors) {
-    console.warn(`❌ No emission factors found for waste type "${wasteType}"`);
+    console.warn(`   No emission factors found for waste type "${wasteType}"`);
     return null;
   }
 
@@ -61,7 +61,7 @@ export const calculateWasteEmission = (
 
   if (!emissionFactor) {
     console.warn(
-      `❌ No emission factor found for "${wasteType}" with treatment "${wasteTreatmentMethod}"`
+      `   No emission factor found for "${wasteType}" with treatment "${wasteTreatmentMethod}"`
     );
     return null;
   }
