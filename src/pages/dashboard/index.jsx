@@ -494,7 +494,7 @@ const Dashboard = () => {
           {/* Total GHG Emissions */}
           <div className="col-span-2 bg-white rounded-xl shadow-lg md:h-[190px]  h-[170px]   p-3">
             <h3 className="text-2xl font-semibold mt-2">Total GHG Emissions</h3>
-            <p className="text-xl text-red-500 font-bold flex flex-col mt-2">
+            <p className="text-[20px] text-red-500 font-bold flex flex-col mt-2">
               {formatNumber(totalEmission)}
               <span>tCO₂e</span>
             </p>
@@ -503,7 +503,7 @@ const Dashboard = () => {
           {/* Scope 1 Emissions */}
           <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]  h-[150px]  mt-2.5 p-3">
             <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 1 Emissions</h3>
-            <p className="text-xl text-purple-500 font-bold break-words">
+            <p className="text-[20px] text-purple-500 font-bold break-words">
               {formatNumber(scope1Emission)}
               <span className="block">tCO₂e</span>
             </p>
@@ -518,13 +518,13 @@ const Dashboard = () => {
             <div className="space-y-1">
               <p className="text-[12px] text-black-500 flex flex-col">
                 Location Based
-                <span className="text-sm font-bold text-orange-500">
+                <span className="text-[20px] font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)} tCO₂e
                 </span>
               </p>
               <p className="text-[12px] text-black-500 flex flex-col">
                 Market Based
-                <span className="text-sm  font-bold text-orange-500">
+                <span className="text-[20px]  font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)} tCO₂e
                 </span>
               </p>
@@ -537,7 +537,7 @@ const Dashboard = () => {
           {/* Scope 3 Emissions */}
           <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]   h-[150px]  mt-2.5 p-3">
             <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 3 Emissions</h3>
-            <p className="text-xl text-purple-500 font-bold break-words">
+            <p className="text-[20px] text-purple-500 font-bold break-words">
               {formatNumber(scope3Emission)}
               <span className="block">tCO₂e</span>
             </p>

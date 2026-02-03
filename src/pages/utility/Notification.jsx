@@ -37,7 +37,7 @@ const SendNotificationForm = () => {
             setMessage("");
         } catch (err) {
             console.error("Notification error:", err?.response?.data || err.message);
-            alert("❌ Failed to send notification");
+            alert("   Failed to send notification");
         } finally {
             setLoading(false);
         }

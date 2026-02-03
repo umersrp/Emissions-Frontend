@@ -23,18 +23,18 @@ const useStationaryCSVUpload = (buildings = []) => {
 
   const cleanCSVValue = useCallback((value) => {
     if (typeof value !== 'string') return value;
-    
+
     let cleaned = value.replace(/["']/g, '');
     cleaned = cleaned.replace(/^=/, '');
-    
+
     if (cleaned.includes('T00:00:00.000Z')) {
       cleaned = cleaned.replace('T00:00:00.000Z', '');
     }
-    
+
     if (cleaned.includes('T')) {
       cleaned = cleaned.split('T')[0];
     }
-    
+
     return cleaned.trim();
   }, []);
 
@@ -363,35 +363,40 @@ const useStationaryCSVUpload = (buildings = []) => {
       }));
 
       if (errors.length === 0) {
-        toast.success(`CSV validated: ${data.length} rows ready for upload`);
+        // toast.success(`CSV validated: ${data.length} rows ready for upload`);
       } else {
-        toast.warning(`Found ${errors.length} validation errors. Please fix them before uploading.`);
+        // toast.warning(`Found ${errors.length} validation errors. Please fix them before uploading.`);
       }
 
       return data;
     } catch (error) {
-      toast.error(`Error parsing CSV: ${error.message}`);
+    //  toast.error(`Error parsing CSV: ${error.message}`);
       return null;
     }
   };
 
-  const processUpload = async (onSuccess = null) => {
-    const { file, parsedData, validationErrors } = csvState;
-    
-    if (!file || validationErrors.length > 0 || !parsedData) {
-      toast.error('Please fix validation errors first');
-      return null;
-    }
+const processUpload = async (onSuccess = null) => {
+  console.log('  processUpload started');
+  const { file, parsedData, validationErrors } = csvState;
 
-    setCsvState(prev => ({ ...prev, uploading: true, progress: 0 }));
+  if (!file || validationErrors.length > 0 || !parsedData) {
+    toast.error('Please fix validation errors first');
+    return null;
+  }
 
-    const results = {
-      success: 0,
-      failed: 0,
-      errors: []
-    };
+  // Set uploading true at start
+  setCsvState(prev => ({ ...prev, uploading: true, progress: 0 }));
 
-    for (let i = 0; i < parsedData.length; i++) {
+  const results = {
+    success: 0,
+    failed: 0,
+    errors: []
+  };
+
+  try {
+    const totalRows = parsedData.length;
+
+    for (let i = 0; i < totalRows; i++) {
       const row = parsedData[i];
 
       try {
@@ -418,24 +423,49 @@ const useStationaryCSVUpload = (buildings = []) => {
         });
       }
 
-      setCsvState(prev => ({ 
-        ...prev, 
-        progress: Math.round(((i + 1) / parsedData.length) * 100) 
-      }));
+      // Update progress
+      const currentProgress = Math.round(((i + 1) / totalRows) * 100);
+      const shouldUpdate =
+        currentProgress % 10 === 0 ||
+        i === totalRows - 1 ||
+        i === 0;
+
+      if (shouldUpdate) {
+        setCsvState(prev => ({
+          ...prev,
+          progress: currentProgress
+        }));
+      }
     }
 
-    setCsvState(prev => ({ ...prev, uploading: false, results }));
-    
+    //   FIX: Update state WITHOUT touching uploading flag yet
+    setCsvState(prev => ({
+      ...prev,
+      progress: 100,
+      results
+    }));
+
     if (results.failed === 0) {
       toast.success(`Successfully uploaded ${results.success} records!`);
       if (onSuccess) onSuccess(results);
     } else {
-      toast.warning(`Uploaded ${results.success} records, ${results.failed} failed. Check error details.`);
+      toast.warning(`Uploaded ${results.success} records, ${results.failed} failed.`);
     }
-
+    
+    console.log('  processUpload completed');
     return results;
-  };
 
+  } catch (error) {
+    // Only set uploading false on error
+    setCsvState(prev => ({
+      ...prev,
+      uploading: false
+    }));
+    toast.error('Upload failed unexpectedly');
+    throw error;
+  }
+  // Don't set uploading: false here - let handleCSVUpload manage it
+};
   const resetUpload = () => {
     setCsvState({
       file: null,
