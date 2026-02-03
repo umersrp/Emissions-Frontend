@@ -462,7 +462,7 @@ const useStationaryCSVUpload = (buildings = []) => {
 Fill data WITHOUT quotes around values
 
 === SAMPLE DATA FORMAT ===
-buildingId,stakeholder,equipmentType,fuelType,fuelName,fuelConsumption,consumptionUnit,qualityControl,remarks,postingDate
+buildingid,stakeholder,equipmenttype,fueltype,fuelname,fuelconsumption,consumptionunit,qualitycontrol,remarks,postingdate
 64f8a1b2c3d4e5f6a7b8c9d0,${exampleStakeholder},${exampleEquipment},${exampleFuelType},${exampleFuelName},100,${exampleUnit},${exampleQC},record 1,2024-01-15
 64f8a1b2c3d4e5f6a7b8c9d1,Commercial,Generator,Gaseous Fuel,Natural Gas,50,m³,Fair,,2024-01-16
 

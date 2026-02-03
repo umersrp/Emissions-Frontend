@@ -186,7 +186,7 @@ const CSVUploadModal = ({
         )}
 
         {/* Upload Results */}
-        {results && (
+        {/* {results && (
           <div className={`p-4 rounded-lg ${results.failed === 0 ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'}`}>
             <h4 className="font-semibold mb-3">Upload Results</h4>
             <div className="grid grid-cols-3 gap-4 mb-3">
@@ -216,7 +216,7 @@ const CSVUploadModal = ({
               </div>
             )}
           </div>
-        )}
+        )} */}
 
         {/* Action Buttons */}
         <div className="flex justify-end space-x-3 pt-4 border-t">
