@@ -252,7 +252,7 @@ const useFugitiveCSVUpload = (buildings = []) => {
 Fill data WITHOUT quotes around values
 
 === SAMPLE DATA FORMAT ===
-buildingId,stakeholder,equipmentType,materialRefrigerant,leakageValue,consumptionUnit,qualityControl,remarks,postingDate
+buildingid,stakeholder,equipmenttype,materialrefrigerant,leakagevalue,consumptionunit,qualitycontrol,remarks,postingdate
 64f8a1b2c3d4e5f6a7b8c9d0,${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},10,${exampleUnit},${exampleQC},AC maintenance,2024-01-15
 64f8a1b2c3d4e5f6a7b8c9d1,${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},5.5,${exampleUnit},${exampleQC},Regular check,2024-01-16
 
