@@ -2199,7 +2199,7 @@ const EmployeeCommutingForm = () => {
         }
 
         try {
-            await axios.patch(
+            await axios.put(
                 `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/mark-filled/`,
                 {
                     userId: userId

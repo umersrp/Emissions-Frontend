@@ -524,7 +524,7 @@ const Dashboard = () => {
               </p>
               <p className="text-[12px] text-black-500 flex flex-col">
                 Market Based
-                <span className="text-[12px]  font-bold text-orange-500">
+                <span className="text-sm  font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)} tCO₂e
                 </span>
               </p>
