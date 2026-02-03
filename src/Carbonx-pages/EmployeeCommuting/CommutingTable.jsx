@@ -217,7 +217,7 @@ const EMISSION_FACTORS = {
 // Helper function to calculate emissions
 const calculateEmissions = (data) => {
     console.log("Calculating emissions for:", data); // Debug
-    
+
     let distance = 0;
     let passengers = 1;
     let factor = 0;
@@ -305,90 +305,86 @@ const CommutingTable = () => {
     const [controlledPageSize, setControlledPageSize] = useState(10);
     const [isPaginationLoading, setIsPaginationLoading] = useState(false);
 
+
     // **Reusable fetch function**
-// **Reusable fetch function**
-const fetchCommutingData = async () => {
-    setLoading(true);
-    try {
-        const search = globalFilterValue.trim();
-        const token = localStorage.getItem("token");
-        
-        if (!token) {
-            toast.error("Authentication token missing. Please login again.");
-            navigate("/login");
-            return;
-        }
+    const fetchCommutingData = async () => {
+        setLoading(true);
+        try {
+            const search = globalFilterValue.trim();
+            const token = localStorage.getItem("token");
 
-        // Build query parameters
-        const params = {
-            page: controlledPageIndex + 1,
-            limit: controlledPageSize
-        };
-        
-        // Add search parameter if exists
-        if (search) {
-            params.search = search;
-        }
-
-        const res = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}/employee-commute/List`,
-            {
-                params,
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            if (!token) {
+                toast.error("Authentication token missing. Please login again.");
+                navigate("/login");
+                return;
             }
-        );
 
-        console.log("API Response:", res.data); // Debug log
-        
-        // CORRECTED: Access the response data directly
-        const data = res.data.data || [];
-        const meta = res.data.meta || {};
-        
-        const total = meta.total || 0;
-        const totalPages = meta.totalPages || Math.ceil(total / controlledPageSize);
-        
-        // Calculate emissions for each record
-        const dataWithEmissions = data.map(item => {
-            // Ensure building object has buildingName property
-            const buildingData = item.building || {};
-            return {
-                ...item,
-                building: {
-                    ...buildingData,
-                    // Map buildingName correctly (some records might have different field names)
-                    buildingName: buildingData.buildingName || buildingData.name || "Unknown Building"
-                },
-                emissions: calculateEmissions(item)
+            // UPDATE THIS SECTION TO MATCH YOUR POSTMAN:
+            const params = {
+                page: controlledPageIndex + 1,
+                limit: controlledPageSize,
+                //  ADD THIS LINE - exact same parameter as Postman
+                ...(search && { search: search })
             };
-        });
 
-        setCommutingData(dataWithEmissions);
-        setPageCount(totalPages || 1);
-        
-    } catch (err) {
-        console.error("Error fetching commuting data:", err);
-        
-        // Handle specific error cases
-        if (err.response?.status === 401) {
-            toast.error("Session expired. Please login again.");
-            localStorage.removeItem("token");
-            navigate("/login");
-        } else if (err.response?.status === 403) {
-            toast.error("You don't have permission to access this resource.");
-        } else {
-            toast.error("Failed to fetch employee commuting data");
+            const res = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/employee-commute/List`,
+                {
+                    params,  //  This sends ?page=1&limit=10&search=Assembly
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            console.log("API Response:", res.data); // Debug log
+
+            // CORRECTED: Access the response data directly
+            const data = res.data.data || [];
+            const meta = res.data.meta || {};
+
+            const total = meta.total || 0;
+            const totalPages = meta.totalPages || Math.ceil(total / controlledPageSize);
+
+            // Calculate emissions for each record
+            const dataWithEmissions = data.map(item => {
+                // Ensure building object has buildingName property
+                const buildingData = item.building || {};
+                return {
+                    ...item,
+                    building: {
+                        ...buildingData,
+                        // Map buildingName correctly (some records might have different field names)
+                        buildingName: buildingData.buildingName || buildingData.name || "Unknown Building"
+                    },
+                    emissions: calculateEmissions(item)
+                };
+            });
+
+            setCommutingData(dataWithEmissions);
+            setPageCount(totalPages || 1);
+
+        } catch (err) {
+            console.error("Error fetching commuting data:", err);
+
+            // Handle specific error cases
+            if (err.response?.status === 401) {
+                toast.error("Session expired. Please login again.");
+                localStorage.removeItem("token");
+                navigate("/login");
+            } else if (err.response?.status === 403) {
+                toast.error("You don't have permission to access this resource.");
+            } else {
+                toast.error("Failed to fetch employee commuting data");
+            }
+
+            // Set empty data on error
+            setCommutingData([]);
+            setPageCount(1);
+        } finally {
+            setLoading(false);
+            setIsPaginationLoading(false);
         }
-        
-        // Set empty data on error
-        setCommutingData([]);
-        setPageCount(1);
-    } finally {
-        setLoading(false);
-        setIsPaginationLoading(false);
-    }
-};
+    };
 
     // **Fetch data when page, size, or filter changes**
     useEffect(() => {
@@ -422,27 +418,6 @@ const fetchCommutingData = async () => {
             toast.error("Failed to delete record");
         }
     };
-
-    // Enhanced Global Filter component with search tips
-    const EnhancedGlobalFilter = () => (
-        <div className="flex items-center space-x-2">
-            <div className="relative">
-                <GlobalFilter 
-                    filter={globalFilterValue} 
-                    setFilter={setGlobalFilterValue}
-                    placeholder="Search by building, department, email, or vehicle type..."
-                />
-                {globalFilterValue && (
-                    <Tippy content="Search in: Building name, Department, Email, Vehicle Types, Reporting Year">
-                        <Icon 
-                            icon="heroicons:information-circle" 
-                            className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400"
-                        />
-                    </Tippy>
-                )}
-            </div>
-        </div>
-    );
 
     const COLUMNS = useMemo(() => [
         {
@@ -694,25 +669,18 @@ const fetchCommutingData = async () => {
                         <p className="text-sm text-gray-600">
                             Using UK Government GHG Conversion Factors 2025 for Scope 3 emissions
                         </p>
-                        {globalFilterValue && (
-                            <p className="text-xs text-blue-600 mt-1">
-                                Showing results for: "{globalFilterValue}"
-                            </p>
-                        )}
+                        
                     </div>
                     <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
-                        <EnhancedGlobalFilter />
-                        <Button
-                            icon="heroicons-outline:document-download"
-                            text="Export Data"
-                            className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
-                            iconClass="text-lg"
-                            onClick={() => {
-                                // Export functionality
-                                toast.info("Export feature coming soon!");
-                            }}
-                        />
-                    </div>
+    <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
+    <Button
+        icon="heroicons-outline:plus-sm"
+        text="Add Record"
+        className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+        iconClass="text-lg"
+        onClick={() => navigate("/employee-commuting/Add")}
+    />
+</div>
                 </div>
 
                 {/* Totals Summary */}
@@ -779,7 +747,7 @@ const fetchCommutingData = async () => {
                                                 <td colSpan={COLUMNS.length + 1}>
                                                     <div className="flex justify-center items-center py-16">
                                                         <span className="text-gray-500 text-lg font-medium">
-                                                            {globalFilterValue 
+                                                            {globalFilterValue
                                                                 ? `No results found for "${globalFilterValue}"`
                                                                 : "No employee commuting data available."
                                                             }
