@@ -278,7 +278,7 @@ const useMobileCSVUpload = (buildings = []) => {
 Fill data WITHOUT quotes around values
 
 === SAMPLE DATA FORMAT ===
-buildingId,stakeholder,vehicleClassification,vehicleType,fuelName,distanceTraveled,distanceUnit,qualityControl,weightLoaded,remarks,postingDate
+buildingid,stakeholder,vehicleclassification,vehicletype,fuelname,distancetraveled,distanceunit,qualitycontrol,weightloaded,remarks,postingdate
 64f8a1b2c3d4e5f6a7b8c9d0,${exampleStakeholder},${exampleClassification},${exampleVehicleType},${exampleFuel},100,${exampleDistanceUnit},${exampleQC},,record 1,2024-01-15
 64f8a1b2c3d4e5f6a7b8c9d1,Fugitive & Mobile,Heavy Good Vehicles (HGVs All Diesel),Rigid HGV (>33t),,500,km,Fair,>33t,heavy load,2024-01-16
 
