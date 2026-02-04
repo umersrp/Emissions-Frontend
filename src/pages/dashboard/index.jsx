@@ -488,91 +488,62 @@ const Dashboard = () => {
             </button>
           </div>
         </div>
-
         {/* Summary cards */}
-      {/* Summary cards */}
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-  {/* Total GHG Emissions */}
-  <div className="lg:col-span-2 bg-white rounded-xl shadow-lg p-3 md:p-4 min-h-[140px] md:min-h-[170px]">
-    <h3 className="text-[clamp(1.1rem,2vw,1.5rem)] font-semibold ">
-      Total GHG Emissions
-    </h3>
-    <p className="text-[clamp(1.5rem,4vw,2.5rem)] text-red-500 font-bold">
-      {formatNumber(totalEmission)}
-      <span className="text-[clamp(0.8rem,1.5vw,1rem)] block md:inline ml-0 md:ml-1">
-        tCO₂e
-      </span>
-    </p>
-  </div>
+        <div className="grid grid-cols-5 gap-4 mb-6 ">
+          {/* Total GHG Emissions */}
+          <div className="col-span-2 bg-white rounded-xl shadow-lg md:h-[190px]  h-[170px]   p-3">
+            <h3 className="text-2xl font-semibold mt-2">Total GHG Emissions</h3>
+            <p className="text-[150%] text-red-500 font-bold flex flex-col mt-2">
+              {formatNumber(totalEmission)}
+              <span>tCO₂e</span>
+            </p>
+          </div>
 
-  {/* Scope 1 Emissions */}
-  <div className="bg-white rounded-xl shadow-lg p-3 md:p-4 min-h-[130px] md:min-h-[150px]">
-    <h3 className="text-[clamp(0.85rem,1.5vw,1.125rem)] font-semibold ">
-      Scope 1 Emissions
-    </h3>
-    <p className="text-[clamp(1.25rem,2.5vw,1.5rem)] text-purple-500 font-bold">
-      {formatNumber(scope1Emission)}
-      <span className="text-[clamp(0.7rem,1.2vw,0.9rem)] block">
-        tCO₂e
-      </span>
-    </p>
-    <p className="text-[clamp(0.65rem,1vw,0.75rem)] text-gray-600 mt-1">
-      Direct Emissions
-    </p>
-  </div>
+          {/* Scope 1 Emissions */}
+          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]  h-[150px]  mt-2.5 p-3">
+            <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 1 Emissions</h3>
+            <p className="text-[150%] text-purple-500 font-bold break-words">
+              {formatNumber(scope1Emission)}
+              <span className="block">tCO₂e</span>
+            </p>
+            <p className="text-[12px] text-gray-600">Direct Emissions</p>
+          </div>
 
-  {/* Scope 2 Emissions */}
-  <div className="bg-white rounded-xl shadow-lg p-3 md:p-4 min-h-[130px] md:min-h-[150px]">
-    <h3 className="text-[clamp(0.85rem,1.5vw,1.125rem)] font-semibold ">
-      Scope 2 Emissions
-    </h3>
-    
-    {/* Breakdown */}
-    <div className="space-y-1 md:space-y-2">
-      <div>
-        <p className="text-[clamp(0.65rem,1vw,0.75rem)] text-gray-700">
-          Location Based
-        </p>
-        <p className="text-[clamp(1rem,2vw,1.25rem)] font-bold text-orange-500">
-          {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)}
-          <span className="text-[clamp(0.6rem,0.9vw,0.7rem)] block">
-            tCO₂e
-          </span>
-        </p>
-      </div>
-      <div>
-        <p className="text-[clamp(0.65rem,1vw,0.75rem)] text-gray-700">
-          Market Based
-        </p>
-        <p className="text-[clamp(1rem,2vw,1.25rem)] font-bold text-orange-500">
-          {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)}
-          <span className="text-[clamp(0.6rem,0.9vw,0.7rem)] block">
-            tCO₂e
-          </span>
-        </p>
-      </div>
-    </div>
-    <p className="text-[clamp(0.65rem,1vw,0.75rem)] text-gray-600 mt-1">
-      Indirect Emissions
-    </p>
-  </div>
+          {/* Scope 2 Emissions */}
+          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px] h-[150px] mt-2.5 p-3">
+            <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 2 Emissions</h3>
 
-  {/* Scope 3 Emissions */}
-  <div className="bg-white rounded-xl shadow-lg p-3 md:p-4 min-h-[130px] md:min-h-[150px]">
-    <h3 className="text-[clamp(0.85rem,1.5vw,1.125rem)] font-semibold ">
-      Scope 3 Emissions
-    </h3>
-    <p className="text-[clamp(1.25rem,2.5vw,1.5rem)] text-purple-500 font-bold">
-      {formatNumber(scope3Emission)}
-      <span className="text-[clamp(0.7rem,1.2vw,0.9rem)] block">
-        tCO₂e
-      </span>
-    </p>
-    <p className="text-[clamp(0.65rem,1vw,0.75rem)] text-gray-600 mt-1">
-      Other Indirect Emissions
-    </p>
-  </div>
-</div>
+            {/* Breakdown (smaller, subtle) */}
+            <div className="space-y-1">
+              <p className="text-[12px] text-black-500 flex flex-col">
+                Location Based
+                <span className="text-[150%] font-bold text-orange-500">
+                  {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)} tCO₂e
+                </span>
+              </p>
+              <p className="text-[12px] text-black-500 flex flex-col">
+                Market Based
+                <span className="text-[150%]  font-bold text-orange-500">
+                  {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)} tCO₂e
+                </span>
+              </p>
+            </div>
+            <p className="text-[12px] text-gray-600">
+              Indirect Emissions
+            </p>
+          </div>
+
+          {/* Scope 3 Emissions */}
+          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]   h-[150px]  mt-2.5 p-3">
+            <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 3 Emissions</h3>
+            <p className="text-[150%] text-purple-500 font-bold break-words">
+              {formatNumber(scope3Emission)}
+              <span className="block">tCO₂e</span>
+            </p>
+            <p className="text-[12px] text-gray-600">Other Indirect Emissions</p>
+          </div>
+        </div>
+
 
         {/* Charts */}
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 mb-5">
@@ -606,24 +577,24 @@ const Dashboard = () => {
             />
           </Card> */}
           <Card className="flex-1 min-w-[320px] col-span-2 ">
-             <h3 className="font-semibold text-xl flex items-center gap-2">
+            <h3 className="font-semibold text-xl flex items-center gap-2">
               Building-Wise GHG Emissions
               <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e. The selected building will be highlighted in blue.">
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
               </Tooltip>
             </h3>
             {/* <div className="pr-20 min-w-[300px] overflow-x-auto scrollbar-hide ">  */}
-{/*            <div style={{ minWidth: `${Math.max(barChartData.length * 60, 800)}px` }} > */}
-              <RevenueBarChart
-                chartData={barChartData}
-                showZeroValues={false}
-                onBarClick={(building) => {
-                  console.log("Clicked building:", building);
-                }}
-                selectedBuilding={appliedBuilding}
-              />
+            {/*            <div style={{ minWidth: `${Math.max(barChartData.length * 60, 800)}px` }} > */}
+            <RevenueBarChart
+              chartData={barChartData}
+              showZeroValues={false}
+              onBarClick={(building) => {
+                console.log("Clicked building:", building);
+              }}
+              selectedBuilding={appliedBuilding}
+            />
             {/* </div> */}
-          
+
           </Card>
         </div>
 
