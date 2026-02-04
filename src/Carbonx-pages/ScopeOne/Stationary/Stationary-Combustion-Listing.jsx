@@ -205,7 +205,7 @@ const StationaryCombustionListing = () => {
     setBulkUploadModalOpen(true);
   };
 
-  // ✅ FIX: Don't set isUploading during file selection
+  //  FIX: Don't set isUploading during file selection
   const handleCSVFileSelect = async (selectedFile) => {
     if (!selectedFile) {
       toast.error('No file selected');
@@ -221,7 +221,7 @@ const StationaryCombustionListing = () => {
     }
   };
 
-  // ✅ FIX: Simplified upload handler
+  //  FIX: Simplified upload handler
   const handleCSVUpload = async () => {
     // Only check csvState.uploading (single source of truth)
     if (csvState.uploading) return;
@@ -250,7 +250,7 @@ const StationaryCombustionListing = () => {
     }
   };
 
-  // ✅ FIX: Simplified close handler
+  //  FIX: Simplified close handler
   const handleModalClose = () => {
     // Use csvState.uploading as single source of truth
     if (csvState.uploading) {
