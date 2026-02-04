@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, Fragment, useRef } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
@@ -19,6 +19,7 @@ import { formatUnitDisplay } from "@/constant/scope1/stationary-data";
 // Import reusable components and hooks
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import useStationaryCSVUpload from "@/hooks/scope1/useStationaryCSVUpload";
+import { Dialog, Transition } from "@headlessui/react";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -201,13 +202,10 @@ const StationaryCombustionListing = () => {
   };
 
   const handleBulkUploadClick = () => {
-    if (isUploading) {
-      setForceModalOpen(true);
-    }
     setBulkUploadModalOpen(true);
   };
 
-  // FIXED: Handle file selection properly
+  // ✅ FIX: Don't set isUploading during file selection
   const handleCSVFileSelect = async (selectedFile) => {
     if (!selectedFile) {
       toast.error('No file selected');
@@ -215,51 +213,47 @@ const StationaryCombustionListing = () => {
     }
 
     try {
-      setIsUploading(true); // Add this
+      // Remove setIsUploading - file selection is not uploading!
       await handleFileSelect(selectedFile);
     } catch (error) {
       console.error('Error handling file select:', error);
       toast.error('Failed to process file');
-    } finally {
-      setIsUploading(false); // Add this
     }
   };
-  const handleCSVUpload = async () => {
-    if (isUploading || csvState.uploading) return;
 
-    setIsUploading(true);
-    setForceModalOpen(true); // Lock modal open
+  // ✅ FIX: Simplified upload handler
+  const handleCSVUpload = async () => {
+    // Only check csvState.uploading (single source of truth)
+    if (csvState.uploading) return;
 
     try {
       const results = await processUpload();
 
-      if (results) {
-        if (results.failed === 0) {
-          setTimeout(() => {
-            setBulkUploadModalOpen(false);
-            setForceModalOpen(false);
-            resetUpload();
-            setIsUploading(false);
+      if (results && results.failed === 0) {
+        // Wait to show completion
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
-            fetchStationaryRecords(pagination.currentPage);
-          }, 1500);
-        } else {
-          // Keep modal open but allow closing
-          setForceModalOpen(false);
-          setIsUploading(false);
-        }
+        // Close modal and cleanup
+        setBulkUploadModalOpen(false);
+        resetUpload();
+
+        // Fetch in background
+        setTimeout(() => {
+          fetchStationaryRecords(pagination.currentPage);
+        }, 100);
       }
+      // If there are failures, processUpload already set uploading to false
+      // Modal stays open automatically
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Upload failed');
-      setForceModalOpen(false);
-      setIsUploading(false);
     }
   };
 
-  // Update handleModalClose
+  // ✅ FIX: Simplified close handler
   const handleModalClose = () => {
-    if (forceModalOpen) {
+    // Use csvState.uploading as single source of truth
+    if (csvState.uploading) {
       toast.warning('Please wait for upload to complete');
       return;
     }
@@ -267,6 +261,48 @@ const StationaryCombustionListing = () => {
     resetUpload();
     setBulkUploadModalOpen(false);
   };
+
+
+  // Modal new code start
+
+  const { file, uploading, progress, validationErrors, results } = csvState;
+  const fileInputRef = useRef(null);
+
+  // Memoize handlers to prevent recreation on every render
+  const handleFileInputChange = useMemo(() => (e) => {
+    const selectedFile = e?.target?.files?.[0];
+    if (selectedFile && handleCSVFileSelect) {
+      handleCSVFileSelect(selectedFile);
+    }
+  }, [handleCSVFileSelect]);
+
+  const handleBrowseClick = useMemo(() => () => {
+    if (fileInputRef.current && !uploading) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
+  }, [uploading]);
+
+  const handleReset = useMemo(() => () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    if (!uploading && resetUpload) {
+      resetUpload();
+    }
+  }, [uploading, resetUpload]);
+
+  const handleClose = useMemo(() => () => {
+    if (uploading) {
+      return; // Silently prevent close during upload
+    }
+    handleReset();
+    if (handleModalClose) {
+      handleModalClose();
+    }
+  }, [uploading, handleModalClose, handleReset]);
+
+  // Modal new code end
 
   const COLUMNS = useMemo(
     () => [
@@ -682,7 +718,7 @@ const StationaryCombustionListing = () => {
       </Modal>
 
       {/* Reusable CSV Upload Modal */}
-      <CSVUploadModal
+      {/* <CSVUploadModal
         activeModal={bulkUploadModalOpen}
         onClose={handleModalClose}
         title="Bulk Upload Stationary Records"
@@ -691,7 +727,6 @@ const StationaryCombustionListing = () => {
         onUpload={handleCSVUpload}
         onReset={resetUpload}
         onDownloadTemplate={downloadStationaryTemplate}
-        isLoading={isUploading}
         templateInstructions={(
           <ol className="text-sm text-blue-700 space-y-1 list-decimal pl-4">
             <li>Download the template below</li>
@@ -701,7 +736,207 @@ const StationaryCombustionListing = () => {
             <li>Review validation results and submit</li>
           </ol>
         )}
-      />
+      /> */}
+
+      <Transition appear={bulkUploadModalOpen} show={bulkUploadModalOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-[99999]"
+          onClose={handleModalClose}
+        >
+
+
+          {/*  Modal Content */}
+          <div className="fixed inset-0 overflow-y-auto">
+            <div
+              className={`flex min-h-full justify-center items-center text-center p-4`}
+            >
+              <Transition.Child
+                as={Fragment}
+                enter={"duration-300 ease-out"}
+                enterFrom={"opacity-0 scale-95"}
+                enterTo={"opacity-100 scale-100"}
+                leave={"duration-200 ease-in"}
+                leaveFrom={"opacity-100 scale-100"}
+                leaveTo={"opacity-0 scale-95"}
+              >
+                <Dialog.Panel
+                  className={`w-full transform overflow-hidden rounded-xl bg-white dark:bg-slate-800 text-left align-middle shadow-2xl transition-all`}
+                >
+                  {/*  Header */}
+                  <div
+                    className={`relative py-3 px-4 text-white flex justify-between`}
+                  >
+                    <h2 className="capitalize leading-6 tracking-wider font-medium text-base text-white">
+                      {'title'}
+                    </h2>
+                    <button onClick={handleModalClose} className="text-[22px]">
+                      <Icon icon="heroicons-outline:x" />
+                    </button>
+                  </div>
+
+                  {/*  Body */}
+                  <div
+                    className={`px-6 py-6 flex flex-col items-center text-center overflow-y-auto max-h-[400px]`}
+                  >
+                    <div className="p-6 space-y-6">
+                      {/* Instructions */}
+                      {/* <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <div className="flex items-start">
+                          <Icon icon="heroicons:information-circle" className="w-5 h-5 text-blue-500 mt-0.5 mr-2" />
+                          <div>
+                            <h4 className="font-semibold text-blue-800 mb-1">How to upload:</h4>
+                            {templateInstructions}
+                          </div>
+                        </div>
+                      </div> */}
+
+                      {/* Template Download */}
+                      {/* {onDownloadTemplate && (
+                        <div className="flex justify-center">
+                          <Button
+                            text="Download Template & Instructions"
+                            className="btn-primary"
+                            onClick={onDownloadTemplate}
+                            icon="heroicons:document-arrow-down"
+                            disabled={uploading}
+                          />
+                        </div>
+                      )} */}
+
+                      {/* File Upload Area */}
+                      <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${uploading
+                        ? 'border-primary-300 bg-primary-50'
+                        : 'border-slate-300 hover:border-primary-500'
+                        }`}>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          id="csvUploadInput"
+                          accept={'.csv'}
+                          onChange={handleFileInputChange}
+                          className="hidden"
+                          disabled={uploading}
+                        />
+
+                        <div className={uploading ? 'pointer-events-none opacity-70' : ''}>
+                          <Icon
+                            icon={uploading ? "heroicons:arrow-path" : file ? "heroicons:check-circle" : "heroicons:cloud-arrow-up"}
+                            className={`w-12 h-12 mx-auto mb-3 ${uploading
+                              ? 'text-primary-500 animate-spin'
+                              : file
+                                ? 'text-green-500'
+                                : 'text-slate-400'
+                              }`}
+                          />
+                          {file ? (
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-center text-green-600">
+                                <Icon icon="heroicons:check-circle" className="w-5 h-5 mr-2" />
+                                <span className="font-medium truncate max-w-xs">{file.name}</span>
+                              </div>
+                              <p className="text-sm text-slate-500">
+                                {uploading ? 'Upload in progress...' : 'Click to change file'}
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              <p className="text-lg font-medium text-slate-700">
+                                Choose CSV file or drag & drop
+                              </p>
+                              <p className="text-sm text-slate-500">
+                                {'.csv'.toUpperCase()} files only (max {10}MB)
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        {!uploading && (
+                          <div className="mt-4">
+                            <Button
+                              text="Browse Files"
+                              className="btn-outline-primary"
+                              onClick={handleBrowseClick}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Validation Errors */}
+                      {validationErrors.length > 0 && !uploading && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold text-yellow-800 flex items-center">
+                              <Icon icon="heroicons:exclamation-triangle" className="w-5 h-5 mr-2" />
+                              Validation Errors ({validationErrors.length})
+                            </h4>
+                          </div>
+                          <div className="max-h-40 overflow-y-auto text-sm">
+                            {validationErrors.slice(0, 10).map((error, index) => (
+                              <p key={index} className="text-yellow-700 py-1 border-b border-yellow-100 last:border-0">
+                                {error}
+                              </p>
+                            ))}
+                            {validationErrors.length > 10 && (
+                              <p className="text-yellow-600 py-2 text-center font-medium">
+                                ... and {validationErrors.length - 10} more errors
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Upload Progress */}
+                      {uploading && (
+                        <div className="space-y-2 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                          <div className="flex justify-between text-sm font-medium">
+                            <span>Uploading records...</span>
+                            <span className="text-primary-600">{progress}%</span>
+                          </div>
+                          <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+                            <div
+                              className="bg-primary-500 h-3 rounded-full transition-all duration-500 ease-out"
+                              style={{ width: `${progress}%` }}
+                            ></div>
+                          </div>
+                          <p className="text-xs text-slate-600 text-center mt-2">
+                            Please wait, do not close this window
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Action Buttons */}
+                      <div className="flex justify-end space-x-3 pt-4 border-t">
+                        <Button
+                          text="Cancel"
+                          className="btn-light"
+                          onClick={handleClose}
+                          disabled={uploading}
+                        />
+                        <Button
+                          text={uploading ? `Uploading... ${progress}%` : 'Upload CSV'}
+                          className="btn-primary"
+                          onClick={handleCSVUpload}
+                          disabled={!file || validationErrors.length > 0 || uploading}
+                          loading={uploading}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/*  Footer */}
+                  {/* {footerContent && (
+                    <div className="px-4 py-3 flex justify-between items-center border-t border-slate-100 dark:border-slate-700">
+                      {footerContent}
+                    </div>
+                  )} */}
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+
     </>
   );
 };

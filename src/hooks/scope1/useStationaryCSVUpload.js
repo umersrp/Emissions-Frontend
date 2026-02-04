@@ -376,7 +376,7 @@ const useStationaryCSVUpload = (buildings = []) => {
   };
 
 const processUpload = async (onSuccess = null) => {
-  console.log('  processUpload started');
+  console.log('processUpload started');
   const { file, parsedData, validationErrors } = csvState;
 
   if (!file || validationErrors.length > 0 || !parsedData) {
@@ -384,8 +384,13 @@ const processUpload = async (onSuccess = null) => {
     return null;
   }
 
-  // Set uploading true at start
-  setCsvState(prev => ({ ...prev, uploading: true, progress: 0 }));
+  // 1. Initialize Uploading State
+  setCsvState(prev => ({ 
+    ...prev, 
+    uploading: true, 
+    progress: 0,
+    results: null // Clear previous results
+  }));
 
   const results = {
     success: 0,
@@ -423,14 +428,12 @@ const processUpload = async (onSuccess = null) => {
         });
       }
 
-      // Update progress
+      // 2. Optimized Progress Updates
       const currentProgress = Math.round(((i + 1) / totalRows) * 100);
-      const shouldUpdate =
-        currentProgress % 10 === 0 ||
-        i === totalRows - 1 ||
-        i === 0;
-
-      if (shouldUpdate) {
+      const isLastRow = i === totalRows - 1;
+      
+      // Update every 10% or on the very last row
+      if (currentProgress % 10 === 0 || isLastRow) {
         setCsvState(prev => ({
           ...prev,
           progress: currentProgress
@@ -438,11 +441,13 @@ const processUpload = async (onSuccess = null) => {
       }
     }
 
-    //   FIX: Update state WITHOUT touching uploading flag yet
+    // 3. Final State Update (SUCCESS/PARTIAL SUCCESS)
+    // We set uploading to false HERE so the UI knows the process is finished
     setCsvState(prev => ({
       ...prev,
       progress: 100,
-      results
+      results: results,
+      uploading: false 
     }));
 
     if (results.failed === 0) {
@@ -452,19 +457,20 @@ const processUpload = async (onSuccess = null) => {
       toast.warning(`Uploaded ${results.success} records, ${results.failed} failed.`);
     }
     
-    console.log('  processUpload completed');
+    console.log('processUpload completed successfully');
     return results;
 
   } catch (error) {
-    // Only set uploading false on error
+    // 4. Final State Update (CRITICAL FAILURE)
+    console.error('Critical upload error:', error);
     setCsvState(prev => ({
       ...prev,
-      uploading: false
+      uploading: false,
+      progress: 0
     }));
     toast.error('Upload failed unexpectedly');
     throw error;
   }
-  // Don't set uploading: false here - let handleCSVUpload manage it
 };
   const resetUpload = () => {
     setCsvState({
