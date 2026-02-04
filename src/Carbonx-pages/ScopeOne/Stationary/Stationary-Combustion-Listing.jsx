@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, Fragment, useRef } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
@@ -19,6 +19,7 @@ import { formatUnitDisplay } from "@/constant/scope1/stationary-data";
 // Import reusable components and hooks
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import useStationaryCSVUpload from "@/hooks/scope1/useStationaryCSVUpload";
+import { Dialog, Transition } from "@headlessui/react";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -201,13 +202,10 @@ const StationaryCombustionListing = () => {
   };
 
   const handleBulkUploadClick = () => {
-    if (isUploading) {
-      setForceModalOpen(true);
-    }
     setBulkUploadModalOpen(true);
   };
 
-  // FIXED: Handle file selection properly
+  // ✅ FIX: Don't set isUploading during file selection
   const handleCSVFileSelect = async (selectedFile) => {
     if (!selectedFile) {
       toast.error('No file selected');
@@ -215,51 +213,47 @@ const StationaryCombustionListing = () => {
     }
 
     try {
-      setIsUploading(true); // Add this
+      // Remove setIsUploading - file selection is not uploading!
       await handleFileSelect(selectedFile);
     } catch (error) {
       console.error('Error handling file select:', error);
       toast.error('Failed to process file');
-    } finally {
-      setIsUploading(false); // Add this
     }
   };
-  const handleCSVUpload = async () => {
-    if (isUploading || csvState.uploading) return;
 
-    setIsUploading(true);
-    setForceModalOpen(true); // Lock modal open
+  // ✅ FIX: Simplified upload handler
+  const handleCSVUpload = async () => {
+    // Only check csvState.uploading (single source of truth)
+    if (csvState.uploading) return;
 
     try {
       const results = await processUpload();
 
-      if (results) {
-        if (results.failed === 0) {
-          setTimeout(() => {
-            setBulkUploadModalOpen(false);
-            setForceModalOpen(false);
-            resetUpload();
-            setIsUploading(false);
+      if (results && results.failed === 0) {
+        // Wait to show completion
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
-            fetchStationaryRecords(pagination.currentPage);
-          }, 1500);
-        } else {
-          // Keep modal open but allow closing
-          setForceModalOpen(false);
-          setIsUploading(false);
-        }
+        // Close modal and cleanup
+        setBulkUploadModalOpen(false);
+        resetUpload();
+
+        // Fetch in background
+        setTimeout(() => {
+          fetchStationaryRecords(pagination.currentPage);
+        }, 100);
       }
+      // If there are failures, processUpload already set uploading to false
+      // Modal stays open automatically
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Upload failed');
-      setForceModalOpen(false);
-      setIsUploading(false);
     }
   };
 
-  // Update handleModalClose
+  // ✅ FIX: Simplified close handler
   const handleModalClose = () => {
-    if (forceModalOpen) {
+    // Use csvState.uploading as single source of truth
+    if (csvState.uploading) {
       toast.warning('Please wait for upload to complete');
       return;
     }
@@ -267,6 +261,55 @@ const StationaryCombustionListing = () => {
     resetUpload();
     setBulkUploadModalOpen(false);
   };
+  const templateInstructions = (
+    <ol className="text-sm text-blue-700 space-y-1 list-decimal pl-4">
+      <li>Download the template below</li>
+      <li>Fill in your data (keep column headers as is)</li>
+      <li>Save as CSV file</li>
+      <li>Upload using the form below</li>
+      <li>Review validation results and submit</li>
+    </ol>
+  );
+  // Modal new code start
+
+  const { file, uploading, progress, validationErrors, results } = csvState;
+  const fileInputRef = useRef(null);
+
+  // Memoize handlers to prevent recreation on every render
+  const handleFileInputChange = useMemo(() => (e) => {
+    const selectedFile = e?.target?.files?.[0];
+    if (selectedFile && handleCSVFileSelect) {
+      handleCSVFileSelect(selectedFile);
+    }
+  }, [handleCSVFileSelect]);
+
+  const handleBrowseClick = useMemo(() => () => {
+    if (fileInputRef.current && !uploading) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
+  }, [uploading]);
+
+  const handleReset = useMemo(() => () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    if (!uploading && resetUpload) {
+      resetUpload();
+    }
+  }, [uploading, resetUpload]);
+
+  const handleClose = useMemo(() => () => {
+    if (uploading) {
+      return; // Silently prevent close during upload
+    }
+    handleReset();
+    if (handleModalClose) {
+      handleModalClose();
+    }
+  }, [uploading, handleModalClose, handleReset]);
+
+  // Modal new code end
 
   const COLUMNS = useMemo(
     () => [
@@ -681,7 +724,6 @@ const StationaryCombustionListing = () => {
         </p>
       </Modal>
 
-      {/* Reusable CSV Upload Modal */}
       <CSVUploadModal
         activeModal={bulkUploadModalOpen}
         onClose={handleModalClose}
@@ -691,17 +733,10 @@ const StationaryCombustionListing = () => {
         onUpload={handleCSVUpload}
         onReset={resetUpload}
         onDownloadTemplate={downloadStationaryTemplate}
+        templateInstructions={templateInstructions}
         isLoading={isUploading}
-        templateInstructions={(
-          <ol className="text-sm text-blue-700 space-y-1 list-decimal pl-4">
-            <li>Download the template below</li>
-            <li>Fill in your data (keep column headers as is)</li>
-            <li>Save as CSV file</li>
-            <li>Upload using the form below</li>
-            <li>Review validation results and submit</li>
-          </ol>
-        )}
       />
+
     </>
   );
 };
