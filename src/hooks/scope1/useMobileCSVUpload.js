@@ -262,48 +262,61 @@ const useMobileCSVUpload = (buildings = []) => {
     }
   };
 
-  const downloadMobileTemplate = () => {
-    const exampleBuildings = buildings.slice(0, 3);
-    const buildingList = exampleBuildings.map(b => `${b._id},${b.buildingName || 'Unnamed'}`).join('\n');
+//   const downloadMobileTemplate = () => {
+//     const exampleBuildings = buildings.slice(0, 3);
+//     const buildingList = exampleBuildings.map(b => `${b._id},${b.buildingName || 'Unnamed'}`).join('\n');
 
-    // Get some example values
-    const exampleStakeholder = FugitiveAndMobileStakeholderOptions[0]?.value || 'Fugitive & Mobile';
-    const exampleClassification = vehicleClassificationOptions[0]?.value || 'Cars (by Market Segment)';
-    const exampleVehicleType = vehicleTypeOptionsByClassification[exampleClassification]?.[0]?.value || 'Diesel Car - Small';
-    const exampleFuel = fuelNameOptionsByClassification[exampleClassification]?.[0]?.value || 'Diesel';
-    const exampleDistanceUnit = distanceUnitOptions[0]?.value || 'km';
-    const exampleQC = qualityControlOptions[0]?.value || 'Good';
+//     // Get some example values
+//     const exampleStakeholder = FugitiveAndMobileStakeholderOptions[0]?.value || 'Fugitive & Mobile';
+//     const exampleClassification = vehicleClassificationOptions[0]?.value || 'Cars (by Market Segment)';
+//     const exampleVehicleType = vehicleTypeOptionsByClassification[exampleClassification]?.[0]?.value || 'Diesel Car - Small';
+//     const exampleFuel = fuelNameOptionsByClassification[exampleClassification]?.[0]?.value || 'Diesel';
+//     const exampleDistanceUnit = distanceUnitOptions[0]?.value || 'km';
+//     const exampleQC = qualityControlOptions[0]?.value || 'Good';
 
-    const template = `=== IMPORTANT: DO NOT USE QUOTES ===
-Fill data WITHOUT quotes around values
+//     const template = `=== IMPORTANT: DO NOT USE QUOTES ===
+// Fill data WITHOUT quotes around values
 
-=== SAMPLE DATA FORMAT ===
-buildingid,stakeholder,vehicleclassification,vehicletype,fuelname,distancetraveled,distanceunit,qualitycontrol,weightloaded,remarks,postingdate
-64f8a1b2c3d4e5f6a7b8c9d0,${exampleStakeholder},${exampleClassification},${exampleVehicleType},${exampleFuel},100,${exampleDistanceUnit},${exampleQC},,record 1,2024-01-15
-64f8a1b2c3d4e5f6a7b8c9d1,Fugitive & Mobile,Heavy Good Vehicles (HGVs All Diesel),Rigid HGV (>33t),,500,km,Fair,>33t,heavy load,2024-01-16
+// === SAMPLE DATA FORMAT ===
+// buildingid,stakeholder,vehicleclassification,vehicletype,fuelname,distancetraveled,distanceunit,qualitycontrol,weightloaded,remarks,postingdate
+// 64f8a1b2c3d4e5f6a7b8c9d0,${exampleStakeholder},${exampleClassification},${exampleVehicleType},${exampleFuel},100,${exampleDistanceUnit},${exampleQC},,record 1,2024-01-15
+// 64f8a1b2c3d4e5f6a7b8c9d1,Fugitive & Mobile,Heavy Good Vehicles (HGVs All Diesel),Rigid HGV (>33t),,500,km,Fair,>33t,heavy load,2024-01-16
 
-=== BUILDING REFERENCE (first 3) ===
-${buildingList}
+// === BUILDING REFERENCE (first 3) ===
+// ${buildingList}
 
-=== QUICK REFERENCE ===
-- Stakeholder options: ${FugitiveAndMobileStakeholderOptions.slice(0, 3).map(s => s.value).join(', ')}...
-- Vehicle Classifications: ${vehicleClassificationOptions.slice(0, 3).map(v => v.value).join(', ')}...
-- Distance Units: ${distanceUnitOptions.map(u => u.value).join(', ')}
-- Quality Control: ${qualityControlOptions.map(q => q.value).join(', ')}
-- Weight Loaded (for HGVs): ${weightLoadedOptions.map(w => w.value).join(', ')}
-- Date: YYYY-MM-DD (e.g., 2024-01-15)`;
+// === QUICK REFERENCE ===
+// - Stakeholder options: ${FugitiveAndMobileStakeholderOptions.slice(0, 3).map(s => s.value).join(', ')}...
+// - Vehicle Classifications: ${vehicleClassificationOptions.slice(0, 3).map(v => v.value).join(', ')}...
+// - Distance Units: ${distanceUnitOptions.map(u => u.value).join(', ')}
+// - Quality Control: ${qualityControlOptions.map(q => q.value).join(', ')}
+// - Weight Loaded (for HGVs): ${weightLoadedOptions.map(w => w.value).join(', ')}
+// - Date: YYYY-MM-DD (e.g., 2024-01-15)`;
 
-    const blob = new Blob([template], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'mobile_combustion_template_NO_QUOTES.txt';
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  };
+//     const blob = new Blob([template], { type: 'text/plain' });
+//     const url = URL.createObjectURL(blob);
+//     const a = document.createElement('a');
+//     a.href = url;
+//     a.download = 'mobile_combustion_template_NO_QUOTES.txt';
+//     document.body.appendChild(a);
+//     a.click();
+//     URL.revokeObjectURL(url);
+//     document.body.removeChild(a);
+//   };
+const downloadMobileTemplate = () => {
+  // Just headers, no data rows
+  const csvContent = 'buildingid,stakeholder,vehicleclassification,vehicletype,fuelname,distancetraveled,distanceunit,qualitycontrol,weightloaded,remarks,postingdate';
 
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mobile_template.csv';
+  document.body.appendChild(a);
+  a.click();
+  URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+};
   const processMobileUpload = async (onSuccess) => {
     return await processUpload(transformMobilePayload, validateMobileRow, onSuccess);
   };
