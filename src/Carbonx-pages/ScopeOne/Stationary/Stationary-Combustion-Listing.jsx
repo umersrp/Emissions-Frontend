@@ -320,6 +320,7 @@ const StationaryCombustionListing = () => {
           <span>{(pagination.currentPage - 1) * pagination.limit + row.index + 1}</span>
         ),
       },
+       { Header: "Building Code", accessor: "buildingId.buildingCode",  Cell: ({ cell }) => cell.value || "N/A",  },
       { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ value }) => capitalizeLabel(value) },
       { Header: "Stakeholder", accessor: "stakeholder", Cell: ({ value }) => capitalizeLabel(value) },
       { Header: "Equipment Type", accessor: "equipmentType", Cell: ({ value }) => capitalizeLabel(value) },
