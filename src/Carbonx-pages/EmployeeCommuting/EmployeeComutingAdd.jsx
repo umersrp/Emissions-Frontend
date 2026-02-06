@@ -2200,7 +2200,7 @@ const EmployeeCommutingForm = () => {
 
         try {
             await axios.put(
-                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/mark-filled/`,
+                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/mark-filled`,
                 {
                     userId: userId
                 },
@@ -3575,6 +3575,7 @@ const EmployeeCommutingForm = () => {
                         value={formData.submittedByEmail}
                         onChange={(e) => handleInputChange('submittedByEmail', e.target.value)}
                         required
+                        disabled
                         helperText="This email will be used for confirmation and communication regarding your submission"
                     />
                     {userInfo && userInfo.email && (

@@ -370,102 +370,109 @@ const useStationaryCSVUpload = (buildings = []) => {
 
       return data;
     } catch (error) {
-    //  toast.error(`Error parsing CSV: ${error.message}`);
+      //  toast.error(`Error parsing CSV: ${error.message}`);
       return null;
     }
   };
 
-const processUpload = async (onSuccess = null) => {
-  console.log('  processUpload started');
-  const { file, parsedData, validationErrors } = csvState;
+  const processUpload = async (onSuccess = null) => {
+    console.log('processUpload started');
+    const { file, parsedData, validationErrors } = csvState;
 
-  if (!file || validationErrors.length > 0 || !parsedData) {
-    toast.error('Please fix validation errors first');
-    return null;
-  }
+    if (!file || validationErrors.length > 0 || !parsedData) {
+      toast.error('Please fix validation errors first');
+      return null;
+    }
 
-  // Set uploading true at start
-  setCsvState(prev => ({ ...prev, uploading: true, progress: 0 }));
+    // 1. Initialize Uploading State
+    setCsvState(prev => ({
+      ...prev,
+      uploading: true,
+      progress: 0,
+      results: null // Clear previous results
+    }));
 
-  const results = {
-    success: 0,
-    failed: 0,
-    errors: []
-  };
+    const results = {
+      success: 0,
+      failed: 0,
+      errors: []
+    };
 
-  try {
-    const totalRows = parsedData.length;
+    try {
+      const totalRows = parsedData.length;
 
-    for (let i = 0; i < totalRows; i++) {
-      const row = parsedData[i];
+      for (let i = 0; i < totalRows; i++) {
+        const row = parsedData[i];
 
-      try {
-        const payload = transformStationaryPayload(row);
+        try {
+          const payload = transformStationaryPayload(row);
 
-        await axios.post(
-          `${process.env.REACT_APP_BASE_URL}/stationary/create`,
-          payload,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-              'Content-Type': 'application/json'
+          await axios.post(
+            `${process.env.REACT_APP_BASE_URL}/stationary/create`,
+            payload,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'application/json'
+              }
             }
-          }
-        );
+          );
 
-        results.success++;
-      } catch (error) {
-        results.failed++;
-        const errorMessage = error.response?.data?.message || error.message;
-        results.errors.push({
-          row: i + 1,
-          error: errorMessage
-        });
+          results.success++;
+        } catch (error) {
+          results.failed++;
+          const errorMessage = error.response?.data?.message || error.message;
+          results.errors.push({
+            row: i + 1,
+            error: errorMessage
+          });
+        }
+
+        // 2. Optimized Progress Updates
+        const currentProgress = Math.round(((i + 1) / totalRows) * 100);
+        const isLastRow = i === totalRows - 1;
+
+        // Update every 10% or on the very last row
+        if (currentProgress % 10 === 0 || isLastRow) {
+          setCsvState(prev => ({
+            ...prev,
+            progress: currentProgress
+          }));
+        }
       }
 
-      // Update progress
-      const currentProgress = Math.round(((i + 1) / totalRows) * 100);
-      const shouldUpdate =
-        currentProgress % 10 === 0 ||
-        i === totalRows - 1 ||
-        i === 0;
+      // 3. Final State Update (SUCCESS/PARTIAL SUCCESS)
+      // We set uploading to false HERE so the UI knows the process is finished
+      setCsvState(prev => ({
+        ...prev,
+        progress: 100,
+        results: results,
+        uploading: false
+      }));
 
-      if (shouldUpdate) {
-        setCsvState(prev => ({
-          ...prev,
-          progress: currentProgress
-        }));
-      }
+      setTimeout(() => {
+        if (results.failed === 0) {
+          toast.success(`Successfully uploaded ${results.success} records!`);
+          if (onSuccess) onSuccess(results);
+        } else {
+          toast.warning(`Uploaded ${results.success} records, ${results.failed} failed.`);
+        }
+      }, 2000);
+      console.log('processUpload completed successfully');
+      return results;
+
+    } catch (error) {
+      // 4. Final State Update (CRITICAL FAILURE)
+      console.error('Critical upload error:', error);
+      setCsvState(prev => ({
+        ...prev,
+        uploading: false,
+        progress: 0
+      }));
+      toast.error('Upload failed unexpectedly');
+      throw error;
     }
-
-    //   FIX: Update state WITHOUT touching uploading flag yet
-    setCsvState(prev => ({
-      ...prev,
-      progress: 100,
-      results
-    }));
-
-    if (results.failed === 0) {
-      toast.success(`Successfully uploaded ${results.success} records!`);
-      if (onSuccess) onSuccess(results);
-    } else {
-      toast.warning(`Uploaded ${results.success} records, ${results.failed} failed.`);
-    }
-    
-    console.log('  processUpload completed');
-    return results;
-
-  } catch (error) {
-    // Only set uploading false on error
-    setCsvState(prev => ({
-      ...prev,
-      uploading: false
-    }));
-    toast.error('Upload failed unexpectedly');
-    throw error;
-  }
-  // Don't set uploading: false here - let handleCSVUpload manage it
-};
+  };
   const resetUpload = () => {
     setCsvState({
       file: null,
