@@ -491,18 +491,18 @@ const Dashboard = () => {
         {/* Summary cards */}
         <div className="grid grid-cols-5 gap-4 mb-6 ">
           {/* Total GHG Emissions */}
-          <div className="col-span-2 bg-white rounded-xl shadow-lg md:h-[190px]  h-[170px]   p-3">
-            <h3 className="text-2xl font-semibold mt-2">Total GHG Emissions</h3>
-            <p className="text-[150%] text-red-500 font-bold flex flex-col mt-2">
+          <div className="col-span-2 bg-white rounded-xl shadow-lg md:h-[200px]  h-[180px]   p-3">
+            <h3 className="text-xl lg:text-2xl font-semibold mt-2">Total GHG Emissions</h3>
+            <p className="text-[8px]  xl:text-[16px] text-red-500 font-bold flex flex-col mt-2">
               {formatNumber(totalEmission)}
               <span>tCO₂e</span>
             </p>
           </div>
 
           {/* Scope 1 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]  h-[150px]  mt-2.5 p-3">
-            <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 1 Emissions</h3>
-            <p className="text-[150%] text-purple-500 font-bold break-words">
+          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[175px] h-[155px]  mt-2.5 p-3">
+            <h3 className="text-[6px] xl:text-[16px] font-semibold -mt-2">Scope 1 Emissions</h3>
+            <p className="text-[8px]  xl:text-[16px] text-purple-500 font-bold break-words -mt-2">
               {formatNumber(scope1Emission)}
               <span className="block">tCO₂e</span>
             </p>
@@ -510,20 +510,20 @@ const Dashboard = () => {
           </div>
 
           {/* Scope 2 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px] h-[150px] mt-2.5 p-3">
-            <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 2 Emissions</h3>
+          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[175px] h-[155px] mt-2.5 p-3">
+            <h3 className="text-[8px]  xl:text-[16px] font-semibold -mt-2">Scope 2 Emissions</h3>
 
             {/* Breakdown (smaller, subtle) */}
-            <div className="space-y-1">
+            <div className="space-y-1 -mt-2">
               <p className="text-[12px] text-black-500 flex flex-col">
                 Location Based
-                <span className="text-[150%] font-bold text-orange-500">
+                <span className="text-[8px]  xl:text-[16px] font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)} tCO₂e
                 </span>
               </p>
               <p className="text-[12px] text-black-500 flex flex-col">
                 Market Based
-                <span className="text-[150%]  font-bold text-orange-500">
+                <span className="text-[8px]  xl:text-[16px]  font-bold text-orange-500">
                   {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)} tCO₂e
                 </span>
               </p>
@@ -534,9 +534,9 @@ const Dashboard = () => {
           </div>
 
           {/* Scope 3 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[170px]   h-[150px]  mt-2.5 p-3">
-            <h3 className="text-sm xl:text-lg font-semibold -mt-2">Scope 3 Emissions</h3>
-            <p className="text-[150%] text-purple-500 font-bold break-words">
+          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[175px] h-[155px]  mt-2.5 p-3">
+            <h3 className="text-[8px]  xl:text-[16px] font-semibold -mt-2">Scope 3 Emissions</h3>
+            <p className="text-[8px]  xl:text-[16px] text-purple-500 font-bold break-words -mt-2">
               {formatNumber(scope3Emission)}
               <span className="block">tCO₂e</span>
             </p>

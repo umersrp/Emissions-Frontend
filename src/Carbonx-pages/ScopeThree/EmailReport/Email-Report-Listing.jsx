@@ -1122,14 +1122,13 @@ const EmailReportListing = () => {
           <h6 className="flex-1 md:mb-0 ">Email Records</h6>
 
           <div className="md:flex md:space-x-3 items-center">
-            <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-
-            <Button
+            {/* <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} /> */}
+            {/* <Button
               icon="heroicons-outline:paper-airplane"
               text="Send New Email"
               className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
               onClick={() => navigate("/send-email")}
-            />
+            /> */}
           </div>
         </div>
 
