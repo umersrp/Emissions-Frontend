@@ -21,29 +21,176 @@ const useStationaryCSVUpload = (buildings = []) => {
     parsedData: null,
   });
 
+  // const cleanCSVValue = useCallback((value) => {
+  //   if (typeof value !== 'string') return value;
+
+  //   let cleaned = value.replace(/["']/g, '');
+  //   cleaned = cleaned.replace(/^=/, '');
+
+  //   if (cleaned.includes('T00:00:00.000Z')) {
+  //     cleaned = cleaned.replace('T00:00:00.000Z', '');
+  //   }
+
+  //   if (cleaned.includes('T')) {
+  //     cleaned = cleaned.split('T')[0];
+  //   }
+
+  //   return cleaned.trim();
+  // }, []);
+
+  // const parseCSV = useCallback((file) => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onload = (event) => {
+  //       try {
+  //         const csvText = event.target.result;
+  //         const lines = csvText.split('\n').filter(line => line.trim() !== '');
+
+  //         if (lines.length === 0) {
+  //           reject(new Error('CSV file is empty'));
+  //           return;
+  //         }
+
+  //         // Find header row
+  //         let headerRowIndex = -1;
+  //         for (let i = 0; i < lines.length; i++) {
+  //           const cleanLine = lines[i].replace(/"/g, '').toLowerCase();
+  //           if (cleanLine.includes('buildingcode') && cleanLine.includes('stakeholder')) {
+  //             headerRowIndex = i;
+  //             break;
+  //           }
+  //         }
+
+  //         if (headerRowIndex === -1) {
+  //           reject(new Error('CSV must contain header row with: buildingCode, stakeholder, equipmentType, fuelType, fuelName, fuelConsumption, consumptionUnit, qualityControl, remarks, postingDate'));
+  //           return;
+  //         }
+
+  //         // Parse headers
+  //         const headers = lines[headerRowIndex]
+  //           .split(',')
+  //           .map(h => cleanCSVValue(h).toLowerCase().replace(/\s+/g, ''));
+
+  //         // Expected headers
+  //         const expectedHeaders = [
+  //           'buildingcode', 'stakeholder', 'equipmenttype', 'fueltype',
+  //           'fuelname', 'fuelconsumption', 'consumptionunit', 'qualitycontrol', 'remarks', 'postingdate'
+  //         ];
+
+  //         // Check for missing headers
+  //         const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+  //         if (missingHeaders.length > 0) {
+  //           reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+  //           return;
+  //         }
+
+  //         // Parse data rows
+  //         const data = [];
+  //         for (let i = headerRowIndex + 1; i < lines.length; i++) {
+  //           const line = lines[i].trim();
+  //           if (!line) continue;
+
+  //           // Parse CSV line with quote handling
+  //           const values = [];
+  //           let inQuotes = false;
+  //           let currentValue = '';
+
+  //           for (let j = 0; j < line.length; j++) {
+  //             const char = line[j];
+
+  //             if (char === '"') {
+  //               if (j + 2 < line.length && line[j + 1] === '"' && line[j + 2] === '"') {
+  //                 j += 2; // Skip triple quotes
+  //               } else if (j + 1 < line.length && line[j + 1] === '"') {
+  //                 currentValue += '"';
+  //                 j++;
+  //               } else {
+  //                 inQuotes = !inQuotes;
+  //               }
+  //             } else if (char === ',' && !inQuotes) {
+  //               values.push(currentValue);
+  //               currentValue = '';
+  //             } else {
+  //               currentValue += char;
+  //             }
+  //           }
+  //           values.push(currentValue);
+
+  //           // Map values to headers
+  //           const row = {};
+  //           headers.forEach((header, index) => {
+  //             row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
+  //           });
+
+  //           // Only add row if it has data
+  //           if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
+  //             data.push(row);
+  //           }
+  //         }
+
+  //         resolve(data);
+  //       } catch (error) {
+  //         reject(new Error(`Error parsing CSV: ${error.message}`));
+  //       }
+  //     };
+  //     reader.onerror = () => reject(new Error('Failed to read file'));
+  //     reader.readAsText(file);
+  //   });
+  // }, [cleanCSVValue]);
   const cleanCSVValue = useCallback((value) => {
     if (typeof value !== 'string') return value;
 
-    let cleaned = value.replace(/["']/g, '');
+    let cleaned = value.trim();
+
+    // Remove surrounding quotes
+    cleaned = cleaned.replace(/^["']+|["']+$/g, '');
+
+    // Remove Excel formula prefix
     cleaned = cleaned.replace(/^=/, '');
 
-    if (cleaned.includes('T00:00:00.000Z')) {
-      cleaned = cleaned.replace('T00:00:00.000Z', '');
-    }
-
-    if (cleaned.includes('T')) {
-      cleaned = cleaned.split('T')[0];
-    }
-
-    return cleaned.trim();
+    return cleaned;
   }, []);
-
   const parseCSV = useCallback((file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         try {
           const csvText = event.target.result;
+
+          // Use a simple, robust CSV parser
+          const parseCSVLine = (line) => {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+              const char = line[i];
+              const nextChar = line[i + 1];
+
+              if (char === '"') {
+                if (inQuotes && nextChar === '"') {
+                  // Double quote inside quotes = escaped quote
+                  current += '"';
+                  i++; // Skip next character
+                } else {
+                  // Start or end quotes
+                  inQuotes = !inQuotes;
+                }
+              } else if (char === ',' && !inQuotes) {
+                // End of field
+                result.push(current);
+                current = '';
+              } else {
+                // Regular character
+                current += char;
+              }
+            }
+
+            // Add the last field
+            result.push(current);
+            return result;
+          };
+
           const lines = csvText.split('\n').filter(line => line.trim() !== '');
 
           if (lines.length === 0) {
@@ -55,25 +202,26 @@ const useStationaryCSVUpload = (buildings = []) => {
           let headerRowIndex = -1;
           for (let i = 0; i < lines.length; i++) {
             const cleanLine = lines[i].replace(/"/g, '').toLowerCase();
-            if (cleanLine.includes('buildingid') && cleanLine.includes('stakeholder')) {
+            if (cleanLine.includes('buildingcode') && cleanLine.includes('stakeholder')) {
               headerRowIndex = i;
               break;
             }
           }
 
           if (headerRowIndex === -1) {
-            reject(new Error('CSV must contain header row with: buildingId, stakeholder, equipmentType, fuelType, fuelName, fuelConsumption, consumptionUnit, qualityControl, remarks, postingDate'));
+            reject(new Error('CSV must contain header row with: buildingCode, stakeholder, equipmentType, fuelType, fuelName, fuelConsumption, consumptionUnit, qualityControl, remarks, postingDate'));
             return;
           }
 
           // Parse headers
-          const headers = lines[headerRowIndex]
-            .split(',')
-            .map(h => cleanCSVValue(h).toLowerCase().replace(/\s+/g, ''));
+          const headerValues = parseCSVLine(lines[headerRowIndex]);
+          const headers = headerValues.map(h =>
+            cleanCSVValue(h).toLowerCase().replace(/\s+/g, '')
+          );
 
           // Expected headers
           const expectedHeaders = [
-            'buildingid', 'stakeholder', 'equipmenttype', 'fueltype',
+            'buildingcode', 'stakeholder', 'equipmenttype', 'fueltype',
             'fuelname', 'fuelconsumption', 'consumptionunit', 'qualitycontrol', 'remarks', 'postingdate'
           ];
 
@@ -90,31 +238,7 @@ const useStationaryCSVUpload = (buildings = []) => {
             const line = lines[i].trim();
             if (!line) continue;
 
-            // Parse CSV line with quote handling
-            const values = [];
-            let inQuotes = false;
-            let currentValue = '';
-
-            for (let j = 0; j < line.length; j++) {
-              const char = line[j];
-
-              if (char === '"') {
-                if (j + 2 < line.length && line[j + 1] === '"' && line[j + 2] === '"') {
-                  j += 2; // Skip triple quotes
-                } else if (j + 1 < line.length && line[j + 1] === '"') {
-                  currentValue += '"';
-                  j++;
-                } else {
-                  inQuotes = !inQuotes;
-                }
-              } else if (char === ',' && !inQuotes) {
-                values.push(currentValue);
-                currentValue = '';
-              } else {
-                currentValue += char;
-              }
-            }
-            values.push(currentValue);
+            const values = parseCSVLine(line);
 
             // Map values to headers
             const row = {};
@@ -128,6 +252,8 @@ const useStationaryCSVUpload = (buildings = []) => {
             }
           }
 
+          console.log('Parsed CSV data:', JSON.stringify(data, null, 2)); // Debug log
+
           resolve(data);
         } catch (error) {
           reject(new Error(`Error parsing CSV: ${error.message}`));
@@ -137,7 +263,6 @@ const useStationaryCSVUpload = (buildings = []) => {
       reader.readAsText(file);
     });
   }, [cleanCSVValue]);
-
   const validateStationaryRow = useCallback((row, index) => {
     const errors = [];
     const cleanedRow = {};
@@ -149,7 +274,7 @@ const useStationaryCSVUpload = (buildings = []) => {
 
     // Required fields validation
     const requiredFields = [
-      'buildingid', 'stakeholder', 'equipmenttype', 'fueltype',
+      'buildingcode', 'stakeholder', 'equipmenttype', 'fueltype',
       'fuelname', 'fuelconsumption', 'consumptionunit', 'qualitycontrol'
     ];
 
@@ -159,11 +284,13 @@ const useStationaryCSVUpload = (buildings = []) => {
       }
     });
 
-    // Building validation
-    if (cleanedRow.buildingid && buildings.length > 0) {
-      const buildingExists = buildings.some(b => b._id === cleanedRow.buildingid);
+    // Building validation - now using buildingCode instead of _id
+    if (cleanedRow.buildingcode && buildings.length > 0) {
+      const buildingExists = buildings.some(b =>
+        b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
+      );
       if (!buildingExists) {
-        errors.push(`Invalid building ID "${cleanedRow.buildingid}"`);
+        errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0, 3).map(b => b.buildingCode).join(', ')}...`);
       }
     }
 
@@ -315,7 +442,7 @@ const useStationaryCSVUpload = (buildings = []) => {
     );
 
     return {
-      buildingId: row.buildingid.trim(),
+      buildingCode: row.buildingcode,
       stakeholder: row.stakeholder,
       equipmentType: row.equipmenttype,
       fuelType: row.fueltype,
@@ -486,7 +613,7 @@ const useStationaryCSVUpload = (buildings = []) => {
 
   const downloadStationaryTemplate = () => {
     const exampleBuildings = buildings.slice(0, 3);
-    const buildingList = exampleBuildings.map(b => `${b._id},${b.buildingName || 'Unnamed'}`).join('\n');
+    const buildingList = exampleBuildings.map(b => `${b.buildingCode || 'N/A'},${b.buildingName || 'Unnamed'}`).join('\n');
 
     const exampleStakeholder = stakeholderOptions[0]?.value || 'Assembly';
     const exampleEquipment = equipmentTypeOptions.find(e => e.value === 'Amine Reboilers')?.value || 'Amine Reboilers';
@@ -499,7 +626,7 @@ const useStationaryCSVUpload = (buildings = []) => {
 Fill data WITHOUT quotes around values
 
 === SAMPLE DATA FORMAT ===
-buildingid,stakeholder,equipmenttype,fueltype,fuelname,fuelconsumption,consumptionunit,qualitycontrol,remarks,postingdate
+buildingcode,stakeholder,equipmenttype,fueltype,fuelname,fuelconsumption,consumptionunit,qualitycontrol,remarks,postingdate
 64f8a1b2c3d4e5f6a7b8c9d0,${exampleStakeholder},${exampleEquipment},${exampleFuelType},${exampleFuelName},100,${exampleUnit},${exampleQC},record 1,2024-01-15
 64f8a1b2c3d4e5f6a7b8c9d1,Commercial,Generator,Gaseous Fuel,Natural Gas,50,m³,Fair,,2024-01-16
 
