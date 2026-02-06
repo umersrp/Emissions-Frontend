@@ -1034,42 +1034,6 @@ const EmailReportListing = () => {
                   <Icon icon="heroicons:user-group" className="text-purple-600" />
                 </button>
               </Tippy>
-
-              <Tippy content="View Email">
-                <button
-                  className="action-btn"
-                  onClick={() =>
-                    navigate(`/email-details/${cell.value}`, {
-                      state: { mode: "view" },
-                    })
-                  }
-                >
-                  <Icon icon="heroicons:eye" className="text-green-600" />
-                </button>
-              </Tippy>
-
-              <Tippy content="Resend">
-                <button
-                  className="action-btn"
-                  onClick={() => {
-                    toast.info("Resend functionality to be implemented");
-                  }}
-                >
-                  <Icon icon="heroicons:paper-airplane" className="text-blue-600" />
-                </button>
-              </Tippy>
-
-              <Tippy content="Delete">
-                <button
-                  className="action-btn"
-                  onClick={() => {
-                    setSelectedId(cell.value);
-                    setDeleteModalOpen(true);
-                  }}
-                >
-                  <Icon icon="heroicons:trash" className="text-red-600" />
-                </button>
-              </Tippy>
             </div>
           );
         },

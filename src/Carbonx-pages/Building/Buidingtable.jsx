@@ -145,6 +145,7 @@ const BuildingTable = () => {
 
   const COLUMNS = useMemo(() => [
     { Header: "Sr.No", id: "serialNo", Cell: ({ row }) => <span>{row.index + 1 + controlledPageIndex * controlledPageSize}</span> },
+    { Header: "Building Code", accessor: "buildingCode",Cell: ({ cell }) => cell.value || "N/A", },
     { Header: "Name", accessor: "buildingName" },
     { Header: "Country", accessor: "country",Cell: ({ cell }) => cell.value || "N/A", },
     { Header: "Location", accessor: "buildingLocation",Cell: ({ value }) => capitalizeLabel(value),},
