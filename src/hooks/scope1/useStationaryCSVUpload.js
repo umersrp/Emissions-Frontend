@@ -611,48 +611,82 @@ const useStationaryCSVUpload = (buildings = []) => {
     });
   };
 
-  const downloadStationaryTemplate = () => {
-    const exampleBuildings = buildings.slice(0, 3);
-    const buildingList = exampleBuildings.map(b => `${b.buildingCode || 'N/A'},${b.buildingName || 'Unnamed'}`).join('\n');
+//   const downloadStationaryTemplate = () => {
+//     const exampleBuildings = buildings.slice(0, 3);
+//     const buildingList = exampleBuildings.map(b => `${b.buildingCode || 'N/A'},${b.buildingName || 'Unnamed'}`).join('\n');
 
-    const exampleStakeholder = stakeholderOptions[0]?.value || 'Assembly';
-    const exampleEquipment = equipmentTypeOptions.find(e => e.value === 'Amine Reboilers')?.value || 'Amine Reboilers';
-    const exampleFuelType = 'Liquid Fuel';
-    const exampleFuelName = 'Diesel';
-    const exampleUnit = 'kg';
-    const exampleQC = 'Good';
+//     const exampleStakeholder = stakeholderOptions[0]?.value || 'Assembly';
+//     const exampleEquipment = equipmentTypeOptions.find(e => e.value === 'Amine Reboilers')?.value || 'Amine Reboilers';
+//     const exampleFuelType = 'Liquid Fuel';
+//     const exampleFuelName = 'Diesel';
+//     const exampleUnit = 'kg';
+//     const exampleQC = 'Good';
 
-    const template = `=== IMPORTANT: DO NOT USE QUOTES ===
-Fill data WITHOUT quotes around values
+//     const template = `=== IMPORTANT: DO NOT USE QUOTES ===
+// Fill data WITHOUT quotes around values
 
-=== SAMPLE DATA FORMAT ===
-buildingcode,stakeholder,equipmenttype,fueltype,fuelname,fuelconsumption,consumptionunit,qualitycontrol,remarks,postingdate
-64f8a1b2c3d4e5f6a7b8c9d0,${exampleStakeholder},${exampleEquipment},${exampleFuelType},${exampleFuelName},100,${exampleUnit},${exampleQC},record 1,2024-01-15
-64f8a1b2c3d4e5f6a7b8c9d1,Commercial,Generator,Gaseous Fuel,Natural Gas,50,m³,Fair,,2024-01-16
+// === SAMPLE DATA FORMAT ===
+// buildingcode,stakeholder,equipmenttype,fueltype,fuelname,fuelconsumption,consumptionunit,qualitycontrol,remarks,postingdate
+// 64f8a1b2c3d4e5f6a7b8c9d0,${exampleStakeholder},${exampleEquipment},${exampleFuelType},${exampleFuelName},100,${exampleUnit},${exampleQC},record 1,2024-01-15
+// 64f8a1b2c3d4e5f6a7b8c9d1,Commercial,Generator,Gaseous Fuel,Natural Gas,50,m³,Fair,,2024-01-16
 
-=== BUILDING REFERENCE (first 3) ===
-${buildingList}
+// === BUILDING REFERENCE (first 3) ===
+// ${buildingList}
 
-=== QUICK REFERENCE ===
-- Stakeholder options start with: ${stakeholderOptions.slice(0, 3).map(s => s.value).join(', ')}...
-- Equipment includes: Amine Reboilers, Boiler, Generator, etc.
-- Fuel Types: Gaseous Fuel, Liquid Fuel, Solid Fuel, Bio Liquid Fuel, Bio Gaseous Fuel, Biomass Fuel
-- Fuel Names: For Liquid Fuel: Diesel, Gasoline, Kerosene, Fuel Oil
-- Units: kg, L, m³, etc.
-- Quality: Highly Uncertain, Uncertain, Fair, Good, Exact
-- Date: YYYY-MM-DD (e.g., 2024-01-15)`;
+// === QUICK REFERENCE ===
+// - Stakeholder options start with: ${stakeholderOptions.slice(0, 3).map(s => s.value).join(', ')}...
+// - Equipment includes: Amine Reboilers, Boiler, Generator, etc.
+// - Fuel Types: Gaseous Fuel, Liquid Fuel, Solid Fuel, Bio Liquid Fuel, Bio Gaseous Fuel, Biomass Fuel
+// - Fuel Names: For Liquid Fuel: Diesel, Gasoline, Kerosene, Fuel Oil
+// - Units: kg, L, m³, etc.
+// - Quality: Highly Uncertain, Uncertain, Fair, Good, Exact
+// - Date: YYYY-MM-DD (e.g., 2024-01-15)`;
 
-    const blob = new Blob([template], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'stationary_template_NO_QUOTES.txt';
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  };
+//     const blob = new Blob([template], { type: 'text/plain' });
+//     const url = URL.createObjectURL(blob);
+//     const a = document.createElement('a');
+//     a.href = url;
+//     a.download = 'stationary_template_NO_QUOTES.txt';
+//     document.body.appendChild(a);
+//     a.click();
+//     URL.revokeObjectURL(url);
+//     document.body.removeChild(a);
+//   };
+const downloadStationaryTemplate = () => {
+  const exampleBuildings = buildings.slice(0, 1);
+  const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
+  
+  const exampleStakeholder = stakeholderOptions[0]?.value || 'Assembly';
+  const exampleEquipment = equipmentTypeOptions.find(e => e.value === 'Amine Reboilers')?.value || 'Amine Reboilers';
+  const exampleFuelType = 'Liquid Fuel';
+  const exampleFuelName = 'Diesel';
+  const exampleUnit = 'kg';
+  const exampleQC = 'Good';
 
+  // Get current date in ISO format with time set to midnight UTC
+  const currentDate = new Date();
+  const formattedDate = new Date(
+    Date.UTC(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate(),
+      0, 0, 0, 0
+    )
+  ).toISOString();
+
+  const template = `buildingcode,stakeholder,equipmenttype,fueltype,fuelname,fuelconsumption,consumptionunit,qualitycontrol,remarks,postingdate
+${exampleBuildingCode},${exampleStakeholder},${exampleEquipment},${exampleFuelType},${exampleFuelName},100,${exampleUnit},${exampleQC},Example record,${formattedDate}`;
+
+  const blob = new Blob([template], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'stationary_template.csv';
+  document.body.appendChild(a);
+  a.click();
+  URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+};
   return {
     csvState,
     handleFileSelect,
