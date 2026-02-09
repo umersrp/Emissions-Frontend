@@ -504,20 +504,34 @@ const EmployeeCommutingForm = () => {
     }, [buildings, userInfo]);
 
     // Add this useEffect near your other useEffects
-    // Replace or update your submission checking useEffect
+    // Replace or update your submission checking useEffect (around line 294-340)
     useEffect(() => {
         const checkForPreviousSubmission = async () => {
             setCheckingSubmission(true);
+            console.log('Checking for previous submission...');
+            console.log('URL Token:', urlToken);
+            console.log('Current token from getToken():', getToken());
+            console.log('Reporting year:', reportingYear);
 
             // Wait for user data to be loaded
             if ((userInfo || targetUserData || companyData) && reportingYear) {
                 const userId = targetUserData?._id || companyData?._id || userInfo?._id;
+                const currentToken = getToken(); // Get current token
 
-                if (userId) {
-                    const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userId}`;
+                console.log('User ID for checking:', userId);
+                console.log('Current token:', currentToken);
+
+                if (userId && currentToken) {
+                    // Create a unique key that includes token AND userId AND reportingYear
+                    // This ensures each new invitation (new token) is treated as new
+                    const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userId}_${currentToken.substring(0, 20)}`; // Use first 20 chars of token
+
+                    console.log('Checking localStorage with key:', submissionKey);
+
                     const isSubmitted = localStorage.getItem(submissionKey);
 
                     if (isSubmitted === 'true') {
+                        console.log('Found previous submission for this token');
                         setSubmitted(true);
 
                         // Get submission details
@@ -547,8 +561,23 @@ const EmployeeCommutingForm = () => {
                                 closeButton: true,
                             }
                         );
+                    } else {
+                        console.log('No previous submission found for this token');
+                        // Also check old format without token for migration
+                        const oldKey = `employeeCommutingSubmitted_${reportingYear}_${userId}`;
+                        const oldSubmission = localStorage.getItem(oldKey);
+                        if (oldSubmission === 'true') {
+                            console.log('Found old format submission - migrating to new format');
+                            // Migrate to new format
+                            localStorage.setItem(submissionKey, 'true');
+                            setSubmitted(true);
+                        }
                     }
+                } else {
+                    console.log('Missing userId or token for submission check');
                 }
+            } else {
+                console.log('Waiting for user data or reporting year...');
             }
 
             // Add a small delay to ensure smooth transition
@@ -558,7 +587,7 @@ const EmployeeCommutingForm = () => {
         };
 
         checkForPreviousSubmission();
-    }, [reportingYear, userInfo, targetUserData, companyData]);
+    }, [reportingYear, userInfo, targetUserData, companyData, urlToken]); // Added urlToken to dependencies
     // Handle reporting year change
     // const handleReportingYearChange = (selectedOption) => {
     //     setReportingYear(selectedOption.value);
@@ -2571,21 +2600,30 @@ const EmployeeCommutingForm = () => {
             );
 
             // Check if form submission was successful
+            // In handleSubmit function, after successful submission:
             if (response.status === 200 || response.status === 201) {
                 // Mark user as filled
                 const userIdToUpdate = targetUserData?._id || companyData?._id || userInfo?._id;
+                const currentToken = getToken(); // Get current token
+
                 await markUserAsFilled(userIdToUpdate, currentToken);
 
-                // Store in localStorage with invitation-specific key
-                if (userIdToUpdate && reportingYear) {
-                    // Include email in the key to differentiate between invitations
-                    const userEmail = formData.submittedByEmail || userInfo?.email;
-                    const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userIdToUpdate}_${userEmail}_${Date.now()}`;
+                // Store in localStorage with token-specific key
+                if (userIdToUpdate && reportingYear && currentToken) {
+                    // Use token in the key to make it unique per invitation
+                    const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userIdToUpdate}_${currentToken.substring(0, 20)}`;
+
+                    console.log('Setting submission key in localStorage:', submissionKey);
+
                     localStorage.setItem(submissionKey, 'true');
 
-                    // Also store a master key for this user+year
-                    const masterKey = `employeeCommutingSubmitted_${reportingYear}_${userIdToUpdate}`;
-                    localStorage.setItem(masterKey, 'true');
+                    // Store submission details
+                    localStorage.setItem(`${submissionKey}_details`, JSON.stringify({
+                        submittedAt: new Date().toISOString(),
+                        reportingYear: reportingYear,
+                        userId: userIdToUpdate,
+                        tokenPrefix: currentToken.substring(0, 20)
+                    }));
                 }
 
                 setSubmitted(true);
