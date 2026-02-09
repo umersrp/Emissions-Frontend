@@ -504,61 +504,61 @@ const EmployeeCommutingForm = () => {
     }, [buildings, userInfo]);
 
     // Add this useEffect near your other useEffects
-   // Replace or update your submission checking useEffect
-useEffect(() => {
-    const checkForPreviousSubmission = async () => {
-        setCheckingSubmission(true);
-        
-        // Wait for user data to be loaded
-        if ((userInfo || targetUserData || companyData) && reportingYear) {
-            const userId = targetUserData?._id || companyData?._id || userInfo?._id;
-            
-            if (userId) {
-                const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userId}`;
-                const isSubmitted = localStorage.getItem(submissionKey);
-                
-                if (isSubmitted === 'true') {
-                    setSubmitted(true);
-                    
-                    // Get submission details
-                    const detailsStr = localStorage.getItem(`${submissionKey}_details`);
-                    let submittedDate = 'previously';
-                    
-                    if (detailsStr) {
-                        try {
-                            const details = JSON.parse(detailsStr);
-                            if (details.submittedAt) {
-                                submittedDate = new Date(details.submittedAt).toLocaleDateString();
+    // Replace or update your submission checking useEffect
+    useEffect(() => {
+        const checkForPreviousSubmission = async () => {
+            setCheckingSubmission(true);
+
+            // Wait for user data to be loaded
+            if ((userInfo || targetUserData || companyData) && reportingYear) {
+                const userId = targetUserData?._id || companyData?._id || userInfo?._id;
+
+                if (userId) {
+                    const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userId}`;
+                    const isSubmitted = localStorage.getItem(submissionKey);
+
+                    if (isSubmitted === 'true') {
+                        setSubmitted(true);
+
+                        // Get submission details
+                        const detailsStr = localStorage.getItem(`${submissionKey}_details`);
+                        let submittedDate = 'previously';
+
+                        if (detailsStr) {
+                            try {
+                                const details = JSON.parse(detailsStr);
+                                if (details.submittedAt) {
+                                    submittedDate = new Date(details.submittedAt).toLocaleDateString();
+                                }
+                            } catch (e) {
+                                console.error('Error parsing submission details:', e);
                             }
-                        } catch (e) {
-                            console.error('Error parsing submission details:', e);
                         }
+
+                        toast.info(
+                            <div>
+                                <div className="font-medium mb-1">Form Already Submitted</div>
+                                <div className="text-sm">
+                                    You submitted this form for {reportingYear} on {submittedDate}.
+                                </div>
+                            </div>,
+                            {
+                                autoClose: 8000,
+                                closeButton: true,
+                            }
+                        );
                     }
-                    
-                    toast.info(
-                        <div>
-                            <div className="font-medium mb-1">Form Already Submitted</div>
-                            <div className="text-sm">
-                                You submitted this form for {reportingYear} on {submittedDate}.
-                            </div>
-                        </div>,
-                        {
-                            autoClose: 8000,
-                            closeButton: true,
-                        }
-                    );
                 }
             }
-        }
-        
-        // Add a small delay to ensure smooth transition
-        setTimeout(() => {
-            setCheckingSubmission(false);
-        }, 300);
-    };
-    
-    checkForPreviousSubmission();
-}, [reportingYear, userInfo, targetUserData, companyData]);
+
+            // Add a small delay to ensure smooth transition
+            setTimeout(() => {
+                setCheckingSubmission(false);
+            }, 300);
+        };
+
+        checkForPreviousSubmission();
+    }, [reportingYear, userInfo, targetUserData, companyData]);
     // Handle reporting year change
     // const handleReportingYearChange = (selectedOption) => {
     //     setReportingYear(selectedOption.value);
@@ -597,68 +597,68 @@ useEffect(() => {
     //     });
     // };
     const handleReportingYearChange = (selectedOption) => {
-    try {
-        // Handle clearing
-        if (!selectedOption) {
-            console.log("Clearing reporting year selection");
-            setReportingYear(null);
-            clearDateRelatedData();
-            return;
-        }
-        
-        // Validate selectedOption has value property
-        if (!selectedOption.value && selectedOption.value !== 0) {
-            console.warn("Invalid selectedOption:", selectedOption);
-            return;
-        }
-        
-        console.log(`Setting reporting year to: ${selectedOption.value}`);
-        setReportingYear(selectedOption.value);
-        clearDateRelatedData();
-        
-    } catch (error) {
-        console.error("Error in handleReportingYearChange:", error);
-        // Optionally show error to user
-        toast.error("Failed to update reporting year");
-    }
-};
-
-const clearDateRelatedData = () => {
-    // Clear errors
-    setErrors(prev => {
-        const newErrors = { ...prev };
-        Object.keys(newErrors).forEach(key => {
-            if (key.includes('Date') || key.includes('Coverage') || key.includes('Overlap')) {
-                delete newErrors[key];
+        try {
+            // Handle clearing
+            if (!selectedOption) {
+                console.log("Clearing reporting year selection");
+                setReportingYear(null);
+                clearDateRelatedData();
+                return;
             }
-        });
-        return newErrors;
-    });
 
-    // Clear form date ranges
-    const dateRangeFields = [
-        'motorbikeDateRange', 'taxiDateRange', 'busDateRange',
-        'trainDateRange', 'carDateRange', 'workFromHomeDateRange'
-    ];
-    
-    setFormData(prev => {
-        const updated = { ...prev };
-        dateRangeFields.forEach(field => {
-            updated[field] = null;
-        });
-        return updated;
-    });
+            // Validate selectedOption has value property
+            if (!selectedOption.value && selectedOption.value !== 0) {
+                console.warn("Invalid selectedOption:", selectedOption);
+                return;
+            }
 
-    // Clear selected date ranges
-    setSelectedDateRanges({
-        motorbike: null,
-        taxi: null,
-        bus: null,
-        train: null,
-        car: null,
-        workFromHome: null
-    });
-};
+            console.log(`Setting reporting year to: ${selectedOption.value}`);
+            setReportingYear(selectedOption.value);
+            clearDateRelatedData();
+
+        } catch (error) {
+            console.error("Error in handleReportingYearChange:", error);
+            // Optionally show error to user
+            toast.error("Failed to update reporting year");
+        }
+    };
+
+    const clearDateRelatedData = () => {
+        // Clear errors
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            Object.keys(newErrors).forEach(key => {
+                if (key.includes('Date') || key.includes('Coverage') || key.includes('Overlap')) {
+                    delete newErrors[key];
+                }
+            });
+            return newErrors;
+        });
+
+        // Clear form date ranges
+        const dateRangeFields = [
+            'motorbikeDateRange', 'taxiDateRange', 'busDateRange',
+            'trainDateRange', 'carDateRange', 'workFromHomeDateRange'
+        ];
+
+        setFormData(prev => {
+            const updated = { ...prev };
+            dateRangeFields.forEach(field => {
+                updated[field] = null;
+            });
+            return updated;
+        });
+
+        // Clear selected date ranges
+        setSelectedDateRanges({
+            motorbike: null,
+            taxi: null,
+            bus: null,
+            train: null,
+            car: null,
+            workFromHome: null
+        });
+    };
 
     // Function to clear specific field error
     const clearFieldError = (fieldName) => {
@@ -1137,207 +1137,207 @@ const clearDateRelatedData = () => {
             };
         });
     };
-// Add this function near your other helper functions
-const calculateOverallMonthCoverage = (ranges) => {
-    const coveredMonths = new Set();
-    
-    // Helper function to add months from a date range
-    const addMonthsFromRange = (dateRange) => {
-        if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
-        const startDate = new Date(dateRange.startDate);
-        const endDate = new Date(dateRange.endDate);
-        
-        // Reset to first day of month for consistent month tracking
-        const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-        const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+    // Add this function near your other helper functions
+    const calculateOverallMonthCoverage = (ranges) => {
+        const coveredMonths = new Set();
 
-        while (currentDate <= endDateMonth) {
-            const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-            coveredMonths.add(monthKey);
-            currentDate.setMonth(currentDate.getMonth() + 1);
-        }
+        // Helper function to add months from a date range
+        const addMonthsFromRange = (dateRange) => {
+            if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
+            const startDate = new Date(dateRange.startDate);
+            const endDate = new Date(dateRange.endDate);
+
+            // Reset to first day of month for consistent month tracking
+            const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+            const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+
+            while (currentDate <= endDateMonth) {
+                const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+                coveredMonths.add(monthKey);
+                currentDate.setMonth(currentDate.getMonth() + 1);
+            }
+        };
+
+        // Add months from all date ranges
+        Object.values(ranges).forEach(range => {
+            addMonthsFromRange(range);
+        });
+
+        return {
+            totalCovered: coveredMonths.size,
+            totalRequired: 12,
+            coveredMonths: Array.from(coveredMonths).sort(),
+            isComplete: coveredMonths.size === 12
+        };
     };
-
-    // Add months from all date ranges
-    Object.values(ranges).forEach(range => {
-        addMonthsFromRange(range);
-    });
-
-    return {
-        totalCovered: coveredMonths.size,
-        totalRequired: 12,
-        coveredMonths: Array.from(coveredMonths).sort(),
-        isComplete: coveredMonths.size === 12
-    };
-};
     // Update the handleDateRangeChange function with error clearing
-const handleDateRangeChange = (transportType, value) => {
-    // Clear date range error when user starts selecting
-    const dateRangeField = `${transportType}DateRange`;
-    if (errors[dateRangeField]) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors[dateRangeField];
-            return newErrors;
-        });
-    }
-
-    // Clear month coverage error when date range changes
-    if (errors.monthCoverage) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors.monthCoverage;
-            return newErrors;
-        });
-    }
-
-    // Clear date range overlap error when date range changes
-    if (errors.dateRangeOverlap) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors.dateRangeOverlap;
-            return newErrors;
-        });
-    }
-
-    if (value && value.startDate && value.endDate) {
-        const startDate = new Date(value.startDate);
-        const endDate = new Date(value.endDate);
-
-        // Check if dates are within reporting year
-        if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-            toast.warning(`Selected date range is outside ${reportingYear}. Please select dates within the reporting year.`);
-            return;
+    const handleDateRangeChange = (transportType, value) => {
+        // Clear date range error when user starts selecting
+        const dateRangeField = `${transportType}DateRange`;
+        if (errors[dateRangeField]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[dateRangeField];
+                return newErrors;
+            });
         }
 
-        // Check for overlaps with other selected date ranges
-        const otherRanges = { ...selectedDateRanges };
-        delete otherRanges[transportType];
+        // Clear month coverage error when date range changes
+        if (errors.monthCoverage) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.monthCoverage;
+                return newErrors;
+            });
+        }
 
-        let hasOverlap = false;
-        let overlappingTransportType = '';
-        let overlappingMonths = [];
+        // Clear date range overlap error when date range changes
+        if (errors.dateRangeOverlap) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.dateRangeOverlap;
+                return newErrors;
+            });
+        }
 
-        // Check each existing date range for overlap
-        for (const [otherType, otherRange] of Object.entries(otherRanges)) {
-            if (otherRange && checkDateRangeOverlap(value, otherRange)) {
-                hasOverlap = true;
-                overlappingTransportType = otherType;
+        if (value && value.startDate && value.endDate) {
+            const startDate = new Date(value.startDate);
+            const endDate = new Date(value.endDate);
 
-                // Find overlapping months
-                const overlapStart = new Date(Math.max(startDate, new Date(otherRange.startDate)));
-                const overlapEnd = new Date(Math.min(endDate, new Date(otherRange.endDate)));
+            // Check if dates are within reporting year
+            if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                toast.warning(`Selected date range is outside ${reportingYear}. Please select dates within the reporting year.`);
+                return;
+            }
 
-                for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
-                    const month = d.getMonth() + 1;
-                    if (!overlappingMonths.includes(month)) {
-                        overlappingMonths.push(month);
+            // Check for overlaps with other selected date ranges
+            const otherRanges = { ...selectedDateRanges };
+            delete otherRanges[transportType];
+
+            let hasOverlap = false;
+            let overlappingTransportType = '';
+            let overlappingMonths = [];
+
+            // Check each existing date range for overlap
+            for (const [otherType, otherRange] of Object.entries(otherRanges)) {
+                if (otherRange && checkDateRangeOverlap(value, otherRange)) {
+                    hasOverlap = true;
+                    overlappingTransportType = otherType;
+
+                    // Find overlapping months
+                    const overlapStart = new Date(Math.max(startDate, new Date(otherRange.startDate)));
+                    const overlapEnd = new Date(Math.min(endDate, new Date(otherRange.endDate)));
+
+                    for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
+                        const month = d.getMonth() + 1;
+                        if (!overlappingMonths.includes(month)) {
+                            overlappingMonths.push(month);
+                        }
                     }
+                    break;
                 }
-                break;
+            }
+
+            if (hasOverlap) {
+                const monthNames = overlappingMonths.map(m => getMonthName(m)).join(', ');
+                toast.error(
+                    <div>
+                        <div className="font-semibold mb-1">Date Range Conflict!</div>
+                        <div className="text-sm mb-2">
+                            Your selected date range overlaps with {overlappingTransportType} commute
+                            in month(s): {monthNames}. Please select a different date range.
+                        </div>
+                    </div>,
+                    {
+                        autoClose: false,
+                        closeButton: true,
+                    }
+                );
+                return;
+            }
+
+            // Calculate how many months are covered for this specific transport method
+            const monthsCovered = calculateRemainingMonths(value.startDate, value.endDate, reportingYear);
+            const remainingMonths = 12 - monthsCovered;
+
+            // Calculate what the coverage will be AFTER this change
+            const simulatedFormData = {
+                ...formData,
+                [`${transportType}DateRange`]: value
+            };
+
+            const simulatedSelectedDateRanges = {
+                ...selectedDateRanges,
+                [transportType]: value
+            };
+
+            // Calculate overall coverage AFTER this change
+            const overallCoverageAfterChange = calculateOverallMonthCoverage(simulatedSelectedDateRanges);
+
+            // If overall coverage will be complete after this change, don't show the warning
+            if (overallCoverageAfterChange.isComplete) {
+                // Don't show warning - overall coverage will be complete
+            }
+            // If this specific method doesn't cover full year AND overall coverage will still be incomplete, show warning
+            else if (remainingMonths > 0) {
+                // Prepare a detailed message based on how many months remain
+                let message = '';
+
+                if (monthsCovered === 1) {
+                    message = `You've selected only ${monthsCovered} month. You should select dates to cover the entire year (${remainingMonths} more months needed). Use the "Full Year" shortcut or select manually.`;
+                } else {
+                    message = `You've selected ${monthsCovered} month${monthsCovered > 1 ? 's' : ''}. ${remainingMonths} month${remainingMonths > 1 ? 's' : ''} remain${remainingMonths > 1 ? '' : 's'} unselected. Consider selecting the full year for accurate reporting.`;
+                }
+
+                // Create a more prominent toast with action
+                toast.warning(
+                    <div>
+                        <div className="font-semibold mb-1">Incomplete Year Coverage</div>
+                        <div className="text-sm mb-2">{message}</div>
+                        <div className="flex gap-2 mt-2">
+                            <button
+                                onClick={() => {
+                                    // Set to full year
+                                    handleDateRangeChange(transportType, {
+                                        startDate: new Date(`${reportingYear}-01-01`),
+                                        endDate: new Date(`${reportingYear}-12-31`),
+                                    });
+                                    toast.dismiss();
+                                }}
+                                className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                            >
+                                Select Full Year
+                            </button>
+                            <button
+                                onClick={() => toast.dismiss()}
+                                className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300"
+                            >
+                                Keep Selection
+                            </button>
+                        </div>
+                    </div>,
+                    {
+                        autoClose: 8000,
+                        closeButton: true,
+                    }
+                );
+            } else if (monthsCovered === 12) {
+                toast.success("✓ Full year selected for this transport method!");
             }
         }
 
-        if (hasOverlap) {
-            const monthNames = overlappingMonths.map(m => getMonthName(m)).join(', ');
-            toast.error(
-                <div>
-                    <div className="font-semibold mb-1">Date Range Conflict!</div>
-                    <div className="text-sm mb-2">
-                        Your selected date range overlaps with {overlappingTransportType} commute
-                        in month(s): {monthNames}. Please select a different date range.
-                    </div>
-                </div>,
-                {
-                    autoClose: false,
-                    closeButton: true,
-                }
-            );
-            return;
-        }
-
-        // Calculate how many months are covered for this specific transport method
-        const monthsCovered = calculateRemainingMonths(value.startDate, value.endDate, reportingYear);
-        const remainingMonths = 12 - monthsCovered;
-
-        // Calculate what the coverage will be AFTER this change
-        const simulatedFormData = {
-            ...formData,
+        // Update the form data with the selected date range
+        setFormData(prev => ({
+            ...prev,
             [`${transportType}DateRange`]: value
-        };
-        
-        const simulatedSelectedDateRanges = {
-            ...selectedDateRanges,
+        }));
+
+        // Update the selected date ranges state
+        setSelectedDateRanges(prev => ({
+            ...prev,
             [transportType]: value
-        };
-        
-        // Calculate overall coverage AFTER this change
-        const overallCoverageAfterChange = calculateOverallMonthCoverage(simulatedSelectedDateRanges);
-        
-        // If overall coverage will be complete after this change, don't show the warning
-        if (overallCoverageAfterChange.isComplete) {
-            // Don't show warning - overall coverage will be complete
-        } 
-        // If this specific method doesn't cover full year AND overall coverage will still be incomplete, show warning
-        else if (remainingMonths > 0) {
-            // Prepare a detailed message based on how many months remain
-            let message = '';
-
-            if (monthsCovered === 1) {
-                message = `You've selected only ${monthsCovered} month. You should select dates to cover the entire year (${remainingMonths} more months needed). Use the "Full Year" shortcut or select manually.`;
-            } else {
-                message = `You've selected ${monthsCovered} month${monthsCovered > 1 ? 's' : ''}. ${remainingMonths} month${remainingMonths > 1 ? 's' : ''} remain${remainingMonths > 1 ? '' : 's'} unselected. Consider selecting the full year for accurate reporting.`;
-            }
-
-            // Create a more prominent toast with action
-            toast.warning(
-                <div>
-                    <div className="font-semibold mb-1">Incomplete Year Coverage</div>
-                    <div className="text-sm mb-2">{message}</div>
-                    <div className="flex gap-2 mt-2">
-                        <button
-                            onClick={() => {
-                                // Set to full year
-                                handleDateRangeChange(transportType, {
-                                    startDate: new Date(`${reportingYear}-01-01`),
-                                    endDate: new Date(`${reportingYear}-12-31`),
-                                });
-                                toast.dismiss();
-                            }}
-                            className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                        >
-                            Select Full Year
-                        </button>
-                        <button
-                            onClick={() => toast.dismiss()}
-                            className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300"
-                        >
-                            Keep Selection
-                        </button>
-                    </div>
-                </div>,
-                {
-                    autoClose: 8000,
-                    closeButton: true,
-                }
-            );
-        } else if (monthsCovered === 12) {
-            toast.success("✓ Full year selected for this transport method!");
-        }
-    }
-
-    // Update the form data with the selected date range
-    setFormData(prev => ({
-        ...prev,
-        [`${transportType}DateRange`]: value
-    }));
-
-    // Update the selected date ranges state
-    setSelectedDateRanges(prev => ({
-        ...prev,
-        [transportType]: value
-    }));
-};
+        }));
+    };
 
 
     // Add this helper function to calculate remaining months
@@ -2388,240 +2388,226 @@ const handleDateRangeChange = (transportType, value) => {
         }
     };
     // Handle form submission
-const handleSubmit = async (e) => {
-    console.log('handleSubmit() =======>', 'validationErrors');
-    e.preventDefault();
+    const handleSubmit = async (e) => {
+        console.log('handleSubmit() =======>', 'validationErrors');
+        e.preventDefault();
 
-    const validationErrors = validateForm();
+        const validationErrors = validateForm();
 
-    if (Object.keys(validationErrors).length > 0) {
-        setErrors(validationErrors);
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
 
-        // Show general error toast
-        toast.error(`Please fill all required fields`);
+            // Show general error toast
+            toast.error(`Please fill all required fields`);
 
-        // Find the first error and scroll to it
-        setTimeout(() => {
-            scrollToFirstError(validationErrors);
-        }, 100);
+            // Find the first error and scroll to it
+            setTimeout(() => {
+                scrollToFirstError(validationErrors);
+            }, 100);
 
-        return;
-    }
-    setLoading(true);
-
-    try {
-        const currentToken = getToken();
-        if (!currentToken) {
-            toast.error('Authentication token is missing. Please refresh the page.');
-            setLoading(false);
             return;
         }
+        setLoading(true);
 
-        // Convert date ranges to arrays of dates
-        const motorbikeDates = formData.motorbikeDateRange ? dateRangeToDates(formData.motorbikeDateRange) : [];
-        const taxiDates = formData.taxiDateRange ? dateRangeToDates(formData.taxiDateRange) : [];
-        const busDates = formData.busDateRange ? dateRangeToDates(formData.busDateRange) : [];
-        const trainDates = formData.trainDateRange ? dateRangeToDates(formData.trainDateRange) : [];
-        const carDates = formData.carDateRange ? dateRangeToDates(formData.carDateRange) : [];
-        const workFromHomeDates = formData.workFromHomeDateRange ? dateRangeToDates(formData.workFromHomeDateRange) : [];
-
-        // Prepare submission data - extract values from option objects
-        const submissionData = {
-            employeeName: String(formData.employeeName || ''),  // Add this
-            employeeID: String(formData.employeeID || ''),
-            // Basic Information
-            siteBuildingName: formData.siteBuildingName?.value || '',
-            stakeholderDepartment: formData.stakeholderDepartment?.value || '',
-            submittedByEmail: String(formData.submittedByEmail || ''),
-            reportingYear: reportingYear,
-
-            // Mode information (for tracking)
-            submissionMode: targetUserData ? 'admin' : 'self',
-            targetUserId: urlUserId || null,
-            companyUserId: companyData?._id || null,
-
-            // Motorbike Commute
-            commuteByMotorbike: formData.commuteByMotorbike,
-            motorbikeMode: formData.motorbikeMode || 'individual',
-            ...(formData.commuteByMotorbike && {
-                motorbikeDistance: Number(formData.motorbikeDistance) || 0,
-                motorbikeType: formData.motorbikeType?.value || '',
-                motorbikeDates: motorbikeDates.map(date => date.toISOString()),
-                motorbikeDateRange: formData.motorbikeDateRange,
-                ...((formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && {
-                    carryOthersMotorbike: formData.carryOthersMotorbike,
-                    travelWithOthersMotorbike: formData.travelWithOthersMotorbike,
-                    ...(formData.carryOthersMotorbike && {
-                        personsCarriedMotorbike: Number(formData.personsCarriedMotorbike?.value || 0) || 0,
-                        motorbikePassengerEmails: (Array.isArray(formData.motorbikePassengerEmails)
-                            ? formData.motorbikePassengerEmails.map(e => String(e || '')).filter(e => e.trim())
-                            : []),
-                        motorbikePassengerUserIds: (Array.isArray(formData.motorbikePassengerUserIds)
-                            ? formData.motorbikePassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
-                            : []),
-                    }),
-                    ...(formData.travelWithOthersMotorbike && {
-                        personsTravelWithMotorbike: Number(formData.personsTravelWithMotorbike?.value || 0) || 0,
-                        motorbikeTravelPassengerEmails: (Array.isArray(formData.motorbikeTravelPassengerEmails)
-                            ? formData.motorbikeTravelPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
-                            : []),
-                        motorbikeTravelPassengerUserIds: (Array.isArray(formData.motorbikeTravelPassengerUserIds)
-                            ? formData.motorbikeTravelPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
-                            : []),
-                    }),
-                }),
-            }),
-
-            // Taxi Commute
-            commuteByTaxi: formData.commuteByTaxi,
-            taxiMode: formData.taxiMode || 'individual',
-            ...(formData.commuteByTaxi && {
-                taxiPassengers: Number(formData.taxiPassengers?.value || 1) || 1,
-                taxiDistance: Number(formData.taxiDistance) || 0,
-                taxiType: formData.taxiType?.value || '',
-                taxiDates: taxiDates.map(date => date.toISOString()),
-                taxiDateRange: formData.taxiDateRange,
-                ...((formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && {
-                    travelWithOthersTaxi: formData.travelWithOthersTaxi,
-                    ...(formData.travelWithOthersTaxi && {
-                        personsTravelWithTaxi: Number(formData.personsTravelWithTaxi?.value || 0) || 0,
-                        taxiPassengerEmails: (Array.isArray(formData.taxiPassengerEmails)
-                            ? formData.taxiPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
-                            : []),
-                        taxiPassengerUserIds: (Array.isArray(formData.taxiPassengerUserIds)
-                            ? formData.taxiPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
-                            : []),
-                    }),
-                }),
-            }),
-
-            // Bus Commute
-            commuteByBus: formData.commuteByBus,
-            ...(formData.commuteByBus && {
-                busDistance: Number(formData.busDistance) || 0,
-                busType: formData.busType?.value || '',
-                busDates: busDates.map(date => date.toISOString()),
-                busDateRange: formData.busDateRange,
-            }),
-
-            // Train Commute
-            commuteByTrain: formData.commuteByTrain,
-            ...(formData.commuteByTrain && {
-                trainDistance: Number(formData.trainDistance) || 0,
-                trainType: formData.trainType?.value || '',
-                trainDates: trainDates.map(date => date.toISOString()),
-                trainDateRange: formData.trainDateRange,
-            }),
-
-            // Car Commute
-            commuteByCar: formData.commuteByCar,
-            carMode: formData.carMode || 'individual',
-            ...(formData.commuteByCar && {
-                carDistance: Number(formData.carDistance) || 0,
-                carType: formData.carType?.value || '',
-                carFuelType: formData.carFuelType?.value || '',
-                carDates: carDates.map(date => date.toISOString()),
-                carDateRange: formData.carDateRange,
-                ...((formData.carMode === 'carpool' || formData.carMode === 'both') && {
-                    carryOthersCar: formData.carryOthersCar,
-                    travelWithOthersCar: formData.travelWithOthersCar,
-                    ...(formData.carryOthersCar && {
-                        personsCarriedCar: Number(formData.personsCarriedCar?.value || 0) || 0,
-                        carPassengerEmails: (Array.isArray(formData.carPassengerEmails)
-                            ? formData.carPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
-                            : []),
-                        carPassengerUserIds: (Array.isArray(formData.carPassengerUserIds)
-                            ? formData.carPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
-                            : []),
-                    }),
-                    ...(formData.travelWithOthersCar && {
-                        personsTravelWithCar: Number(formData.personsTravelWithCar?.value || 0) || 0,
-                        carTravelPassengerEmails: (Array.isArray(formData.carTravelPassengerEmails)
-                            ? formData.carTravelPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
-                            : []),
-                        carTravelPassengerUserIds: (Array.isArray(formData.carTravelPassengerUserIds)
-                            ? formData.carTravelPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
-                            : []),
-                    }),
-                }),
-            }),
-
-            // Work From Home
-            workFromHome: formData.workFromHome,
-            ...(formData.workFromHome && {
-                fteWorkingHours: Number(formData.fteWorkingHours) || 0,
-                workFromHomeDates: workFromHomeDates.map(date => date.toISOString()),
-                workFromHomeDateRange: formData.workFromHomeDateRange,
-            }),
-            qualityControlRemarks: String(formData.qualityControlRemarks || ''),
-            qualityControl: String(formData.qualityControl || ''),
-            submittedAt: new Date().toISOString(),
-        };
-
-        // Submit to backend
-        const response = await axios.post(
-            `${process.env.REACT_APP_BASE_URL}/employee-commute/Create`,
-            submissionData,
-            {
-                headers: {
-                    Authorization: `Bearer ${currentToken}`,
-                    'Content-Type': 'application/json',
-                },
-            }
-        );
-
-        // Check if form submission was successful
-        if (response.status === 200 || response.status === 201) {
-            // Mark user as filled
-            const userIdToUpdate = targetUserData?._id || companyData?._id || userInfo?._id;
-            await markUserAsFilled(userIdToUpdate, currentToken);
-
-            // STORE SUBMISSION STATUS IN LOCALSTORAGE
-            // This prevents the form from showing again after refresh
-            if (userIdToUpdate && reportingYear) {
-                const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userIdToUpdate}`;
-                localStorage.setItem(submissionKey, 'true');
-                
-                // Also store detailed submission info
-                localStorage.setItem(`${submissionKey}_details`, JSON.stringify({
-                    submittedAt: new Date().toISOString(),
-                    reportingYear: reportingYear,
-                    userId: userIdToUpdate,
-                    submissionId: response.data?.data?._id || Date.now(),
-                    employeeName: formData.employeeName || userInfo?.name,
-                    email: formData.submittedByEmail || userInfo?.email
-                }));
+        try {
+            const currentToken = getToken();
+            if (!currentToken) {
+                toast.error('Authentication token is missing. Please refresh the page.');
+                setLoading(false);
+                return;
             }
 
-            // Rest of your success handling
-            if (response.data.warnings && response.data.warnings.length > 0) {
-                setPooledEmailWarnings(response.data.warnings);
-                toast.warning('Some colleagues have been marked as carpool partners. Please review.');
-            } else {
-                toast.success('Employee commuting data submitted successfully!');
+            // Convert date ranges to arrays of dates
+            const motorbikeDates = formData.motorbikeDateRange ? dateRangeToDates(formData.motorbikeDateRange) : [];
+            const taxiDates = formData.taxiDateRange ? dateRangeToDates(formData.taxiDateRange) : [];
+            const busDates = formData.busDateRange ? dateRangeToDates(formData.busDateRange) : [];
+            const trainDates = formData.trainDateRange ? dateRangeToDates(formData.trainDateRange) : [];
+            const carDates = formData.carDateRange ? dateRangeToDates(formData.carDateRange) : [];
+            const workFromHomeDates = formData.workFromHomeDateRange ? dateRangeToDates(formData.workFromHomeDateRange) : [];
+
+            // Prepare submission data - extract values from option objects
+            const submissionData = {
+                employeeName: String(formData.employeeName || ''),  // Add this
+                employeeID: String(formData.employeeID || ''),
+                // Basic Information
+                siteBuildingName: formData.siteBuildingName?.value || '',
+                stakeholderDepartment: formData.stakeholderDepartment?.value || '',
+                submittedByEmail: String(formData.submittedByEmail || ''),
+                reportingYear: reportingYear,
+
+                // Mode information (for tracking)
+                submissionMode: targetUserData ? 'admin' : 'self',
+                targetUserId: urlUserId || null,
+                companyUserId: companyData?._id || null,
+
+                // Motorbike Commute
+                commuteByMotorbike: formData.commuteByMotorbike,
+                motorbikeMode: formData.motorbikeMode || 'individual',
+                ...(formData.commuteByMotorbike && {
+                    motorbikeDistance: Number(formData.motorbikeDistance) || 0,
+                    motorbikeType: formData.motorbikeType?.value || '',
+                    motorbikeDates: motorbikeDates.map(date => date.toISOString()),
+                    motorbikeDateRange: formData.motorbikeDateRange,
+                    ...((formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && {
+                        carryOthersMotorbike: formData.carryOthersMotorbike,
+                        travelWithOthersMotorbike: formData.travelWithOthersMotorbike,
+                        ...(formData.carryOthersMotorbike && {
+                            personsCarriedMotorbike: Number(formData.personsCarriedMotorbike?.value || 0) || 0,
+                            motorbikePassengerEmails: (Array.isArray(formData.motorbikePassengerEmails)
+                                ? formData.motorbikePassengerEmails.map(e => String(e || '')).filter(e => e.trim())
+                                : []),
+                            motorbikePassengerUserIds: (Array.isArray(formData.motorbikePassengerUserIds)
+                                ? formData.motorbikePassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
+                                : []),
+                        }),
+                        ...(formData.travelWithOthersMotorbike && {
+                            personsTravelWithMotorbike: Number(formData.personsTravelWithMotorbike?.value || 0) || 0,
+                            motorbikeTravelPassengerEmails: (Array.isArray(formData.motorbikeTravelPassengerEmails)
+                                ? formData.motorbikeTravelPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
+                                : []),
+                            motorbikeTravelPassengerUserIds: (Array.isArray(formData.motorbikeTravelPassengerUserIds)
+                                ? formData.motorbikeTravelPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
+                                : []),
+                        }),
+                    }),
+                }),
+
+                // Taxi Commute
+                commuteByTaxi: formData.commuteByTaxi,
+                taxiMode: formData.taxiMode || 'individual',
+                ...(formData.commuteByTaxi && {
+                    taxiPassengers: Number(formData.taxiPassengers?.value || 1) || 1,
+                    taxiDistance: Number(formData.taxiDistance) || 0,
+                    taxiType: formData.taxiType?.value || '',
+                    taxiDates: taxiDates.map(date => date.toISOString()),
+                    taxiDateRange: formData.taxiDateRange,
+                    ...((formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && {
+                        travelWithOthersTaxi: formData.travelWithOthersTaxi,
+                        ...(formData.travelWithOthersTaxi && {
+                            personsTravelWithTaxi: Number(formData.personsTravelWithTaxi?.value || 0) || 0,
+                            taxiPassengerEmails: (Array.isArray(formData.taxiPassengerEmails)
+                                ? formData.taxiPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
+                                : []),
+                            taxiPassengerUserIds: (Array.isArray(formData.taxiPassengerUserIds)
+                                ? formData.taxiPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
+                                : []),
+                        }),
+                    }),
+                }),
+
+                // Bus Commute
+                commuteByBus: formData.commuteByBus,
+                ...(formData.commuteByBus && {
+                    busDistance: Number(formData.busDistance) || 0,
+                    busType: formData.busType?.value || '',
+                    busDates: busDates.map(date => date.toISOString()),
+                    busDateRange: formData.busDateRange,
+                }),
+
+                // Train Commute
+                commuteByTrain: formData.commuteByTrain,
+                ...(formData.commuteByTrain && {
+                    trainDistance: Number(formData.trainDistance) || 0,
+                    trainType: formData.trainType?.value || '',
+                    trainDates: trainDates.map(date => date.toISOString()),
+                    trainDateRange: formData.trainDateRange,
+                }),
+
+                // Car Commute
+                commuteByCar: formData.commuteByCar,
+                carMode: formData.carMode || 'individual',
+                ...(formData.commuteByCar && {
+                    carDistance: Number(formData.carDistance) || 0,
+                    carType: formData.carType?.value || '',
+                    carFuelType: formData.carFuelType?.value || '',
+                    carDates: carDates.map(date => date.toISOString()),
+                    carDateRange: formData.carDateRange,
+                    ...((formData.carMode === 'carpool' || formData.carMode === 'both') && {
+                        carryOthersCar: formData.carryOthersCar,
+                        travelWithOthersCar: formData.travelWithOthersCar,
+                        ...(formData.carryOthersCar && {
+                            personsCarriedCar: Number(formData.personsCarriedCar?.value || 0) || 0,
+                            carPassengerEmails: (Array.isArray(formData.carPassengerEmails)
+                                ? formData.carPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
+                                : []),
+                            carPassengerUserIds: (Array.isArray(formData.carPassengerUserIds)
+                                ? formData.carPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
+                                : []),
+                        }),
+                        ...(formData.travelWithOthersCar && {
+                            personsTravelWithCar: Number(formData.personsTravelWithCar?.value || 0) || 0,
+                            carTravelPassengerEmails: (Array.isArray(formData.carTravelPassengerEmails)
+                                ? formData.carTravelPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
+                                : []),
+                            carTravelPassengerUserIds: (Array.isArray(formData.carTravelPassengerUserIds)
+                                ? formData.carTravelPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
+                                : []),
+                        }),
+                    }),
+                }),
+
+                // Work From Home
+                workFromHome: formData.workFromHome,
+                ...(formData.workFromHome && {
+                    fteWorkingHours: Number(formData.fteWorkingHours) || 0,
+                    workFromHomeDates: workFromHomeDates.map(date => date.toISOString()),
+                    workFromHomeDateRange: formData.workFromHomeDateRange,
+                }),
+                qualityControlRemarks: String(formData.qualityControlRemarks || ''),
+                qualityControl: String(formData.qualityControl || ''),
+                submittedAt: new Date().toISOString(),
+            };
+
+            // Submit to backend
+            const response = await axios.post(
+                `${process.env.REACT_APP_BASE_URL}/employee-commute/Create`,
+                submissionData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            // Check if form submission was successful
+            if (response.status === 200 || response.status === 201) {
+                // Mark user as filled
+                const userIdToUpdate = targetUserData?._id || companyData?._id || userInfo?._id;
+                await markUserAsFilled(userIdToUpdate, currentToken);
+
+                // Store in localStorage with invitation-specific key
+                if (userIdToUpdate && reportingYear) {
+                    // Include email in the key to differentiate between invitations
+                    const userEmail = formData.submittedByEmail || userInfo?.email;
+                    const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userIdToUpdate}_${userEmail}_${Date.now()}`;
+                    localStorage.setItem(submissionKey, 'true');
+
+                    // Also store a master key for this user+year
+                    const masterKey = `employeeCommutingSubmitted_${reportingYear}_${userIdToUpdate}`;
+                    localStorage.setItem(masterKey, 'true');
+                }
+
                 setSubmitted(true);
-                
-                // DO NOT reset the form here - keep showing thank you page
-                // The setTimeout that resets the form has been commented out
+                toast.success('Employee commuting data submitted successfully!');
+            } else {
+                throw new Error(`Unexpected response status: ${response.status}`);
             }
-        } else {
-            throw new Error(`Unexpected response status: ${response.status}`);
-        }
 
-    } catch (error) {
-        console.error('Submission error:', error);
+        } catch (error) {
+            console.error('Submission error:', error);
 
-        if (error.response) {
-            toast.error(`Server error: ${error.response.data?.message || error.response.status}`);
-        } else if (error.request) {
-            toast.error('Network error. Please check your connection.');
-        } else {
-            toast.error(`Error: ${error.message}`);
+            if (error.response) {
+                toast.error(`Server error: ${error.response.data?.message || error.response.status}`);
+            } else if (error.request) {
+                toast.error('Network error. Please check your connection.');
+            } else {
+                toast.error(`Error: ${error.message}`);
+            }
+        } finally {
+            setLoading(false);
         }
-    } finally {
-        setLoading(false);
-    }
-};
+    };
     console.log({ errors, formData });
 
     if (submitted) {
@@ -2636,7 +2622,7 @@ const handleSubmit = async (e) => {
                         <p className="text-gray-600 mb-8">
                             Your employee commuting data for {reportingYear} has been successfully submitted.
                         </p>
-                      
+
                     </div>
                 </Card>
             </div>
@@ -2744,8 +2730,8 @@ const handleSubmit = async (e) => {
                                 // value={yearOptions.find(option => option.value === reportingYear)}
                                 value={reportingYear ? yearOptions.find(option => option.value === reportingYear) : null}
                                 onChange={handleReportingYearChange}
-                                 isClearable={true}
-                                  placeholder="Select Year"
+                                isClearable={true}
+                                placeholder="Select Year"
                             />
                         </div>
                     </div>
@@ -3126,7 +3112,7 @@ const handleSubmit = async (e) => {
                                                                 onChange={(e) => handleInputChange('motorbikeDistanceCarpool', e.target.value)}
                                                                 required
                                                                 className="input-field rounded-r-none w-full"
-                                                               
+
                                                             />
                                                             <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
                                                                 km
@@ -3217,7 +3203,7 @@ const handleSubmit = async (e) => {
                                             required
 
                                             className="input-field rounded-r-none w-full"
-                                            
+
                                         />
                                         <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
                                             km
@@ -3284,7 +3270,7 @@ const handleSubmit = async (e) => {
                                                             onChange={(e) => handleInputChange('taxiDistanceCarpool', e.target.value)}
                                                             required
                                                             className="input-field rounded-r-none w-full"
-                                                            
+
                                                         />
                                                         <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
                                                             km
@@ -3336,7 +3322,7 @@ const handleSubmit = async (e) => {
                                             onChange={(e) => handleInputChange('busDistance', e.target.value)}
                                             required
                                             className="input-field rounded-r-none w-full"
-                                            
+
                                         />
                                         <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
                                             km
@@ -3391,7 +3377,7 @@ const handleSubmit = async (e) => {
                                             onChange={(e) => handleInputChange('trainDistance', e.target.value)}
                                             required
                                             className="input-field rounded-r-none w-full"
-                                            
+
                                         />
                                         <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
                                             km
@@ -3472,7 +3458,7 @@ const handleSubmit = async (e) => {
                                             onChange={(e) => handleInputChange('carDistance', e.target.value)}
                                             required
                                             className="input-field rounded-r-none w-full"
-                                            
+
                                         />
                                         <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
                                             km
@@ -3552,7 +3538,7 @@ const handleSubmit = async (e) => {
                                                                 onChange={(e) => handleInputChange('carDistanceCarpool', e.target.value)}
                                                                 required
                                                                 className="input-field rounded-r-none w-full"
-                                                                
+
                                                             />
                                                             <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
                                                                 km
