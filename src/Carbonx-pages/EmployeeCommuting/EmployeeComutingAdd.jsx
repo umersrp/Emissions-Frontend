@@ -509,24 +509,30 @@ const EmployeeCommutingForm = () => {
         const checkForPreviousSubmission = async () => {
             setCheckingSubmission(true);
             console.log('Checking for previous submission...');
-            console.log('URL Token:', urlToken);
-            console.log('Current token from getToken():', getToken());
+            console.log('Full URL Token:', urlToken);
+
+            // Get current token
+            const currentToken = getToken();
+            console.log('Current token from getToken():', currentToken);
             console.log('Reporting year:', reportingYear);
 
             // Wait for user data to be loaded
-            if ((userInfo || targetUserData || companyData) && reportingYear) {
+            if ((userInfo || targetUserData || companyData) && reportingYear && currentToken) {
                 const userId = targetUserData?._id || companyData?._id || userInfo?._id;
-                const currentToken = getToken(); // Get current token
 
                 console.log('User ID for checking:', userId);
-                console.log('Current token:', currentToken);
 
-                if (userId && currentToken) {
-                    // Create a unique key that includes token AND userId AND reportingYear
-                    // This ensures each new invitation (new token) is treated as new
-                    const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userId}_${currentToken.substring(0, 20)}`; // Use first 20 chars of token
+                if (userId) {
+                    // Create a unique key that includes the LAST 20 characters of token
+                    // This ensures each new invitation (different token) is treated as new
+                    const tokenSuffix = currentToken.length > 20
+                        ? currentToken.substring(currentToken.length - 20)
+                        : currentToken;
+
+                    const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userId}_${tokenSuffix}`;
 
                     console.log('Checking localStorage with key:', submissionKey);
+                    console.log('Token suffix used:', tokenSuffix);
 
                     const isSubmitted = localStorage.getItem(submissionKey);
 
@@ -574,10 +580,15 @@ const EmployeeCommutingForm = () => {
                         }
                     }
                 } else {
-                    console.log('Missing userId or token for submission check');
+                    console.log('Missing userId for submission check');
                 }
             } else {
-                console.log('Waiting for user data or reporting year...');
+                console.log('Waiting for user data, reporting year, or token...');
+                console.log('Has userInfo:', !!userInfo);
+                console.log('Has targetUserData:', !!targetUserData);
+                console.log('Has companyData:', !!companyData);
+                console.log('Has reportingYear:', !!reportingYear);
+                console.log('Has currentToken:', !!getToken());
             }
 
             // Add a small delay to ensure smooth transition
@@ -2610,10 +2621,15 @@ const EmployeeCommutingForm = () => {
 
                 // Store in localStorage with token-specific key
                 if (userIdToUpdate && reportingYear && currentToken) {
-                    // Use token in the key to make it unique per invitation
-                    const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userIdToUpdate}_${currentToken.substring(0, 20)}`;
+                    // Use LAST 20 characters of token to differentiate between invitations
+                    const tokenSuffix = currentToken.length > 20
+                        ? currentToken.substring(currentToken.length - 20)
+                        : currentToken;
+
+                    const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userIdToUpdate}_${tokenSuffix}`;
 
                     console.log('Setting submission key in localStorage:', submissionKey);
+                    console.log('Token suffix used:', tokenSuffix);
 
                     localStorage.setItem(submissionKey, 'true');
 
@@ -2622,7 +2638,7 @@ const EmployeeCommutingForm = () => {
                         submittedAt: new Date().toISOString(),
                         reportingYear: reportingYear,
                         userId: userIdToUpdate,
-                        tokenPrefix: currentToken.substring(0, 20)
+                        tokenSuffix: tokenSuffix
                     }));
                 }
 
