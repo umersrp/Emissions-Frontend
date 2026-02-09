@@ -29,6 +29,7 @@ const EmployeeCommutingForm = () => {
     const queryParams = new URLSearchParams(location.search);
     const urlToken = queryParams.get('token');
     const urlUserId = queryParams.get('userId');
+    const [checkingSubmission, setCheckingSubmission] = useState(true);
 
     // Current year for reporting
     const currentYear = new Date().getFullYear();
@@ -503,28 +504,61 @@ const EmployeeCommutingForm = () => {
     }, [buildings, userInfo]);
 
     // Add this useEffect near your other useEffects
+   // Replace or update your submission checking useEffect
 useEffect(() => {
-    const checkIfSubmitted = () => {
-        const userIdToCheck = targetUserData?._id || companyData?._id || userInfo?._id;
-        if (userIdToCheck && reportingYear) {
-            const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userIdToCheck}`;
-            const isSubmitted = localStorage.getItem(submissionKey);
-            if (isSubmitted === 'true') {
-                setSubmitted(true);
-                // Show a toast message
-                toast.info('You have already submitted the form for this year.', {
-                    autoClose: 5000,
-                });
+    const checkForPreviousSubmission = async () => {
+        setCheckingSubmission(true);
+        
+        // Wait for user data to be loaded
+        if ((userInfo || targetUserData || companyData) && reportingYear) {
+            const userId = targetUserData?._id || companyData?._id || userInfo?._id;
+            
+            if (userId) {
+                const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userId}`;
+                const isSubmitted = localStorage.getItem(submissionKey);
+                
+                if (isSubmitted === 'true') {
+                    setSubmitted(true);
+                    
+                    // Get submission details
+                    const detailsStr = localStorage.getItem(`${submissionKey}_details`);
+                    let submittedDate = 'previously';
+                    
+                    if (detailsStr) {
+                        try {
+                            const details = JSON.parse(detailsStr);
+                            if (details.submittedAt) {
+                                submittedDate = new Date(details.submittedAt).toLocaleDateString();
+                            }
+                        } catch (e) {
+                            console.error('Error parsing submission details:', e);
+                        }
+                    }
+                    
+                    toast.info(
+                        <div>
+                            <div className="font-medium mb-1">Form Already Submitted</div>
+                            <div className="text-sm">
+                                You submitted this form for {reportingYear} on {submittedDate}.
+                            </div>
+                        </div>,
+                        {
+                            autoClose: 8000,
+                            closeButton: true,
+                        }
+                    );
+                }
             }
         }
+        
+        // Add a small delay to ensure smooth transition
+        setTimeout(() => {
+            setCheckingSubmission(false);
+        }, 300);
     };
     
-    // Check after user data is loaded
-    if (userInfo || targetUserData || companyData) {
-        checkIfSubmitted();
-    }
+    checkForPreviousSubmission();
 }, [reportingYear, userInfo, targetUserData, companyData]);
-
     // Handle reporting year change
     // const handleReportingYearChange = (selectedOption) => {
     //     setReportingYear(selectedOption.value);
@@ -2609,6 +2643,68 @@ const handleSubmit = async (e) => {
         );
     }
 
+    if (!token && !urlToken && !getToken()) {
+        return (
+            <div className="max-w-6xl mx-auto p-6">
+                <Card>
+                    <div className="text-center py-12">
+                        <div className="text-red-500 text-5xl mb-4">⚠</div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                            Authentication Required
+                        </h2>
+                        <p className="text-gray-600 mb-8">
+                            Please access this form with a valid token in the URL.
+                        </p>
+                        <Button
+                            text="Retry Authentication"
+                            className="bg-blue-500 hover:bg-blue-600 text-white"
+                            onClick={() => window.location.reload()}
+                        />
+                    </div>
+                </Card>
+            </div>
+        );
+    }
+
+    // 1. First, show loading if checking submission status
+    if (checkingSubmission) {
+        return (
+            <div className="max-w-6xl mx-auto p-6">
+                <Card>
+                    <div className="text-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                        <h2 className="text-xl font-semibold text-gray-700 mb-2">
+                            Loading...
+                        </h2>
+                        <p className="text-gray-500">
+                            Checking submission status...
+                        </p>
+                    </div>
+                </Card>
+            </div>
+        );
+    }
+
+    // 2. Then, show thank you page if already submitted
+    if (submitted) {
+        return (
+            <div className="max-w-4xl mx-auto p-6">
+                <Card>
+                    <div className="text-center py-12">
+                        <div className="text-green-500 text-5xl mb-4">✓</div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                            Thank You for Your Submission!
+                        </h2>
+                        <p className="text-gray-600 mb-8">
+                            Your employee commuting data for {reportingYear} has been successfully submitted.
+                        </p>
+                    </div>
+                </Card>
+            </div>
+        );
+    }
+
+    // 3. Then, show authentication error if no token
     if (!token && !urlToken && !getToken()) {
         return (
             <div className="max-w-6xl mx-auto p-6">
