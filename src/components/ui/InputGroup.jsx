@@ -180,128 +180,114 @@ import Icon from "@/components/ui/Icon";
 import Cleave from "cleave.js/react";
 import "cleave.js/dist/addons/cleave-phone.us";
 
-const InputGroup = ({
-  type = "text", // text, password, email, number, textarea
-  label,
-  placeholder,
-  classLabel = "form-label",
-  className = "",
-  classGroup = "",
-  register, // Remove this if not using React Hook Form
-  name,
-  readonly,
-  value,
-  error,
-  icon,
-  disabled,
-  id,
-  horizontal,
-  validate,
-  isMask,
-  msgTooltip,
-  description,
-  hasicon,
-  onChange,
-  merged,
-  append,
-  prepend,
-  options,
-  onFocus,
-  rows = 3,
-  min, // Add min prop for number validation
-  ...rest
-}) => {
+const InputGroup = React.forwardRef((props, ref) => {
+  const {
+    type = "text",
+    label,
+    placeholder,
+    classLabel = "form-label",
+    className = "",
+    classGroup = "",
+    register,
+    name,
+    readonly,
+    value,
+    error,
+    icon,
+    disabled,
+    id,
+    horizontal,
+    validate,
+    isMask,
+    msgTooltip,
+    description,
+    hasicon,
+    onChange,
+    merged,
+    append,
+    prepend,
+    options,
+    onFocus,
+    rows = 3,
+    min,
+    // Extract ALL custom props that shouldn't go to DOM elements
+    helperText, 
+    isLoading, // Add this - it's causing the warning
+    ...rest // This will contain all other props that can go to DOM
+  } = props;
+
   const [open, setOpen] = useState(false);
-  const [internalError, setInternalError] = useState(null); // For internal validation errors
+  const [internalError, setInternalError] = useState(null);
   
   const handleOpen = () => {
     setOpen(!open);
   };
 
-  // Handle number input wheel to prevent scroll from changing value
-  // const handleNumberInputWheel = (e) => {
-  //   if (type === "number") {
-  //     e.target.blur();
-  //     e.preventDefault();
-  //   }
-  // };
   const handleNumberInputWheel = (e) => {
     if (type === "number") {
-        // First blur to prevent scroll from changing the value
-        e.target.blur();
-        // Then prevent default
-        // e.preventDefault();
-        // e.stopPropagation();
-        // return false;
+      e.target.blur();
     }
-};
+  };
 
-  // Handle number input changes with validation
   const handleNumberChange = (e) => {
     const inputValue = e.target.value;
     
-    // Clear internal error on new input
     setInternalError(null);
     
-    // Check for negative numbers
     if (type === "number" && inputValue !== "" && parseFloat(inputValue) < 0) {
       setInternalError("Value cannot be negative");
-      return; // Don't call onChange for negative values
+      return;
     }
     
-    // If there's a min prop, validate against it
     if (type === "number" && min !== undefined && inputValue !== "" && parseFloat(inputValue) < min) {
       setInternalError(`Value must be at least ${min}`);
       return;
     }
     
-    // Call the original onChange if provided
     if (onChange) {
       onChange(e);
     }
   };
 
-  // Combine external and internal errors
   const combinedError = error || internalError;
 
-  // Base classes for consistent placeholder styling
   const placeholderClasses = disabled 
     ? "placeholder:text-gray-400 placeholder:opacity-50 placeholder:text-[14px] placeholder:font-normal" 
     : "placeholder:text-gray-700 placeholder:opacity-75 placeholder:text-[14px] placeholder:font-normal";
 
-  // Create common props for all input types
   const commonInputProps = {
     name,
     placeholder,
     readOnly: readonly,
     disabled,
     id,
-    value: value || "", // Always ensure value is set
-    onChange: type === "number" ? handleNumberChange : onChange, // Use custom handler for numbers
-    onWheel: type === "number" ? handleNumberInputWheel : undefined, // Add wheel handler for numbers
-    min: type === "number" && min !== undefined ? min : undefined, // Add min attribute for numbers
+    value: value || "",
+    onChange: type === "number" ? handleNumberChange : onChange,
+    onWheel: type === "number" ? handleNumberInputWheel : undefined,
+    min: type === "number" && min !== undefined ? min : undefined,
     className: `${combinedError ? "has-error border-red-500" : "border-[2px] border-gray-300"} rounded-md input-group-control block w-full focus:outline-none py-2 ${placeholderClasses} ${className}`,
     ...rest,
   };
 
-  // Add number-specific props
   if (type === "number") {
     commonInputProps.onWheel = handleNumberInputWheel;
     commonInputProps.onKeyDown = (e) => {
-      // Prevent 'e' and 'E' characters in number inputs
       if (e.key === 'e' || e.key === 'E') {
         e.preventDefault();
       }
     };
   }
 
-  // Textarea specific props
   if (type === "textarea") {
     commonInputProps.rows = rows;
   }
 
   return (
-    <div className={`${horizontal ? "flex" : ""} ${merged ? "merged" : ""}`}>
+    <div 
+      className={`${horizontal ? "flex" : ""} ${merged ? "merged" : ""} ${classGroup}`}
+      ref={ref}
+      // Only pass valid DOM props
+    >
       {label && (
         <label
           htmlFor={id}
@@ -353,7 +339,13 @@ const InputGroup = ({
               />
             )}
             
-            {/* icon - only show for password inputs */}
+            {/* Show loading spinner if isLoading is true */}
+            {isLoading && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <Icon icon="heroicons:arrow-path" className="w-4 h-4 animate-spin text-gray-400" />
+              </div>
+            )}
+            
             {(hasicon && type === "password") && (
               <div className="flex text-xl absolute ltr:right-[14px] rtl:left-[14px] top-1/2 -translate-y-1/2 space-x-1 rtl:space-x-reverse">
                 <span
@@ -370,8 +362,7 @@ const InputGroup = ({
               </div>
             )}
             
-            {/* error and validation icons for non-textarea */}
-            {type !== "textarea" && (
+            {type !== "textarea" && !isLoading && (
               <div className="flex text-xl absolute ltr:right-[14px] rtl:left-[14px] top-1/2 -translate-y-1/2 space-x-1 rtl:space-x-reverse">
                 {combinedError && (
                   <span className="text-danger-500">
@@ -394,6 +385,12 @@ const InputGroup = ({
         )}
       </div>
       
+      {helperText && !combinedError && (
+        <div className="mt-1 text-sm text-gray-500">
+          {helperText}
+        </div>
+      )}
+      
       {combinedError && (
         <div className={`mt-2 ${msgTooltip ? "inline-block bg-danger-500 text-white text-[10px] px-2 py-1 rounded" : "text-danger-500 block text-sm"}`}>
           {combinedError.message || combinedError}
@@ -409,6 +406,8 @@ const InputGroup = ({
       {description && <span className="input-description">{description}</span>}
     </div>
   );
-};
+});
+
+InputGroup.displayName = "InputGroup";
 
 export default InputGroup;
