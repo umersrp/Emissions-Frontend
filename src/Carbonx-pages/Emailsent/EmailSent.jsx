@@ -546,7 +546,7 @@ const parseReminderDates = (datesString) => {
                 endDate: "", // Add this
                 endTime: "",
                 subject: "",
-                formLink: "httpshttps://carbonx.srptechs.com/AddfromEmployee",
+                formLink: "https://carbonx.srptechs.com/AddfromEmployee",
                 totalReminders: "",
                 reminderDates: "",
                 reminderSubject: "",

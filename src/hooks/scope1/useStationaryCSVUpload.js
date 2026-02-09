@@ -662,7 +662,7 @@ const downloadStationaryTemplate = () => {
   const exampleFuelName = 'Butane';
   const exampleUnit = 'kg';
   const exampleQC = 'Good';
-
+  
   // Get current date in ISO format with time set to midnight UTC
   const currentDate = new Date();
   const formattedDate = new Date(
