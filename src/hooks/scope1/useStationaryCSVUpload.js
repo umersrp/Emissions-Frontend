@@ -658,11 +658,11 @@ const downloadStationaryTemplate = () => {
   
   const exampleStakeholder = stakeholderOptions[0]?.value || 'Assembly';
   const exampleEquipment = equipmentTypeOptions.find(e => e.value === 'Amine Reboilers')?.value || 'Amine Reboilers';
-  const exampleFuelType = 'Liquid Fuel';
-  const exampleFuelName = 'Diesel';
+  const exampleFuelType = 'Gaseous Fuel';
+  const exampleFuelName = 'Butane';
   const exampleUnit = 'kg';
   const exampleQC = 'Good';
-
+  
   // Get current date in ISO format with time set to midnight UTC
   const currentDate = new Date();
   const formattedDate = new Date(
