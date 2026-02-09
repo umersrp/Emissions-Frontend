@@ -502,6 +502,29 @@ const EmployeeCommutingForm = () => {
         }
     }, [buildings, userInfo]);
 
+    // Add this useEffect near your other useEffects
+useEffect(() => {
+    const checkIfSubmitted = () => {
+        const userIdToCheck = targetUserData?._id || companyData?._id || userInfo?._id;
+        if (userIdToCheck && reportingYear) {
+            const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userIdToCheck}`;
+            const isSubmitted = localStorage.getItem(submissionKey);
+            if (isSubmitted === 'true') {
+                setSubmitted(true);
+                // Show a toast message
+                toast.info('You have already submitted the form for this year.', {
+                    autoClose: 5000,
+                });
+            }
+        }
+    };
+    
+    // Check after user data is loaded
+    if (userInfo || targetUserData || companyData) {
+        checkIfSubmitted();
+    }
+}, [reportingYear, userInfo, targetUserData, companyData]);
+
     // Handle reporting year change
     // const handleReportingYearChange = (selectedOption) => {
     //     setReportingYear(selectedOption.value);
@@ -2331,292 +2354,240 @@ const handleDateRangeChange = (transportType, value) => {
         }
     };
     // Handle form submission
-    const handleSubmit = async (e) => {
-        console.log('handleSubmit() =======>', 'validationErrors');
-        e.preventDefault();
+const handleSubmit = async (e) => {
+    console.log('handleSubmit() =======>', 'validationErrors');
+    e.preventDefault();
 
-        const validationErrors = validateForm();
+    const validationErrors = validateForm();
 
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
 
-            // Show general error toast
-            toast.error(`Please fill all required fields`);
+        // Show general error toast
+        toast.error(`Please fill all required fields`);
 
-            // Find the first error and scroll to it
-            setTimeout(() => {
-                scrollToFirstError(validationErrors);
-            }, 100);
+        // Find the first error and scroll to it
+        setTimeout(() => {
+            scrollToFirstError(validationErrors);
+        }, 100);
 
+        return;
+    }
+    setLoading(true);
+
+    try {
+        const currentToken = getToken();
+        if (!currentToken) {
+            toast.error('Authentication token is missing. Please refresh the page.');
+            setLoading(false);
             return;
         }
-        setLoading(true);
 
-        try {
-            const currentToken = getToken();
-            if (!currentToken) {
-                toast.error('Authentication token is missing. Please refresh the page.');
-                setLoading(false);
-                return;
+        // Convert date ranges to arrays of dates
+        const motorbikeDates = formData.motorbikeDateRange ? dateRangeToDates(formData.motorbikeDateRange) : [];
+        const taxiDates = formData.taxiDateRange ? dateRangeToDates(formData.taxiDateRange) : [];
+        const busDates = formData.busDateRange ? dateRangeToDates(formData.busDateRange) : [];
+        const trainDates = formData.trainDateRange ? dateRangeToDates(formData.trainDateRange) : [];
+        const carDates = formData.carDateRange ? dateRangeToDates(formData.carDateRange) : [];
+        const workFromHomeDates = formData.workFromHomeDateRange ? dateRangeToDates(formData.workFromHomeDateRange) : [];
+
+        // Prepare submission data - extract values from option objects
+        const submissionData = {
+            employeeName: String(formData.employeeName || ''),  // Add this
+            employeeID: String(formData.employeeID || ''),
+            // Basic Information
+            siteBuildingName: formData.siteBuildingName?.value || '',
+            stakeholderDepartment: formData.stakeholderDepartment?.value || '',
+            submittedByEmail: String(formData.submittedByEmail || ''),
+            reportingYear: reportingYear,
+
+            // Mode information (for tracking)
+            submissionMode: targetUserData ? 'admin' : 'self',
+            targetUserId: urlUserId || null,
+            companyUserId: companyData?._id || null,
+
+            // Motorbike Commute
+            commuteByMotorbike: formData.commuteByMotorbike,
+            motorbikeMode: formData.motorbikeMode || 'individual',
+            ...(formData.commuteByMotorbike && {
+                motorbikeDistance: Number(formData.motorbikeDistance) || 0,
+                motorbikeType: formData.motorbikeType?.value || '',
+                motorbikeDates: motorbikeDates.map(date => date.toISOString()),
+                motorbikeDateRange: formData.motorbikeDateRange,
+                ...((formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && {
+                    carryOthersMotorbike: formData.carryOthersMotorbike,
+                    travelWithOthersMotorbike: formData.travelWithOthersMotorbike,
+                    ...(formData.carryOthersMotorbike && {
+                        personsCarriedMotorbike: Number(formData.personsCarriedMotorbike?.value || 0) || 0,
+                        motorbikePassengerEmails: (Array.isArray(formData.motorbikePassengerEmails)
+                            ? formData.motorbikePassengerEmails.map(e => String(e || '')).filter(e => e.trim())
+                            : []),
+                        motorbikePassengerUserIds: (Array.isArray(formData.motorbikePassengerUserIds)
+                            ? formData.motorbikePassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
+                            : []),
+                    }),
+                    ...(formData.travelWithOthersMotorbike && {
+                        personsTravelWithMotorbike: Number(formData.personsTravelWithMotorbike?.value || 0) || 0,
+                        motorbikeTravelPassengerEmails: (Array.isArray(formData.motorbikeTravelPassengerEmails)
+                            ? formData.motorbikeTravelPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
+                            : []),
+                        motorbikeTravelPassengerUserIds: (Array.isArray(formData.motorbikeTravelPassengerUserIds)
+                            ? formData.motorbikeTravelPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
+                            : []),
+                    }),
+                }),
+            }),
+
+            // Taxi Commute
+            commuteByTaxi: formData.commuteByTaxi,
+            taxiMode: formData.taxiMode || 'individual',
+            ...(formData.commuteByTaxi && {
+                taxiPassengers: Number(formData.taxiPassengers?.value || 1) || 1,
+                taxiDistance: Number(formData.taxiDistance) || 0,
+                taxiType: formData.taxiType?.value || '',
+                taxiDates: taxiDates.map(date => date.toISOString()),
+                taxiDateRange: formData.taxiDateRange,
+                ...((formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && {
+                    travelWithOthersTaxi: formData.travelWithOthersTaxi,
+                    ...(formData.travelWithOthersTaxi && {
+                        personsTravelWithTaxi: Number(formData.personsTravelWithTaxi?.value || 0) || 0,
+                        taxiPassengerEmails: (Array.isArray(formData.taxiPassengerEmails)
+                            ? formData.taxiPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
+                            : []),
+                        taxiPassengerUserIds: (Array.isArray(formData.taxiPassengerUserIds)
+                            ? formData.taxiPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
+                            : []),
+                    }),
+                }),
+            }),
+
+            // Bus Commute
+            commuteByBus: formData.commuteByBus,
+            ...(formData.commuteByBus && {
+                busDistance: Number(formData.busDistance) || 0,
+                busType: formData.busType?.value || '',
+                busDates: busDates.map(date => date.toISOString()),
+                busDateRange: formData.busDateRange,
+            }),
+
+            // Train Commute
+            commuteByTrain: formData.commuteByTrain,
+            ...(formData.commuteByTrain && {
+                trainDistance: Number(formData.trainDistance) || 0,
+                trainType: formData.trainType?.value || '',
+                trainDates: trainDates.map(date => date.toISOString()),
+                trainDateRange: formData.trainDateRange,
+            }),
+
+            // Car Commute
+            commuteByCar: formData.commuteByCar,
+            carMode: formData.carMode || 'individual',
+            ...(formData.commuteByCar && {
+                carDistance: Number(formData.carDistance) || 0,
+                carType: formData.carType?.value || '',
+                carFuelType: formData.carFuelType?.value || '',
+                carDates: carDates.map(date => date.toISOString()),
+                carDateRange: formData.carDateRange,
+                ...((formData.carMode === 'carpool' || formData.carMode === 'both') && {
+                    carryOthersCar: formData.carryOthersCar,
+                    travelWithOthersCar: formData.travelWithOthersCar,
+                    ...(formData.carryOthersCar && {
+                        personsCarriedCar: Number(formData.personsCarriedCar?.value || 0) || 0,
+                        carPassengerEmails: (Array.isArray(formData.carPassengerEmails)
+                            ? formData.carPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
+                            : []),
+                        carPassengerUserIds: (Array.isArray(formData.carPassengerUserIds)
+                            ? formData.carPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
+                            : []),
+                    }),
+                    ...(formData.travelWithOthersCar && {
+                        personsTravelWithCar: Number(formData.personsTravelWithCar?.value || 0) || 0,
+                        carTravelPassengerEmails: (Array.isArray(formData.carTravelPassengerEmails)
+                            ? formData.carTravelPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
+                            : []),
+                        carTravelPassengerUserIds: (Array.isArray(formData.carTravelPassengerUserIds)
+                            ? formData.carTravelPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
+                            : []),
+                    }),
+                }),
+            }),
+
+            // Work From Home
+            workFromHome: formData.workFromHome,
+            ...(formData.workFromHome && {
+                fteWorkingHours: Number(formData.fteWorkingHours) || 0,
+                workFromHomeDates: workFromHomeDates.map(date => date.toISOString()),
+                workFromHomeDateRange: formData.workFromHomeDateRange,
+            }),
+            qualityControlRemarks: String(formData.qualityControlRemarks || ''),
+            qualityControl: String(formData.qualityControl || ''),
+            submittedAt: new Date().toISOString(),
+        };
+
+        // Submit to backend
+        const response = await axios.post(
+            `${process.env.REACT_APP_BASE_URL}/employee-commute/Create`,
+            submissionData,
+            {
+                headers: {
+                    Authorization: `Bearer ${currentToken}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        // Check if form submission was successful
+        if (response.status === 200 || response.status === 201) {
+            // Mark user as filled
+            const userIdToUpdate = targetUserData?._id || companyData?._id || userInfo?._id;
+            await markUserAsFilled(userIdToUpdate, currentToken);
+
+            // STORE SUBMISSION STATUS IN LOCALSTORAGE
+            // This prevents the form from showing again after refresh
+            if (userIdToUpdate && reportingYear) {
+                const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userIdToUpdate}`;
+                localStorage.setItem(submissionKey, 'true');
+                
+                // Also store detailed submission info
+                localStorage.setItem(`${submissionKey}_details`, JSON.stringify({
+                    submittedAt: new Date().toISOString(),
+                    reportingYear: reportingYear,
+                    userId: userIdToUpdate,
+                    submissionId: response.data?.data?._id || Date.now(),
+                    employeeName: formData.employeeName || userInfo?.name,
+                    email: formData.submittedByEmail || userInfo?.email
+                }));
             }
 
-            // Convert date ranges to arrays of dates
-            const motorbikeDates = formData.motorbikeDateRange ? dateRangeToDates(formData.motorbikeDateRange) : [];
-            const taxiDates = formData.taxiDateRange ? dateRangeToDates(formData.taxiDateRange) : [];
-            const busDates = formData.busDateRange ? dateRangeToDates(formData.busDateRange) : [];
-            const trainDates = formData.trainDateRange ? dateRangeToDates(formData.trainDateRange) : [];
-            const carDates = formData.carDateRange ? dateRangeToDates(formData.carDateRange) : [];
-            const workFromHomeDates = formData.workFromHomeDateRange ? dateRangeToDates(formData.workFromHomeDateRange) : [];
-
-            // Prepare submission data - extract values from option objects
-            const submissionData = {
-                employeeName: String(formData.employeeName || ''),  // Add this
-                employeeID: String(formData.employeeID || ''),
-                // Basic Information
-                siteBuildingName: formData.siteBuildingName?.value || '',
-                stakeholderDepartment: formData.stakeholderDepartment?.value || '',
-                submittedByEmail: String(formData.submittedByEmail || ''),
-                reportingYear: reportingYear,
-
-                // Mode information (for tracking)
-                submissionMode: targetUserData ? 'admin' : 'self',
-                targetUserId: urlUserId || null,
-                companyUserId: companyData?._id || null,
-
-                // Motorbike Commute
-                commuteByMotorbike: formData.commuteByMotorbike,
-                motorbikeMode: formData.motorbikeMode || 'individual',
-                ...(formData.commuteByMotorbike && {
-                    motorbikeDistance: Number(formData.motorbikeDistance) || 0,
-                    motorbikeType: formData.motorbikeType?.value || '',
-                    motorbikeDates: motorbikeDates.map(date => date.toISOString()),
-                    motorbikeDateRange: formData.motorbikeDateRange,
-                    ...((formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && {
-                        carryOthersMotorbike: formData.carryOthersMotorbike,
-                        travelWithOthersMotorbike: formData.travelWithOthersMotorbike,
-                        ...(formData.carryOthersMotorbike && {
-                            personsCarriedMotorbike: Number(formData.personsCarriedMotorbike?.value || 0) || 0,
-                            motorbikePassengerEmails: (Array.isArray(formData.motorbikePassengerEmails)
-                                ? formData.motorbikePassengerEmails.map(e => String(e || '')).filter(e => e.trim())
-                                : []),
-                            motorbikePassengerUserIds: (Array.isArray(formData.motorbikePassengerUserIds)
-                                ? formData.motorbikePassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
-                                : []),
-                        }),
-                        ...(formData.travelWithOthersMotorbike && {
-                            personsTravelWithMotorbike: Number(formData.personsTravelWithMotorbike?.value || 0) || 0,
-                            motorbikeTravelPassengerEmails: (Array.isArray(formData.motorbikeTravelPassengerEmails)
-                                ? formData.motorbikeTravelPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
-                                : []),
-                            motorbikeTravelPassengerUserIds: (Array.isArray(formData.motorbikeTravelPassengerUserIds)
-                                ? formData.motorbikeTravelPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
-                                : []),
-                        }),
-                    }),
-                }),
-
-                // Taxi Commute
-                commuteByTaxi: formData.commuteByTaxi,
-                taxiMode: formData.taxiMode || 'individual',
-                ...(formData.commuteByTaxi && {
-                    taxiPassengers: Number(formData.taxiPassengers?.value || 1) || 1,
-                    taxiDistance: Number(formData.taxiDistance) || 0,
-                    taxiType: formData.taxiType?.value || '',
-                    taxiDates: taxiDates.map(date => date.toISOString()),
-                    taxiDateRange: formData.taxiDateRange,
-                    ...((formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && {
-                        travelWithOthersTaxi: formData.travelWithOthersTaxi,
-                        ...(formData.travelWithOthersTaxi && {
-                            personsTravelWithTaxi: Number(formData.personsTravelWithTaxi?.value || 0) || 0,
-                            taxiPassengerEmails: (Array.isArray(formData.taxiPassengerEmails)
-                                ? formData.taxiPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
-                                : []),
-                            taxiPassengerUserIds: (Array.isArray(formData.taxiPassengerUserIds)
-                                ? formData.taxiPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
-                                : []),
-                        }),
-                    }),
-                }),
-
-                // Bus Commute
-                commuteByBus: formData.commuteByBus,
-                ...(formData.commuteByBus && {
-                    busDistance: Number(formData.busDistance) || 0,
-                    busType: formData.busType?.value || '',
-                    busDates: busDates.map(date => date.toISOString()),
-                    busDateRange: formData.busDateRange,
-                }),
-
-                // Train Commute
-                commuteByTrain: formData.commuteByTrain,
-                ...(formData.commuteByTrain && {
-                    trainDistance: Number(formData.trainDistance) || 0,
-                    trainType: formData.trainType?.value || '',
-                    trainDates: trainDates.map(date => date.toISOString()),
-                    trainDateRange: formData.trainDateRange,
-                }),
-
-                // Car Commute
-                commuteByCar: formData.commuteByCar,
-                carMode: formData.carMode || 'individual',
-                ...(formData.commuteByCar && {
-                    carDistance: Number(formData.carDistance) || 0,
-                    carType: formData.carType?.value || '',
-                    carFuelType: formData.carFuelType?.value || '',
-                    carDates: carDates.map(date => date.toISOString()),
-                    carDateRange: formData.carDateRange,
-                    ...((formData.carMode === 'carpool' || formData.carMode === 'both') && {
-                        carryOthersCar: formData.carryOthersCar,
-                        travelWithOthersCar: formData.travelWithOthersCar,
-                        ...(formData.carryOthersCar && {
-                            personsCarriedCar: Number(formData.personsCarriedCar?.value || 0) || 0,
-                            carPassengerEmails: (Array.isArray(formData.carPassengerEmails)
-                                ? formData.carPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
-                                : []),
-                            carPassengerUserIds: (Array.isArray(formData.carPassengerUserIds)
-                                ? formData.carPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
-                                : []),
-                        }),
-                        ...(formData.travelWithOthersCar && {
-                            personsTravelWithCar: Number(formData.personsTravelWithCar?.value || 0) || 0,
-                            carTravelPassengerEmails: (Array.isArray(formData.carTravelPassengerEmails)
-                                ? formData.carTravelPassengerEmails.map(e => String(e || '')).filter(e => e.trim())
-                                : []),
-                            carTravelPassengerUserIds: (Array.isArray(formData.carTravelPassengerUserIds)
-                                ? formData.carTravelPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
-                                : []),
-                        }),
-                    }),
-                }),
-
-                // Work From Home
-                workFromHome: formData.workFromHome,
-                ...(formData.workFromHome && {
-                    fteWorkingHours: Number(formData.fteWorkingHours) || 0,
-                    workFromHomeDates: workFromHomeDates.map(date => date.toISOString()),
-                    workFromHomeDateRange: formData.workFromHomeDateRange,
-                }),
-                qualityControlRemarks: String(formData.qualityControlRemarks || ''),
-                qualityControl: String(formData.qualityControl || ''),
-                submittedAt: new Date().toISOString(),
-            };
-
-            // Submit to backend
-            const response = await axios.post(
-                `${process.env.REACT_APP_BASE_URL}/employee-commute/Create`,
-                submissionData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${currentToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-
-           // Check if form submission was successful
-            if (response.status === 200 || response.status === 201) {
-                // Mark user as filled
-                const userIdToUpdate = targetUserData?._id || companyData?._id || userInfo?._id;
-                await markUserAsFilled(userIdToUpdate, currentToken);
-
-                // Rest of your success handling
-                if (response.data.warnings && response.data.warnings.length > 0) {
-                    setPooledEmailWarnings(response.data.warnings);
-                    toast.warning('Some colleagues have been marked as carpool partners. Please review.');
-                } else {
-                    toast.success('Employee commuting data submitted successfully!');
-                    setSubmitted(true);
-
-                    // Reset form after 3 seconds
-                    // setTimeout(() => {
-                    //     setFormData({
-                    //         employeeName: '',
-                    //         employeeID: '',
-                    //         siteBuildingName: null,
-                    //         stakeholderDepartment: null,
-                    //         commuteByMotorbike: false,
-                    //         motorbikeMode: 'both',
-                    //         motorbikeDistance: '',
-                    //         motorbikeType: { value: 'Small', label: 'Small (<125cc)' },
-                    //         carryOthersMotorbike: false,
-                    //         personsCarriedMotorbike: null,
-                    //         motorbikePassengerEmails: [''],
-                    //         motorbikePassengerUserIds: [''],
-                    //         travelWithOthersMotorbike: false,
-                    //         personsTravelWithMotorbike: null,
-                    //         motorbikeTravelPassengerEmails: [''],
-                    //         motorbikeTravelPassengerUserIds: [''],
-                    //         motorbikeDateRange: null,
-                    //         commuteByTaxi: false,
-                    //         taxiMode: 'both',
-                    //         taxiPassengers: { value: '1', label: '1 passenger' },
-                    //         taxiDistance: '',
-                    //         taxiType: { value: 'Regular taxi', label: 'Regular Taxi' },
-                    //         travelWithOthersTaxi: false,
-                    //         personsTravelWithTaxi: null,
-                    //         taxiPassengerEmails: [''],
-                    //         taxiPassengerUserIds: [''],
-                    //         taxiDateRange: null,
-                    //         commuteByBus: false,
-                    //         busDistance: '',
-                    //         busType: { value: 'Green Line Bus', label: 'Green Line Bus' },
-                    //         busDateRange: null,
-                    //         commuteByTrain: false,
-                    //         trainDistance: '',
-                    //         trainType: { value: 'National rail', label: 'National Rail' },
-                    //         trainDateRange: null,
-                    //         commuteByCar: false,
-                    //         carMode: 'both',
-                    //         carDistance: '',
-                    //         carType: { value: 'Average car', label: 'Average car - Unknown engine size' },
-                    //         carFuelType: { value: 'Diesel', label: 'Diesel' },
-                    //         carryOthersCar: false,
-                    //         personsCarriedCar: null,
-                    //         carPassengerEmails: [''],
-                    //         carPassengerUserIds: [''],
-                    //         travelWithOthersCar: false,
-                    //         personsTravelWithCar: null,
-                    //         carTravelPassengerEmails: [''],
-                    //         carTravelPassengerUserIds: [''],
-                    //         carDateRange: null,
-                    //         workFromHome: false,
-                    //         fteWorkingHours: '',
-                    //         workFromHomeDateRange: null,
-                    //         qualityControlRemarks: '',
-                    //         qualityControl: '',
-                    //         submittedByEmail: '',
-                    //     });
-
-                    //     setSelectedDateRanges({
-                    //         motorbike: null,
-                    //         taxi: null,
-                    //         bus: null,
-                    //         train: null,
-                    //         car: null,
-                    //         workFromHome: null
-                    //     });
-
-                    //     setSubmitted(true);
-                    // }, 3000);
-                }
+            // Rest of your success handling
+            if (response.data.warnings && response.data.warnings.length > 0) {
+                setPooledEmailWarnings(response.data.warnings);
+                toast.warning('Some colleagues have been marked as carpool partners. Please review.');
             } else {
-                throw new Error(`Unexpected response status: ${response.status}`);
+                toast.success('Employee commuting data submitted successfully!');
+                setSubmitted(true);
+                
+                // DO NOT reset the form here - keep showing thank you page
+                // The setTimeout that resets the form has been commented out
             }
-
-        } catch (error) {
-            console.error('Submission error:', error);
-
-            if (error.response) {
-                toast.error(`Server error: ${error.response.data?.message || error.response.status}`);
-            } else if (error.request) {
-                toast.error('Network error. Please check your connection.');
-            } else {
-                toast.error(`Error: ${error.message}`);
-            }
-        } finally {
-            setLoading(false);
+        } else {
+            throw new Error(`Unexpected response status: ${response.status}`);
         }
-    };
+
+    } catch (error) {
+        console.error('Submission error:', error);
+
+        if (error.response) {
+            toast.error(`Server error: ${error.response.data?.message || error.response.status}`);
+        } else if (error.request) {
+            toast.error('Network error. Please check your connection.');
+        } else {
+            toast.error(`Error: ${error.message}`);
+        }
+    } finally {
+        setLoading(false);
+    }
+};
     console.log({ errors, formData });
 
     if (submitted) {
