@@ -2570,25 +2570,7 @@ const EmployeeCommutingForm = () => {
             </div>
         );
     }
-    // 1. Show loading if checking submission status
-    if (checkingSubmission) {
-        return (
-            <div className="max-w-6xl mx-auto p-6">
-                <Card>
-                    <div className="text-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                        <h2 className="text-xl font-semibold text-gray-700 mb-2">
-                            Loading Form...
-                        </h2>
-                        <p className="text-gray-500">
-                            Please wait while we load the form...
-                        </p>
-                    </div>
-                </Card>
-            </div>
-        );
-    }
-
+ 
     // 2. Show thank you page if already submitted
     if (submitted) {
         return (
@@ -2603,9 +2585,6 @@ const EmployeeCommutingForm = () => {
                             Your employee commuting data for {reportingYear} has been successfully submitted.
                         </p>
                         <div className="mt-6 p-4 bg-blue-50 rounded-lg inline-block">
-                            <p className="text-blue-700 font-medium">
-                                Redirecting to login page in 3 seconds...
-                            </p>
                             <div className="mt-2 flex justify-center space-x-1">
                                 <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
                                 <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
