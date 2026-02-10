@@ -2518,6 +2518,7 @@ const EmployeeCommutingForm = () => {
 
             // Check if form submission was successful
             // In handleSubmit function, after successful submission:
+            // In handleSubmit function, after successful submission:
             if (response.status === 200 || response.status === 201) {
                 // Mark user as filled
                 const userIdToUpdate = targetUserData?._id || companyData?._id || userInfo?._id;
@@ -2525,9 +2526,16 @@ const EmployeeCommutingForm = () => {
                 await markUserAsFilled(userIdToUpdate, currentToken);
                 setSubmitted(true);
                 toast.success('Employee commuting data submitted successfully!');
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 3000);
+
+                // Navigate to thank you page
+                navigate('/formSubmittedSuccessfully', {
+                    state: {
+                        formType: 'employee-commuting',
+                        reportingYear: reportingYear,
+                        userInfo: userInfo,
+                        submissionTime: new Date().toISOString()
+                    }
+                });
             } else {
                 throw new Error(`Unexpected response status: ${response.status}`);
             }
@@ -2570,39 +2578,39 @@ const EmployeeCommutingForm = () => {
             </div>
         );
     }
- 
-    // 2. Show thank you page if already submitted
-    if (submitted) {
-        return (
-            <div className="max-w-4xl mx-auto p-6">
-                <Card>
-                    <div className="text-center py-12">
-                        <div className="text-green-500 text-5xl mb-4">✓</div>
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                            Thank You for Your Submission!
-                        </h2>
-                        <p className="text-gray-600 mb-8">
-                            Your employee commuting data for {reportingYear} has been successfully submitted.
-                        </p>
-                        <div className="mt-6 p-4 bg-blue-50 rounded-lg inline-block">
-                            <div className="mt-2 flex justify-center space-x-1">
-                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-                            </div>
-                        </div>
-                        <div className="mt-4">
-                            <Button
-                                text="Go to Login Now"
-                                className="bg-blue-500 hover:bg-blue-600 text-white"
-                                onClick={() => window.location.href = '/'}
-                            />
-                        </div>
-                    </div>
-                </Card>
-            </div>
-        );
-    }
+
+    // // 2. Show thank you page if already submitted
+    // if (submitted) {
+    //     return (
+    //         <div className="max-w-4xl mx-auto p-6">
+    //             <Card>
+    //                 <div className="text-center py-12">
+    //                     <div className="text-green-500 text-5xl mb-4">✓</div>
+    //                     <h2 className="text-2xl font-bold text-gray-800 mb-4">
+    //                         Thank You for Your Submission!
+    //                     </h2>
+    //                     <p className="text-gray-600 mb-8">
+    //                         Your employee commuting data for {reportingYear} has been successfully submitted.
+    //                     </p>
+    //                     <div className="mt-6 p-4 bg-blue-50 rounded-lg inline-block">
+    //                         <div className="mt-2 flex justify-center space-x-1">
+    //                             <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+    //                             <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+    //                             <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+    //                         </div>
+    //                     </div>
+    //                     <div className="mt-4">
+    //                         <Button
+    //                             text="Go to Login Now"
+    //                             className="bg-blue-500 hover:bg-blue-600 text-white"
+    //                             onClick={() => window.location.href = '/'}
+    //                         />
+    //                     </div>
+    //                 </div>
+    //             </Card>
+    //         </div>
+    //     );
+    // }
 
     // 3. Show authentication error if no token
     if (!token && !urlToken && !getToken()) {
