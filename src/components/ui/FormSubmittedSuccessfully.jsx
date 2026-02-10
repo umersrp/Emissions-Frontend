@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import Card from '@/components/ui/Card';
-import Button from '@/components/ui/Button';
 
 const FormSubmittedSuccessfully = () => {
     const location = useLocation();
-    const navigate = useNavigate();
     const [formData, setFormData] = useState(null);
-    const [countdown, setCountdown] = useState(10);
+    // Removed: const [countdown, setCountdown] = useState(10);
 
     useEffect(() => {
         // Get data passed from the form
@@ -15,28 +12,9 @@ const FormSubmittedSuccessfully = () => {
             setFormData(location.state);
         }
 
-        // Start countdown for automatic redirection
-        const timer = setInterval(() => {
-            setCountdown((prev) => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    navigate('/');
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
+    }, [location.state]); // Removed 'navigate' from dependencies
 
-        return () => clearInterval(timer);
-    }, [location.state, navigate]);
 
-    const handleGoToDashboard = () => {
-        navigate('/');
-    };
-
-    const handleSubmitAnother = () => {
-        navigate('/employee-commuting-form');
-    };
 
     const getFormTypeText = () => {
         if (!formData?.formType) return 'Form';
@@ -56,6 +34,7 @@ const FormSubmittedSuccessfully = () => {
             <div className="max-w-2xl w-full">
                 <Card className="shadow-xl">
                     <div className="text-center py-10 px-4">
+                        
                         {/* Success Icon */}
                         <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-100 mb-6">
                             <svg 
@@ -121,28 +100,7 @@ const FormSubmittedSuccessfully = () => {
                             </div>
                         </div>
 
-                       
 
-                       
-
-                        {/* Action Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Button
-                                text="Go to Dashboard"
-                                onClick={handleGoToDashboard}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
-                            />
-                            
-                            {formData?.formType === 'employee-commuting' && (
-                                <Button
-                                    text="Submit Another Form"
-                                    onClick={handleSubmitAnother}
-                                    className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3"
-                                />
-                            )}
-                        </div>
-
-                       
                     </div>
                 </Card>
             </div>
