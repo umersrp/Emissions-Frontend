@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Checkbox from '@/components/ui/Checkbox';
@@ -12,6 +12,7 @@ import InputGroup from '@/components/ui/InputGroup';
 import CustomSelect from '@/components/ui/Select';
 import ToggleButton from '@/components/ui/ToggleButton';
 import { qualityControlOptions } from '@/constant/scope1/options';
+import { carTypeOptions, STANDARD_CAR_TYPES, PREMIUM_CAR_TYPES, STANDARD_FUEL_TYPES, PREMIUM_FUEL_TYPES } from '@/constant/scope3/employeeCommuting'
 
 
 const ErrorMessage = ({ message }) => {
@@ -30,6 +31,7 @@ const EmployeeCommutingForm = () => {
     const urlToken = queryParams.get('token');
     const urlUserId = queryParams.get('userId');
     const [checkingSubmission, setCheckingSubmission] = useState(true);
+    const navigate = useNavigate();
 
     // Current year for reporting
     const currentYear = new Date().getFullYear();
@@ -503,92 +505,16 @@ const EmployeeCommutingForm = () => {
         }
     }, [buildings, userInfo]);
 
-    // Add this useEffect near your other useEffects
-    // Replace or update your submission checking useEffect (around line 294-340)
+    // Add this useEffect after your other useEffects (around line 270-300)
     useEffect(() => {
         const checkForPreviousSubmission = async () => {
             setCheckingSubmission(true);
-            console.log('Checking for previous submission...');
-            console.log('Full URL Token:', urlToken);
 
-            // Get current token
+            // Simply check if the token exists and user data is loaded
             const currentToken = getToken();
-            console.log('Current token from getToken():', currentToken);
-            console.log('Reporting year:', reportingYear);
 
-            // Wait for user data to be loaded
             if ((userInfo || targetUserData || companyData) && reportingYear && currentToken) {
-                const userId = targetUserData?._id || companyData?._id || userInfo?._id;
-
-                console.log('User ID for checking:', userId);
-
-                if (userId) {
-                    // Create a unique key that includes the LAST 20 characters of token
-                    // This ensures each new invitation (different token) is treated as new
-                    const tokenSuffix = currentToken.length > 20
-                        ? currentToken.substring(currentToken.length - 20)
-                        : currentToken;
-
-                    const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userId}_${tokenSuffix}`;
-
-                    console.log('Checking localStorage with key:', submissionKey);
-                    console.log('Token suffix used:', tokenSuffix);
-
-                    const isSubmitted = localStorage.getItem(submissionKey);
-
-                    if (isSubmitted === 'true') {
-                        console.log('Found previous submission for this token');
-                        setSubmitted(true);
-
-                        // Get submission details
-                        const detailsStr = localStorage.getItem(`${submissionKey}_details`);
-                        let submittedDate = 'previously';
-
-                        if (detailsStr) {
-                            try {
-                                const details = JSON.parse(detailsStr);
-                                if (details.submittedAt) {
-                                    submittedDate = new Date(details.submittedAt).toLocaleDateString();
-                                }
-                            } catch (e) {
-                                console.error('Error parsing submission details:', e);
-                            }
-                        }
-
-                        toast.info(
-                            <div>
-                                <div className="font-medium mb-1">Form Already Submitted</div>
-                                <div className="text-sm">
-                                    You submitted this form for {reportingYear} on {submittedDate}.
-                                </div>
-                            </div>,
-                            {
-                                autoClose: 8000,
-                                closeButton: true,
-                            }
-                        );
-                    } else {
-                        console.log('No previous submission found for this token');
-                        // Also check old format without token for migration
-                        const oldKey = `employeeCommutingSubmitted_${reportingYear}_${userId}`;
-                        const oldSubmission = localStorage.getItem(oldKey);
-                        if (oldSubmission === 'true') {
-                            console.log('Found old format submission - migrating to new format');
-                            // Migrate to new format
-                            localStorage.setItem(submissionKey, 'true');
-                            setSubmitted(true);
-                        }
-                    }
-                } else {
-                    console.log('Missing userId for submission check');
-                }
-            } else {
-                console.log('Waiting for user data, reporting year, or token...');
-                console.log('Has userInfo:', !!userInfo);
-                console.log('Has targetUserData:', !!targetUserData);
-                console.log('Has companyData:', !!companyData);
-                console.log('Has reportingYear:', !!reportingYear);
-                console.log('Has currentToken:', !!getToken());
+                console.log('User authenticated, ready to fill form');
             }
 
             // Add a small delay to ensure smooth transition
@@ -598,44 +524,8 @@ const EmployeeCommutingForm = () => {
         };
 
         checkForPreviousSubmission();
-    }, [reportingYear, userInfo, targetUserData, companyData, urlToken]); // Added urlToken to dependencies
-    // Handle reporting year change
-    // const handleReportingYearChange = (selectedOption) => {
-    //     setReportingYear(selectedOption.value);
+    }, [reportingYear, userInfo, targetUserData, companyData, urlToken]);
 
-    //     // Clear all date range errors when year changes
-    //     setErrors(prev => {
-    //         const newErrors = { ...prev };
-    //         // Remove all date range related errors
-    //         Object.keys(newErrors).forEach(key => {
-    //             if (key.includes('DateRange') || key.includes('Coverage') || key.includes('Overlap')) {
-    //                 delete newErrors[key];
-    //             }
-    //         });
-    //         return newErrors;
-    //     });
-
-    //     // Clear all date ranges when year changes
-    //     setFormData(prev => ({
-    //         ...prev,
-    //         motorbikeDateRange: null,
-    //         taxiDateRange: null,
-    //         busDateRange: null,
-    //         trainDateRange: null,
-    //         carDateRange: null,
-    //         workFromHomeDateRange: null
-    //     }));
-
-    //     // Clear selected date ranges
-    //     setSelectedDateRanges({
-    //         motorbike: null,
-    //         taxi: null,
-    //         bus: null,
-    //         train: null,
-    //         car: null,
-    //         workFromHome: null
-    //     });
-    // };
     const handleReportingYearChange = (selectedOption) => {
         try {
             // Handle clearing
@@ -658,7 +548,6 @@ const EmployeeCommutingForm = () => {
 
         } catch (error) {
             console.error("Error in handleReportingYearChange:", error);
-            // Optionally show error to user
             toast.error("Failed to update reporting year");
         }
     };
@@ -699,7 +588,6 @@ const EmployeeCommutingForm = () => {
             workFromHome: null
         });
     };
-
     // Function to clear specific field error
     const clearFieldError = (fieldName) => {
         setErrors(prev => {
@@ -1177,6 +1065,27 @@ const EmployeeCommutingForm = () => {
             };
         });
     };
+
+    const getFuelOptionsByCarType = (carTypeLabel) => {
+        if (STANDARD_CAR_TYPES.includes(carTypeLabel)) {
+            return STANDARD_FUEL_TYPES;
+        }
+
+        if (PREMIUM_CAR_TYPES.includes(carTypeLabel)) {
+            return PREMIUM_FUEL_TYPES;
+        }
+
+        return [];
+    };
+
+    const handleCarTypeChange = (selectedOption) => {
+        handleSelectChange("carType", selectedOption);
+
+        // reset fuel when car type changes
+        handleSelectChange("carFuelType", null);
+    };
+
+
     // Add this function near your other helper functions
     const calculateOverallMonthCoverage = (ranges) => {
         const coveredMonths = new Set();
@@ -1908,7 +1817,6 @@ const EmployeeCommutingForm = () => {
             if (typeof formData.siteBuildingName === 'object' && formData.siteBuildingName !== null) {
                 return formData.siteBuildingName.label || formData.siteBuildingName.value || '';
             }
-
             // If it's a string or other primitive
             return String(formData.siteBuildingName || '');
         };
@@ -2029,7 +1937,6 @@ const EmployeeCommutingForm = () => {
     };
 
     const validateForm = () => {
-        console.log('validate form called');
         const errors = {};
         // Basic Information validation
         if (!formData.stakeholderDepartment) errors.stakeholderDepartment = 'Stakeholder / Department is required';
@@ -2429,7 +2336,6 @@ const EmployeeCommutingForm = () => {
     };
     // Handle form submission
     const handleSubmit = async (e) => {
-        console.log('handleSubmit() =======>', 'validationErrors');
         e.preventDefault();
 
         const validationErrors = validateForm();
@@ -2616,34 +2522,12 @@ const EmployeeCommutingForm = () => {
                 // Mark user as filled
                 const userIdToUpdate = targetUserData?._id || companyData?._id || userInfo?._id;
                 const currentToken = getToken(); // Get current token
-
                 await markUserAsFilled(userIdToUpdate, currentToken);
-
-                // Store in localStorage with token-specific key
-                if (userIdToUpdate && reportingYear && currentToken) {
-                    // Use LAST 20 characters of token to differentiate between invitations
-                    const tokenSuffix = currentToken.length > 20
-                        ? currentToken.substring(currentToken.length - 20)
-                        : currentToken;
-
-                    const submissionKey = `employeeCommutingSubmitted_${reportingYear}_${userIdToUpdate}_${tokenSuffix}`;
-
-                    console.log('Setting submission key in localStorage:', submissionKey);
-                    console.log('Token suffix used:', tokenSuffix);
-
-                    localStorage.setItem(submissionKey, 'true');
-
-                    // Store submission details
-                    localStorage.setItem(`${submissionKey}_details`, JSON.stringify({
-                        submittedAt: new Date().toISOString(),
-                        reportingYear: reportingYear,
-                        userId: userIdToUpdate,
-                        tokenSuffix: tokenSuffix
-                    }));
-                }
-
                 setSubmitted(true);
                 toast.success('Employee commuting data submitted successfully!');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 3000);
             } else {
                 throw new Error(`Unexpected response status: ${response.status}`);
             }
@@ -2662,26 +2546,7 @@ const EmployeeCommutingForm = () => {
             setLoading(false);
         }
     };
-    console.log({ errors, formData });
 
-    if (submitted) {
-        return (
-            <div className="max-w-4xl mx-auto p-6">
-                <Card>
-                    <div className="text-center py-12">
-                        <div className="text-green-500 text-5xl mb-4">✓</div>
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                            Thank You for Your Submission!
-                        </h2>
-                        <p className="text-gray-600 mb-8">
-                            Your employee commuting data for {reportingYear} has been successfully submitted.
-                        </p>
-
-                    </div>
-                </Card>
-            </div>
-        );
-    }
 
     if (!token && !urlToken && !getToken()) {
         return (
@@ -2705,8 +2570,7 @@ const EmployeeCommutingForm = () => {
             </div>
         );
     }
-
-    // 1. First, show loading if checking submission status
+    // 1. Show loading if checking submission status
     if (checkingSubmission) {
         return (
             <div className="max-w-6xl mx-auto p-6">
@@ -2714,10 +2578,10 @@ const EmployeeCommutingForm = () => {
                     <div className="text-center py-12">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
                         <h2 className="text-xl font-semibold text-gray-700 mb-2">
-                            Loading...
+                            Loading Form...
                         </h2>
                         <p className="text-gray-500">
-                            Checking submission status...
+                            Please wait while we load the form...
                         </p>
                     </div>
                 </Card>
@@ -2725,7 +2589,7 @@ const EmployeeCommutingForm = () => {
         );
     }
 
-    // 2. Then, show thank you page if already submitted
+    // 2. Show thank you page if already submitted
     if (submitted) {
         return (
             <div className="max-w-4xl mx-auto p-6">
@@ -2738,13 +2602,30 @@ const EmployeeCommutingForm = () => {
                         <p className="text-gray-600 mb-8">
                             Your employee commuting data for {reportingYear} has been successfully submitted.
                         </p>
+                        <div className="mt-6 p-4 bg-blue-50 rounded-lg inline-block">
+                            <p className="text-blue-700 font-medium">
+                                Redirecting to login page in 3 seconds...
+                            </p>
+                            <div className="mt-2 flex justify-center space-x-1">
+                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <Button
+                                text="Go to Login Now"
+                                className="bg-blue-500 hover:bg-blue-600 text-white"
+                                onClick={() => window.location.href = '/'}
+                            />
+                        </div>
                     </div>
                 </Card>
             </div>
         );
     }
 
-    // 3. Then, show authentication error if no token
+    // 3. Show authentication error if no token
     if (!token && !urlToken && !getToken()) {
         return (
             <div className="max-w-6xl mx-auto p-6">
@@ -2758,9 +2639,9 @@ const EmployeeCommutingForm = () => {
                             Please access this form with a valid token in the URL.
                         </p>
                         <Button
-                            text="Retry Authentication"
+                            text="Go to Login"
                             className="bg-blue-500 hover:bg-blue-600 text-white"
-                            onClick={() => window.location.reload()}
+                            onClick={() => window.location.href = '/'}
                         />
                     </div>
                 </Card>
@@ -3520,15 +3401,21 @@ const EmployeeCommutingForm = () => {
                                     </div>
                                     <ErrorMessage message={errors.carDistance} />
                                 </div>
-                                <div className="col-span-2">
+                                <div className="col-span-3">
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Car Type
                                     </label>
-                                    <CustomSelect
+                                    {/* <CustomSelect
                                         options={transportationOptions.carTypes}
                                         value={formData.carType}
                                         placeholder="Select Type"
                                         onChange={(selectedOption) => handleSelectChange('carType', selectedOption)}
+                                    /> */}
+                                    <CustomSelect
+                                        options={carTypeOptions}
+                                        value={formData.carType}
+                                        placeholder="Select Type"
+                                        onChange={handleCarTypeChange}
                                     />
                                     <ErrorMessage message={errors.carType} />
                                 </div>
@@ -3536,12 +3423,22 @@ const EmployeeCommutingForm = () => {
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Car Fuel Type
                                     </label>
-                                    <CustomSelect
+                                    {/* <CustomSelect
                                         options={transportationOptions.fuelTypes}
                                         value={formData.carFuelType}
                                         placeholder="Select Type"
                                         onChange={(selectedOption) => handleSelectChange('carFuelType', selectedOption)}
+                                    /> */}
+                                    <CustomSelect
+                                        options={getFuelOptionsByCarType(formData.carType?.value)}
+                                        value={formData.carFuelType}
+                                        placeholder="Select Fuel Type"
+                                        onChange={(selectedOption) =>
+                                            handleSelectChange("carFuelType", selectedOption)
+                                        }
+                                        isDisabled={!formData.carType}
                                     />
+
                                     <ErrorMessage message={errors.carFuelType} />
                                 </div>
                             </div>
@@ -3639,7 +3536,7 @@ const EmployeeCommutingForm = () => {
                                     max="40"
                                     placeholder="e.g., 8, 20, 40"
                                     value={formData.fteWorkingHours}
-                                    onChange={(value) => handleSelectChange("qualityControl", value)}
+                                    onChange={(e) => handleInputChange('fteWorkingHours', e.target.value)}
                                     required
                                     helperText="Full-Time Equivalent working hours (typically 8 hours per day)"
                                 />
