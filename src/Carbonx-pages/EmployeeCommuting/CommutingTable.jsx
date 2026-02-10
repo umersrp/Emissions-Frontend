@@ -24,7 +24,7 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref)
 const EMISSION_FACTORS = {
     // Cars by size and fuel type
     cars: {
-        "Small car - Petrol/LPG/CNG - up to a 1.4-litre engine": {
+        "Small car - Petrol/LPG/CNG - up to 1.4-litre engine. Diesel - up to a 1.7-litre engine. Others - vehicles models of a similar size (i.e. market segment A or B)": {
             Diesel: 0.14340,
             Petrol: 0.14308,
             Hybrid: 0.11413,
@@ -34,7 +34,7 @@ const EMISSION_FACTORS = {
             "Plug-in Hybrid Electric Vehicle": 0.05669,
             "Battery Electric Vehicle": 0.03688
         },
-        "Medium car - Petrol/LPG/CNG - from 1.4-litre to 2.0-litre engine": {
+        "Medium car - Petrol/LPG/CNG - from 1.4-litre to 2.0-litre engine. Diesel - from 1.7-litre to 2.0-litre engine. Others - vehicles models of a similar size (i.e. generally market segment C)": {
             Diesel: 0.17174,
             Petrol: 0.17474,
             Hybrid: 0.11724,
@@ -44,7 +44,7 @@ const EMISSION_FACTORS = {
             "Plug-in Hybrid Electric Vehicle": 0.08820,
             "Battery Electric Vehicle": 0.03882
         },
-        "Large car - Petrol/LPG/CNG - 2.0-litre engine (+)": {
+        "Large car - Petrol/LPG/CNG - 2.0-litre engine (+) . Diesel - 2.0-litre engine (+). Others - vehicles models of a similar size (i.e. generally market segment D and above)": {
             Diesel: 0.21007,
             Petrol: 0.26828,
             Hybrid: 0.15650,
@@ -54,7 +54,7 @@ const EMISSION_FACTORS = {
             "Plug-in Hybrid Electric Vehicle": 0.11430,
             "Battery Electric Vehicle": 0.04205
         },
-        "Average car - Unknown engine size": {
+        "Average car - Unknown engine size.": {
             Diesel: 0.17304,
             Petrol: 0.16272,
             Hybrid: 0.12825,
@@ -79,7 +79,7 @@ const EMISSION_FACTORS = {
             "Plug-in Hybrid Electric Vehicle": 0.12510,
             "Battery Electric Vehicle": 0.04902
         },
-        "Sports - High Performance - High Speed Vehicles (2000 cc - 4000 cc+)": {
+        "Sports - High Performance - High Speed Vehicles ( 2000 cc - 4000 cc+)": {
             Diesel: 0.17323,
             Petrol: 0.23396,
             Unknown: 0.22400,
@@ -93,7 +93,7 @@ const EMISSION_FACTORS = {
             "Plug-in Hybrid Electric Vehicle": 0.11663,
             "Battery Electric Vehicle": 0.04228
         },
-        "MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace, Suzuki APV, Vans etc.)": {
+        "MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace,Suzuki APV, Vans etc.)  - Passenger or Transport Vehicle (1200 cc - 2000 cc)": {
             Diesel: 0.18072,
             Petrol: 0.17903,
             Unknown: 0.18030,
@@ -134,7 +134,6 @@ const EMISSION_FACTORS = {
         "Electric bus": 0.03688, // Using Small car BEV as proxy
         "Private bus": 0.12525, // Using Local Bus as proxy
         "Local Bus": 0.12525,
-        "Express Bus": 0.06875,
         "Electric Bus": 0.03688,
         "Private Company Bus": 0.12525
     },

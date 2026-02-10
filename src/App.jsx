@@ -242,6 +242,7 @@ import UserViewPage from "./pages/utility/userView";
 import EmailSent from "./Carbonx-pages/Emailsent/EmailSent";
 import CommutingTable from "./Carbonx-pages/EmployeeCommuting/CommutingTable";
 import EmailReportListing from "./Carbonx-pages/ScopeThree/EmailReport/Email-Report-Listing";
+import FormSubmittedSuccessfully from "./components/ui/FormSubmittedSuccessfully";
 
 
 
@@ -264,6 +265,8 @@ function App() {
           <Route path="/lock-screen2" element={<LockScreen2 />} />
           <Route path="/lock-screen3" element={<LockScreen3 />} />
           <Route path="AddfromEmployee" element={<EmployeeCommutingForm />} />
+          <Route path="/formSubmittedSuccessfully" element={<FormSubmittedSuccessfully />} />
+          
 
         </Route>
         <Route path="/*" element={<Layout />}>
