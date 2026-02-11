@@ -298,172 +298,182 @@ const EmailSent = () => {
             toast.success(`✓ Exceeded minimum requirement by ${emailCount - Number(formData.minEmployeesRequired)} employees!`);
         }
     }, [emailCount, formData.minEmployeesRequired]);
- const validateForm = () => {
-    const newErrors = {};
 
-    // Employee Information
-    if (!formData.totalEmployees || Number(formData.totalEmployees) <= 0) {
-        newErrors.totalEmployees = "Total number of employees must be greater than 0";
-    }
 
-    // Validate that Minimum Employees Required is not greater than Total Employees
-    if (formData.totalEmployees && formData.minEmployeesRequired) {
-        const total = Number(formData.totalEmployees);
-        const minRequired = Number(formData.minEmployeesRequired);
+    const validateForm = () => {
+        const newErrors = {};
 
-        if (minRequired > total) {
-            newErrors.minEmployeesRequired = `Minimum required cannot exceed total employees`;
-        }
-    }
-
-    // Validate selected employees count
-    if (formData.selectedEmployees.length === 0) {
-        newErrors.selectedEmployees = "At least one employee must be selected";
-    } else {
-        const selectedCount = formData.selectedEmployees.length;
-        const total = Number(formData.totalEmployees);
-        const minRequired = Number(formData.minEmployeesRequired);
-
-        // Validate selected count is at least minimum required
-        if (selectedCount < minRequired) {
-            newErrors.selectedEmployees = `Minimum ${minRequired} employees required. Currently selected ${selectedCount}.`;
+        // Employee Information
+        if (!formData.totalEmployees || Number(formData.totalEmployees) <= 0) {
+            newErrors.totalEmployees = "Total number of employees must be greater than 0";
         }
 
-        // Validate selected count does not exceed total employees
-        if (total > 0 && selectedCount > total) {
-            newErrors.selectedEmployees = `Cannot select more than ${total} employees (Currently: ${selectedCount})`;
+        // Validate that Minimum Employees Required is not greater than Total Employees
+        if (formData.totalEmployees && formData.minEmployeesRequired) {
+            const total = Number(formData.totalEmployees);
+            const minRequired = Number(formData.minEmployeesRequired);
+
+            if (minRequired > total) {
+                newErrors.minEmployeesRequired = `Minimum required cannot exceed total employees`;
+            }
         }
-    }
 
-    // Dates
-    if (!formData.startDateTime) newErrors.startDateTime = "Start date and time is required";
-    if (!formData.endDateTime) newErrors.endDateTime = "End date and time is required";
-
-    if (formData.startDateTime && formData.endDateTime && new Date(formData.endDateTime) <= new Date(formData.startDateTime)) {
-        newErrors.endDateTime = "End date must be after start date";
-    }
-
-    // Form Link
-    if (!formData.formLink.trim()) newErrors.formLink = "Form link is required";
-    else if (!formData.formLink.startsWith('http')) newErrors.formLink = "Please enter a valid URL";
-
-    // Email Subject
-    if (!formData.subject.trim()) newErrors.subject = "Email subject is required";
-
-    // Total Reminders validation
-    const totalReminders = Number(formData.totalReminders);
-    if (isNaN(totalReminders) || totalReminders <= 0) {
-        newErrors.totalReminders = "Total number of reminders must be greater than 0";
-    } else if (totalReminders > 3) {
-        newErrors.totalReminders = "Maximum 3 reminders allowed";
-    }
-
-    // NEW: Interval validation when toggle is ON
-    if (showReminderDates && totalReminders > 0 && totalReminders <= 3) {
-        // Validate that startDateTime exists (since it's now the reminder start)
-        if (!formData.startDateTime) {
-            newErrors.startDateTime = "Data collection start date and time is required for reminders";
+        // Validate selected employees count
+        if (formData.selectedEmployees.length === 0) {
+            newErrors.selectedEmployees = "At least one employee must be selected";
         } else {
-            const reminderStart = new Date(formData.startDateTime); // Use startDateTime
-            const dataStart = new Date(formData.startDateTime);
-            const dataEnd = new Date(formData.endDateTime);
+            const selectedCount = formData.selectedEmployees.length;
+            const total = Number(formData.totalEmployees);
+            const minRequired = Number(formData.minEmployeesRequired);
 
-            // Validate that start is within data collection period
-            if (reminderStart > dataEnd) {
-                newErrors.startDateTime = "Reminder start should be before data collection end";
+            // Validate selected count is at least minimum required
+            if (selectedCount < minRequired) {
+                newErrors.selectedEmployees = `Minimum ${minRequired} employees required. Currently selected ${selectedCount}.`;
+            }
+
+            // Validate selected count does not exceed total employees
+            if (total > 0 && selectedCount > total) {
+                newErrors.selectedEmployees = `Cannot select more than ${total} employees (Currently: ${selectedCount})`;
             }
         }
 
-        if (!formData.intervalType) {
-            newErrors.intervalType = "Please select interval type (hours or days)";
+        // Dates
+        if (!formData.startDateTime) newErrors.startDateTime = "Start date and time is required";
+        if (!formData.endDateTime) newErrors.endDateTime = "End date and time is required";
+
+        if (formData.startDateTime && formData.endDateTime && new Date(formData.endDateTime) <= new Date(formData.startDateTime)) {
+            newErrors.endDateTime = "End date must be after start date";
         }
 
-        if (!formData.intervalValue || Number(formData.intervalValue) <= 0) {
-            newErrors.intervalValue = `Please enter a valid ${formData.intervalType || ''} interval`;
+        // Form Link
+        if (!formData.formLink.trim()) newErrors.formLink = "Form link is required";
+        else if (!formData.formLink.startsWith('http')) newErrors.formLink = "Please enter a valid URL";
+
+        // Email Subject
+        // if (!formData.subject.trim()) newErrors.subject = "Email subject is required";
+        if (!displayText.trim()) {  //  Changed from formData.subject to displayText
+            newErrors.displayText = "Email subject is required";
         }
 
-        // Validate that all reminders fit within the collection period
+        // Email Message Body (the textarea content)
+        if (!formData.subject.trim()) {  //  This is the message body
+            newErrors.subject = "Email message body is required";
+        }
+
+        // Total Reminders validation
+        const totalReminders = Number(formData.totalReminders);
+        if (isNaN(totalReminders) || totalReminders <= 0) {
+            newErrors.totalReminders = "Total number of reminders must be greater than 0";
+        } else if (totalReminders > 3) {
+            newErrors.totalReminders = "Maximum 3 reminders allowed";
+        }
+
+        // NEW: Interval validation when toggle is ON
+        if (showReminderDates && totalReminders > 0 && totalReminders <= 3) {
+            // Validate that startDateTime exists (since it's now the reminder start)
+            if (!formData.startDateTime) {
+                newErrors.startDateTime = "Data collection start date and time is required for reminders";
+            } else {
+                const reminderStart = new Date(formData.startDateTime); // Use startDateTime
+                const dataStart = new Date(formData.startDateTime);
+                const dataEnd = new Date(formData.endDateTime);
+
+                // Validate that start is within data collection period
+                if (reminderStart > dataEnd) {
+                    newErrors.startDateTime = "Reminder start should be before data collection end";
+                }
+            }
+
+            if (!formData.intervalType) {
+                newErrors.intervalType = "Please select interval type (hours or days)";
+            }
+
+            if (!formData.intervalValue || Number(formData.intervalValue) <= 0) {
+                newErrors.intervalValue = `Please enter a valid ${formData.intervalType || ''} interval`;
+            }
+
+            // Validate that all reminders fit within the collection period
+            // USING startDateTime instead of reminderStartDateTime
+            if (formData.startDateTime && formData.endDateTime && formData.intervalValue) {
+                const interval = Number(formData.intervalValue);
+                const startDate = new Date(formData.startDateTime); // Use startDateTime
+                const endDate = new Date(formData.endDateTime);
+
+                if (formData.intervalType === "hours") {
+                    const totalHoursNeeded = totalReminders * interval;
+                    const maxHours = (endDate - startDate) / (1000 * 60 * 60);
+                    if (totalHoursNeeded > maxHours) {
+                        newErrors.intervalValue = `Interval too large. With ${totalReminders} reminders, maximum interval is ${Math.floor(maxHours / totalReminders)} hours`;
+                    }
+                } else {
+                    const totalDaysNeeded = totalReminders * interval;
+                    const maxDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
+                    if (totalDaysNeeded > maxDays) {
+                        newErrors.intervalValue = `Interval too large. With ${totalReminders} reminders, maximum interval is ${Math.floor(maxDays / totalReminders)} days`;
+                    }
+                }
+            }
+        }
+
+        // Reminder Subject
+        if (!formData.reminderSubject.trim()) {
+            newErrors.reminderSubject = "Reminder subject is required";
+        }
+
+        // Reminder Message Body
+        if (!formData.reminderMessageBody.trim()) {
+            newErrors.reminderMessageBody = "Reminder message body is required";
+        }
+
+        return newErrors;
+    };
+
+    const parseReminderDates = (datesString) => {
+        // If using interval-based reminders
         // USING startDateTime instead of reminderStartDateTime
-        if (formData.startDateTime && formData.endDateTime && formData.intervalValue) {
+        if (showReminderDates && formData.totalReminders > 0 && formData.totalReminders <= 3 &&
+            formData.intervalValue && formData.intervalType && formData.startDateTime) { // CHANGED to startDateTime
+
+            const dates = [];
             const interval = Number(formData.intervalValue);
-            const startDate = new Date(formData.startDateTime); // Use startDateTime
-            const endDate = new Date(formData.endDateTime);
+            const startDate = new Date(formData.startDateTime); // CHANGED to startDateTime
 
-            if (formData.intervalType === "hours") {
-                const totalHoursNeeded = totalReminders * interval;
-                const maxHours = (endDate - startDate) / (1000 * 60 * 60);
-                if (totalHoursNeeded > maxHours) {
-                    newErrors.intervalValue = `Interval too large. With ${totalReminders} reminders, maximum interval is ${Math.floor(maxHours / totalReminders)} hours`;
+            for (let i = 1; i <= formData.totalReminders; i++) {
+                let reminderDate;
+                if (formData.intervalType === "hours") {
+                    reminderDate = new Date(startDate.getTime() + (i * interval * 60 * 60 * 1000));
+                } else {
+                    reminderDate = new Date(startDate.getTime() + (i * interval * 24 * 60 * 60 * 1000));
                 }
-            } else {
-                const totalDaysNeeded = totalReminders * interval;
-                const maxDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
-                if (totalDaysNeeded > maxDays) {
-                    newErrors.intervalValue = `Interval too large. With ${totalReminders} reminders, maximum interval is ${Math.floor(maxDays / totalReminders)} days`;
+
+                // Only add reminders that are before or equal to end date
+                if (!formData.endDateTime || reminderDate <= new Date(formData.endDateTime)) {
+                    dates.push(reminderDate.toISOString());
                 }
             }
+            return dates;
         }
-    }
 
-    // Reminder Subject
-    if (!formData.reminderSubject.trim()) {
-        newErrors.reminderSubject = "Reminder subject is required";
-    }
-
-    // Reminder Message Body
-    if (!formData.reminderMessageBody.trim()) {
-        newErrors.reminderMessageBody = "Reminder message body is required";
-    }
-
-    return newErrors;
-};
-
-const parseReminderDates = (datesString) => {
-    // If using interval-based reminders
-    // USING startDateTime instead of reminderStartDateTime
-    if (showReminderDates && formData.totalReminders > 0 && formData.totalReminders <= 3 &&
-        formData.intervalValue && formData.intervalType && formData.startDateTime) { // CHANGED to startDateTime
-
-        const dates = [];
-        const interval = Number(formData.intervalValue);
-        const startDate = new Date(formData.startDateTime); // CHANGED to startDateTime
-
-        for (let i = 1; i <= formData.totalReminders; i++) {
-            let reminderDate;
-            if (formData.intervalType === "hours") {
-                reminderDate = new Date(startDate.getTime() + (i * interval * 60 * 60 * 1000));
-            } else {
-                reminderDate = new Date(startDate.getTime() + (i * interval * 24 * 60 * 60 * 1000));
+        // Fallback to old method (individual date fields)
+        if (showReminderDates && formData.totalReminders > 0 && formData.totalReminders <= 3) {
+            const dates = [];
+            for (let i = 1; i <= formData.totalReminders; i++) {
+                const dateValue = formData[`reminderDate${i}`];
+                if (dateValue && dateValue.trim()) {
+                    dates.push(new Date(dateValue).toISOString());
+                }
             }
-
-            // Only add reminders that are before or equal to end date
-            if (!formData.endDateTime || reminderDate <= new Date(formData.endDateTime)) {
-                dates.push(reminderDate.toISOString());
-            }
+            return dates;
         }
-        return dates;
-    }
 
-    // Fallback to old method (individual date fields)
-    if (showReminderDates && formData.totalReminders > 0 && formData.totalReminders <= 3) {
-        const dates = [];
-        for (let i = 1; i <= formData.totalReminders; i++) {
-            const dateValue = formData[`reminderDate${i}`];
-            if (dateValue && dateValue.trim()) {
-                dates.push(new Date(dateValue).toISOString());
-            }
-        }
-        return dates;
-    }
-
-    // Fallback to string parsing
-    if (!datesString) return [];
-    return datesString
-        .split(",")
-        .map((d) => d.trim())
-        .filter(Boolean)
-        .map((dateStr) => new Date(dateStr).toISOString());
-};
+        // Fallback to string parsing
+        if (!datesString) return [];
+        return datesString
+            .split(",")
+            .map((d) => d.trim())
+            .filter(Boolean)
+            .map((dateStr) => new Date(dateStr).toISOString());
+    };
 
     // Send Email Handler
     const handleSendEmail = async () => {
@@ -516,7 +526,9 @@ const parseReminderDates = (datesString) => {
 
                 startDateTime: formData.startDateTime,
                 endDateTime: formData.endDateTime,
-                subject: formData.subject,
+                // subject: formData.subject,
+                subject: displayText || formData.subject,
+                messageBody: formData.subject, // This is the textarea content
                 formLink: formData.formLink,
                 totalReminders: Number(formData.totalReminders),
                 reminderDates: parseReminderDates(formData.reminderDates),
@@ -720,7 +732,7 @@ const parseReminderDates = (datesString) => {
                                 <span className="text-green-600">
                                     ✓ {formData.selectedEmployees.length} of {formData.totalEmployees || '?'} employees selected
                                     {formData.selectedEmployees.length > Number(formData.minEmployeesRequired) &&
-                                       ``}
+                                        ``}
                                 </span>
                             ) : (
                                 <span className="text-yellow-600">
@@ -856,12 +868,12 @@ const parseReminderDates = (datesString) => {
 
                             {/* Main textarea */}
                             <textarea
-                               placeholder={
-    "Dear Employee,\n\n" +
-    "As part of our sustainability reporting, you are requested to complete the Employee Commuting Data Form provided below.\n" +
-    "Please submit your response within the data collection period mentioned.\n" +
-    "Thank you for your cooperation."
-  }
+                                placeholder={
+                                    "Dear Employee,\n\n" +
+                                    "As part of our sustainability reporting, you are requested to complete the Employee Commuting Data Form provided below.\n" +
+                                    "Please submit your response within the data collection period mentioned.\n" +
+                                    "Thank you for your cooperation."
+                                }
                                 value={formData.subject}
                                 onChange={(e) => handleInputChange("subject", e.target.value)}
                                 onClick={(e) => {
@@ -964,116 +976,116 @@ const parseReminderDates = (datesString) => {
                         </div>
                     </div>
                     {/* Dynamic reminder interval fields when toggle is ON */}
-                  {/* Dynamic reminder interval fields when toggle is ON */}
-{showReminderDates && (
-    <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-        <h4 className="text-md font-medium text-gray-700 mb-3">Reminder Interval Configuration</h4>
-        
-        {/* Show info about when reminders will start */}
-        <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
-            <h5 className="text-sm font-medium text-blue-800 mb-1">Reminder Start Information:</h5>
-            <p className="text-sm text-blue-600">
-                Reminders will start from the <span className="font-semibold">Data Collection Start Date & Time</span>.
-            </p>
-            {formData.startDateTime && (
-                <p className="text-sm text-green-600 mt-1">
-                    ✓ Set to: {new Date(formData.startDateTime).toLocaleString()}
-                </p>
-            )}
-            {!formData.startDateTime && (
-                <p className="text-sm text-amber-600 mt-1">
-                    ⚠ Please set the Data Collection Start Date & Time first
-                </p>
-            )}
-        </div>
+                    {/* Dynamic reminder interval fields when toggle is ON */}
+                    {showReminderDates && (
+                        <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                            <h4 className="text-md font-medium text-gray-700 mb-3">Reminder Interval Configuration</h4>
 
-        {/* Interval Type Radio Buttons */}
-        <div className="mb-4">
-            <label className="field-label mb-2">Interval Type</label>
-            <div className="flex gap-6">
-                <label className="flex items-center">
-                    <input
-                        type="radio"
-                        name="intervalType"
-                        value="hours"
-                        checked={formData.intervalType === "hours"}
-                        onChange={(e) => handleInputChange("intervalType", e.target.value)}
-                        className="mr-2"
-                    />
-                    <span>Hours</span>
-                </label>
-                <label className="flex items-center">
-                    <input
-                        type="radio"
-                        name="intervalType"
-                        value="days"
-                        checked={formData.intervalType === "days"}
-                        onChange={(e) => handleInputChange("intervalType", e.target.value)}
-                        className="mr-2"
-                    />
-                    <span>Days</span>
-                </label>
-            </div>
-            <ErrorMessage message={errors.intervalType} />
-        </div>
+                            {/* Show info about when reminders will start */}
+                            <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
+                                <h5 className="text-sm font-medium text-blue-800 mb-1">Reminder Start Information:</h5>
+                                <p className="text-sm text-blue-600">
+                                    Reminders will start from the <span className="font-semibold">Data Collection Start Date & Time</span>.
+                                </p>
+                                {formData.startDateTime && (
+                                    <p className="text-sm text-green-600 mt-1">
+                                        ✓ Set to: {new Date(formData.startDateTime).toLocaleString()}
+                                    </p>
+                                )}
+                                {!formData.startDateTime && (
+                                    <p className="text-sm text-amber-600 mt-1">
+                                        ⚠ Please set the Data Collection Start Date & Time first
+                                    </p>
+                                )}
+                            </div>
 
-        {/* Interval Value Input */}
-        <div>
-            <label className="field-label">
-                Interval Between Reminders
-                {formData.intervalType === "hours" ? " (in hours)" : " (in days)"}
-            </label>
-            <InputGroup
-                type="number"
-                placeholder={formData.intervalType === "hours" ? "e.g., 2, 4, 6" : "e.g., 1, 2, 3"}
-                value={formData.intervalValue || ""}
-                onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    if (!isNaN(value) && value > 0) {
-                        handleInputChange("intervalValue", value);
-                    } else {
-                        handleInputChange("intervalValue", "");
-                    }
-                }}
-                helperText={`Enter number of ${formData.intervalType === "hours" ? "hours" : "days"} between each reminder`}
-                min="1"
-            />
-            <ErrorMessage message={errors.intervalValue} />
-        </div>
+                            {/* Interval Type Radio Buttons */}
+                            <div className="mb-4">
+                                <label className="field-label mb-2">Interval Type</label>
+                                <div className="flex gap-6">
+                                    <label className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="intervalType"
+                                            value="hours"
+                                            checked={formData.intervalType === "hours"}
+                                            onChange={(e) => handleInputChange("intervalType", e.target.value)}
+                                            className="mr-2"
+                                        />
+                                        <span>Hours</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="intervalType"
+                                            value="days"
+                                            checked={formData.intervalType === "days"}
+                                            onChange={(e) => handleInputChange("intervalType", e.target.value)}
+                                            className="mr-2"
+                                        />
+                                        <span>Days</span>
+                                    </label>
+                                </div>
+                                <ErrorMessage message={errors.intervalType} />
+                            </div>
 
-        {/* Preview of reminder schedule - Using startDateTime now */}
-        {formData.intervalValue && formData.startDateTime && (
-            <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
-                <h5 className="text-sm font-medium text-blue-800 mb-2">Reminder Schedule Preview:</h5>
-                <p className="text-xs text-blue-600 mb-2">
-                    Starting from: {new Date(formData.startDateTime).toLocaleString()}
-                </p>
-                {Array.from({ length: formData.totalReminders }, (_, index) => {
-                    const reminderNumber = index + 1;
-                    const interval = parseInt(formData.intervalValue);
-                    const startDate = new Date(formData.startDateTime); // Use startDateTime
-                    let reminderDate;
+                            {/* Interval Value Input */}
+                            <div>
+                                <label className="field-label">
+                                    Interval Between Reminders
+                                    {formData.intervalType === "hours" ? " (in hours)" : " (in days)"}
+                                </label>
+                                <InputGroup
+                                    type="number"
+                                    placeholder={formData.intervalType === "hours" ? "e.g., 2, 4, 6" : "e.g., 1, 2, 3"}
+                                    value={formData.intervalValue || ""}
+                                    onChange={(e) => {
+                                        const value = parseInt(e.target.value);
+                                        if (!isNaN(value) && value > 0) {
+                                            handleInputChange("intervalValue", value);
+                                        } else {
+                                            handleInputChange("intervalValue", "");
+                                        }
+                                    }}
+                                    helperText={`Enter number of ${formData.intervalType === "hours" ? "hours" : "days"} between each reminder`}
+                                    min="1"
+                                />
+                                <ErrorMessage message={errors.intervalValue} />
+                            </div>
 
-                    if (formData.intervalType === "hours") {
-                        reminderDate = new Date(startDate.getTime() + (reminderNumber * interval * 60 * 60 * 1000));
-                    } else {
-                        reminderDate = new Date(startDate.getTime() + (reminderNumber * interval * 24 * 60 * 60 * 1000));
-                    }
+                            {/* Preview of reminder schedule - Using startDateTime now */}
+                            {formData.intervalValue && formData.startDateTime && (
+                                <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
+                                    <h5 className="text-sm font-medium text-blue-800 mb-2">Reminder Schedule Preview:</h5>
+                                    <p className="text-xs text-blue-600 mb-2">
+                                        Starting from: {new Date(formData.startDateTime).toLocaleString()}
+                                    </p>
+                                    {Array.from({ length: formData.totalReminders }, (_, index) => {
+                                        const reminderNumber = index + 1;
+                                        const interval = parseInt(formData.intervalValue);
+                                        const startDate = new Date(formData.startDateTime); // Use startDateTime
+                                        let reminderDate;
 
-                    // Check if reminder is after end date
-                    const isAfterEnd = formData.endDateTime && reminderDate > new Date(formData.endDateTime);
+                                        if (formData.intervalType === "hours") {
+                                            reminderDate = new Date(startDate.getTime() + (reminderNumber * interval * 60 * 60 * 1000));
+                                        } else {
+                                            reminderDate = new Date(startDate.getTime() + (reminderNumber * interval * 24 * 60 * 60 * 1000));
+                                        }
 
-                    return (
-                        <div key={index} className={`text-sm ${isAfterEnd ? 'text-red-600' : 'text-blue-700'}`}>
-                            {reminderNumber}{getOrdinalSuffix(reminderNumber)} reminder: {reminderDate.toLocaleString()}
-                            {isAfterEnd && " ⚠ (After data collection end)"}
+                                        // Check if reminder is after end date
+                                        const isAfterEnd = formData.endDateTime && reminderDate > new Date(formData.endDateTime);
+
+                                        return (
+                                            <div key={index} className={`text-sm ${isAfterEnd ? 'text-red-600' : 'text-blue-700'}`}>
+                                                {reminderNumber}{getOrdinalSuffix(reminderNumber)} reminder: {reminderDate.toLocaleString()}
+                                                {isAfterEnd && " ⚠ (After data collection end)"}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
-                    );
-                })}
-            </div>
-        )}
-    </div>
-)}
+                    )}
 
                     <h3 className="text-lg font-medium text-gray-700 mb-4">Reminder Email Configuration</h3>
                     <div className="mb-4">
@@ -1099,10 +1111,10 @@ const parseReminderDates = (datesString) => {
                             {/* Main textarea */}
                             <textarea
                                 placeholder={
-"Dear Employee,\n\n" +                                
-"This is a kind reminder to please complete the Employee Commuting Data Form if you have not yet submitted your response.\n"+
-"Your participation is important for our sustainability reporting.\n"+
-"Kindly ensure that you submit the form before the closing date."}
+                                    "Dear Employee,\n\n" +
+                                    "This is a kind reminder to please complete the Employee Commuting Data Form if you have not yet submitted your response.\n" +
+                                    "Your participation is important for our sustainability reporting.\n" +
+                                    "Kindly ensure that you submit the form before the closing date."}
                                 value={formData.reminderMessageBody}
                                 onChange={(e) => handleInputChange("reminderMessageBody", e.target.value)}
                                 onClick={(e) => {
