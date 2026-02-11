@@ -1,34 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
 
 const FormSubmittedSuccessfully = () => {
-    const location = useLocation();
-    const [formData, setFormData] = useState(null);
-    // Removed: const [countdown, setCountdown] = useState(10);
-
-    useEffect(() => {
-        // Get data passed from the form
-        if (location.state) {
-            setFormData(location.state);
-        }
-
-    }, [location.state]); // Removed 'navigate' from dependencies
-
-
-
-    const getFormTypeText = () => {
-        if (!formData?.formType) return 'Form';
-        
-        const formTypes = {
-            'employee-commuting': 'Employee Commuting Data',
-            'business-travel': 'Business Travel Data',
-            'purchased-goods': 'Purchased Goods Data',
-            'fuel-energy': 'Fuel and Energy Data'
-        };
-        
-        return formTypes[formData.formType] || 'Form';
-    };
-
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
             <div className="max-w-2xl w-full">
@@ -57,49 +31,18 @@ const FormSubmittedSuccessfully = () => {
                             Submission Successful!
                         </h1>
                         
-                        <p className="text-lg text-gray-700 mb-2">
-                            Your {getFormTypeText()} has been successfully submitted.
+                        <p className="text-lg text-gray-700 mb-6">
+                            Your form has been successfully submitted.
                         </p>
-                        
-                        {formData?.reportingYear && (
-                            <p className="text-gray-600 mb-6">
-                                Reporting Year: <span className="font-semibold">{formData.reportingYear}</span>
-                            </p>
-                        )}
 
                         {/* Confirmation Details */}
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                        <div className="bg-green-600 border border-blue-200 rounded-lg p-6 mb-8">
                             <div className="space-y-3">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600">Status:</span>
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                        <svg className="mr-1.5 h-2 w-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
-                                            <circle cx="4" cy="4" r="3" />
-                                        </svg>
-                                        Submitted Successfully
-                                    </span>
-                                </div>
-                                
-                                {formData?.submissionTime && (
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-gray-600">Submission Time:</span>
-                                        <span className="font-medium text-gray-800">
-                                            {new Date(formData.submissionTime).toLocaleString()}
-                                        </span>
-                                    </div>
-                                )}
-                                
-                                {formData?.userInfo?.name && (
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-gray-600">Submitted By:</span>
-                                        <span className="font-medium text-gray-800">
-                                            {formData.userInfo.name}
-                                        </span>
-                                    </div>
-                                )}
+                               <h1 className='text-white text-2xl'>Thank You</h1>
                             </div>
                         </div>
 
+                       
 
                     </div>
                 </Card>
