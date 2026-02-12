@@ -1301,7 +1301,7 @@ const customFormatter = (value, column, row, index) => {
               columns={COLUMNS}
               fileName="stationary_combustion_records"
               sheetName="Stationary Combustion"
-              buttonText="Export to Excel"
+              buttonText="Export"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
               successMessage="Stationary records exported successfully!"
               customFormatter={customFormatter} 
@@ -1311,7 +1311,7 @@ const customFormatter = (value, column, row, index) => {
 
             <Button
               icon={isUploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
-              text={isUploading ? "Uploading..." : "Bulk Upload CSV"}
+              text={isUploading ? "Uploading..." : "Import"}
               className="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
               iconClass={isUploading ? "text-lg animate-spin" : "text-lg"}
               onClick={handleBulkUploadClick}

@@ -987,7 +987,7 @@ const MobileCombustionListing = () => {
             {/* NEW: Bulk Upload CSV Button */}
             <Button
               icon="heroicons:document-arrow-up"
-              text="Bulk Upload CSV"
+              text="Import"
               className="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
               iconClass="text-lg"
               onClick={() => setBulkUploadModalOpen(true)}
