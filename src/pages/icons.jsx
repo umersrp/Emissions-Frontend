@@ -138,6 +138,7 @@ const icons = [
   { name: "heroicons:user-group", label: "Employee Commuting" },
   { name: "heroicons:arrow-down-tray", label: "Upstream Transportation & Distribution" },
   { name: "heroicons:arrow-up-tray", label: "Downstream Transportation & Distribution" },
+  { name: "heroicons:envelope", label: "Email" },
 
   { name: "heroicons:rectangle-stack" },
   { name: "heroicons:rocket-launch" },

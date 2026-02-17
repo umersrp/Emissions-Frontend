@@ -175,16 +175,6 @@ const UserPage = () => {
       Cell: ({ row, flatRows }) => <span>{flatRows.indexOf(row) + 1}</span>,
     },
     {
-      Header: "Username",
-      accessor: "username",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    {
-      Header: "Type",
-      accessor: "type",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-    {
       Header: "Name",
       accessor: "name",
       Cell: (row) => <span>{row?.cell?.value}</span>,
@@ -227,12 +217,6 @@ const UserPage = () => {
       accessor: "updatedAt",
      Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "N/A")
     },
-    {
-      Header: "Version",
-      accessor: "__v",
-      Cell: (row) => <span>{row?.cell?.value}</span>,
-    },
-   
     {
       Header: "Action",
       accessor: "_id",
@@ -331,19 +315,14 @@ const UserPage = () => {
         <div className="md:flex pb-6 items-center">
           <h6 className="flex-1 md:mb-0 ">Employee</h6>
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
-            {/* <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter} /> */}
-            {/* <Button
-              icon="heroicons-outline:calendar"
-              text="Select date"
-              className="btn-outline-secondary dark:border-slate-700 text-slate-600 btn-sm font-normal dark:text-slate-300"
+             <Button
+              text="Employee Email Record"
+              className="btn-dark font-normal btn-sm"
               iconClass="text-lg"
-            /> */}
-            {/* <Button
-              icon="heroicons-outline:filter"
-              text="Filter"
-              className="btn-outline-secondary dark:border-slate-700 text-slate-600 btn-sm font-normal dark:text-slate-300"
-              iconClass="text-lg"
-            /> */}
+              onClick={() => {
+                navigate("/Email-Reporting");
+              }}
+            />
             <Button
               icon="heroicons:plus"
               text="Add Employee"
