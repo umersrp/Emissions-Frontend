@@ -203,6 +203,12 @@ export const menuItems = [
     link: "Employee",
   },
   {
+    title: "Employee Email Record",
+    isHide: true,
+    icon: "heroicons:envelope",
+    link: "Email-Reporting",
+  },
+  {
     title: "Scope 1",
     icon: "heroicons-outline:home",
     isOpen: true,
@@ -274,7 +280,7 @@ export const menuItems = [
         childtitle: "Fuels and Energy Related Activities",
         childlink: "fuel-energy",
       },
-       {
+      {
         childtitle: "Waste Generated in Operations",
         childlink: "Waste-Generated",
       },
@@ -282,14 +288,11 @@ export const menuItems = [
         childtitle: "Business Travel",
         childlink: "Business-Travel",
       },//Email-Reporting
-      {
-        childtitle: "Email Reporting",
-        childlink: "Email-Reporting",
-      },
-      {
-        childtitle: "Employee Email Sent",
-        childlink: "EmailSent",
-      },
+
+      // {
+      //   childtitle: "Employee Email Sent",
+      //   childlink: "EmailSent",
+      // },
       {
         childtitle: "Employee Commuting",
         childlink: "Commuting",

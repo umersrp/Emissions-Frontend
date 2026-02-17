@@ -886,76 +886,76 @@ const StationaryCombustionListing = () => {
   };
 
   // Custom formatter for export
-const customFormatter = (value, column, row, index) => {
-  // If value is already "N/A", keep it as "N/A"
-  if (value === "N/A") {
-    return "N/A";
-  }
-  
-  // Handle Sr.No specially
-  if (column.Header === "Sr.No" || column.id === "serialNo") {
-    return index + 1;
-  }
-  
-  // For buildingId.buildingName or buildingId.buildingCode that might be "N/A"
-  if (column.accessor === "buildingId.buildingName" || 
-      column.accessor === "buildingId.buildingCode") {
-    // If value is "N/A" or empty, return "N/A"
-    if (!value || value === "N/A") {
+  const customFormatter = (value, column, row, index) => {
+    // If value is already "N/A", keep it as "N/A"
+    if (value === "N/A") {
       return "N/A";
     }
-    // For buildingName, apply capitalizeLabel
-    if (column.accessor === "buildingId.buildingName") {
-      return capitalizeLabel(value);
+
+    // Handle Sr.No specially
+    if (column.Header === "Sr.No" || column.id === "serialNo") {
+      return index + 1;
     }
-    // For buildingCode, return as is
-    return value;
-  }
-  
-  // Handle other special cases
-  if (column.accessor === "stakeholder" ||
+
+    // For buildingId.buildingName or buildingId.buildingCode that might be "N/A"
+    if (column.accessor === "buildingId.buildingName" ||
+      column.accessor === "buildingId.buildingCode") {
+      // If value is "N/A" or empty, return "N/A"
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      // For buildingName, apply capitalizeLabel
+      if (column.accessor === "buildingId.buildingName") {
+        return capitalizeLabel(value);
+      }
+      // For buildingCode, return as is
+      return value;
+    }
+
+    // Handle other special cases
+    if (column.accessor === "stakeholder" ||
       column.accessor === "equipmentType" ||
       column.accessor === "fuelName") {
-    if (!value || value === "N/A") {
-      return "N/A";
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      return capitalizeLabel(value);
     }
-    return capitalizeLabel(value);
-  }
-  
-  if (column.accessor === "consumptionUnit") {
-    if (!value || value === "N/A") {
-      return "N/A";
+
+    if (column.accessor === "consumptionUnit") {
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      return formatUnitDisplay(value);
     }
-    return formatUnitDisplay(value);
-  }
-  
-  if (column.accessor === "postingDate") {
-    if (!value || value === "N/A") {
-      return "N/A";
+
+    if (column.accessor === "postingDate") {
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      try {
+        return new Date(value).toLocaleDateString('en-GB');
+      } catch {
+        return "Invalid Date";
+      }
     }
-    try {
-      return new Date(value).toLocaleDateString('en-GB');
-    } catch {
-      return "Invalid Date";
-    }
-  }
-  
-  // Handle numeric formatting for emission fields
-  if (column.accessor === "calculatedEmissionKgCo2e" || 
+
+    // Handle numeric formatting for emission fields
+    if (column.accessor === "calculatedEmissionKgCo2e" ||
       column.accessor === "calculatedEmissionTCo2e") {
-    if (!value || value === "N/A") {
-      return "N/A";
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      const numValue = Number(value);
+      if (isNaN(numValue)) {
+        return "N/A";
+      }
+      return numValue.toFixed(2);
     }
-    const numValue = Number(value);
-    if (isNaN(numValue)) {
-      return "N/A";
-    }
-    return numValue.toFixed(2);
-  }
-  
-  // For all other columns, return value or "N/A"
-  return value || "N/A";
-};
+
+    // For all other columns, return value or "N/A"
+    return value || "N/A";
+  };
 
   const fetchStationaryRecords = async (page = 1, search = "") => {
     setLoading(true);
@@ -1097,7 +1097,7 @@ const customFormatter = (value, column, row, index) => {
     resetUpload();
     setBulkUploadModalOpen(false);
   };
-  
+
   const templateInstructions = (
     <ol className="text-sm text-blue-700 space-y-1 list-decimal pl-4">
       <li>Download the template below</li>
@@ -1107,7 +1107,7 @@ const customFormatter = (value, column, row, index) => {
       <li>Review validation results and submit</li>
     </ol>
   );
-  
+
   // Modal new code start
   const { file, uploading, progress, validationErrors, results } = csvState;
   const fileInputRef = useRef(null);
@@ -1171,7 +1171,7 @@ const customFormatter = (value, column, row, index) => {
       },
       { Header: "Quality Control", accessor: "qualityControl" },
       {
-        Header: "Calculated Emissions (kgCO₂e)", 
+        Header: "Calculated Emissions (kgCO₂e)",
         accessor: "calculatedEmissionKgCo2e",
         Cell: ({ cell }) => {
           const rawValue = cell.value;
@@ -1204,7 +1204,7 @@ const customFormatter = (value, column, row, index) => {
       { Header: "Created By", accessor: "createdBy.name" },
       { Header: "Updated By", accessor: "updatedBy.name" },
       {
-        Header: "Posting Date", 
+        Header: "Posting Date",
         accessor: "postingDate",
         Cell: ({ cell }) => {
           if (!cell.value) return "N/A";
@@ -1293,7 +1293,17 @@ const customFormatter = (value, column, row, index) => {
           <h6 className="flex-1 md:mb-0">Stationary Combustion Records</h6>
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-
+            {records.length > 0 && (
+              <ExcelExportButton
+                data={records}
+                fileName="stationary_combustion_current_page"
+                sheetName="Current Page"
+                buttonText="Export Current Page"
+                buttonClassName="btn font-normal btn-sm btn-outline-primary"
+                exportFormat="current"
+                customFormatter={customFormatter}
+              />
+            )}
             {/* Reusable Excel Export Button */}
             <ExcelExportButton
               data={records}
@@ -1304,10 +1314,11 @@ const customFormatter = (value, column, row, index) => {
               buttonText="Export"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
               successMessage="Stationary records exported successfully!"
-              customFormatter={customFormatter} 
+              customFormatter={customFormatter}
               exportFormat="all" // Export all records
-               pageInfo={pagination} 
+              pageInfo={pagination}
             />
+
 
             <Button
               icon={isUploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
@@ -1538,19 +1549,9 @@ const customFormatter = (value, column, row, index) => {
                 </option>
               ))}
             </select>
-            
+
             {/* Optional: Add button to export current page */}
-            {records.length > 0 && (
-              <ExcelExportButton
-                data={records}
-                fileName="stationary_combustion_current_page"
-                sheetName="Current Page"
-                buttonText="Export Current Page"
-                buttonClassName="btn font-normal btn-sm btn-outline-primary"
-                exportFormat="current"
-                customFormatter={customFormatter}
-              />
-            )}
+
           </div>
         </div>
       </Card>
