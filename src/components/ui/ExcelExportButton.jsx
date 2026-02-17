@@ -314,52 +314,47 @@ const processExportData = (dataToExport, isAllData = false) => {
       srNo = ((pageInfo.currentPage - 1) * pageInfo.limit) + index + 1;
     }
     
-    // Always add Sr.No as first column
     exportRow["Sr.No"] = srNo;
     
     // Filter out columns that shouldn't be exported
     const exportColumns = columns.filter(col => 
       col.id !== "serialNo" && 
       col.Header !== "Actions" && 
-      col.accessor !== "_id" &&
+      col.accessor !== "__v" && // Explicitly exclude __v
       col.id !== "selection"
     );
     
     exportColumns.forEach(column => {
       let value;
       
-      // Handle nested accessors (e.g., "buildingId.buildingCode")
+      // Handle nested accessors
       if (column.accessor && typeof column.accessor === "string" && column.accessor.includes(".")) {
         const keys = column.accessor.split(".");
-        value = keys.reduce((obj, key) => {
-          if (obj === null || obj === undefined || obj === "") {
-            return undefined; // Stop if any level is null/undefined
-          }
-          return obj[key];
-        }, item);
+        value = keys.reduce((obj, key) => obj?.[key], item);
       } else if (column.accessor) {
         value = item[column.accessor];
       } else if (column.id) {
         value = item[column.id];
       }
       
-      // Get the header name
+      // Special handling for buildingId - show building name
+      if (column.accessor === "buildingId") {
+        value = item.buildingId?.buildingName || "N/A";
+      }
+      
       const header = column.Header || column.accessor || column.id;
       
       if (header) {
-        // Handle empty/undefined values BEFORE passing to formatter
-        if (value === null || value === undefined || value === "") {
-          value = "N/A";
-        }
-        
-        // Use customFormatter if provided
+        // Use customFormatter if provided, otherwise use default formatting
         if (customFormatter && typeof customFormatter === 'function') {
           value = customFormatter(value, column, item, index);
+          // If customFormatter returns null, skip this column
+          if (value === null) return;
         } else {
           value = formatValue(value, column);
         }
         
-        // Final safety check - if value is still empty, set to "N/A"
+        // Ensure empty values become "N/A"
         if (value === null || value === undefined || value === "") {
           value = "N/A";
         }

@@ -608,9 +608,9 @@ const useUpstreamCSVUpload = (buildings = []) => {
 
     const exampleRows = [
       // Purchased goods example with DD/MM/YYYY format
-      `BLD-1147,Assembly,purchasedGoods,rawMaterials,steel,freightFlights,shortHaul,100,500,,,Good,Steel shipment,17/02/2026`,
+      `BLD-1147,Assembly,purchasedGoods,Raw Materials,Petrochemicals,freightFlights,International,100,500,,,Good,Steel shipment,dd/mm/yyyy`,
       // Purchased services example with DD/MM/YYYY format
-      `BLD-1147,Commercial,purchasedServices,warehousingSupport,,,,,,5000,USD,Fair,Warehouse services,17/02/2026`
+      `BLD-1147,Commercial,purchasedServices,Warehousing and support services for transportation,,,,,,5000,USD,Fair,Warehouse services,dd/mm/yyyy`
     ].join('\n');
 
     const csv = headers + '\n' + exampleRows;

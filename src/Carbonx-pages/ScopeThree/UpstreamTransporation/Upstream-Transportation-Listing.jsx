@@ -62,14 +62,14 @@
 //     .map((word, index) => {
 //       const hasOpenParen = word.startsWith("(");
 //       const hasCloseParen = word.endsWith(")");
-      
+
 //       let coreWord = word;
 //       if (hasOpenParen) coreWord = coreWord.slice(1);
 //       if (hasCloseParen) coreWord = coreWord.slice(0, -1);
 
 //       const lowerCore = coreWord.toLowerCase();
 //       let result;
-      
+
 //       // SPECIAL RULE: If word is "a" or "A", preserve original case
 //       if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
 //         result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
@@ -90,7 +90,7 @@
 //       else {
 //         result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
 //       }
-      
+
 //       // Reattach parentheses
 //       if (hasOpenParen) result = "(" + result;
 //       if (hasCloseParen) result = result + ")";
@@ -761,21 +761,21 @@ const UpstreamTransportationListing = () => {
       .map((word, index) => {
         const hasOpenParen = word.startsWith("(");
         const hasCloseParen = word.endsWith(")");
-        
+
         let coreWord = word;
         if (hasOpenParen) coreWord = coreWord.slice(1);
         if (hasCloseParen) coreWord = coreWord.slice(0, -1);
 
         const lowerCore = coreWord.toLowerCase();
         let result;
-        
+
         if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
           result = coreWord;
         }
         else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
           result = coreWord.toUpperCase();
         }
-        else if (index === 0 || (index > 0 && text.split(" ")[index-1]?.endsWith("("))) {
+        else if (index === 0 || (index > 0 && text.split(" ")[index - 1]?.endsWith("("))) {
           result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
         }
         else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
@@ -784,7 +784,7 @@ const UpstreamTransportationListing = () => {
         else {
           result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
         }
-        
+
         if (hasOpenParen) result = "(" + result;
         if (hasCloseParen) result = result + ")";
 
@@ -871,7 +871,7 @@ const UpstreamTransportationListing = () => {
 
   const handleCSVUpload = async () => {
     if (csvState.uploading) return;
-    
+
     try {
       const results = await processUpload();
       if (results && results.failed === 0) {
@@ -913,14 +913,14 @@ const UpstreamTransportationListing = () => {
     if (column.Header === "Sr.No" || column.id === "serialNo") {
       return index + 1;
     }
-    
+
     // Handle unit display
     if (column.accessor === "unit") {
       if (value === "USD") return "$";
       if (!value) return "N/A";
       return value;
     }
-    
+
     // Handle transportation category display
     if (column.accessor === "transportationCategory") {
       if (!value) return "N/A";
@@ -928,7 +928,7 @@ const UpstreamTransportationListing = () => {
       if (value === "purchasedServices") return "Purchased Services";
       return capitalizeLabel(value);
     }
-    
+
     // Handle activity type display
     if (column.accessor === "activityType") {
       if (!value) return "N/A";
@@ -938,7 +938,7 @@ const UpstreamTransportationListing = () => {
       if (value === "warehousingSupport") return "Warehousing Support Services";
       return capitalizeLabel(value);
     }
-    
+
     // Handle vehicle category display
     if (column.accessor === "vehicleCategory") {
       if (!value) return "N/A";
@@ -951,7 +951,7 @@ const UpstreamTransportationListing = () => {
       if (value === "cargoShip") return "Cargo Ship";
       return capitalizeLabel(value);
     }
-    
+
     // Handle numeric emissions
     if (column.accessor === "calculatedEmissionKgCo2e" || column.accessor === "calculatedEmissionTCo2e") {
       if (!value && value !== 0) return "N/A";
@@ -959,7 +959,7 @@ const UpstreamTransportationListing = () => {
       if (isNaN(numValue)) return "N/A";
       return numValue.toFixed(2);
     }
-    
+
     // Handle posting date
     if (column.accessor === "postingDate") {
       if (!value) return "N/A";
@@ -969,24 +969,24 @@ const UpstreamTransportationListing = () => {
         return "Invalid Date";
       }
     }
-    
+
     // Handle all other fields
     if (value === null || value === undefined || value === "") {
       return "N/A";
     }
-    
+
     // Apply capitalizeLabel to certain fields
     const fieldsToCapitalize = [
-      "stakeholderDepartment", 
-      "purchasedGoodsType", 
-      "vehicleType", 
+      "stakeholderDepartment",
+      "purchasedGoodsType",
+      "vehicleType",
       "qualityControl"
     ];
-    
+
     if (fieldsToCapitalize.includes(column.accessor)) {
       return capitalizeLabel(value);
     }
-    
+
     return value;
   };
 
@@ -1012,6 +1012,7 @@ const UpstreamTransportationListing = () => {
         id: "serialNo",
         Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
       },
+      { Header: "Building Code", accessor: "buildingId.buildingCode" },
       {
         Header: "Building",
         accessor: "buildingId.buildingName",
@@ -1111,7 +1112,7 @@ const UpstreamTransportationListing = () => {
             return "N/A";
           }
           return numValue.toFixed(2);
-        } 
+        }
       },
       {
         Header: "Calculated Emissions (tCO₂e)",
@@ -1129,7 +1130,7 @@ const UpstreamTransportationListing = () => {
             return numValue.toExponential(2);
           }
           return numValue.toFixed(2);
-        } 
+        }
       },
       {
         Header: "Remarks",
@@ -1259,7 +1260,19 @@ const UpstreamTransportationListing = () => {
 
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-
+            {/* Export Current Page Button */}
+            {records.length > 0 && (
+              <ExcelExportButton
+                data={records}
+                fileName={`upstream_page_${pageIndex}`}
+                sheetName={`Page ${pageIndex}`}
+                buttonText="Export Page"
+                buttonClassName="btn font-normal btn-sm btn-outline-primary"
+                iconClass="text-lg"
+                customFormatter={customFormatter}
+                exportFormat="current"
+              />
+            )}
             {/* Export Button */}
             <ExcelExportButton
               data={records}
@@ -1509,20 +1522,7 @@ const UpstreamTransportationListing = () => {
                 </option>
               ))}
             </select>
-            
-            {/* Export Current Page Button */}
-            {records.length > 0 && (
-              <ExcelExportButton
-                data={records}
-                fileName={`upstream_page_${pageIndex}`}
-                sheetName={`Page ${pageIndex}`}
-                buttonText="Export Page"
-                buttonClassName="btn font-normal btn-sm btn-outline-primary"
-                iconClass="text-lg"
-                customFormatter={customFormatter}
-                exportFormat="current"
-              />
-            )}
+
           </div>
         </div>
       </Card>
@@ -1536,10 +1536,10 @@ const UpstreamTransportationListing = () => {
         centered
         footerContent={
           <>
-            <Button 
-              text="Cancel" 
-              className="btn-light" 
-              onClick={() => setDeleteModalOpen(false)} 
+            <Button
+              text="Cancel"
+              className="btn-light"
+              onClick={() => setDeleteModalOpen(false)}
             />
             <Button
               text="Delete"
