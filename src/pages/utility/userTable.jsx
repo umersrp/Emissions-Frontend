@@ -317,7 +317,7 @@ const UserPage = () => {
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
              <Button
               text="Employee Email Record"
-              className="btn-dark font-normal btn-sm"
+              className="btn-dark font-normal btn-sm h-9"
               iconClass="text-lg"
               onClick={() => {
                 navigate("/Email-Reporting");

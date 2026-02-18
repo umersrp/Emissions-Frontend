@@ -121,18 +121,15 @@ const CSVUploadModal = ({
                 </div>
 
                 {/* Instructions - Responsive */}
-                <div className="mb-2 sm:mb-4">
-                  <div className="bg-blue-50 p-3  sm:p-4 rounded-lg border border-blue-200">
+                  <div className="text-slate-700 leading-relaxed mb-6 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 justify-center">
+                  <div className="flex items-center justify-center mb-2">
                     <div className="flex items-start">
-                      <Icon 
-                        icon="heroicons:information-circle" 
-                        className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 mt-0.5 mr-1.5 sm:mr-2 flex-shrink-0" 
-                      />
+                      <Icon icon="heroicons:information-circle" className="w-5 h-5 sm:w-6 sm:h-6 text-black-500 flex-shrink-0 mr-2" />
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-sm sm:text-base text-blue-800 mb-0.5 sm:mb-1">
+                        <h4 className="font-semibold text-sm sm:text-base text-black-800 mb-0.5 sm:mb-1">
                           How to upload:
                         </h4>
-                        <div className="text-xs sm:text-sm">
+                        <div className="text-xs sm:text-sm ">
                           {templateInstructions || defaultInstructions}
                         </div>
                       </div>
@@ -142,7 +139,7 @@ const CSVUploadModal = ({
 
                 {/* Template Download Button - Responsive */}
                 {onDownloadTemplate && (
-                  <div className="mb-2 sm:mb-4 text-center">
+                  <div className="mb-3 sm:mb-4 -mt-2 text-center">
                     <Button
                       text="Download Template & Instructions"
                       className="btn-dark w-full sm:w-auto text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2"

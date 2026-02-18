@@ -1099,7 +1099,7 @@ const StationaryCombustionListing = () => {
   };
 
   const templateInstructions = (
-    <ol className="text-sm text-blue-700 space-y-1 list-decimal pl-4">
+    <ol className="text-sm text-black-700 space-y-1 list-decimal pl-4">
       <li>Download the template below</li>
       <li>Fill in your data (keep column headers as is)</li>
       <li>Save as CSV file</li>
@@ -1291,51 +1291,102 @@ const StationaryCombustionListing = () => {
       <Card noborder>
         <div className="md:flex pb-6 items-center">
           <h6 className="flex-1 md:mb-0">Stationary Combustion Records</h6>
-          <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
+          <div className="md:flex 2xl:space-x-3  space-x-1 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-            {records.length > 0 && (
+          {records.length > 0 && (
               <ExcelExportButton
                 data={records}
+                columns={COLUMNS}
+                exportFields={[
+                  "buildingId.buildingCode",      // Building Code
+                  "buildingId.buildingName",       // Building Name
+                  "stakeholder",                   // Stakeholder
+                  "equipmentType",                  // Equipment Type
+                  "fuelType",                       // Fuel Type
+                  "fuelName",                       // Fuel Name
+                  "fuelConsumption",                 // Fuel Consumption
+                  "consumptionUnit",                  // Consumption Unit
+                  "qualityControl",                    // Quality Control
+                  "calculatedEmissionKgCo2e",          // Emission in kg CO2e
+                  "calculatedEmissionTCo2e",           // Emission in tonnes CO2e
+                  "calculatedBioEmissionKgCo2e",       // Bio Emission in kg CO2e
+                  "calculatedBioEmissionTCo2e",        // Bio Emission in tonnes CO2e
+                  "remarks",                            // Remarks
+                  "postingDate",                         // Posting Date
+                  "createdBy.name",                       // Created By
+                  "updatedBy.name"                         // Updated By
+                ]}
                 fileName="stationary_combustion_current_page"
                 sheetName="Current Page"
-                buttonText="Export Current Page"
-                buttonClassName="btn font-normal btn-sm btn-outline-primary"
+                buttonText="Export Page"
+                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
                 exportFormat="current"
                 customFormatter={customFormatter}
+                pageInfo={{ currentPage: pagination.currentPage, limit: pagination.limit }}  // FIX: Use pagination state
               />
             )}
+
             {/* Reusable Excel Export Button */}
             <ExcelExportButton
               data={records}
               fetchAllData={fetchAllStationaryRecords}
               columns={COLUMNS}
+              exportFields={[
+                "buildingId.buildingCode",      // Building Code
+                "buildingId.buildingName",       // Building Name
+                "stakeholder",                   // Stakeholder
+                "equipmentType",                  // Equipment Type
+                "fuelType",                       // Fuel Type
+                "fuelName",                       // Fuel Name
+                "fuelConsumption",                 // Fuel Consumption
+                "consumptionUnit",                  // Consumption Unit
+                "qualityControl",                    // Quality Control
+                "calculatedEmissionKgCo2e",          // Emission in kg CO2e
+                "calculatedEmissionTCo2e",           // Emission in tonnes CO2e
+                "calculatedBioEmissionKgCo2e",       // Bio Emission in kg CO2e
+                "calculatedBioEmissionTCo2e",        // Bio Emission in tonnes CO2e
+                "remarks",                            // Remarks
+                "postingDate",                         // Posting Date
+                "createdBy.name",                       // Created By
+                "updatedBy.name"                         // Updated By
+              ]}
               fileName="stationary_combustion_records"
               sheetName="Stationary Combustion"
-              buttonText="Export"
+              buttonText="Export "
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
               successMessage="Stationary records exported successfully!"
               customFormatter={customFormatter}
-              exportFormat="all" // Export all records
+              exportFormat="all"
               pageInfo={pagination}
             />
-
-
+            {/* Import Button */}
             <Button
-              icon={isUploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
-              text={isUploading ? "Uploading..." : "Import"}
+              icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
+              text={csvState.uploading ? "Uploading..." : "Import"}
               className="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
-              iconClass={isUploading ? "text-lg animate-spin" : "text-lg"}
-              onClick={handleBulkUploadClick}
-              disabled={isUploading}
+              iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}
+              onClick={() => setBulkUploadModalOpen(true)}
+              disabled={csvState.uploading}
             />
 
-            <Button
-              icon="heroicons-outline:plus-sm"
-              text="Add Record"
-              className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
-              iconClass="text-lg"
-              onClick={() => navigate("/Stationary-Combustion-Form/Add")}
-            />
+            <div className="2xl:hidden">
+              <Button
+                icon="heroicons-outline:plus-sm"
+                text="Add"
+                className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+                iconClass="text-lg"
+                onClick={() => navigate("/Stationary-Combustion-Form/Add")}
+              />
+            </div>
+            <div className="hidden 2xl:block">
+              <Button
+                icon="heroicons-outline:plus-sm"
+                text="Add Record"
+                className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+                iconClass="text-lg"
+                onClick={() => navigate("/Stationary-Combustion-Form/Add")}
+              />
+            </div>
           </div>
         </div>
 
