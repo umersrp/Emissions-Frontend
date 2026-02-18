@@ -898,7 +898,7 @@ const UpstreamTransportationListing = () => {
   };
 
   const templateInstructions = (
-    <ol className="text-sm text-blue-700 space-y-1 list-decimal pl-4">
+    <ol className="text-sm text-black-700 space-y-1 list-decimal pl-4">
       <li>Download the template below</li>
       <li>Fill in your data (keep column headers as is)</li>
       <li>Save as CSV file</li>
@@ -1258,35 +1258,79 @@ const UpstreamTransportationListing = () => {
         <div className="md:flex pb-6 items-center">
           <h6 className="flex-1 md:mb-0">Upstream Transportation and Distribution Records</h6>
 
-          <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
+          <div className="md:flex md:space-x-1 space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             {/* Export Current Page Button */}
             {records.length > 0 && (
               <ExcelExportButton
                 data={records}
-                fileName={`upstream_page_${pageIndex}`}
-                sheetName={`Page ${pageIndex}`}
+                columns={COLUMNS}
+                exportFields={[
+                  "stakeholderDepartment",           // Stakeholder Department
+                  "transportationCategory",           // Transportation Category
+                  "activityType",                      // Activity Type
+                  "purchasedGoodsType",                 // Purchased Goods Type
+                  "vehicleCategory",                     // Vehicle Category
+                  "vehicleType",                          // Vehicle Type
+                  "weightLoaded",                          // Weight Loaded
+                  "distanceTravelled",                      // Distance Travelled
+                  "amountSpent",                             // Amount Spent
+                  "unit",                                     // Unit
+                  "qualityControl",                            // Quality Control
+                  "remarks",                                    // Remarks
+                  "calculatedEmissionKgCo2e",                    // Emission in kg CO2e
+                  "calculatedEmissionTCo2e",                       // Emission in tonnes CO2e
+                  "postingDate",                                     // Posting Date
+                  "createdBy.name"                                    // Created By
+                ]}
+                fileName={`upstream_page_${pageIndex}`}  // FIX: Use pageIndex
+                sheetName={`Page ${pageIndex}`}          // FIX: Use pageIndex
                 buttonText="Export Page"
-                buttonClassName="btn font-normal btn-sm btn-outline-primary"
+                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
                 iconClass="text-lg"
                 customFormatter={customFormatter}
                 exportFormat="current"
+                pageInfo={{ currentPage: pageIndex, limit: pageSize }}  // FIX: Use pageIndex and pageSize
               />
             )}
-            {/* Export Button */}
+
+            {/* Export All Button */}
             <ExcelExportButton
               data={records}
               fetchAllData={fetchAllRecords}
               columns={COLUMNS}
+              exportFields={[
+                "stakeholderDepartment",           // Stakeholder Department
+                "transportationCategory",           // Transportation Category
+                "activityType",                      // Activity Type
+                "purchasedGoodsType",                 // Purchased Goods Type
+                "vehicleCategory",                     // Vehicle Category
+                "vehicleType",                          // Vehicle Type
+                "weightLoaded",                          // Weight Loaded
+                "distanceTravelled",                      // Distance Travelled
+                "amountSpent",                             // Amount Spent
+                "unit",                                     // Unit
+                "qualityControl",                            // Quality Control
+                "remarks",                                    // Remarks
+                "calculatedEmissionKgCo2e",                    // Emission in kg CO2e
+                "calculatedEmissionTCo2e",                       // Emission in tonnes CO2e
+                "postingDate",                                     // Posting Date
+                "createdBy.name"                                    // Created By
+              ]}
               fileName="upstream_transportation_records"
               sheetName="Upstream Transportation"
-              buttonText="Export"
+              buttonText="Export "
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
               iconClass="text-lg"
               successMessage="Upstream records exported successfully!"
               customFormatter={customFormatter}
               exportFormat="all"
-              pageInfo={{ currentPage: pageIndex, totalPages, totalCount: totalRecords, limit: pageSize }}
+              pageInfo={{
+                currentPage: pageIndex,
+                totalPages: totalPages,
+                totalCount: totalRecords,
+                limit: pageSize
+              }}
             />
 
             {/* Import Button */}
@@ -1299,14 +1343,24 @@ const UpstreamTransportationListing = () => {
               disabled={csvState.uploading}
             />
 
-            {/* Add Record Button */}
-            <Button
-              icon="heroicons-outline:plus-sm"
-              text="Add Record"
-              className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
-              iconClass="text-lg"
-              onClick={() => navigate("/Upstream-Transportation-Form/Add")}
-            />
+            <div className="2xl:hidden">
+              <Button
+                icon="heroicons-outline:plus-sm"
+                text="Add"
+                className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+                iconClass="text-lg"
+                onClick={() => navigate("/Upstream-Transportation-Form/Add")}
+              />
+            </div>
+            <div className="hidden 2xl:block">
+              <Button
+                icon="heroicons-outline:plus-sm"
+                text="Add Record"
+                className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+                iconClass="text-lg"
+                onClick={() => navigate("/Upstream-Transportation-Form/Add")}
+              />
+            </div>
           </div>
         </div>
 

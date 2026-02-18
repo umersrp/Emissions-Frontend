@@ -252,6 +252,7 @@ const ExcelExportButton = ({
   fileName = "export",
   sheetName = "Data",
   columns = [],
+  exportFields = [], // New prop: array of field names to export
   buttonText = "Export to Excel",
   buttonClassName = "btn-dark font-normal btn-sm",
   icon = "heroicons-outline:document-arrow-down",
@@ -261,7 +262,7 @@ const ExcelExportButton = ({
   disabled = false,
   exportFormat = "all",
   pageInfo = { currentPage: 1, limit: 10 },
-  customFormatter = null, // Add customFormatter prop with default null
+  customFormatter = null,
   onExportStart,
   onExportComplete,
   ...props
@@ -271,9 +272,9 @@ const ExcelExportButton = ({
   // Format value based on column definition
   const formatValue = (value, column) => {
     // Handle empty values for ALL columns
-  if (value === null || value === undefined || value === "" || value === " ") {
-    return "N/A";
-  }
+    if (value === null || value === undefined || value === "" || value === " ") {
+      return "N/A";
+    }
 
     // Date formatting
     if (column.accessor?.includes("Date") || column.Header?.includes("Date")) {
@@ -296,13 +297,104 @@ const ExcelExportButton = ({
   };
 
   // Process data for export
-// In ExcelExportButton.js, update the processExportData function:
+  // const processExportData = (dataToExport, isAllData = false) => {
+  //   if (!dataToExport || dataToExport.length === 0) return [];
+
+  //   // Determine which fields to export
+  //   let fieldsToExport = [];
+    
+  //   if (exportFields && exportFields.length > 0) {
+  //     // Use explicitly provided export fields
+  //     fieldsToExport = exportFields;
+  //   } else if (columns && columns.length > 0) {
+  //     // Fall back to filtering columns
+  //     fieldsToExport = columns
+  //       .filter(col => 
+  //         col.id !== "serialNo" && 
+  //         col.Header !== "Actions" && 
+  //         col.accessor !== "__v" &&
+  //         col.id !== "selection"
+  //       )
+  //       .map(col => col.accessor || col.id);
+  //   }
+
+  //   return dataToExport.map((item, index) => {
+  //     const exportRow = {};
+      
+  //     // Calculate Sr.No
+  //     let srNo = index + 1;
+  //     if (!isAllData && pageInfo?.currentPage && pageInfo?.limit) {
+  //       srNo = ((pageInfo.currentPage - 1) * pageInfo.limit) + index + 1;
+  //     }
+      
+  //     exportRow["Sr.No"] = srNo;
+      
+  //     // Process each field to export
+  //     fieldsToExport.forEach(field => {
+  //       let value;
+  //       let column = columns.find(col => col.accessor === field || col.id === field) || {};
+        
+  //       // Handle nested accessors (e.g., "buildingId.buildingName")
+  //       if (typeof field === "string" && field.includes(".")) {
+  //         const keys = field.split(".");
+  //         value = keys.reduce((obj, key) => obj?.[key], item);
+  //       } else {
+  //         value = item[field];
+  //       }
+        
+  //       // Special handling for buildingId to show building name
+  //       if (field === "buildingId" || field === "buildingId.buildingName") {
+  //         value = item.buildingId?.buildingName || "N/A";
+  //       }
+        
+  //       // Use customFormatter if provided
+  //       if (customFormatter && typeof customFormatter === 'function') {
+  //         value = customFormatter(value, column, item, index);
+  //         if (value === null) return;
+  //       } else {
+  //         value = formatValue(value, column);
+  //       }
+        
+  //       // Ensure empty values become "N/A"
+  //       if (value === null || value === undefined || value === "") {
+  //         value = "N/A";
+  //       }
+        
+  //       // Use column header as the key if available, otherwise use the field name
+  //       const header = column.Header || field;
+  //       exportRow[header] = value;
+  //     });
+      
+  //     return exportRow;
+  //   });
+  // };
+  // Process data for export
 const processExportData = (dataToExport, isAllData = false) => {
-  if (!columns || columns.length === 0) {
-    return dataToExport.map((item, index) => ({
-      "Sr.No": index + 1,
-      ...item
-    }));
+  if (!dataToExport || dataToExport.length === 0) return [];
+
+  // Debug logs
+  console.log('exportFields:', exportFields);
+  console.log('columns:', columns);
+  console.log('dataToExport sample:', dataToExport[0]);
+
+  // Determine which fields to export
+  let fieldsToExport = [];
+  
+  if (exportFields && exportFields.length > 0) {
+    // Use explicitly provided export fields
+    fieldsToExport = exportFields;
+    console.log('Using exportFields:', fieldsToExport);
+  } else if (columns && columns.length > 0) {
+    // Fall back to filtering columns
+    fieldsToExport = columns
+      .filter(col => 
+        col.id !== "serialNo" && 
+        col.Header !== "Actions" && 
+        col.accessor !== "__v" &&
+        col.id !== "selection"
+      )
+      .map(col => col.accessor || col.id);
+    console.log('Using filtered columns:', fieldsToExport);
   }
 
   return dataToExport.map((item, index) => {
@@ -316,50 +408,44 @@ const processExportData = (dataToExport, isAllData = false) => {
     
     exportRow["Sr.No"] = srNo;
     
-    // Filter out columns that shouldn't be exported
-    const exportColumns = columns.filter(col => 
-      col.id !== "serialNo" && 
-      col.Header !== "Actions" && 
-      col.accessor !== "__v" && // Explicitly exclude __v
-      col.id !== "selection"
-    );
-    
-    exportColumns.forEach(column => {
+    // Process each field to export
+    fieldsToExport.forEach(field => {
       let value;
+      let column = columns.find(col => col.accessor === field || col.id === field) || {};
       
-      // Handle nested accessors
-      if (column.accessor && typeof column.accessor === "string" && column.accessor.includes(".")) {
-        const keys = column.accessor.split(".");
+      // Handle nested accessors (e.g., "buildingId.buildingName")
+      if (typeof field === "string" && field.includes(".")) {
+        const keys = field.split(".");
         value = keys.reduce((obj, key) => obj?.[key], item);
-      } else if (column.accessor) {
-        value = item[column.accessor];
-      } else if (column.id) {
-        value = item[column.id];
+      } else {
+        value = item[field];
       }
       
-      // Special handling for buildingId - show building name
-      if (column.accessor === "buildingId") {
+      // Special handling for buildingId to show building name
+      if (field === "buildingId" || field === "buildingId.buildingName") {
         value = item.buildingId?.buildingName || "N/A";
       }
       
-      const header = column.Header || column.accessor || column.id;
+      // Use customFormatter if provided
+      if (customFormatter && typeof customFormatter === 'function') {
+        value = customFormatter(value, column, item, index);
+        if (value === null) return;
+      } else {
+        value = formatValue(value, column);
+      }
       
-      if (header) {
-        // Use customFormatter if provided, otherwise use default formatting
-        if (customFormatter && typeof customFormatter === 'function') {
-          value = customFormatter(value, column, item, index);
-          // If customFormatter returns null, skip this column
-          if (value === null) return;
-        } else {
-          value = formatValue(value, column);
-        }
-        
-        // Ensure empty values become "N/A"
-        if (value === null || value === undefined || value === "") {
-          value = "N/A";
-        }
-        
-        exportRow[header] = value;
+      // Ensure empty values become "N/A"
+      if (value === null || value === undefined || value === "") {
+        value = "N/A";
+      }
+      
+      // Use column header as the key if available, otherwise use the field name
+      const header = column.Header || field;
+      exportRow[header] = value;
+      
+      // Debug log for first row
+      if (index === 0) {
+        console.log(`Field: ${field}, Header: ${header}, Value:`, value);
       }
     });
     
