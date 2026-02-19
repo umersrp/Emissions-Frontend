@@ -137,26 +137,60 @@ const ScopeThreeReport = () => {
   }, [data, emissionType]);
 
   // Building-wise summary
-  const buildingData = useMemo(() => {
-    const map = {};
-    filteredData.forEach((item) => {
-      const name = item.buildingId?.buildingName || "N/A";
-      if (!map[name]) map[name] = { totalKg: 0, count: 0 };
-      map[name].totalKg += Number(item.calculatedEmissionKgCo2e || 0);
-      map[name].count += 1; // increment record count
-    });
+  // const buildingData = useMemo(() => {
+  //   const map = {};
+  //   filteredData.forEach((item) => {
+  //     const name = item.buildingId?.buildingName || "N/A";
+  //     if (!map[name]) map[name] = { totalKg: 0, count: 0 };
+  //     map[name].totalKg += Number(item.calculatedEmissionKgCo2e || 0);
+  //     map[name].count += 1; // increment record count
+  //   });
 
-    const entries = Object.entries(map).map(([buildingName, data]) => ({
-      buildingName,
-      totalKg: data.totalKg,
-      totalT: data.totalKg / 1000,
-      recordCount: data.count, // number of records for this building
-    }));
+  //   const entries = Object.entries(map).map(([buildingName, data]) => ({
+  //     buildingName,
+  //     totalKg: data.totalKg,
+  //     totalT: data.totalKg / 1000,
+  //     recordCount: data.count, // number of records for this building
+  //   }));
 
-    console.log("Building Data with record count:", entries);
+  //   console.log("Building Data with record count:", entries);
 
-    return entries;
-  }, [filteredData]);
+  //   return entries;
+  // }, [filteredData]);
+  // Building-wise summary
+const buildingData = useMemo(() => {
+  const map = {};
+  filteredData.forEach((item) => {
+    // Fix: Check for both building and buildingId paths
+    let buildingName = "N/A";
+    
+    if (item.building?.buildingName) {
+      // For employee commute data (has building object)
+      buildingName = item.building.buildingName;
+    } else if (item.buildingId?.buildingName) {
+      // For other data that might use buildingId
+      buildingName = item.buildingId.buildingName;
+    } else if (item.siteBuildingName) {
+      // If there's a direct siteBuildingName field
+      // You might need to map this to actual building name
+      buildingName = "Unknown"; // You'll need to resolve this
+    }
+    
+    if (!map[buildingName]) map[buildingName] = { totalKg: 0, count: 0 };
+    map[buildingName].totalKg += Number(item.calculatedEmissionKgCo2e || 0);
+    map[buildingName].count += 1;
+  });
+
+  const entries = Object.entries(map).map(([buildingName, data]) => ({
+    buildingName,
+    totalKg: data.totalKg,
+    totalT: data.totalKg / 1000,
+    recordCount: data.count,
+  }));
+
+  console.log("Building Data with record count:", entries);
+  return entries;
+}, [filteredData]);
 
   console.log("Building Data:", buildingData);
   // console.log("Building Count:",totalBuildings)
