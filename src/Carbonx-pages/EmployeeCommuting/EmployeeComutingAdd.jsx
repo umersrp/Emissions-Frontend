@@ -15,6 +15,86 @@ import { qualityControlOptions } from '@/constant/scope1/options';
 import { carTypeOptions, STANDARD_CAR_TYPES, PREMIUM_CAR_TYPES, STANDARD_FUEL_TYPES, PREMIUM_FUEL_TYPES } from '@/constant/scope3/employeeCommuting'
 
 
+// UK Government GHG Conversion Factors (2025)
+const EMISSION_FACTORS = {
+    cars: {
+        "Small car - Petrol/LPG/CNG - up to 1.4-litre engine. Diesel - up to a 1.7-litre engine. Others - vehicles models of a similar size (i.e. market segment A or B)": {
+            Diesel: 0.14340, Petrol: 0.14308, Hybrid: 0.11413, CNG: 0.18800, LPG: 0.21260, Unknown: 0.14322, "Plug-in Hybrid Electric Vehicle": 0.05669, "Battery Electric Vehicle": 0.03688
+        },
+        "Medium car - Petrol/LPG/CNG - from 1.4-litre to 2.0-litre engine. Diesel - from 1.7-litre to 2.0-litre engine. Others - vehicles models of a similar size (i.e. generally market segment C)": {
+            Diesel: 0.17174, Petrol: 0.17474, Hybrid: 0.11724, CNG: 0.15504, LPG: 0.17427, Unknown: 0.17322, "Plug-in Hybrid Electric Vehicle": 0.08820, "Battery Electric Vehicle": 0.03882
+        },
+        "Large car - Petrol/LPG/CNG - 2.0-litre engine (+) . Diesel - 2.0-litre engine (+). Others - vehicles models of a similar size (i.e. generally market segment D and above)": {
+            Diesel: 0.21007, Petrol: 0.26828, Hybrid: 0.15650, CNG: 0.23722, LPG: 0.26771, Unknown: 0.22678, "Plug-in Hybrid Electric Vehicle": 0.11430, "Battery Electric Vehicle": 0.04205
+        },
+        "Average car - Unknown engine size.": {
+            Diesel: 0.17304, Petrol: 0.16272, Hybrid: 0.12825, CNG: 0.17414, LPG: 0.19599, Unknown: 0.16725, "Plug-in Hybrid Electric Vehicle": 0.10461, "Battery Electric Vehicle": 0.04047
+        },
+        "Executive - Large Executive or E-Segment Passenger Cars (2000 cc - 3500+ cc)": {
+            Diesel: 0.17088, Petrol: 0.20073, Unknown: 0.17846, "Plug-in Hybrid Electric Vehicle": 0.09133, "Battery Electric Vehicle": 0.03702
+        },
+        "Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000 cc - 6000 cc)": {
+            Diesel: 0.20632, Petrol: 0.30752, Unknown: 0.25196, "Plug-in Hybrid Electric Vehicle": 0.12510, "Battery Electric Vehicle": 0.04902
+        },
+        "Sports - High Performance - High Speed Vehicles ( 2000 cc - 4000 cc+)": {
+            Diesel: 0.17323, Petrol: 0.23396, Unknown: 0.22400, "Plug-in Hybrid Electric Vehicle": 0.14904, "Battery Electric Vehicle": 0.06260
+        },
+        "Dual purpose 4X4 - SUVs 4 wheel Drive or All Wheel Drive (1500 cc - 6000 cc)": {
+            Diesel: 0.19973, Petrol: 0.19219, Unknown: 0.19690, "Plug-in Hybrid Electric Vehicle": 0.11663, "Battery Electric Vehicle": 0.04228
+        },
+        "MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace,Suzuki APV, Vans etc.)  - Passenger or Transport Vehicle (1200 cc - 2000 cc)": {
+            Diesel: 0.18072, Petrol: 0.17903, Unknown: 0.18030, "Plug-in Hybrid Electric Vehicle": 0.10193, "Battery Electric Vehicle": 0.05202
+        }
+    },
+    motorbikes: {
+        "Small": 0.08319, "Medium": 0.10108, "Large": 0.13252, "Average": 0.11367, "Small (<125cc)": 0.08319, "Medium (125-500cc)": 0.10108, "Large (>500cc)": 0.13252, "Electric Motorbike": 0.03688
+    },
+    taxis: {
+        "Regular taxi": 0.14861, "Premium taxi": 0.20402, "Electric taxi": 0.03688, "Shared taxi": 0.14861, "Regular Taxi": 0.14861, "Premium Taxi": 0.20402, "Electric Taxi": 0.03688, "Shared Taxi/Pool": 0.14861
+    },
+    buses: {
+        "Green Line Bus": 0.02776, "Local bus": 0.12525, "Express bus": 0.06875, "Electric bus": 0.03688, "Private bus": 0.12525, "Local Bus": 0.12525, "Electric Bus": 0.03688, "Private Company Bus": 0.12525
+    },
+    trains: {
+        "National Rail": 0.03546, "Subway/Metro": 0.02860, "Light Rail": 0.02860, "Commuter Rail": 0.03546, "High Speed Rail": 0.03546
+    }
+};
+
+const calculateEmissions = (data) => {
+    let distance = 0, passengers = 1, factor = 0;
+    if (data.commuteByMotorbike) {
+        distance = Number(data.motorbikeDistance) || 0;
+        passengers = 1;
+        const motorbikeType = data.motorbikeType || "Average";
+        factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
+    } else if (data.commuteByCar) {
+        distance = Number(data.carDistance) || 0;
+        passengers = data.carryOthersCar ? (Number(data.personsCarriedCar || 0) + 1) : 1;
+        const carType = data.carType || "Average car - Unknown engine size";
+        const fuelType = data.carFuelType || "Unknown";
+        factor = (EMISSION_FACTORS.cars[carType]?.[fuelType] || EMISSION_FACTORS.cars[carType]?.["Unknown"]) || (EMISSION_FACTORS.cars["Average car - Unknown engine size"][fuelType] || EMISSION_FACTORS.cars["Average car - Unknown engine size"]["Unknown"]);
+        factor = factor / passengers;
+    } else if (data.commuteByTaxi) {
+        distance = Number(data.taxiDistance) || 0;
+        passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : Number(data.taxiPassengers || 1);
+        const taxiType = data.taxiType || "Regular taxi";
+        factor = EMISSION_FACTORS.taxis[taxiType] || EMISSION_FACTORS.taxis["Regular taxi"];
+        factor = factor / passengers;
+    } else if (data.commuteByBus) {
+        distance = Number(data.busDistance) || 0;
+        passengers = 1;
+        const busType = data.busType || "Green Line Bus";
+        factor = EMISSION_FACTORS.buses[busType] || EMISSION_FACTORS.buses["Green Line Bus"];
+    } else if (data.commuteByTrain) {
+        distance = Number(data.trainDistance) || 0;
+        passengers = 1;
+        const trainType = data.trainType || "National Rail";
+        factor = EMISSION_FACTORS.trains[trainType] || EMISSION_FACTORS.trains["National Rail"];
+    }
+    const totalEmissionsKg = distance * passengers * factor;
+    return { distance, passengers, factor, totalEmissionsKg, totalEmissionsTonnes: totalEmissionsKg / 1000 };
+};
+
 const ErrorMessage = ({ message }) => {
     if (!message) return null;
 
@@ -2503,6 +2583,11 @@ const EmployeeCommutingForm = () => {
                 qualityControl: String(formData.qualityControl || ''),
                 submittedAt: new Date().toISOString(),
             };
+
+            // Calculate emissions and add to submission data
+            const emissions = calculateEmissions(submissionData);
+            submissionData.calculatedEmissionKgCo2e = emissions.totalEmissionsKg;
+            submissionData.calculatedEmissionTCo2e = emissions.totalEmissionsTonnes;
 
             // Submit to backend
             const response = await axios.post(
