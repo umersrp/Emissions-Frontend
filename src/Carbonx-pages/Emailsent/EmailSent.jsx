@@ -364,10 +364,7 @@ const EmailSent = () => {
         const totalReminders = Number(formData.totalReminders);
         if (isNaN(totalReminders) || totalReminders <= 0) {
             newErrors.totalReminders = "Total number of reminders must be greater than 0";
-        } else if (totalReminders > 3) {
-            newErrors.totalReminders = "Maximum 3 reminders allowed";
-        }
-
+        } 
         // NEW: Interval validation when toggle is ON
         if (showReminderDates && totalReminders > 0 && totalReminders <= 3) {
             // Validate that startDateTime exists (since it's now the reminder start)

@@ -86,23 +86,23 @@ const Header = ({ className = "custom-class" }) => {
               )}
               {width < breakpoints.xl && <Logo />}
               {/* open mobile menu handlaer*/}
-               {/* {width < breakpoints.xl && width >= breakpoints.md && (
+               {width < breakpoints.xl && width >= breakpoints.md && (
                 <div
                   className="cursor-pointer text-slate-900 dark:text-white text-2xl"
                   onClick={handleOpenMobileMenu}
                 >
                   <Icon icon="heroicons-outline:menu-alt-3" />
                 </div>
-              )} */}
+              )}
               {/* <SearchModal /> */}
             </div>
           )} 
           {/* For Horizontal  */}
           {menuType === "horizontal" && (
-            <div className="flex items-center space-x-4 rtl:space-x-reverse">
+            <div className="flex items-center space-x-4 ">
               <Logo />
               {/* open mobile menu handlaer*/}
-              {width <= breakpoints.xl && (
+              {width > breakpoints.md && width <= breakpoints.xl && (
                 <div
                   className="cursor-pointer text-slate-900 dark:text-white text-2xl"
                   onClick={handleOpenMobileMenu}
@@ -117,7 +117,7 @@ const Header = ({ className = "custom-class" }) => {
             <HorizentalMenu />
           ) : null}
           {/* Nav Tools  */}
-          <div className="nav-tools flex items-center lg:space-x-6 space-x-3 rtl:space-x-reverse">
+          <div className="nav-tools flex items-center md:space-x-6 space-x-3 rtl:space-x-reverse">
             {/* <Language />
             <SwitchDark />
             <MonoChrome />

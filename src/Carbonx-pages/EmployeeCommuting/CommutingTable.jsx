@@ -668,24 +668,24 @@ const CommutingTable = () => {
                         <p className="text-sm text-gray-600">
                             Using UK Government GHG Conversion Factors 2025 for Scope 3 emissions
                         </p>
-                        
+
                     </div>
                     <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
-    <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-     <Button
-        text="Send Email"
-        className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90 h-9"
-        iconClass="text-lg"
-        onClick={() => navigate("/EmailSent")}
-    />
-    <Button
-        icon="heroicons-outline:plus-sm"
-        text="Add Record"
-        className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90 h-9"
-        iconClass="text-lg"
-        onClick={() => navigate("/employee-commuting/Add")}
-    />
-</div>
+                        <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
+                        <Button
+                            text="Send Email"
+                            className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90 h-9"
+                            iconClass="text-lg"
+                            onClick={() => navigate("/EmailSent")}
+                        />
+                        <Button
+                            icon="heroicons-outline:plus-sm"
+                            text="Add Record"
+                            className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90 h-9"
+                            iconClass="text-lg"
+                            onClick={() => navigate("/employee-commuting/Add")}
+                        />
+                    </div>
                 </div>
 
                 {/* Totals Summary */}
