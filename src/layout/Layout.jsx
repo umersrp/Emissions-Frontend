@@ -49,7 +49,7 @@ const Layout = () => {
     <>
       <ToastContainer />
       <Header className={width > breakpoints.xl ? switchHeaderClass() : ""} />
-      {menuType === "vertical" && width > breakpoints.xl && !menuHidden && (
+      {menuType === "vertical" && width >= breakpoints.lg && !menuHidden && (
         <Sidebar />
       )}
 
@@ -70,7 +70,7 @@ const Layout = () => {
       {/* <Settings /> */}
       <div
         className={`content-wrapper transition-all duration-150 ${
-          width > 1280 ? switchHeaderClass() : ""
+          menuType === "vertical" && width >= breakpoints.lg && !menuHidden ? switchHeaderClass() : ""
         }`}
       >
         {/* md:min-h-screen will h-full*/}
