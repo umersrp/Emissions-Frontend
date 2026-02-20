@@ -222,9 +222,20 @@ const Header = ({ className = "custom-class" }) => {
                   )}
                 </button>
               )}
-              
+              {width < breakpoints.xl && collapsed && (
+                <button
+                  className="text-xl text-slate-900 dark:text-white"
+                  onClick={() => setMenuCollapsed(!collapsed)}
+                >
+                  {isRtl ? (
+                    <Icon icon="akar-icons:arrow-left" />
+                  ) : (
+                    <Icon icon="akar-icons:arrow-right" />
+                  )}
+                </button>
+              )}
               {/* Show arrow button on screens below xl when sidebar is collapsed (via mobile menu) */}
-              {width < breakpoints.xl && (
+              {width < breakpoints.lg && (
                 <button
                   className="text-xl text-slate-900 dark:text-white"
                   onClick={handleOpenMobileMenu}

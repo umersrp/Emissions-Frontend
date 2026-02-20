@@ -366,17 +366,16 @@ const EmailSent = () => {
             newErrors.totalReminders = "Total number of reminders must be greater than 0";
         } 
         // NEW: Interval validation when toggle is ON
-        if (showReminderDates && totalReminders > 0 && totalReminders <= 3) {
+        if (showReminderDates && totalReminders > 0) {
             // Validate that startDateTime exists (since it's now the reminder start)
             if (!formData.startDateTime) {
                 newErrors.startDateTime = "Data collection start date and time is required for reminders";
             } else {
-                const reminderStart = new Date(formData.startDateTime); // Use startDateTime
-                const dataStart = new Date(formData.startDateTime);
-                const dataEnd = new Date(formData.endDateTime);
+                const reminderStart = new Date(formData.startDateTime);
+                const dataEnd = formData.endDateTime ? new Date(formData.endDateTime) : null;
 
-                // Validate that start is within data collection period
-                if (reminderStart > dataEnd) {
+                // Validate that start is before the data collection end
+                if (dataEnd && reminderStart > dataEnd) {
                     newErrors.startDateTime = "Reminder start should be before data collection end";
                 }
             }
@@ -389,25 +388,29 @@ const EmailSent = () => {
                 newErrors.intervalValue = `Please enter a valid ${formData.intervalType || ''} interval`;
             }
 
-            // Validate that all reminders fit within the collection period
-            // USING startDateTime instead of reminderStartDateTime
-            if (formData.startDateTime && formData.endDateTime && formData.intervalValue) {
+            // Validate that individual reminder dates (for all reminders) do not fall after the collection end
+            if (formData.startDateTime && formData.endDateTime && formData.intervalValue && formData.intervalType) {
                 const interval = Number(formData.intervalValue);
-                const startDate = new Date(formData.startDateTime); // Use startDateTime
+                const startDate = new Date(formData.startDateTime);
                 const endDate = new Date(formData.endDateTime);
 
-                if (formData.intervalType === "hours") {
-                    const totalHoursNeeded = totalReminders * interval;
-                    const maxHours = (endDate - startDate) / (1000 * 60 * 60);
-                    if (totalHoursNeeded > maxHours) {
-                        newErrors.intervalValue = `Interval too large. With ${totalReminders} reminders, maximum interval is ${Math.floor(maxHours / totalReminders)} hours`;
+                let anyAfterEnd = false;
+                for (let i = 1; i <= totalReminders; i++) {
+                    let reminderDate;
+                    if (formData.intervalType === 'hours') {
+                        reminderDate = new Date(startDate.getTime() + (i * interval * 60 * 60 * 1000));
+                    } else {
+                        reminderDate = new Date(startDate.getTime() + (i * interval * 24 * 60 * 60 * 1000));
                     }
-                } else {
-                    const totalDaysNeeded = totalReminders * interval;
-                    const maxDays = (endDate - startDate) / (1000 * 60 * 60 * 24);
-                    if (totalDaysNeeded > maxDays) {
-                        newErrors.intervalValue = `Interval too large. With ${totalReminders} reminders, maximum interval is ${Math.floor(maxDays / totalReminders)} days`;
+
+                    if (reminderDate > endDate) {
+                        anyAfterEnd = true;
+                        break;
                     }
+                }
+
+                if (anyAfterEnd) {
+                    newErrors.intervalValue = `One or more reminders fall after the data collection end date/time`;
                 }
             }
         }
@@ -428,28 +431,28 @@ const EmailSent = () => {
     const parseReminderDates = (datesString) => {
         // If using interval-based reminders
         // USING startDateTime instead of reminderStartDateTime
-        if (showReminderDates && formData.totalReminders > 0 && formData.totalReminders <= 3 &&
-            formData.intervalValue && formData.intervalType && formData.startDateTime) { // CHANGED to startDateTime
+        if (showReminderDates && formData.totalReminders > 0 &&
+                formData.intervalValue && formData.intervalType && formData.startDateTime) {
 
-            const dates = [];
-            const interval = Number(formData.intervalValue);
-            const startDate = new Date(formData.startDateTime); // CHANGED to startDateTime
+                const dates = [];
+                const interval = Number(formData.intervalValue);
+                const startDate = new Date(formData.startDateTime);
 
-            for (let i = 1; i <= formData.totalReminders; i++) {
-                let reminderDate;
-                if (formData.intervalType === "hours") {
-                    reminderDate = new Date(startDate.getTime() + (i * interval * 60 * 60 * 1000));
-                } else {
-                    reminderDate = new Date(startDate.getTime() + (i * interval * 24 * 60 * 60 * 1000));
+                for (let i = 1; i <= formData.totalReminders; i++) {
+                    let reminderDate;
+                    if (formData.intervalType === "hours") {
+                        reminderDate = new Date(startDate.getTime() + (i * interval * 60 * 60 * 1000));
+                    } else {
+                        reminderDate = new Date(startDate.getTime() + (i * interval * 24 * 60 * 60 * 1000));
+                    }
+
+                    // Only add reminders that are before or equal to end date (if end provided)
+                    if (!formData.endDateTime || reminderDate <= new Date(formData.endDateTime)) {
+                        dates.push(reminderDate.toISOString());
+                    }
                 }
-
-                // Only add reminders that are before or equal to end date
-                if (!formData.endDateTime || reminderDate <= new Date(formData.endDateTime)) {
-                    dates.push(reminderDate.toISOString());
-                }
+                return dates;
             }
-            return dates;
-        }
 
         // Fallback to old method (individual date fields)
         if (showReminderDates && formData.totalReminders > 0 && formData.totalReminders <= 3) {

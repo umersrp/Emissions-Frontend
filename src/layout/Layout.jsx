@@ -48,7 +48,7 @@ const Layout = () => {
   return (
     <>
       <ToastContainer />
-      <Header className={width > breakpoints.xl ? switchHeaderClass() : ""} />
+      <Header className={menuType === "vertical" && width >= breakpoints.lg && !menuHidden ? switchHeaderClass() : ""} />
       {menuType === "vertical" && width >= breakpoints.lg && !menuHidden && (
         <Sidebar />
       )}
@@ -115,7 +115,7 @@ const Layout = () => {
       </div>
       {width < breakpoints.md && <MobileFooter />}
       {width > breakpoints.md && (
-        <Footer className={width > breakpoints.xl ? switchHeaderClass() : ""} />
+        <Footer className={menuType === "vertical" && width >= breakpoints.lg && !menuHidden ? switchHeaderClass() : ""} />
       )}
     </>
   );
