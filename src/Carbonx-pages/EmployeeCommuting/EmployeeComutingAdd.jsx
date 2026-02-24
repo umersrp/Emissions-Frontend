@@ -2131,9 +2131,9 @@ const EmployeeCommutingForm = () => {
             if (!formData.taxiMode) {
                 errors.taxiMode = 'Please select how you commute by taxi';
             }
-            if (!formData.taxiPassengers) {
-                errors.taxiPassengers = 'Number of taxi passengers is required';
-            }
+            // if (!formData.taxiPassengers) {
+            //     errors.taxiPassengers = 'Number of taxi passengers is required';
+            // }
             if (!formData.taxiType) {
                 errors.taxiType = 'Taxi type is required';
             }
@@ -2151,9 +2151,11 @@ const EmployeeCommutingForm = () => {
                     if (!formData.personsTravelWithTaxi) {
                         errors.personsTravelWithTaxi = 'Please select how many persons you carry';
                     }
+                     if ( formData.motorbikeMode === 'both') {
                     if (!formData.taxiDistanceCarpool || formData.taxiDistanceCarpool.trim() === '') {
                         errors.taxiDistanceCarpool = 'Taxi carpool distance is required';
                     }
+                }
                 }
             }
 
@@ -2207,9 +2209,10 @@ const EmployeeCommutingForm = () => {
                     if (!formData.personsCarriedCar) {
                         errors.personsCarriedCar = 'Please select how many persons you carry';
                     }
+                     if ( formData.motorbikeMode === 'both') {
                     if (!formData.carDistanceCarpool || formData.carDistanceCarpool.trim() === '') {
                         errors.carDistanceCarpool = 'Car carpool distance is required';
-                    }
+                    }}
                 }
             }
         }
@@ -2447,6 +2450,7 @@ const EmployeeCommutingForm = () => {
 
         return errors;
     };
+    console.log(errors);
 
     // Add this function after validateForm()
     // Enhanced scroll to first error function
@@ -3229,7 +3233,7 @@ const EmployeeCommutingForm = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div>
+                                {/* <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Number of Passengers (including yourself)
                                     </label>
@@ -3240,10 +3244,10 @@ const EmployeeCommutingForm = () => {
                                         onChange={(selectedOption) => handleSelectChange('taxiPassengers', selectedOption)}
                                     />
                                     <ErrorMessage message={errors.taxiPassengers} />
-                                </div>
+                                </div> */}
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Distance Travelled *
+                                     <label className="block text-sm font-medium text-gray-700 mb-2">
+                                     {formData.taxiMode === "both" ? "Individual Distance Travelled *" : "Distance Travelled *"}
                                     </label>
                                     <div className="grid grid-cols-[14fr_1fr]">
                                         <InputGroup
@@ -3284,14 +3288,6 @@ const EmployeeCommutingForm = () => {
                             {/* Show travel with others only when Carpool or Both is selected */}
                             {(formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && (
                                 <div className="mt-4 ">
-                                    {/* <div className="mb-4">
-                                        <Checkbox
-                                            label="Do you travel with any other employee to this organization?"
-                                            checked={formData.travelWithOthersTaxi}
-                                            onChange={(e) => handleCheckboxChange('travelWithOthersTaxi', e.target.checked)}
-                                        />
-                                        <ErrorMessage message={errors.travelWithOthersTaxi} />
-                                    </div> */}
 
                                     {formData.travelWithOthersTaxi && (
                                         <>
@@ -3309,10 +3305,11 @@ const EmployeeCommutingForm = () => {
                                                     />
                                                     <ErrorMessage message={errors.personsTravelWithTaxi} />
                                                 </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                        Distance Travelled *
-                                                    </label>
+                                                   {formData.taxiMode === 'both'  && (
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                            Distance Travelled By Carpool *
+                                                        </label>
                                                     <div className="grid grid-cols-[14fr_1fr]">
                                                         <InputGroup
                                                             type="number"
@@ -3331,6 +3328,7 @@ const EmployeeCommutingForm = () => {
                                                     </div>
                                                     <ErrorMessage message={errors.taxiDistanceCarpool} />
                                                 </div>
+                                                   )}
                                             </div>
 
                                             {renderPassengerEmails(
@@ -3498,8 +3496,8 @@ const EmployeeCommutingForm = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Distance Travelled *
+                                     <label className="block text-sm font-medium text-gray-700 mb-2">
+                                     {formData.carMode === "both" ? "Individual Distance Travelled *" : "Distance Travelled *"}
                                     </label>
                                     <div className="grid grid-cols-[14fr_1fr]">
                                         <InputGroup
@@ -3523,12 +3521,7 @@ const EmployeeCommutingForm = () => {
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Car Type
                                     </label>
-                                    {/* <CustomSelect
-                                        options={transportationOptions.carTypes}
-                                        value={formData.carType}
-                                        placeholder="Select Type"
-                                        onChange={(selectedOption) => handleSelectChange('carType', selectedOption)}
-                                    /> */}
+                                   
                                     <CustomSelect
                                         options={carTypeOptions}
                                         value={formData.carType}
@@ -3541,12 +3534,7 @@ const EmployeeCommutingForm = () => {
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Car Fuel Type
                                     </label>
-                                    {/* <CustomSelect
-                                        options={transportationOptions.fuelTypes}
-                                        value={formData.carFuelType}
-                                        placeholder="Select Type"
-                                        onChange={(selectedOption) => handleSelectChange('carFuelType', selectedOption)}
-                                    /> */}
+                                  
                                     <CustomSelect
                                         options={getFuelOptionsByCarType(formData.carType?.value)}
                                         value={formData.carFuelType}
@@ -3568,15 +3556,7 @@ const EmployeeCommutingForm = () => {
                             {(formData.carMode === 'carpool' || formData.carMode === 'both') && (
                                 <>
                                     <div className="mt-4  ">
-                                        {/* <div className="mb-4">
-                                            <Checkbox
-                                                label="Do you carry any other employee to this organization?"
-                                                checked={formData.carryOthersCar}
-                                                onChange={(e) => handleCheckboxChange('carryOthersCar', e.target.checked)}
-                                            />
-                                            <ErrorMessage message={errors.carryOthersCar} />
-                                        </div> */}
-
+                                        
                                         {formData.carryOthersCar && (
                                             <>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3592,11 +3572,11 @@ const EmployeeCommutingForm = () => {
                                                         />
                                                         <ErrorMessage message={errors.personsCarriedCar} />
                                                     </div>
+                                                    {formData.carMode === 'both'  && (
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                            Distance Travelled *
+                                                            Distance Travelled By Carpool *
                                                         </label>
-
                                                         <div className="grid grid-cols-[14fr_1fr]">
                                                             <InputGroup
                                                                 type="number"
@@ -3615,6 +3595,7 @@ const EmployeeCommutingForm = () => {
                                                         </div>
                                                         <ErrorMessage message={errors.carDistanceCarpool} />
                                                     </div>
+                                                    )}
                                                 </div>
 
                                                 {renderPassengerEmails(
