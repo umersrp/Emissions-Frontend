@@ -47,7 +47,7 @@ const EMISSION_FACTORS = {
         }
     },
     motorbikes: {
-        "Small": 0.08319, "Medium": 0.10108, "Large": 0.13252, "Average": 0.11367, "Small (<125cc)": 0.08319, "Medium (125-500cc)": 0.10108, "Large (>500cc)": 0.13252, "Electric Motorbike": 0.03688
+        "Small": 0.08319, "Medium": 0.10108, "Large": 0.13252, "Average": 0.11367, "Small (<125cc)": 0.08319, "Medium (125-500cc)": 0.10108, "Large (>500cc)": 0.13252, "Average": 0.11367
     },
     taxis: {
         "Regular taxi": 0.14861, "Premium taxi": 0.20402, "Electric taxi": 0.03688, "Shared taxi": 0.14861, "Regular Taxi": 0.14861, "Premium Taxi": 0.20402, "Electric Taxi": 0.03688, "Shared Taxi/Pool": 0.14861
@@ -76,7 +76,8 @@ const calculateEmissions = (data) => {
         factor = factor / passengers;
     } else if (data.commuteByTaxi) {
         distance = Number(data.taxiDistance) || 0;
-        passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : Number(data.taxiPassengers || 1);
+        // passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : Number(data.taxiPassengers || 1);
+        passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : 1;
         const taxiType = data.taxiType || "Regular taxi";
         factor = EMISSION_FACTORS.taxis[taxiType] || EMISSION_FACTORS.taxis["Regular taxi"];
         factor = factor / passengers;
@@ -140,11 +141,11 @@ const EmployeeCommutingForm = () => {
         motorbikeMode: '', // possible values: 'individual', 'carpool', 'both'
         motorbikeDistance: '',
         motorbikeType: null,
-        carryOthersMotorbike: false,
+        carryOthersMotorbike: true,
         personsCarriedMotorbike: null,
         motorbikePassengerEmails: [''],
         motorbikePassengerUserIds: [''],
-        travelWithOthersMotorbike: false,
+        travelWithOthersMotorbike: true,
         personsTravelWithMotorbike: null,
         motorbikeTravelPassengerEmails: [''],
         motorbikeTravelPassengerUserIds: [''],
@@ -155,7 +156,7 @@ const EmployeeCommutingForm = () => {
         taxiPassengers: null,
         taxiDistance: '',
         taxiType: null,
-        travelWithOthersTaxi: false,
+        travelWithOthersTaxi: true,
         personsTravelWithTaxi: null,
         taxiPassengerEmails: [''],
         taxiPassengerUserIds: [''],
@@ -176,7 +177,7 @@ const EmployeeCommutingForm = () => {
         carDistance: '',
         carType: null,
         carFuelType: null,
-        carryOthersCar: false,
+        carryOthersCar: true,
         personsCarriedCar: null,
         carPassengerEmails: [''],
         carPassengerUserIds: [''],
@@ -715,6 +716,65 @@ const EmployeeCommutingForm = () => {
                 delete newErrors.commuteMethodRequired;
                 return newErrors;
             });
+        }
+
+        // If this is a carry/travel-with toggle, when turned off reset its dependent fields
+        if ((field.startsWith('carryOthers') || field.startsWith('travelWithOthers'))) {
+            if (!value) {
+                // e.g. carryOthersCar -> Car | travelWithOthersMotorbike -> Motorbike
+                const base = field.replace(/^(carryOthers|travelWithOthers)/, '');
+                const baseLower = base.toLowerCase();
+
+                // Map to correct email/userId fields (special cases for Travel variants)
+                let emailsField = `${baseLower}PassengerEmails`;
+                let userIdsField = `${baseLower}PassengerUserIds`;
+                let personsField = field.startsWith('travelWithOthers') ? `personsTravelWith${base}` : `personsCarried${base}`;
+
+                // handle motorbikeTravel & carTravel naming
+                if (field.startsWith('travelWithOthers') && base === 'Motorbike') {
+                    emailsField = 'motorbikeTravelPassengerEmails';
+                    userIdsField = 'motorbikeTravelPassengerUserIds';
+                    personsField = 'personsTravelWithMotorbike';
+                }
+                if (field.startsWith('travelWithOthers') && base === 'Car') {
+                    emailsField = 'carTravelPassengerEmails';
+                    userIdsField = 'carTravelPassengerUserIds';
+                    personsField = 'personsTravelWithCar';
+                }
+
+                // For carryOthers Motorbike/Car use personsCarriedX and passenger arrays
+                if (field.startsWith('carryOthers') && base === 'Motorbike') {
+                    emailsField = 'motorbikePassengerEmails';
+                    userIdsField = 'motorbikePassengerUserIds';
+                    personsField = 'personsCarriedMotorbike';
+                }
+                if (field.startsWith('carryOthers') && base === 'Car') {
+                    emailsField = 'carPassengerEmails';
+                    userIdsField = 'carPassengerUserIds';
+                    personsField = 'personsCarriedCar';
+                }
+
+                // Apply resets
+                setFormData(prev => ({
+                    ...prev,
+                    [personsField]: '',
+                    [emailsField]: [],
+                    [userIdsField]: []
+                }));
+
+                // Clear related errors
+                setErrors(prev => {
+                    const newErrors = { ...prev };
+                    Object.keys(newErrors).forEach(k => {
+                        if (k.includes(baseLower) || k.includes(personsField) || k.includes(emailsField) || k.includes(userIdsField) || k.includes(base)) {
+                            delete newErrors[k];
+                        }
+                    });
+                    return newErrors;
+                });
+            }
+
+            return;
         }
 
         // Clear all field-specific errors for this toggle when it's turned off
@@ -1818,11 +1878,7 @@ const EmployeeCommutingForm = () => {
                                         <p className="text-xs text-gray-500 mt-1">
                                             Select a colleague from the company directory
                                         </p>
-                                        {selectedUser && (
-                                            <p className="text-xs text-green-600 mt-1">
-                                                User ID: {selectedUser.value}
-                                            </p>
-                                        )}
+                                       
                                     </div>
                                     <div>
                                         <InputGroup
@@ -1832,6 +1888,7 @@ const EmployeeCommutingForm = () => {
                                             onChange={(e) => handlePassengerEmailsChange(transportType, index, e.target.value)}
                                             className="w-full"
                                         />
+                                        <ErrorMessage message={errors[`${transportType}PassengerEmail${index}`]} />
                                         <p className="text-xs text-gray-500 mt-1">
                                             Type email if colleague not in list
                                         </p>
@@ -2059,9 +2116,11 @@ const EmployeeCommutingForm = () => {
                     if (!formData.personsCarriedMotorbike) {
                         errors.personsCarriedMotorbike = 'Please select how many persons you carry';
                     }
+                    if ( formData.motorbikeMode === 'both') {
                     if (!formData.motorbikeDistanceCarpool || formData.motorbikeDistanceCarpool.trim() === '') {
                         errors.motorbikeDistanceCarpool = 'Motorbike carpool distance is required';
                     }
+                }
                 }
             }
         }
@@ -2328,10 +2387,27 @@ const EmployeeCommutingForm = () => {
             }
         }
 
-        // Validate passenger emails
+        // Validate passenger emails - require email or selected userId when count>0
         const validatePassengerEmails = (emails, transportType) => {
+            const getUserIdsField = (tt) => {
+                if (tt === 'motorbike') return 'motorbikePassengerUserIds';
+                if (tt === 'motorbikeTravel') return 'motorbikeTravelPassengerUserIds';
+                if (tt === 'car') return 'carPassengerUserIds';
+                if (tt === 'carTravel') return 'carTravelPassengerUserIds';
+                if (tt === 'taxi') return 'taxiPassengerUserIds';
+                return null;
+            };
+
+            const userIdsField = getUserIdsField(transportType);
+            const userIds = userIdsField ? (formData[userIdsField] || []) : [];
+
             emails.forEach((email, index) => {
-                if (email.trim() && !isValidEmail(email)) {
+                const value = String(email || '').trim();
+                const linkedUserId = userIds[index] || '';
+
+                if (!value && !linkedUserId) {
+                    errors[`${transportType}PassengerEmail${index}`] = `Please provide email or select colleague for passenger ${index + 1}`;
+                } else if (value && !isValidEmail(value)) {
                     errors[`${transportType}PassengerEmail${index}`] = `Invalid email address for ${transportType} passenger ${index + 1}`;
                 }
             });
@@ -2693,7 +2769,7 @@ const EmployeeCommutingForm = () => {
             <Card title={"Employee Commuting Data Collection"}>
                 {/* <form onSubmit={handleSubmit}> */}
                 <div className="mb-8">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                    {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
 
                         <div className="w-full md:w-48">
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -2708,7 +2784,7 @@ const EmployeeCommutingForm = () => {
                                 placeholder="Select Year"
                             />
                         </div>
-                    </div>
+                    </div> */}
                     <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 ">
                         <p className="text-gray-600">
                             This category includes emissions from the transportation of employees between their homes and their worksites in vehicles not owned or operated by the reporting company . You may also include emissions from teleworking (i.e., employees working remotely) in this category.
@@ -2731,9 +2807,9 @@ const EmployeeCommutingForm = () => {
                                     </svg>
                                 </div>
                                 <div className="ml-3">
-                                    <h3 className="text-sm font-medium text-black-800">
+                                    {/* <h3 className="text-sm font-medium text-black-800">
                                         {targetUserData ? `Admin Mode: Filling for ${targetUserData?.name || targetUserData?.email || 'User'}` : `Welcome, ${userInfo?.name || userInfo?.email || 'User'}!`}
-                                    </h3>
+                                    </h3> */}
                                     <div className="mt-1 text-sm text-black-700">
                                         {userInfo?.buildingId && userInfo?.buildingId?.buildingName && (
                                             <p>Selected building: <span className="font-semibold">{userInfo.buildingId.buildingName}</span></p>
@@ -3008,7 +3084,7 @@ const EmployeeCommutingForm = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Distance Travelled *
+                                     {formData.motorbikeMode === "both" ? "Individual Distance Travelled *" : "Distance Travelled *"}
                                     </label>
                                     <div className="grid grid-cols-[14fr_1fr]">
                                         <InputGroup
@@ -3048,14 +3124,14 @@ const EmployeeCommutingForm = () => {
                             {(formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && (
                                 <>
                                     <div className="mt-4 ">
-                                        <div className="mb-4">
+                                        {/* <div className="mb-4">
                                             <Checkbox
                                                 label="Do you carry any other employee to this organization?"
                                                 checked={formData.carryOthersMotorbike}
                                                 onChange={(e) => handleCheckboxChange('carryOthersMotorbike', e.target.checked)}
                                             />
                                             <ErrorMessage message={errors.carryOthersMotorbike} />
-                                        </div>
+                                        </div> */}
 
                                         {formData.carryOthersMotorbike && (
                                             <>
@@ -3067,14 +3143,15 @@ const EmployeeCommutingForm = () => {
                                                         <CustomSelect
                                                             options={transportationOptions.personOptions}
                                                             value={formData.personsCarriedMotorbike}
-                                                            placeholder="e.g., 1, 2, 3"
+                                                            placeholder="e.g., 2, 3, 4"
                                                             onChange={(selectedOption) => handlePersonsChange('personsCarriedMotorbike', selectedOption)}
                                                         />
                                                         <ErrorMessage message={errors.personsCarriedMotorbike} />
                                                     </div>
+                                                    {formData.motorbikeMode === 'both'  && (
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                            Distance Travelled *
+                                                            Distance Travelled By Carpool *
                                                         </label>
                                                         <div className="grid grid-cols-[14fr_1fr]">
                                                             <InputGroup
@@ -3094,6 +3171,8 @@ const EmployeeCommutingForm = () => {
                                                         </div>
                                                         <ErrorMessage message={errors.motorbikeDistanceCarpool} />
                                                     </div>
+                                                      )}
+
                                                 </div>
                                                 {renderPassengerEmails(
                                                     'motorbike',
@@ -3205,14 +3284,14 @@ const EmployeeCommutingForm = () => {
                             {/* Show travel with others only when Carpool or Both is selected */}
                             {(formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && (
                                 <div className="mt-4 ">
-                                    <div className="mb-4">
+                                    {/* <div className="mb-4">
                                         <Checkbox
                                             label="Do you travel with any other employee to this organization?"
                                             checked={formData.travelWithOthersTaxi}
                                             onChange={(e) => handleCheckboxChange('travelWithOthersTaxi', e.target.checked)}
                                         />
                                         <ErrorMessage message={errors.travelWithOthersTaxi} />
-                                    </div>
+                                    </div> */}
 
                                     {formData.travelWithOthersTaxi && (
                                         <>
@@ -3225,7 +3304,7 @@ const EmployeeCommutingForm = () => {
                                                         label=""
                                                         options={transportationOptions.personOptions}
                                                         value={formData.personsTravelWithTaxi}
-                                                        placeholder="e.g., 1, 2, 3"
+                                                        placeholder="e.g., 2, 3, 4"
                                                         onChange={(selectedOption) => handlePersonsChange('personsTravelWithTaxi', selectedOption)}
                                                     />
                                                     <ErrorMessage message={errors.personsTravelWithTaxi} />
@@ -3489,14 +3568,14 @@ const EmployeeCommutingForm = () => {
                             {(formData.carMode === 'carpool' || formData.carMode === 'both') && (
                                 <>
                                     <div className="mt-4  ">
-                                        <div className="mb-4">
+                                        {/* <div className="mb-4">
                                             <Checkbox
                                                 label="Do you carry any other employee to this organization?"
                                                 checked={formData.carryOthersCar}
                                                 onChange={(e) => handleCheckboxChange('carryOthersCar', e.target.checked)}
                                             />
                                             <ErrorMessage message={errors.carryOthersCar} />
-                                        </div>
+                                        </div> */}
 
                                         {formData.carryOthersCar && (
                                             <>
@@ -3508,7 +3587,7 @@ const EmployeeCommutingForm = () => {
                                                         <CustomSelect
                                                             options={transportationOptions.personOptions}
                                                             value={formData.personsCarriedCar}
-                                                            placeholder={"e.g., 1, 2, 3"}
+                                                            placeholder={"e.g., 2, 3, 4"}
                                                             onChange={(selectedOption) => handlePersonsChange('personsCarriedCar', selectedOption)}
                                                         />
                                                         <ErrorMessage message={errors.personsCarriedCar} />

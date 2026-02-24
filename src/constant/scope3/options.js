@@ -103,7 +103,7 @@ export const transportationOptions = {
             { value: 'Small', label: 'Small (<125cc)' },
             { value: 'Medium', label: 'Medium (125-500cc)' },
             { value: 'Large', label: 'Large (>500cc)' },
-            { value: 'Electric', label: 'Electric Motorbike' },
+            { value: 'Average', label: 'Average' },
         ],
 
         taxiTypes: [
@@ -186,7 +186,7 @@ export const transportationOptions = {
         ],
 
         personOptions: [
-            { value: '1', label: '1 person' },
+            // { value: '1', label: '1 person' },
             { value: '2', label: '2 persons' },
             { value: '3', label: '3 persons' },
             { value: '4', label: '4 persons' },
