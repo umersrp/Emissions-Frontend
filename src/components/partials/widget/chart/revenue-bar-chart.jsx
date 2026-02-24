@@ -268,7 +268,7 @@ const RevenueBarChart = ({
         // Format the value
         const formattedValue = actualVal.toLocaleString(undefined, {
           minimumFractionDigits: 2,
-          maximumFractionDigits: 2
+          maximumFractionDigits: 5
         });
         
         // Determine the color based on highlighting

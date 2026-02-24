@@ -397,7 +397,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0,  // 
                         <div className="p-2 text-red-600 font-semibold border-b text-center truncate">
                           {Number(item.totalEmissionTCo2e || 0).toLocaleString(undefined, {
                             minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
+                            maximumFractionDigits: 5,
                           })} tCO₂e
                         </div>
 
