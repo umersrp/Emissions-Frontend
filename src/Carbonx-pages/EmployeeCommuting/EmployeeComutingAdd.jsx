@@ -2416,29 +2416,38 @@ const EmployeeCommutingForm = () => {
             });
         };
 
-        // Motorbike carpool validation
+        // Motorbike carpool validation - only validate passenger lists when person count > 0
         if (formData.commuteByMotorbike && (formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both')) {
-            if (formData.carryOthersMotorbike) {
+            const personsCarriedMotorbikeCount = parseInt(formData.personsCarriedMotorbike?.value || formData.personsCarriedMotorbike || 0, 10) || 0;
+            if (formData.carryOthersMotorbike && personsCarriedMotorbikeCount > 0) {
                 validatePassengerEmails(formData.motorbikePassengerEmails, 'motorbike');
             }
-            if (formData.travelWithOthersMotorbike) {
+
+            const personsTravelWithMotorbikeCount = parseInt(formData.personsTravelWithMotorbike?.value || formData.personsTravelWithMotorbike || 0, 10) || 0;
+            if (formData.travelWithOthersMotorbike && personsTravelWithMotorbikeCount > 0) {
                 validatePassengerEmails(formData.motorbikeTravelPassengerEmails, 'motorbikeTravel');
             }
         }
 
-        // Car carpool validation
+        // Car carpool validation - only validate passenger lists when person count > 0
         if (formData.commuteByCar && (formData.carMode === 'carpool' || formData.carMode === 'both')) {
-            if (formData.carryOthersCar) {
+            const personsCarriedCarCount = parseInt(formData.personsCarriedCar?.value || formData.personsCarriedCar || 0, 10) || 0;
+            if (formData.carryOthersCar && personsCarriedCarCount > 0) {
                 validatePassengerEmails(formData.carPassengerEmails, 'car');
             }
-            if (formData.travelWithOthersCar) {
+
+            const personsTravelWithCarCount = parseInt(formData.personsTravelWithCar?.value || formData.personsTravelWithCar || 0, 10) || 0;
+            if (formData.travelWithOthersCar && personsTravelWithCarCount > 0) {
                 validatePassengerEmails(formData.carTravelPassengerEmails, 'carTravel');
             }
         }
 
-        // Taxi carpool validation
+        // Taxi carpool validation - only validate when person count > 0
         if (formData.commuteByTaxi && (formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && formData.travelWithOthersTaxi) {
-            validatePassengerEmails(formData.taxiPassengerEmails, 'taxi');
+            const personsTravelWithTaxiCount = parseInt(formData.personsTravelWithTaxi?.value || formData.personsTravelWithTaxi || 0, 10) || 0;
+            if (personsTravelWithTaxiCount > 0) {
+                validatePassengerEmails(formData.taxiPassengerEmails, 'taxi');
+            }
         }
 
         // Validate submitted by email
