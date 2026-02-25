@@ -122,10 +122,13 @@ const EmployeeCommutingForm = () => {
     // Track all selected date ranges for validation
     const [selectedDateRanges, setSelectedDateRanges] = useState({
         motorbike: null,
+        motorbikeCarpool: null,
         taxi: null,
+        taxiCarpool: null,
         bus: null,
         train: null,
         car: null,
+        carCarpool: null,
         workFromHome: null
     });
 
@@ -150,6 +153,7 @@ const EmployeeCommutingForm = () => {
         motorbikeTravelPassengerEmails: [''],
         motorbikeTravelPassengerUserIds: [''],
         motorbikeDateRange: null,
+        motorbikeCarpoolDateRange: null,
         // Taxi Commute
         commuteByTaxi: false,
         taxiMode: '', // possible values: 'individual', 'carpool', 'both'
@@ -161,6 +165,7 @@ const EmployeeCommutingForm = () => {
         taxiPassengerEmails: [''],
         taxiPassengerUserIds: [''],
         taxiDateRange: null,
+        taxiCarpoolDateRange: null,
         // Bus Commute
         commuteByBus: false,
         busDistance: '',
@@ -186,6 +191,7 @@ const EmployeeCommutingForm = () => {
         carTravelPassengerEmails: [''],
         carTravelPassengerUserIds: [''],
         carDateRange: null,
+        carCarpoolDateRange: null,
         // Work From Home
         workFromHome: false,
         fteWorkingHours: '',
@@ -844,7 +850,14 @@ const EmployeeCommutingForm = () => {
                         personsCarriedMotorbike: '',
                         motorbikeDistanceCarpool: '',
                         motorbikePassengerEmails: [],
-                        motorbikePassengerUserIds: []
+                        motorbikePassengerUserIds: [],
+                        motorbikeCarpoolDateRange: null
+                    }));
+                    // Clear the selected date ranges state for both motorbike and motorbikeCarpool
+                    setSelectedDateRanges(prev => ({
+                        ...prev,
+                        motorbike: null,
+                        motorbikeCarpool: null
                     }));
                 }
 
@@ -862,9 +875,16 @@ const EmployeeCommutingForm = () => {
                             personsTravelWithTaxi: '',
                             taxiDistanceCarpool: '',
                             taxiPassengerEmails: [],
-                            taxiPassengerUserIds: []
+                            taxiPassengerUserIds: [],
+                            taxiCarpoolDateRange: null
                         }));
                     }, 50);
+                    // Clear the selected date ranges state for both taxi and taxiCarpool
+                    setSelectedDateRanges(prev => ({
+                        ...prev,
+                        taxi: null,
+                        taxiCarpool: null
+                    }));
                 }
 
                 // Reset bus fields
@@ -908,9 +928,17 @@ const EmployeeCommutingForm = () => {
                             personsCarriedCar: '',
                             carDistanceCarpool: '',
                             carPassengerEmails: [],
-                            carPassengerUserIds: []
+                            carPassengerUserIds: [],
+                            carCarpoolDateRange: null
                         }));
                     }, 50);
+
+                    // Clear the selected date ranges state for both car and carCarpool
+                    setSelectedDateRanges(prev => ({
+                        ...prev,
+                        car: null,
+                        carCarpool: null
+                    }));
                 }
 
                 // Reset work from home fields
@@ -2022,10 +2050,13 @@ const EmployeeCommutingForm = () => {
 
         // Add months from all selected commute methods
         if (formData.commuteByMotorbike && formData.motorbikeDateRange) { addMonthsFromRange(formData.motorbikeDateRange); }
+        if (formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.motorbikeCarpoolDateRange) { addMonthsFromRange(formData.motorbikeCarpoolDateRange); }
         if (formData.commuteByTaxi && formData.taxiDateRange) { addMonthsFromRange(formData.taxiDateRange); }
+        if (formData.commuteByTaxi && formData.taxiMode === 'both' && formData.taxiCarpoolDateRange) { addMonthsFromRange(formData.taxiCarpoolDateRange); }
         if (formData.commuteByBus && formData.busDateRange) { addMonthsFromRange(formData.busDateRange); }
         if (formData.commuteByTrain && formData.trainDateRange) { addMonthsFromRange(formData.trainDateRange); }
         if (formData.commuteByCar && formData.carDateRange) { addMonthsFromRange(formData.carDateRange); }
+        if (formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange) { addMonthsFromRange(formData.carCarpoolDateRange); }
         if (formData.workFromHome && formData.workFromHomeDateRange) { addMonthsFromRange(formData.workFromHomeDateRange); }
 
         // Check which months are covered
@@ -2117,10 +2148,13 @@ const EmployeeCommutingForm = () => {
                         errors.personsCarriedMotorbike = 'Please select how many persons you carry';
                     }
                     if ( formData.motorbikeMode === 'both') {
-                    if (!formData.motorbikeDistanceCarpool || formData.motorbikeDistanceCarpool.trim() === '') {
-                        errors.motorbikeDistanceCarpool = 'Motorbike carpool distance is required';
+                        if (!formData.motorbikeDistanceCarpool || formData.motorbikeDistanceCarpool.trim() === '') {
+                            errors.motorbikeDistanceCarpool = 'Motorbike carpool distance is required';
+                        }
+                        if (!formData.motorbikeCarpoolDateRange || !formData.motorbikeCarpoolDateRange.startDate || !formData.motorbikeCarpoolDateRange.endDate) {
+                            errors.motorbikeCarpoolDateRange = 'Please select a date range for motorbike carpool commute';
+                        }
                     }
-                }
                 }
             }
         }
@@ -2151,11 +2185,14 @@ const EmployeeCommutingForm = () => {
                     if (!formData.personsTravelWithTaxi) {
                         errors.personsTravelWithTaxi = 'Please select how many persons you carry';
                     }
-                     if ( formData.motorbikeMode === 'both') {
-                    if (!formData.taxiDistanceCarpool || formData.taxiDistanceCarpool.trim() === '') {
-                        errors.taxiDistanceCarpool = 'Taxi carpool distance is required';
+                    if (formData.taxiMode === 'both') {
+                        if (!formData.taxiDistanceCarpool || formData.taxiDistanceCarpool.trim() === '') {
+                            errors.taxiDistanceCarpool = 'Taxi carpool distance is required';
+                        }
+                        if (!formData.taxiCarpoolDateRange || !formData.taxiCarpoolDateRange.startDate || !formData.taxiCarpoolDateRange.endDate) {
+                            errors.taxiCarpoolDateRange = 'Please select a date range for taxi carpool commute';
+                        }
                     }
-                }
                 }
             }
 
@@ -2198,7 +2235,7 @@ const EmployeeCommutingForm = () => {
             if (!formData.carDateRange || !formData.carDateRange.startDate || !formData.carDateRange.endDate) {
                 errors.carDateRange = 'Please select a date range for car commute';
             }
-            if (formData.taxiMode === 'carpool' || formData.taxiMode === 'both') {
+            if (formData.carMode === 'carpool' || formData.carMode === 'both') {
                 // Carry others checkbox is required
                 if (formData.carryOthersCar === false || formData.carryOthersCar === null) {
                     errors.carryOthersCar = 'Please indicate if you carry other employees';
@@ -2209,10 +2246,14 @@ const EmployeeCommutingForm = () => {
                     if (!formData.personsCarriedCar) {
                         errors.personsCarriedCar = 'Please select how many persons you carry';
                     }
-                     if ( formData.motorbikeMode === 'both') {
-                    if (!formData.carDistanceCarpool || formData.carDistanceCarpool.trim() === '') {
-                        errors.carDistanceCarpool = 'Car carpool distance is required';
-                    }}
+                    if ( formData.carMode === 'both') {
+                        if (!formData.carDistanceCarpool || formData.carDistanceCarpool.trim() === '') {
+                            errors.carDistanceCarpool = 'Car carpool distance is required';
+                        }
+                        if (!formData.carCarpoolDateRange || !formData.carCarpoolDateRange.startDate || !formData.carCarpoolDateRange.endDate) {
+                            errors.carCarpoolDateRange = 'Please select a date range for car carpool commute';
+                        }
+                    }
                 }
             }
         }
@@ -2292,6 +2333,25 @@ const EmployeeCommutingForm = () => {
             }
         }
 
+        // Motorbike carpool date range validation - only when mode is 'both'
+        if (formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.carryOthersMotorbike) {
+            if (!formData.motorbikeCarpoolDateRange || !formData.motorbikeCarpoolDateRange.startDate || !formData.motorbikeCarpoolDateRange.endDate) {
+                errors.motorbikeCarpoolDateRange = 'Please select a date range for motorbike carpool commute';
+            } else {
+                // Validate date range specifics
+                const startDate = new Date(formData.motorbikeCarpoolDateRange.startDate);
+                const endDate = new Date(formData.motorbikeCarpoolDateRange.endDate);
+
+                if (startDate > endDate) {
+                    errors.motorbikeCarpoolDateRange = 'Start date must be before end date';
+                }
+
+                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                    errors.motorbikeCarpoolDateRange = `Date range must be within ${reportingYear}`;
+                }
+            }
+        }
+
         // Taxi date range validation
         if (formData.commuteByTaxi) {
             if (!formData.taxiDateRange || !formData.taxiDateRange.startDate || !formData.taxiDateRange.endDate) {
@@ -2307,6 +2367,25 @@ const EmployeeCommutingForm = () => {
 
                 if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
                     errors.taxiDateRange = `Date range must be within ${reportingYear}`;
+                }
+            }
+        }
+
+        // Taxi carpool date range validation - only when mode is 'both'
+        if (formData.commuteByTaxi && formData.taxiMode === 'both' && formData.travelWithOthersTaxi) {
+            if (!formData.taxiCarpoolDateRange || !formData.taxiCarpoolDateRange.startDate || !formData.taxiCarpoolDateRange.endDate) {
+                errors.taxiCarpoolDateRange = 'Please select a date range for taxi carpool commute';
+            } else {
+                // Validate date range specifics
+                const startDate = new Date(formData.taxiCarpoolDateRange.startDate);
+                const endDate = new Date(formData.taxiCarpoolDateRange.endDate);
+
+                if (startDate > endDate) {
+                    errors.taxiCarpoolDateRange = 'Start date must be before end date';
+                }
+
+                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                    errors.taxiCarpoolDateRange = `Date range must be within ${reportingYear}`;
                 }
             }
         }
@@ -2359,6 +2438,25 @@ const EmployeeCommutingForm = () => {
 
                 if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
                     errors.carDateRange = `Date range must be within ${reportingYear}`;
+                }
+            }
+        }
+
+        // Car carpool date range validation - only when mode is 'both'
+        if (formData.commuteByCar && formData.carMode === 'both' && formData.carryOthersCar) {
+            if (!formData.carCarpoolDateRange || !formData.carCarpoolDateRange.startDate || !formData.carCarpoolDateRange.endDate) {
+                errors.carCarpoolDateRange = 'Please select a date range for car carpool commute';
+            } else {
+                // Validate date range specifics
+                const startDate = new Date(formData.carCarpoolDateRange.startDate);
+                const endDate = new Date(formData.carCarpoolDateRange.endDate);
+
+                if (startDate > endDate) {
+                    errors.carCarpoolDateRange = 'Start date must be before end date';
+                }
+
+                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                    errors.carCarpoolDateRange = `Date range must be within ${reportingYear}`;
                 }
             }
         }
@@ -2463,8 +2561,76 @@ const EmployeeCommutingForm = () => {
 
     // Add this function after validateForm()
     // Enhanced scroll to first error function
-    const scrollToFirstError = () => {
-        // Simply scroll to the top of the form container
+    const scrollToFirstError = (validationErrors) => {
+        // Map error keys to their corresponding field IDs
+        const errorKeyToSelector = {
+            stakeholderDepartment: '#stakeholderDepartment',
+            qualityControl: '#qualityControl',
+            commuteMethodRequired: '#commuteMethodRequired',
+            motorbikeDistance: '#motorbikeDistance',
+            motorbikeMode: '#motorbikeMode',
+            motorbikeType: '#motorbikeType',
+            motorbikeDateRange: '#motorbikeDateRange',
+            motorbikeCarpoolDateRange: '#motorbikeCarpoolDateRange',
+            carryOthersMotorbike: '#carryOthersMotorbike',
+            personsCarriedMotorbike: '#personsCarriedMotorbike',
+            motorbikeDistanceCarpool: '#motorbikeDistanceCarpool',
+            taxiDistance: '#taxiDistance',
+            taxiMode: '#taxiMode',
+            taxiType: '#taxiType',
+            taxiDateRange: '#taxiDateRange',
+            taxiCarpoolDateRange: '#taxiCarpoolDateRange',
+            travelWithOthersTaxi: '#travelWithOthersTaxi',
+            personsTravelWithTaxi: '#personsTravelWithTaxi',
+            taxiDistanceCarpool: '#taxiDistanceCarpool',
+            busDistance: '#busDistance',
+            busType: '#busType',
+            busDateRange: '#busDateRange',
+            trainDistance: '#trainDistance',
+            trainType: '#trainType',
+            trainDateRange: '#trainDateRange',
+            carDistance: '#carDistance',
+            carMode: '#carMode',
+            carType: '#carType',
+            carFuelType: '#carFuelType',
+            carDateRange: '#carDateRange',
+            carDistanceCarpool: '#carDistanceCarpool',
+            carCarpoolDateRange: '#carCarpoolDateRange',
+            carryOthersCar: '#carryOthersCar',
+            personsCarriedCar: '#personsCarriedCar',
+            fteWorkingHours: '#fteWorkingHours',
+            workFromHomeDateRange: '#workFromHomeDateRange',
+            submittedByEmail: '#submittedByEmail',
+            monthCoverage: '#monthCoverageSummary',
+            dateRangeOverlap: '#dateRangeOverlapWarning'
+        };
+
+        // Find the first error from the list
+        const errorKeys = Object.keys(validationErrors);
+        if (errorKeys.length === 0) return;
+
+        // Find the first error that has a corresponding selector
+        let firstErrorSelector = null;
+        for (let errorKey of errorKeys) {
+            if (errorKeyToSelector[errorKey]) {
+                firstErrorSelector = errorKeyToSelector[errorKey];
+                break;
+            }
+        }
+
+        // If we found a selector, try to scroll to it
+        if (firstErrorSelector) {
+            const element = document.querySelector(firstErrorSelector);
+            if (element) {
+                element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+                return;
+            }
+        }
+
+        // Fallback: scroll to top of form container
         const formContainer = document.querySelector('.max-w-6xl');
         if (formContainer) {
             formContainer.scrollIntoView({
@@ -2472,7 +2638,6 @@ const EmployeeCommutingForm = () => {
                 block: 'start'
             });
         } else {
-            // Fallback: scroll to top of page
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
@@ -2534,10 +2699,13 @@ const EmployeeCommutingForm = () => {
 
             // Convert date ranges to arrays of dates
             const motorbikeDates = formData.motorbikeDateRange ? dateRangeToDates(formData.motorbikeDateRange) : [];
+            const motorbikeCarpoolDates = formData.motorbikeCarpoolDateRange ? dateRangeToDates(formData.motorbikeCarpoolDateRange) : [];
             const taxiDates = formData.taxiDateRange ? dateRangeToDates(formData.taxiDateRange) : [];
+            const taxiCarpoolDates = formData.taxiCarpoolDateRange ? dateRangeToDates(formData.taxiCarpoolDateRange) : [];
             const busDates = formData.busDateRange ? dateRangeToDates(formData.busDateRange) : [];
             const trainDates = formData.trainDateRange ? dateRangeToDates(formData.trainDateRange) : [];
             const carDates = formData.carDateRange ? dateRangeToDates(formData.carDateRange) : [];
+            const carCarpoolDates = formData.carCarpoolDateRange ? dateRangeToDates(formData.carCarpoolDateRange) : [];
             const workFromHomeDates = formData.workFromHomeDateRange ? dateRangeToDates(formData.workFromHomeDateRange) : [];
 
             // Prepare submission data - extract values from option objects
@@ -2584,6 +2752,11 @@ const EmployeeCommutingForm = () => {
                                 ? formData.motorbikeTravelPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
                                 : []),
                         }),
+                        ...(formData.motorbikeMode === 'both' && {
+                            motorbikeDistanceCarpool: Number(formData.motorbikeDistanceCarpool) || 0,
+                            motorbikeCarpoolDates: motorbikeCarpoolDates.map(date => date.toISOString()),
+                            motorbikeCarpoolDateRange: formData.motorbikeCarpoolDateRange,
+                        }),
                     }),
                 }),
 
@@ -2606,6 +2779,11 @@ const EmployeeCommutingForm = () => {
                             taxiPassengerUserIds: (Array.isArray(formData.taxiPassengerUserIds)
                                 ? formData.taxiPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
                                 : []),
+                        }),
+                        ...(formData.taxiMode === 'both' && {
+                            taxiDistanceCarpool: Number(formData.taxiDistanceCarpool) || 0,
+                            taxiCarpoolDates: taxiCarpoolDates.map(date => date.toISOString()),
+                            taxiCarpoolDateRange: formData.taxiCarpoolDateRange,
                         }),
                     }),
                 }),
@@ -2657,6 +2835,11 @@ const EmployeeCommutingForm = () => {
                             carTravelPassengerUserIds: (Array.isArray(formData.carTravelPassengerUserIds)
                                 ? formData.carTravelPassengerUserIds.map(id => String(id || '')).filter(id => id.trim())
                                 : []),
+                        }),
+                        ...(formData.carMode === 'both' && {
+                            carDistanceCarpool: Number(formData.carDistanceCarpool) || 0,
+                            carCarpoolDates: carCarpoolDates.map(date => date.toISOString()),
+                            carCarpoolDateRange: formData.carCarpoolDateRange,
                         }),
                     }),
                 }),
@@ -2888,7 +3071,7 @@ const EmployeeCommutingForm = () => {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {renderBuildingInput()}
-                        <div>
+                        <div id="stakeholderDepartment">
                             <label className="field-label">Stakeholder / Department</label>
                             <CustomSelect
                                 placeholder="Select Stakeholder / Department"
@@ -2991,11 +3174,27 @@ const EmployeeCommutingForm = () => {
                                                 </span>
                                             </div>
                                         )}
+                                        {formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.motorbikeCarpoolDateRange && (
+                                            <div className="flex items-center text-sm pl-6">
+                                                <span className="w-24 text-gray-600">Motorbike Carpool:</span>
+                                                <span className="text-gray-800">
+                                                    {calculateRemainingMonths(formData.motorbikeCarpoolDateRange.startDate, formData.motorbikeCarpoolDateRange.endDate, reportingYear)} months
+                                                </span>
+                                            </div>
+                                        )}
                                         {formData.commuteByTaxi && formData.taxiDateRange && (
                                             <div className="flex items-center text-sm">
                                                 <span className="w-24 text-gray-600">Taxi:</span>
                                                 <span className="text-gray-800">
                                                     {calculateRemainingMonths(formData.taxiDateRange.startDate, formData.taxiDateRange.endDate, reportingYear)} months
+                                                </span>
+                                            </div>
+                                        )}
+                                        {formData.commuteByTaxi && formData.taxiMode === 'both' && formData.taxiCarpoolDateRange && (
+                                            <div className="flex items-center text-sm pl-6">
+                                                <span className="w-24 text-gray-600">Taxi Carpool:</span>
+                                                <span className="text-gray-800">
+                                                    {calculateRemainingMonths(formData.taxiCarpoolDateRange.startDate, formData.taxiCarpoolDateRange.endDate, reportingYear)} months
                                                 </span>
                                             </div>
                                         )}
@@ -3020,6 +3219,14 @@ const EmployeeCommutingForm = () => {
                                                 <span className="w-24 text-gray-600">Car:</span>
                                                 <span className="text-gray-800">
                                                     {calculateRemainingMonths(formData.carDateRange.startDate, formData.carDateRange.endDate, reportingYear)} months
+                                                </span>
+                                            </div>
+                                        )}
+                                        {formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange && (
+                                            <div className="flex items-center text-sm pl-6">
+                                                <span className="w-24 text-gray-600">Car Carpool:</span>
+                                                <span className="text-gray-800">
+                                                    {calculateRemainingMonths(formData.carCarpoolDateRange.startDate, formData.carCarpoolDateRange.endDate, reportingYear)} months
                                                 </span>
                                             </div>
                                         )}
@@ -3187,6 +3394,115 @@ const EmployeeCommutingForm = () => {
                                                       )}
 
                                                 </div>
+
+                                                {/* Motorbike Carpool Date Range - only shown when mode is 'both' */}
+                                                {formData.motorbikeMode === 'both' && (
+                                                    <div className="mt-6">
+                                                        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                                                            <div className="flex flex-col mb-4">
+                                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                    Motorbike Carpool Date Range - Select Date Range for {reportingYear}
+                                                                </label>
+                                                                <p className="text-xs text-gray-500">
+                                                                    Select dates when you shared rides with colleagues
+                                                                </p>
+                                                            </div>
+                                                            {errors.motorbikeCarpoolDateRange && (
+                                                                <div className="mb-4 p-2 bg-red-50 border border-red-200 rounded">
+                                                                    <div className="flex items-center">
+                                                                        <svg className="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                                                        </svg>
+                                                                        <span className="text-sm text-red-600">{errors.motorbikeCarpoolDateRange}</span>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            <div id="motorbikeCarpoolDateRange" className="space-y-4">
+                                                                <Datepicker
+                                                                    value={formData.motorbikeCarpoolDateRange || null}
+                                                                    onChange={(value) => handleDateRangeChange('motorbikeCarpool', value)}
+                                                                    showShortcuts={true}
+                                                                    showFooter={true}
+                                                                    primaryColor="blue"
+                                                                    minDate={new Date(`${reportingYear}-01-01`)}
+                                                                    maxDate={new Date(`${reportingYear}-12-31`)}
+                                                                    configs={{
+                                                                        shortcuts: {
+                                                                            thisMonth: {
+                                                                                text: "This Month",
+                                                                                period: {
+                                                                                    start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+                                                                                    end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+                                                                                }
+                                                                            },
+                                                                            lastMonth: {
+                                                                                text: "Last Month",
+                                                                                period: {
+                                                                                    start: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+                                                                                    end: new Date(new Date().getFullYear(), new Date().getMonth(), 0)
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }}
+                                                                    displayFormat="DD MMM YYYY"
+                                                                    startFrom={new Date(`${reportingYear}-01-01`)}
+                                                                    popoverDirection="down"
+                                                                    containerClassName="relative w-full"
+                                                                    inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                                    toggleClassName="absolute right-0 h-full px-3 text-gray-400 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+                                                                />
+                                                            </div>
+                                                            {formData.motorbikeCarpoolDateRange && formData.motorbikeCarpoolDateRange.startDate && formData.motorbikeCarpoolDateRange.endDate && (
+                                                                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                                        <div>
+                                                                            <p className="text-sm font-medium text-blue-800">Start Date</p>
+                                                                            <p className="text-sm text-blue-600">
+                                                                                {new Date(formData.motorbikeCarpoolDateRange.startDate).toLocaleDateString('en-US', {
+                                                                                    month: 'short',
+                                                                                    day: 'numeric',
+                                                                                    year: 'numeric'
+                                                                                })}
+                                                                            </p>
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-sm font-medium text-blue-800">End Date</p>
+                                                                            <p className="text-sm text-blue-600">
+                                                                                {new Date(formData.motorbikeCarpoolDateRange.endDate).toLocaleDateString('en-US', {
+                                                                                    month: 'short',
+                                                                                    day: 'numeric',
+                                                                                    year: 'numeric'
+                                                                                })}
+                                                                            </p>
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-sm font-medium text-blue-800">Duration</p>
+                                                                            <p className="text-sm text-blue-600">
+                                                                                {(() => {
+                                                                                    const start = new Date(formData.motorbikeCarpoolDateRange.startDate);
+                                                                                    const end = new Date(formData.motorbikeCarpoolDateRange.endDate);
+                                                                                    const diffTime = Math.abs(end - start);
+                                                                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                                                                                    return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
+                                                                                })()}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="mt-3">
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleDateRangeChange('motorbikeCarpool', null)}
+                                                                            className="text-sm text-red-600 hover:text-red-800 font-medium"
+                                                                        >
+                                                                            Clear Date Range
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+
                                                 {renderPassengerEmails(
                                                     'motorbike',
                                                     'personsCarriedMotorbike',
@@ -3339,6 +3655,114 @@ const EmployeeCommutingForm = () => {
                                                 </div>
                                                    )}
                                             </div>
+
+                                            {/* Taxi Carpool Date Range - only shown when mode is 'both' */}
+                                            {formData.taxiMode === 'both' && (
+                                                <div className="mt-6">
+                                                    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                                                        <div className="flex flex-col mb-4">
+                                                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                Taxi Carpool Date Range - Select Date Range for {reportingYear}
+                                                            </label>
+                                                            <p className="text-xs text-gray-500">
+                                                                Select dates when you shared rides with colleagues
+                                                            </p>
+                                                        </div>
+                                                        {errors.taxiCarpoolDateRange && (
+                                                            <div className="mb-4 p-2 bg-red-50 border border-red-200 rounded">
+                                                                <div className="flex items-center">
+                                                                    <svg className="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                                                    </svg>
+                                                                    <span className="text-sm text-red-600">{errors.taxiCarpoolDateRange}</span>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        <div id="taxiCarpoolDateRange" className="space-y-4">
+                                                            <Datepicker
+                                                                value={formData.taxiCarpoolDateRange || null}
+                                                                onChange={(value) => handleDateRangeChange('taxiCarpool', value)}
+                                                                showShortcuts={true}
+                                                                showFooter={true}
+                                                                primaryColor="blue"
+                                                                minDate={new Date(`${reportingYear}-01-01`)}
+                                                                maxDate={new Date(`${reportingYear}-12-31`)}
+                                                                configs={{
+                                                                    shortcuts: {
+                                                                        thisMonth: {
+                                                                            text: "This Month",
+                                                                            period: {
+                                                                                start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+                                                                                end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+                                                                            }
+                                                                        },
+                                                                        lastMonth: {
+                                                                            text: "Last Month",
+                                                                            period: {
+                                                                                start: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+                                                                                end: new Date(new Date().getFullYear(), new Date().getMonth(), 0)
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }}
+                                                                displayFormat="DD MMM YYYY"
+                                                                startFrom={new Date(`${reportingYear}-01-01`)}
+                                                                popoverDirection="down"
+                                                                containerClassName="relative w-full"
+                                                                inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                                toggleClassName="absolute right-0 h-full px-3 text-gray-400 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+                                                            />
+                                                        </div>
+                                                        {formData.taxiCarpoolDateRange && formData.taxiCarpoolDateRange.startDate && formData.taxiCarpoolDateRange.endDate && (
+                                                            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                                    <div>
+                                                                        <p className="text-sm font-medium text-blue-800">Start Date</p>
+                                                                        <p className="text-sm text-blue-600">
+                                                                            {new Date(formData.taxiCarpoolDateRange.startDate).toLocaleDateString('en-US', {
+                                                                                month: 'short',
+                                                                                day: 'numeric',
+                                                                                year: 'numeric'
+                                                                            })}
+                                                                        </p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-sm font-medium text-blue-800">End Date</p>
+                                                                        <p className="text-sm text-blue-600">
+                                                                            {new Date(formData.taxiCarpoolDateRange.endDate).toLocaleDateString('en-US', {
+                                                                                month: 'short',
+                                                                                day: 'numeric',
+                                                                                year: 'numeric'
+                                                                            })}
+                                                                        </p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-sm font-medium text-blue-800">Duration</p>
+                                                                        <p className="text-sm text-blue-600">
+                                                                            {(() => {
+                                                                                const start = new Date(formData.taxiCarpoolDateRange.startDate);
+                                                                                const end = new Date(formData.taxiCarpoolDateRange.endDate);
+                                                                                const diffTime = Math.abs(end - start);
+                                                                                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                                                                                return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
+                                                                            })()}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="mt-3">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => handleDateRangeChange('taxiCarpool', null)}
+                                                                        className="text-sm text-red-600 hover:text-red-800 font-medium"
+                                                                    >
+                                                                        Clear Date Range
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             {renderPassengerEmails(
                                                 'taxi',
@@ -3607,6 +4031,142 @@ const EmployeeCommutingForm = () => {
                                                     )}
                                                 </div>
 
+                                                {/* Car Carpool Date Range - only shown when mode is 'both' */}
+                                                {formData.carMode === 'both' && (
+                                                    <div className="mt-6">
+                                                        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                                                            <div className="flex flex-col mb-4">
+                                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                                    Car Carpool Date Range - Select Date Range for {reportingYear}
+                                                                </label>
+                                                                <p className="text-xs text-gray-500">
+                                                                    Select dates when you shared rides with colleagues
+                                                                </p>
+                                                            </div>
+                                                            {errors.carCarpoolDateRange && (
+                                                                <div className="mb-4 p-2 bg-red-50 border border-red-200 rounded">
+                                                                    <div className="flex items-center">
+                                                                        <svg className="h-4 w-4 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                                                                        </svg>
+                                                                        <span className="text-sm text-red-600">{errors.carCarpoolDateRange}</span>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            <div id="carCarpoolDateRange" className="space-y-4">
+                                                                <Datepicker
+                                                                    value={formData.carCarpoolDateRange || null}
+                                                                    onChange={(value) => handleDateRangeChange('carCarpool', value)}
+                                                                    showShortcuts={true}
+                                                                    showFooter={true}
+                                                                    primaryColor="blue"
+                                                                    minDate={new Date(`${reportingYear}-01-01`)}
+                                                                    maxDate={new Date(`${reportingYear}-12-31`)}
+                                                                    configs={{
+                                                                        shortcuts: {
+                                                                            thisMonth: {
+                                                                                text: "This Month",
+                                                                                period: {
+                                                                                    start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+                                                                                    end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+                                                                                }
+                                                                            },
+                                                                            lastMonth: {
+                                                                                text: "Last Month",
+                                                                                period: {
+                                                                                    start: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+                                                                                    end: new Date(new Date().getFullYear(), new Date().getMonth(), 0)
+                                                                                }
+                                                                            },
+                                                                            firstQuarter: {
+                                                                                text: "Q1",
+                                                                                period: {
+                                                                                    start: new Date(`${reportingYear}-01-01`),
+                                                                                    end: new Date(`${reportingYear}-03-31`)
+                                                                                }
+                                                                            },
+                                                                            secondQuarter: {
+                                                                                text: "Q2",
+                                                                                period: {
+                                                                                    start: new Date(`${reportingYear}-04-01`),
+                                                                                    end: new Date(`${reportingYear}-06-30`)
+                                                                                }
+                                                                            },
+                                                                            thirdQuarter: {
+                                                                                text: "Q3",
+                                                                                period: {
+                                                                                    start: new Date(`${reportingYear}-07-01`),
+                                                                                    end: new Date(`${reportingYear}-09-30`)
+                                                                                }
+                                                                            },
+                                                                            fourthQuarter: {
+                                                                                text: "Q4",
+                                                                                period: {
+                                                                                    start: new Date(`${reportingYear}-10-01`),
+                                                                                    end: new Date(`${reportingYear}-12-31`)
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }}
+                                                                    displayFormat="DD MMM YYYY"
+                                                                    startFrom={new Date(`${reportingYear}-01-01`)}
+                                                                    popoverDirection="down"
+                                                                    containerClassName="relative w-full"
+                                                                    inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                                    toggleClassName="absolute right-0 h-full px-3 text-gray-400 focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed"
+                                                                />
+                                                            </div>
+                                                            {formData.carCarpoolDateRange && formData.carCarpoolDateRange.startDate && formData.carCarpoolDateRange.endDate && (
+                                                                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                                        <div>
+                                                                            <p className="text-sm font-medium text-blue-800">Start Date</p>
+                                                                            <p className="text-sm text-blue-600">
+                                                                                {new Date(formData.carCarpoolDateRange.startDate).toLocaleDateString('en-US', {
+                                                                                    month: 'short',
+                                                                                    day: 'numeric',
+                                                                                    year: 'numeric'
+                                                                                })}
+                                                                            </p>
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-sm font-medium text-blue-800">End Date</p>
+                                                                            <p className="text-sm text-blue-600">
+                                                                                {new Date(formData.carCarpoolDateRange.endDate).toLocaleDateString('en-US', {
+                                                                                    month: 'short',
+                                                                                    day: 'numeric',
+                                                                                    year: 'numeric'
+                                                                                })}
+                                                                            </p>
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-sm font-medium text-blue-800">Duration</p>
+                                                                            <p className="text-sm text-blue-600">
+                                                                                {(() => {
+                                                                                    const start = new Date(formData.carCarpoolDateRange.startDate);
+                                                                                    const end = new Date(formData.carCarpoolDateRange.endDate);
+                                                                                    const diffTime = Math.abs(end - start);
+                                                                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                                                                                    return `${diffDays} day${diffDays !== 1 ? 's' : ''}`;
+                                                                                })()}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="mt-3">
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => handleDateRangeChange('carCarpool', null)}
+                                                                            className="text-sm text-red-600 hover:text-red-800 font-medium"
+                                                                        >
+                                                                            Clear Date Range
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+
                                                 {renderPassengerEmails(
                                                     'car',
                                                     'personsCarriedCar',
@@ -3662,7 +4222,7 @@ const EmployeeCommutingForm = () => {
                     <h2 className="text-xl font-semibold text-gray-800 mb-2 pb-2 ">
                         Quality Control & Remarks
                     </h2>
-                    <div className='mb-3'>
+                    <div className='mb-3' id="qualityControl">
                         <label className="field-label">Quality Control</label>
                         <CustomSelect
                             name="qualityControl"
@@ -3689,16 +4249,18 @@ const EmployeeCommutingForm = () => {
                     <h3 className="text-lg font-medium text-blue-800 mb-3">
                         Submission Information
                     </h3>
-                    <InputGroup
-                        label="Your Email Address *"
-                        type="email"
-                        placeholder="your.email@company.com"
-                        value={formData.submittedByEmail}
-                        onChange={(e) => handleInputChange('submittedByEmail', e.target.value)}
-                        required
-                        disabled
-                        helperText="This email will be used for confirmation and communication regarding your submission"
-                    />
+                    <div id="submittedByEmail">
+                        <InputGroup
+                            label="Your Email Address *"
+                            type="email"
+                            placeholder="your.email@company.com"
+                            value={formData.submittedByEmail}
+                            onChange={(e) => handleInputChange('submittedByEmail', e.target.value)}
+                            required
+                            disabled
+                            helperText="This email will be used for confirmation and communication regarding your submission"
+                        />
+                    </div>
                     {userInfo && userInfo.email && (
                         <p className="text-sm text-blue-600 mt-2">
                             {targetUserData ? `Employee's registered email: ${userInfo.email}` : `Your registered email: ${userInfo.email}`}

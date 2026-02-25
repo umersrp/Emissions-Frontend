@@ -184,7 +184,7 @@ export const transportationOptions = {
             { value: 'Electric', label: 'Electric' },
             { value: 'Hybrid', label: 'Hybrid (Petrol/Electric)' },
         ],
-
+          
         personOptions: [
             // { value: '1', label: '1 person' },
             { value: '2', label: '2 persons' },
