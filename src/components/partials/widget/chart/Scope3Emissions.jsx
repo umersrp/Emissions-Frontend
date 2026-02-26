@@ -234,6 +234,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0,  // 
       _id: item.commuteType || item.stakeholder || "Uncategorized",
       databaseId: item._id,
       totalEmissionTCo2e: item.calculatedEmissionTCo2e || item.totalEmissionTCo2e || 0,
+      amount: item.totalWasteQty,
       originalItem: item
     }))
       .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
