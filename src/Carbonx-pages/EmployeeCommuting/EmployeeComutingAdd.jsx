@@ -113,6 +113,7 @@ const EmployeeCommutingForm = () => {
     const urlUserId = queryParams.get('userId');
     const [checkingSubmission, setCheckingSubmission] = useState(true);
     const navigate = useNavigate();
+    console.log('URL UserId:', urlUserId);
 
     // Current year for reporting
     const currentYear = new Date().getFullYear();
@@ -2712,7 +2713,7 @@ const EmployeeCommutingForm = () => {
             const submissionData = {
                 employeeName: String(formData.employeeName || ''),  // Add this
                 employeeID: String(formData.employeeID || ''),
-                userSubmittedId: urlUserId || null,
+                usersubmittedId: urlUserId || userInfo?._id || targetUserData?._id || null,
                 // Basic Information
                 siteBuildingName: formData.siteBuildingName?.value || '',
                 stakeholderDepartment: formData.stakeholderDepartment?.value || '',
