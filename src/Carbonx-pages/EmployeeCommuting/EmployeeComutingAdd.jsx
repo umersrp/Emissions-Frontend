@@ -2712,6 +2712,7 @@ const EmployeeCommutingForm = () => {
             const submissionData = {
                 employeeName: String(formData.employeeName || ''),  // Add this
                 employeeID: String(formData.employeeID || ''),
+                userSubmittedId: urlUserId || null,
                 // Basic Information
                 siteBuildingName: formData.siteBuildingName?.value || '',
                 stakeholderDepartment: formData.stakeholderDepartment?.value || '',
@@ -3168,15 +3169,15 @@ const EmployeeCommutingForm = () => {
                                     <div className="space-y-2">
                                         {formData.commuteByMotorbike && formData.motorbikeDateRange && (
                                             <div className="flex items-center text-sm">
-                                                <span className="w-24 text-gray-600">Motorbike:</span>
+                                                <span className="w-36 text-gray-600">Motorbike:</span>
                                                 <span className="text-gray-800">
                                                     {calculateRemainingMonths(formData.motorbikeDateRange.startDate, formData.motorbikeDateRange.endDate, reportingYear)} months
                                                 </span>
                                             </div>
                                         )}
                                         {formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.motorbikeCarpoolDateRange && (
-                                            <div className="flex items-center text-sm pl-6">
-                                                <span className="w-24 text-gray-600">Motorbike Carpool:</span>
+                                            <div className="flex items-center text-sm ">
+                                                <span className="w-36 text-gray-600">Motorbike Carpool:</span>
                                                 <span className="text-gray-800">
                                                     {calculateRemainingMonths(formData.motorbikeCarpoolDateRange.startDate, formData.motorbikeCarpoolDateRange.endDate, reportingYear)} months
                                                 </span>
@@ -3184,15 +3185,15 @@ const EmployeeCommutingForm = () => {
                                         )}
                                         {formData.commuteByTaxi && formData.taxiDateRange && (
                                             <div className="flex items-center text-sm">
-                                                <span className="w-24 text-gray-600">Taxi:</span>
+                                                <span className="w-36 text-gray-600">Taxi:</span>
                                                 <span className="text-gray-800">
                                                     {calculateRemainingMonths(formData.taxiDateRange.startDate, formData.taxiDateRange.endDate, reportingYear)} months
                                                 </span>
                                             </div>
                                         )}
                                         {formData.commuteByTaxi && formData.taxiMode === 'both' && formData.taxiCarpoolDateRange && (
-                                            <div className="flex items-center text-sm pl-6">
-                                                <span className="w-24 text-gray-600">Taxi Carpool:</span>
+                                            <div className="flex items-center text-sm ">
+                                                <span className="w-36 text-gray-600">Taxi Carpool:</span>
                                                 <span className="text-gray-800">
                                                     {calculateRemainingMonths(formData.taxiCarpoolDateRange.startDate, formData.taxiCarpoolDateRange.endDate, reportingYear)} months
                                                 </span>
@@ -3200,7 +3201,7 @@ const EmployeeCommutingForm = () => {
                                         )}
                                         {formData.commuteByBus && formData.busDateRange && (
                                             <div className="flex items-center text-sm">
-                                                <span className="w-24 text-gray-600">Bus:</span>
+                                                <span className="w-36 text-gray-600">Bus:</span>
                                                 <span className="text-gray-800">
                                                     {calculateRemainingMonths(formData.busDateRange.startDate, formData.busDateRange.endDate, reportingYear)} months
                                                 </span>
@@ -3208,7 +3209,7 @@ const EmployeeCommutingForm = () => {
                                         )}
                                         {formData.commuteByTrain && formData.trainDateRange && (
                                             <div className="flex items-center text-sm">
-                                                <span className="w-24 text-gray-600">Train:</span>
+                                                <span className="w-36 text-gray-600">Train:</span>
                                                 <span className="text-gray-800">
                                                     {calculateRemainingMonths(formData.trainDateRange.startDate, formData.trainDateRange.endDate, reportingYear)} months
                                                 </span>
@@ -3216,15 +3217,15 @@ const EmployeeCommutingForm = () => {
                                         )}
                                         {formData.commuteByCar && formData.carDateRange && (
                                             <div className="flex items-center text-sm">
-                                                <span className="w-24 text-gray-600">Car:</span>
+                                                <span className="w-36 text-gray-600">Car:</span>
                                                 <span className="text-gray-800">
                                                     {calculateRemainingMonths(formData.carDateRange.startDate, formData.carDateRange.endDate, reportingYear)} months
                                                 </span>
                                             </div>
                                         )}
                                         {formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange && (
-                                            <div className="flex items-center text-sm pl-6">
-                                                <span className="w-24 text-gray-600">Car Carpool:</span>
+                                            <div className="flex items-center text-sm">
+                                                <span className="w-36 text-gray-600">Car Carpool:</span>
                                                 <span className="text-gray-800">
                                                     {calculateRemainingMonths(formData.carCarpoolDateRange.startDate, formData.carCarpoolDateRange.endDate, reportingYear)} months
                                                 </span>
@@ -3232,7 +3233,7 @@ const EmployeeCommutingForm = () => {
                                         )}
                                         {formData.workFromHome && formData.workFromHomeDateRange && (
                                             <div className="flex items-center text-sm">
-                                                <span className="w-24 text-gray-600">Work From Home:</span>
+                                                <span className="w-36 text-gray-600">Work From Home:</span>
                                                 <span className="text-gray-800">
                                                     {calculateRemainingMonths(formData.workFromHomeDateRange.startDate, formData.workFromHomeDateRange.endDate, reportingYear)} months
                                                 </span>
@@ -4261,11 +4262,6 @@ const EmployeeCommutingForm = () => {
                             helperText="This email will be used for confirmation and communication regarding your submission"
                         />
                     </div>
-                    {userInfo && userInfo.email && (
-                        <p className="text-sm text-blue-600 mt-2">
-                            {targetUserData ? `Employee's registered email: ${userInfo.email}` : `Your registered email: ${userInfo.email}`}
-                        </p>
-                    )}
                 </div>
 
                 {/* Submit Button */}
