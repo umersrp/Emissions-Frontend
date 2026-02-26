@@ -230,13 +230,37 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0,  // 
   const processEmployeeCommutingData = () => {
     if (!employeeCommuting || employeeCommuting.length === 0) return [];
 
-    return employeeCommuting.map(item => ({
-      _id: item.commuteType || item.stakeholder || "Uncategorized",
-      databaseId: item._id,
-      totalEmissionTCo2e: item.calculatedEmissionTCo2e || item.totalEmissionTCo2e || 0,
-      amount: item.totalWasteQty,
-      originalItem: item
-    }))
+    // Flatten any nested `list` arrays and map fields as required:
+    //  - first row (display name): `submittedByEmail`
+    //  - second row: `calculatedEmissionTCo2e` (or `totalEmissionTCo2e`)
+    //  - third row: sum of distances (km)
+    const allItems = employeeCommuting.flatMap(item =>
+      item.list && Array.isArray(item.list) ? item.list : [item]
+    );
+
+    return allItems
+      .filter(item => item && typeof item === 'object')
+      .map(item => {
+        const distanceSum = (Number(item.motorbikeDistance) || 0)
+          + (Number(item.motorbikeDistanceCarpool) || 0)
+          + (Number(item.taxiDistance) || 0)
+          + (Number(item.taxiDistanceCarpool) || 0)
+          + (Number(item.busDistance) || 0)
+          + (Number(item.trainDistance) || 0)
+          + (Number(item.carDistance) || 0)
+          + (Number(item.carDistanceCarpool) || 0);
+
+        return {
+          // Show submitter email first (falls back to commuteType/stakeholder)
+          _id: item.submittedByEmail || item.submittedBy || item.commuteType || item.stakeholder || "Uncategorized",
+          databaseId: item._id,
+          totalEmissionTCo2e: item.calculatedEmissionTCo2e || item.totalEmissionTCo2e || 0,
+          // amount will show the summed distances with unit 'km' when available
+          amount: distanceSum > 0 ? distanceSum : (item.totalWasteQty || item.amount || "N/A"),
+          unit: distanceSum > 0 ? 'km' : (item.unit || ''),
+          originalItem: item
+        };
+      })
       .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
   };
   const employeeCommutingTopCategories = processEmployeeCommutingData();
