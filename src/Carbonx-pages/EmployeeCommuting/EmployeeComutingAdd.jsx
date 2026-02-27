@@ -2996,7 +2996,7 @@ const EmployeeCommutingForm = () => {
                     </div>
 
                     {/* User welcome message */}
-                    {userInfo && (
+                    {/* {userInfo && (
                         <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 ">
                             <div className="flex items-start">
                                 <div className="flex-shrink-0 ">
@@ -3005,9 +3005,9 @@ const EmployeeCommutingForm = () => {
                                     </svg>
                                 </div>
                                 <div className="ml-3">
-                                    {/* <h3 className="text-sm font-medium text-black-800">
+                                    <h3 className="text-sm font-medium text-black-800">
                                         {targetUserData ? `Admin Mode: Filling for ${targetUserData?.name || targetUserData?.email || 'User'}` : `Welcome, ${userInfo?.name || userInfo?.email || 'User'}!`}
-                                    </h3> */}
+                                    </h3>
                                     <div className="mt-1 text-sm text-black-700">
                                         {userInfo?.buildingId && userInfo?.buildingId?.buildingName && (
                                             <p>Selected building: <span className="font-semibold">{userInfo.buildingId.buildingName}</span></p>
@@ -3027,7 +3027,7 @@ const EmployeeCommutingForm = () => {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    )} */}
                 </div>
 
                 {pooledEmailWarnings.length > 0 && (
