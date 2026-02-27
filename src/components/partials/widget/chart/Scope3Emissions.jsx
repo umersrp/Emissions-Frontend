@@ -23,10 +23,11 @@ const normalizeToArray = (data) => {
 };
 
 /* ------------------ Get total emissions from data ------------------ */
+/* ------------------ Get total emissions from data ------------------ */
 const getTotalEmissions = (dataArray) => {
   if (!dataArray || dataArray.length === 0) return 0;
 
-  // Check if data has totals property (like your purchasedGoodsAndServices example)
+  // Check if data has totals property
   const firstItem = dataArray[0];
 
   if (firstItem.totals && Array.isArray(firstItem.totals)) {
@@ -40,13 +41,20 @@ const getTotalEmissions = (dataArray) => {
       return sum + (item.totalEmissionTCo2e || 0);
     }, 0);
   } else if (firstItem.list && Array.isArray(firstItem.list)) {
-    // Calculate from list items
+    // Calculate from list items - sum up calculatedEmissionTCo2e from each item in the list
     const allItems = dataArray.flatMap(item => item.list || []);
     return allItems.reduce((sum, item) => {
+      return sum + (item.calculatedEmissionTCo2e || item.totalEmissionTCo2e || 0);
+    }, 0);
+  } else if (firstItem.calculatedEmissionTCo2e !== undefined) {
+    // Direct items with calculatedEmissionTCo2e
+    return dataArray.reduce((sum, item) => {
       return sum + (item.calculatedEmissionTCo2e || 0);
     }, 0);
   }
 
+  // Add this for debugging
+  console.log('getTotalEmissions - unexpected structure:', dataArray);
   return 0;
 };
 
@@ -67,8 +75,8 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0,  // 
   const fuelAndEnergyList = normalizeToArray(s3.FuelandEnergylist);
   const wasteGenerated = normalizeToArray(s3.wasteGeneratedInOperations);
   const businessTravel = normalizeToArray(s3.businessTravel);
-  const employeeCommuting = normalizeToArray(s3.CommuteRecords);
-  const upstreamTransport = normalizeToArray(s3.UpstreamTransportations);
+const employeeCommuting = normalizeToArray(s3.commuteRecordList?.list || []); 
+ const upstreamTransport = normalizeToArray(s3.UpstreamTransportations);
   const downstreamTransport = normalizeToArray(s3.DownstreamTransportations);
   const fuelAndEnergy = normalizeToArray(s3.FuelAndEnergys);
   const upstreamList = normalizeToArray(s3.Upstreamlist);
@@ -252,7 +260,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0,  // 
 
         return {
           // Show submitter email first (falls back to commuteType/stakeholder)
-          _id: item.submittedByEmail || item.submittedBy || item.commuteType || item.stakeholder || "Uncategorized",
+          _id: item.submittedUsername ||  "Unknown Commuter",
           databaseId: item._id,
           totalEmissionTCo2e: item.calculatedEmissionTCo2e || item.totalEmissionTCo2e || 0,
           // amount will show the summed distances with unit 'km' when available
