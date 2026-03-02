@@ -614,6 +614,7 @@ import Modal from "@/components/ui/Modal";
 
 // Import reusable components and hooks
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
+import ExcelExportButton from "@/components/ui/ExcelExportButton"; // Add this import
 import useMobileCSVUpload from "@/hooks/scope1/useMobileCSVUpload";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
@@ -640,11 +641,11 @@ const MobileCombustionListing = () => {
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
 
-  // NEW: Bulk upload state
+  // Bulk upload state
   const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
   const [buildings, setBuildings] = useState([]);
 
-  // NEW: CSV Upload using custom hook
+  // CSV Upload using custom hook
   const {
     csvState,
     handleFileSelect,
@@ -712,6 +713,103 @@ const MobileCombustionListing = () => {
       .join(" ");
   };
 
+  // Custom formatter for export
+  const customFormatter = (value, column, row, index) => {
+    // If value is already "N/A", keep it as "N/A"
+    if (value === "N/A") {
+      return "N/A";
+    }
+
+    // Handle Sr.No specially
+    if (column.Header === "Sr.No" || column.id === "serialNo") {
+      return index + 1;
+    }
+
+    // Handle building name
+    if (column.accessor === "buildingId.buildingName") {
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      return value;
+    }
+
+    // Handle stakeholder
+    if (column.accessor === "stakeholder") {
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      return capitalizeLabel(value);
+    }
+
+    // Handle vehicle classification
+    if (column.accessor === "vehicleClassification") {
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      return capitalizeLabel(value);
+    }
+
+    // Handle vehicle type
+    if (column.accessor === "vehicleType") {
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      return capitalizeLabel(value);
+    }
+
+    // Handle posting date
+    if (column.accessor === "postingDate") {
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      try {
+        return new Date(value).toLocaleDateString('en-GB');
+      } catch {
+        return "Invalid Date";
+      }
+    }
+
+    // Handle numeric formatting for emission fields
+    if (column.accessor === "calculatedEmissionKgCo2e" ||
+        column.accessor === "calculatedEmissionTCo2e") {
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      const numValue = Number(value);
+      if (isNaN(numValue)) {
+        return "N/A";
+      }
+      return numValue.toFixed(2);
+    }
+
+    // Handle distance traveled
+    if (column.accessor === "distanceTraveled") {
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      const numValue = Number(value);
+      if (isNaN(numValue)) {
+        return "N/A";
+      }
+      return numValue.toString();
+    }
+
+    // Handle weight loaded
+    if (column.accessor === "weightLoaded") {
+      if (!value || value === "N/A") {
+        return "N/A";
+      }
+      const numValue = Number(value);
+      if (isNaN(numValue)) {
+        return "N/A";
+      }
+      return numValue.toString();
+    }
+
+    // For all other columns, return value or "N/A"
+    return value || "N/A";
+  };
+
   const fetchRecords = async (page = 1, limit = 10, search = "") => {
     setLoading(true);
     try {
@@ -738,7 +836,24 @@ const MobileCombustionListing = () => {
     }
   };
 
-  // NEW: Fetch buildings for CSV validation
+  // Function to fetch ALL records for export
+  const fetchAllMobileRecords = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All?limit=1000000`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      return res.data.data || [];
+    } catch (err) {
+      console.error("Error fetching records for export:", err);
+      toast.error("Failed to fetch records for export");
+      return [];
+    }
+  };
+
+  // Fetch buildings for CSV validation
   const fetchBuildings = async () => {
     try {
       const res = await axios.get(
@@ -761,7 +876,7 @@ const MobileCombustionListing = () => {
     fetchRecords(pageIndex, pageSize, globalFilterValue);
   }, [pageIndex, pageSize, globalFilterValue]);
 
-  //  Delete Record
+  // Delete Record
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/AutoMobile/Delete/${id}`, {
@@ -775,7 +890,7 @@ const MobileCombustionListing = () => {
     }
   };
 
-  // NEW: CSV file select handler
+  // CSV file select handler
   const handleCSVFileSelect = async (selectedFile) => {
     if (!selectedFile) {
       toast.error('No file selected');
@@ -790,13 +905,25 @@ const MobileCombustionListing = () => {
     }
   };
 
-  // NEW: CSV upload handler
+  // CSV upload handler
   const handleCSVUpload = async () => {
+    if (csvState.uploading) return;
+
     try {
       const results = await processUpload();
+
       if (results && results.failed === 0) {
-        fetchRecords(pageIndex, pageSize);
+        // Wait to show completion
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Close modal and cleanup
         setBulkUploadModalOpen(false);
+        resetUpload();
+
+        // Fetch in background
+        setTimeout(() => {
+          fetchRecords(pageIndex, pageSize);
+        }, 100);
       }
     } catch (error) {
       console.error('Upload error:', error);
@@ -804,7 +931,17 @@ const MobileCombustionListing = () => {
     }
   };
 
-  //  Table Columns
+  const handleModalClose = () => {
+    if (csvState.uploading) {
+      toast.warning('Please wait for upload to complete');
+      return;
+    }
+
+    resetUpload();
+    setBulkUploadModalOpen(false);
+  };
+
+  // Table Columns
   const COLUMNS = useMemo(
     () => [
       {
@@ -813,24 +950,61 @@ const MobileCombustionListing = () => {
         Cell: ({ row }) => (
           <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>
         ),
+      },//buildingCod
+      {
+        Header: "Building Code",
+        accessor: (row) => row.buildingId?.buildingCode || "N/A",
+        id: "buildingId.buildingCode",
       },
       {
         Header: "Building",
         accessor: (row) => row.buildingId?.buildingName || "N/A",
+        id: "buildingId.buildingName",
       },
-      { Header: "Stakeholder", accessor: "stakeholder", Cell: ({ value }) => capitalizeLabel(value) },
-      { Header: "Vehicle Classification", accessor: "vehicleClassification", Cell: ({ value }) => capitalizeLabel(value) },
+      { 
+        Header: "Stakeholder", 
+        accessor: "stakeholder", 
+        Cell: ({ value }) => capitalizeLabel(value) 
+      },
+      { 
+        Header: "Vehicle Classification", 
+        accessor: "vehicleClassification", 
+        Cell: ({ value }) => capitalizeLabel(value) 
+      },
       {
         Header: "Vehicle Type",
-        accessor: "vehicleType", Cell: ({ value }) => capitalizeLabel(value)
+        accessor: "vehicleType", 
+        Cell: ({ value }) => capitalizeLabel(value)
       },
-      { Header: "Fuel Name", accessor: "fuelName", Cell: ({ cell }) => cell.value || "N/A" },
-      { Header: "Distance Travelled ", accessor: "distanceTraveled", Cell: ({ cell }) => cell.value || "N/A" },
-      { Header: "Distance Unit", accessor: "distanceUnit", Cell: ({ cell }) => cell.value || "N/A" },
-      { Header: "Quality Control", accessor: "qualityControl", Cell: ({ cell }) => cell.value || "N/A" },
-      { Header: "Weight Loaded (kg)", accessor: "weightLoaded", Cell: ({ cell }) => cell.value || "N/A" },
+      { 
+        Header: "Fuel Name", 
+        accessor: "fuelName", 
+        Cell: ({ cell }) => cell.value || "N/A" 
+      },
+      { 
+        Header: "Distance Travelled", 
+        accessor: "distanceTraveled", 
+        Cell: ({ cell }) => cell.value || "N/A" 
+      },
+      { 
+        Header: "Distance Unit", 
+        accessor: "distanceUnit", 
+        Cell: ({ cell }) => cell.value || "N/A" 
+      },
+      { 
+        Header: "Quality Control", 
+        accessor: "qualityControl", 
+        Cell: ({ cell }) => cell.value || "N/A" 
+      },
+      { 
+        Header: "Weight Loaded (kg)", 
+        accessor: "weightLoaded", 
+        Cell: ({ cell }) => cell.value || "N/A" 
+      },
       {
-        Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e", Cell: ({ cell }) => {
+        Header: "Calculated Emissions (kgCO₂e)", 
+        accessor: "calculatedEmissionKgCo2e", 
+        Cell: ({ cell }) => {
           const rawValue = cell.value;
           if (rawValue === null || rawValue === undefined || rawValue === "") {
             return "N/A";
@@ -843,7 +1017,8 @@ const MobileCombustionListing = () => {
         }
       },
       {
-        Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",
+        Header: "Calculated Emissions (tCO₂e)", 
+        accessor: "calculatedEmissionTCo2e",
         Cell: ({ cell }) => {
           const rawValue = cell.value;
           if (rawValue === null || rawValue === undefined || rawValue === "") {
@@ -855,6 +1030,36 @@ const MobileCombustionListing = () => {
           }
           if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
             return numValue.toExponential(2);
+          }
+          return numValue.toFixed(2);
+        }
+      },
+      {
+        Header: "Calculated Bio Emissions (kgCO₂e)",
+        accessor: "calculatedBioEmissionKgCo2e",
+        Cell: ({ cell }) => {
+          const rawValue = cell.value;
+          if (rawValue === null || rawValue === undefined || rawValue === "") {
+            return "N/A";
+          }
+          const numValue = Number(rawValue);
+          if (isNaN(numValue)) {
+            return "N/A";
+          }
+          return numValue.toFixed(2);
+        }
+      },
+      {
+        Header: "Calculated Bio Emissions (tCO₂e)",
+        accessor: "calculatedBioEmissionTCo2e",
+        Cell: ({ cell }) => {
+          const rawValue = cell.value;
+          if (rawValue === null || rawValue === undefined || rawValue === "") {
+            return "N/A";
+          }
+          const numValue = Number(rawValue);
+          if (isNaN(numValue)) {
+            return "N/A";
           }
           return numValue.toFixed(2);
         }
@@ -875,7 +1080,8 @@ const MobileCombustionListing = () => {
         Cell: ({ cell }) => cell.value || "N/A",
       },
       {
-        Header: "Posting Date", accessor: "postingDate",
+        Header: "Posting Date", 
+        accessor: "postingDate",
         Cell: ({ cell }) => {
           if (!cell.value) return "N/A";
           try {
@@ -885,7 +1091,6 @@ const MobileCombustionListing = () => {
           }
         }
       },
-
       {
         Header: "Created At",
         accessor: "createdAt",
@@ -965,7 +1170,7 @@ const MobileCombustionListing = () => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
 
-  //  Handle Pagination
+  // Handle Pagination
   const handleNextPage = () => {
     if (pageIndex < totalPages) setPageIndex((prev) => prev + 1);
   };
@@ -984,13 +1189,84 @@ const MobileCombustionListing = () => {
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
 
-            {/* NEW: Bulk Upload CSV Button */}
+            {/* Export Current Page Button */}
+            {records.length > 0 && (
+              <ExcelExportButton
+                data={records}
+                columns={COLUMNS}
+                exportFields={[
+                  "buildingId.buildingCode",
+                  "buildingId.buildingName",
+                  "stakeholder",
+                  "vehicleClassification",
+                  "vehicleType",
+                  "fuelName",
+                  "distanceTraveled",
+                  "distanceUnit",
+                  "qualityControl",
+                  "weightLoaded",
+                  "calculatedEmissionKgCo2e",
+                  "calculatedEmissionTCo2e",
+                  "calculatedBioEmissionKgCo2e",
+                  "calculatedBioEmissionTCo2e",
+                  "remarks",
+                  "postingDate",
+                  "createdBy.name",
+                  "updatedBy.name"
+                ]}
+                fileName="mobile_combustion_current_page"
+                sheetName="Current Page"
+                buttonText="Export Page"
+                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+                exportFormat="current"
+                customFormatter={customFormatter}
+                pageInfo={{ currentPage: pageIndex, limit: pageSize }}
+              />
+            )}
+
+            {/* Export All Records Button */}
+            <ExcelExportButton
+              data={records}
+              fetchAllData={fetchAllMobileRecords}
+              columns={COLUMNS}
+              exportFields={[
+                "buildingId.buildingCode",
+                "buildingId.buildingName",
+                "stakeholder",
+                "vehicleClassification",
+                "vehicleType",
+                "fuelName",
+                "distanceTraveled",
+                "distanceUnit",
+                "qualityControl",
+                "weightLoaded",
+                "calculatedEmissionKgCo2e",
+                "calculatedEmissionTCo2e",
+                "calculatedBioEmissionKgCo2e",
+                "calculatedBioEmissionTCo2e",
+                "remarks",
+                "postingDate",
+                "createdBy.name",
+                "updatedBy.name"
+              ]}
+              fileName="mobile_combustion_records"
+              sheetName="Mobile Combustion"
+              buttonText="Export All"
+              buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+              successMessage="Mobile combustion records exported successfully!"
+              customFormatter={customFormatter}
+              exportFormat="all"
+              pageInfo={{ currentPage: pageIndex, limit: pageSize }}
+            />
+
+            {/* Bulk Upload CSV Button */}
             <Button
-              icon="heroicons:document-arrow-up"
-              text="Import"
-              className="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
-              iconClass="text-lg"
+              icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
+              text={csvState.uploading ? "Uploading..." : "Import"}
+              className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+              iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}
               onClick={() => setBulkUploadModalOpen(true)}
+              disabled={csvState.uploading}
             />
 
             <Button
@@ -1006,9 +1282,8 @@ const MobileCombustionListing = () => {
         {/* table */}
         <div className="overflow-x-auto -mx-6">
           <div className="inline-block min-w-full align-middle">
-            {/*  Set fixed height for vertical scroll */}
+            {/* Set fixed height for vertical scroll */}
             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
-              {/* <div className="overflow-hidden"> */}
               {loading ? (
                 <div className="flex justify-center items-center py-8">
                   <img src={Logo} alt="Loading..." className="w-52 h-24" />
@@ -1075,7 +1350,7 @@ const MobileCombustionListing = () => {
           </div>
         </div>
 
-        {/*   Server-side Pagination */}
+        {/* Server-side Pagination */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
           <div className="flex items-center space-x-3 rtl:space-x-reverse">
             <span className="flex space-x-2 items-center">
@@ -1106,7 +1381,6 @@ const MobileCombustionListing = () => {
                 }}
                 style={{ width: "70px" }}
               />
-
             </span>
             <span className="text-sm font-medium text-slate-600">
               Page {pageIndex} of {totalPages}
@@ -1241,10 +1515,10 @@ const MobileCombustionListing = () => {
         </p>
       </Modal>
 
-      {/* NEW: Reusable CSV Upload Modal */}
+      {/* Reusable CSV Upload Modal */}
       <CSVUploadModal
         activeModal={bulkUploadModalOpen}
-        onClose={() => setBulkUploadModalOpen(false)}
+        onClose={handleModalClose}
         title="Bulk Upload Mobile Combustion Records"
         csvState={csvState}
         onFileSelect={handleCSVFileSelect}
@@ -1260,12 +1534,11 @@ const MobileCombustionListing = () => {
             <li>Review validation results and submit</li>
           </ol>
         )}
+        isLoading={csvState.uploading}
       />
     </>
   );
 };
 
 export default MobileCombustionListing;
-
-
 

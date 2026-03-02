@@ -470,7 +470,7 @@
 //             <Button
 //               icon={isUploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
 //               text={isUploading ? "Uploading..." : "Bulk Upload CSV"}
-//               className="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
+//               className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
 //               iconClass={isUploading ? "text-lg animate-spin" : "text-lg"}
 //               onClick={handleBulkUploadClick}  // Use new handler
 //               disabled={isUploading}
@@ -1319,7 +1319,7 @@ const StationaryCombustionListing = () => {
                 fileName="stationary_combustion_current_page"
                 sheetName="Current Page"
                 buttonText="Export Page"
-                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
+                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
                 exportFormat="current"
                 customFormatter={customFormatter}
                 pageInfo={{ currentPage: pagination.currentPage, limit: pagination.limit }}  // FIX: Use pagination state
@@ -1353,7 +1353,7 @@ const StationaryCombustionListing = () => {
               fileName="stationary_combustion_records"
               sheetName="Stationary Combustion"
               buttonText="Export "
-              buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
+              buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               successMessage="Stationary records exported successfully!"
               customFormatter={customFormatter}
               exportFormat="all"
@@ -1363,7 +1363,7 @@ const StationaryCombustionListing = () => {
             <Button
               icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
               text={csvState.uploading ? "Uploading..." : "Import"}
-              className="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
+              className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}
               onClick={() => setBulkUploadModalOpen(true)}
               disabled={csvState.uploading}

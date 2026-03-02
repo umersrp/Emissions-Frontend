@@ -365,6 +365,10 @@ const EmailSent = () => {
         if (isNaN(totalReminders) || totalReminders <= 0) {
             newErrors.totalReminders = "Total number of reminders must be greater than 0";
         } 
+        // If user specified any reminders, require the "Set Reminder Interval" toggle to be enabled
+        if (!isNaN(totalReminders) && totalReminders > 0 && !showReminderDates) {
+            newErrors.reminderDates = "Please enable 'Set Reminder Interval' to configure reminder intervals";
+        }
         // NEW: Interval validation when toggle is ON
         if (showReminderDates && totalReminders > 0) {
             // Validate that startDateTime exists (since it's now the reminder start)
