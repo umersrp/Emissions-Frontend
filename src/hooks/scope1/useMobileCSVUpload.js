@@ -39,7 +39,7 @@ const useMobileCSVUpload = (buildings = []) => {
 
     // Required fields validation
     const requiredFields = [
-      'buildingid', 'stakeholder', 'vehicleclassification', 'vehicletype',
+      'buildingcode', 'stakeholder', 'vehicleclassification', 'vehicletype',
       'fuelname', 'distancetravelled', 'distanceunit', 'qualitycontrol', 'postingdate'
     ];
 
@@ -50,10 +50,17 @@ const useMobileCSVUpload = (buildings = []) => {
     });
 
     // Building validation
-    if (cleanedRow.buildingid && buildings.length > 0) {
-      const buildingExists = buildings.some(b => b._id === cleanedRow.buildingid);
+    if (cleanedRow.buildingcode && buildings.length > 0) {
+      const buildingExists = buildings.some(b =>
+        (b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()) ||
+        (b._id && b._id.toString() === cleanedRow.buildingcode)
+      );
       if (!buildingExists) {
-        errors.push(`Invalid building ID "${cleanedRow.buildingid}"`);
+        errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0,3).map(b => b.buildingCode || b._id).join(', ')}...`);
+      } else {
+        // Normalize to the canonical buildingCode string (if found)
+        const matched = buildings.find(b => b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase());
+        if (matched && matched.buildingCode) cleanedRow.buildingcode = matched.buildingCode;
       }
     }
 
@@ -170,24 +177,56 @@ const useMobileCSVUpload = (buildings = []) => {
 
     // Date validation
     if (cleanedRow.postingdate) {
-      let dateStr = cleanedRow.postingdate;
-      if (dateStr.includes('T')) {
-        dateStr = dateStr.split('T')[0];
-      }
-      dateStr = dateStr.replace(/"/g, '');
+      // Accept flexible date formats (prefer dd/mm/yyyy) and normalize to YYYY-MM-DD
+      const parseToISODatePart = (input) => {
+        if (!input) return null;
+        let s = input.toString().trim();
+        s = s.replace(/"/g, '');
+        if (s.includes('T')) s = s.split('T')[0];
 
-      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!dateRegex.test(dateStr)) {
-        errors.push(`Date must be YYYY-MM-DD format, got "${cleanedRow.postingdate}"`);
-      } else {
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) {
-          errors.push(`Invalid date "${dateStr}"`);
-        } else if (date > new Date()) {
-          errors.push('Date cannot be in the future');
-        } else {
-          cleanedRow.postingdate = dateStr;
+        // Normalize separators to '/'
+        s = s.replace(/\./g, '/').replace(/-/g, '/');
+        const parts = s.split('/').map(p => p.trim()).filter(Boolean);
+
+        if (parts.length === 3) {
+          let day, month, year;
+          // If first part is 4-digit, assume YYYY/MM/DD
+          if (parts[0].length === 4) {
+            year = parts[0]; month = parts[1]; day = parts[2];
+          } else if (parts[2].length === 4) {
+            // Prefer DD/MM/YYYY
+            day = parts[0]; month = parts[1]; year = parts[2];
+          } else {
+            // Ambiguous - assume DD/MM/YYYY
+            day = parts[0]; month = parts[1]; year = parts[2];
+          }
+
+          const d = parseInt(day, 10);
+          const m = parseInt(month, 10);
+          const y = parseInt(year, 10);
+          if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
+
+          const date = new Date(y, m - 1, d);
+          if (isNaN(date.getTime())) return null;
+          // Ensure constructed date matches components (guards against overflow)
+          if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return null;
+          // Disallow future dates
+          if (date > new Date()) return null;
+          return date.toISOString().split('T')[0];
         }
+
+        // Fallback to Date parse
+        const parsed = new Date(s);
+        if (isNaN(parsed.getTime())) return null;
+        if (parsed > new Date()) return null;
+        return parsed.toISOString().split('T')[0];
+      };
+
+      const iso = parseToISODatePart(cleanedRow.postingdate);
+      if (!iso) {
+        errors.push(`Invalid date. Please use DD/MM/YYYY or YYYY-MM-DD (got "${cleanedRow.postingdate}")`);
+      } else {
+        cleanedRow.postingdate = iso;
       }
     }
 
@@ -220,7 +259,7 @@ const useMobileCSVUpload = (buildings = []) => {
     );
 
     return {
-      buildingId: row.buildingid.trim(),
+      buildingCode: row.buildingcode.trim(),
       stakeholder: row.stakeholder,
       vehicleClassification: row.vehicleclassification,
       vehicleType: row.vehicletype,
@@ -278,7 +317,7 @@ const useMobileCSVUpload = (buildings = []) => {
 // Fill data WITHOUT quotes around values
 
 // === SAMPLE DATA FORMAT ===
-// buildingid,stakeholder,vehicleclassification,vehicletype,fuelname,distancetraveled,distanceunit,qualitycontrol,weightloaded,remarks,postingdate
+// buildingcode,stakeholder,vehicleclassification,vehicletype,fuelname,distancetraveled,distanceunit,qualitycontrol,weightloaded,remarks,postingdate
 // 64f8a1b2c3d4e5f6a7b8c9d0,${exampleStakeholder},${exampleClassification},${exampleVehicleType},${exampleFuel},100,${exampleDistanceUnit},${exampleQC},,record 1,2024-01-15
 // 64f8a1b2c3d4e5f6a7b8c9d1,Fugitive & Mobile,Heavy Good Vehicles (HGVs All Diesel),Rigid HGV (>33t),,500,km,Fair,>33t,heavy load,2024-01-16
 
@@ -305,7 +344,7 @@ const useMobileCSVUpload = (buildings = []) => {
 //   };
 const downloadMobileTemplate = () => {
   // Just headers, no data rows
-  const csvContent = 'buildingid,stakeholder,vehicleclassification,vehicletype,fuelname,distancetraveled,distanceunit,qualitycontrol,weightloaded,remarks,postingdate';
+  const csvContent = 'buildingcode,stakeholder,vehicleclassification,vehicletype,fuelname,distancetraveled,distanceunit,qualitycontrol,weightloaded,remarks,postingdate';
 
   const blob = new Blob([csvContent], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);

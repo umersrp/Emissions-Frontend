@@ -47,19 +47,19 @@ const useCSVUpload = (options = {}) => {
             return;
           }
 
-          // Find header row
+          // Find header row (accept either buildingId or buildingCode)
           let headerRowIndex = -1;
           for (let i = 0; i < lines.length; i++) {
             const cleanLine = lines[i].replace(/"/g, '').toLowerCase();
-            // Look for common headers
-            if (cleanLine.includes('buildingid')) {
+            // Look for common headers: buildingid or buildingcode
+            if (cleanLine.includes('buildingid') || cleanLine.includes('buildingcode')) {
               headerRowIndex = i;
               break;
             }
           }
 
           if (headerRowIndex === -1) {
-            reject(new Error('CSV must contain header row with buildingId field'));
+            reject(new Error('CSV must contain header row with buildingId or buildingCode field'));
             return;
           }
 

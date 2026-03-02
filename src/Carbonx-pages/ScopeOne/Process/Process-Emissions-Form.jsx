@@ -14,6 +14,7 @@ import {
 import { calculateProcessEmission } from "@/utils/scope1/calculate-process-emission"
 import InputGroup from "@/components/ui/InputGroup";
 
+
 const ProcessEmissionsFormPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();

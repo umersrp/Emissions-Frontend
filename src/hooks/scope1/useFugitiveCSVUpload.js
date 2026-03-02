@@ -38,7 +38,7 @@ const useFugitiveCSVUpload = (buildings = []) => {
 
     // Required fields validation
     const requiredFields = [
-      'buildingid', 'stakeholder', 'equipmenttype', 
+      'buildingcode', 'stakeholder', 'equipmenttype', 
       'materialrefrigerant', 'leakagevalue', 'consumptionunit', 
       'qualitycontrol', 'postingdate'
     ];
@@ -50,10 +50,10 @@ const useFugitiveCSVUpload = (buildings = []) => {
     });
 
     // Building validation
-    if (cleanedRow.buildingid && buildings.length > 0) {
-      const buildingExists = buildings.some(b => b._id === cleanedRow.buildingid);
+    if (cleanedRow.buildingcode && buildings.length > 0) {
+      const buildingExists = buildings.some(b => b._id === cleanedRow.buildingcode);
       if (!buildingExists) {
-        errors.push(`Invalid building ID "${cleanedRow.buildingid}"`);
+        errors.push(`Invalid building ID "${cleanedRow.buildingcode}"`);
       }
     }
 
@@ -140,27 +140,60 @@ const useFugitiveCSVUpload = (buildings = []) => {
     }
 
     // Date validation
-    if (cleanedRow.postingdate) {
-      let dateStr = cleanedRow.postingdate;
-      if (dateStr.includes('T')) {
-        dateStr = dateStr.split('T')[0];
-      }
-      dateStr = dateStr.replace(/"/g, '');
+// Date validation
+if (cleanedRow.postingdate) {
+  let dateStr = cleanedRow.postingdate;
+  if (dateStr.includes('T')) {
+    dateStr = dateStr.split('T')[0];
+  }
+  dateStr = dateStr.replace(/"/g, '');
 
-      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!dateRegex.test(dateStr)) {
-        errors.push(`Date must be YYYY-MM-DD format, got "${cleanedRow.postingdate}"`);
-      } else {
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) {
-          errors.push(`Invalid date "${dateStr}"`);
-        } else if (date > new Date()) {
-          errors.push('Date cannot be in the future');
-        } else {
-          cleanedRow.postingdate = dateStr;
-        }
-      }
+  // Check for DD/MM/YYYY format
+  const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+  const match = dateStr.match(ddmmyyyyRegex);
+  
+  if (match) {
+    // Parse DD/MM/YYYY
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10) - 1; // Month is 0-indexed
+    const year = parseInt(match[3], 10);
+    
+    const date = new Date(year, month, day);
+    
+    // Validate the date is valid (e.g., not 31/02/2024)
+    if (isNaN(date.getTime()) || 
+        date.getDate() !== day || 
+        date.getMonth() !== month || 
+        date.getFullYear() !== year) {
+      errors.push(`Invalid date "${dateStr}" - please provide a valid DD/MM/YYYY date`);
+    } else if (date > new Date()) {
+      errors.push('Date cannot be in the future');
+    } else {
+      // Store in YYYY-MM-DD format for the API
+      const formattedYear = year;
+      const formattedMonth = String(month + 1).padStart(2, '0');
+      const formattedDay = String(day).padStart(2, '0');
+      cleanedRow.postingdate = `${formattedYear}-${formattedMonth}-${formattedDay}`;
     }
+  } else {
+    // Also accept YYYY-MM-DD format for backward compatibility
+    const yyyymmddRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (yyyymmddRegex.test(dateStr)) {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      const date = new Date(year, month - 1, day);
+      
+      if (isNaN(date.getTime())) {
+        errors.push(`Invalid date "${dateStr}"`);
+      } else if (date > new Date()) {
+        errors.push('Date cannot be in the future');
+      } else {
+        cleanedRow.postingdate = dateStr; // Keep as is
+      }
+    } else {
+      errors.push(`Date must be DD/MM/YYYY format (e.g., 15/01/2024), got "${cleanedRow.postingdate}"`);
+    }
+  }
+}
 
     // Remarks validation (optional but check length)
     if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
@@ -186,7 +219,7 @@ const useFugitiveCSVUpload = (buildings = []) => {
     const tEmission = kgEmission / 1000;
 
     return {
-      buildingId: row.buildingid.trim(),
+      buildingId: row.buildingcode.trim(),
       stakeholder: row.stakeholder,
       equipmentType: row.equipmenttype,
       materialRefrigerant: row.materialrefrigerant,
@@ -237,47 +270,38 @@ const useFugitiveCSVUpload = (buildings = []) => {
     }
   };
 
-  const downloadFugitiveTemplate = () => {
-    const exampleBuildings = buildings.slice(0, 3);
-    const buildingList = exampleBuildings.map(b => `${b._id},${b.buildingName || 'Unnamed'}`).join('\n');
+const downloadFugitiveTemplate = () => {
+  const exampleBuildings = buildings.slice(0, 2);
+  const exampleBuilding1 = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
+  const exampleBuilding2 = exampleBuildings[1]?.buildingCode || 'BLD-EXAMPLE-002';
+  
+  const exampleStakeholder = FugitiveAndMobileStakeholderOptions[0]?.value || 'Assembly';
+  const exampleEquipmentType = FugitiveEquipmentTypeOptions.find(e => e.value === 'AC - Refrigerant')?.value || 'AC - Refrigerant';
+  const exampleMaterial = materialRefrigerantOptions[0]?.value || 'R-134a';
+  const exampleUnit = consumptionUnitOptions[0]?.value || 'kg';
+  const exampleQC = qualityControlOptions[0]?.value || 'Good';
+  
+  // Get current date in DD/MM/YYYY format
+  const currentDate = new Date();
+  const day = String(currentDate.getDate()).padStart(2, '0');
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const year = currentDate.getFullYear();
+  const formattedDate = `${day}/${month}/${year}`;
 
-    // Get some example values
-    const exampleStakeholder = FugitiveAndMobileStakeholderOptions[0]?.value || 'Fugitive & Mobile';
-    const exampleEquipmentType = FugitiveEquipmentTypeOptions[0]?.value || 'AC - Refrigerant';
-    const exampleMaterial = materialRefrigerantOptions[0]?.value || 'R-134a';
-    const exampleUnit = consumptionUnitOptions[0]?.value || 'kg';
-    const exampleQC = qualityControlOptions[0]?.value || 'Good';
+  const template = `buildingcode,stakeholder,equipmenttype,materialrefrigerant,leakagevalue,consumptionunit,qualitycontrol,remarks,postingdate
+${exampleBuilding1},${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},10,${exampleUnit},${exampleQC},AC maintenance - Unit 1,${formattedDate}
+${exampleBuilding2},${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},5.5,${exampleUnit},${exampleQC},AC maintenance - Unit 2,${formattedDate}`;
 
-    const template = `=== IMPORTANT: DO NOT USE QUOTES ===
-Fill data WITHOUT quotes around values
-
-=== SAMPLE DATA FORMAT ===
-buildingid,stakeholder,equipmenttype,materialrefrigerant,leakagevalue,consumptionunit,qualitycontrol,remarks,postingdate
-64f8a1b2c3d4e5f6a7b8c9d0,${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},10,${exampleUnit},${exampleQC},AC maintenance,2024-01-15
-64f8a1b2c3d4e5f6a7b8c9d1,${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},5.5,${exampleUnit},${exampleQC},Regular check,2024-01-16
-
-=== BUILDING REFERENCE (first 3) ===
-${buildingList}
-
-=== QUICK REFERENCE ===
-- Stakeholder options: ${FugitiveAndMobileStakeholderOptions.slice(0, 3).map(s => s.value).join(', ')}...
-- Equipment Types: ${FugitiveEquipmentTypeOptions.slice(0, 3).map(v => v.value).join(', ')}...
-- Materials/Refrigerants: ${materialRefrigerantOptions.slice(0, 3).map(m => m.value).join(', ')}...
-- Consumption Units: ${consumptionUnitOptions.map(u => u.value).join(', ')}
-- Quality Control: ${qualityControlOptions.map(q => q.value).join(', ')}
-- Date: YYYY-MM-DD (e.g., 2024-01-15)`;
-
-    const blob = new Blob([template], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'fugitive_emissions_template_NO_QUOTES.txt';
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  };
-
+  const blob = new Blob([template], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fugitive_template.csv';
+  document.body.appendChild(a);
+  a.click();
+  URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+};
   const processFugitiveUpload = async (onSuccess) => {
     return await processUpload(transformFugitivePayload, validateFugitiveRow, onSuccess);
   };
