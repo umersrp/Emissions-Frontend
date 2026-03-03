@@ -602,6 +602,7 @@ const FugitiveCombustionListing = () => {
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
   const [buildingOptions, setBuildingOptions] = useState([]);
+  const [buildingList, setBuildingList] = useState([]);
 
   //  Pagination states
   const [pageIndex, setPageIndex] = useState(1);
@@ -619,7 +620,7 @@ const FugitiveCombustionListing = () => {
     processUpload,
     resetUpload,
     downloadFugitiveTemplate,
-  } = useFugitiveCSVUpload(buildingOptions.map(b => ({ _id: b.value, buildingName: b.label })));
+  } = useFugitiveCSVUpload(buildingList);
 
   const capitalizeLabel = (text) => {
     if (!text) return "N/A";
@@ -781,6 +782,7 @@ const FugitiveCombustionListing = () => {
         }));
 
         setBuildingOptions(formatted);
+        setBuildingList(sortedBuildings);
       } catch {
         toast.error("Failed to load buildings");
       }
