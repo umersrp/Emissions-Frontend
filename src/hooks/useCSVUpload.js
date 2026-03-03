@@ -19,18 +19,18 @@ const useCSVUpload = (options = {}) => {
 
   const cleanCSVValue = useCallback((value) => {
     if (typeof value !== 'string') return value;
-    
+
     let cleaned = value.replace(/["']/g, '');
     cleaned = cleaned.replace(/^=/, '');
-    
+
     if (cleaned.includes('T00:00:00.000Z')) {
       cleaned = cleaned.replace('T00:00:00.000Z', '');
     }
-    
+
     if (cleaned.includes('T')) {
       cleaned = cleaned.split('T')[0];
     }
-    
+
     return cleaned.trim();
   }, []);
 
@@ -50,8 +50,7 @@ const useCSVUpload = (options = {}) => {
           // Find header row (accept either buildingId or buildingCode)
           let headerRowIndex = -1;
           for (let i = 0; i < lines.length; i++) {
-            const cleanLine = lines[i].replace(/"/g, '').toLowerCase();
-            // Look for common headers: buildingid or buildingcode
+            const cleanLine = lines[i].replace(/['"]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
             if (cleanLine.includes('buildingid') || cleanLine.includes('buildingcode')) {
               headerRowIndex = i;
               break;
@@ -68,7 +67,7 @@ const useCSVUpload = (options = {}) => {
             .map(h => cleanCSVValue(h).toLowerCase().replace(/\s+/g, ''));
 
           const data = [];
-          
+
           // Process data rows
           for (let i = headerRowIndex + 1; i < lines.length; i++) {
             const line = lines[i].trim();
@@ -147,7 +146,7 @@ const useCSVUpload = (options = {}) => {
 
   const processUpload = useCallback(async (payloadTransformer, rowValidator, onSuccess) => {
     const { file, parsedData, validationErrors } = csvState;
-    
+
     if (!file || validationErrors.length > 0 || !parsedData) {
       toast.error('Please fix validation errors first');
       return null;
@@ -198,14 +197,14 @@ const useCSVUpload = (options = {}) => {
         });
       }
 
-      setCsvState(prev => ({ 
-        ...prev, 
-        progress: Math.round(((i + 1) / parsedData.length) * 100) 
+      setCsvState(prev => ({
+        ...prev,
+        progress: Math.round(((i + 1) / parsedData.length) * 100)
       }));
     }
 
     setCsvState(prev => ({ ...prev, uploading: false, results }));
-    
+
     if (results.failed === 0) {
       toast.success(`Successfully uploaded ${results.success} records!`);
       if (onSuccess) onSuccess(results);

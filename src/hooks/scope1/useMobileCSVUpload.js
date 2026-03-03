@@ -275,76 +275,60 @@ const useMobileCSVUpload = (buildings = []) => {
     };
   };
 
-  const handleFileSelectWithValidation = async (file) => {
-    const data = await handleFileSelect(file);
-    if (!data) return;
+ const handleFileSelectWithValidation = async (file) => {
+  const data = await handleFileSelect(file);
+  if (!data) return;
 
-    const errors = [];
-    data.forEach((row, index) => {
-      const rowErrors = validateMobileRow(row, index);
-      if (rowErrors.length > 0) {
-        errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
-      }
+  // Normalize keys: "building code" -> "buildingcode", etc.
+  const normalizedData = data.map(row => {
+    const normalizedRow = {};
+    Object.keys(row).forEach(key => {
+      const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+      normalizedRow[normalizedKey] = row[key];
     });
+    return normalizedRow;
+  });
 
-    // FIX: Use the correct function name
-    updateValidationErrors(errors);
-
-    if (errors.length === 0) {
-      toast.success(`CSV validated: ${data.length} rows ready for upload`,{
-      style: { zIndex: 9999999, position: absolute}, 
-    });
-    } else {
-      toast.warning(`Found ${errors.length} validation errors. Please fix them before uploading.`,{
-      style: { zIndex: 9999999, position: absolute }, 
-    });
+  const errors = [];
+  normalizedData.forEach((row, index) => {
+    const rowErrors = validateMobileRow(row, index);
+    if (rowErrors.length > 0) {
+      errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
     }
-  };
+  });
 
-//   const downloadMobileTemplate = () => {
-//     const exampleBuildings = buildings.slice(0, 3);
-//     const buildingList = exampleBuildings.map(b => `${b._id},${b.buildingName || 'Unnamed'}`).join('\n');
+  updateValidationErrors(errors);
 
-//     // Get some example values
-//     const exampleStakeholder = FugitiveAndMobileStakeholderOptions[0]?.value || 'Fugitive & Mobile';
-//     const exampleClassification = vehicleClassificationOptions[0]?.value || 'Cars (by Market Segment)';
-//     const exampleVehicleType = vehicleTypeOptionsByClassification[exampleClassification]?.[0]?.value || 'Diesel Car - Small';
-//     const exampleFuel = fuelNameOptionsByClassification[exampleClassification]?.[0]?.value || 'Diesel';
-//     const exampleDistanceUnit = distanceUnitOptions[0]?.value || 'km';
-//     const exampleQC = qualityControlOptions[0]?.value || 'Good';
+  if (errors.length === 0) {
+    toast.success(`CSV validated: ${normalizedData.length} rows ready for upload`);
+  } else {
+    toast.warning(`Found ${errors.length} validation errors. Please fix them before uploading.`);
+  }
+};
 
-//     const template = `=== IMPORTANT: DO NOT USE QUOTES ===
-// Fill data WITHOUT quotes around values
+// const downloadMobileTemplate = () => {
+//   const exampleBuildings = buildings.slice(0, 1);
+//   const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
 
-// === SAMPLE DATA FORMAT ===
-// buildingcode,stakeholder,vehicleclassification,vehicletype,fuelname,distancetraveled,distanceunit,qualitycontrol,weightloaded,remarks,postingdate
-// 64f8a1b2c3d4e5f6a7b8c9d0,${exampleStakeholder},${exampleClassification},${exampleVehicleType},${exampleFuel},100,${exampleDistanceUnit},${exampleQC},,record 1,2024-01-15
-// 64f8a1b2c3d4e5f6a7b8c9d1,Fugitive & Mobile,Heavy Good Vehicles (HGVs All Diesel),Rigid HGV (>33t),,500,km,Fair,>33t,heavy load,2024-01-16
+//   const csvContent = `building code,stakeholder,vehicle classification,vehicle type,fuel name,distance travelled,distance unit,quality control,weight loaded,remarks,posting date
+// ${exampleBuildingCode},Owner,Passenger Vehicles,Passenger car (unknown),Diesel,100,km,Good,,Example record,dd/mm/yyyy`;
 
-// === BUILDING REFERENCE (first 3) ===
-// ${buildingList}
+//   const blob = new Blob([csvContent], { type: 'text/csv' });
+//   const url = URL.createObjectURL(blob);
+//   const a = document.createElement('a');
+//   a.href = url;
+//   a.download = 'mobile_template.csv';
+//   document.body.appendChild(a);
+//   a.click();
+//   URL.revokeObjectURL(url);
+//   document.body.removeChild(a);
+// };
 
-// === QUICK REFERENCE ===
-// - Stakeholder options: ${FugitiveAndMobileStakeholderOptions.slice(0, 3).map(s => s.value).join(', ')}...
-// - Vehicle Classifications: ${vehicleClassificationOptions.slice(0, 3).map(v => v.value).join(', ')}...
-// - Distance Units: ${distanceUnitOptions.map(u => u.value).join(', ')}
-// - Quality Control: ${qualityControlOptions.map(q => q.value).join(', ')}
-// - Weight Loaded (for HGVs): ${weightLoadedOptions.map(w => w.value).join(', ')}
-// - Date: YYYY-MM-DD (e.g., 2024-01-15)`;
-
-//     const blob = new Blob([template], { type: 'text/plain' });
-//     const url = URL.createObjectURL(blob);
-//     const a = document.createElement('a');
-//     a.href = url;
-//     a.download = 'mobile_combustion_template_NO_QUOTES.txt';
-//     document.body.appendChild(a);
-//     a.click();
-//     URL.revokeObjectURL(url);
-//     document.body.removeChild(a);
-//   };
 const downloadMobileTemplate = () => {
-  // Just headers, no data rows
-  const csvContent = 'buildingcode,stakeholder,vehicleclassification,vehicletype,fuelname,distancetraveled,distanceunit,qualitycontrol,weightloaded,remarks,postingdate';
+  const exampleBuildingCode = buildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
+
+  const csvContent = `building code,stakeholder,vehicle classification,vehicle type,fuel name,distance travelled,distance unit,quality control,weight loaded,remarks,posting date
+${exampleBuildingCode},Assembly,By Market Segment,Mini - City or A-Segment Passenger Cars (600 cc - 1200 cc),Diesel,50,km,Highly Uncertain,,Example record,dd/mm/yyyy`;
 
   const blob = new Blob([csvContent], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
@@ -356,7 +340,8 @@ const downloadMobileTemplate = () => {
   URL.revokeObjectURL(url);
   document.body.removeChild(a);
 };
-  const processMobileUpload = async (onSuccess) => {
+
+const processMobileUpload = async (onSuccess) => {
     return await processUpload(transformMobilePayload, validateMobileRow, onSuccess);
   };
 

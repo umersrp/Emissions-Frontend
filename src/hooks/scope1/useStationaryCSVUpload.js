@@ -170,11 +170,16 @@ const parseDateToISO = useCallback((dateString) => {
             return;
           }
 
-          // Find header row
+          // Find header row - allow headers with spaces/hyphens/underscores by
+          // normalizing the line to alphanumeric only before checking.
           let headerRowIndex = -1;
           for (let i = 0; i < lines.length; i++) {
-            const cleanLine = lines[i].replace(/"/g, '').toLowerCase();
-            if (cleanLine.includes('buildingcode') && cleanLine.includes('stakeholder')) {
+            const compactLine = lines[i]
+              .replace(/['"]/g, '') // remove quotes
+              .toLowerCase()
+              .replace(/[^a-z0-9]/g, ''); // keep only alphanumeric
+
+            if (compactLine.includes('buildingcode') && compactLine.includes('stakeholder')) {
               headerRowIndex = i;
               break;
             }
@@ -185,10 +190,11 @@ const parseDateToISO = useCallback((dateString) => {
             return;
           }
 
-          // Parse headers
+          // Parse headers and normalize them to alphanumeric keys so headers
+          // like "Building Code" or "building_code" -> "buildingcode"
           const headerValues = parseCSVLine(lines[headerRowIndex]);
           const headers = headerValues.map(h =>
-            cleanCSVValue(h).toLowerCase().replace(/\s+/g, '')
+            cleanCSVValue(h).toLowerCase().replace(/[^a-z0-9]/g, '')
           );
 
           // Expected headers
@@ -603,7 +609,7 @@ const parseDateToISO = useCallback((dateString) => {
       )
     ).toISOString();
 
-    const template = `buildingcode,stakeholder,equipmenttype,fueltype,fuelname,fuelconsumption,consumptionunit,qualitycontrol,remarks,postingdate
+    const template = `building code,stakeholder,equipment type,fuel type,fuel name,fuel consumption,consumption unit,quality control,remarks,posting date
 ${exampleBuildingCode},${exampleStakeholder},${exampleEquipment},${exampleFuelType},${exampleFuelName},100,${exampleUnit},${exampleQC},Example record,dd/mm/yyyy`;
 
     const blob = new Blob([template], { type: 'text/csv' });

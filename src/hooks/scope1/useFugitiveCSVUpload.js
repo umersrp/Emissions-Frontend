@@ -50,12 +50,12 @@ const useFugitiveCSVUpload = (buildings = []) => {
     });
 
     // Building validation
-    if (cleanedRow.buildingcode && buildings.length > 0) {
-      const buildingExists = buildings.some(b => b._id === cleanedRow.buildingcode);
-      if (!buildingExists) {
-        errors.push(`Invalid building ID "${cleanedRow.buildingcode}"`);
-      }
-    }
+ if (cleanedRow.buildingcode && buildings.length > 0) {
+  const buildingExists = buildings.some(b => b.buildingCode === cleanedRow.buildingcode);
+  if (!buildingExists) {
+    errors.push(`Invalid building Code "${cleanedRow.buildingcode}"`);
+  }
+}
 
     // Stakeholder validation (case-insensitive)
     if (cleanedRow.stakeholder) {
@@ -219,7 +219,18 @@ if (cleanedRow.postingdate) {
     const tEmission = kgEmission / 1000;
 
     return {
-      buildingId: row.buildingcode.trim(),
+      // API expects `buildingCode` (required). If we can match a building object,
+      // include its `_id` as `buildingId` as well for convenience.
+      buildingCode: row.buildingcode ? row.buildingcode.trim() : '',
+      buildingId: (() => {
+        if (!row.buildingcode) return undefined;
+        const match = buildings.find(b =>
+          (b.buildingCode && b.buildingCode === row.buildingcode) ||
+          (b.buildingName && b.buildingName === row.buildingcode) ||
+          (b._id && b._id === row.buildingcode)
+        );
+        return match ? match._id : row.buildingcode.trim();
+      })(),
       stakeholder: row.stakeholder,
       equipmentType: row.equipmenttype,
       materialRefrigerant: row.materialrefrigerant,
@@ -236,6 +247,15 @@ if (cleanedRow.postingdate) {
   const handleFileSelectWithValidation = async (file) => {
     const data = await handleFileSelect(file);
     if (!data) return;
+    
+     const normalizedData = data.map(row => {
+    const normalizedRow = {};
+    Object.keys(row).forEach(key => {
+      const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+      normalizedRow[normalizedKey] = row[key];
+    });
+    return normalizedRow;
+  }); 
 
     const errors = [];
     data.forEach((row, index) => {
@@ -272,11 +292,10 @@ if (cleanedRow.postingdate) {
 
 const downloadFugitiveTemplate = () => {
   const exampleBuildings = buildings.slice(0, 2);
-  const exampleBuilding1 = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
-  const exampleBuilding2 = exampleBuildings[1]?.buildingCode || 'BLD-EXAMPLE-002';
+  const exampleBuilding1 = exampleBuildings[0]?.buildingCode || 'BLD-6469';
   
   const exampleStakeholder = FugitiveAndMobileStakeholderOptions[0]?.value || 'Assembly';
-  const exampleEquipmentType = FugitiveEquipmentTypeOptions.find(e => e.value === 'AC - Refrigerant')?.value || 'AC - Refrigerant';
+  const exampleEquipmentType = FugitiveEquipmentTypeOptions.find(e => e.value === 'Air Handling Units (AHUs) with Refrigerants')?.value || 'Air Handling Units (AHUs) with Refrigerants';
   const exampleMaterial = materialRefrigerantOptions[0]?.value || 'R-134a';
   const exampleUnit = consumptionUnitOptions[0]?.value || 'kg';
   const exampleQC = qualityControlOptions[0]?.value || 'Good';
@@ -288,9 +307,8 @@ const downloadFugitiveTemplate = () => {
   const year = currentDate.getFullYear();
   const formattedDate = `${day}/${month}/${year}`;
 
-  const template = `buildingcode,stakeholder,equipmenttype,materialrefrigerant,leakagevalue,consumptionunit,qualitycontrol,remarks,postingdate
-${exampleBuilding1},${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},10,${exampleUnit},${exampleQC},AC maintenance - Unit 1,${formattedDate}
-${exampleBuilding2},${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},5.5,${exampleUnit},${exampleQC},AC maintenance - Unit 2,${formattedDate}`;
+  const template = `building code,stakeholder,equipment type,material refrigerant,leakage value,consumption unit,quality control,remarks,posting date
+${exampleBuilding1},${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},10,${exampleUnit},${exampleQC},AC maintenance - Unit 1,${formattedDate}`;
 
   const blob = new Blob([template], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);

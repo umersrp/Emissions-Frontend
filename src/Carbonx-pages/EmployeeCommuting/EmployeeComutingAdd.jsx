@@ -1657,8 +1657,8 @@ const EmployeeCommutingForm = () => {
                         showShortcuts={true}
                         showFooter={true}
                         primaryColor="blue"
-                        minDate={new Date(`${reportingYear}-01-01`)}
-                        maxDate={new Date(`${reportingYear}-12-31`)}
+                        minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
+                        maxDate={new Date(reportingYear, 11, 31)}
                         configs={{
                             shortcuts: {
                                 today: {
@@ -1907,7 +1907,7 @@ const EmployeeCommutingForm = () => {
                                         <p className="text-xs text-gray-500 mt-1">
                                             Select a colleague from the company directory
                                         </p>
-                                       
+
                                     </div>
                                     <div>
                                         <InputGroup
@@ -2148,7 +2148,7 @@ const EmployeeCommutingForm = () => {
                     if (!formData.personsCarriedMotorbike) {
                         errors.personsCarriedMotorbike = 'Please select how many persons you carry';
                     }
-                    if ( formData.motorbikeMode === 'both') {
+                    if (formData.motorbikeMode === 'both') {
                         if (!formData.motorbikeDistanceCarpool || formData.motorbikeDistanceCarpool.trim() === '') {
                             errors.motorbikeDistanceCarpool = 'Motorbike carpool distance is required';
                         }
@@ -2247,7 +2247,7 @@ const EmployeeCommutingForm = () => {
                     if (!formData.personsCarriedCar) {
                         errors.personsCarriedCar = 'Please select how many persons you carry';
                     }
-                    if ( formData.carMode === 'both') {
+                    if (formData.carMode === 'both') {
                         if (!formData.carDistanceCarpool || formData.carDistanceCarpool.trim() === '') {
                             errors.carDistanceCarpool = 'Car carpool distance is required';
                         }
@@ -2938,7 +2938,7 @@ const EmployeeCommutingForm = () => {
         );
     }
 
-// Show authentication error if no token
+    // Show authentication error if no token
     if (!token && !urlToken && !getToken()) {
         return (
             <div className="max-w-6xl mx-auto p-6">
@@ -2967,22 +2967,7 @@ const EmployeeCommutingForm = () => {
             <Card title={"Employee Commuting Data Collection"}>
                 {/* <form onSubmit={handleSubmit}> */}
                 <div className="mb-8">
-                    {/* <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
 
-                        <div className="w-full md:w-48">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Reporting Year
-                            </label>
-                            <CustomSelect
-                                options={yearOptions}
-                                // value={yearOptions.find(option => option.value === reportingYear)}
-                                value={reportingYear ? yearOptions.find(option => option.value === reportingYear) : null}
-                                onChange={handleReportingYearChange}
-                                isClearable={true}
-                                placeholder="Select Year"
-                            />
-                        </div>
-                    </div> */}
                     <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 ">
                         <p className="text-gray-600">
                             This category includes emissions from the transportation of employees between their homes and their worksites in vehicles not owned or operated by the reporting company . You may also include emissions from teleworking (i.e., employees working remotely) in this category.
@@ -3306,7 +3291,7 @@ const EmployeeCommutingForm = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                     {formData.motorbikeMode === "both" ? "Individual Distance Travelled *" : "Distance Travelled *"}
+                                        {formData.motorbikeMode === "both" ? "Individual Distance Travelled *" : "Distance Travelled *"}
                                     </label>
                                     <div className="grid grid-cols-[14fr_1fr]">
                                         <InputGroup
@@ -3370,30 +3355,30 @@ const EmployeeCommutingForm = () => {
                                                         />
                                                         <ErrorMessage message={errors.personsCarriedMotorbike} />
                                                     </div>
-                                                    {formData.motorbikeMode === 'both'  && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                            Distance Travelled By Carpool *
-                                                        </label>
-                                                        <div className="grid grid-cols-[14fr_1fr]">
-                                                            <InputGroup
-                                                                type="number"
-                                                                step="0.1"
-                                                                min="0"
-                                                                placeholder="e.g., 15.5"
-                                                                value={formData.motorbikeDistanceCarpool}
-                                                                onChange={(e) => handleInputChange('motorbikeDistanceCarpool', e.target.value)}
-                                                                required
-                                                                className="input-field rounded-r-none w-full"
+                                                    {formData.motorbikeMode === 'both' && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                                Distance Travelled By Carpool *
+                                                            </label>
+                                                            <div className="grid grid-cols-[14fr_1fr]">
+                                                                <InputGroup
+                                                                    type="number"
+                                                                    step="0.1"
+                                                                    min="0"
+                                                                    placeholder="e.g., 15.5"
+                                                                    value={formData.motorbikeDistanceCarpool}
+                                                                    onChange={(e) => handleInputChange('motorbikeDistanceCarpool', e.target.value)}
+                                                                    required
+                                                                    className="input-field rounded-r-none w-full"
 
-                                                            />
-                                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                                                                km
+                                                                />
+                                                                <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                                    km
+                                                                </div>
                                                             </div>
+                                                            <ErrorMessage message={errors.motorbikeDistanceCarpool} />
                                                         </div>
-                                                        <ErrorMessage message={errors.motorbikeDistanceCarpool} />
-                                                    </div>
-                                                      )}
+                                                    )}
 
                                                 </div>
 
@@ -3426,8 +3411,8 @@ const EmployeeCommutingForm = () => {
                                                                     showShortcuts={true}
                                                                     showFooter={true}
                                                                     primaryColor="blue"
-                                                                    minDate={new Date(`${reportingYear}-01-01`)}
-                                                                    maxDate={new Date(`${reportingYear}-12-31`)}
+                                                                   minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
+                                                                   maxDate={new Date(reportingYear, 11, 31)}f
                                                                     configs={{
                                                                         shortcuts: {
                                                                             thisMonth: {
@@ -3573,8 +3558,8 @@ const EmployeeCommutingForm = () => {
                                     <ErrorMessage message={errors.taxiPassengers} />
                                 </div> */}
                                 <div>
-                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                     {formData.taxiMode === "both" ? "Individual Distance Travelled *" : "Distance Travelled *"}
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        {formData.taxiMode === "both" ? "Individual Distance Travelled *" : "Distance Travelled *"}
                                     </label>
                                     <div className="grid grid-cols-[14fr_1fr]">
                                         <InputGroup
@@ -3632,30 +3617,30 @@ const EmployeeCommutingForm = () => {
                                                     />
                                                     <ErrorMessage message={errors.personsTravelWithTaxi} />
                                                 </div>
-                                                   {formData.taxiMode === 'both'  && (
+                                                {formData.taxiMode === 'both' && (
                                                     <div>
                                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                                             Distance Travelled By Carpool *
                                                         </label>
-                                                    <div className="grid grid-cols-[14fr_1fr]">
-                                                        <InputGroup
-                                                            type="number"
-                                                            step="0.1"
-                                                            min="0"
-                                                            placeholder="e.g., 15.5"
-                                                            value={formData.taxiDistanceCarpool}
-                                                            onChange={(e) => handleInputChange('taxiDistanceCarpool', e.target.value)}
-                                                            required
-                                                            className="input-field rounded-r-none w-full"
+                                                        <div className="grid grid-cols-[14fr_1fr]">
+                                                            <InputGroup
+                                                                type="number"
+                                                                step="0.1"
+                                                                min="0"
+                                                                placeholder="e.g., 15.5"
+                                                                value={formData.taxiDistanceCarpool}
+                                                                onChange={(e) => handleInputChange('taxiDistanceCarpool', e.target.value)}
+                                                                required
+                                                                className="input-field rounded-r-none w-full"
 
-                                                        />
-                                                        <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                                                            km
+                                                            />
+                                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                                km
+                                                            </div>
                                                         </div>
+                                                        <ErrorMessage message={errors.taxiDistanceCarpool} />
                                                     </div>
-                                                    <ErrorMessage message={errors.taxiDistanceCarpool} />
-                                                </div>
-                                                   )}
+                                                )}
                                             </div>
 
                                             {/* Taxi Carpool Date Range - only shown when mode is 'both' */}
@@ -3687,8 +3672,8 @@ const EmployeeCommutingForm = () => {
                                                                 showShortcuts={true}
                                                                 showFooter={true}
                                                                 primaryColor="blue"
-                                                                minDate={new Date(`${reportingYear}-01-01`)}
-                                                                maxDate={new Date(`${reportingYear}-12-31`)}
+                                                                minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
+                                                                maxDate={new Date(reportingYear, 11, 31)}
                                                                 configs={{
                                                                     shortcuts: {
                                                                         thisMonth: {
@@ -3931,8 +3916,8 @@ const EmployeeCommutingForm = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                                     {formData.carMode === "both" ? "Individual Distance Travelled *" : "Distance Travelled *"}
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        {formData.carMode === "both" ? "Individual Distance Travelled *" : "Distance Travelled *"}
                                     </label>
                                     <div className="grid grid-cols-[14fr_1fr]">
                                         <InputGroup
@@ -3956,7 +3941,7 @@ const EmployeeCommutingForm = () => {
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Car Type
                                     </label>
-                                   
+
                                     <CustomSelect
                                         options={carTypeOptions}
                                         value={formData.carType}
@@ -3969,7 +3954,7 @@ const EmployeeCommutingForm = () => {
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         Car Fuel Type
                                     </label>
-                                  
+
                                     <CustomSelect
                                         options={getFuelOptionsByCarType(formData.carType?.value)}
                                         value={formData.carFuelType}
@@ -3991,7 +3976,7 @@ const EmployeeCommutingForm = () => {
                             {(formData.carMode === 'carpool' || formData.carMode === 'both') && (
                                 <>
                                     <div className="mt-4  ">
-                                        
+
                                         {formData.carryOthersCar && (
                                             <>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -4007,29 +3992,29 @@ const EmployeeCommutingForm = () => {
                                                         />
                                                         <ErrorMessage message={errors.personsCarriedCar} />
                                                     </div>
-                                                    {formData.carMode === 'both'  && (
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                                                            Distance Travelled By Carpool *
-                                                        </label>
-                                                        <div className="grid grid-cols-[14fr_1fr]">
-                                                            <InputGroup
-                                                                type="number"
-                                                                step="0.1"
-                                                                min="0"
-                                                                placeholder="e.g., 18.5"
-                                                                value={formData.carDistanceCarpool}
-                                                                onChange={(e) => handleInputChange('carDistanceCarpool', e.target.value)}
-                                                                required
-                                                                className="input-field rounded-r-none w-full"
+                                                    {formData.carMode === 'both' && (
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                                Distance Travelled By Carpool *
+                                                            </label>
+                                                            <div className="grid grid-cols-[14fr_1fr]">
+                                                                <InputGroup
+                                                                    type="number"
+                                                                    step="0.1"
+                                                                    min="0"
+                                                                    placeholder="e.g., 18.5"
+                                                                    value={formData.carDistanceCarpool}
+                                                                    onChange={(e) => handleInputChange('carDistanceCarpool', e.target.value)}
+                                                                    required
+                                                                    className="input-field rounded-r-none w-full"
 
-                                                            />
-                                                            <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
-                                                                km
+                                                                />
+                                                                <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+                                                                    km
+                                                                </div>
                                                             </div>
+                                                            <ErrorMessage message={errors.carDistanceCarpool} />
                                                         </div>
-                                                        <ErrorMessage message={errors.carDistanceCarpool} />
-                                                    </div>
                                                     )}
                                                 </div>
 
@@ -4062,8 +4047,8 @@ const EmployeeCommutingForm = () => {
                                                                     showShortcuts={true}
                                                                     showFooter={true}
                                                                     primaryColor="blue"
-                                                                    minDate={new Date(`${reportingYear}-01-01`)}
-                                                                    maxDate={new Date(`${reportingYear}-12-31`)}
+                                                                   minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
+                                                                   maxDate={new Date(reportingYear, 11, 31)}
                                                                     configs={{
                                                                         shortcuts: {
                                                                             thisMonth: {

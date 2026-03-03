@@ -1,18 +1,15 @@
-// hooks/scope1/useProcessCSVUpload.js
+// src/hooks/scope2/usePurchasedElectricityCSVUpload.js
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-
-// Import constants for process emissions
+import { calculatePurchasedElectricity } from '@/utils/scope2/calculate-purchased-electricity';
+import { GridStationEmissionFactors } from '@/constant/scope2/purchased-electricity';
 import {
- 
-//   activityTypeOptions,
- // activityMetadata,
- 
-} from '@/constant/scope1/calculate-process-emission';
-import { activityTypeOptions,  activityMetadata,  qualityControlOptions,  stakeholderDepartmentOptions,  } from '@/constant/scope1/options';
+  qualityControlOptions,
+} from '@/constant/scope1/options';
+import { gridStationOptions, unitOptions } from '@/constant/scope2/options';
 
-const useProcessCSVUpload = (buildings = []) => {
+const usePurchasedElectricityCSVUpload = (buildings = []) => {
   const [csvState, setCsvState] = useState({
     file: null,
     uploading: false,
@@ -39,17 +36,17 @@ const useProcessCSVUpload = (buildings = []) => {
   // Helper function to parse date in any format to ISO
   const parseDateToISO = useCallback((dateString) => {
     if (!dateString) return null;
-    
+
     let cleanedDate = dateString.toString().trim();
     cleanedDate = cleanedDate.replace(/"/g, ''); // Remove quotes
-    
+
     // Handle empty or invalid dates
     if (!cleanedDate || cleanedDate === '') return null;
-    
+
     // Try to parse the date
     let date;
     let year, month, day;
-    
+
     // Check if it's already an ISO string with timezone
     if (cleanedDate.includes('T')) {
       // Extract just the date part if it's a full ISO string
@@ -57,7 +54,7 @@ const useProcessCSVUpload = (buildings = []) => {
     } else {
       // Try to parse common date formats
       const parts = cleanedDate.split(/[\/\-\.]/);
-      
+
       if (parts.length === 3) {
         // Try different date format interpretations
         if (parts[0].length === 4) {
@@ -87,7 +84,7 @@ const useProcessCSVUpload = (buildings = []) => {
             let testDate1 = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
             // Then try DD/MM/YYYY
             let testDate2 = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-            
+
             if (!isNaN(testDate1.getTime()) && testDate1.getDate() === parseInt(parts[1])) {
               date = testDate1;
             } else if (!isNaN(testDate2.getTime()) && testDate2.getDate() === parseInt(parts[0])) {
@@ -103,12 +100,12 @@ const useProcessCSVUpload = (buildings = []) => {
         date = new Date(cleanedDate);
       }
     }
-    
+
     // If still invalid, return null
     if (!date || isNaN(date.getTime())) {
       return null;
     }
-    
+
     // Create ISO string with time set to midnight UTC
     const isoDate = new Date(
       Date.UTC(
@@ -118,7 +115,7 @@ const useProcessCSVUpload = (buildings = []) => {
         0, 0, 0, 0
       )
     ).toISOString();
-    
+
     return isoDate;
   }, []);
 
@@ -173,15 +170,15 @@ const useProcessCSVUpload = (buildings = []) => {
           // Find header row
           let headerRowIndex = -1;
           for (let i = 0; i < lines.length; i++) {
-         const cleanLine = lines[i].replace(/['"]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
-if (cleanLine.includes('buildingcode') && cleanLine.includes('activitytype')) {
+            const cleanLine = lines[i].replace(/['"]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (cleanLine.includes('method') && cleanLine.includes('buildingcode')) {
               headerRowIndex = i;
               break;
             }
           }
 
           if (headerRowIndex === -1) {
-            reject(new Error('CSV must contain header row with: buildingCode, stakeholderDepartment, activityType, gasEmitted, amountOfEmissions, qualityControl, remarks, postingDate'));
+            reject(new Error('CSV must contain header row with: method, buildingCode, unit, totalGrossElectricityGrid, gridStation, qualityControl, postingDate'));
             return;
           }
 
@@ -193,8 +190,8 @@ if (cleanLine.includes('buildingcode') && cleanLine.includes('activitytype')) {
 
           // Expected headers
           const expectedHeaders = [
-            'buildingcode', 'stakeholderdepartment', 'activitytype',
-             'amountofemissions', 'qualitycontrol', 'remarks', 'postingdate'
+            'method', 'buildingcode', 'unit', 'totalgrosselectricitygrid',
+            'gridstation', 'qualitycontrol', 'postingdate'
           ];
 
           // Check for missing headers
@@ -235,213 +232,201 @@ if (cleanLine.includes('buildingcode') && cleanLine.includes('activitytype')) {
       reader.readAsText(file);
     });
   }, [cleanCSVValue]);
-const validateProcessRow = useCallback((row, index) => {
-  const errors = [];
-  const cleanedRow = {};
 
-  // Clean all row values
-  Object.keys(row).forEach(key => {
-    cleanedRow[key] = row[key]?.toString().trim();
-  });
+  const validatePurchasedElectricityRow = useCallback((row, index) => {
+    const errors = [];
+    const cleanedRow = {};
 
-  // Required fields validation - REMOVED gasemitted from required fields
-  const requiredFields = [
-    'buildingcode', 'stakeholderdepartment', 'activitytype',
-    'amountofemissions', 'qualitycontrol'  // gasemitted removed
-  ];
+    // Clean all row values
+    Object.keys(row).forEach(key => {
+      cleanedRow[key] = row[key]?.toString().trim();
+    });
 
-  requiredFields.forEach(field => {
-    if (!cleanedRow[field] || cleanedRow[field] === '') {
-      errors.push(`${field} is required`);
-    }
-  });
+    // Required fields validation
+    const requiredFields = [
+      'method', 'buildingcode', 'unit', 'totalgrosselectricitygrid',
+      'gridstation', 'qualitycontrol', 'postingdate'
+    ];
 
-  // Building validation (same as before)
-  if (cleanedRow.buildingcode && buildings.length > 0) {
-    const buildingExists = buildings.some(b =>
-      b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
-    );
-    if (!buildingExists) {
-      errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0, 3).map(b => b.buildingCode).join(', ')}...`);
-    }
-  }
+    requiredFields.forEach(field => {
+      if (!cleanedRow[field] || cleanedRow[field] === '') {
+        errors.push(`${field} is required`);
+      }
+    });
 
-  // Stakeholder validation (same as before)
-  if (cleanedRow.stakeholderdepartment) {
-    const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-    const matchedStakeholder = validStakeholders.find(s =>
-      s.toLowerCase() === cleanedRow.stakeholderdepartment.toLowerCase()
-    );
-    if (!matchedStakeholder) {
-      errors.push(`Invalid stakeholder "${cleanedRow.stakeholderdepartment}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
-    } else {
-      cleanedRow.stakeholderdepartment = matchedStakeholder;
-    }
-  }
-
-  // Activity type validation - NOW ALSO SETS THE GAS EMITTED
-  if (cleanedRow.activitytype) {
-    const validActivities = activityTypeOptions.map(a => a.value);
-    const matchedActivity = validActivities.find(a =>
-      a.toLowerCase() === cleanedRow.activitytype.toLowerCase()
-    );
-    
-    if (!matchedActivity) {
-      errors.push(`Invalid activity type "${cleanedRow.activitytype}". Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
-    } else {
-      cleanedRow.activitytype = matchedActivity;
-      
-      // AUTO-POPULATE gas emitted based on activity type
-      // Check if activityMetadata is an array or object
-      if (Array.isArray(activityMetadata)) {
-        // If it's an array, find the matching activity
-        const activityMeta = activityMetadata.find(a => 
-          a.activityType && a.activityType.toLowerCase() === matchedActivity.toLowerCase()
-        );
-        if (activityMeta && activityMeta.gasEmitted) {
-          cleanedRow.gasemitted = activityMeta.gasEmitted;
-        } else {
-          errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
-        }
-      } else if (activityMetadata && typeof activityMetadata === 'object') {
-        // If it's an object map, get by key
-        const activityMeta = activityMetadata[matchedActivity];
-        if (activityMeta && activityMeta.gasEmitted) {
-          cleanedRow.gasemitted = activityMeta.gasEmitted;
-        } else {
-          errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
-        }
+    // Method validation
+    if (cleanedRow.method) {
+      const validMethods = ['location_based', 'market_based'];
+      const matchedMethod = validMethods.find(m =>
+        m.toLowerCase() === cleanedRow.method.toLowerCase()
+      );
+      if (!matchedMethod) {
+        errors.push(`Invalid method "${cleanedRow.method}". Valid options: location_based, market_based`);
+      } else {
+        cleanedRow.method = matchedMethod;
       }
     }
-  }
 
-  // REMOVED the entire gas validation block since we're auto-populating it
-
-  // Amount of emissions validation (same as before)
-  if (cleanedRow.amountofemissions) {
-    const cleanNum = cleanedRow.amountofemissions.toString()
-      .replace(/[^0-9.-]/g, '')
-      .replace(/^"+|"+$/g, '');
-
-    const num = Number(cleanNum);
-    if (isNaN(num)) {
-      errors.push(`Amount of emissions must be a number, got "${cleanedRow.amountofemissions}"`);
-    } else if (num < 0) {
-      errors.push('Amount of emissions cannot be negative');
-    } else if (num > 1000000000) {
-      errors.push('Amount of emissions seems too large');
-    } else {
-      cleanedRow.amountofemissions = num.toString();
+    // Building validation - using buildingCode
+    if (cleanedRow.buildingcode && buildings.length > 0) {
+      const buildingExists = buildings.some(b =>
+        b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
+      );
+      if (!buildingExists) {
+        errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0, 3).map(b => b.buildingCode).join(', ')}...`);
+      }
     }
-  }
 
-  // Quality control validation (same as before)
-  if (cleanedRow.qualitycontrol) {
-    const validQC = qualityControlOptions.map(q => q.value);
-    const matchedQC = validQC.find(q =>
-      q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
-    );
-    if (!matchedQC) {
-      errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}". Valid: ${validQC.join(', ')}`);
-    } else {
-      cleanedRow.qualitycontrol = matchedQC;
+    // Unit validation
+    if (cleanedRow.unit) {
+      const validUnits = unitOptions.map(u => u.value);
+      const matchedUnit = validUnits.find(u =>
+        u.toLowerCase() === cleanedRow.unit.toLowerCase()
+      );
+      if (!matchedUnit) {
+        errors.push(`Invalid unit "${cleanedRow.unit}". Valid options: kWh, MWh`);
+      } else {
+        cleanedRow.unit = matchedUnit;
+      }
     }
-  }
 
-  // Date validation (same as before)
-  if (cleanedRow.postingdate) {
-    const isoDate = parseDateToISO(cleanedRow.postingdate);
-    
-    if (!isoDate) {
-      errors.push(`Invalid date format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 2024-01-15, 01/15/2024, 15-01-2024)`);
-    } else {
-      cleanedRow.postingdate = isoDate;
+    // Total Gross Electricity Grid validation
+    if (cleanedRow.totalgrosselectricitygrid) {
+      const cleanNum = cleanedRow.totalgrosselectricitygrid.toString()
+        .replace(/[^0-9.-]/g, '')
+        .replace(/^"+|"+$/g, '');
+
+      const num = Number(cleanNum);
+      if (isNaN(num)) {
+        errors.push(`Total Gross Electricity Grid must be a number, got "${cleanedRow.totalgrosselectricitygrid}"`);
+      } else if (num < 0) {
+        errors.push('Total Gross Electricity Grid cannot be negative');
+      } else if (num > 1000000000) {
+        errors.push('Total Gross Electricity Grid seems too large');
+      } else {
+        cleanedRow.totalgrosselectricitygrid = num.toString();
+      }
     }
-  } else {
-    cleanedRow.postingdate = new Date(
-      Date.UTC(
-        new Date().getFullYear(),
-        new Date().getMonth(),
-        new Date().getDate(),
-        0, 0, 0, 0
-      )
-    ).toISOString();
-  }
 
-  // Remarks validation (same as before)
-  if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
-    errors.push('Remarks cannot exceed 500 characters');
-  }
+    // Total Other Supplier Electricity validation (optional)
+    if (cleanedRow.totalothersupplierelectricity) {
+      const cleanNum = cleanedRow.totalothersupplierelectricity.toString()
+        .replace(/[^0-9.-]/g, '')
+        .replace(/^"+|"+$/g, '');
 
-  // Update original row with cleaned values if no errors
-  if (errors.length === 0) {
-    Object.keys(cleanedRow).forEach(key => {
-      row[key] = cleanedRow[key];
-    });
-  }
+      const num = Number(cleanNum);
+      if (isNaN(num)) {
+        errors.push(`Total Other Supplier Electricity must be a number, got "${cleanedRow.totalothersupplierelectricity}"`);
+      } else if (num < 0) {
+        errors.push('Total Other Supplier Electricity cannot be negative');
+      } else if (num > 1000000000) {
+        errors.push('Total Other Supplier Electricity seems too large');
+      } else {
+        cleanedRow.totalothersupplierelectricity = num.toString();
+      }
+    }
 
-  return errors;
-}, [buildings, parseDateToISO]);
-  // Helper function to calculate process emissions
-  const calculateProcessEmissions = useCallback((gasEmitted, amount) => {
-    // GWP (Global Warming Potential) values
-    const gwpValues = {
-      'CO2': 1,
-      'CH4': 28,
-      'N2O': 265,
-      'HFC-23': 12400,
-      'HFC-32': 677,
-      'HFC-125': 3170,
-      'HFC-134a': 1300,
-      'HFC-143a': 4800,
-      'HFC-152a': 138,
-      'HFC-227ea': 3350,
-      'HFC-236fa': 8060,
-      'HFC-245fa': 858,
-      'HFC-365mfc': 804,
-      'HFC-43-10mee': 1650,
-      'CF4': 6630,
-      'C2F6': 11100,
-      'C3F8': 8900,
-      'C4F10': 9200,
-      'C5F12': 8550,
-      'C6F14': 7910,
-      'SF6': 23500,
-      'NF3': 16100
+    // Total Electricity validation (optional)
+    if (cleanedRow.totalelectricity) {
+      const cleanNum = cleanedRow.totalelectricity.toString()
+        .replace(/[^0-9.-]/g, '')
+        .replace(/^"+|"+$/g, '');
+
+      const num = Number(cleanNum);
+      if (isNaN(num)) {
+        errors.push(`Total Electricity must be a number, got "${cleanedRow.totalelectricity}"`);
+      } else if (num < 0) {
+        errors.push('Total Electricity cannot be negative');
+      } else if (num > 1000000000) {
+        errors.push('Total Electricity seems too large');
+      } else {
+        cleanedRow.totalelectricity = num.toString();
+      }
+    }
+
+    // Grid Station validation
+    if (cleanedRow.gridstation) {
+      const validGridStations = gridStationOptions.map(g => g.value);
+      const matchedGridStation = validGridStations.find(g =>
+        g.toLowerCase() === cleanedRow.gridstation.toLowerCase()
+      );
+      if (!matchedGridStation) {
+        errors.push(`Invalid grid station "${cleanedRow.gridstation}". Valid options: ${validGridStations.join(', ')}`);
+      } else {
+        cleanedRow.gridstation = matchedGridStation;
+      }
+    }
+
+    // Quality control validation
+    if (cleanedRow.qualitycontrol) {
+      const validQC = qualityControlOptions.map(q => q.value);
+      const matchedQC = validQC.find(q =>
+        q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
+      );
+      if (!matchedQC) {
+        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}". Valid: ${validQC.join(', ')}`);
+      } else {
+        cleanedRow.qualitycontrol = matchedQC;
+      }
+    }
+
+    // Date validation
+    if (cleanedRow.postingdate) {
+      const isoDate = parseDateToISO(cleanedRow.postingdate);
+
+      if (!isoDate) {
+        errors.push(`Invalid date format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 15/01/2024, 2024-01-15)`);
+      } else {
+        cleanedRow.postingdate = isoDate;
+      }
+    }
+
+    // Remarks validation (optional)
+    if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
+      errors.push('Remarks cannot exceed 500 characters');
+    }
+
+    // Update original row with cleaned values if no errors
+    if (errors.length === 0) {
+      Object.keys(cleanedRow).forEach(key => {
+        row[key] = cleanedRow[key];
+      });
+    }
+
+    return errors;
+  }, [buildings, parseDateToISO]);
+
+  const transformPurchasedElectricityPayload = useCallback((row) => {
+    // Prepare data for calculation
+    const calculationData = {
+      method: row.method,
+      unit: row.unit,
+      totalGrossElectricityGrid: parseFloat(row.totalgrosselectricitygrid) || 0,
+      totalOtherSupplierElectricity: parseFloat(row.totalothersupplierelectricity) || 0,
+      gridStation: row.gridstation,
+      totalElectricity: parseFloat(row.totalelectricity) || 0,
     };
 
-    const gwp = gwpValues[gasEmitted] || 1; // Default to 1 if gas not found
-    const amountNum = Number(amount) || 0;
-    
-    const totalEmissionInScope = amountNum * gwp;
-    
-    return {
-      totalEmissionInScope,
-      totalEmissionOutScope: 0 // Process emissions typically don't have biogenic CO2
-    };
-  }, []);
-
-  const transformProcessPayload = useCallback((row) => {
-    const emissions = calculateProcessEmissions(
-      row.gasemitted,
-      Number(row.amountofemissions)
-    );
+    // Calculate emissions
+    const result = calculatePurchasedElectricity(calculationData, GridStationEmissionFactors);
 
     return {
       buildingCode: row.buildingcode,
-      stakeholderDepartment: row.stakeholderdepartment,
-      activityType: row.activitytype,
-      gasEmitted: row.gasemitted,
-      amountOfEmissions: parseFloat(row.amountofemissions),
+      method: row.method,
+      unit: row.unit,
+      totalElectricity: parseFloat(row.totalelectricity) || null,
+      totalGrossElectricityGrid: parseFloat(row.totalgrosselectricitygrid) || null,
+      gridStation: row.gridstation,
+      totalOtherSupplierElectricity: parseFloat(row.totalothersupplierelectricity) || null,
       qualityControl: row.qualitycontrol,
       remarks: row.remarks || '',
-      postingDate: row.postingdate, // Already in ISO format from validation
-      calculatedEmissionKgCo2e: emissions?.totalEmissionInScope || 0,
-      calculatedEmissionTCo2e: emissions?.totalEmissionInScope ? emissions.totalEmissionInScope / 1000 : 0,
-      calculatedBioEmissionKgCo2e: emissions?.totalEmissionOutScope || 0,
-      calculatedBioEmissionTCo2e: emissions?.totalEmissionOutScope ? emissions.totalEmissionOutScope / 1000 : 0,
+      postingDate: row.postingdate,
+      calculatedEmissionKgCo2e: result?.calculatedEmissionKgCo2e || 0,
+      calculatedEmissionTCo2e: result?.calculatedEmissionTCo2e || 0,
+      calculatedEmissionMarketKgCo2e: result?.calculatedEmissionMarketKgCo2e || null,
+      calculatedEmissionMarketTCo2e: result?.calculatedEmissionMarketTCo2e || null,
     };
-  }, [calculateProcessEmissions]);
+  }, []);
 
   const handleFileSelect = async (file) => {
     if (!file.name.endsWith('.csv')) {
@@ -460,7 +445,7 @@ const validateProcessRow = useCallback((row, index) => {
 
       // Validate each row
       data.forEach((row, index) => {
-        const rowErrors = validateProcessRow(row, index);
+        const rowErrors = validatePurchasedElectricityRow(row, index);
         if (rowErrors.length > 0) {
           errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
         }
@@ -516,10 +501,10 @@ const validateProcessRow = useCallback((row, index) => {
         const row = parsedData[i];
 
         try {
-          const payload = transformProcessPayload(row);
+          const payload = transformPurchasedElectricityPayload(row);
 
           await axios.post(
-            `${process.env.REACT_APP_BASE_URL}/Process-Emissions/create`,
+            `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/Create`,
             payload,
             {
               headers: {
@@ -552,8 +537,7 @@ const validateProcessRow = useCallback((row, index) => {
         }
       }
 
-      // 3. Final State Update (SUCCESS/PARTIAL SUCCESS)
-      // We set uploading to false HERE so the UI knows the process is finished
+      // 3. Final State Update
       setCsvState(prev => ({
         ...prev,
         progress: 100,
@@ -573,7 +557,6 @@ const validateProcessRow = useCallback((row, index) => {
       return results;
 
     } catch (error) {
-      // 4. Final State Update (CRITICAL FAILURE)
       console.error('Critical upload error:', error);
       setCsvState(prev => ({
         ...prev,
@@ -584,7 +567,7 @@ const validateProcessRow = useCallback((row, index) => {
       throw error;
     }
   };
-  
+
   const resetUpload = () => {
     setCsvState({
       file: null,
@@ -596,43 +579,43 @@ const validateProcessRow = useCallback((row, index) => {
     });
   };
 
-const downloadProcessTemplate = () => {
-  const exampleBuildings = buildings.slice(0, 1);
-  const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
-  
-  const exampleStakeholder = stakeholderDepartmentOptions[0]?.value || 'Assembly';
-  const exampleActivity = activityTypeOptions[0]?.value || 'Cement production (CO₂ from calcination)';
-  const exampleQC = 'Good';
-  
-  // Get current date in DD/MM/YYYY format for the template
-  const currentDate = new Date();
-  const day = String(currentDate.getDate()).padStart(2, '0');
-  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-  const year = currentDate.getFullYear();
-  const formattedDate = `${day}/${month}/${year}`;
+  const downloadPurchasedElectricityTemplate = () => {
+    const exampleBuildings = buildings.slice(0, 1);
+    const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
 
-  // REMOVED gasemitted from the template
-  const template = `building code,stakeholder department,activity type,amount of emissions,quality control,remarks,posting date
-${exampleBuildingCode},${exampleStakeholder},${exampleActivity},100,${exampleQC},Example record,${formattedDate}`;
+    const exampleMethod = 'location_based';
+    const exampleUnit = 'kWh';
+    const exampleGridStation = 'Hyderabad Electric Supply Company (HESCO)';
+    const exampleQC = 'Good';
 
-  const blob = new Blob([template], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'process_emissions_template.csv';
-  document.body.appendChild(a);
-  a.click();
-  URL.revokeObjectURL(url);
-  document.body.removeChild(a);
-};
+    // Get current date in DD/MM/YYYY format
+    const currentDate = new Date();
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const year = currentDate.getFullYear();
+    const formattedDate = `${day}/${month}/${year}`;
+
+const template = `method,building code,unit,total gross electricity grid,total other supplier electricity,grid station,total electricity,quality control,remarks,posting date
+${exampleMethod},${exampleBuildingCode},${exampleUnit},1000,500,${exampleGridStation},1500,${exampleQC},Example record,${formattedDate}`;
+
+    const blob = new Blob([template], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'purchased_electricity_template.csv';
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
 
   return {
     csvState,
     handleFileSelect,
     processUpload,
     resetUpload,
-    downloadProcessTemplate,
+    downloadPurchasedElectricityTemplate,
   };
 };
 
-export default useProcessCSVUpload;
+export default usePurchasedElectricityCSVUpload;
