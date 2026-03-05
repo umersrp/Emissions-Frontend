@@ -1157,12 +1157,12 @@ const StationaryCombustionListing = () => {
           <span>{(pagination.currentPage - 1) * pagination.limit + row.index + 1}</span>
         ),
       },
-      { Header: "Building Code", accessor: "buildingId.buildingCode" },
-      { Header: "Building", accessor: "buildingId.buildingName" },
-      { Header: "Stakeholder", accessor: "stakeholder" },
-      { Header: "Equipment Type", accessor: "equipmentType" },
+       { Header: "Building Code", accessor: "buildingId.buildingCode",  Cell: ({ cell }) => cell.value || "N/A",  },
+      { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Stakeholder", accessor: "stakeholder", Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Equipment Type", accessor: "equipmentType", Cell: ({ value }) => capitalizeLabel(value) },
       { Header: "Fuel Type", accessor: "fuelType" },
-      { Header: "Fuel Name", accessor: "fuelName" },
+      { Header: "Fuel Name", accessor: "fuelName", Cell: ({ value }) => capitalizeLabel(value) },
       { Header: "Fuel Consumption", accessor: "fuelConsumption" },
       {
         Header: "Consumption Unit",
@@ -1171,8 +1171,7 @@ const StationaryCombustionListing = () => {
       },
       { Header: "Quality Control", accessor: "qualityControl" },
       {
-        Header: "Calculated Emissions (kgCO₂e)",
-        accessor: "calculatedEmissionKgCo2e",
+        Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",
         Cell: ({ cell }) => {
           const rawValue = cell.value;
           if (rawValue === null || rawValue === undefined || rawValue === "") {
@@ -1197,15 +1196,25 @@ const StationaryCombustionListing = () => {
           if (isNaN(numValue)) {
             return "N/A";
           }
+          if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
+            return numValue.toExponential(2);
+          }
           return numValue.toFixed(2);
         }
       },
-      { Header: "Remarks", accessor: "remarks" },
-      { Header: "Created By", accessor: "createdBy.name" },
-      { Header: "Updated By", accessor: "updatedBy.name" },
+      { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => cell.value || "N/A" },
       {
-        Header: "Posting Date",
-        accessor: "postingDate",
+        Header: "Created By",
+        accessor: "createdBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
+      {
+        Header: "Updated By",
+        accessor: "updatedBy.name",
+        Cell: ({ cell }) => cell.value || "N/A",
+      },
+      {
+        Header: "Posting Date", accessor: "postingDate",
         Cell: ({ cell }) => {
           if (!cell.value) return "N/A";
           try {
@@ -1261,7 +1270,6 @@ const StationaryCombustionListing = () => {
     ],
     [pagination.currentPage, pagination.limit]
   );
-
   const tableInstance = useTable(
     {
       columns: COLUMNS,

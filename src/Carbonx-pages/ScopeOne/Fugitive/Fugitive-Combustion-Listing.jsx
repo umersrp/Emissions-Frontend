@@ -869,7 +869,8 @@ const FugitiveCombustionListing = () => {
   const COLUMNS = useMemo(
     () => [
       { Header: "Sr.No", id: "serialNo", Cell: ({ row }) => <span>{row.index + 1 + (pageIndex - 1) * pageSize}</span> },
-      { Header: "Building", accessor: "buildingId.buildingName" },
+      { Header: "Building Code", accessor: "buildingId.buildingCode", Cell: ({ cell }) => cell.value || "N/A", },
+      { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ cell }) => cell.value || "N/A", },
       { Header: "Stakeholder", accessor: "stakeholder", Cell: ({ value }) => capitalizeLabel(value) },
       { Header: "Equipment Type", accessor: "equipmentType", Cell: ({ value }) => capitalizeLabel(value) },
       { Header: "Material / Refrigerant", accessor: "materialRefrigerant" },

@@ -1017,6 +1017,11 @@ const PurchasedElectricityListing = () => {
       id: "serialNo", 
       Cell: ({ row }) => (pageIndex - 1) * pageSize + row.index + 1 
     },
+     { 
+      Header: "Building Code", 
+      accessor: "buildingId.buildingCode",
+      Cell: ({ value }) => value || "N/A"
+    },
     { 
       Header: "Building", 
       accessor: "buildingId.buildingName",
