@@ -1012,7 +1012,7 @@ const UpstreamTransportationListing = () => {
         id: "serialNo",
         Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
       },
-      { Header: "Building Code", accessor: "buildingId.buildingCode" },
+     { Header: "Building Code", accessor: "buildingId.buildingCode", Cell: ({ cell }) => cell.value || "N/A", },
       {
         Header: "Building",
         accessor: "buildingId.buildingName",
@@ -1256,8 +1256,10 @@ const UpstreamTransportationListing = () => {
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
+          <div>
           <h6 className="flex-1 md:mb-0">Upstream Transportation and Distribution Records</h6>
-
+          </div>
+         <div>
           <div className="md:flex md:space-x-1 space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             {/* Export Current Page Button */}
@@ -1286,7 +1288,7 @@ const UpstreamTransportationListing = () => {
                 fileName={`upstream_page_${pageIndex}`}  // FIX: Use pageIndex
                 sheetName={`Page ${pageIndex}`}          // FIX: Use pageIndex
                 buttonText="Export Page"
-                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
+                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
                 iconClass="text-lg"
                 customFormatter={customFormatter}
                 exportFormat="current"
@@ -1320,7 +1322,7 @@ const UpstreamTransportationListing = () => {
               fileName="upstream_transportation_records"
               sheetName="Upstream Transportation"
               buttonText="Export "
-              buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
+              buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               iconClass="text-lg"
               successMessage="Upstream records exported successfully!"
               customFormatter={customFormatter}
@@ -1337,7 +1339,7 @@ const UpstreamTransportationListing = () => {
             <Button
               icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
               text={csvState.uploading ? "Uploading..." : "Import"}
-              className="btn font-normal btn-sm bg-gradient-to-r from-[#8A3AB8] to-[#3A90B8] text-white border-0 hover:opacity-90"
+              className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}
               onClick={() => setBulkUploadModalOpen(true)}
               disabled={csvState.uploading}
@@ -1361,6 +1363,7 @@ const UpstreamTransportationListing = () => {
                 onClick={() => navigate("/Upstream-Transportation-Form/Add")}
               />
             </div>
+          </div>
           </div>
         </div>
 

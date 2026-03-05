@@ -995,20 +995,19 @@ const ProcessEmissionsListing = () => {
         id: "serialNo",
         Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
       },
-      { Header: "Building", accessor: "buildingId.buildingName" },
-      { Header: "Stakeholder", accessor: "stakeholderDepartment" },
+      { Header: "Building Code", accessor: "buildingId.buildingCode", Cell: ({ cell }) => cell.value || "N/A", },
+      { Header: "Building", accessor: "buildingId.buildingName",Cell: ({ cell }) => cell.value || "N/A", },
+      { Header: "Stakeholder", accessor: "stakeholderDepartment",Cell: ({ cell }) => cell.value || "N/A", },
       {
         Header: "Activity Type",
         accessor: "activityType",
-        Cell: ({ value }) => capitalizeLabel(value),
+        Cell: ({ value }) => capitalizeLabel(value), // use the function here
       },
       { Header: "Gas Emitted", accessor: "gasEmitted" },
       { Header: "Amount of Emissions", accessor: "amountOfEmissions" },
       { Header: "Quality Control", accessor: "qualityControl" },
-      { 
-        Header: "Calculated Emissions (kgCO₂e)", 
-        accessor: "calculatedEmissionKgCo2e",
-        Cell: ({ cell }) => {
+      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",
+         Cell: ({ cell }) => {
           const rawValue = cell.value;
           if (rawValue === null || rawValue === undefined || rawValue === "") {
             return "N/A";
@@ -1019,11 +1018,9 @@ const ProcessEmissionsListing = () => {
           }
           return numValue.toFixed(2);
         }
-      },
-      { 
-        Header: "Calculated Emissions (tCO₂e)", 
-        accessor: "calculatedEmissionTCo2e",
-        Cell: ({ cell }) => {
+       },
+      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",
+         Cell: ({ cell }) => {
           const rawValue = cell.value;
           if (rawValue === null || rawValue === undefined || rawValue === "") {
             return "N/A";
@@ -1037,8 +1034,9 @@ const ProcessEmissionsListing = () => {
           }
           return numValue.toFixed(2);
         }
-      },
-      { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => cell.value || "N/A" },
+       },
+       
+      { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A"  },
       {
         Header: "Updated By",
         accessor: "updatedBy.name",
@@ -1050,9 +1048,8 @@ const ProcessEmissionsListing = () => {
         Cell: ({ cell }) => cell.value || "N/A",
       },
       {
-        Header: "Posting Date", 
-        accessor: "postingDate",
-        Cell: ({ cell }) => {
+        Header: "Posting Date", accessor: "postingDate",
+         Cell: ({ cell }) => {
           if (!cell.value) return "N/A";
           try {
             return new Date(cell.value).toLocaleDateString('en-GB');
