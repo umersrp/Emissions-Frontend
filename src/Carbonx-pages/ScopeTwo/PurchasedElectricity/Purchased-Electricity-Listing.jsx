@@ -1302,122 +1302,142 @@ const PurchasedElectricityListing = () => {
   return (
     <>
       <Card noborder>
-        <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0">Purchased Electricity Records</h6>
-          <div className="md:flex md:space-x-3 items-center flex-wrap gap-2">
-            {/* Emission Filter Dropdown */}
-            <div className="flex items-center space-x-2">
-              <label className="text-sm font-medium text-slate-600">Filter:</label>
-              <Select
-                options={[
-                  { value: "", label: "Select Method" },
-                  { value: "location_based", label: "Location Based" },
-                  { value: "market_based", label: "Market Based" },
-                ]}
-                value={
-                  emissionFilter
-                    ? {
-                        value: emissionFilter,
-                        label: emissionFilter === "location_based"
-                          ? "Location Based"
-                          : "Market Based"
-                      }
-                    : { value: "", label: "Select Method" }
+       <div className="flex flex-col pb-6">
+  {/* Row 1 - Heading */}
+  <h6 className="text-lg font-semibold mb-4">Purchased Electricity Records</h6>
+  
+  {/* Row 2 - All Controls */}
+  <div className="flex flex-col sm:flex-row md:items-center flex-wrap gap-3">
+    
+    {/* Filter Section */}
+    <div className="flex flex-col xs:flex-row gap-3 w-full sm:w-auto sm:flex-1">
+      
+      {/* Emission Filter Dropdown */}
+     
+    </div>
+
+    {/* Action Buttons Section */}
+    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
+       <div className="flex items-center space-x-2  xs:w-auto">
+        <label className="text-sm font-medium text-slate-600 whitespace-nowrap">Filter:</label>
+        <Select
+          options={[
+            { value: "", label: "Select Method" },
+            { value: "location_based", label: "Location Based" },
+            { value: "market_based", label: "Market Based" },
+          ]}
+          value={
+            emissionFilter
+              ? {
+                  value: emissionFilter,
+                  label: emissionFilter === "location_based"
+                    ? "Location Based"
+                    : "Market Based"
                 }
-                onChange={(selected) => {
-                  setEmissionFilter(selected ? selected.value : "");
-                  setPageIndex(1);
-                }}
-                className="w-44"
-                classNamePrefix="react-select"
-              />
-            </div>
+              : { value: "", label: "Select Method" }
+          }
+          onChange={(selected) => {
+            setEmissionFilter(selected ? selected.value : "");
+            setPageIndex(1);
+          }}
+          className="w-full xs:w-44"
+          classNamePrefix="react-select"
+          isSearchable={false}
+          menuPortalTarget={document.body}
+          styles={{
+            menuPortal: base => ({ ...base, zIndex: 9999 })
+          }}
+        />
+      </div>
 
-            {/* Global Search */}
-            <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
+      {/* Global Search */}
+      <div className=" xs:w-auto  ">
+        <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
+      </div>
+      
+      {/* Export Buttons */}
+      {records.length > 0 && (
+        <ExcelExportButton
+          data={records}
+          columns={COLUMNS}
+          exportFields={[
+            "buildingId.buildingName",
+            "method",
+            "unit",
+            "totalGrossElectricityGrid",
+            "gridStation",
+            "totalOtherSupplierElectricity",
+            "qualityControl",
+            "calculatedEmissionKgCo2e",
+            "calculatedEmissionTCo2e",
+            "calculatedEmissionMarketKgCo2e",
+            "calculatedEmissionMarketTCo2e",
+            "remarks",
+            "postingDate",
+            "createdBy.name",
+            "updatedBy.name"
+          ]}
+          fileName="purchased_electricity_current_page"
+          sheetName="Current Page"
+          buttonText="Export Page"
+          buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90 whitespace-nowrap"
+          exportFormat="current"
+          customFormatter={customFormatter}
+          pageInfo={{ currentPage: pageIndex, limit: pageSize }}
+        />
+      )}
 
-            {/* Export Buttons */}
-            {records.length > 0 && (
-              <ExcelExportButton
-                data={records}
-                columns={COLUMNS}
-                exportFields={[
-                  "buildingId.buildingName",
-                  "method",
-                  "unit",
-                  "totalGrossElectricityGrid",
-                  "gridStation",
-                  "totalOtherSupplierElectricity",
-                  "qualityControl",
-                  "calculatedEmissionKgCo2e",
-                  "calculatedEmissionTCo2e",
-                  "calculatedEmissionMarketKgCo2e",
-                  "calculatedEmissionMarketTCo2e",
-                  "remarks",
-                  "postingDate",
-                  "createdBy.name",
-                  "updatedBy.name"
-                ]}
-                fileName="purchased_electricity_current_page"
-                sheetName="Current Page"
-                buttonText="Export Page"
-                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
-                exportFormat="current"
-                customFormatter={customFormatter}
-                pageInfo={{ currentPage: pageIndex, limit: pageSize }}
-              />
-            )}
+      <ExcelExportButton
+        data={records}
+        fetchAllData={fetchAllPurchasedElectricityRecords}
+        columns={COLUMNS}
+        exportFields={[
+          "buildingId.buildingName",
+          "method",
+          "unit",
+          "totalGrossElectricityGrid",
+          "gridStation",
+          "totalOtherSupplierElectricity",
+          "qualityControl",
+          "calculatedEmissionKgCo2e",
+          "calculatedEmissionTCo2e",
+          "calculatedEmissionMarketKgCo2e",
+          "calculatedEmissionMarketTCo2e",
+          "remarks",
+          "postingDate",
+          "createdBy.name",
+          "updatedBy.name"
+        ]}
+        fileName="purchased_electricity_records"
+        sheetName="Purchased Electricity"
+        buttonText="Export All"
+        buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90 whitespace-nowrap"
+        successMessage="Purchased electricity records exported successfully!"
+        customFormatter={customFormatter}
+        exportFormat="all"
+        pageInfo={{ currentPage: pageIndex, totalPages }}
+      /> 
 
-            <ExcelExportButton
-              data={records}
-              fetchAllData={fetchAllPurchasedElectricityRecords}
-              columns={COLUMNS}
-              exportFields={[
-                "buildingId.buildingName",
-                "method",
-                "unit",
-                "totalGrossElectricityGrid",
-                "gridStation",
-                "totalOtherSupplierElectricity",
-                "qualityControl",
-                "calculatedEmissionKgCo2e",
-                "calculatedEmissionTCo2e",
-                "calculatedEmissionMarketKgCo2e",
-                "calculatedEmissionMarketTCo2e",
-                "remarks",
-                "postingDate",
-                "createdBy.name",
-                "updatedBy.name"
-              ]}
-              fileName="purchased_electricity_records"
-              sheetName="Purchased Electricity"
-              buttonText="Export All"
-              buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
-              successMessage="Purchased electricity records exported successfully!"
-              customFormatter={customFormatter}
-              exportFormat="all"
-              pageInfo={{ currentPage: pageIndex, totalPages }}
-            />
+      {/* Import Button */}
+      <Button
+        icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
+        text={csvState.uploading ? "Uploading..." : "Import"}
+        className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90 whitespace-nowrap"
+        iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}
+        onClick={() => setBulkUploadModalOpen(true)}
+        disabled={csvState.uploading}
+      />
 
-            {/* Import Button */}
-            <Button
-              icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
-              text={csvState.uploading ? "Uploading..." : "Import"}
-              className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
-              iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}
-              onClick={() => setBulkUploadModalOpen(true)}
-              disabled={csvState.uploading}
-            />
-
-            {/* Add Record Button */}
-            <Button
-              icon="heroicons-outline:plus-sm"
-              text="Add Record"
-              className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
-              onClick={() => navigate("/Purchased-Electricity-Form/Add")}
-            />
-          </div>
-        </div>
+      {/* Add Record Button */}
+      <Button
+        icon="heroicons-outline:plus-sm"
+        text="Add Record"
+        className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90 whitespace-nowrap"
+        onClick={() => navigate("/Purchased-Electricity-Form/Add")}
+      />
+    </div>
+  </div>
+</div>
 
         {/* TABLE */}
         <div className="overflow-x-auto -mx-6">
