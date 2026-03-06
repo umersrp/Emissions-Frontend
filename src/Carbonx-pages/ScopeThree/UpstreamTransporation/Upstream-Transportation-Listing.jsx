@@ -1268,25 +1268,25 @@ const UpstreamTransportationListing = () => {
                 data={records}
                 columns={COLUMNS}
                 exportFields={[
-                  "stakeholderDepartment",           // Stakeholder Department
-                  "transportationCategory",           // Transportation Category
-                  "activityType",                      // Activity Type
-                  "purchasedGoodsType",                 // Purchased Goods Type
-                  "vehicleCategory",                     // Vehicle Category
-                  "vehicleType",                          // Vehicle Type
-                  "weightLoaded",                          // Weight Loaded
-                  "distanceTravelled",                      // Distance Travelled
-                  "amountSpent",                             // Amount Spent
-                  "unit",                                     // Unit
-                  "qualityControl",                            // Quality Control
-                  "remarks",                                    // Remarks
-                  "calculatedEmissionKgCo2e",                    // Emission in kg CO2e
-                  "calculatedEmissionTCo2e",                       // Emission in tonnes CO2e
-                  "postingDate",                                     // Posting Date
-                  "createdBy.name"                                    // Created By
+                  "stakeholderDepartment",           
+                  "transportationCategory",           
+                  "activityType",                      
+                  "purchasedGoodsType",                 
+                  "vehicleCategory",                     
+                  "vehicleType",                   
+                  "weightLoaded",                         
+                  "distanceTravelled",                      
+                  "amountSpent",                             
+                  "unit",                                    
+                  "qualityControl",                            
+                  "remarks",                                    
+                  "calculatedEmissionKgCo2e",                    
+                  "calculatedEmissionTCo2e",                       
+                  "postingDate",                                   
+                  "createdBy.name"                               
                 ]}
-                fileName={`upstream_page_${pageIndex}`}  // FIX: Use pageIndex
-                sheetName={`Page ${pageIndex}`}          // FIX: Use pageIndex
+                fileName={`upstream_page_${pageIndex}`}  
+                sheetName={`Page ${pageIndex}`}         
                 buttonText="Export Page"
                 buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
                 iconClass="text-lg"
@@ -1302,22 +1302,21 @@ const UpstreamTransportationListing = () => {
               fetchAllData={fetchAllRecords}
               columns={COLUMNS}
               exportFields={[
-                "stakeholderDepartment",           // Stakeholder Department
-                "transportationCategory",           // Transportation Category
-                "activityType",                      // Activity Type
-                "purchasedGoodsType",                 // Purchased Goods Type
-                "vehicleCategory",                     // Vehicle Category
-                "vehicleType",                          // Vehicle Type
-                "weightLoaded",                          // Weight Loaded
-                "distanceTravelled",                      // Distance Travelled
-                "amountSpent",                             // Amount Spent
-                "unit",                                     // Unit
-                "qualityControl",                            // Quality Control
-                "remarks",                                    // Remarks
-                "calculatedEmissionKgCo2e",                    // Emission in kg CO2e
-                "calculatedEmissionTCo2e",                       // Emission in tonnes CO2e
-                "postingDate",                                     // Posting Date
-                "createdBy.name"                                    // Created By
+                "stakeholderDepartment",           
+                "transportationCategory",           
+                "activityType",                      
+                "purchasedGoodsType",                 
+                "vehicleCategory",                    
+                "vehicleType",                         
+                "weightLoaded",                         
+                "amountSpent",                           
+                "unit",                                     
+                "qualityControl",                           
+                "remarks",                                   
+                "calculatedEmissionKgCo2e",                    
+                "calculatedEmissionTCo2e",                      
+                "postingDate",                                    
+                "createdBy.name"                              
               ]}
               fileName="upstream_transportation_records"
               sheetName="Upstream Transportation"
