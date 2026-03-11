@@ -1316,9 +1316,7 @@ const StationaryCombustionListing = () => {
                   "consumptionUnit",                  // Consumption Unit
                   "qualityControl",                    // Quality Control
                   "calculatedEmissionKgCo2e",          // Emission in kg CO2e
-                  "calculatedEmissionTCo2e",           // Emission in tonnes CO2e
-                  "calculatedBioEmissionKgCo2e",       // Bio Emission in kg CO2e
-                  "calculatedBioEmissionTCo2e",        // Bio Emission in tonnes CO2e
+                  "calculatedEmissionTCo2e",         
                   "remarks",                            // Remarks
                   "postingDate",                         // Posting Date
                   "createdBy.name",                       // Created By
@@ -1350,9 +1348,7 @@ const StationaryCombustionListing = () => {
                 "consumptionUnit",                  // Consumption Unit
                 "qualityControl",                    // Quality Control
                 "calculatedEmissionKgCo2e",          // Emission in kg CO2e
-                "calculatedEmissionTCo2e",           // Emission in tonnes CO2e
-                "calculatedBioEmissionKgCo2e",       // Bio Emission in kg CO2e
-                "calculatedBioEmissionTCo2e",        // Bio Emission in tonnes CO2e
+                "calculatedEmissionTCo2e",   
                 "remarks",                            // Remarks
                 "postingDate",                         // Posting Date
                 "createdBy.name",                       // Created By

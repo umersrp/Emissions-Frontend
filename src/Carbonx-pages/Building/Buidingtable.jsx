@@ -391,9 +391,13 @@ const BuildingTable = () => {
           </>
         }
       >
-        <p className="text-gray-700 text-center">
-          Are you sure you want to delete this building? This action cannot be undone.
-        </p>
+        <div className="text-center bg-red-100 border-2 border-red-500 rounded-lg p-4">
+  <p className="text-red-700 font-bold text-lg mb-2">⚠️ Warning</p>
+  <p className="text-red-600">
+    You are about to permanently delete this building and ALL associated entries in every scope. 
+    Once confirmed, this action <span className="font-bold">CANNOT BE UNDONE</span> and all data will be lost forever.
+  </p>
+</div>
       </Modal>
     </>
   );
