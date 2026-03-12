@@ -550,7 +550,7 @@ const parseDateToISO = useCallback((dateString) => {
         progress: 100,
         results: results,
         uploading: false
-      }));
+      }));  
 
       setTimeout(() => {
         if (results.failed === 0) {
