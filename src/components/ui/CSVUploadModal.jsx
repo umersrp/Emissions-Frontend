@@ -213,7 +213,7 @@ const CSVUploadModal = ({
                     <div className="mt-2 sm:mt-3">
                       <Button
                         text="Browse Files"
-                        className="btn-outline-primary w-full sm:w-auto text-xs sm:text-sm px-4 py-1.5"
+                        className="btn-outline-dark w-full sm:w-auto text-xs sm:text-sm px-4 py-1.5"
                         onClick={handleBrowseClick}
                         size="sm"
                       />
