@@ -600,7 +600,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = isCapitalGoods ? 'capital_goods_template.csv' : 'purchased_goods_template.csv';
+    a.download = isCapitalGoods ? 'purchased_goods_and_services_template.csv' : 'purchased_goods_and_services_template.csv';
     document.body.appendChild(a);
     a.click();
     URL.revokeObjectURL(url);

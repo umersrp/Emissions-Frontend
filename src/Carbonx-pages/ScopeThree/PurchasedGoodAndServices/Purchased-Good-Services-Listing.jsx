@@ -835,7 +835,7 @@ const PurchasedGoodServicesListing = () => {
     }
 
     try {
-      await handleFileSelect(selectedFile, false);
+      await handleFileSelect(selectedFile, true);
     } catch (error) {
       console.error('Error handling file select:', error);
       toast.error('Failed to process file');
@@ -846,7 +846,7 @@ const PurchasedGoodServicesListing = () => {
     if (csvState.uploading) return;
 
     try {
-      const results = await processUpload('/Purchased-Goods-Services/create', false);
+      const results = await processUpload('/Purchased-Goods-Services/create', true);
 
       if (results && results.failed === 0) {
         await new Promise(resolve => setTimeout(resolve, 1500));
@@ -1371,7 +1371,7 @@ const PurchasedGoodServicesListing = () => {
         onFileSelect={handleCSVFileSelect}
         onUpload={handleCSVUpload}
         onReset={resetUpload}
-        onDownloadTemplate={() => downloadPurchasedGoodsTemplate(false)}
+        onDownloadTemplate={() => downloadPurchasedGoodsTemplate(true)}
         templateInstructions={templateInstructions}
         isLoading={csvState.uploading}
       />
