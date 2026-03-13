@@ -1279,7 +1279,7 @@ const DownstreamTransportationListing = () => {
               ]}
               fileName="downstream_transportation_records"
               sheetName="Downstream Transportation"
-              buttonText="Export All"
+              buttonText="Export"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               successMessage="Downstream transportation records exported successfully!"
               customFormatter={customFormatter}

@@ -1114,7 +1114,7 @@ const PurchasedGoodServicesListing = () => {
               ]}
               fileName="purchased_goods_records"
               sheetName="Purchased Goods & Services"
-              buttonText="Export All"
+              buttonText="Export"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               successMessage="Purchased goods records exported successfully!"
               customFormatter={customFormatter}

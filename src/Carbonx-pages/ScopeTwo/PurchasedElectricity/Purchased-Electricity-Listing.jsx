@@ -1410,7 +1410,7 @@ const PurchasedElectricityListing = () => {
         ]}
         fileName="purchased_electricity_records"
         sheetName="Purchased Electricity"
-        buttonText="Export All"
+        buttonText="Export"
         buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90 whitespace-nowrap"
         successMessage="Purchased electricity records exported successfully!"
         customFormatter={customFormatter}

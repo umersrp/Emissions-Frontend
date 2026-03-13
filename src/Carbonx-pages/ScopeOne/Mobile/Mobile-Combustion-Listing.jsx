@@ -1207,8 +1207,6 @@ const MobileCombustionListing = () => {
                   "weightLoaded",
                   "calculatedEmissionKgCo2e",
                   "calculatedEmissionTCo2e",
-                  "calculatedBioEmissionKgCo2e",
-                  "calculatedBioEmissionTCo2e",
                   "remarks",
                   "postingDate",
                   "createdBy.name",
@@ -1242,8 +1240,6 @@ const MobileCombustionListing = () => {
                 "weightLoaded",
                 "calculatedEmissionKgCo2e",
                 "calculatedEmissionTCo2e",
-                "calculatedBioEmissionKgCo2e",
-                "calculatedBioEmissionTCo2e",
                 "remarks",
                 "postingDate",
                 "createdBy.name",
@@ -1251,7 +1247,7 @@ const MobileCombustionListing = () => {
               ]}
               fileName="mobile_combustion_records"
               sheetName="Mobile Combustion"
-              buttonText="Export All"
+              buttonText="Export"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               successMessage="Mobile combustion records exported successfully!"
               customFormatter={customFormatter}
@@ -1526,7 +1522,7 @@ const MobileCombustionListing = () => {
         onReset={resetUpload}
         onDownloadTemplate={downloadMobileTemplate}
         templateInstructions={(
-          <ol className="text-sm text-blue-700 space-y-1 list-decimal pl-4">
+          <ol className="text-sm  space-y-1 list-decimal pl-4">
             <li>Download the template below</li>
             <li>Fill in your data (keep column headers as is)</li>
             <li>Save as CSV file</li>

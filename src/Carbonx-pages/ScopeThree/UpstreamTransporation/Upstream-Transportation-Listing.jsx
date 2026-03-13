@@ -1256,10 +1256,9 @@ const UpstreamTransportationListing = () => {
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <div>
+         
           <h6 className="flex-1 md:mb-0">Upstream Transportation and Distribution Records</h6>
-          </div>
-         <div>
+          
           <div className="md:flex md:space-x-1 space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             {/* Export Current Page Button */}
@@ -1320,7 +1319,7 @@ const UpstreamTransportationListing = () => {
               ]}
               fileName="upstream_transportation_records"
               sheetName="Upstream Transportation"
-              buttonText="Export "
+              buttonText="Export"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               iconClass="text-lg"
               successMessage="Upstream records exported successfully!"
@@ -1363,7 +1362,7 @@ const UpstreamTransportationListing = () => {
               />
             </div>
           </div>
-          </div>
+          
         </div>
 
         {/* Table */}
