@@ -1356,7 +1356,7 @@ const StationaryCombustionListing = () => {
               ]}
               fileName="stationary_combustion_records"
               sheetName="Stationary Combustion"
-              buttonText="Export "
+              buttonText="Export"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               successMessage="Stationary records exported successfully!"
               customFormatter={customFormatter}

@@ -1302,7 +1302,7 @@ const FuelFusion = () => {
                             ]}
                             fileName="fuel_energy_records"
                             sheetName="Fuel & Energy"
-                            buttonText="Export All"
+                            buttonText="Export"
                             buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
                             successMessage="Fuel & Energy records exported successfully!"
                             customFormatter={customFormatter}

@@ -1273,7 +1273,7 @@ const customFormatter = (value, column, row, index) => {
                             ]}
                             fileName="business_travel_records"
                             sheetName="Business Travel"
-                            buttonText="Export All"
+                            buttonText="Export"
                             buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
                             successMessage="Business travel records exported successfully!"
                             customFormatter={customFormatter}

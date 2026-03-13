@@ -1099,7 +1099,7 @@ const CapitalGoodsListing = () => {
               ]}
               fileName="capital_goods_records"
               sheetName="Capital Goods"
-              buttonText="Export All"
+              buttonText="Export"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               successMessage="Capital goods records exported successfully!"
               customFormatter={customFormatter}
@@ -1108,14 +1108,14 @@ const CapitalGoodsListing = () => {
             />
 
             {/* Import Button */}
-            <Button
+            {/* <Button
               icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
               text={csvState.uploading ? "Uploading..." : "Import"}
               className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}
               onClick={() => setBulkUploadModalOpen(true)}
               disabled={csvState.uploading}
-            />
+            /> */}
           </div>
         </div>
 

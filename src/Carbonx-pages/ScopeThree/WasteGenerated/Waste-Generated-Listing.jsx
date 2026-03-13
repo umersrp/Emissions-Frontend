@@ -1098,7 +1098,7 @@ const WasteGeneratedListing = () => {
               ]}
               fileName="waste_generated_records"
               sheetName="Waste Generated"
-              buttonText="Export All"
+              buttonText="Export"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               successMessage="Waste records exported successfully!"
               customFormatter={customFormatter}

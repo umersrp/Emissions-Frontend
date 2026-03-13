@@ -855,7 +855,7 @@ const FugitiveCombustionListing = () => {
 
   // Template instructions for fugitive
   const templateInstructions = (
-    <ol className="text-sm text-blue-700 space-y-1 list-decimal pl-4">
+    <ol className="text-sm  space-y-1 list-decimal pl-4">
       <li>Download the template below to get the correct format</li>
       <li>Fill in your fugitive emissions data</li>
       <li><strong>Important:</strong> Use Building IDs from the reference list</li>
@@ -1085,7 +1085,7 @@ const FugitiveCombustionListing = () => {
               ]}
               fileName="fugitive_emissions_records"
               sheetName="Fugitive Emissions"
-              buttonText="Export All"
+              buttonText="Export"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               successMessage="Fugitive records exported successfully!"
               customFormatter={customFormatter}
@@ -1094,7 +1094,7 @@ const FugitiveCombustionListing = () => {
             />
             <Button
               icon="heroicons-outline:cloud-upload"
-              text="Bulk Upload"
+              text="Import"
               className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               onClick={() => setBulkUploadModalOpen(true)}
             />
