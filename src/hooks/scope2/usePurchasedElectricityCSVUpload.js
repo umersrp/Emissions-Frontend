@@ -1012,7 +1012,7 @@ console.log('=================================');
     'howmuchelectricityfromtotalelectricityconsumptionispurchasedfromspecificsupplierundercontractualinstrument': 'supplierspecificelectricity',
     'supplierspecificelectricity': 'supplierspecificelectricity',
     
-    'doyouhavethesupplierspecificemissionfactoringco₂ekwhforpurchasedsupplierspecificelectricityundercontractualinstrument': 'hassupplieremissionfactor',
+    'doyouhavethesupplierspecificemissionfactorinkgco2ekwhforpurchasedsupplierspecificelectricityundercontractualinstrument': 'hassupplieremissionfactor',
     'hassupplieremissionfactor': 'hassupplieremissionfactor',
     
     'emissionfactor': 'supplieremissionfactor',
@@ -1029,7 +1029,7 @@ console.log('=================================');
     'ppaelectricity': 'ppaelectricity',
 
     
-    'doyouhavethesupplierspecificemissionfactoringco₂ekwhforpurchasedelectricityunderpowerpurchasedagreementppa': 'hasppaemissionfactor',
+    'doyouhavethesupplierspecificemissionfactorinkgco2ekwhforpurchasedelectricityunderpowerpurchasedagreementppa': 'hasppaemissionfactor',
     'hasppaemissionfactor': 'hasppaemissionfactor',
     
     'ppaemissionfactor': 'ppaemissionfactor',
@@ -1577,19 +1577,19 @@ const handleFileSelect = async (file, selectedMethod) => {
     'how much solar electricity is consumed by you but its renewable instruments or attributes is sold by you to another entity?',
     'do you purchase supplier specific electricity?',
     'how much electricity from total electricity consumption is purchased from specific supplier under contractual instrument?',
-    'do you have the supplier specific emission factor in kgco₂e/kwh for purchased supplier specific electricity under contractual instrument?',
+    'do you have the supplier specific emission factor in kgco2e/kwh for purchased supplier specific electricity under contractual instrument?',
     'emission factor',
     "i don't have supplier specific emission factor",
     'do you purchase electricity under power purchase agreements (ppa)?',
     'how much electricity from total electricity consumption is purchased or covered under power purchase agreement (ppa)?',
-    'do you have the supplier specific emission factor in kgco₂e/kwh for purchased electricity under power purchased agreement (ppa)?',
+    'do you have the supplier specific emission factor in kgco2e/kwh for purchased electricity under power purchased agreement (ppa)?',
     'ppa emission factor',
     'or do you have the valid energy instruments or renewable energy attributes (rec / rec-i) etc. under power purchased agreements (ppa)?',
     'do you have any other types of renewable energy attributes market-based instruments or renewable energy certificates (recs) that are separate from power purchase agreements (ppa) and from those covering on-site renewable electricity generation?',
     'how much of your total electricity consumption (excluding solar generation and ppa-covered electricity) is covered by valid renewable energy attributes or market-based instruments?',
   ].join(',');
 
-  exampleRow = `${exampleBuildingCode},1500,${exampleUnit},1000,${exampleGridStation},${exampleQC},Example market based record,${formattedDate},Yes,500,400,100,Yes,300,Yes,0.5,No,Yes,200,Yes,0.4,No,Yes,150`;
+  exampleRow = `${exampleBuildingCode},1500,${exampleUnit},1000,${exampleGridStation},${exampleQC},${formattedDate},Example market based record,Yes,500,400,100,Yes,300,Yes,0.5,No,Yes,200,Yes,0.4,No,Yes,150`;
 }
 
     const template = headers + '\n' + exampleRow;
