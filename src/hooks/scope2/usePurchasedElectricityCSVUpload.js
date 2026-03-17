@@ -1549,25 +1549,28 @@ const handleFileSelect = async (file, selectedMethod) => {
   // Location Based Template - Using Form Labels (all lowercase)
   headers = [
     'building code',
-    'unit',
     'total electricity consumption',
+    'unit',
     'total gross electricity purchased from grid station',
     'grid station',
     'total other supplier specific electricity purchased or purchased under power purchased agreement (ppa)',
     'quality control',
-    'remarks',
-    'posting date'
+    'posting date',
+    'remarks'
   ].join(',');
 
-  exampleRow = `${exampleBuildingCode},${exampleUnit},1500,1000,${exampleGridStation},500,${exampleQC},Example location based record,${formattedDate}`;
+  exampleRow = `${exampleBuildingCode},1500,${exampleUnit},1000,${exampleGridStation},500,${exampleQC},${formattedDate},Example location based record`;
 } else {
   // Market Based Template - Using Form Labels (all lowercase)
   headers = [
     'building code',
-    'unit',
     'total purchased electricity (grid / supplier specific / ppa)',
+    'unit',
     'total gross electricity purchased from grid station',
     'grid station',
+    'quality control',
+    'posting date',
+    'remarks',
     'do you have your own solar panels or any other renewable electricity generation plant installed at your facility that is retained by you under valid renewable energy instruments?',
     'what is the total onsite solar electricity consumption?',
     'how much solar electricity is retained by you under valid recs or any other energy attributes?',
@@ -1584,12 +1587,9 @@ const handleFileSelect = async (file, selectedMethod) => {
     'or do you have the valid energy instruments or renewable energy attributes (rec / rec-i) etc. under power purchased agreements (ppa)?',
     'do you have any other types of renewable energy attributes market-based instruments or renewable energy certificates (recs) that are separate from power purchase agreements (ppa) and from those covering on-site renewable electricity generation?',
     'how much of your total electricity consumption (excluding solar generation and ppa-covered electricity) is covered by valid renewable energy attributes or market-based instruments?',
-    'quality control',
-    'remarks',
-    'posting date'
   ].join(',');
 
-  exampleRow = `${exampleBuildingCode},${exampleUnit},1500,1000,${exampleGridStation},Yes,500,400,100,Yes,300,Yes,0.5,No,Yes,200,Yes,0.4,No,Yes,150,${exampleQC},Example market based record,${formattedDate}`;
+  exampleRow = `${exampleBuildingCode},1500,${exampleUnit},1000,${exampleGridStation},${exampleQC},Example market based record,${formattedDate},Yes,500,400,100,Yes,300,Yes,0.5,No,Yes,200,Yes,0.4,No,Yes,150`;
 }
 
     const template = headers + '\n' + exampleRow;
