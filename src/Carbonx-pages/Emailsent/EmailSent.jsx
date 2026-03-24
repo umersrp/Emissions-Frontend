@@ -164,45 +164,60 @@ const EmailSent = () => {
             }
         }
         // ... rest of the function remains the same
-        else if (field === 'minEmployeesRequired') {
-            const newMin = Number(value);
-            const total = Number(formData.totalEmployees);
+      else if (field === 'minEmployeesRequired') {
+    const newMin = Number(value);
+    const total = Number(formData.totalEmployees);
 
-            // If total is empty or 0, don't allow setting minEmployeesRequired
-            if (!total || total === 0) {
-                setFormData(prev => ({
-                    ...prev,
-                    minEmployeesRequired: 0 // Keep it at 0
-                }));
+    // If total is empty or 0, don't allow setting minEmployeesRequired
+    if (!total || total === 0) {
+        setFormData(prev => ({
+            ...prev,
+            minEmployeesRequired: 0 // Keep it at 0
+        }));
+        
+        // Show a toast message
+        toast.error("Please set Total Number of Employees first", {
+            autoClose: 3000,
+            position: "top-right"
+        });
+        return;
+    }
 
-                // Show a toast message
-                setTimeout(() => {
-                    toast.error("Please set Total Number of Employees first");
-                }, 0);
-                return;
-            }
+    // Check if newMin exceeds total
+    if (newMin > total) {
+        // Show error toast
+        toast.error(`Minimum required (${newMin}) cannot exceed total employees (${total})`, {
+            autoClose: 3000,
+            position: "top-right"
+        });
+        
+        // Keep the previous value
+        setFormData(prev => ({
+            ...prev,
+            minEmployeesRequired: prev.minEmployeesRequired
+        }));
+        
+        // Set error state
+        setErrors(prev => ({
+            ...prev,
+            minEmployeesRequired: `Minimum required (${newMin}) cannot exceed total employees (${total})`
+        }));
+        return;
+    }
 
-            setFormData(prev => ({
-                ...prev,
-                [field]: value
-            }));
+    // If validation passes, update the value
+    setFormData(prev => ({
+        ...prev,
+        [field]: value
+    }));
 
-            // Clear existing minEmployeesRequired error
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors.minEmployeesRequired;
-                return newErrors;
-            });
-
-            setTimeout(() => {
-                if (total > 0 && newMin > total) {
-                    setErrors(prev => ({
-                        ...prev,
-                        minEmployeesRequired: `Minimum required (${newMin}) cannot exceed total employees (${total})`
-                    }));
-                }
-            }, 0);
-        }
+    // Clear any existing error
+    setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors.minEmployeesRequired;
+        return newErrors;
+    });
+}
         else if (field === 'selectedEmployees') {
             const selectedCount = value.length;
             const total = Number(formData.totalEmployees);
@@ -657,26 +672,26 @@ const EmailSent = () => {
                             />
                             <ErrorMessage message={errors.totalEmployees} />
                         </div>
-                        <div>
-                            <label className="field-label">Minimum Number of Employees Required to Submit Data</label>
-                            <InputGroup
-                                type="number"
-                                placeholder="e.g., 1, 2, 3"
-                                value={formData.minEmployeesRequired}
-                                onChange={(e) =>
-                                    handleInputChange("minEmployeesRequired", Number(e.target.value))
-                                }
-                                min="1"
-                                required
-                                disabled={!formData.totalEmployees || Number(formData.totalEmployees) <= 0}
-                            />
-                            {!formData.totalEmployees && (
-                                <p className="text-xs text-amber-600 mt-1">
-                                    Please fill "Total Number of Employees" first
-                                </p>
-                            )}
-                            {/* <ErrorMessage message={errors.minEmployeesRequired} /> */}
-                        </div>
+                       <div>
+    <label className="field-label">Minimum Number of Employees Required to Submit Data</label>
+    <InputGroup
+        type="number"
+        placeholder="e.g., 1, 2, 3"
+        value={formData.minEmployeesRequired}
+        onChange={(e) =>
+            handleInputChange("minEmployeesRequired", Number(e.target.value))
+        }
+        min="1"
+        required
+        disabled={!formData.totalEmployees || Number(formData.totalEmployees) <= 0}
+    />
+    {!formData.totalEmployees && (
+        <p className="text-xs text-amber-600 mt-1">
+            Please fill "Total Number of Employees" first
+        </p>
+    )}
+    <ErrorMessage message={errors.minEmployeesRequired} />
+</div>
                     </div>
                     <div>
                         <label className="field-label">Employees Email List</label>

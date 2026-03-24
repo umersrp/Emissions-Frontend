@@ -116,7 +116,7 @@ const EmployeeCommutingForm = () => {
     console.log('URL UserId:', urlUserId);
 
     // Current year for reporting
-    const currentYear = new Date().getFullYear();
+    const currentYear = 2024; 
     const [reportingYear, setReportingYear] = useState(currentYear);
     const [errors, setErrors] = useState({});
 
@@ -3331,15 +3331,7 @@ const EmployeeCommutingForm = () => {
                             {(formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && (
                                 <>
                                     <div className="mt-4 ">
-                                        {/* <div className="mb-4">
-                                            <Checkbox
-                                                label="Do you carry any other employee to this organization?"
-                                                checked={formData.carryOthersMotorbike}
-                                                onChange={(e) => handleCheckboxChange('carryOthersMotorbike', e.target.checked)}
-                                            />
-                                            <ErrorMessage message={errors.carryOthersMotorbike} />
-                                        </div> */}
-
+                                       
                                         {formData.carryOthersMotorbike && (
                                             <>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3545,18 +3537,7 @@ const EmployeeCommutingForm = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                {/* <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                                        Number of Passengers (including yourself)
-                                    </label>
-                                    <CustomSelect
-                                        options={transportationOptions.taxiPassengerOptions}
-                                        value={formData.taxiPassengers}
-                                        placeholder="Select No of Passengers"
-                                        onChange={(selectedOption) => handleSelectChange('taxiPassengers', selectedOption)}
-                                    />
-                                    <ErrorMessage message={errors.taxiPassengers} />
-                                </div> */}
+                               
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         {formData.taxiMode === "both" ? "Individual Distance Travelled *" : "Distance Travelled *"}
