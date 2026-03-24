@@ -901,7 +901,7 @@ const EmailReportListing = () => {
         Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
       },
       {
-        Header: "Subject",
+        Header: "Email Subject",
         accessor: "subject",
         Cell: ({ cell }) => cell.value || "N/A",
       },

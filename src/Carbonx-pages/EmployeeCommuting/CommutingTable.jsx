@@ -418,178 +418,634 @@ const CommutingTable = () => {
         }
     };
 
-    const COLUMNS = useMemo(() => [
-        {
-            Header: "Sr.No",
-            id: "serialNo",
-            Cell: ({ row }) => (
-                <span>{row.index + 1 + controlledPageIndex * controlledPageSize}</span>
-            ),
-        },
-        {
-            Header: "Building",
-            accessor: "building.buildingName",
-            Cell: ({ cell }) => cell.value || "N/A",
-        },
-        {
-            Header: "Reporting Year",
-            accessor: "reportingYear",
-            Cell: ({ cell }) => cell.value || "N/A",
-        },
-        {
-            Header: "Commute Mode",
-            Cell: ({ row }) => {
-                const d = row.original;
-                if (d.commuteByMotorbike) return "Motorbike";
-                if (d.commuteByCar) return "Car";
-                if (d.commuteByBus) return "Bus";
-                if (d.commuteByTaxi) return "Taxi";
-                if (d.commuteByTrain) return "Train";
-                if (d.workFromHome) return "Work From Home";
-                return "No Commute";
-            },
-        },
-        {
-            Header: "Vehicle Type",
-            Cell: ({ row }) => {
-                const d = row.original;
+    // const COLUMNS = useMemo(() => [
+    //     {
+    //         Header: "Sr.No",
+    //         id: "serialNo",
+    //         Cell: ({ row }) => (
+    //             <span>{row.index + 1 + controlledPageIndex * controlledPageSize}</span>
+    //         ),
+    //     },
+    //     {
+    //         Header: "Building",
+    //         accessor: "building.buildingName",
+    //         Cell: ({ cell }) => cell.value || "N/A",
+    //     },
+    //     {
+    //         Header: "Reporting Year",
+    //         accessor: "reportingYear",
+    //         Cell: ({ cell }) => cell.value || "N/A",
+    //     },
+    //     {
+    //         Header: "Commute Mode",
+    //         Cell: ({ row }) => {
+    //             const d = row.original;
+    //             if (d.commuteByMotorbike) return "Motorbike";
+    //             if (d.commuteByCar) return "Car";
+    //             if (d.commuteByBus) return "Bus";
+    //             if (d.commuteByTaxi) return "Taxi";
+    //             if (d.commuteByTrain) return "Train";
+    //             if (d.workFromHome) return "Work From Home";
+    //             return "No Commute";
+    //         },
+    //     },
+    //     {
+    //         Header: "Vehicle Type",
+    //         Cell: ({ row }) => {
+    //             const d = row.original;
 
-                // Helper function to format text to Title Case
-                const toTitleCase = (str) => {
-                    if (!str) return "N/A";
-                    return str
-                        .toLowerCase()
-                        .split(' ')
-                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(' ');
-                };
+    //             // Helper function to format text to Title Case
+    //             const toTitleCase = (str) => {
+    //                 if (!str) return "N/A";
+    //                 return str
+    //                     .toLowerCase()
+    //                     .split(' ')
+    //                     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    //                     .join(' ');
+    //             };
 
-                if (d.commuteByMotorbike) return toTitleCase(d.motorbikeType);
-                if (d.commuteByCar) return toTitleCase(d.carType);
-                if (d.commuteByBus) return toTitleCase(d.busType);
-                if (d.commuteByTaxi) return toTitleCase(d.taxiType);
-                if (d.commuteByTrain) return toTitleCase(d.trainType);
-                return "N/A";
-            },
-        },
-        {
-            Header: "Fuel Type",
-            Cell: ({ row }) => {
-                const d = row.original;
-                if (d.commuteByCar) return d.carFuelType || "N/A";
-                return "N/A";
-            },
-        },
-        {
-            Header: "Number of Passengers",
-            Cell: ({ row }) => {
-                const d = row.original;
-                if (d.commuteByMotorbike) return d.personsCarriedMotorbike || 0;
-                if (d.commuteByCar) return (d.personsCarriedCar || 0) + 1; // Including driver
-                if (d.commuteByTaxi) return d.taxiPassengers || 1;
-                if (d.commuteByBus || d.commuteByTrain) return 1;
-                return 0;
-            },
-        },
-        {
-            Header: "Distance Travelled",
-            Cell: ({ row }) => {
-                const d = row.original;
-                if (d.commuteByMotorbike) return Number(d.motorbikeDistance || 0).toFixed(2);
-                if (d.commuteByCar) return Number(d.carDistance || 0).toFixed(2);
-                if (d.commuteByBus) return Number(d.busDistance || 0).toFixed(2);
-                if (d.commuteByTaxi) return Number(d.taxiDistance || 0).toFixed(2);
-                if (d.commuteByTrain) return Number(d.trainDistance || 0).toFixed(2);
-                return "0.00";
-            },
-        },
-        {
-            Header: "Calculate Emission (kgCO₂e)",
-            Cell: ({ row }) => {
-                const emissions = row.original.emissions;
-                if (!emissions) return "N/A";
-                return emissions.totalEmissionsKg.toFixed(2);
-            },
-        },
-        {
-            Header: "Calculate Emissions (tCO₂e)",
-            Cell: ({ row }) => {
-                const emissions = row.original.emissions;
-                if (!emissions) return "N/A";
-                return emissions.totalEmissionsTonnes.toFixed(2);
-            },
-        },
-        {
-            Header: "Submitted By",
-            accessor: "submittedByEmail",
-            Cell: ({ cell }) => cell.value || "N/A",
-        },
-        {
-            Header: "Department",
-            Cell: ({ row }) => {
-                const d = row.original;
-                return d.stakeholderDepartment || "N/A";
-            },
-        },
-        {
-            Header: "Date Range",
-            Cell: ({ row }) => {
-                const d = row.original;
-                let dateRange = null;
+    //             if (d.commuteByMotorbike) return toTitleCase(d.motorbikeType);
+    //             if (d.commuteByCar) return toTitleCase(d.carType);
+    //             if (d.commuteByBus) return toTitleCase(d.busType);
+    //             if (d.commuteByTaxi) return toTitleCase(d.taxiType);
+    //             if (d.commuteByTrain) return toTitleCase(d.trainType);
+    //             return "N/A";
+    //         },
+    //     },
+    //     {
+    //         Header: "Fuel Type",
+    //         Cell: ({ row }) => {
+    //             const d = row.original;
+    //             if (d.commuteByCar) return d.carFuelType || "N/A";
+    //             return "N/A";
+    //         },
+    //     },
+    //     {
+    //         Header: "Number of Passengers",
+    //         Cell: ({ row }) => {
+    //             const d = row.original;
+    //             if (d.commuteByMotorbike) return d.personsCarriedMotorbike || 0;
+    //             if (d.commuteByCar) return (d.personsCarriedCar || 0) + 1; // Including driver
+    //             if (d.commuteByTaxi) return d.taxiPassengers || 1;
+    //             if (d.commuteByBus || d.commuteByTrain) return 1;
+    //             return 0;
+    //         },
+    //     },
+    //     {
+    //         Header: "Distance Travelled",
+    //         Cell: ({ row }) => {
+    //             const d = row.original;
+    //             if (d.commuteByMotorbike) return Number(d.motorbikeDistance || 0).toFixed(2);
+    //             if (d.commuteByCar) return Number(d.carDistance || 0).toFixed(2);
+    //             if (d.commuteByBus) return Number(d.busDistance || 0).toFixed(2);
+    //             if (d.commuteByTaxi) return Number(d.taxiDistance || 0).toFixed(2);
+    //             if (d.commuteByTrain) return Number(d.trainDistance || 0).toFixed(2);
+    //             return "0.00";
+    //         },
+    //     },
+    //     {
+    //         Header: "Calculate Emission (kgCO₂e)",
+    //         Cell: ({ row }) => {
+    //             const emissions = row.original.emissions;
+    //             if (!emissions) return "N/A";
+    //             return emissions.totalEmissionsKg.toFixed(2);
+    //         },
+    //     },
+    //     {
+    //         Header: "Calculate Emissions (tCO₂e)",
+    //         Cell: ({ row }) => {
+    //             const emissions = row.original.emissions;
+    //             if (!emissions) return "N/A";
+    //             return emissions.totalEmissionsTonnes.toFixed(2);
+    //         },
+    //     },
+    //     {
+    //         Header: "Submitted By",
+    //         accessor: "submittedByEmail",
+    //         Cell: ({ cell }) => cell.value || "N/A",
+    //     },
+    //     {
+    //         Header: "Department",
+    //         Cell: ({ row }) => {
+    //             const d = row.original;
+    //             return d.stakeholderDepartment || "N/A";
+    //         },
+    //     },
+    //     {
+    //         Header: "Date Range",
+    //         Cell: ({ row }) => {
+    //             const d = row.original;
+    //             let dateRange = null;
 
-                if (d.commuteByMotorbike && d.motorbikeDateRange) {
-                    dateRange = d.motorbikeDateRange;
-                } else if (d.commuteByCar && d.carDateRange) {
-                    dateRange = d.carDateRange;
-                } else if (d.commuteByBus && d.busDateRange) {
-                    dateRange = d.busDateRange;
-                } else if (d.commuteByTaxi && d.taxiDateRange) {
-                    dateRange = d.taxiDateRange;
-                } else if (d.commuteByTrain && d.trainDateRange) {
-                    dateRange = d.trainDateRange;
-                } else if (d.workFromHome && d.workFromHomeDateRange) {
-                    dateRange = d.workFromHomeDateRange;
-                }
+    //             if (d.commuteByMotorbike && d.motorbikeDateRange) {
+    //                 dateRange = d.motorbikeDateRange;
+    //             } else if (d.commuteByCar && d.carDateRange) {
+    //                 dateRange = d.carDateRange;
+    //             } else if (d.commuteByBus && d.busDateRange) {
+    //                 dateRange = d.busDateRange;
+    //             } else if (d.commuteByTaxi && d.taxiDateRange) {
+    //                 dateRange = d.taxiDateRange;
+    //             } else if (d.commuteByTrain && d.trainDateRange) {
+    //                 dateRange = d.trainDateRange;
+    //             } else if (d.workFromHome && d.workFromHomeDateRange) {
+    //                 dateRange = d.workFromHomeDateRange;
+    //             }
 
-                if (dateRange && dateRange.startDate && dateRange.endDate) {
-                    const start = new Date(dateRange.startDate).toLocaleDateString();
-                    const end = new Date(dateRange.endDate).toLocaleDateString();
-                    return `${start} to ${end}`;
-                }
-                return "N/A";
-            },
-        },
-        {
-            Header: "Actions",
-            accessor: "_id",
-            Cell: ({ cell }) => (
-                <div className="flex space-x-3 rtl:space-x-reverse">
-                    <Tippy content="View Details">
-                        <button
-                            className="action-btn"
-                            onClick={() => {
-                                navigate(`/employee-commuting/view/${cell.value}`);
-                            }}
-                        >
-                            <Icon icon="heroicons:eye" className="text-green-600" />
-                        </button>
-                    </Tippy>
+    //             if (dateRange && dateRange.startDate && dateRange.endDate) {
+    //                 const start = new Date(dateRange.startDate).toLocaleDateString();
+    //                 const end = new Date(dateRange.endDate).toLocaleDateString();
+    //                 return `${start} to ${end}`;
+    //             }
+    //             return "N/A";
+    //         },
+    //     },
+    //     {
+    //         Header: "Actions",
+    //         accessor: "_id",
+    //         Cell: ({ cell }) => (
+    //             <div className="flex space-x-3 rtl:space-x-reverse">
+    //                 {/* <Tippy content="View Details">
+    //                     <button
+    //                         className="action-btn"
+    //                         onClick={() => {
+    //                             navigate(`/employee-commuting/view/${cell.value}`);
+    //                         }}
+    //                     >
+    //                         <Icon icon="heroicons:eye" className="text-green-600" />
+    //                     </button>
+    //                 </Tippy> */}
 
-                    <Tippy content="Delete">
-                        <button
-                            className="action-btn"
-                            onClick={() => {
-                                setSelectedRecordId(cell.value);
-                                setDeleteModalOpen(true);
-                            }}
-                        >
-                            <Icon icon="heroicons:trash" className="text-red-600" />
-                        </button>
-                    </Tippy>
-                </div>
-            ),
+    //                 <Tippy content="Delete">
+    //                     <button
+    //                         className="action-btn"
+    //                         onClick={() => {
+    //                             setSelectedRecordId(cell.value);
+    //                             setDeleteModalOpen(true);
+    //                         }}
+    //                     >
+    //                         <Icon icon="heroicons:trash" className="text-red-600" />
+    //                     </button>
+    //                 </Tippy>
+    //             </div>
+    //         ),
+    //     },
+    // ], [navigate, controlledPageIndex, controlledPageSize]);
+const COLUMNS = useMemo(() => [
+    {
+        Header: "Sr.No",
+        id: "serialNo",
+        Cell: ({ row }) => (
+            <span>{row.index + 1 + controlledPageIndex * controlledPageSize}</span>
+        ),
+    },
+    // {
+    //     Header: "Building Code",
+    //     accessor: "building.buildingName",
+    //     Cell: ({ cell }) => cell.value || "N/A",
+    // },
+    {
+        Header: "Building",
+        accessor: "building.buildingName",
+        Cell: ({ cell }) => cell.value || "N/A",
+    },
+    {
+        Header: "Reporting Year",
+        accessor: "reportingYear",
+        Cell: ({ cell }) => cell.value || "N/A",
+    },
+    // Motor Bike Section
+    {
+        Header: "Commute Mode",
+        id: "motorbikeMode",
+        Cell: ({ row }) => {
+            const d = row.original;
+            return d.commuteByMotorbike ? "Motor Bike" : "N/A";
         },
-    ], [navigate, controlledPageIndex, controlledPageSize]);
+    },
+    {
+        Header: "Motor Bike Type",
+        id: "motorbikeType",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByMotorbike) return "N/A";
+            const toTitleCase = (str) => {
+                if (!str) return "N/A";
+                return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            };
+            return toTitleCase(d.motorbikeType);
+        },
+    },
+    {
+        Header: "Distance Travelled (k.m)",
+        id: "motorbikeDistance",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByMotorbike) return "N/A";
+            
+            let distanceText = "";
+            if (d.motorbikeMode === "individual") {
+                distanceText = `${Number(d.motorbikeDistance || 0).toFixed(2)} km (individual)`;
+            } else if (d.motorbikeMode === "carpool") {
+                distanceText = `${Number(d.motorbikeDistanceCarpool || 0).toFixed(2)} km (carpool)`;
+            } else if (d.motorbikeMode === "both") {
+                distanceText = `${Number(d.motorbikeDistance || 0).toFixed(2)} km (individual) + ${Number(d.motorbikeDistanceCarpool || 0).toFixed(2)} km (carpool) = ${(Number(d.motorbikeDistance || 0) + Number(d.motorbikeDistanceCarpool || 0)).toFixed(2)} km`;
+            }
+            return distanceText;
+        },
+    },
+    {
+        Header: "Car Pool",
+        id: "motorbikeCarPool",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByMotorbike) return "N/A";
+            
+            if (d.motorbikeMode === "individual") return "No";
+            if (d.motorbikeMode === "carpool") return "Yes (Carpool)";
+            if (d.motorbikeMode === "both") return "Both";
+            return "N/A";
+        },
+    },
+    {
+        Header: "Date Range",
+        id: "motorbikeDateRange",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByMotorbike || !d.motorbikeDateRange) return "N/A";
+            
+            const formatDateRange = (dateRange) => {
+                if (!dateRange || !dateRange.startDate || !dateRange.endDate) return null;
+                const start = new Date(dateRange.startDate).toLocaleDateString();
+                const end = new Date(dateRange.endDate).toLocaleDateString();
+                return `${start} to ${end}`;
+            };
+            
+            const individualRange = d.motorbikeDateRange;
+            const carpoolRange = d.motorbikeCarpoolDateRange;
+            
+            if (d.motorbikeMode === "both" && carpoolRange) {
+                return `${formatDateRange(individualRange)} (Individual) | ${formatDateRange(carpoolRange)} (Carpool)`;
+            }
+            return formatDateRange(individualRange) || "N/A";
+        },
+    },
+    
+    // Taxi Section
+    {
+        Header: "Commute Mode",
+        id: "taxiMode",
+        Cell: ({ row }) => {
+            const d = row.original;
+            return d.commuteByTaxi ? "Taxi" : "N/A";
+        },
+    },
+    {
+        Header: "Taxi Type",
+        id: "taxiType",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByTaxi) return "N/A";
+            const toTitleCase = (str) => {
+                if (!str) return "N/A";
+                return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            };
+            return toTitleCase(d.taxiType);
+        },
+    },
+    {
+        Header: "Distance Travelled (k.m)",
+        id: "taxiDistance",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByTaxi) return "N/A";
+            
+            let distanceText = "";
+            if (d.taxiMode === "individual") {
+                distanceText = `${Number(d.taxiDistance || 0).toFixed(2)} km (individual)`;
+            } else if (d.taxiMode === "carpool") {
+                distanceText = `${Number(d.taxiDistanceCarpool || 0).toFixed(2)} km (carpool)`;
+            } else if (d.taxiMode === "both") {
+                distanceText = `${Number(d.taxiDistance || 0).toFixed(2)} km (individual) + ${Number(d.taxiDistanceCarpool || 0).toFixed(2)} km (carpool) = ${(Number(d.taxiDistance || 0) + Number(d.taxiDistanceCarpool || 0)).toFixed(2)} km`;
+            }
+            return distanceText;
+        },
+    },
+    {
+        Header: "Car Pool",
+        id: "taxiCarPool",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByTaxi) return "N/A";
+            
+            if (d.taxiMode === "individual") return "No";
+            if (d.taxiMode === "carpool") return "Yes (Carpool)";
+            if (d.taxiMode === "both") return "Both";
+            return "N/A";
+        },
+    },
+    {
+        Header: "Date Range",
+        id: "taxiDateRange",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByTaxi || !d.taxiDateRange) return "N/A";
+            
+            const formatDateRange = (dateRange) => {
+                if (!dateRange || !dateRange.startDate || !dateRange.endDate) return null;
+                const start = new Date(dateRange.startDate).toLocaleDateString();
+                const end = new Date(dateRange.endDate).toLocaleDateString();
+                return `${start} to ${end}`;
+            };
+            
+            const individualRange = d.taxiDateRange;
+            const carpoolRange = d.taxiCarpoolDateRange;
+            
+            if (d.taxiMode === "both" && carpoolRange) {
+                return `${formatDateRange(individualRange)} (Individual) | ${formatDateRange(carpoolRange)} (Carpool)`;
+            }
+            return formatDateRange(individualRange) || "N/A";
+        },
+    },
+    
+    // Bus Section
+    {
+        Header: "Commute Mode",
+        id: "busMode",
+        Cell: ({ row }) => {
+            const d = row.original;
+            return d.commuteByBus ? "Bus" : "N/A";
+        },
+    },
+    {
+        Header: "Bus Type",
+        id: "busType",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByBus) return "N/A";
+            const toTitleCase = (str) => {
+                if (!str) return "N/A";
+                return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            };
+            return toTitleCase(d.busType);
+        },
+    },
+    {
+        Header: "Distance Travelled (k.m)",
+        id: "busDistance",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByBus) return "N/A";
+            return `${Number(d.busDistance || 0).toFixed(2)} km`;
+        },
+    },
+    {
+        Header: "Car Pool",
+        id: "busCarPool",
+        Cell: () => "N/A",
+    },
+    {
+        Header: "Date Range",
+        id: "busDateRange",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByBus || !d.busDateRange) return "N/A";
+            const start = new Date(d.busDateRange.startDate).toLocaleDateString();
+            const end = new Date(d.busDateRange.endDate).toLocaleDateString();
+            return `${start} to ${end}`;
+        },
+    },
+    
+    // Train Section
+    {
+        Header: "Commute Mode",
+        id: "trainMode",
+        Cell: ({ row }) => {
+            const d = row.original;
+            return d.commuteByTrain ? "Train" : "N/A";
+        },
+    },
+    {
+        Header: "Train Type",
+        id: "trainType",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByTrain) return "N/A";
+            const toTitleCase = (str) => {
+                if (!str) return "N/A";
+                return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            };
+            return toTitleCase(d.trainType);
+        },
+    },
+    {
+        Header: "Distance Travelled (k.m)",
+        id: "trainDistance",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByTrain) return "N/A";
+            return `${Number(d.trainDistance || 0).toFixed(2)} km`;
+        },
+    },
+    {
+        Header: "Car Pool",
+        id: "trainCarPool",
+        Cell: () => "N/A",
+    },
+    {
+        Header: "Date Range",
+        id: "trainDateRange",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByTrain || !d.trainDateRange) return "N/A";
+            const start = new Date(d.trainDateRange.startDate).toLocaleDateString();
+            const end = new Date(d.trainDateRange.endDate).toLocaleDateString();
+            return `${start} to ${end}`;
+        },
+    },
+    
+    // Car Section
+    {
+        Header: "Commute Mode",
+        id: "carMode",
+        Cell: ({ row }) => {
+            const d = row.original;
+            return d.commuteByCar ? "Car" : "N/A";
+        },
+    },
+    {
+        Header: "Car Type",
+        id: "carType",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByCar) return "N/A";
+            const toTitleCase = (str) => {
+                if (!str) return "N/A";
+                return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+            };
+            return toTitleCase(d.carType);
+        },
+    },
+    {
+        Header: "Car Fuel Type",
+        id: "carFuelType",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByCar) return "N/A";
+            return d.carFuelType || "N/A";
+        },
+    },
+    {
+        Header: "Distance Travelled (k.m)",
+        id: "carDistance",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByCar) return "N/A";
+            
+            let distanceText = "";
+            if (d.carMode === "individual") {
+                distanceText = `${Number(d.carDistance || 0).toFixed(2)} km (individual)`;
+            } else if (d.carMode === "carpool") {
+                distanceText = `${Number(d.carDistanceCarpool || 0).toFixed(2)} km (carpool)`;
+            } else if (d.carMode === "both") {
+                distanceText = `${Number(d.carDistance || 0).toFixed(2)} km (individual) + ${Number(d.carDistanceCarpool || 0).toFixed(2)} km (carpool) = ${(Number(d.carDistance || 0) + Number(d.carDistanceCarpool || 0)).toFixed(2)} km`;
+            }
+            return distanceText;
+        },
+    },
+    {
+        Header: "Car Pool",
+        id: "carCarPool",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByCar) return "N/A";
+            
+            if (d.carMode === "individual") return "No";
+            if (d.carMode === "carpool") return "Yes (Carpool)";
+            if (d.carMode === "both") return "Both";
+            return "N/A";
+        },
+    },
+    {
+        Header: "Date Range",
+        id: "carDateRange",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.commuteByCar || !d.carDateRange) return "N/A";
+            
+            const formatDateRange = (dateRange) => {
+                if (!dateRange || !dateRange.startDate || !dateRange.endDate) return null;
+                const start = new Date(dateRange.startDate).toLocaleDateString();
+                const end = new Date(dateRange.endDate).toLocaleDateString();
+                return `${start} to ${end}`;
+            };
+            
+            const individualRange = d.carDateRange;
+            const carpoolRange = d.carCarpoolDateRange;
+            
+            if (d.carMode === "both" && carpoolRange) {
+                return `${formatDateRange(individualRange)} (Individual) | ${formatDateRange(carpoolRange)} (Carpool)`;
+            }
+            return formatDateRange(individualRange) || "N/A";
+        },
+    },
+    
+    // Work From Home Section
+    {
+        Header: "Work from Home",
+        id: "workFromHome",
+        Cell: ({ row }) => {
+            const d = row.original;
+            return d.workFromHome ? "Yes" : "No";
+        },
+    },
+    {
+        Header: "FTE Working Hours",
+        id: "fteWorkingHours",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.workFromHome) return "N/A";
+            return d.fteWorkingHours || "N/A";
+        },
+    },
+    {
+        Header: "Date Range",
+        id: "wfhDateRange",
+        Cell: ({ row }) => {
+            const d = row.original;
+            if (!d.workFromHome || !d.workFromHomeDateRange) return "N/A";
+            const start = new Date(d.workFromHomeDateRange.startDate).toLocaleDateString();
+            const end = new Date(d.workFromHomeDateRange.endDate).toLocaleDateString();
+            return `${start} to ${end}`;
+        },
+    },
+    
+    // Quality Control and Remarks
+    {
+        Header: "Quality Control",
+        id: "qualityControl",
+        Cell: ({ row }) => {
+            const d = row.original;
+            return d.qualityControlRemarks ? "Reviewed" : "Not Reviewed";
+        },
+    },
+    {
+        Header: "Remarks",
+        id: "remarks",
+        Cell: ({ row }) => {
+            const d = row.original;
+            return d.qualityControlRemarks || "N/A";
+        },
+    },
+    
+    // Emissions and Submission
+    {
+        Header: "Calculate Emission (kgCO₂e)",
+        id: "emissionsKg",
+        Cell: ({ row }) => {
+            const emissions = row.original.calculatedEmissionKgCo2e;
+            if (!emissions && emissions !== 0) return "N/A";
+            return emissions.toFixed(2);
+        },
+    },
+    {
+        Header: "Calculate Emissions (tCO₂e)",
+        id: "emissionsTonnes",
+        Cell: ({ row }) => {
+            const emissions = row.original.calculatedEmissionTCo2e;
+            if (!emissions && emissions !== 0) return "N/A";
+            return emissions.toFixed(6);
+        },
+    },
+    {
+        Header: "Submitted By",
+        accessor: "submittedByEmail",
+        Cell: ({ cell }) => cell.value || "N/A",
+    },
+    {
+        Header: "Department",
+        accessor: "stakeholderDepartment",
+        Cell: ({ cell }) => cell.value || "N/A",
+    },
+    {
+        Header: "Actions",
+        accessor: "_id",
+        Cell: ({ cell }) => (
+            <div className="flex space-x-3 rtl:space-x-reverse">
+                <Tippy content="Delete">
+                    <button
+                        className="action-btn"
+                        onClick={() => {
+                            setSelectedRecordId(cell.value);
+                            setDeleteModalOpen(true);
+                        }}
+                    >
+                        <Icon icon="heroicons:trash" className="text-red-600" />
+                    </button>
+                </Tippy>
+            </div>
+        ),
+    },
+], [navigate, controlledPageIndex, controlledPageSize]);
 
     const tableInstance = useTable(
         {
@@ -664,11 +1120,7 @@ const CommutingTable = () => {
             <Card noborder>
                 <div className="md:flex pb-6 items-center">
                     <div className="flex-1">
-                        <h6 className="mb-2">Employee Commuting</h6>
-                        <p className="text-sm text-gray-600">
-                            Using UK Government GHG Conversion Factors 2025 for Scope 3 emissions
-                        </p>
-
+                        <h6 className="mb-2">Employee Commuting</h6>                    
                     </div>
                     <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
                         <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />

@@ -1546,7 +1546,7 @@ const handleFileSelect = async (file, selectedMethod) => {
     let exampleRow = '';
 
    if (selectedMethod === 'location_based') {
-  // Location Based Template - Using Form Labels (all lowercase)
+  // Location Based Template - Using Form Labels (all lowercase)  
   headers = [
     'building code',
     'total electricity consumption',
