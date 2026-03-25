@@ -789,18 +789,21 @@ const EmailReportListing = () => {
   };
 
   // Helper function to format date with time
-  const formatDateTime = (dateString) => {
-    if (!dateString) return "N/A";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-GB') + ' ' + date.toLocaleTimeString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    } catch {
-      return "Invalid Date";
-    }
-  };
+const formatDateTime = (dateString) => {
+  if (!dateString) return "N/A";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { timeZone: 'UTC' }) + ' ' + 
+           date.toLocaleTimeString('en-GB', {
+             timeZone: 'UTC',
+             hour: '2-digit',
+             minute: '2-digit',
+             hour12: true
+           });
+  } catch {
+    return "Invalid Date";
+  }
+};
 
   // Helper function to get filled status config
   const getFilledStatusConfig = (status) => {

@@ -17,22 +17,19 @@ const useCSVUpload = (options = {}) => {
     parsedData: null,
   });
 
-  const cleanCSVValue = useCallback((value) => {
-    if (typeof value !== 'string') return value;
+ const cleanCSVValue = useCallback((value) => {
+  if (typeof value !== 'string') return value;
 
-    let cleaned = value.replace(/["']/g, '');
-    cleaned = cleaned.replace(/^=/, '');
+  let cleaned = value.replace(/["']/g, '');
+  cleaned = cleaned.replace(/^=/, '');
 
-    if (cleaned.includes('T00:00:00.000Z')) {
-      cleaned = cleaned.replace('T00:00:00.000Z', '');
-    }
+  //  Only strip T suffix if it looks like an ISO datetime, not just any "T"
+  if (/\d{4}-\d{2}-\d{2}T/.test(cleaned)) {
+    cleaned = cleaned.split('T')[0];
+  }
 
-    if (cleaned.includes('T')) {
-      cleaned = cleaned.split('T')[0];
-    }
-
-    return cleaned.trim();
-  }, []);
+  return cleaned.trim();
+}, []);
 
   const parseCSV = useCallback((file) => {
     return new Promise((resolve, reject) => {
@@ -40,7 +37,10 @@ const useCSVUpload = (options = {}) => {
       reader.onload = (event) => {
         try {
           const csvText = event.target.result;
-          const lines = csvText.split('\n').filter(line => line.trim() !== '');
+
+          // Normalize Windows line endings \r\n → \n
+          const normalizedText = csvText.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+          const lines = normalizedText.split('\n').filter(line => line.trim() !== '');
 
           if (lines.length === 0) {
             reject(new Error('CSV file is empty'));
@@ -62,17 +62,8 @@ const useCSVUpload = (options = {}) => {
             return;
           }
 
-          const headers = lines[headerRowIndex]
-            .split(',')
-            .map(h => cleanCSVValue(h).toLowerCase().replace(/\s+/g, ''));
-
-          const data = [];
-
-          // Process data rows
-          for (let i = headerRowIndex + 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-
+          // ✅ Use same inQuotes logic for headers (not plain split)
+          const parseLineToValues = (line) => {
             const values = [];
             let inQuotes = false;
             let currentValue = '';
@@ -81,26 +72,43 @@ const useCSVUpload = (options = {}) => {
               const char = line[j];
 
               if (char === '"') {
-                if (j + 2 < line.length && line[j + 1] === '"' && line[j + 2] === '"') {
-                  j += 2;
-                } else if (j + 1 < line.length && line[j + 1] === '"') {
+                if (j + 1 < line.length && line[j + 1] === '"') {
                   currentValue += '"';
                   j++;
                 } else {
                   inQuotes = !inQuotes;
                 }
               } else if (char === ',' && !inQuotes) {
-                values.push(currentValue);
+                values.push(currentValue.trim());
                 currentValue = '';
               } else {
                 currentValue += char;
               }
             }
-            values.push(currentValue);
+            values.push(currentValue.trim());
+            return values;
+          };
+
+          const headers = parseLineToValues(lines[headerRowIndex])
+            .map(h => cleanCSVValue(h).toLowerCase().replace(/\s+/g, ''));
+
+          console.log('🗂 HEADERS:', headers);
+
+          const data = [];
+
+          for (let i = headerRowIndex + 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            const values = parseLineToValues(line).map(v => cleanCSVValue(v));
+            console.log('📊 VALUE COUNT:', values.length, '| RAW LINE:', JSON.stringify(line));
+            console.log('🔬 CHAR BY CHAR:', [...line].map((c, i) => `${i}:${JSON.stringify(c)}`).join(' ')); // 👈 ADD THIS
+
+            console.log('📊 VALUES:', values);
 
             const row = {};
             headers.forEach((header, index) => {
-              row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
+              row[header] = index < values.length ? values[index] : '';
             });
 
             if (Object.values(row).some(val => val && val.toString().trim() !== '')) {

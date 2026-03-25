@@ -28,7 +28,223 @@ const useMobileCSVUpload = (buildings = []) => {
     return value.replace(/["']/g, '').trim();
   };
 
-  const validateMobileRow = (row, index) => {
+  // const validateMobileRow = (row, index) => {
+  //   const errors = [];
+  //   const cleanedRow = {};
+
+  //   // Clean all row values
+  //   Object.keys(row).forEach(key => {
+  //     cleanedRow[key] = cleanValue(row[key]);
+  //   });
+
+  //   // Required fields validation
+  //   const requiredFields = [
+  //     'buildingcode', 'stakeholder', 'vehicleclassification', 'vehicletype',
+  //     'fuelname', 'distancetravelled', 'distanceunit', 'qualitycontrol', 'postingdate'
+  //   ];
+
+  //   requiredFields.forEach(field => {
+  //     if (!cleanedRow[field] || cleanedRow[field] === '') {
+  //       errors.push(`${field} is required`);
+  //     }
+  //   });
+
+  //   // Building validation
+  //   if (cleanedRow.buildingcode && buildings.length > 0) {
+  //     const buildingExists = buildings.some(b =>
+  //       (b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()) ||
+  //       (b._id && b._id.toString() === cleanedRow.buildingcode)
+  //     );
+  //     if (!buildingExists) {
+  //       errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0,3).map(b => b.buildingCode || b._id).join(', ')}...`);
+  //     } else {
+  //       // Normalize to the canonical buildingCode string (if found)
+  //       const matched = buildings.find(b => b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase());
+  //       if (matched && matched.buildingCode) cleanedRow.buildingcode = matched.buildingCode;
+  //     }
+  //   }
+
+  //   // Stakeholder validation (case-insensitive)
+  //   if (cleanedRow.stakeholder) {
+  //     const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
+  //     const matchedStakeholder = validStakeholders.find(s =>
+  //       s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
+  //     );
+  //     if (!matchedStakeholder) {
+  //       errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+  //     } else {
+  //       cleanedRow.stakeholder = matchedStakeholder;
+  //     }
+  //   }
+
+  //   // Vehicle classification validation
+  //   if (cleanedRow.vehicleclassification) {
+  //     const validClassifications = vehicleClassificationOptions.map(v => v.value);
+  //     const matchedClassification = validClassifications.find(v =>
+  //       v.toLowerCase() === cleanedRow.vehicleclassification.toLowerCase()
+  //     );
+  //     if (!matchedClassification) {
+  //       errors.push(`Invalid vehicle classification "${cleanedRow.vehicleclassification}"`);
+  //     } else {
+  //       cleanedRow.vehicleclassification = matchedClassification;
+  //     }
+  //   }
+
+  //   // Vehicle type validation based on classification
+  //   if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
+  //     const validTypes = vehicleTypeOptionsByClassification[cleanedRow.vehicleclassification]?.map(v => v.value) || [];
+  //     const matchedType = validTypes.find(v =>
+  //       v.toLowerCase() === cleanedRow.vehicletype.toLowerCase()
+  //     );
+  //     if (!matchedType) {
+  //       errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for classification "${cleanedRow.vehicleclassification}"`);
+  //     } else {
+  //       cleanedRow.vehicletype = matchedType;
+  //     }
+  //   }
+
+  //   // Fuel name validation based on classification
+  //   if (cleanedRow.vehicleclassification && cleanedRow.fuelname) {
+  //     const validFuels = fuelNameOptionsByClassification[cleanedRow.vehicleclassification]?.map(f => f.value) || [];
+  //     const matchedFuel = validFuels.find(f =>
+  //       f.toLowerCase() === cleanedRow.fuelname.toLowerCase()
+  //     );
+  //     if (!matchedFuel) {
+  //       errors.push(`Invalid fuel name "${cleanedRow.fuelname}" for classification "${cleanedRow.vehicleclassification}"`);
+  //     } else {
+  //       cleanedRow.fuelname = matchedFuel;
+  //     }
+  //   }
+
+  //   // Distance traveled validation
+  //   if (cleanedRow.distancetravelled) {
+  //     const cleanNum = cleanedRow.distancetravelled.toString()
+  //       .replace(/[^0-9.-]/g, '');
+      
+  //     const num = Number(cleanNum);
+  //     if (isNaN(num)) {
+  //       errors.push(`Distance traveled must be a number, got "${cleanedRow.distancetravelled}"`);
+  //     } else if (num < 0) {
+  //       errors.push('Distance traveled cannot be negative');
+  //     } else if (num > 10000000) { // Reasonable upper limit
+  //       errors.push('Distance traveled seems too large');
+  //     } else {
+  //       cleanedRow.distancetravelled = num.toString();
+  //     }
+  //   }
+
+  //   // Distance unit validation
+  //   if (cleanedRow.distanceunit) {
+  //     const validUnits = distanceUnitOptions.map(u => u.value);
+  //     const matchedUnit = validUnits.find(u =>
+  //       u.toLowerCase() === cleanedRow.distanceunit.toLowerCase()
+  //     );
+  //     if (!matchedUnit) {
+  //       errors.push(`Invalid distance unit "${cleanedRow.distanceunit}"`);
+  //     } else {
+  //       cleanedRow.distanceunit = matchedUnit;
+  //     }
+  //   }
+
+  //   // Quality control validation
+  //   if (cleanedRow.qualitycontrol) {
+  //     const validQC = qualityControlOptions.map(q => q.value);
+  //     const matchedQC = validQC.find(q =>
+  //       q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
+  //     );
+  //     if (!matchedQC) {
+  //       errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+  //     } else {
+  //       cleanedRow.qualitycontrol = matchedQC;
+  //     }
+  //   }
+
+  //   // Weight loaded validation (conditional)
+  //   const isHGV = cleanedRow.vehicleclassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
+  //                 cleanedRow.vehicleclassification === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
+    
+  //   if (isHGV && cleanedRow.weightloaded) {
+  //     const validWeights = weightLoadedOptions.map(w => w.value);
+  //     const matchedWeight = validWeights.find(w =>
+  //       w.toLowerCase() === cleanedRow.weightloaded.toLowerCase()
+  //     );
+  //     if (!matchedWeight) {
+  //       errors.push(`Invalid weight loaded "${cleanedRow.weightloaded}"`);
+  //     } else {
+  //       cleanedRow.weightloaded = matchedWeight;
+  //     }
+  //   }
+
+  //   // Date validation
+  //   if (cleanedRow.postingdate) {
+  //     // Accept flexible date formats (prefer dd/mm/yyyy) and normalize to YYYY-MM-DD
+  //     const parseToISODatePart = (input) => {
+  //       if (!input) return null;
+  //       let s = input.toString().trim();
+  //       s = s.replace(/"/g, '');
+  //       if (s.includes('T')) s = s.split('T')[0];
+
+  //       // Normalize separators to '/'
+  //       s = s.replace(/\./g, '/').replace(/-/g, '/');
+  //       const parts = s.split('/').map(p => p.trim()).filter(Boolean);
+
+  //       if (parts.length === 3) {
+  //         let day, month, year;
+  //         // If first part is 4-digit, assume YYYY/MM/DD
+  //         if (parts[0].length === 4) {
+  //           year = parts[0]; month = parts[1]; day = parts[2];
+  //         } else if (parts[2].length === 4) {
+  //           // Prefer DD/MM/YYYY
+  //           day = parts[0]; month = parts[1]; year = parts[2];
+  //         } else {
+  //           // Ambiguous - assume DD/MM/YYYY
+  //           day = parts[0]; month = parts[1]; year = parts[2];
+  //         }
+
+  //         const d = parseInt(day, 10);
+  //         const m = parseInt(month, 10);
+  //         const y = parseInt(year, 10);
+  //         if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
+
+  //         const date = new Date(y, m - 1, d);
+  //         if (isNaN(date.getTime())) return null;
+  //         // Ensure constructed date matches components (guards against overflow)
+  //         if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return null;
+  //         // Disallow future dates
+  //         if (date > new Date()) return null;
+  //         return date.toISOString().split('T')[0];
+  //       }
+
+  //       // Fallback to Date parse
+  //       const parsed = new Date(s);
+  //       if (isNaN(parsed.getTime())) return null;
+  //       if (parsed > new Date()) return null;
+  //       return parsed.toISOString().split('T')[0];
+  //     };
+
+  //     const iso = parseToISODatePart(cleanedRow.postingdate);
+  //     if (!iso) {
+  //       errors.push(`Invalid date. Please use DD/MM/YYYY or YYYY-MM-DD (got "${cleanedRow.postingdate}")`);
+  //     } else {
+  //       cleanedRow.postingdate = iso;
+  //     }
+  //   }
+
+  //   // Remarks validation (optional but check length)
+  //   if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
+  //     errors.push('Remarks cannot exceed 500 characters');
+  //   }
+
+  //   // Update original row with cleaned values if no errors
+  //   if (errors.length === 0) {
+  //     Object.keys(cleanedRow).forEach(key => {
+  //       row[key] = cleanedRow[key];
+  //     });
+  //   }
+
+  //   return errors;
+  // };
+const validateMobileRow = (row, index) => {
     const errors = [];
     const cleanedRow = {};
 
@@ -36,6 +252,9 @@ const useMobileCSVUpload = (buildings = []) => {
     Object.keys(row).forEach(key => {
       cleanedRow[key] = cleanValue(row[key]);
     });
+
+    // ✅ Normalize helper - removes all spaces and lowercases for comparison
+    const normalize = (str) => str?.toLowerCase().replace(/\s+/g, '') || '';
 
     // Required fields validation
     const requiredFields = [
@@ -58,17 +277,16 @@ const useMobileCSVUpload = (buildings = []) => {
       if (!buildingExists) {
         errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0,3).map(b => b.buildingCode || b._id).join(', ')}...`);
       } else {
-        // Normalize to the canonical buildingCode string (if found)
         const matched = buildings.find(b => b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase());
         if (matched && matched.buildingCode) cleanedRow.buildingcode = matched.buildingCode;
       }
     }
 
-    // Stakeholder validation (case-insensitive)
+    // Stakeholder validation
     if (cleanedRow.stakeholder) {
       const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
       const matchedStakeholder = validStakeholders.find(s =>
-        s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
+        normalize(s) === normalize(cleanedRow.stakeholder)
       );
       if (!matchedStakeholder) {
         errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
@@ -81,7 +299,7 @@ const useMobileCSVUpload = (buildings = []) => {
     if (cleanedRow.vehicleclassification) {
       const validClassifications = vehicleClassificationOptions.map(v => v.value);
       const matchedClassification = validClassifications.find(v =>
-        v.toLowerCase() === cleanedRow.vehicleclassification.toLowerCase()
+        normalize(v) === normalize(cleanedRow.vehicleclassification)
       );
       if (!matchedClassification) {
         errors.push(`Invalid vehicle classification "${cleanedRow.vehicleclassification}"`);
@@ -94,7 +312,7 @@ const useMobileCSVUpload = (buildings = []) => {
     if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
       const validTypes = vehicleTypeOptionsByClassification[cleanedRow.vehicleclassification]?.map(v => v.value) || [];
       const matchedType = validTypes.find(v =>
-        v.toLowerCase() === cleanedRow.vehicletype.toLowerCase()
+        normalize(v) === normalize(cleanedRow.vehicletype)
       );
       if (!matchedType) {
         errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for classification "${cleanedRow.vehicleclassification}"`);
@@ -107,7 +325,7 @@ const useMobileCSVUpload = (buildings = []) => {
     if (cleanedRow.vehicleclassification && cleanedRow.fuelname) {
       const validFuels = fuelNameOptionsByClassification[cleanedRow.vehicleclassification]?.map(f => f.value) || [];
       const matchedFuel = validFuels.find(f =>
-        f.toLowerCase() === cleanedRow.fuelname.toLowerCase()
+        normalize(f) === normalize(cleanedRow.fuelname)
       );
       if (!matchedFuel) {
         errors.push(`Invalid fuel name "${cleanedRow.fuelname}" for classification "${cleanedRow.vehicleclassification}"`);
@@ -118,15 +336,13 @@ const useMobileCSVUpload = (buildings = []) => {
 
     // Distance traveled validation
     if (cleanedRow.distancetravelled) {
-      const cleanNum = cleanedRow.distancetravelled.toString()
-        .replace(/[^0-9.-]/g, '');
-      
+      const cleanNum = cleanedRow.distancetravelled.toString().replace(/[^0-9.-]/g, '');
       const num = Number(cleanNum);
       if (isNaN(num)) {
         errors.push(`Distance traveled must be a number, got "${cleanedRow.distancetravelled}"`);
       } else if (num < 0) {
         errors.push('Distance traveled cannot be negative');
-      } else if (num > 10000000) { // Reasonable upper limit
+      } else if (num > 10000000) {
         errors.push('Distance traveled seems too large');
       } else {
         cleanedRow.distancetravelled = num.toString();
@@ -137,7 +353,7 @@ const useMobileCSVUpload = (buildings = []) => {
     if (cleanedRow.distanceunit) {
       const validUnits = distanceUnitOptions.map(u => u.value);
       const matchedUnit = validUnits.find(u =>
-        u.toLowerCase() === cleanedRow.distanceunit.toLowerCase()
+        normalize(u) === normalize(cleanedRow.distanceunit)
       );
       if (!matchedUnit) {
         errors.push(`Invalid distance unit "${cleanedRow.distanceunit}"`);
@@ -150,7 +366,7 @@ const useMobileCSVUpload = (buildings = []) => {
     if (cleanedRow.qualitycontrol) {
       const validQC = qualityControlOptions.map(q => q.value);
       const matchedQC = validQC.find(q =>
-        q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
+        normalize(q) === normalize(cleanedRow.qualitycontrol)
       );
       if (!matchedQC) {
         errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
@@ -162,11 +378,11 @@ const useMobileCSVUpload = (buildings = []) => {
     // Weight loaded validation (conditional)
     const isHGV = cleanedRow.vehicleclassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
                   cleanedRow.vehicleclassification === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
-    
+
     if (isHGV && cleanedRow.weightloaded) {
       const validWeights = weightLoadedOptions.map(w => w.value);
       const matchedWeight = validWeights.find(w =>
-        w.toLowerCase() === cleanedRow.weightloaded.toLowerCase()
+        normalize(w) === normalize(cleanedRow.weightloaded)
       );
       if (!matchedWeight) {
         errors.push(`Invalid weight loaded "${cleanedRow.weightloaded}"`);
@@ -177,45 +393,31 @@ const useMobileCSVUpload = (buildings = []) => {
 
     // Date validation
     if (cleanedRow.postingdate) {
-      // Accept flexible date formats (prefer dd/mm/yyyy) and normalize to YYYY-MM-DD
       const parseToISODatePart = (input) => {
         if (!input) return null;
-        let s = input.toString().trim();
-        s = s.replace(/"/g, '');
+        let s = input.toString().trim().replace(/"/g, '');
         if (s.includes('T')) s = s.split('T')[0];
-
-        // Normalize separators to '/'
         s = s.replace(/\./g, '/').replace(/-/g, '/');
         const parts = s.split('/').map(p => p.trim()).filter(Boolean);
 
         if (parts.length === 3) {
           let day, month, year;
-          // If first part is 4-digit, assume YYYY/MM/DD
           if (parts[0].length === 4) {
             year = parts[0]; month = parts[1]; day = parts[2];
-          } else if (parts[2].length === 4) {
-            // Prefer DD/MM/YYYY
-            day = parts[0]; month = parts[1]; year = parts[2];
           } else {
-            // Ambiguous - assume DD/MM/YYYY
             day = parts[0]; month = parts[1]; year = parts[2];
           }
-
           const d = parseInt(day, 10);
           const m = parseInt(month, 10);
           const y = parseInt(year, 10);
           if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
-
           const date = new Date(y, m - 1, d);
           if (isNaN(date.getTime())) return null;
-          // Ensure constructed date matches components (guards against overflow)
           if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return null;
-          // Disallow future dates
           if (date > new Date()) return null;
           return date.toISOString().split('T')[0];
         }
 
-        // Fallback to Date parse
         const parsed = new Date(s);
         if (isNaN(parsed.getTime())) return null;
         if (parsed > new Date()) return null;
@@ -230,7 +432,7 @@ const useMobileCSVUpload = (buildings = []) => {
       }
     }
 
-    // Remarks validation (optional but check length)
+    // Remarks validation
     if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
       errors.push('Remarks cannot exceed 500 characters');
     }
@@ -244,7 +446,6 @@ const useMobileCSVUpload = (buildings = []) => {
 
     return errors;
   };
-
   const transformMobilePayload = (row) => {
     const isHGV = row.vehicleclassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
                   row.vehicleclassification === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
@@ -279,6 +480,11 @@ const useMobileCSVUpload = (buildings = []) => {
   const data = await handleFileSelect(file);
   if (!data) return;
 
+  // ✅ LOG 1: Raw data from CSV parser (before normalization)
+  console.log('📥 RAW CSV DATA:', data);
+  console.log('🔑 RAW KEYS:', Object.keys(data[0]));
+console.log('📦 RAW stakeholder value:', JSON.stringify(data[0]?.stakeholder ?? data[0]?.['stakeholder ']));
+
   // Normalize keys: "building code" -> "buildingcode", etc.
   const normalizedData = data.map(row => {
     const normalizedRow = {};
@@ -289,6 +495,10 @@ const useMobileCSVUpload = (buildings = []) => {
     return normalizedRow;
   });
 
+   // ✅ LOG 2: After key normalization (what validation actually sees)
+  console.log('🔍 NORMALIZED DATA (sent to validation):', normalizedData);
+  console.log('🔍 STAKEHOLDER VALUE:', JSON.stringify(normalizedData[0]?.stakeholder)); // shows hidden chars
+
   const errors = [];
   normalizedData.forEach((row, index) => {
     const rowErrors = validateMobileRow(row, index);
@@ -296,6 +506,8 @@ const useMobileCSVUpload = (buildings = []) => {
       errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
     }
   });
+   // ✅ LOG 3: Final errors
+  console.log('❌ VALIDATION ERRORS:', errors);
 
   updateValidationErrors(errors);
 
@@ -305,24 +517,6 @@ const useMobileCSVUpload = (buildings = []) => {
     toast.warning(`Found ${errors.length} validation errors. Please fix them before uploading.`);
   }
 };
-
-// const downloadMobileTemplate = () => {
-//   const exampleBuildings = buildings.slice(0, 1);
-//   const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
-
-//   const csvContent = `building code,stakeholder,vehicle classification,vehicle type,fuel name,distance travelled,distance unit,quality control,weight loaded,remarks,posting date
-// ${exampleBuildingCode},Owner,Passenger Vehicles,Passenger car (unknown),Diesel,100,km,Good,,Example record,dd/mm/yyyy`;
-
-//   const blob = new Blob([csvContent], { type: 'text/csv' });
-//   const url = URL.createObjectURL(blob);
-//   const a = document.createElement('a');
-//   a.href = url;
-//   a.download = 'mobile_template.csv';
-//   document.body.appendChild(a);
-//   a.click();
-//   URL.revokeObjectURL(url);
-//   document.body.removeChild(a);
-// };
 
 const downloadMobileTemplate = () => {
   const exampleBuildingCode = buildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
