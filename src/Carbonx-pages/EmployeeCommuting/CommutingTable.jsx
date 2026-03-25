@@ -298,6 +298,7 @@ const CommutingTable = () => {
     const [globalFilterValue, setGlobalFilterValue] = useState("");
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [selectedRecordId, setSelectedRecordId] = useState(null);
+    
 
     // **Controlled page index & size**
     const [controlledPageIndex, setControlledPageIndex] = useState(0);
@@ -598,11 +599,11 @@ const COLUMNS = useMemo(() => [
             <span>{row.index + 1 + controlledPageIndex * controlledPageSize}</span>
         ),
     },
-    // {
-    //     Header: "Building Code",
-    //     accessor: "building.buildingName",
-    //     Cell: ({ cell }) => cell.value || "N/A",
-    // },
+    {
+        Header: "Building Code",
+        accessor: "building.buildingCode",
+        Cell: ({ cell }) => cell.value || "N/A",
+    },
     {
         Header: "Building",
         accessor: "building.buildingName",
@@ -798,11 +799,7 @@ const COLUMNS = useMemo(() => [
             return `${Number(d.busDistance || 0).toFixed(2)} km`;
         },
     },
-    {
-        Header: "Car Pool",
-        id: "busCarPool",
-        Cell: () => "N/A",
-    },
+   
     {
         Header: "Date Range",
         id: "busDateRange",
@@ -846,11 +843,7 @@ const COLUMNS = useMemo(() => [
             return `${Number(d.trainDistance || 0).toFixed(2)} km`;
         },
     },
-    {
-        Header: "Car Pool",
-        id: "trainCarPool",
-        Cell: () => "N/A",
-    },
+    
     {
         Header: "Date Range",
         id: "trainDateRange",

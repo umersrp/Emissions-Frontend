@@ -1085,7 +1085,7 @@ const FugitiveCombustionListing = () => {
               ]}
               fileName="fugitive_emissions_records"
               sheetName="Fugitive Emissions"
-              buttonText="Export"
+              buttonText="Export All Entries"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               successMessage="Fugitive records exported successfully!"
               customFormatter={customFormatter}
@@ -1093,7 +1093,7 @@ const FugitiveCombustionListing = () => {
               pageInfo={{ currentPage: pageIndex, limit: pageSize }}
             />
             <Button
-              icon="heroicons-outline:cloud-upload"
+              icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
               text="Import"
               className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               onClick={() => setBulkUploadModalOpen(true)}

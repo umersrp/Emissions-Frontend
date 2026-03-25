@@ -1114,7 +1114,7 @@ const PurchasedGoodServicesListing = () => {
               ]}
               fileName="purchased_goods_records"
               sheetName="Purchased Goods & Services"
-              buttonText="Export"
+              buttonText="Export All Entries"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               successMessage="Purchased goods records exported successfully!"
               customFormatter={customFormatter}
@@ -1124,7 +1124,7 @@ const PurchasedGoodServicesListing = () => {
 
             {/* Import Button */}
             <Button
-              icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
+              icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
               text={csvState.uploading ? "Uploading..." : "Import"}
               className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}

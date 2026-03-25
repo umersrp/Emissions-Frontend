@@ -672,7 +672,7 @@ const PurchasedElectricityListing = () => {
                     ]}
                     fileName={`purchased_electricity_${emissionFilter}_all_records`}
                     sheetName={`${emissionFilter === "location_based" ? "Location Based" : "Market Based"} - All Records`}
-                    buttonText="Export All"
+                    buttonText="Export All Entries"
                     buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90 whitespace-nowrap"
                     successMessage={`${emissionFilter === "location_based" ? "Location Based" : "Market Based"} records exported successfully!`}
                     customFormatter={customFormatter}
@@ -682,7 +682,7 @@ const PurchasedElectricityListing = () => {
 
                   {/* Import Button - Disabled until filter selected */}
                   <Button
-                    icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
+                    icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
                     text={csvState.uploading ? "Uploading..." : "Import"}
                     className={`btn font-normal btn-sm ${!emissionFilter ? 'btn-disabled opacity-50 cursor-not-allowed' : 'bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90'} whitespace-nowrap`}
                     iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}
