@@ -121,7 +121,7 @@ export const mobileEmissionFactors = {
     },
 
     // Type: Executive
-    "Executive - Large Executive or E-Segment Passenger Cars (2000cc - 3500cc+)": {
+    "Executive - Large Executive or E-Segment Passenger Cars (2000 cc - 3500+ cc)": {
         km: {
             "Diesel": 0.17088,
             "Petrol": 0.20073,
@@ -181,7 +181,7 @@ export const mobileEmissionFactors = {
     },
 
     // Type: Sports
-    "Sports - High Performance (2000cc - 4000cc+)": {
+    "Sports - High Performance - High Speed Vehicles ( 2000 cc - 4000 cc+)": {
         km: {
             "Diesel": 0.17323,
             "Petrol": 0.23396,
@@ -211,7 +211,7 @@ export const mobileEmissionFactors = {
     },
 
     // Type: Dual Purpose 4x4
-    "Dual purpose 4X4 - SUVs 4WD or AWD (1500cc - 6000cc)": {
+    "Dual purpose 4X4 - SUVs 4 wheel Drive or All Wheel Drive (1500 cc - 6000 cc)": {
         km: {
             "Diesel": 0.19973,
             "Petrol": 0.19219,

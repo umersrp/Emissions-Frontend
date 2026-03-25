@@ -47,7 +47,7 @@ const EMISSION_FACTORS = {
         }
     },
     motorbikes: {
-        "Small": 0.08319, "Medium": 0.10108, "Large": 0.13252, "Average": 0.11367, "Small (<125cc)": 0.08319, "Medium (125-500cc)": 0.10108, "Large (>500cc)": 0.13252, "Average": 0.11367
+        "Small": 0.08319, "Medium": 0.10108, "Large": 0.13252, "Average": 0.11367, "Small (<125cc)": 0.08319, "Medium (125-500cc)": 0.10108, "Large (>500cc)": 0.13252
     },
     taxis: {
         "Regular taxi": 0.14861, "Premium taxi": 0.20402, "Electric taxi": 0.03688, "Shared taxi": 0.14861, "Regular Taxi": 0.14861, "Premium Taxi": 0.20402, "Electric Taxi": 0.03688, "Shared Taxi/Pool": 0.14861

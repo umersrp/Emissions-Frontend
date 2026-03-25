@@ -186,10 +186,10 @@ const EmailSent = () => {
     // Check if newMin exceeds total
     if (newMin > total) {
         // Show error toast
-        toast.error(`Minimum required (${newMin}) cannot exceed total employees (${total})`, {
-            autoClose: 3000,
-            position: "top-right"
-        });
+        // toast.error(`Minimum required (${newMin}) cannot exceed total employees (${total})`, {
+        //     autoClose: 3000,
+        //     position: "top-right"
+        // });
         
         // Keep the previous value
         setFormData(prev => ({
@@ -200,7 +200,7 @@ const EmailSent = () => {
         // Set error state
         setErrors(prev => ({
             ...prev,
-            minEmployeesRequired: `Minimum required (${newMin}) cannot exceed total employees (${total})`
+            minEmployeesRequired: ` cannot exceed total no of employees `
         }));
         return;
     }

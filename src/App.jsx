@@ -508,7 +508,6 @@ function App() {
           <Route path="EmailSent" element={<EmailSent />} />
           <Route path="Commuting" element={<CommutingTable />} />
           <Route path="Email-Reporting" element={<EmailReportListing />} />
-
           <Route path="Coach-edit" element={<CoachEditPage />} />
           <Route path="*" element={<Navigate to="/404" />} />
         </Route>

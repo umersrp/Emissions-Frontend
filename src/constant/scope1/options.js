@@ -430,10 +430,10 @@ export const vehicleTypeOptionsByClassification = {
     { value: "Supermini - Small or B-Segment Passenger Cars (1000 cc - 1600 cc)", label: "Supermini - Small or B-Segment Passenger Cars (1000 cc - 1600 cc)" },
     { value: "Lower medium - Compact or C-Segment Passenger Cars (1300 cc - 2000 cc)", label: "Lower medium - Compact or C-Segment Passenger Cars (1300 cc - 2000 cc)" },
     { value: "Upper medium - Larger or D-Segment Passenger Cars (1500cc - 2700cc)", label: "Upper medium - Larger or D-Segment Passenger Cars (1500cc - 2700cc)" },
-    { value: "Executive - Large Executive or E-Segment Passenger Cars (2000cc - 3500cc+)", label: "Executive - Large Executive or E-Segment Passenger Cars (2000cc - 3500cc+)" },
+    { value: "Executive - Large Executive or E-Segment Passenger Cars (2000 cc - 3500+ cc)", label: "Executive - Large Executive or E-Segment Passenger Cars (2000 cc - 3500+ cc)" },
     { value: "Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000cc - 6000cc)", label: "Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000cc - 6000cc)" },
-    { value: "Sports - High Performance (2000cc - 4000cc+)", label: "Sports - High Performance (2000cc - 4000cc+)" },
-    { value: "Dual purpose 4X4 - SUVs 4WD or AWD (1500cc - 6000cc)", label: "Dual purpose 4X4 - SUVs 4WD or AWD (1500cc - 6000cc)" },
+    { value: "Sports - High Performance - High Speed Vehicles ( 2000 cc - 4000 cc+)", label: "Sports - High Performance - High Speed Vehicles ( 2000 cc - 4000 cc+)" },
+    { value: "Dual purpose 4X4 - SUVs 4 wheel Drive or All Wheel Drive (1500 cc - 6000 cc)", label: "Dual purpose 4X4 - SUVs 4 wheel Drive or All Wheel Drive (1500 cc - 6000 cc)" },
     { value: "MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace,Suzuki APV, Vans etc.)  - Passenger or Transport Vehicle (1200 cc - 2000 cc)", label: "MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace,Suzuki APV, Vans etc.)  - Passenger or Transport Vehicle (1200 cc - 2000 cc)" },
   ],
   "By Size": [
