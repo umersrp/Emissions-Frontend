@@ -111,12 +111,13 @@ const EmployeeCommutingForm = () => {
     const queryParams = new URLSearchParams(location.search);
     const urlToken = queryParams.get('token');
     const urlUserId = queryParams.get('userId');
+    const [emailDocId, setEmailDocId] = useState(null);
     const [checkingSubmission, setCheckingSubmission] = useState(true);
     const navigate = useNavigate();
     console.log('URL UserId:', urlUserId);
 
     // Current year for reporting
-    const currentYear = 2024; 
+    const currentYear = 2024;
     const [reportingYear, setReportingYear] = useState(currentYear);
     const [errors, setErrors] = useState({});
 
@@ -558,6 +559,62 @@ const EmployeeCommutingForm = () => {
             setCompanyUsersLoading(false);
         }
     };
+
+    // Add this function after your other helper functions
+    useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        const emailDocIdFromUrl = queryParams.get('emailDocId');
+        if (emailDocIdFromUrl) {
+            setEmailDocId(emailDocIdFromUrl);
+            console.log('Email Doc ID from URL:', emailDocIdFromUrl);
+        }
+    }, [location.search]);
+
+    // Update the markUserAsFilled function
+    const markUserAsFilled = async (userId, token, emailDocIdToUse) => {
+        if (!userId || !token) {
+            console.warn('Cannot mark user as filled - missing userId or token');
+            return false;
+        }
+
+        try {
+            const requestBody = {
+                userId: userId
+            };
+
+            // Add emailDocId to request body if it exists
+            if (emailDocIdToUse) {
+                requestBody.emailDocId = emailDocIdToUse;
+                console.log('Including emailDocId in request:', emailDocIdToUse);
+            } else {
+                console.warn('No emailDocId found, skipping');
+            }
+
+            console.log('Sending request with body:', requestBody);
+
+            const response = await axios.put(
+                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/mark-filled`,
+                requestBody,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            console.log('User marked as filled successfully with request body:', requestBody);
+            console.log('Response:', response.data);
+            return true;
+        } catch (error) {
+            console.error('Failed to mark user as filled:', error);
+            if (error.response) {
+                console.error('Error response data:', error.response.data);
+                console.error('Error response status:', error.response.status);
+            }
+            return false;
+        }
+    };
+
 
     // Fetch all data on component mount
     useEffect(() => {
@@ -2643,32 +2700,9 @@ const EmployeeCommutingForm = () => {
         }
     };
 
-    // Add this function after your other helper functions
-    const markUserAsFilled = async (userId, token) => {
-        if (!userId || !token) {
-            console.warn('Cannot mark user as filled - missing userId or token');
-            return false;
-        }
 
-        try {
-            await axios.put(
-                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/mark-filled`,
-                {
-                    userId: userId
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            return true;
-        } catch (error) {
-            console.error('Failed to mark user as filled:', error);
-            return false;
-        }
-    };
+
+
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -2697,6 +2731,10 @@ const EmployeeCommutingForm = () => {
                 setLoading(false);
                 return;
             }
+
+            const queryParams = new URLSearchParams(location.search);
+            const currentEmailDocId = queryParams.get('emailDocId');
+            console.log('Current emailDocId from URL:', currentEmailDocId);
 
             // Convert date ranges to arrays of dates
             const motorbikeDates = formData.motorbikeDateRange ? dateRangeToDates(formData.motorbikeDateRange) : [];
@@ -2882,7 +2920,8 @@ const EmployeeCommutingForm = () => {
                 // Mark user as filled
                 const userIdToUpdate = targetUserData?._id || companyData?._id || userInfo?._id;
                 const currentToken = getToken(); // Get current token
-                await markUserAsFilled(userIdToUpdate, currentToken);
+                // UPDATE THIS LINE - Pass currentEmailDocId as third parameter
+                await markUserAsFilled(userIdToUpdate, currentToken, currentEmailDocId);
                 setSubmitted(true);
                 toast.success('Employee commuting data submitted successfully!');
 
@@ -2976,43 +3015,10 @@ const EmployeeCommutingForm = () => {
                             <br />• Bus travel
                             <br />• Rail travel
                             <br />• Air travel
-                            <br />• Other modes of transportation (e.g., subway, bicycling, walking).
+                            <br />• Other modes of transportation.
                         </p>
                     </div>
 
-                    {/* User welcome message */}
-                    {/* {userInfo && (
-                        <div className="text-slate-700 leading-relaxed mb-2 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 ">
-                            <div className="flex items-start">
-                                <div className="flex-shrink-0 ">
-                                    <svg className="h-5 w-5 text-black-700" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                                    </svg>
-                                </div>
-                                <div className="ml-3">
-                                    <h3 className="text-sm font-medium text-black-800">
-                                        {targetUserData ? `Admin Mode: Filling for ${targetUserData?.name || targetUserData?.email || 'User'}` : `Welcome, ${userInfo?.name || userInfo?.email || 'User'}!`}
-                                    </h3>
-                                    <div className="mt-1 text-sm text-black-700">
-                                        {userInfo?.buildingId && userInfo?.buildingId?.buildingName && (
-                                            <p>Selected building: <span className="font-semibold">{userInfo.buildingId.buildingName}</span></p>
-                                        )}
-                                        {userInfo?.department && (
-                                            <p>Department: <span className="font-semibold">{userInfo.department}</span></p>
-                                        )}
-                                        {userInfo?.email && (
-                                            <p>Email: <span className="font-semibold">{userInfo.email}</span></p>
-                                        )}
-                                        {companyData && targetUserData && (
-                                            <p className="text-xs text-gray-600 mt-1">
-                                                You are submitting on behalf of {targetUserData?.name || targetUserData?.email || 'Employee'}
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )} */}
                 </div>
 
                 {pooledEmailWarnings.length > 0 && (
@@ -3331,7 +3337,7 @@ const EmployeeCommutingForm = () => {
                             {(formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && (
                                 <>
                                     <div className="mt-4 ">
-                                       
+
                                         {formData.carryOthersMotorbike && (
                                             <>
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3403,8 +3409,8 @@ const EmployeeCommutingForm = () => {
                                                                     showShortcuts={true}
                                                                     showFooter={true}
                                                                     primaryColor="blue"
-                                                                   minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
-                                                                   maxDate={new Date(reportingYear, 11, 31)}f
+                                                                    minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
+                                                                    maxDate={new Date(reportingYear, 11, 31)} 
                                                                     configs={{
                                                                         shortcuts: {
                                                                             thisMonth: {
@@ -3537,7 +3543,7 @@ const EmployeeCommutingForm = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                               
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">
                                         {formData.taxiMode === "both" ? "Individual Distance Travelled *" : "Distance Travelled *"}
@@ -4028,8 +4034,8 @@ const EmployeeCommutingForm = () => {
                                                                     showShortcuts={true}
                                                                     showFooter={true}
                                                                     primaryColor="blue"
-                                                                   minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
-                                                                   maxDate={new Date(reportingYear, 11, 31)}
+                                                                    minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
+                                                                    maxDate={new Date(reportingYear, 11, 31)}
                                                                     configs={{
                                                                         shortcuts: {
                                                                             thisMonth: {

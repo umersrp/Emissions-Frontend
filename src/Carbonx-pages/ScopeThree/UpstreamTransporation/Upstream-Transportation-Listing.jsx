@@ -1319,7 +1319,7 @@ const UpstreamTransportationListing = () => {
               ]}
               fileName="upstream_transportation_records"
               sheetName="Upstream Transportation"
-              buttonText="Export"
+              buttonText="Export All Entries"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               iconClass="text-lg"
               successMessage="Upstream records exported successfully!"
@@ -1335,7 +1335,7 @@ const UpstreamTransportationListing = () => {
 
             {/* Import Button */}
             <Button
-              icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
+              icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
               text={csvState.uploading ? "Uploading..." : "Import"}
               className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}

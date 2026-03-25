@@ -468,7 +468,7 @@
 //             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
 
 //             <Button
-//               icon={isUploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
+//               icon={isUploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
 //               text={isUploading ? "Uploading..." : "Bulk Upload CSV"}
 //               className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
 //               iconClass={isUploading ? "text-lg animate-spin" : "text-lg"}
@@ -1356,7 +1356,7 @@ const StationaryCombustionListing = () => {
               ]}
               fileName="stationary_combustion_records"
               sheetName="Stationary Combustion"
-              buttonText="Export"
+              buttonText="Export All Entries"
               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               successMessage="Stationary records exported successfully!"
               customFormatter={customFormatter}
@@ -1365,7 +1365,7 @@ const StationaryCombustionListing = () => {
             />
             {/* Import Button */}
             <Button
-              icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-up"}
+              icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
               text={csvState.uploading ? "Uploading..." : "Import"}
               className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
               iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}

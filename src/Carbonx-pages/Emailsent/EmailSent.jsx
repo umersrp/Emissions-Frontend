@@ -200,7 +200,7 @@ const EmailSent = () => {
         // Set error state
         setErrors(prev => ({
             ...prev,
-            minEmployeesRequired: ` cannot exceed total no of employees `
+            minEmployeesRequired: ` Cannot exceed total no of employees `
         }));
         return;
     }
@@ -647,7 +647,7 @@ const EmailSent = () => {
                         <br />• Bus travel
                         <br />• Rail travel
                         <br />• Air travel
-                        <br />• Other modes of transportation (e.g., subway, bicycling, walking).
+                        <br />• Other modes of transportation .
                     </p>
                 </div>
 
