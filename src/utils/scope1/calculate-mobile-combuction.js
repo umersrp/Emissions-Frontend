@@ -88,7 +88,7 @@ export const calculateMobileCombustion = (
   //   Special condition for HGVs
   const isHGV =
     vehicleClassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
-    vehicleClassification === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
+    vehicleClassification === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
 
   const lookupKey = isHGV ? weightLoaded : fuelName;
 

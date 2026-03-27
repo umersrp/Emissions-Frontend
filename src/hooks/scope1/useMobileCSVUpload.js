@@ -161,7 +161,7 @@ const useMobileCSVUpload = (buildings = []) => {
 
   //   // Weight loaded validation (conditional)
   //   const isHGV = cleanedRow.vehicleclassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
-  //                 cleanedRow.vehicleclassification === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
+  //                 cleanedRow.vehicleclassification === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
     
   //   if (isHGV && cleanedRow.weightloaded) {
   //     const validWeights = weightLoadedOptions.map(w => w.value);
@@ -377,7 +377,7 @@ const validateMobileRow = (row, index) => {
 
     // Weight loaded validation (conditional)
     const isHGV = cleanedRow.vehicleclassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
-                  cleanedRow.vehicleclassification === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
+                  cleanedRow.vehicleclassification === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
 
     if (isHGV && cleanedRow.weightloaded) {
       const validWeights = weightLoadedOptions.map(w => w.value);
@@ -448,7 +448,7 @@ const validateMobileRow = (row, index) => {
   };
   const transformMobilePayload = (row) => {
     const isHGV = row.vehicleclassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
-                  row.vehicleclassification === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
+                  row.vehicleclassification === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
 
     const result = calculateMobileCombustion(
       isHGV ? null : row.fuelname,

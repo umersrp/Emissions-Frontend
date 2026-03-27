@@ -604,7 +604,7 @@ export const fuelEnergyTypesChildTypes = {
     { value: "Wood logs", label: "Wood logs" },
     { value: "Wood chips", label: "Wood chips" },
     { value: "Wood pellets", label: "Wood pellets" },
-    { value: "Grass / straw", label: "Grass / straw" }
+    { value: "Grass/straw", label: "Grass / straw" }
   ]
 };
 
@@ -747,7 +747,7 @@ export const emissionFactors = {
     "Wood logs": 0,
     "Wood chips": 0,
     "Wood pellets": 0,
-    "Grass / straw": 0
+    "Grass/straw": 0
   },
   // Add Electricity factors at root
   "Electricity": {
@@ -1065,7 +1065,7 @@ export const unitsEmissionFactors = {
     "tonnes": 55.19389,
     "kwh": 0.01150,
   },
-  "Grass / straw": {
+  "Grass/straw": {
     "tonnes": 47.35709,
     "kwh": 0.01273,
   },
