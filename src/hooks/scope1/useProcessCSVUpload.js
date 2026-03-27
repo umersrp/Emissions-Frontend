@@ -11,6 +11,7 @@ import {
 
 } from '@/constant/scope1/calculate-process-emission';
 import { activityTypeOptions, activityMetadata, qualityControlOptions, stakeholderDepartmentOptions, } from '@/constant/scope1/options';
+import {normalizeSubscriptNumbers} from '@/utils/normalizeText';
 
 const useProcessCSVUpload = (buildings = []) => {
   const [csvState, setCsvState] = useState({
@@ -287,41 +288,93 @@ Object.keys(row).forEach(key => {
     }
 
     // Activity type validation - NOW ALSO SETS THE GAS EMITTED
-    if (cleanedRow.activitytype) {
-      const validActivities = activityTypeOptions.map(a => a.value);
-      const matchedActivity = validActivities.find(a =>
-        a.toLowerCase() === cleanedRow.activitytype.toLowerCase()
-      );
+    // if (cleanedRow.activitytype) {
+    //   const validActivities = activityTypeOptions.map(a => a.value);
+    //   const matchedActivity = validActivities.find(a =>
+    //     a.toLowerCase() === cleanedRow.activitytype.toLowerCase()
+    //   );
 
-      if (!matchedActivity) {
-        errors.push(`Invalid activity type "${cleanedRow.activitytype}". Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
+    //   if (!matchedActivity) {
+    //     errors.push(`Invalid activity type "${cleanedRow.activitytype}". Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
+    //   } else {
+    //     cleanedRow.activitytype = matchedActivity;
+
+    //     // AUTO-POPULATE gas emitted based on activity type
+    //     // Check if activityMetadata is an array or object
+    //     if (Array.isArray(activityMetadata)) {
+    //       // If it's an array, find the matching activity
+    //       const activityMeta = activityMetadata.find(a =>
+    //         a.activityType && a.activityType.toLowerCase() === matchedActivity.toLowerCase()
+    //       );
+    //       if (activityMeta && activityMeta.gasEmitted) {
+    //         cleanedRow.gasemitted = activityMeta.gasEmitted;
+    //       } else {
+    //         errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
+    //       }
+    //     } else if (activityMetadata && typeof activityMetadata === 'object') {
+    //       // If it's an object map, get by key
+    //       const activityMeta = activityMetadata[matchedActivity];
+    //       if (activityMeta && activityMeta.gasEmitted) {
+    //         cleanedRow.gasemitted = activityMeta.gasEmitted;
+    //       } else {
+    //         errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
+    //       }
+    //     }
+    //   }
+    // }
+
+if (cleanedRow.activitytype) {
+  const validActivities = activityTypeOptions.map(a => a.value);
+  
+  // Find the matching activity using normalization
+  let matchedActivity = null;
+  const normalizedInput = normalizeSubscriptNumbers(cleanedRow.activitytype);
+  
+  matchedActivity = validActivities.find(activity => {
+    const normalizedActivity = normalizeSubscriptNumbers(activity);
+    return normalizedActivity.toLowerCase() === normalizedInput.toLowerCase();
+  });
+
+  if (!matchedActivity) {
+    errors.push(`Invalid activity type "${cleanedRow.activitytype}". Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
+  } else {
+    cleanedRow.activitytype = matchedActivity;
+
+    // AUTO-POPULATE gas emitted based on activity type
+    // Check if activityMetadata is an array or object
+    if (Array.isArray(activityMetadata)) {
+      // If it's an array, find the matching activity with normalization
+      const activityMeta = activityMetadata.find(a => {
+        if (!a.activityType) return false;
+        const normalizedActivityType = normalizeSubscriptNumbers(a.activityType);
+        const normalizedMatched = normalizeSubscriptNumbers(matchedActivity);
+        return normalizedActivityType.toLowerCase() === normalizedMatched.toLowerCase();
+      });
+      
+      if (activityMeta && activityMeta.gasEmitted) {
+        cleanedRow.gasemitted = activityMeta.gasEmitted;
+        console.log(`Auto-populated gas emitted for ${matchedActivity}: ${cleanedRow.gasemitted}`);
       } else {
-        cleanedRow.activitytype = matchedActivity;
-
-        // AUTO-POPULATE gas emitted based on activity type
-        // Check if activityMetadata is an array or object
-        if (Array.isArray(activityMetadata)) {
-          // If it's an array, find the matching activity
-          const activityMeta = activityMetadata.find(a =>
-            a.activityType && a.activityType.toLowerCase() === matchedActivity.toLowerCase()
-          );
-          if (activityMeta && activityMeta.gasEmitted) {
-            cleanedRow.gasemitted = activityMeta.gasEmitted;
-          } else {
-            errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
-          }
-        } else if (activityMetadata && typeof activityMetadata === 'object') {
-          // If it's an object map, get by key
-          const activityMeta = activityMetadata[matchedActivity];
-          if (activityMeta && activityMeta.gasEmitted) {
-            cleanedRow.gasemitted = activityMeta.gasEmitted;
-          } else {
-            errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
-          }
-        }
+        errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
+      }
+    } else if (activityMetadata && typeof activityMetadata === 'object') {
+      // If it's an object map, try to find the key with normalization
+      const activityKeys = Object.keys(activityMetadata);
+      const matchedKey = activityKeys.find(key => {
+        const normalizedKey = normalizeSubscriptNumbers(key);
+        const normalizedActivity = normalizeSubscriptNumbers(matchedActivity);
+        return normalizedKey.toLowerCase() === normalizedActivity.toLowerCase();
+      });
+      
+      if (matchedKey && activityMetadata[matchedKey] && activityMetadata[matchedKey].gasEmitted) {
+        cleanedRow.gasemitted = activityMetadata[matchedKey].gasEmitted;
+        console.log(`Auto-populated gas emitted for ${matchedActivity}: ${cleanedRow.gasemitted}`);
+      } else {
+        errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
       }
     }
-
+  }
+}
     // REMOVED the entire gas validation block since we're auto-populating it
 
     // Amount of emissions validation (same as before)
@@ -469,7 +522,7 @@ Object.keys(row).forEach(key => {
       data.forEach((row, index) => {
         const rowErrors = validateProcessRow(row, index);
         if (rowErrors.length > 0) {
-          errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
+          errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
         }
       });
 
@@ -622,7 +675,8 @@ Object.keys(row).forEach(key => {
     const template = `building code,stakeholder department,type of activity / process,amount of emissions,quality control,remarks,posting date
 ${exampleBuildingCode},${exampleStakeholder},${exampleActivity},100,${exampleQC},Example record,${formattedDate}`;
 
-    const blob = new Blob([template], { type: 'text/csv' });
+      const BOM = '\uFEFF';
+  const blob = new Blob([BOM + template], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

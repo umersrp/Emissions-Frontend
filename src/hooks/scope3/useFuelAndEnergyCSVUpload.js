@@ -1511,7 +1511,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
       data.forEach((row, index) => {
         const rowErrors = validateFuelAndEnergyRow(row, index);
         if (rowErrors.length > 0) {
-          errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
+          errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
         }
       });
 
@@ -1664,8 +1664,8 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
     const template = `building code,stakeholder,fuel type,fuel,total fuel consumption,fuel consumption unit,Total Purchased Electricity (Grid / Supplier Specific / PPA),unit,quality control,remarks,posting date,did travel by air,no of passenger (air),distance travelled (air),travel class,flight type,did travel by taxi,no of passenger (taxi),distance travelled (taxi),taxi type,did travel by bus,no of passenger (bus),distance travelled (bus),bus type,did travel by train,no of passenger (train),distance travelled (train),train type
 ${exampleBuildingCode},${exampleStakeholder},${exampleFuelType},${exampleFuel},100,${exampleFuelUnit},500,${exampleElectricityUnit},${exampleQC},Example record,${formattedDate},Yes,2,1000,${exampleTravelClass},${exampleFlightType},No,0,0,,No,0,0,,Yes,5,200,${exampleTrainType}`;
 
-    const blob = new Blob([template], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + template], { type: 'text/csv;charset=utf-8;' });    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'fuel_energy_template.csv';

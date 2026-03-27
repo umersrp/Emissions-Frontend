@@ -351,6 +351,7 @@ import {
   qualityControlOptions,
   consumptionUnitOptions,
 } from '@/constant/scope1/options';
+import { normalizeSubscriptNumbers } from '@/utils/normalizeText';
 
 const useFugitiveCSVUpload = (buildings = []) => {
   const {
@@ -363,6 +364,7 @@ const useFugitiveCSVUpload = (buildings = []) => {
     endpoint: `${process.env.REACT_APP_BASE_URL}/Fugitive/Create`,
     limit: 10 * 1024 * 1024,
   });
+
 
   const cleanValue = (value) => {
     if (typeof value !== 'string') return value;
@@ -436,17 +438,33 @@ const useFugitiveCSVUpload = (buildings = []) => {
     }
 
     // Equipment type validation
-    if (cleanedRow.equipmenttype) {
-      const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
-      const matchedEquipment = validEquipmentTypes.find(e =>
-        e.toLowerCase() === cleanedRow.equipmenttype.toLowerCase()
-      );
-      if (!matchedEquipment) {
-        errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-      } else {
-        cleanedRow.equipmenttype = matchedEquipment;
-      }
-    }
+    // if (cleanedRow.equipmenttype) {
+    //   const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
+    //   const matchedEquipment = validEquipmentTypes.find(e =>
+    //     e.toLowerCase() === cleanedRow.equipmenttype.toLowerCase()
+    //   );
+    //   if (!matchedEquipment) {
+    //     errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+    //   } else {
+    //     cleanedRow.equipmenttype = matchedEquipment;
+    //   }
+    // }
+    // Equipment type validation
+if (cleanedRow.equipmenttype) {
+  const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
+  const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
+  
+  const matchedEquipment = validEquipmentTypes.find(equipment => {
+    const normalizedEquipment = normalizeSubscriptNumbers(equipment);
+    return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
+  });
+  
+  if (!matchedEquipment) {
+    errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+  } else {
+    cleanedRow.equipmenttype = matchedEquipment;
+  }
+}
 
     // Material/Refrigerant validation
     if (cleanedRow.materialrefrigerant) {
@@ -617,7 +635,7 @@ const useFugitiveCSVUpload = (buildings = []) => {
     normalizedData.forEach((row, index) => {
       const rowErrors = validateFugitiveRow(row, index);
       if (rowErrors.length > 0) {
-        errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
+        errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
       }
     });
 
@@ -650,7 +668,9 @@ const useFugitiveCSVUpload = (buildings = []) => {
  const template = `building code,stakeholder,equipment type,material refrigerant,leakage value,unit,quality control,remarks,posting date
 ${exampleBuilding1},${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},10,${exampleUnit},${exampleQC},AC maintenance - Unit 1,${formattedDate}`;
 
-    const blob = new Blob([template], { type: 'text/csv' });
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + template], { type: 'text/csv;charset=utf-8;' });
+    // const blob = new Blob([template], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

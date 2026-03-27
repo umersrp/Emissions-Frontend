@@ -534,7 +534,7 @@ const transformWastePayload = useCallback((row) => {
       data.forEach((row, index) => {
         const rowErrors = validateWasteRow(row, index);
         if (rowErrors.length > 0) {
-          errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
+          errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
         }
       });
 
@@ -684,8 +684,8 @@ const transformWastePayload = useCallback((row) => {
     const template = `building code,stakeholder,waste category,waste type,waste treatment method,unit,total waste qty,quality control,remarks,posting date
 ${exampleBuildingCode},${exampleStakeholder},${exampleWasteCategory},${exampleWasteType},${exampleTreatment},${exampleUnit},10,${exampleQC},Example waste record,dd/mm/yyyy`;
 
-    const blob = new Blob([template], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + template], { type: 'text/csv;charset=utf-8;' });    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'waste_generated_template.csv';
