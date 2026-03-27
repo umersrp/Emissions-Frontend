@@ -444,7 +444,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       data.forEach((row, index) => {
         const rowErrors = validatePurchasedGoodsRow(row, index, isCapitalGoods);
         if (rowErrors.length > 0) {
-          errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
+          errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
         }
       });
 
@@ -596,8 +596,8 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       template += `\n${exampleBuildingCode},${exampleStakeholder},15/01/2024,${examplePurchaseCategory},${exampleActivityType},${exampleGoodsType},1000,${exampleUnit},${exampleQC},Example purchased goods record`;
     }
 
-    const blob = new Blob([template], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + template], { type: 'text/csv;charset=utf-8;' });    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = isCapitalGoods ? 'purchased_goods_and_services_template.csv' : 'purchased_goods_and_services_template.csv';

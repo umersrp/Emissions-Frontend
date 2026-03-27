@@ -1214,7 +1214,7 @@ const useUpstreamCSVUpload = (buildings = []) => {
       data.forEach((row, index) => {
         const rowErrors = validateRow(row, index);
         if (rowErrors.length > 0) {
-          errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
+          errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
         }
       });
 
@@ -1377,8 +1377,8 @@ const useUpstreamCSVUpload = (buildings = []) => {
 
     const csv = headers + '\n' + exampleRows;
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + template], { type: 'text/csv;charset=utf-8;' });    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'upstream_transportation_template.csv';

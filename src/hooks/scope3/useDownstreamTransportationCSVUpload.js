@@ -462,7 +462,7 @@ const useDownstreamTransportationCSVUpload = (buildings = []) => {
       data.forEach((row, index) => {
         const rowErrors = validateDownstreamRow(row, index);
         if (rowErrors.length > 0) {
-          errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
+          errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
         }
       });
 
@@ -607,8 +607,8 @@ const useDownstreamTransportationCSVUpload = (buildings = []) => {
     const template = `building code,stakeholder,posting date,sold product activity type,sold goods type,transportation vehicle category,transportation vehicle type,weight loaded,distance travelled,quality control,remarks
 ${exampleBuildingCode},${exampleStakeholder},15/01/2024,${exampleActivityType},${exampleGoodsType},${exampleVehicleCategory},,10,500,${exampleQC},Example downstream transportation record`;
 
-    const blob = new Blob([template], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + template], { type: 'text/csv;charset=utf-8;' });    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'downstream_transportation_template.csv';

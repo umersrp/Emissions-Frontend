@@ -1397,7 +1397,7 @@ const handleFileSelect = async (file, selectedMethod) => {
       row.method = selectedMethod;
       const rowErrors = validatePurchasedElectricityRow(row, index);
       if (rowErrors.length > 0) {
-        errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
+        errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
       }
     });
 
@@ -1594,8 +1594,8 @@ const handleFileSelect = async (file, selectedMethod) => {
 
     const template = headers + '\n' + exampleRow;
 
-    const blob = new Blob([template], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + template], { type: 'text/csv;charset=utf-8;' });    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `purchased_electricity_${selectedMethod}_template.csv`;

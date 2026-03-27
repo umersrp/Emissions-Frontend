@@ -1630,7 +1630,7 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
       data.forEach((row, index) => {
         const rowErrors = validateBusinessTravelRow(row, index);
         if (rowErrors.length > 0) {
-          errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
+          errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
         }
       });
 
@@ -1779,8 +1779,8 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
     const template = `building code,stakeholder,quality control,posting date,travel by air,no of passenger (air),distance travelled (air),travel class,flight type,travel by motorbike,distance travelled (motorbike),motorbike type,travel by taxi,no of passenger (taxi),distance travelled (taxi),taxi type,travel by bus,no of passenger (bus),distance travelled (bus),bus type,travel by train,no of passenger (train),distance travelled (train),train type,travel by car,distance travelled (car),car type,car fuel type,hotel stay,hotel rooms,hotel nights,remarks
 ${exampleBuildingCode},${exampleStakeholder},${exampleQC},${formattedDate},Yes,2,1000,${exampleTravelClass},${exampleFlightType},No,0,,Yes,1,50,${exampleTaxiType},No,0,0,${exampleBusType},Yes,5,200,${exampleTrainType},Yes,100,${exampleCarType},${exampleCarFuelType},No,0,0,Example business travel record`;
 
-    const blob = new Blob([template], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + template], { type: 'text/csv;charset=utf-8;' });    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = 'business_travel_template.csv';

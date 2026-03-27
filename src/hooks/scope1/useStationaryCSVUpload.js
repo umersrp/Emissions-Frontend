@@ -10,6 +10,7 @@ import {
   qualityControlOptions,
   fuelUnitOptionsByName,
 } from '@/constant/scope1/stationary-data';
+import { normalizeSubscriptNumbers } from '@/utils/normalizeText';
 
 const useStationaryCSVUpload = (buildings = []) => {
   const [csvState, setCsvState] = useState({
@@ -20,6 +21,7 @@ const useStationaryCSVUpload = (buildings = []) => {
     validationErrors: [],
     parsedData: null,
   });
+
 
   const cleanCSVValue = useCallback((value) => {
     if (typeof value !== 'string') return value;
@@ -287,17 +289,33 @@ const parseDateToISO = useCallback((dateString) => {
     }
 
     // Equipment type validation
-    if (cleanedRow.equipmenttype) {
-      const validEquipment = equipmentTypeOptions.map(e => e.value);
-      const matchedEquipment = validEquipment.find(e =>
-        e.toLowerCase() === cleanedRow.equipmenttype.toLowerCase()
-      );
-      if (!matchedEquipment) {
-        errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-      } else {
-        cleanedRow.equipmenttype = matchedEquipment;
-      }
-    }
+    // if (cleanedRow.equipmenttype) {
+    //   const validEquipment = equipmentTypeOptions.map(e => e.value);
+    //   const matchedEquipment = validEquipment.find(e =>
+    //     e.toLowerCase() === cleanedRow.equipmenttype.toLowerCase()
+    //   );
+    //   if (!matchedEquipment) {
+    //     errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+    //   } else {
+    //     cleanedRow.equipmenttype = matchedEquipment;
+    //   }
+    // }
+    // Equipment type validation
+if (cleanedRow.equipmenttype) {
+  const validEquipment = equipmentTypeOptions.map(e => e.value);
+  const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
+  
+  const matchedEquipment = validEquipment.find(equipment => {
+    const normalizedEquipment = normalizeSubscriptNumbers(equipment);
+    return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
+  });
+  
+  if (!matchedEquipment) {
+    errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+  } else {
+    cleanedRow.equipmenttype = matchedEquipment;
+  }
+}
 
     // Fuel type validation
     if (cleanedRow.fueltype) {
@@ -453,7 +471,7 @@ const parseDateToISO = useCallback((dateString) => {
       data.forEach((row, index) => {
         const rowErrors = validateStationaryRow(row, index);
         if (rowErrors.length > 0) {
-          errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
+          errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
         }
       });
 
@@ -612,7 +630,10 @@ const parseDateToISO = useCallback((dateString) => {
     const template = `building code,stakeholder,equipment type,fuel type,fuel name,fuel consumption,consumption unit,quality control,remarks,posting date
 ${exampleBuildingCode},${exampleStakeholder},${exampleEquipment},${exampleFuelType},${exampleFuelName},100,${exampleUnit},${exampleQC},Example record,dd/mm/yyyy`;
 
-    const blob = new Blob([template], { type: 'text/csv' });
+  // Add UTF-8 BOM (Byte Order Mark) to ensure Excel recognizes UTF-8 encoding
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + template], { type: 'text/csv;charset=utf-8;' });
+    // const blob = new Blob([template], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

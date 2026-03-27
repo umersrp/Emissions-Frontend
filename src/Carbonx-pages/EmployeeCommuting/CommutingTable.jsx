@@ -599,11 +599,16 @@ const COLUMNS = useMemo(() => [
             <span>{row.index + 1 + controlledPageIndex * controlledPageSize}</span>
         ),
     },
-    {
-        Header: "Building Code",
-        accessor: "building.buildingCode",
+     {
+        Header: "Email Subject ",
+        accessor: "emailDoc.subject",
         Cell: ({ cell }) => cell.value || "N/A",
     },
+    // {
+    //     Header: "Building Code",
+    //     accessor: "building.buildingCode",
+    //     Cell: ({ cell }) => cell.value || "N/A",
+    // },
     {
         Header: "Building",
         accessor: "building.buildingName",
