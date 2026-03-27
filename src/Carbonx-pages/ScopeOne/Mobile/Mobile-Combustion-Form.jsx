@@ -185,7 +185,7 @@ const MobileCombustionFormPage = () => {
     if (vehicleClassification && vehicleType && distanceTraveled && distanceUnit) {
       const isHGV =
         vehicleClassification.value === "Heavy Good Vehicles (HGVs All Diesel)" ||
-        vehicleClassification.value === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
+        vehicleClassification.value === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
 
       const result = calculateMobileCombustion(
         isHGV ? null : fuelName?.value || fuelName,
@@ -239,7 +239,7 @@ const MobileCombustionFormPage = () => {
     //   Always recalculate before submission
     const isHGV =
       formData.vehicleClassification?.value === "Heavy Good Vehicles (HGVs All Diesel)" ||
-      formData.vehicleClassification?.value === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
+      formData.vehicleClassification?.value === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
 
     const result = calculateMobileCombustion(
       isHGV ? null : formData.fuelName?.value || formData.fuelName,
@@ -307,13 +307,13 @@ const MobileCombustionFormPage = () => {
       !distanceTraveled ||
       !distanceUnit ||
       (!fuelName && vehicleClassification?.value !== "Heavy Good Vehicles (HGVs All Diesel)" &&
-        vehicleClassification?.value !== "Heavy Good Vehicles (Refrigerated HGVs All Diesel)")
+        vehicleClassification?.value !== "Heavy Good Vehicles (Refrigirated HGVs All Diesel)")
     ) return;
 
 
     const isHGV =
       vehicleClassification?.value === "Heavy Good Vehicles (HGVs All Diesel)" ||
-      vehicleClassification?.value === "Heavy Good Vehicles (Refrigerated HGVs All Diesel)";
+      vehicleClassification?.value === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
 
     const result = calculateMobileCombustion(
       isHGV ? null : fuelName?.value || fuelName,
@@ -407,7 +407,7 @@ const MobileCombustionFormPage = () => {
               {errors.qualityControl && <p className="text-red-500 text-sm mt-1">{errors.qualityControl}</p>}
             </div>
             {/* Weight Loaded (conditional) */}
-            {["Heavy Good Vehicles (HGVs All Diesel)", "Heavy Good Vehicles (Refrigerated HGVs All Diesel)"].includes(formData.vehicleClassification?.value) && (
+            {["Heavy Good Vehicles (HGVs All Diesel)", "Heavy Good Vehicles (Refrigirated HGVs All Diesel)"].includes(formData.vehicleClassification?.value) && (
               <div>
                 <label className="field-label">Weight Loaded</label>
                 <Select

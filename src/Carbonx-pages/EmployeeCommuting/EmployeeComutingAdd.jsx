@@ -2750,8 +2750,11 @@ const EmployeeCommutingForm = () => {
             // Prepare submission data - extract values from option objects
             const submissionData = {
                 employeeName: String(formData.employeeName || ''),  // Add this
+
                 employeeID: String(formData.employeeID || ''),
                 usersubmittedId: urlUserId || userInfo?._id || targetUserData?._id || null,
+
+                 emailDocId: currentEmailDocId || emailDocId || null,  
                 // Basic Information
                 siteBuildingName: formData.siteBuildingName?.value || '',
                 stakeholderDepartment: formData.stakeholderDepartment?.value || '',

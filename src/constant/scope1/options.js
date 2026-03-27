@@ -135,6 +135,8 @@ export const FugitiveAndMobileStakeholderOptions = [
   { value: "Well Services / Well Intervention", label: "Well Services / Well Intervention" },
 ];
 
+
+
 // --- Equipment Type Options ---
 export const FugitiveEquipmentTypeOptions = [
   { value: "Absorption Chillers", label: "Absorption Chillers" },
@@ -420,7 +422,7 @@ export const vehicleClassificationOptions = [
   { value: "Motorbike", label: "Motorbike" },
   { value: "Delivery Vans (Large Good Vehicles)", label: "Delivery Vans (Large Good Vehicles)" },
   { value: "Heavy Good Vehicles (HGVs All Diesel)", label: "Heavy Good Vehicles (HGVs All Diesel)" },
-  { value: "Heavy Good Vehicles (Refrigerated HGVs All Diesel)", label: "Heavy Good Vehicles (Refrigerated HGVs All Diesel)" },
+  { value: "Heavy Good Vehicles (Refrigirated HGVs All Diesel)", label: "Heavy Good Vehicles (Refrigirated HGVs All Diesel)" },
 ];
 
 // --- Vehicle Types depend on classification ---
@@ -456,21 +458,21 @@ export const vehicleTypeOptionsByClassification = {
   ],
   "Heavy Good Vehicles (HGVs All Diesel)": [
     { value: "Rigid (>3.5 - 7.5 tonnes)", label: "Rigid (>3.5 - 7.5 tonnes)" },
-    { value: "Rigid (>7.5 - 17 tonnes)", label: "Rigid (>7.5 - 17 tonnes)" },
+    { value: "Rigid (>7.5 tonnes-17 tonnes)", label: "Rigid (>7.5 tonnes-17 tonnes)" },
     { value: "Rigid (>17 tonnes)", label: "Rigid (>17 tonnes)" },
     { value: "All rigids", label: "All rigids" },
-    { value: "Articulated (>3.5 - 33 tonnes)", label: "Articulated (>3.5 - 33 tonnes)" },
-    { value: "Articulated (>33 tonnes)", label: "Articulated (>33 tonnes)" },
+    { value: "Articulated (>3.5 - 33t)", label: "Articulated (>3.5 - 33t)" },
+    { value: "Articulated (>33t)", label: "Articulated (>33t)" },
     { value: "All artics", label: "All artics" },
     { value: "All HGVs", label: "All HGVs" },
   ],
-  "Heavy Good Vehicles (Refrigerated HGVs All Diesel)": [
+  "Heavy Good Vehicles (Refrigirated HGVs All Diesel)": [
     { value: "Rigid (>3.5 - 7.5 tonnes)", label: "Rigid (>3.5 - 7.5 tonnes)" },
-    { value: "Rigid (>7.5 - 17 tonnes)", label: "Rigid (>7.5 - 17 tonnes)" },
+    { value: "Rigid (>7.5 tonnes-17 tonnes)", label: "Rigid (>7.5 tonnes-17 tonnes)" },
     { value: "Rigid (>17 tonnes)", label: "Rigid (>17 tonnes)" },
     { value: "All rigids", label: "All rigids" },
-    { value: "Articulated (>3.5 - 33 tonnes)", label: "Articulated (>3.5 - 33 tonnes)" },
-    { value: "Articulated (>33 tonnes)", label: "Articulated (>33 tonnes)" },
+    { value: "Articulated (>3.5 - 33t)", label: "Articulated (>3.5 - 33t)" },
+    { value: "Articulated (>33t)", label: "Articulated (>33t)" },
     { value: "All artics", label: "All artics" },
     { value: "All HGVs", label: "All HGVs" },
   ],
@@ -497,7 +499,7 @@ export const fuelNameOptionsByClassification = {
 
   "Heavy Good Vehicles (HGVs All Diesel)": [{ value: "Diesel", label: "Diesel" }],
 
-  "Heavy Good Vehicles (Refrigerated HGVs All Diesel)": [{ value: "Diesel", label: "Diesel" }],
+  "Heavy Good Vehicles (Refrigirated HGVs All Diesel)": [{ value: "Diesel", label: "Diesel" }],
 
   "By Market Segment":[ 
     ...commonFuelOptions,

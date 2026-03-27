@@ -534,7 +534,7 @@ export const mobileEmissionFactors = {
     },
   },
 
-  "Rigid (>7.5 - 17 tonnes)": {
+  "Rigid (>7.5 tonnes-17 tonnes)": {
     km: {
       "0%": 0.55061,
       "50%": 0.62832,
@@ -579,7 +579,7 @@ export const mobileEmissionFactors = {
     },
   },
 
-  "Articulated (>3.5 - 33 tonnes)": {
+  "Articulated (>3.5 - 33t)": {
     km: {
       "0%": 0.62775,
       "50%": 0.78163,
@@ -594,7 +594,7 @@ export const mobileEmissionFactors = {
     },
   },
 
-  "Articulated (>33 tonnes)": {
+  "Articulated (>33t)": {
     km: {
       "0%": 0.64734,
       "50%": 0.85827,
@@ -640,7 +640,7 @@ export const mobileEmissionFactors = {
   },
 },
 
- "Heavy Good Vehicles (Refrigerated HGVs All Diesel)": {
+ "Heavy Good Vehicles (Refrigirated HGVs All Diesel)": {
   "Rigid (>3.5 - 7.5 tonnes)": {
     km: {
       "0%": 0.54937,
@@ -656,7 +656,7 @@ export const mobileEmissionFactors = {
     },
   },
 
-  "Rigid (>7.5 - 17 tonnes)": {
+  "Rigid (>7.5 tonnes-17 tonnes)": {
     km: {
       "0%": 0.65559,
       "50%": 0.7483,
@@ -701,7 +701,7 @@ export const mobileEmissionFactors = {
     },
   },
 
-  "Articulated (>3.5 - 33 tonnes)": {
+  "Articulated (>3.5 - 33t)": {
     km: {
       "0%": 0.72566,
       "50%": 0.90403,
@@ -716,7 +716,7 @@ export const mobileEmissionFactors = {
     },
   },
 
-  "Articulated (>33 tonnes)": {
+  "Articulated (>33t)": {
     km: {
       "0%": 0.748,
       "50%": 0.99249,

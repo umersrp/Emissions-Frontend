@@ -218,7 +218,7 @@ export const stakeholderOptions = [
   { value: "Assembly", label: "Assembly" },
   { value: "Asset Integrity / Technical Integrity", label: "Asset Integrity / Technical Integrity" },
   { value: "Biostatistics / Statistical Programming", label: "Biostatistics / Statistical Programming" },
-  { value: "Blow Molding / Extrusion Trials Unit", label: "Blow Molding / Extrusion Trials Unit" },
+  { value: "Blow Molding / Extrusion Trials Department", label: "Blow Molding / Extrusion Trials Department" },
   { value: "Boiler Operations", label: "Boiler Operations" },
   { value: "Carbon Accounting", label: "Carbon Accounting" },
   { value: "Catalyst & Additives Handling (Petrochem Focus)", label: "Catalyst & Additives Handling (Petrochem Focus)" },
@@ -424,7 +424,7 @@ export const fuelNameOptionsByType = {
     { value: "Wood logs", label: "Wood logs" },
     { value: "Wood chips", label: "Wood chips" },
     { value: "Wood pellets", label: "Wood pellets" },
-    { value: "Grass / straw", label: "Grass / straw" },
+    { value: "Grass/straw", label: "Grass / straw" },
   ],
 };
 
