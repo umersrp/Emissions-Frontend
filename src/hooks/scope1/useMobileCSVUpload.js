@@ -163,17 +163,52 @@ const validateMobileRow = (row, index) => {
     const isHGV = cleanedRow.vehicleclassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
                   cleanedRow.vehicleclassification === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
 
-    if (isHGV && cleanedRow.weightloaded) {
-      const validWeights = weightLoadedOptions.map(w => w.value);
-      const matchedWeight = validWeights.find(w =>
-        normalize(w) === normalize(cleanedRow.weightloaded)
-      );
-      if (!matchedWeight) {
-        errors.push(`Invalid weight loaded "${cleanedRow.weightloaded}"`);
-      } else {
-        cleanedRow.weightloaded = matchedWeight;
-      }
+
+if (isHGV && cleanedRow.weightloaded) {
+  const validWeights = weightLoadedOptions.map(w => w.value);
+  
+  // Function to normalize weight format to standard format
+  const normalizeWeight = (weight) => {
+    if (!weight) return weight;
+    
+    // Convert to string and trim
+    let weightStr = String(weight).trim();
+    
+    // Check for percentage with decimal places (e.g., "0.00%", "50.00%", "100.00%")
+    const decimalPattern = /^(\d+(?:\.\d+)?)%$/;
+    const match = weightStr.match(decimalPattern);
+    
+    if (match) {
+      const number = parseFloat(match[1]);
+      // Convert to standard format without decimal places
+      if (number === 0) return "0%";
+      if (number === 50) return "50%";
+      if (number === 100) return "100%";
+      // If it's a different number, keep the original format
+      return weightStr;
     }
+    
+    // If it's already in the standard format
+    if (validWeights.includes(weightStr)) {
+      return weightStr;
+    }
+    
+    // If it's "Average"
+    if (weightStr === "Average") {
+      return "Average";
+    }
+    
+    return null;
+  };
+  
+  const normalizedWeight = normalizeWeight(cleanedRow.weightloaded);
+  
+  if (!normalizedWeight) {
+    errors.push(`Invalid weight loaded "${cleanedRow.weightloaded}". Accepted values: 0%, 0.00%, 50%, 50.00%, 100%, 100.00%, Average`);
+  } else {
+    cleanedRow.weightloaded = normalizedWeight;
+  }
+}
 
     // Date validation
     if (cleanedRow.postingdate) {

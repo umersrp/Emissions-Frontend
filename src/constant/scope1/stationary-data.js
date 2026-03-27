@@ -39,7 +39,7 @@ export const equipmentTypeOptions = [
   { value: "CHP (Combined Heat and Power) Units", label: "CHP (Combined Heat and Power) Units" },
 
 
-  // { value: "Claus Plant Burners (Sulfur Recovery Units)", label: "Claus Plant Burners (Sulfur Recovery Units)" },
+  { value: "Claus Plant Burners (Sulfur Recovery Units)", label: "Claus Plant Burners (Sulfur Recovery Units)" },
   { value: "Coal Fired Boiler", label: "Coal Fired Boiler" },
   { value: "Coffee Roaster", label: "Coffee Roaster" },
   { value: "Cogeneration Plant", label: "Cogeneration Plant" },
