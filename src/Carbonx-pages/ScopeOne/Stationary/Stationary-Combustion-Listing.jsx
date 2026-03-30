@@ -266,7 +266,7 @@
 //     <ol className="text-sm text-blue-700 space-y-1 list-decimal pl-4">
 //       <li>Download the template below</li>
 //       <li>Fill in your data (keep column headers as is)</li>
-//       <li>Save as CSV file</li>
+//       <li>Save as xlsx file</li>
 //       <li>Upload using the form below</li>
 //       <li>Review validation results and submit</li>
 //     </ol>
@@ -1102,7 +1102,7 @@ const StationaryCombustionListing = () => {
     <ol className="text-sm text-black-700 space-y-1 list-decimal pl-4">
       <li>Download the template below</li>
       <li>Fill in your data (keep column headers as is)</li>
-      <li>Save as CSV file</li>
+      <li>Save as xlsx file</li>
       <li>Upload using the form below</li>
       <li>Review validation results and submit</li>
     </ol>

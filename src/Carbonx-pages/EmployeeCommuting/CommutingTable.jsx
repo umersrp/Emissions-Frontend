@@ -1550,7 +1550,7 @@ const GroupRow = ({ subject, recordCount, isExpanded, onToggle, groupTotals }) =
                         icon={isExpanded ? "heroicons:chevron-down" : "heroicons:chevron-right"} 
                         className="text-black-500 text-lg"
                     />
-                    <span className="font-semibold text-black-500">{subject || "No Subject"}</span>
+                    <span className="font-semibold text-black-500">{subject || "N/A"}</span>
                 </div>
             </td>
             <td className="px-6 py-3 whitespace-nowrap text-white" colSpan="12">
@@ -1668,7 +1668,7 @@ const CommutingTable = () => {
         const groups = {};
         
         commutingData.forEach(record => {
-            const subject = record.emailDoc?.subject || "No Subject";
+            const subject = record.emailDoc?.subject || "N/A";
             if (!groups[subject]) {
                 groups[subject] = [];
             }
@@ -1762,7 +1762,7 @@ const CommutingTable = () => {
             setPageCount(totalPages || 1);
 
             // Auto-expand first group
-            const subjects = [...new Set(dataWithBuilding.map(item => item.emailDoc?.subject || "No Subject"))];
+            const subjects = [...new Set(dataWithBuilding.map(item => item.emailDoc?.subject || "N/A"))];
             if (subjects.length > 0 && Object.keys(expandedGroups).length === 0) {
                 setExpandedGroups({ [subjects[0]]: true });
             }

@@ -2015,285 +2015,343 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
     });
   }, [cleanCSVValue]);
 
-  const validateFuelAndEnergyRow = useCallback((row, index) => {
-    const errors = [];
+ const validateFuelAndEnergyRow = useCallback((row, index) => {
+  const errors = [];
+  
+  // ADD HEADER MAPPING FOR FRIENDLY HEADERS
+  const headerMapping = {
+    'totalpurchasedelectricitygridsupplierspecificppa': 'totalgrosselectricitypurchased',
+    'totalpurchasedelectricity': 'totalgrosselectricitypurchased',
+    'totalgrosselectricitypurchased': 'totalgrosselectricitypurchased',
+    'didtravelbyair': 'didtravelbyair',
+    'didtravelbytaxi': 'didtravelbytaxi',
+    'didtravelbybus': 'didtravelbybus',
+    'didtravelbytrain': 'didtravelbytrain',
+
+    // Air travel fields
+    'noofpassengerair': 'airpassengers',
+    'distancetravelledair': 'airdistancekm',    
+    'travelclass': 'airtravelclass',
+    'flighttype': 'airflighttype',
     
-    const headerMapping = {
-      'totalpurchasedelectricitygridsupplierspecificppa': 'totalgrosselectricitypurchased',
-      'totalpurchasedelectricity': 'totalgrosselectricitypurchased',
-      'totalgrosselectricitypurchased': 'totalgrosselectricitypurchased',
-      'didyouhaveanybusinesstravelbyairduringthereportingperiod?': 'didtravelbyair',
-      'didyouhaveanybusinesstravelbytaxiduringthereportingperiod?': 'didtravelbytaxi',
-      'didyouhaveanybusinesstravelbybusduringthereportingperiod?': 'didtravelbybus',
-      'didyouhaveanybusinesstravelbytrainduringthereportingperiod?': 'didtravelbytrain',
-      'noofpassengerair': 'airpassengers',
-      'distancetravelledair': 'airdistancekm',    
-      'travelclass': 'airtravelclass',
-      'flighttype': 'airflighttype',
-      'noofpassengertaxi': 'taxipassengers',
-      'distancetravelledtaxi': 'taxidistancekm',
-      'taxitype': 'taxitype',
-      'noofpassengerbus': 'buspassengers',
-      'distancetravelledbus': 'busdistancekm',
-      'bustype': 'bustype',
-      'noofpassengertrain': 'trainpassengers',
-      'distancetravelledtrain': 'traindistancekm',
-      'traintype': 'traintype',
-    };
-
-    const cleanedRow = {};
+    // Taxi travel fields
+    'noofpassengertaxi': 'taxipassengers',
+    'distancetravelledtaxi': 'taxidistancekm',
+    'taxitype': 'taxitype',
     
-    Object.keys(row).forEach(key => {
-      const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const mappedKey = headerMapping[normalizedKey] || normalizedKey;
-      cleanedRow[mappedKey] = row[key]?.toString().trim();
-    });
-
-    const requiredFields = ['buildingcode', 'stakeholder', 'fueltype', 'fuel', 'qualitycontrol'];
-    requiredFields.forEach(field => {
-      if (!cleanedRow[field] || cleanedRow[field] === '') {
-        errors.push(`${field} is required`);
-      }
-    });
-
-    if (cleanedRow.buildingcode && buildings.length > 0) {
-      const buildingExists = buildings.some(b =>
-        b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
-      );
-      if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
-      }
-    }
-
-    if (cleanedRow.stakeholder) {
-      const validStakeholders = stakeholderOptions.map(s => s.value);
-      const matchedStakeholder = validStakeholders.find(s =>
-        s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-      );
-      if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-      } else {
-        cleanedRow.stakeholder = matchedStakeholder;
-      }
-    }
-
-    if (cleanedRow.fueltype) {
-      const validFuelTypes = fuelEnergyTypes.map(f => f.value);
-      const matchedFuelType = validFuelTypes.find(f =>
-        f.toLowerCase() === cleanedRow.fueltype.toLowerCase()
-      );
-      if (!matchedFuelType) {
-        errors.push(`Invalid fuel type "${cleanedRow.fueltype}"`);
-      } else {
-        cleanedRow.fueltype = matchedFuelType;
-      }
-    }
-
-    if (cleanedRow.fueltype && cleanedRow.fuel) {
-      const validFuels = fuelEnergyTypesChildTypes[cleanedRow.fueltype]?.map(f => f.value) || [];
-      const matchedFuel = validFuels.find(f =>
-        f.toLowerCase() === cleanedRow.fuel.toLowerCase()
-      );
-      if (!matchedFuel) {
-        errors.push(`Invalid fuel name "${cleanedRow.fuel}" for type "${cleanedRow.fueltype}"`);
-      } else {
-        cleanedRow.fuel = matchedFuel;
-      }
-    }
-
-    if (cleanedRow.totalfuelconsumption) {
-      const cleanNum = cleanedRow.totalfuelconsumption.toString()
-        .replace(/[^0-9.-]/g, '')
-        .replace(/^"+|"+$/g, '');
-
-      const num = Number(cleanNum);
-      if (isNaN(num)) {
-        errors.push(`Fuel consumption must be a number, got "${cleanedRow.totalfuelconsumption}"`);
-      } else if (num < 0) {
-        errors.push('Fuel consumption cannot be negative');
-      } else if (num > 1000000000) {
-        errors.push('Fuel consumption seems too large');
-      } else {
-        cleanedRow.totalfuelconsumption = num.toString();
-      }
-    }
-
-    if (cleanedRow.totalfuelconsumption && cleanedRow.fuelconsumptionunit) {
-      const allUnits = [
-        ...fuelUnitOptionsByName.default,
-        ...(cleanedRow.fuel ? fuelUnitOptionsByName[cleanedRow.fuel] || [] : [])
-      ];
-
-      const cleanUnit = cleanedRow.fuelconsumptionunit.toLowerCase();
-      const matchedUnit = allUnits.find(u => u.toLowerCase() === cleanUnit);
-
-      if (!matchedUnit) {
-        errors.push(`Invalid fuel consumption unit "${cleanedRow.fuelconsumptionunit}"`);
-      } else {
-        cleanedRow.fuelconsumptionunit = matchedUnit;
-      }
-    }
-
-    if (cleanedRow.totalgrosselectricitypurchased) {
-      const cleanNum = cleanedRow.totalgrosselectricitypurchased.toString()
-        .replace(/[^0-9.-]/g, '')
-        .replace(/^"+|"+$/g, '');
-
-      const num = Number(cleanNum);
-      if (isNaN(num)) {
-        errors.push(`Electricity must be a number, got "${cleanedRow.totalgrosselectricitypurchased}"`);
-      } else if (num < 0) {
-        errors.push('Electricity cannot be negative');
-      } else {
-        cleanedRow.totalgrosselectricitypurchased = num.toString();
-      }
-    }
-
-    if (cleanedRow.totalgrosselectricitypurchased && cleanedRow.unit) {
-      const validUnits = electricityUnits.map(u => u.value);
-      const matchedUnit = validUnits.find(u =>
-        u.toLowerCase() === cleanedRow.unit.toLowerCase()
-      );
-      if (!matchedUnit) {
-        errors.push(`Invalid electricity unit "${cleanedRow.unit}"`);
-      } else {
-        cleanedRow.unit = matchedUnit;
-      }
-    }
-
-    const hasFuel = cleanedRow.totalfuelconsumption && cleanedRow.totalfuelconsumption !== '';
-    const hasElectricity = cleanedRow.totalgrosselectricitypurchased && cleanedRow.totalgrosselectricitypurchased !== '';
+    // Bus travel fields
+    'noofpassengerbus': 'buspassengers',
+    'distancetravelledbus': 'busdistancekm',
+    'bustype': 'bustype',
     
-    if (!hasFuel && !hasElectricity) {
-      errors.push('Either fuel consumption or electricity purchased must be provided');
+    // Train travel fields
+    'noofpassengertrain': 'trainpassengers',
+    'distancetravelledtrain': 'traindistancekm',
+    'traintype': 'traintype',
+  };
+
+  const cleanedRow = {};
+  
+  // USE MAPPED VERSION
+  Object.keys(row).forEach(key => {
+    const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const mappedKey = headerMapping[normalizedKey] || normalizedKey;
+    cleanedRow[mappedKey] = row[key]?.toString().trim();
+  });
+
+  // Required fields
+  const requiredFields = ['buildingcode', 'stakeholder', 'fueltype', 'fuel', 'qualitycontrol'];
+  requiredFields.forEach(field => {
+    if (!cleanedRow[field] || cleanedRow[field] === '') {
+      errors.push(`${field} is required`);
     }
+  });
 
-    if (cleanedRow.qualitycontrol) {
-      const validQC = qualityControlOptions.map(q => q.value);
-      const matchedQC = validQC.find(q =>
-        q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
-      );
-      if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
-      } else {
-        cleanedRow.qualitycontrol = matchedQC;
-      }
+  // Building validation
+  if (cleanedRow.buildingcode && buildings.length > 0) {
+    const buildingExists = buildings.some(b =>
+      b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
+    );
+    if (!buildingExists) {
+      errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
     }
+  }
 
-    const checkTravelOption = (field, passengers, distance, type, typeFields = []) => {
-      if (cleanedRow[field]) {
-        const value = cleanedRow[field].toLowerCase();
-        const isSelected = value === 'yes' || value === 'true' || value === '1';
-        
-        if (isSelected) {
-          if (!passengers) errors.push(`${field.replace('didtravelby', '')} passengers required when travel is Yes`);
-          if (!distance) errors.push(`${field.replace('didtravelby', '')} distance required when travel is Yes`);
-          if (type && !type) errors.push(`${field.replace('didtravelby', '')} type required when travel is Yes`);
-          typeFields.forEach(t => {
-            if (!cleanedRow[t]) errors.push(`${t} required when travel is Yes`);
-          });
-        }
-      }
-    };
-
-    checkTravelOption('didtravelbyair', cleanedRow.airpassengers, cleanedRow.airdistancekm, cleanedRow.airtravelclass, ['airflighttype']);
-    checkTravelOption('didtravelbytaxi', cleanedRow.taxipassengers, cleanedRow.taxidistancekm, cleanedRow.taxitype);
-    checkTravelOption('didtravelbybus', cleanedRow.buspassengers, cleanedRow.busdistancekm, cleanedRow.bustype);
-    checkTravelOption('didtravelbytrain', cleanedRow.trainpassengers, cleanedRow.traindistancekm, cleanedRow.traintype);
-
-    if (cleanedRow.airpassengers || cleanedRow.airdistancekm) {
-      if (!cleanedRow.airpassengers) errors.push('Air passengers required when air distance provided');
-      if (!cleanedRow.airdistancekm) errors.push('Air distance required when air passengers provided');
-      if (cleanedRow.airpassengers) {
-        const num = Number(cleanedRow.airpassengers.replace(/[^0-9.-]/g, ''));
-        if (isNaN(num) || num < 0) errors.push('Air passengers must be a positive number');
-      }
-      if (cleanedRow.airdistancekm) {
-        const num = Number(cleanedRow.airdistancekm.replace(/[^0-9.-]/g, ''));
-        if (isNaN(num) || num < 0) errors.push('Air distance must be a positive number');
-      }
-    }
-
-    if (cleanedRow.airflighttype) {
-      const validFlightTypes = AIR_FLIGHT_TYPES.map(f => f.value);
-      if (!validFlightTypes.includes(cleanedRow.airflighttype)) {
-        errors.push(`Invalid air flight type "${cleanedRow.airflighttype}"`);
-      }
-    }
-
-    if (cleanedRow.airtravelclass && cleanedRow.airflighttype) {
-      const validClasses = AIR_TRAVEL_OPTIONS[cleanedRow.airflighttype]?.map(c => c.value) || [];
-      if (!validClasses.includes(cleanedRow.airtravelclass)) {
-        errors.push(`Invalid travel class "${cleanedRow.airtravelclass}" for ${cleanedRow.airflighttype}`);
-      }
-    }
-
-    if (cleanedRow.taxipassengers || cleanedRow.taxidistancekm) {
-      if (!cleanedRow.taxipassengers) errors.push('Taxi passengers required when taxi distance provided');
-      if (!cleanedRow.taxidistancekm) errors.push('Taxi distance required when taxi passengers provided');
-    }
-
-    if (cleanedRow.taxitype) {
-      const validTaxiTypes = TAXI_TYPES.map(t => t.value);
-      if (!validTaxiTypes.includes(cleanedRow.taxitype)) {
-        errors.push(`Invalid taxi type "${cleanedRow.taxitype}"`);
-      }
-    }
-
-    if (cleanedRow.buspassengers || cleanedRow.busdistancekm) {
-      if (!cleanedRow.buspassengers) errors.push('Bus passengers required when bus distance provided');
-      if (!cleanedRow.busdistancekm) errors.push('Bus distance required when bus passengers provided');
-    }
-
-    if (cleanedRow.bustype) {
-      const validBusTypes = BUS_TYPES.map(b => b.value);
-      if (!validBusTypes.includes(cleanedRow.bustype)) {
-        errors.push(`Invalid bus type "${cleanedRow.bustype}"`);
-      }
-    }
-
-    if (cleanedRow.trainpassengers || cleanedRow.traindistancekm) {
-      if (!cleanedRow.trainpassengers) errors.push('Train passengers required when train distance provided');
-      if (!cleanedRow.traindistancekm) errors.push('Train distance required when train passengers provided');
-    }
-
-    if (cleanedRow.traintype) {
-      const validTrainTypes = TRAIN_TYPES.map(t => t.value);
-      if (!validTrainTypes.includes(cleanedRow.traintype)) {
-        errors.push(`Invalid train type "${cleanedRow.traintype}"`);
-      }
-    }
-
-    if (cleanedRow.postingdate) {
-      const isoDate = parseDateToISO(cleanedRow.postingdate);
-      if (!isoDate) {
-        errors.push(`Invalid date format: "${cleanedRow.postingdate}"`);
-      } else {
-        cleanedRow.postingdate = isoDate;
-      }
+  // Stakeholder validation
+  if (cleanedRow.stakeholder) {
+    const validStakeholders = stakeholderOptions.map(s => s.value);
+    const matchedStakeholder = validStakeholders.find(s =>
+      s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
+    );
+    if (!matchedStakeholder) {
+      errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
     } else {
-      cleanedRow.postingdate = new Date(
-        Date.UTC(
-          new Date().getFullYear(),
-          new Date().getMonth(),
-          new Date().getDate(),
-          0, 0, 0, 0
-        )
-      ).toISOString();
+      cleanedRow.stakeholder = matchedStakeholder;
     }
+  }
 
-    if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
-      errors.push('Remarks cannot exceed 500 characters');
+  // Fuel Type validation
+  if (cleanedRow.fueltype) {
+    const validFuelTypes = fuelEnergyTypes.map(f => f.value);
+    const matchedFuelType = validFuelTypes.find(f =>
+      f.toLowerCase() === cleanedRow.fueltype.toLowerCase()
+    );
+    if (!matchedFuelType) {
+      errors.push(`Invalid fuel type "${cleanedRow.fueltype}"`);
+    } else {
+      cleanedRow.fueltype = matchedFuelType;
     }
+  }
 
-    if (errors.length === 0) {
-      Object.keys(cleanedRow).forEach(key => {
-        row[key] = cleanedRow[key];
-      });
+  // Fuel Name validation
+  if (cleanedRow.fueltype && cleanedRow.fuel) {
+    const validFuels = fuelEnergyTypesChildTypes[cleanedRow.fueltype]?.map(f => f.value) || [];
+    const matchedFuel = validFuels.find(f =>
+      f.toLowerCase() === cleanedRow.fuel.toLowerCase()
+    );
+    if (!matchedFuel) {
+      errors.push(`Invalid fuel name "${cleanedRow.fuel}" for type "${cleanedRow.fueltype}"`);
+    } else {
+      cleanedRow.fuel = matchedFuel;
     }
+  }
 
-    return errors;
-  }, [buildings, parseDateToISO]);
+  // Fuel Consumption validation
+  if (cleanedRow.totalfuelconsumption) {
+    const cleanNum = cleanedRow.totalfuelconsumption.toString()
+      .replace(/[^0-9.-]/g, '')
+      .replace(/^"+|"+$/g, '');
+
+    const num = Number(cleanNum);
+    if (isNaN(num)) {
+      errors.push(`Fuel consumption must be a number, got "${cleanedRow.totalfuelconsumption}"`);
+    } else if (num < 0) {
+      errors.push('Fuel consumption cannot be negative');
+    } else if (num > 1000000000) {
+      errors.push('Fuel consumption seems too large');
+    } else {
+      cleanedRow.totalfuelconsumption = num.toString();
+    }
+  }
+
+  // Fuel Consumption Unit validation
+  if (cleanedRow.totalfuelconsumption && cleanedRow.fuelconsumptionunit) {
+    const allUnits = [
+      ...fuelUnitOptionsByName.default,
+      ...(cleanedRow.fuel ? fuelUnitOptionsByName[cleanedRow.fuel] || [] : [])
+    ];
+
+    const cleanUnit = cleanedRow.fuelconsumptionunit.toLowerCase();
+    const matchedUnit = allUnits.find(u => u.toLowerCase() === cleanUnit);
+
+    if (!matchedUnit) {
+      errors.push(`Invalid fuel consumption unit "${cleanedRow.fuelconsumptionunit}"`);
+    } else {
+      cleanedRow.fuelconsumptionunit = matchedUnit;
+    }
+  }
+
+  // Electricity validation
+  if (cleanedRow.totalgrosselectricitypurchased) {
+    const cleanNum = cleanedRow.totalgrosselectricitypurchased.toString()
+      .replace(/[^0-9.-]/g, '')
+      .replace(/^"+|"+$/g, '');
+
+    const num = Number(cleanNum);
+    if (isNaN(num)) {
+      errors.push(`Electricity must be a number, got "${cleanedRow.totalgrosselectricitypurchased}"`);
+    } else if (num < 0) {
+      errors.push('Electricity cannot be negative');
+    } else {
+      cleanedRow.totalgrosselectricitypurchased = num.toString();
+    }
+  }
+
+  // Electricity Unit validation
+  if (cleanedRow.totalgrosselectricitypurchased && cleanedRow.unit) {
+    const validUnits = electricityUnits.map(u => u.value);
+    const matchedUnit = validUnits.find(u =>
+      u.toLowerCase() === cleanedRow.unit.toLowerCase()
+    );
+    if (!matchedUnit) {
+      errors.push(`Invalid electricity unit "${cleanedRow.unit}"`);
+    } else {
+      cleanedRow.unit = matchedUnit;
+    }
+  }
+
+  // At least one of fuel or electricity must be provided
+  const hasFuel = cleanedRow.totalfuelconsumption && cleanedRow.totalfuelconsumption !== '';
+  const hasElectricity = cleanedRow.totalgrosselectricitypurchased && cleanedRow.totalgrosselectricitypurchased !== '';
+  
+  if (!hasFuel && !hasElectricity) {
+    errors.push('Either fuel consumption or electricity purchased must be provided');
+  }
+
+  // Quality Control validation
+  if (cleanedRow.qualitycontrol) {
+    const validQC = qualityControlOptions.map(q => q.value);
+    const matchedQC = validQC.find(q =>
+      q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
+    );
+    if (!matchedQC) {
+      errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+    } else {
+      cleanedRow.qualitycontrol = matchedQC;
+    }
+  }
+
+  // Check for explicit Yes/No values for travel options
+  const checkTravelOption = (field, passengers, distance, type, typeFields = []) => {
+    if (cleanedRow[field]) {
+      const value = cleanedRow[field].toLowerCase();
+      const isSelected = value === 'yes' || value === 'true' || value === '1';
+      
+      if (isSelected) {
+        if (!passengers) errors.push(`${field.replace('didtravelby', '')} passengers required when travel is Yes`);
+        if (!distance) errors.push(`${field.replace('didtravelby', '')} distance required when travel is Yes`);
+        if (type && !type) errors.push(`${field.replace('didtravelby', '')} type required when travel is Yes`);
+        typeFields.forEach(t => {
+          if (!cleanedRow[t]) errors.push(`${t} required when travel is Yes`);
+        });
+      }
+    }
+  };
+
+  checkTravelOption('didtravelbyair', cleanedRow.airpassengers, cleanedRow.airdistancekm, cleanedRow.airtravelclass, ['airflighttype']);
+  checkTravelOption('didtravelbytaxi', cleanedRow.taxipassengers, cleanedRow.taxidistancekm, cleanedRow.taxitype);
+  checkTravelOption('didtravelbybus', cleanedRow.buspassengers, cleanedRow.busdistancekm, cleanedRow.bustype);
+  checkTravelOption('didtravelbytrain', cleanedRow.trainpassengers, cleanedRow.traindistancekm, cleanedRow.traintype);
+
+  // Travel field validations (if data present)
+  if (cleanedRow.airpassengers || cleanedRow.airdistancekm) {
+    if (!cleanedRow.airpassengers) errors.push('Air passengers required when air distance provided');
+    if (!cleanedRow.airdistancekm) errors.push('Air distance required when air passengers provided');
+    if (cleanedRow.airpassengers) {
+      const num = Number(cleanedRow.airpassengers.replace(/[^0-9.-]/g, ''));
+      if (isNaN(num) || num < 0) errors.push('Air passengers must be a positive number');
+    }
+    if (cleanedRow.airdistancekm) {
+      const num = Number(cleanedRow.airdistancekm.replace(/[^0-9.-]/g, ''));
+      if (isNaN(num) || num < 0) errors.push('Air distance must be a positive number');
+    }
+  }
+
+  // Air flight type validation - case insensitive
+  if (cleanedRow.airflighttype) {
+    const validFlightTypes = AIR_FLIGHT_TYPES.map(f => f.value);
+    const matchedFlightType = validFlightTypes.find(ft => 
+      ft.toLowerCase() === cleanedRow.airflighttype.toLowerCase()
+    );
+    if (!matchedFlightType) {
+      errors.push(`Invalid air flight type "${cleanedRow.airflighttype}"`);
+    } else {
+      cleanedRow.airflighttype = matchedFlightType;
+    }
+  }
+
+  // Travel class validation - case insensitive
+  if (cleanedRow.airtravelclass && cleanedRow.airflighttype) {
+    const validClasses = AIR_TRAVEL_OPTIONS[cleanedRow.airflighttype]?.map(c => c.value) || [];
+    const matchedClass = validClasses.find(c => 
+      c.toLowerCase() === cleanedRow.airtravelclass.toLowerCase()
+    );
+    if (!matchedClass) {
+      errors.push(`Invalid travel class "${cleanedRow.airtravelclass}" for ${cleanedRow.airflighttype}`);
+    } else {
+      cleanedRow.airtravelclass = matchedClass;
+    }
+  }
+
+  // Taxi validations
+  if (cleanedRow.taxipassengers || cleanedRow.taxidistancekm) {
+    if (!cleanedRow.taxipassengers) errors.push('Taxi passengers required when taxi distance provided');
+    if (!cleanedRow.taxidistancekm) errors.push('Taxi distance required when taxi passengers provided');
+  }
+
+  // Taxi type validation - case insensitive
+  if (cleanedRow.taxitype) {
+    const validTaxiTypes = TAXI_TYPES.map(t => t.value);
+    const matchedTaxiType = validTaxiTypes.find(tt => 
+      tt.toLowerCase() === cleanedRow.taxitype.toLowerCase()
+    );
+    if (!matchedTaxiType) {
+      errors.push(`Invalid taxi type "${cleanedRow.taxitype}"`);
+    } else {
+      cleanedRow.taxitype = matchedTaxiType;
+    }
+  }
+
+  // Bus validations
+  if (cleanedRow.buspassengers || cleanedRow.busdistancekm) {
+    if (!cleanedRow.buspassengers) errors.push('Bus passengers required when bus distance provided');
+    if (!cleanedRow.busdistancekm) errors.push('Bus distance required when bus passengers provided');
+  }
+
+  // Bus type validation - case insensitive
+  if (cleanedRow.bustype) {
+    const validBusTypes = BUS_TYPES.map(b => b.value);
+    const matchedBusType = validBusTypes.find(bt => 
+      bt.toLowerCase() === cleanedRow.bustype.toLowerCase()
+    );
+    if (!matchedBusType) {
+      errors.push(`Invalid bus type "${cleanedRow.bustype}"`);
+    } else {
+      cleanedRow.bustype = matchedBusType;
+    }
+  }
+
+  // Train validations
+  if (cleanedRow.trainpassengers || cleanedRow.traindistancekm) {
+    if (!cleanedRow.trainpassengers) errors.push('Train passengers required when train distance provided');
+    if (!cleanedRow.traindistancekm) errors.push('Train distance required when train passengers provided');
+  }
+
+  // Train type validation - case insensitive
+  if (cleanedRow.traintype) {
+    const validTrainTypes = TRAIN_TYPES.map(t => t.value);
+    const matchedTrainType = validTrainTypes.find(tt => 
+      tt.toLowerCase() === cleanedRow.traintype.toLowerCase()
+    );
+    if (!matchedTrainType) {
+      errors.push(`Invalid train type "${cleanedRow.traintype}"`);
+    } else {
+      cleanedRow.traintype = matchedTrainType;
+    }
+  }
+
+  // Date validation
+  if (cleanedRow.postingdate) {
+    const isoDate = parseDateToISO(cleanedRow.postingdate);
+    if (!isoDate) {
+      errors.push(`Invalid date format: "${cleanedRow.postingdate}"`);
+    } else {
+      cleanedRow.postingdate = isoDate;
+    }
+  } else {
+    cleanedRow.postingdate = new Date(
+      Date.UTC(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate(),
+        0, 0, 0, 0
+      )
+    ).toISOString();
+  }
+
+  // Remarks validation
+  if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
+    errors.push('Remarks cannot exceed 500 characters');
+  }
+
+  if (errors.length === 0) {
+    Object.keys(cleanedRow).forEach(key => {
+      row[key] = cleanedRow[key];
+    });
+  }
+
+  return errors;
+}, [buildings, parseDateToISO]);
 
   const transformFuelAndEnergyPayload = useCallback((row) => {
     const emission = calculateFuelAndEnergy({

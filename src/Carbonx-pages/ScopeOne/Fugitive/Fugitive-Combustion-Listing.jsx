@@ -859,7 +859,7 @@ const FugitiveCombustionListing = () => {
       <li>Download the template below to get the correct format</li>
       <li>Fill in your fugitive emissions data</li>
       <li><strong>Important:</strong> Use Building IDs from the reference list</li>
-      <li>Save as CSV file (UTF-8 encoding recommended)</li>
+      <li>Save as xlsx file</li>
       <li>Upload using the form below</li>
       <li>Review validation results and submit</li>
     </ol>

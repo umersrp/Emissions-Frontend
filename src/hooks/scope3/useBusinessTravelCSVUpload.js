@@ -2804,7 +2804,7 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
     // FRIENDLY HEADERS matching the form toggle labels
     const headers = [
       'Building Code',
-      'Stakeholder / Department',
+      'Stakeholder',
       'Quality Control',
       'Posting Date',
       'Did you have any business travel by air during the reporting period?',
