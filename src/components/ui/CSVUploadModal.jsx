@@ -328,6 +328,7 @@ import React, { Fragment, useRef, useMemo, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
+import * as XLSX from "xlsx";
 
 const CSVUploadModal = ({
   activeModal,
@@ -339,7 +340,7 @@ const CSVUploadModal = ({
   onReset,
   onDownloadTemplate,
   templateInstructions,
-  accept = ".csv",
+  accept = "xls,xlsx,.csv",
   maxSizeMB = 10,
   isLoading = false
 }) => {

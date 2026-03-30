@@ -1,3 +1,345 @@
+// // // src/hooks/useFugitiveCSVUpload.js
+// // import useCSVUpload from '@/hooks/useCSVUpload';
+// // import { toast } from 'react-toastify';
+// // import { calculateFugitiveEmission } from '@/utils/scope1/calculate-fugitive-emission';
+// // import {
+// //   FugitiveAndMobileStakeholderOptions,
+// //   FugitiveEquipmentTypeOptions,
+// //   materialRefrigerantOptions,
+// //   qualityControlOptions,
+// //   consumptionUnitOptions,
+// // } from '@/constant/scope1/options';
+
+// // const useFugitiveCSVUpload = (buildings = []) => {
+// //   const {
+// //     csvState,
+// //     handleFileSelect,
+// //     processUpload,
+// //     resetUpload,
+// //     updateValidationErrors,
+// //   } = useCSVUpload({
+// //     endpoint: `${process.env.REACT_APP_BASE_URL}/Fugitive/Create`,
+// //     limit: 10 * 1024 * 1024,
+// //   });
+
+// //   const cleanValue = (value) => {
+// //     if (typeof value !== 'string') return value;
+// //     return value.replace(/["']/g, '').trim();
+// //   };
+
+// //   const validateFugitiveRow = (row, index) => {
+// //     const errors = [];
+// //     const cleanedRow = {};
+
+// //     // Clean all row values
+// //     Object.keys(row).forEach(key => {
+// //       cleanedRow[key] = cleanValue(row[key]);
+// //     });
+
+// //     // Required fields validation
+// //     const requiredFields = [
+// //       'buildingcode', 'stakeholder', 'equipmenttype', 
+// //       'materialrefrigerant', 'leakagevalue', 'consumptionunit', 
+// //       'qualitycontrol', 'postingdate'
+// //     ];
+
+// //     requiredFields.forEach(field => {
+// //       if (!cleanedRow[field] || cleanedRow[field] === '') {
+// //         errors.push(`${field} is required`);
+// //       }
+// //     });
+
+// //     // Building validation
+// //  if (cleanedRow.buildingcode && buildings.length > 0) {
+// //   const buildingExists = buildings.some(b => b.buildingCode === cleanedRow.buildingcode);
+// //   if (!buildingExists) {
+// //     errors.push(`Invalid building Code "${cleanedRow.buildingcode}"`);
+// //   }
+// // }
+
+// //     // Stakeholder validation (case-insensitive)
+// //     if (cleanedRow.stakeholder) {
+// //       const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
+// //       const matchedStakeholder = validStakeholders.find(s =>
+// //         s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
+// //       );
+// //       if (!matchedStakeholder) {
+// //         errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+// //       } else {
+// //         cleanedRow.stakeholder = matchedStakeholder;
+// //       }
+// //     }
+
+// //     // Equipment type validation
+// //     if (cleanedRow.equipmenttype) {
+// //       const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
+// //       const matchedEquipment = validEquipmentTypes.find(e =>
+// //         e.toLowerCase() === cleanedRow.equipmenttype.toLowerCase()
+// //       );
+// //       if (!matchedEquipment) {
+// //         errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+// //       } else {
+// //         cleanedRow.equipmenttype = matchedEquipment;
+// //       }
+// //     }
+
+// //     // Material/Refrigerant validation
+// //     if (cleanedRow.materialrefrigerant) {
+// //       const validMaterials = materialRefrigerantOptions.map(m => m.value);
+// //       const matchedMaterial = validMaterials.find(m =>
+// //         m.toLowerCase() === cleanedRow.materialrefrigerant.toLowerCase()
+// //       );
+// //       if (!matchedMaterial) {
+// //         errors.push(`Invalid material/refrigerant "${cleanedRow.materialrefrigerant}"`);
+// //       } else {
+// //         cleanedRow.materialrefrigerant = matchedMaterial;
+// //       }
+// //     }
+
+// //     // Leakage value validation
+// //     if (cleanedRow.leakagevalue) {
+// //       const cleanNum = cleanedRow.leakagevalue.toString()
+// //         .replace(/[^0-9.-]/g, '');
+      
+// //       const num = Number(cleanNum);
+// //       if (isNaN(num)) {
+// //         errors.push(`Leakage value must be a number, got "${cleanedRow.leakagevalue}"`);
+// //       } else if (num < 0) {
+// //         errors.push('Leakage value cannot be negative');
+// //       } else if (num > 1000000) { // Reasonable upper limit
+// //         errors.push('Leakage value seems too large');
+// //       } else {
+// //         cleanedRow.leakagevalue = num.toString();
+// //       }
+// //     }
+
+// //     // Consumption unit validation
+// //     if (cleanedRow.consumptionunit) {
+// //       const validUnits = consumptionUnitOptions.map(u => u.value);
+// //       const matchedUnit = validUnits.find(u =>
+// //         u.toLowerCase() === cleanedRow.consumptionunit.toLowerCase()
+// //       );
+// //       if (!matchedUnit) {
+// //         errors.push(`Invalid consumption unit "${cleanedRow.consumptionunit}"`);
+// //       } else {
+// //         cleanedRow.consumptionunit = matchedUnit;
+// //       }
+// //     }
+
+// //     // Quality control validation
+// //     if (cleanedRow.qualitycontrol) {
+// //       const validQC = qualityControlOptions.map(q => q.value);
+// //       const matchedQC = validQC.find(q =>
+// //         q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
+// //       );
+// //       if (!matchedQC) {
+// //         errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+// //       } else {
+// //         cleanedRow.qualitycontrol = matchedQC;
+// //       }
+// //     }
+
+// //     // Date validation
+// // // Date validation
+// // if (cleanedRow.postingdate) {
+// //   let dateStr = cleanedRow.postingdate;
+// //   if (dateStr.includes('T')) {
+// //     dateStr = dateStr.split('T')[0];
+// //   }
+// //   dateStr = dateStr.replace(/"/g, '');
+
+// //   // Check for DD/MM/YYYY format
+// //   const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+// //   const match = dateStr.match(ddmmyyyyRegex);
+  
+// //   if (match) {
+// //     // Parse DD/MM/YYYY
+// //     const day = parseInt(match[1], 10);
+// //     const month = parseInt(match[2], 10) - 1; // Month is 0-indexed
+// //     const year = parseInt(match[3], 10);
+    
+// //     const date = new Date(year, month, day);
+    
+// //     // Validate the date is valid (e.g., not 31/02/2024)
+// //     if (isNaN(date.getTime()) || 
+// //         date.getDate() !== day || 
+// //         date.getMonth() !== month || 
+// //         date.getFullYear() !== year) {
+// //       errors.push(`Invalid date "${dateStr}" - please provide a valid DD/MM/YYYY date`);
+// //     } else if (date > new Date()) {
+// //       errors.push('Date cannot be in the future');
+// //     } else {
+// //       // Store in YYYY-MM-DD format for the API
+// //       const formattedYear = year;
+// //       const formattedMonth = String(month + 1).padStart(2, '0');
+// //       const formattedDay = String(day).padStart(2, '0');
+// //       cleanedRow.postingdate = `${formattedYear}-${formattedMonth}-${formattedDay}`;
+// //     }
+// //   } else {
+// //     // Also accept YYYY-MM-DD format for backward compatibility
+// //     const yyyymmddRegex = /^\d{4}-\d{2}-\d{2}$/;
+// //     if (yyyymmddRegex.test(dateStr)) {
+// //       const [year, month, day] = dateStr.split('-').map(Number);
+// //       const date = new Date(year, month - 1, day);
+      
+// //       if (isNaN(date.getTime())) {
+// //         errors.push(`Invalid date "${dateStr}"`);
+// //       } else if (date > new Date()) {
+// //         errors.push('Date cannot be in the future');
+// //       } else {
+// //         cleanedRow.postingdate = dateStr; // Keep as is
+// //       }
+// //     } else {
+// //       errors.push(`Date must be DD/MM/YYYY format (e.g., 15/01/2024), got "${cleanedRow.postingdate}"`);
+// //     }
+// //   }
+// // }
+
+// //     // Remarks validation (optional but check length)
+// //     if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
+// //       errors.push('Remarks cannot exceed 500 characters');
+// //     }
+
+// //     // Update original row with cleaned values if no errors
+// //     if (errors.length === 0) {
+// //       Object.keys(cleanedRow).forEach(key => {
+// //         row[key] = cleanedRow[key];
+// //       });
+// //     }
+
+// //     return errors;
+// //   };
+
+// //   const transformFugitivePayload = (row) => {
+// //     // Calculate emissions
+// //     const kgEmission = calculateFugitiveEmission(
+// //       row.materialrefrigerant,
+// //       parseFloat(row.leakagevalue)
+// //     );
+// //     const tEmission = kgEmission / 1000;
+
+// //     return {
+// //       // API expects `buildingCode` (required). If we can match a building object,
+// //       // include its `_id` as `buildingId` as well for convenience.
+// //       buildingCode: row.buildingcode ? row.buildingcode.trim() : '',
+// //       buildingId: (() => {
+// //         if (!row.buildingcode) return undefined;
+// //         const match = buildings.find(b =>
+// //           (b.buildingCode && b.buildingCode === row.buildingcode) ||
+// //           (b.buildingName && b.buildingName === row.buildingcode) ||
+// //           (b._id && b._id === row.buildingcode)
+// //         );
+// //         return match ? match._id : row.buildingcode.trim();
+// //       })(),
+// //       stakeholder: row.stakeholder,
+// //       equipmentType: row.equipmenttype,
+// //       materialRefrigerant: row.materialrefrigerant,
+// //       leakageValue: parseFloat(row.leakagevalue),
+// //       consumptionUnit: row.consumptionunit,
+// //       qualityControl: row.qualitycontrol,
+// //       calculatedEmissionKgCo2e: kgEmission || 0,
+// //       calculatedEmissionTCo2e: tEmission || 0,
+// //       remarks: row.remarks || '',
+// //       postingDate: row.postingdate || new Date().toISOString().split('T')[0],
+// //     };
+// //   };
+
+// //   const handleFileSelectWithValidation = async (file) => {
+// //     const data = await handleFileSelect(file);
+// //     if (!data) return;
+    
+// //      const normalizedData = data.map(row => {
+// //     const normalizedRow = {};
+// //     Object.keys(row).forEach(key => {
+// //       const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+// //       normalizedRow[normalizedKey] = row[key];
+// //     });
+// //     return normalizedRow;
+// //   }); 
+
+// //     const errors = [];
+// //     data.forEach((row, index) => {
+// //       const rowErrors = validateFugitiveRow(row, index);
+// //       if (rowErrors.length > 0) {
+// //         errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
+// //       }
+// //     });
+
+// //     updateValidationErrors(errors);
+
+// //     if (errors.length === 0) {
+// //       toast.success(`CSV validated: ${data.length} rows ready for upload`, {
+// //         position: "top-right",
+// //         autoClose: 5000,
+// //         hideProgressBar: false,
+// //         closeOnClick: true,
+// //         pauseOnHover: true,
+// //         draggable: true,
+// //         theme: "colored",
+// //       });
+// //     } else {
+// //       toast.warning(`Found ${errors.length} validation errors. Please fix them before uploading.`, {
+// //         position: "top-right",
+// //         autoClose: 5000,
+// //         hideProgressBar: false,
+// //         closeOnClick: true,
+// //         pauseOnHover: true,
+// //         draggable: true,
+// //         theme: "colored",
+// //       });
+// //     }
+// //   };
+
+// // const downloadFugitiveTemplate = () => {
+// //   const exampleBuildings = buildings.slice(0, 2);
+// //   const exampleBuilding1 = exampleBuildings[0]?.buildingCode || 'BLD-6469';
+  
+// //   const exampleStakeholder = FugitiveAndMobileStakeholderOptions[0]?.value || 'Assembly';
+// //   const exampleEquipmentType = FugitiveEquipmentTypeOptions.find(e => e.value === 'Air Handling Units (AHUs) with Refrigerants')?.value || 'Air Handling Units (AHUs) with Refrigerants';
+// //   const exampleMaterial = materialRefrigerantOptions[0]?.value || 'R-134a';
+// //   const exampleUnit = consumptionUnitOptions[0]?.value || 'kg';
+// //   const exampleQC = qualityControlOptions[0]?.value || 'Good';
+  
+// //   // Get current date in DD/MM/YYYY format
+// //   const currentDate = new Date();
+// //   const day = String(currentDate.getDate()).padStart(2, '0');
+// //   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+// //   const year = currentDate.getFullYear();
+// //   const formattedDate = `${day}/${month}/${year}`;
+
+// //   const template = `building code,stakeholder,equipment type,material refrigerant,leakage value,consumption unit,quality control,remarks,posting date
+// // ${exampleBuilding1},${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},10,${exampleUnit},${exampleQC},AC maintenance - Unit 1,${formattedDate}`;
+
+// //   const blob = new Blob([template], { type: 'text/csv' });
+// //   const url = URL.createObjectURL(blob);
+// //   const a = document.createElement('a');
+// //   a.href = url;
+// //   a.download = 'fugitive_template.csv';
+// //   document.body.appendChild(a);
+// //   a.click();
+// //   URL.revokeObjectURL(url);
+// //   document.body.removeChild(a);
+// // };
+// //   const processFugitiveUpload = async (onSuccess) => {
+// //     return await processUpload(transformFugitivePayload, validateFugitiveRow, onSuccess);
+// //   };
+
+// //   return {
+// //     csvState,
+// //     handleFileSelect: handleFileSelectWithValidation,
+// //     processUpload: processFugitiveUpload,
+// //     resetUpload,
+// //     downloadFugitiveTemplate,
+// //   };
+// // };
+
+// // export default useFugitiveCSVUpload;   
+
+
+
+
+
+
 // // src/hooks/useFugitiveCSVUpload.js
 // import useCSVUpload from '@/hooks/useCSVUpload';
 // import { toast } from 'react-toastify';
@@ -9,6 +351,7 @@
 //   qualityControlOptions,
 //   consumptionUnitOptions,
 // } from '@/constant/scope1/options';
+// import { normalizeSubscriptNumbers } from '@/utils/normalizeText';
 
 // const useFugitiveCSVUpload = (buildings = []) => {
 //   const {
@@ -22,6 +365,7 @@
 //     limit: 10 * 1024 * 1024,
 //   });
 
+
 //   const cleanValue = (value) => {
 //     if (typeof value !== 'string') return value;
 //     return value.replace(/["']/g, '').trim();
@@ -31,12 +375,35 @@
 //     const errors = [];
 //     const cleanedRow = {};
 
-//     // Clean all row values
+//     // Comprehensive header mapping
+//     const headerMapping = {
+//       // User-friendly header → Actual field name
+//       'unit': 'consumptionunit',
+      
+//       'buildingcode': 'buildingcode',
+//       'refrigerant': 'materialrefrigerant',
+
+//       'equipment': 'equipmenttype',
+      
+//       'leakagevalue': 'leakagevalue',
+  
+      
+//       'postingdate': 'postingdate',
+      
+//       'quality': 'qualitycontrol',
+//     };
+
+//     // First, map the keys
 //     Object.keys(row).forEach(key => {
-//       cleanedRow[key] = cleanValue(row[key]);
+//       const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+//       const mappedKey = headerMapping[normalizedKey] || normalizedKey;
+//       cleanedRow[mappedKey] = cleanValue(row[key]);
 //     });
 
-//     // Required fields validation
+//     // Debug log to see mapped fields
+//     console.log('Mapped row:', cleanedRow);
+
+//     // Required fields validation - now using mapped field names
 //     const requiredFields = [
 //       'buildingcode', 'stakeholder', 'equipmenttype', 
 //       'materialrefrigerant', 'leakagevalue', 'consumptionunit', 
@@ -50,14 +417,14 @@
 //     });
 
 //     // Building validation
-//  if (cleanedRow.buildingcode && buildings.length > 0) {
-//   const buildingExists = buildings.some(b => b.buildingCode === cleanedRow.buildingcode);
-//   if (!buildingExists) {
-//     errors.push(`Invalid building Code "${cleanedRow.buildingcode}"`);
-//   }
-// }
+//     if (cleanedRow.buildingcode && buildings.length > 0) {
+//       const buildingExists = buildings.some(b => b.buildingCode === cleanedRow.buildingcode);
+//       if (!buildingExists) {
+//         errors.push(`Invalid building Code "${cleanedRow.buildingcode}"`);
+//       }
+//     }
 
-//     // Stakeholder validation (case-insensitive)
+//     // Stakeholder validation
 //     if (cleanedRow.stakeholder) {
 //       const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
 //       const matchedStakeholder = validStakeholders.find(s =>
@@ -71,17 +438,33 @@
 //     }
 
 //     // Equipment type validation
-//     if (cleanedRow.equipmenttype) {
-//       const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
-//       const matchedEquipment = validEquipmentTypes.find(e =>
-//         e.toLowerCase() === cleanedRow.equipmenttype.toLowerCase()
-//       );
-//       if (!matchedEquipment) {
-//         errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-//       } else {
-//         cleanedRow.equipmenttype = matchedEquipment;
-//       }
-//     }
+//     // if (cleanedRow.equipmenttype) {
+//     //   const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
+//     //   const matchedEquipment = validEquipmentTypes.find(e =>
+//     //     e.toLowerCase() === cleanedRow.equipmenttype.toLowerCase()
+//     //   );
+//     //   if (!matchedEquipment) {
+//     //     errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+//     //   } else {
+//     //     cleanedRow.equipmenttype = matchedEquipment;
+//     //   }
+//     // }
+//     // Equipment type validation
+// if (cleanedRow.equipmenttype) {
+//   const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
+//   const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
+  
+//   const matchedEquipment = validEquipmentTypes.find(equipment => {
+//     const normalizedEquipment = normalizeSubscriptNumbers(equipment);
+//     return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
+//   });
+  
+//   if (!matchedEquipment) {
+//     errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+//   } else {
+//     cleanedRow.equipmenttype = matchedEquipment;
+//   }
+// }
 
 //     // Material/Refrigerant validation
 //     if (cleanedRow.materialrefrigerant) {
@@ -106,7 +489,7 @@
 //         errors.push(`Leakage value must be a number, got "${cleanedRow.leakagevalue}"`);
 //       } else if (num < 0) {
 //         errors.push('Leakage value cannot be negative');
-//       } else if (num > 1000000) { // Reasonable upper limit
+//       } else if (num > 1000000) {
 //         errors.push('Leakage value seems too large');
 //       } else {
 //         cleanedRow.leakagevalue = num.toString();
@@ -140,62 +523,56 @@
 //     }
 
 //     // Date validation
-// // Date validation
-// if (cleanedRow.postingdate) {
-//   let dateStr = cleanedRow.postingdate;
-//   if (dateStr.includes('T')) {
-//     dateStr = dateStr.split('T')[0];
-//   }
-//   dateStr = dateStr.replace(/"/g, '');
-
-//   // Check for DD/MM/YYYY format
-//   const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
-//   const match = dateStr.match(ddmmyyyyRegex);
-  
-//   if (match) {
-//     // Parse DD/MM/YYYY
-//     const day = parseInt(match[1], 10);
-//     const month = parseInt(match[2], 10) - 1; // Month is 0-indexed
-//     const year = parseInt(match[3], 10);
-    
-//     const date = new Date(year, month, day);
-    
-//     // Validate the date is valid (e.g., not 31/02/2024)
-//     if (isNaN(date.getTime()) || 
-//         date.getDate() !== day || 
-//         date.getMonth() !== month || 
-//         date.getFullYear() !== year) {
-//       errors.push(`Invalid date "${dateStr}" - please provide a valid DD/MM/YYYY date`);
-//     } else if (date > new Date()) {
-//       errors.push('Date cannot be in the future');
-//     } else {
-//       // Store in YYYY-MM-DD format for the API
-//       const formattedYear = year;
-//       const formattedMonth = String(month + 1).padStart(2, '0');
-//       const formattedDay = String(day).padStart(2, '0');
-//       cleanedRow.postingdate = `${formattedYear}-${formattedMonth}-${formattedDay}`;
-//     }
-//   } else {
-//     // Also accept YYYY-MM-DD format for backward compatibility
-//     const yyyymmddRegex = /^\d{4}-\d{2}-\d{2}$/;
-//     if (yyyymmddRegex.test(dateStr)) {
-//       const [year, month, day] = dateStr.split('-').map(Number);
-//       const date = new Date(year, month - 1, day);
-      
-//       if (isNaN(date.getTime())) {
-//         errors.push(`Invalid date "${dateStr}"`);
-//       } else if (date > new Date()) {
-//         errors.push('Date cannot be in the future');
-//       } else {
-//         cleanedRow.postingdate = dateStr; // Keep as is
+//     if (cleanedRow.postingdate) {
+//       let dateStr = cleanedRow.postingdate;
+//       if (dateStr.includes('T')) {
+//         dateStr = dateStr.split('T')[0];
 //       }
-//     } else {
-//       errors.push(`Date must be DD/MM/YYYY format (e.g., 15/01/2024), got "${cleanedRow.postingdate}"`);
-//     }
-//   }
-// }
+//       dateStr = dateStr.replace(/"/g, '');
 
-//     // Remarks validation (optional but check length)
+//       const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+//       const match = dateStr.match(ddmmyyyyRegex);
+      
+//       if (match) {
+//         const day = parseInt(match[1], 10);
+//         const month = parseInt(match[2], 10) - 1;
+//         const year = parseInt(match[3], 10);
+        
+//         const date = new Date(year, month, day);
+        
+//         if (isNaN(date.getTime()) || 
+//             date.getDate() !== day || 
+//             date.getMonth() !== month || 
+//             date.getFullYear() !== year) {
+//           errors.push(`Invalid date "${dateStr}" - please provide a valid DD/MM/YYYY date`);
+//         } else if (date > new Date()) {
+//           errors.push('Date cannot be in the future');
+//         } else {
+//           const formattedYear = year;
+//           const formattedMonth = String(month + 1).padStart(2, '0');
+//           const formattedDay = String(day).padStart(2, '0');
+//           cleanedRow.postingdate = `${formattedYear}-${formattedMonth}-${formattedDay}`;
+//         }
+//       } else {
+//         const yyyymmddRegex = /^\d{4}-\d{2}-\d{2}$/;
+//         if (yyyymmddRegex.test(dateStr)) {
+//           const [year, month, day] = dateStr.split('-').map(Number);
+//           const date = new Date(year, month - 1, day);
+          
+//           if (isNaN(date.getTime())) {
+//             errors.push(`Invalid date "${dateStr}"`);
+//           } else if (date > new Date()) {
+//             errors.push('Date cannot be in the future');
+//           } else {
+//             cleanedRow.postingdate = dateStr;
+//           }
+//         } else {
+//           errors.push(`Date must be DD/MM/YYYY format (e.g., 15/01/2024), got "${cleanedRow.postingdate}"`);
+//         }
+//       }
+//     }
+
+//     // Remarks validation
 //     if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
 //       errors.push('Remarks cannot exceed 500 characters');
 //     }
@@ -211,7 +588,6 @@
 //   };
 
 //   const transformFugitivePayload = (row) => {
-//     // Calculate emissions
 //     const kgEmission = calculateFugitiveEmission(
 //       row.materialrefrigerant,
 //       parseFloat(row.leakagevalue)
@@ -219,8 +595,6 @@
 //     const tEmission = kgEmission / 1000;
 
 //     return {
-//       // API expects `buildingCode` (required). If we can match a building object,
-//       // include its `_id` as `buildingId` as well for convenience.
 //       buildingCode: row.buildingcode ? row.buildingcode.trim() : '',
 //       buildingId: (() => {
 //         if (!row.buildingcode) return undefined;
@@ -248,78 +622,65 @@
 //     const data = await handleFileSelect(file);
 //     if (!data) return;
     
-//      const normalizedData = data.map(row => {
-//     const normalizedRow = {};
-//     Object.keys(row).forEach(key => {
-//       const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
-//       normalizedRow[normalizedKey] = row[key];
-//     });
-//     return normalizedRow;
-//   }); 
+//     const normalizedData = data.map(row => {
+//       const normalizedRow = {};
+//       Object.keys(row).forEach(key => {
+//         const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+//         normalizedRow[normalizedKey] = row[key];
+//       });
+//       return normalizedRow;
+//     }); 
 
 //     const errors = [];
-//     data.forEach((row, index) => {
+//     normalizedData.forEach((row, index) => {
 //       const rowErrors = validateFugitiveRow(row, index);
 //       if (rowErrors.length > 0) {
-//         errors.push(`Row ${index + 1}: ${rowErrors.join(', ')}`);
+//         errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
 //       }
 //     });
 
 //     updateValidationErrors(errors);
 
 //     if (errors.length === 0) {
-//       toast.success(`CSV validated: ${data.length} rows ready for upload`, {
-//         position: "top-right",
-//         autoClose: 5000,
-//         hideProgressBar: false,
-//         closeOnClick: true,
-//         pauseOnHover: true,
-//         draggable: true,
-//         theme: "colored",
-//       });
+//       toast.success(`CSV validated: ${data.length} rows ready for upload`);
 //     } else {
-//       toast.warning(`Found ${errors.length} validation errors. Please fix them before uploading.`, {
-//         position: "top-right",
-//         autoClose: 5000,
-//         hideProgressBar: false,
-//         closeOnClick: true,
-//         pauseOnHover: true,
-//         draggable: true,
-//         theme: "colored",
-//       });
+//       toast.warning(`Found ${errors.length} validation errors. Please fix them before uploading.`);
 //     }
 //   };
 
-// const downloadFugitiveTemplate = () => {
-//   const exampleBuildings = buildings.slice(0, 2);
-//   const exampleBuilding1 = exampleBuildings[0]?.buildingCode || 'BLD-6469';
-  
-//   const exampleStakeholder = FugitiveAndMobileStakeholderOptions[0]?.value || 'Assembly';
-//   const exampleEquipmentType = FugitiveEquipmentTypeOptions.find(e => e.value === 'Air Handling Units (AHUs) with Refrigerants')?.value || 'Air Handling Units (AHUs) with Refrigerants';
-//   const exampleMaterial = materialRefrigerantOptions[0]?.value || 'R-134a';
-//   const exampleUnit = consumptionUnitOptions[0]?.value || 'kg';
-//   const exampleQC = qualityControlOptions[0]?.value || 'Good';
-  
-//   // Get current date in DD/MM/YYYY format
-//   const currentDate = new Date();
-//   const day = String(currentDate.getDate()).padStart(2, '0');
-//   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-//   const year = currentDate.getFullYear();
-//   const formattedDate = `${day}/${month}/${year}`;
+//   const downloadFugitiveTemplate = () => {
+//     const exampleBuildings = buildings.slice(0, 2);
+//     const exampleBuilding1 = exampleBuildings[0]?.buildingCode || 'BLD-6469';
+    
+//     const exampleStakeholder = FugitiveAndMobileStakeholderOptions[0]?.value || 'Assembly';
+//     const exampleEquipmentType = FugitiveEquipmentTypeOptions.find(e => e.value === 'Air Handling Units (AHUs) with Refrigerants')?.value || 'Air Handling Units (AHUs) with Refrigerants';
+//     const exampleMaterial = materialRefrigerantOptions[0]?.value || 'R-134a';
+//     const exampleUnit = consumptionUnitOptions[0]?.value || 'kg';
+//     const exampleQC = qualityControlOptions[0]?.value || 'Good';
+    
+//     const currentDate = new Date();
+//     const day = String(currentDate.getDate()).padStart(2, '0');
+//     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+//     const year = currentDate.getFullYear();
+//     const formattedDate = `${day}/${month}/${year}`;
 
-//   const template = `building code,stakeholder,equipment type,material refrigerant,leakage value,consumption unit,quality control,remarks,posting date
+//     // 👇 Using user-friendly header "unit" instead of "consumption unit"
+//  const template = `building code,stakeholder,equipment type,material refrigerant,leakage value,unit,quality control,remarks,posting date
 // ${exampleBuilding1},${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},10,${exampleUnit},${exampleQC},AC maintenance - Unit 1,${formattedDate}`;
 
-//   const blob = new Blob([template], { type: 'text/csv' });
-//   const url = URL.createObjectURL(blob);
-//   const a = document.createElement('a');
-//   a.href = url;
-//   a.download = 'fugitive_template.csv';
-//   document.body.appendChild(a);
-//   a.click();
-//   URL.revokeObjectURL(url);
-//   document.body.removeChild(a);
-// };
+//   const BOM = '\uFEFF';
+//   const blob = new Blob([BOM + template], { type: 'text/csv;charset=utf-8;' });
+//     // const blob = new Blob([template], { type: 'text/csv' });
+//     const url = URL.createObjectURL(blob);
+//     const a = document.createElement('a');
+//     a.href = url;
+//     a.download = 'fugitive_template.csv';
+//     document.body.appendChild(a);
+//     a.click();
+//     URL.revokeObjectURL(url);
+//     document.body.removeChild(a);
+//   };
+
 //   const processFugitiveUpload = async (onSuccess) => {
 //     return await processUpload(transformFugitivePayload, validateFugitiveRow, onSuccess);
 //   };
@@ -333,16 +694,12 @@
 //   };
 // };
 
-// export default useFugitiveCSVUpload;   
-
-
-
-
-
+// export default useFugitiveCSVUpload;
 
 // src/hooks/useFugitiveCSVUpload.js
-import useCSVUpload from '@/hooks/useCSVUpload';
+import { useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
+import * as XLSX from "xlsx";
 import { calculateFugitiveEmission } from '@/utils/scope1/calculate-fugitive-emission';
 import {
   FugitiveAndMobileStakeholderOptions,
@@ -354,42 +711,234 @@ import {
 import { normalizeSubscriptNumbers } from '@/utils/normalizeText';
 
 const useFugitiveCSVUpload = (buildings = []) => {
-  const {
-    csvState,
-    handleFileSelect,
-    processUpload,
-    resetUpload,
-    updateValidationErrors,
-  } = useCSVUpload({
-    endpoint: `${process.env.REACT_APP_BASE_URL}/Fugitive/Create`,
-    limit: 10 * 1024 * 1024,
+  const [csvState, setCsvState] = useState({
+    file: null,
+    uploading: false,
+    progress: 0,
+    results: null,
+    validationErrors: [],
+    parsedData: null,
   });
 
-
-  const cleanValue = (value) => {
+  const cleanValue = useCallback((value) => {
     if (typeof value !== 'string') return value;
     return value.replace(/["']/g, '').trim();
-  };
+  }, []);
 
-  const validateFugitiveRow = (row, index) => {
+  // CSV Parser
+  const parseCSV = useCallback((file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const csvText = event.target.result;
+
+          // Robust CSV parser
+          const parseCSVLine = (line) => {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+              const char = line[i];
+              const nextChar = line[i + 1];
+
+              if (char === '"') {
+                if (inQuotes && nextChar === '"') {
+                  current += '"';
+                  i++;
+                } else {
+                  inQuotes = !inQuotes;
+                }
+              } else if (char === ',' && !inQuotes) {
+                result.push(current);
+                current = '';
+              } else {
+                current += char;
+              }
+            }
+            result.push(current);
+            return result;
+          };
+
+          const lines = csvText.split('\n').filter(line => line.trim() !== '');
+
+          if (lines.length === 0) {
+            reject(new Error('CSV file is empty'));
+            return;
+          }
+
+          // Find header row
+          let headerRowIndex = -1;
+          for (let i = 0; i < lines.length; i++) {
+            const compactLine = lines[i]
+              .replace(/['"]/g, '')
+              .toLowerCase()
+              .replace(/[^a-z0-9]/g, '');
+
+            if (compactLine.includes('buildingcode') && compactLine.includes('stakeholder')) {
+              headerRowIndex = i;
+              break;
+            }
+          }
+
+          if (headerRowIndex === -1) {
+            reject(new Error('CSV must contain header row with: buildingCode, stakeholder, equipmentType, materialRefrigerant, leakageValue, unit, qualityControl, remarks, postingDate'));
+            return;
+          }
+
+          // Parse headers
+          const headerValues = parseCSVLine(lines[headerRowIndex]);
+          const headers = headerValues.map(h =>
+            cleanValue(h).toLowerCase().replace(/[^a-z0-9]/g, '')
+          );
+
+          // Expected headers
+          const expectedHeaders = [
+            'buildingcode', 'stakeholder', 'equipmenttype', 'materialrefrigerant',
+            'leakagevalue', 'unit', 'qualitycontrol', 'remarks', 'postingdate'
+          ];
+
+          // Check for missing headers
+          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+          if (missingHeaders.length > 0) {
+            reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+            return;
+          }
+
+          // Parse data rows
+          const data = [];
+          for (let i = headerRowIndex + 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+
+            const values = parseCSVLine(line);
+
+            const row = {};
+            headers.forEach((header, index) => {
+              row[header] = index < values.length ? cleanValue(values[index]) : '';
+            });
+
+            if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
+              data.push(row);
+            }
+          }
+
+          console.log('Parsed CSV data:', JSON.stringify(data, null, 2));
+          resolve(data);
+        } catch (error) {
+          reject(new Error(`Error parsing CSV: ${error.message}`));
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsText(file);
+    });
+  }, [cleanValue]);
+
+  // Excel Parser
+  const parseExcel = useCallback((file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = new Uint8Array(event.target.result);
+          const workbook = XLSX.read(data, { 
+            type: 'array',
+            cellDates: false,
+            cellText: true,
+            cellNF: true,
+            cellHTML: false
+          });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
+            header: 1, 
+            defval: '',
+            raw: false
+          });
+          
+          if (!jsonData || jsonData.length === 0) {
+            reject(new Error('Excel file is empty'));
+            return;
+          }
+
+          // Find header row
+          let headerRowIndex = -1;
+          for (let i = 0; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (row && row.length > 0) {
+              const rowText = row.map(cell => 
+                cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
+              ).join('');
+              
+              if (rowText.includes('buildingcode') && rowText.includes('stakeholder')) {
+                headerRowIndex = i;
+                break;
+              }
+            }
+          }
+
+          if (headerRowIndex === -1) {
+            reject(new Error('Excel must contain header row with: buildingCode, stakeholder, equipmentType, materialRefrigerant, leakageValue, unit, qualityControl, remarks, postingDate'));
+            return;
+          }
+
+          // Get headers
+          const headers = jsonData[headerRowIndex].map(header => 
+            cleanValue(header).toLowerCase().replace(/[^a-z0-9]/g, '')
+          );
+
+          // Expected headers
+          const expectedHeaders = [
+            'buildingcode', 'stakeholder', 'equipmenttype', 'materialrefrigerant',
+            'leakagevalue', 'unit', 'qualitycontrol', 'remarks', 'postingdate'
+          ];
+
+          // Check for missing headers
+          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+          if (missingHeaders.length > 0) {
+            reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+            return;
+          }
+
+          // Parse data rows
+          const parsedData = [];
+          for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+
+            const rowData = {};
+            headers.forEach((header, index) => {
+              const value = index < row.length ? row[index] : '';
+              rowData[header] = value ? cleanValue(value) : '';
+            });
+
+            parsedData.push(rowData);
+          }
+
+          console.log('Parsed Excel data:', JSON.stringify(parsedData, null, 2));
+          resolve(parsedData);
+        } catch (error) {
+          reject(new Error(`Error parsing Excel file: ${error.message}`));
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsArrayBuffer(file);
+    });
+  }, [cleanValue]);
+
+  const validateFugitiveRow = useCallback((row, index) => {
     const errors = [];
     const cleanedRow = {};
 
     // Comprehensive header mapping
     const headerMapping = {
-      // User-friendly header → Actual field name
       'unit': 'consumptionunit',
-      
       'buildingcode': 'buildingcode',
       'refrigerant': 'materialrefrigerant',
-
       'equipment': 'equipmenttype',
-      
       'leakagevalue': 'leakagevalue',
-  
-      
       'postingdate': 'postingdate',
-      
       'quality': 'qualitycontrol',
     };
 
@@ -400,10 +949,9 @@ const useFugitiveCSVUpload = (buildings = []) => {
       cleanedRow[mappedKey] = cleanValue(row[key]);
     });
 
-    // Debug log to see mapped fields
     console.log('Mapped row:', cleanedRow);
 
-    // Required fields validation - now using mapped field names
+    // Required fields validation
     const requiredFields = [
       'buildingcode', 'stakeholder', 'equipmenttype', 
       'materialrefrigerant', 'leakagevalue', 'consumptionunit', 
@@ -437,34 +985,22 @@ const useFugitiveCSVUpload = (buildings = []) => {
       }
     }
 
-    // Equipment type validation
-    // if (cleanedRow.equipmenttype) {
-    //   const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
-    //   const matchedEquipment = validEquipmentTypes.find(e =>
-    //     e.toLowerCase() === cleanedRow.equipmenttype.toLowerCase()
-    //   );
-    //   if (!matchedEquipment) {
-    //     errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-    //   } else {
-    //     cleanedRow.equipmenttype = matchedEquipment;
-    //   }
-    // }
-    // Equipment type validation
-if (cleanedRow.equipmenttype) {
-  const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
-  const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
-  
-  const matchedEquipment = validEquipmentTypes.find(equipment => {
-    const normalizedEquipment = normalizeSubscriptNumbers(equipment);
-    return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
-  });
-  
-  if (!matchedEquipment) {
-    errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-  } else {
-    cleanedRow.equipmenttype = matchedEquipment;
-  }
-}
+    // Equipment type validation with subscript normalization
+    if (cleanedRow.equipmenttype) {
+      const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
+      const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
+      
+      const matchedEquipment = validEquipmentTypes.find(equipment => {
+        const normalizedEquipment = normalizeSubscriptNumbers(equipment);
+        return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
+      });
+      
+      if (!matchedEquipment) {
+        errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+      } else {
+        cleanedRow.equipmenttype = matchedEquipment;
+      }
+    }
 
     // Material/Refrigerant validation
     if (cleanedRow.materialrefrigerant) {
@@ -570,6 +1106,13 @@ if (cleanedRow.equipmenttype) {
           errors.push(`Date must be DD/MM/YYYY format (e.g., 15/01/2024), got "${cleanedRow.postingdate}"`);
         }
       }
+    } else {
+      // If no date provided, use current date
+      const currentDate = new Date();
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      cleanedRow.postingdate = `${year}-${month}-${day}`;
     }
 
     // Remarks validation
@@ -585,9 +1128,9 @@ if (cleanedRow.equipmenttype) {
     }
 
     return errors;
-  };
+  }, [buildings, cleanValue]);
 
-  const transformFugitivePayload = (row) => {
+  const transformFugitivePayload = useCallback((row) => {
     const kgEmission = calculateFugitiveEmission(
       row.materialrefrigerant,
       parseFloat(row.leakagevalue)
@@ -616,41 +1159,183 @@ if (cleanedRow.equipmenttype) {
       remarks: row.remarks || '',
       postingDate: row.postingdate || new Date().toISOString().split('T')[0],
     };
-  };
+  }, [buildings]);
 
-  const handleFileSelectWithValidation = async (file) => {
-    const data = await handleFileSelect(file);
-    if (!data) return;
+  const handleFileSelect = useCallback(async (file) => {
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    const isValidFile = ['csv', 'xlsx', 'xls'].includes(fileExtension);
     
-    const normalizedData = data.map(row => {
-      const normalizedRow = {};
-      Object.keys(row).forEach(key => {
-        const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
-        normalizedRow[normalizedKey] = row[key];
-      });
-      return normalizedRow;
-    }); 
-
-    const errors = [];
-    normalizedData.forEach((row, index) => {
-      const rowErrors = validateFugitiveRow(row, index);
-      if (rowErrors.length > 0) {
-        errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
-      }
-    });
-
-    updateValidationErrors(errors);
-
-    if (errors.length === 0) {
-      toast.success(`CSV validated: ${data.length} rows ready for upload`);
-    } else {
-      toast.warning(`Found ${errors.length} validation errors. Please fix them before uploading.`);
+    if (!isValidFile) {
+      toast.error('Please select a CSV or Excel file');
+      console.error('Invalid file type selected:', file.name);
+      return null;
     }
-  };
 
-  const downloadFugitiveTemplate = () => {
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('File size must be less than 10MB');
+      return null;
+    }
+
+    try {
+      // Choose parser based on file extension
+      let data;
+      if (fileExtension === 'csv') {
+        data = await parseCSV(file);
+      } else {
+        data = await parseExcel(file);
+      }
+      
+      if (!data || data.length === 0) {
+        toast.error('No data found in file');
+        return null;
+      }
+
+      // Normalize keys
+      const normalizedData = data.map(row => {
+        const normalizedRow = {};
+        Object.keys(row).forEach(key => {
+          const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+          normalizedRow[normalizedKey] = row[key];
+        });
+        return normalizedRow;
+      });
+
+      const errors = [];
+      normalizedData.forEach((row, index) => {
+        const rowErrors = validateFugitiveRow(row, index);
+        if (rowErrors.length > 0) {
+          errors.push(`Row ${index + 2}: ${rowErrors.join(', ')}`);
+        }
+      });
+
+      setCsvState(prev => ({
+        ...prev,
+        file,
+        parsedData: normalizedData,
+        validationErrors: errors,
+      }));
+
+      if (errors.length === 0) {
+        toast.success(`File validated: ${normalizedData.length} rows ready for upload`);
+      } else {
+        toast.warning(`Found ${errors.length} validation errors. Please fix them before uploading.`);
+      }
+
+      return normalizedData;
+    } catch (error) {
+      toast.error(`Error parsing file: ${error.message}`);
+      console.error('File parsing error:', error);
+      return null;
+    }
+  }, [parseCSV, parseExcel, validateFugitiveRow]);
+
+  const processUpload = useCallback(async (onSuccess = null) => {
+    const { file, parsedData, validationErrors } = csvState;
+
+    if (!file || validationErrors.length > 0 || !parsedData) {
+      toast.error('Please fix validation errors first');
+      return null;
+    }
+
+    setCsvState(prev => ({
+      ...prev,
+      uploading: true,
+      progress: 0,
+      results: null
+    }));
+
+    const results = {
+      success: 0,
+      failed: 0,
+      errors: []
+    };
+
+    try {
+      const totalRows = parsedData.length;
+
+      for (let i = 0; i < totalRows; i++) {
+        const row = parsedData[i];
+
+        try {
+          const payload = transformFugitivePayload(row);
+
+          const response = await fetch(`${process.env.REACT_APP_BASE_URL}/Fugitive/Create`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Upload failed');
+          }
+
+          results.success++;
+        } catch (error) {
+          results.failed++;
+          results.errors.push({
+            row: i + 1,
+            error: error.message
+          });
+        }
+
+        const currentProgress = Math.round(((i + 1) / totalRows) * 100);
+        const isLastRow = i === totalRows - 1;
+
+        if (currentProgress % 10 === 0 || isLastRow) {
+          setCsvState(prev => ({
+            ...prev,
+            progress: currentProgress
+          }));
+        }
+      }
+
+      setCsvState(prev => ({
+        ...prev,
+        progress: 100,
+        results: results,
+        uploading: false
+      }));
+
+      setTimeout(() => {
+        if (results.failed === 0) {
+          toast.success(`Successfully uploaded ${results.success} records!`);
+          if (onSuccess) onSuccess(results);
+        } else {
+          toast.warning(`Uploaded ${results.success} records, ${results.failed} failed.`);
+        }
+      }, 2000);
+
+      return results;
+    } catch (error) {
+      console.error('Critical upload error:', error);
+      setCsvState(prev => ({
+        ...prev,
+        uploading: false,
+        progress: 0
+      }));
+      toast.error('Upload failed unexpectedly');
+      throw error;
+    }
+  }, [csvState, transformFugitivePayload]);
+
+  const resetUpload = useCallback(() => {
+    setCsvState({
+      file: null,
+      uploading: false,
+      progress: 0,
+      results: null,
+      validationErrors: [],
+      parsedData: null,
+    });
+  }, []);
+
+  const downloadFugitiveTemplate = useCallback(() => {
     const exampleBuildings = buildings.slice(0, 2);
-    const exampleBuilding1 = exampleBuildings[0]?.buildingCode || 'BLD-6469';
+    const exampleBuilding1 = exampleBuildings[0]?.buildingCode || 'BLD-8182';
     
     const exampleStakeholder = FugitiveAndMobileStakeholderOptions[0]?.value || 'Assembly';
     const exampleEquipmentType = FugitiveEquipmentTypeOptions.find(e => e.value === 'Air Handling Units (AHUs) with Refrigerants')?.value || 'Air Handling Units (AHUs) with Refrigerants';
@@ -664,36 +1349,76 @@ if (cleanedRow.equipmenttype) {
     const year = currentDate.getFullYear();
     const formattedDate = `${day}/${month}/${year}`;
 
-    // 👇 Using user-friendly header "unit" instead of "consumption unit"
- const template = `building code,stakeholder,equipment type,material refrigerant,leakage value,unit,quality control,remarks,posting date
-${exampleBuilding1},${exampleStakeholder},${exampleEquipmentType},${exampleMaterial},10,${exampleUnit},${exampleQC},AC maintenance - Unit 1,${formattedDate}`;
+    // Create worksheet data with headers
+    const worksheetData = [
+      [
+        'building code',
+        'stakeholder',
+        'equipment type',
+        'material refrigerant',
+        'leakage value',
+        'unit',
+        'quality control',
+        'remarks',
+        'posting date'
+      ],
+      [
+        exampleBuilding1,
+        exampleStakeholder,
+        exampleEquipmentType,
+        exampleMaterial,
+        '10',
+        exampleUnit,
+        exampleQC,
+        'AC maintenance - Unit 1',
+        formattedDate
+      ],
+      
+    ];
 
-  const BOM = '\uFEFF';
-  const blob = new Blob([BOM + template], { type: 'text/csv;charset=utf-8;' });
-    // const blob = new Blob([template], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'fugitive_template.csv';
-    document.body.appendChild(a);
-    a.click();
-    URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  };
+    // Create workbook and worksheet
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    
+    // Auto-size columns for better readability
+    worksheet['!cols'] = [
+      { wch: 20 }, // building code
+      { wch: 15 }, // stakeholder
+      { wch: 35 }, // equipment type
+      { wch: 25 }, // material refrigerant
+      { wch: 18 }, // leakage value
+      { wch: 15 }, // unit
+      { wch: 20 }, // quality control
+      { wch: 30 }, // remarks
+      { wch: 15 }  // posting date
+    ];
 
-  const processFugitiveUpload = async (onSuccess) => {
-    return await processUpload(transformFugitivePayload, validateFugitiveRow, onSuccess);
-  };
+    // Style the header row (bold text with background)
+    const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!worksheet[cellAddress]) continue;
+      worksheet[cellAddress].s = {
+        font: { bold: true, sz: 12 },
+        fill: { fgColor: { rgb: "E0E0E0" } }
+      };
+    }
+
+
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Fugitive Template');
+
+    // Download the Excel file
+    XLSX.writeFile(workbook, 'fugitive_template.xlsx');
+  }, [buildings]);
 
   return {
     csvState,
-    handleFileSelect: handleFileSelectWithValidation,
-    processUpload: processFugitiveUpload,
+    handleFileSelect,
+    processUpload,
     resetUpload,
     downloadFugitiveTemplate,
   };
 };
 
 export default useFugitiveCSVUpload;
-
-
