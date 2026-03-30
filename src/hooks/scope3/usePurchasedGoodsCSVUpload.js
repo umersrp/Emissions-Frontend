@@ -1305,7 +1305,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         examplePurchaseCategory,
         exampleActivityType,
         exampleGoodsType,
-        'Yes',
+        '',
         '1000',
         exampleUnit,
         exampleQC,
@@ -1343,17 +1343,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     const worksheetData = [
       headers,
       exampleRow,
-      [''],
-      ['Instructions:'],
-      ['1. Do not modify the header row'],
-      ['2. Fill in your data starting from row 2'],
-      ['3. Required fields: building code, stakeholder, posting date, purchase category, purchased activity type, purchased goods services type, amount spent, unit, quality control'],
-      ['4. Optional field: remarks'],
-      ['5. For "is capital goods" field, use "Yes" or "No" (only for capital goods template)'],
-      ['6. Date format: DD/MM/YYYY (e.g., 31/12/2024) or YYYY-MM-DD (e.g., 2024-12-31)'],
-      ['7. Valid purchase categories: Purchased Goods, Purchased Services'],
-      ['8. Activity types depend on the purchase category selected'],
-      ['9. Save and upload this file']
+     
     ];
 
     // Create workbook and worksheet
@@ -1377,52 +1367,6 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       };
     }
 
-    // Add helpful comments to headers
-    const addComment = (cell, text) => {
-      if (!cell.c) cell.c = [];
-      cell.c.push({ a: 'System', t: text });
-    };
-
-    const buildingCell = worksheet[XLSX.utils.encode_cell({ r: 0, c: 0 })];
-    if (buildingCell) {
-      addComment(buildingCell, `Enter a valid building code from your building list`);
-    }
-
-    const stakeholderCell = worksheet[XLSX.utils.encode_cell({ r: 0, c: 1 })];
-    if (stakeholderCell) {
-      const validStakeholders = stakeholderOptions.map(s => s.value).slice(0, 10).join(', ');
-      addComment(stakeholderCell, `Allowed values: ${validStakeholders}...`);
-    }
-
-    const purchaseCategoryCell = worksheet[XLSX.utils.encode_cell({ r: 0, c: 3 })];
-    if (purchaseCategoryCell) {
-      const validCategories = purchaseCategoryOptions.map(c => c.value).join(', ');
-      addComment(purchaseCategoryCell, `Allowed values: ${validCategories}`);
-    }
-
-    const activityTypeCell = worksheet[XLSX.utils.encode_cell({ r: 0, c: 4 })];
-    if (activityTypeCell) {
-      const goodsActivities = purchasedGoodsActivityTypes.map(a => a.value).slice(0, 5).join(', ');
-      const servicesActivities = purchasedServicesActivityTypes.map(a => a.value).slice(0, 5).join(', ');
-      addComment(activityTypeCell, `For Purchased Goods: ${goodsActivities}...\nFor Purchased Services: ${servicesActivities}...`);
-    }
-
-    const unitCell = worksheet[XLSX.utils.encode_cell({ r: 0, c: isCapitalGoods ? 8 : 7 })];
-    if (unitCell) {
-      const validUnits = currencyUnitOptions.map(u => u.value).join(', ');
-      addComment(unitCell, `Allowed values: ${validUnits}`);
-    }
-
-    const qcCell = worksheet[XLSX.utils.encode_cell({ r: 0, c: isCapitalGoods ? 9 : 8 })];
-    if (qcCell) {
-      const validQC = qualityControlOptions.map(q => q.value).join(', ');
-      addComment(qcCell, `Allowed values: ${validQC}`);
-    }
-
-    const dateCell = worksheet[XLSX.utils.encode_cell({ r: 0, c: 2 })];
-    if (dateCell) {
-      addComment(dateCell, `Format: DD/MM/YYYY or YYYY-MM-DD (e.g., 31/12/2024 or 2024-12-31)`);
-    }
 
     // Add the worksheet to the workbook
     XLSX.utils.book_append_sheet(workbook, worksheet, 
