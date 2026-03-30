@@ -1415,5 +1415,3 @@ const useStationaryCSVUpload = (buildings = []) => {
 };
 
 export default useStationaryCSVUpload;
-
-
