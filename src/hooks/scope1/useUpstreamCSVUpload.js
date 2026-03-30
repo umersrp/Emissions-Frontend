@@ -34,18 +34,18 @@
 // //   // Parse date to ISO format
 // //   const parseDateToISO = useCallback((dateString) => {
 // //     if (!dateString) return null;
-    
+
 // //     // Remove quotes and trim
 // //     let cleaned = dateString.replace(/["']/g, '').trim();
-    
+
 // //     // If already ISO format with time, return as is
 // //     if (cleaned.includes('T') && cleaned.endsWith('Z')) {
 // //       return cleaned;
 // //     }
-    
+
 // //     // Handle different date formats
 // //     let date = null;
-    
+
 // //     // Try DD/MM/YYYY format (with / or - separators)
 // //     const ddmmyyyyRegex = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
 // //     let matches = cleaned.match(ddmmyyyyRegex);
@@ -59,7 +59,7 @@
 // //         0, 0, 0, 0
 // //       ));
 // //     }
-    
+
 // //     // Try MM/DD/YYYY format if DD/MM/YYYY failed
 // //     if (!date || isNaN(date.getTime())) {
 // //       const mmddyyyyRegex = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
@@ -74,7 +74,7 @@
 // //         ));
 // //       }
 // //     }
-    
+
 // //     // Try YYYY-MM-DD format
 // //     if (!date || isNaN(date.getTime())) {
 // //       const yyyymmddRegex = /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/;
@@ -89,17 +89,17 @@
 // //         ));
 // //       }
 // //     }
-    
+
 // //     // Last resort: try native parsing
 // //     if (!date || isNaN(date.getTime())) {
 // //       date = new Date(cleaned);
 // //     }
-    
+
 // //     // Return ISO string if valid
 // //     if (date && !isNaN(date.getTime())) {
 // //       return date.toISOString();
 // //     }
-    
+
 // //     return null;
 // //   }, []);
 
@@ -379,14 +379,14 @@
 // //     // Date validation and conversion to ISO
 // //     if (cleanedRow.postingdate) {
 // //       const isoDate = parseDateToISO(cleanedRow.postingdate);
-      
+
 // //       if (!isoDate) {
 // //         errors.push(`Invalid date format "${cleanedRow.postingdate}". Please use DD/MM/YYYY format (e.g., 17/02/2026)`);
 // //       } else {
 // //         // Extract just the date part for validation
 // //         const datePart = isoDate.split('T')[0];
 // //         const date = new Date(datePart);
-        
+
 // //         if (isNaN(date.getTime())) {
 // //           errors.push(`Invalid date "${cleanedRow.postingdate}"`);
 // //         } else if (date > new Date()) {
@@ -673,18 +673,18 @@
 //   // Parse date to ISO format
 //   const parseDateToISO = useCallback((dateString) => {
 //     if (!dateString) return null;
-    
+
 //     // Remove quotes and trim
 //     let cleaned = dateString.replace(/["']/g, '').trim();
-    
+
 //     // If already ISO format with time, return as is
 //     if (cleaned.includes('T') && cleaned.endsWith('Z')) {
 //       return cleaned;
 //     }
-    
+
 //     // Handle different date formats
 //     let date = null;
-    
+
 //     // Try DD/MM/YYYY format (with / or - separators)
 //     const ddmmyyyyRegex = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
 //     let matches = cleaned.match(ddmmyyyyRegex);
@@ -698,7 +698,7 @@
 //         0, 0, 0, 0
 //       ));
 //     }
-    
+
 //     // Try MM/DD/YYYY format if DD/MM/YYYY failed
 //     if (!date || isNaN(date.getTime())) {
 //       const mmddyyyyRegex = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
@@ -713,7 +713,7 @@
 //         ));
 //       }
 //     }
-    
+
 //     // Try YYYY-MM-DD format
 //     if (!date || isNaN(date.getTime())) {
 //       const yyyymmddRegex = /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/;
@@ -728,17 +728,17 @@
 //         ));
 //       }
 //     }
-    
+
 //     // Last resort: try native parsing
 //     if (!date || isNaN(date.getTime())) {
 //       date = new Date(cleaned);
 //     }
-    
+
 //     // Return ISO string if valid
 //     if (date && !isNaN(date.getTime())) {
 //       return date.toISOString();
 //     }
-    
+
 //     return null;
 //   }, []);
 
@@ -826,7 +826,7 @@
 
 //             const values = parseCSVLine(line);
 //             const row = {};
-            
+
 //             // Use original headers to preserve friendly names
 //             headerValues.forEach((header, index) => {
 //               row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
@@ -851,66 +851,66 @@
 //   // Validate each row
 //   const validateRow = useCallback((row, index) => {
 //     const errors = [];
-    
+
 //     // HEADER MAPPING for friendly headers
 //     const headerMapping = {
 //       // Building
 //       'buildingcode': 'buildingcode',
 //       'building': 'buildingcode',
-      
+
 //       // Stakeholder
 //       'stakeholder': 'stakeholder',
 //       'stakeholderdepartment': 'stakeholder',
 //       'department': 'stakeholder',
-      
+
 //       // Transportation and Distribution Category
 //       'transportationanddistributioncategory': 'transportationcategory',
 //       'transportationcategory': 'transportationcategory',
 //       'category': 'transportationcategory',
-      
+
 //       // Purchased Product Activity Type
 //       'purchasedproductactivitytype': 'activitytype',
 //       'activitytype': 'activitytype',
 //       'activity': 'activitytype',
-      
+
 //       // Purchased Goods Type
 //       'purchasedgoodstype': 'purchasedgoodstype',
 //       'goodstype': 'purchasedgoodstype',
-      
+
 //       // Transportation Vehicle Category
 //       'transportationvehiclecategory': 'vehiclecategory',
 //       'vehiclecategory': 'vehiclecategory',
-      
+
 //       // Transportation Vehicle Type
 //       'transportationvehicletype': 'vehicletype',
 //       'vehicletype': 'vehicletype',
-      
+
 //       // Weight Loaded
 //       'weightloaded': 'weightloaded',
 //       'weight': 'weightloaded',
-      
+
 //       // Distance Travelled
 //       'distancetravelled': 'distancetravelled',
 //       'distance': 'distancetravelled',
-      
+
 //       // Amount Spent
 //       'amountspent': 'amountspent',
 //       'amount': 'amountspent',
 //       'spent': 'amountspent',
-      
+
 //       // Unit
 //       'unit': 'unit',
-      
+
 //       // Quality Control
 //       'qualitycontrol': 'qualitycontrol',
 //       'quality': 'qualitycontrol',
 //       'qc': 'qualitycontrol',
-      
+
 //       // Remarks
 //       'remarks': 'remarks',
 //       'remark': 'remarks',
 //       'note': 'remarks',
-      
+
 //       // Posting Date
 //       'postingdate': 'postingdate',
 //       'date': 'postingdate',
@@ -974,10 +974,10 @@
 //         'purchased goods': 'purchasedGoods',
 //         'purchased services': 'purchasedServices',
 //       };
-      
+
 //       const lowerCategory = cleanedRow.transportationcategory.toLowerCase();
 //       const mappedCategory = categoryMap[lowerCategory];
-      
+
 //       if (!mappedCategory) {
 //         errors.push(`Invalid transportation category "${cleanedRow.transportationcategory}". Expected "Purchased Goods" or "Purchased Services"`);
 //       } else {
@@ -1115,14 +1115,14 @@
 //     // Date validation and conversion to ISO
 //     if (cleanedRow.postingdate) {
 //       const isoDate = parseDateToISO(cleanedRow.postingdate);
-      
+
 //       if (!isoDate) {
 //         errors.push(`Invalid date format "${cleanedRow.postingdate}". Please use DD/MM/YYYY format (e.g., 17/02/2026)`);
 //       } else {
 //         // Extract just the date part for validation
 //         const datePart = isoDate.split('T')[0];
 //         const date = new Date(datePart);
-        
+
 //         if (isNaN(date.getTime())) {
 //           errors.push(`Invalid date "${cleanedRow.postingdate}"`);
 //         } else if (date > new Date()) {
@@ -1400,7 +1400,7 @@
 // export default useUpstreamCSVUpload;
 
 // hooks/scope3/useUpstreamTransportationCSVUpload.js
-import { useState, useCallback } from 'react';
+   import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import * as XLSX from "xlsx";
@@ -1425,6 +1425,14 @@ const useUpstreamCSVUpload = (buildings = []) => {
     parsedData: null,
   });
 
+  // Helper function to normalize headers
+  const normalizeHeader = useCallback((header) => {
+    return header
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '') // Remove all non-alphanumeric characters
+      .replace(/\([^)]*\)/g, ''); // Remove anything in parentheses like (tonnes), (km), ($)
+  }, []);
+
   // Clean CSV values
   const cleanCSVValue = useCallback((value) => {
     if (typeof value !== 'string') return value;
@@ -1437,15 +1445,15 @@ const useUpstreamCSVUpload = (buildings = []) => {
   // Parse date to ISO format
   const parseDateToISO = useCallback((dateString) => {
     if (!dateString) return null;
-    
+
     let cleaned = dateString.replace(/["']/g, '').trim();
-    
+
     if (cleaned.includes('T') && cleaned.endsWith('Z')) {
       return cleaned;
     }
-    
+
     let date = null;
-    
+
     const ddmmyyyyRegex = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
     let matches = cleaned.match(ddmmyyyyRegex);
     if (matches) {
@@ -1457,7 +1465,7 @@ const useUpstreamCSVUpload = (buildings = []) => {
         0, 0, 0, 0
       ));
     }
-    
+
     if (!date || isNaN(date.getTime())) {
       const mmddyyyyRegex = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
       matches = cleaned.match(mmddyyyyRegex);
@@ -1471,7 +1479,7 @@ const useUpstreamCSVUpload = (buildings = []) => {
         ));
       }
     }
-    
+
     if (!date || isNaN(date.getTime())) {
       const yyyymmddRegex = /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/;
       matches = cleaned.match(yyyymmddRegex);
@@ -1485,15 +1493,15 @@ const useUpstreamCSVUpload = (buildings = []) => {
         ));
       }
     }
-    
+
     if (!date || isNaN(date.getTime())) {
       date = new Date(cleaned);
     }
-    
+
     if (date && !isNaN(date.getTime())) {
       return date.toISOString();
     }
-    
+
     return null;
   }, []);
 
@@ -1548,7 +1556,7 @@ const useUpstreamCSVUpload = (buildings = []) => {
             { field: 'stakeholder', alternatives: ['stakeholder', 'stakeholder department', 'department'] },
           ];
 
-          const normalizedHeaders = headerValues.map(h => 
+          const normalizedHeaders = headerValues.map(h =>
             h.toLowerCase().replace(/[^a-z0-9]/g, '')
           );
 
@@ -1577,7 +1585,7 @@ const useUpstreamCSVUpload = (buildings = []) => {
 
             const values = parseCSVLine(line);
             const row = {};
-            
+
             headerValues.forEach((header, index) => {
               row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
             });
@@ -1605,7 +1613,7 @@ const useUpstreamCSVUpload = (buildings = []) => {
       reader.onload = (event) => {
         try {
           const data = new Uint8Array(event.target.result);
-          const workbook = XLSX.read(data, { 
+          const workbook = XLSX.read(data, {
             type: 'array',
             cellDates: false,
             cellText: true,
@@ -1613,13 +1621,13 @@ const useUpstreamCSVUpload = (buildings = []) => {
             cellHTML: false
           });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
-            header: 1, 
+
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+            header: 1,
             defval: '',
             raw: false
           });
-          
+
           if (!jsonData || jsonData.length === 0) {
             reject(new Error('Excel file is empty'));
             return;
@@ -1634,7 +1642,7 @@ const useUpstreamCSVUpload = (buildings = []) => {
             { field: 'stakeholder', alternatives: ['stakeholder', 'stakeholder department', 'department'] },
           ];
 
-          const normalizedHeaders = headerValues.map(h => 
+          const normalizedHeaders = headerValues.map(h =>
             h ? h.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
           );
 
@@ -1684,10 +1692,11 @@ const useUpstreamCSVUpload = (buildings = []) => {
   // Validate each row
   const validateRow = useCallback((row, index) => {
     const errors = [];
-    
+
     const headerMapping = {
       'buildingcode': 'buildingcode',
       'building': 'buildingcode',
+      'buildingcode': 'buildingcode',
       'stakeholder': 'stakeholder',
       'stakeholderdepartment': 'stakeholder',
       'department': 'stakeholder',
@@ -1703,9 +1712,9 @@ const useUpstreamCSVUpload = (buildings = []) => {
       'vehiclecategory': 'vehiclecategory',
       'transportationvehicletype': 'vehicletype',
       'vehicletype': 'vehicletype',
-      'weightloaded': 'weightloaded',
+      'weightloadedtonnes': 'weightloaded',
       'weight': 'weightloaded',
-      'distancetravelled': 'distancetravelled',
+      'distancetravelledkm': 'distancetravelled',
       'distance': 'distancetravelled',
       'amountspent': 'amountspent',
       'amount': 'amountspent',
@@ -1723,8 +1732,9 @@ const useUpstreamCSVUpload = (buildings = []) => {
 
     const cleanedRow = {};
 
+    // Use the normalizeHeader helper
     Object.keys(row).forEach(key => {
-      const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const normalizedKey = normalizeHeader(key);
       const mappedKey = headerMapping[normalizedKey] || normalizedKey;
       cleanedRow[mappedKey] = row[key]?.toString().trim() || '';
     });
@@ -1772,10 +1782,10 @@ const useUpstreamCSVUpload = (buildings = []) => {
         'purchased goods': 'purchasedGoods',
         'purchased services': 'purchasedServices',
       };
-      
+
       const lowerCategory = cleanedRow.transportationcategory.toLowerCase();
       const mappedCategory = categoryMap[lowerCategory];
-      
+
       if (!mappedCategory) {
         errors.push(`Invalid transportation category "${cleanedRow.transportationcategory}". Expected "Purchased Goods" or "Purchased Services"`);
       } else {
@@ -1823,25 +1833,44 @@ const useUpstreamCSVUpload = (buildings = []) => {
       if (!cleanedRow.vehiclecategory) {
         errors.push('Vehicle category is required for purchased goods');
       } else {
-        const validVehicleCategories = vehicleCategoryOptions.map(v => v.value);
-        const matched = validVehicleCategories.find(v =>
-          v.toLowerCase() === cleanedRow.vehiclecategory.toLowerCase()
+        const trimmedCategory = cleanedRow.vehiclecategory.toString().trim();
+
+        // First try to find by value (case-insensitive)
+        let matched = vehicleCategoryOptions.find(v =>
+          v.value.toLowerCase() === trimmedCategory.toLowerCase()
         );
+
+        // If not found, try to find by label (case-insensitive)
         if (!matched) {
-          errors.push(`Invalid vehicle category "${cleanedRow.vehiclecategory}"`);
+          matched = vehicleCategoryOptions.find(v =>
+            v.label.toLowerCase() === trimmedCategory.toLowerCase()
+          );
+        }
+
+        if (!matched) {
+          errors.push(`Invalid vehicle category "${cleanedRow.vehiclecategory}". Valid options: ${vehicleCategoryOptions.map(v => v.label).join(', ')}`);
         } else {
-          cleanedRow.vehiclecategory = matched;
+          cleanedRow.vehiclecategory = matched.value;
         }
       }
     }
 
     if (cleanedRow.vehiclecategory && cleanedRow.vehicletype) {
       const validTypes = vehicleTypeOptions[cleanedRow.vehiclecategory] || [];
-      const matched = validTypes.find(t =>
-        t.value.toLowerCase() === cleanedRow.vehicletype.toLowerCase()
+      const trimmedType = cleanedRow.vehicletype.toString().trim();
+
+      let matched = validTypes.find(t =>
+        t.value.toLowerCase() === trimmedType.toLowerCase()
       );
+
+      if (!matched) {
+        matched = validTypes.find(t =>
+          t.label?.toLowerCase() === trimmedType.toLowerCase()
+        );
+      }
+
       if (validTypes.length > 0 && !matched) {
-        errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for category "${cleanedRow.vehiclecategory}"`);
+        errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for category "${cleanedRow.vehiclecategory}". Valid options: ${validTypes.map(t => t.label || t.value).join(', ')}`);
       } else if (matched) {
         cleanedRow.vehicletype = matched.value;
       }
@@ -1904,13 +1933,13 @@ const useUpstreamCSVUpload = (buildings = []) => {
 
     if (cleanedRow.postingdate) {
       const isoDate = parseDateToISO(cleanedRow.postingdate);
-      
+
       if (!isoDate) {
         errors.push(`Invalid date format "${cleanedRow.postingdate}". Please use DD/MM/YYYY format (e.g., 17/02/2026)`);
       } else {
         const datePart = isoDate.split('T')[0];
         const date = new Date(datePart);
-        
+
         if (isNaN(date.getTime())) {
           errors.push(`Invalid date "${cleanedRow.postingdate}"`);
         } else if (date > new Date()) {
@@ -1932,7 +1961,7 @@ const useUpstreamCSVUpload = (buildings = []) => {
     }
 
     return errors;
-  }, [buildings, parseDateToISO]);
+  }, [buildings, parseDateToISO, normalizeHeader]);
 
   // Transform row to API payload
   const transformToPayload = useCallback((row) => {
@@ -1983,7 +2012,7 @@ const useUpstreamCSVUpload = (buildings = []) => {
   const handleFileSelect = async (file) => {
     const fileExtension = file.name.split('.').pop().toLowerCase();
     const isValidFile = ['csv', 'xlsx', 'xls'].includes(fileExtension);
-    
+
     if (!isValidFile) {
       toast.error('Please select a CSV or Excel file');
       console.error('Invalid file type selected:', file.name);
@@ -2002,7 +2031,7 @@ const useUpstreamCSVUpload = (buildings = []) => {
       } else {
         data = await parseExcel(file);
       }
-      
+
       if (!data || data.length === 0) {
         toast.error('No data found in file');
         return null;
@@ -2140,95 +2169,92 @@ const useUpstreamCSVUpload = (buildings = []) => {
     });
   };
 
-  // Download template with friendly headers
-// In useUpstreamCSVUpload.js, update the downloadTemplate function:
+  // Download template
+  const downloadTemplate = useCallback(() => {
+    const currentDate = new Date();
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const year = currentDate.getFullYear();
+    const formattedDate = `${day}/${month}/${year}`;
 
-const downloadTemplate = useCallback(() => {
-  const currentDate = new Date();
-  const day = String(currentDate.getDate()).padStart(2, '0');
-  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-  const year = currentDate.getFullYear();
-  const formattedDate = `${day}/${month}/${year}`;
+    const headers = [
+      'Building Code',
+      'Stakeholder',
+      'Transportation and Distribution Category',
+      'Purchased Product Activity Type',
+      'Purchased Goods Type',
+      'Transportation Vehicle Category',
+      'Transportation Vehicle Type',
+      'Weight Loaded (tonnes)',
+      'Distance Travelled (km)',
+      'Amount Spent ($)',
+      'Unit',
+      'Quality Control',
+      'Remarks',
+      'Posting Date'
+    ];
 
-  const headers = [
-    'Building Code',
-    'Stakeholder',
-    'Transportation and Distribution Category',
-    'Purchased Product Activity Type',
-    'Purchased Goods Type',
-    'Transportation Vehicle Category',
-    'Transportation Vehicle Type',
-    'Weight Loaded',
-    'Distance Travelled',
-    'Amount Spent',
-    'Unit',
-    'Quality Control',
-    'Remarks',
-    'Posting Date'
-  ];
+    const exampleRows = [
+      [
+        'BLD-8182',
+        'Assembly',
+        'Purchased Goods',
+        'Raw Materials',
+        'Petrochemicals',
+        'Freight Flights',
+        'International',
+        '100',
+        '500',
+        '',
+        '',
+        'Good',
+        'Steel shipment',
+        formattedDate
+      ],
+      [
+        'BLD-1147',
+        'Assembly',
+        'Purchased Services',
+        'Warehousing and support services for transportation',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '5000',
+        'USD',
+        'Fair',
+        'Warehouse services',
+        formattedDate
+      ]
+    ];
 
-  const exampleRows = [
-    [
-      'BLD-8182',
-      'Assembly',
-      'Purchased Goods',
-      'Raw Materials',
-      'Petrochemicals',
-      'freightFlights',
-      'International',
-      '100',
-      '500',
-      '',
-      '',
-      'Good',
-      'Steel shipment',
-      formattedDate
-    ],
-    [
-      'BLD-1147',
-      'Assembly',
-      'Purchased Services',
-      'Warehousing and support services for transportation',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '5000',
-      'USD',
-      'Fair',
-      'Warehouse services',
-      formattedDate
-    ]
-  ];
+    const worksheetData = [
+      headers,
+      ...exampleRows,
+    ];
 
-  const worksheetData = [
-    headers,
-    ...exampleRows,
-  ];
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-  const workbook = XLSX.utils.book_new();
-  const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-  
-  const colWidths = headers.map(header => ({
-    wch: Math.min(Math.max(header.length, 15), 45)
-  }));
-  worksheet['!cols'] = colWidths;
+    const colWidths = headers.map(header => ({
+      wch: Math.min(Math.max(header.length, 15), 45)
+    }));
+    worksheet['!cols'] = colWidths;
 
-  const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
-  for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
-    const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-    if (!worksheet[cellAddress]) continue;
-    worksheet[cellAddress].s = {
-      font: { bold: true, sz: 12 },
-      fill: { fgColor: { rgb: "E0E0E0" } }
-    };
-  }
+    const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+      if (!worksheet[cellAddress]) continue;
+      worksheet[cellAddress].s = {
+        font: { bold: true, sz: 12 },
+        fill: { fgColor: { rgb: "E0E0E0" } }
+      };
+    }
 
-  // FIXED: Sheet name shortened to 31 characters or less
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Upstream Transport Template');
-  XLSX.writeFile(workbook, 'upstream_transportation_template.xlsx');
-}, []);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Upstream Transport Template');
+    XLSX.writeFile(workbook, 'upstream_transportation_template.xlsx');
+  }, []);
 
   return {
     csvState,
@@ -2240,4 +2266,3 @@ const downloadTemplate = useCallback(() => {
 };
 
 export default useUpstreamCSVUpload;
-
