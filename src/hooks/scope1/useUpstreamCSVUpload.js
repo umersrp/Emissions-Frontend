@@ -1425,6 +1425,24 @@ const useUpstreamCSVUpload = (buildings = []) => {
     parsedData: null,
   });
 
+   const isNA = useCallback((value) => {
+    if (!value) return true;
+    const val = value.toString().toLowerCase().trim();
+    return val === 'n/a' || val === 'na' || val === '';
+  }, []);
+
+  const cleanNumberValue = useCallback((value) => {
+    if (isNA(value)) return null;
+    const num = Number(value);
+    return isNaN(num) ? null : num;
+  }, [isNA]);
+
+  const cleanStringValue = useCallback((value) => {
+    if (isNA(value)) return null;
+    return value.toString().trim();
+  }, [isNA]);
+
+
   // Helper function to normalize headers
   const normalizeHeader = useCallback((header) => {
     return header
@@ -1690,278 +1708,318 @@ const useUpstreamCSVUpload = (buildings = []) => {
   }, [cleanCSVValue]);
 
   // Validate each row
-  const validateRow = useCallback((row, index) => {
-    const errors = [];
+// Validate each row
+const validateRow = useCallback((row, index) => {
+  const errors = [];
 
-    const headerMapping = {
-      'buildingcode': 'buildingcode',
-      'building': 'buildingcode',
-      'buildingcode': 'buildingcode',
-      'stakeholder': 'stakeholder',
-      'stakeholderdepartment': 'stakeholder',
-      'department': 'stakeholder',
-      'transportationanddistributioncategory': 'transportationcategory',
-      'transportationcategory': 'transportationcategory',
-      'category': 'transportationcategory',
-      'purchasedproductactivitytype': 'activitytype',
-      'activitytype': 'activitytype',
-      'activity': 'activitytype',
-      'purchasedgoodstype': 'purchasedgoodstype',
-      'goodstype': 'purchasedgoodstype',
-      'transportationvehiclecategory': 'vehiclecategory',
-      'vehiclecategory': 'vehiclecategory',
-      'transportationvehicletype': 'vehicletype',
-      'vehicletype': 'vehicletype',
-      'weightloadedtonnes': 'weightloaded',
-      'weight': 'weightloaded',
-      'distancetravelledkm': 'distancetravelled',
-      'distance': 'distancetravelled',
-      'amountspent': 'amountspent',
-      'amount': 'amountspent',
-      'spent': 'amountspent',
-      'unit': 'unit',
-      'qualitycontrol': 'qualitycontrol',
-      'quality': 'qualitycontrol',
-      'qc': 'qualitycontrol',
-      'remarks': 'remarks',
-      'remark': 'remarks',
-      'note': 'remarks',
-      'postingdate': 'postingdate',
-      'date': 'postingdate',
+  // ========== SIMPLE HELPER FUNCTIONS ==========
+  const isNA = (value) => {
+    if (!value) return true;
+    const val = value.toString().toLowerCase().trim();
+    return val === 'n/a' || val === 'na' || val === '';
+  };
+
+  const cleanValue = (value) => {
+    if (isNA(value)) return null;
+    return value.toString().trim();
+  };
+
+  const cleanNumber = (value, fieldName) => {
+    if (isNA(value)) return null;
+    
+    const num = Number(value);
+    if (isNaN(num)) {
+      errors.push(`${fieldName} must be a number, got "${value}"`);
+      return null;
+    }
+    if (num < 0) {
+      errors.push(`${fieldName} cannot be negative`);
+      return null;
+    }
+    return num;
+  };
+  // =============================================
+
+  const headerMapping = {
+    'buildingcode': 'buildingcode',
+    'building': 'buildingcode',
+    'buildingcode': 'buildingcode',
+    'stakeholder': 'stakeholder',
+    'stakeholderdepartment': 'stakeholder',
+    'department': 'stakeholder',
+    'transportationanddistributioncategory': 'transportationcategory',
+    'transportationcategory': 'transportationcategory',
+    'category': 'transportationcategory',
+    'purchasedproductactivitytype': 'activitytype',
+    'activitytype': 'activitytype',
+    'activity': 'activitytype',
+    'purchasedgoodstype': 'purchasedgoodstype',
+    'goodstype': 'purchasedgoodstype',
+    'transportationvehiclecategory': 'vehiclecategory',
+    'vehiclecategory': 'vehiclecategory',
+    'transportationvehicletype': 'vehicletype',
+    'vehicletype': 'vehicletype',
+    'weightloadedtonnes': 'weightloaded',
+    'weight': 'weightloaded',
+    'distancetravelledkm': 'distancetravelled',
+    'distance': 'distancetravelled',
+    'amountspent': 'amountspent',
+    'amount': 'amountspent',
+    'spent': 'amountspent',
+    'unit': 'unit',
+    'qualitycontrol': 'qualitycontrol',
+    'quality': 'qualitycontrol',
+    'qc': 'qualitycontrol',
+    'remarks': 'remarks',
+    'remark': 'remarks',
+    'note': 'remarks',
+    'postingdate': 'postingdate',
+    'date': 'postingdate',
+  };
+
+  const cleanedRow = {};
+
+  // Use the normalizeHeader helper
+  Object.keys(row).forEach(key => {
+    const normalizedKey = normalizeHeader(key);
+    const mappedKey = headerMapping[normalizedKey] || normalizedKey;
+    cleanedRow[mappedKey] = row[key]?.toString().trim() || '';
+  });
+
+  console.log(`Validating row ${index + 1}:`, cleanedRow);
+
+  const requiredFields = [
+    'buildingcode', 'stakeholder', 'transportationcategory', 'activitytype',
+    'qualitycontrol', 'postingdate'
+  ];
+
+  requiredFields.forEach(field => {
+    const val = cleanedRow[field];
+    if (isNA(val)) {
+      errors.push(`${field} is required`);
+    }
+  });
+
+  if (errors.length > 0) {
+    return errors;
+  }
+
+  // Building validation
+  if (!isNA(cleanedRow.buildingcode) && buildings.length > 0) {
+    const buildingExists = buildings.some(b =>
+      b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
+    );
+    if (!buildingExists) {
+      errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
+    }
+  }
+
+  // Stakeholder validation
+  if (!isNA(cleanedRow.stakeholder)) {
+    const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
+    const matched = validStakeholders.find(s =>
+      s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
+    );
+    if (!matched) {
+      errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
+    } else {
+      cleanedRow.stakeholder = matched;
+    }
+  } else {
+    errors.push('Stakeholder is required');
+  }
+
+  // Transportation Category validation
+  if (!isNA(cleanedRow.transportationcategory)) {
+    const categoryMap = {
+      'purchased goods': 'purchasedGoods',
+      'purchased services': 'purchasedServices',
     };
 
-    const cleanedRow = {};
+    const lowerCategory = cleanedRow.transportationcategory.toLowerCase();
+    const mappedCategory = categoryMap[lowerCategory];
 
-    // Use the normalizeHeader helper
-    Object.keys(row).forEach(key => {
-      const normalizedKey = normalizeHeader(key);
-      const mappedKey = headerMapping[normalizedKey] || normalizedKey;
-      cleanedRow[mappedKey] = row[key]?.toString().trim() || '';
-    });
-
-    console.log(`Validating row ${index + 1}:`, cleanedRow);
-
-    const requiredFields = [
-      'buildingcode', 'stakeholder', 'transportationcategory', 'activitytype',
-      'qualitycontrol', 'postingdate'
-    ];
-
-    requiredFields.forEach(field => {
-      if (!cleanedRow[field] || cleanedRow[field] === '') {
-        errors.push(`${field} is required`);
-      }
-    });
-
-    if (errors.length > 0) {
-      return errors;
+    if (!mappedCategory) {
+      errors.push(`Invalid transportation category "${cleanedRow.transportationcategory}". Expected "Purchased Goods" or "Purchased Services"`);
+    } else {
+      cleanedRow.transportationcategory = mappedCategory;
     }
+  } else {
+    errors.push('Transportation category is required');
+  }
 
-    if (cleanedRow.buildingcode && buildings.length > 0) {
-      const buildingExists = buildings.some(b =>
-        b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
-      );
-      if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
-      }
-    }
-
-    if (cleanedRow.stakeholder) {
-      const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-      const matched = validStakeholders.find(s =>
-        s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-      );
-      if (!matched) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
-      } else {
-        cleanedRow.stakeholder = matched;
-      }
-    }
-
-    if (cleanedRow.transportationcategory) {
-      const categoryMap = {
-        'purchased goods': 'purchasedGoods',
-        'purchased services': 'purchasedServices',
-      };
-
-      const lowerCategory = cleanedRow.transportationcategory.toLowerCase();
-      const mappedCategory = categoryMap[lowerCategory];
-
-      if (!mappedCategory) {
-        errors.push(`Invalid transportation category "${cleanedRow.transportationcategory}". Expected "Purchased Goods" or "Purchased Services"`);
-      } else {
-        cleanedRow.transportationcategory = mappedCategory;
-      }
-    }
-
-    if (cleanedRow.transportationcategory && cleanedRow.activitytype) {
-      if (cleanedRow.transportationcategory === 'purchasedGoods') {
-        const validActivities = purchasedGoodsActivityOptions.map(a => a.value);
-        const matchedActivity = validActivities.find(a =>
-          a.toLowerCase() === cleanedRow.activitytype.toLowerCase()
-        );
-        if (!matchedActivity) {
-          errors.push(`Invalid activity type "${cleanedRow.activitytype}" for purchased goods. Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
-        } else {
-          cleanedRow.activitytype = matchedActivity;
-        }
-      } else if (cleanedRow.transportationcategory === 'purchasedServices') {
-        const validActivities = purchasedServicesActivityOptions.map(a => a.value);
-        const matchedActivity = validActivities.find(a =>
-          a.toLowerCase() === cleanedRow.activitytype.toLowerCase()
-        );
-        if (!matchedActivity) {
-          errors.push(`Invalid activity type "${cleanedRow.activitytype}" for purchased services. Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
-        } else {
-          cleanedRow.activitytype = matchedActivity;
-        }
-      }
-    }
-
-    if (cleanedRow.activitytype && cleanedRow.purchasedgoodstype) {
-      const goodsOptions = purchasedGoodsTypeMapping[cleanedRow.activitytype] || [];
-      const matchedGoods = goodsOptions.find(g =>
-        g.value.toLowerCase() === cleanedRow.purchasedgoodstype.toLowerCase()
-      );
-      if (goodsOptions.length > 0 && !matchedGoods) {
-        errors.push(`Invalid purchased goods type "${cleanedRow.purchasedgoodstype}" for activity "${cleanedRow.activitytype}"`);
-      } else if (matchedGoods) {
-        cleanedRow.purchasedgoodstype = matchedGoods.value;
-      }
-    }
-
+  // Activity Type validation
+  if (!isNA(cleanedRow.activitytype) && cleanedRow.transportationcategory) {
     if (cleanedRow.transportationcategory === 'purchasedGoods') {
-      if (!cleanedRow.vehiclecategory) {
-        errors.push('Vehicle category is required for purchased goods');
+      const validActivities = purchasedGoodsActivityOptions.map(a => a.value);
+      const matchedActivity = validActivities.find(a =>
+        a.toLowerCase() === cleanedRow.activitytype.toLowerCase()
+      );
+      if (!matchedActivity) {
+        errors.push(`Invalid activity type "${cleanedRow.activitytype}" for purchased goods. Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
       } else {
-        const trimmedCategory = cleanedRow.vehiclecategory.toString().trim();
-
-        // First try to find by value (case-insensitive)
-        let matched = vehicleCategoryOptions.find(v =>
-          v.value.toLowerCase() === trimmedCategory.toLowerCase()
-        );
-
-        // If not found, try to find by label (case-insensitive)
-        if (!matched) {
-          matched = vehicleCategoryOptions.find(v =>
-            v.label.toLowerCase() === trimmedCategory.toLowerCase()
-          );
-        }
-
-        if (!matched) {
-          errors.push(`Invalid vehicle category "${cleanedRow.vehiclecategory}". Valid options: ${vehicleCategoryOptions.map(v => v.label).join(', ')}`);
-        } else {
-          cleanedRow.vehiclecategory = matched.value;
-        }
+        cleanedRow.activitytype = matchedActivity;
+      }
+    } else if (cleanedRow.transportationcategory === 'purchasedServices') {
+      const validActivities = purchasedServicesActivityOptions.map(a => a.value);
+      const matchedActivity = validActivities.find(a =>
+        a.toLowerCase() === cleanedRow.activitytype.toLowerCase()
+      );
+      if (!matchedActivity) {
+        errors.push(`Invalid activity type "${cleanedRow.activitytype}" for purchased services. Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
+      } else {
+        cleanedRow.activitytype = matchedActivity;
       }
     }
+  } else {
+    errors.push('Activity type is required');
+  }
 
-    if (cleanedRow.vehiclecategory && cleanedRow.vehicletype) {
-      const validTypes = vehicleTypeOptions[cleanedRow.vehiclecategory] || [];
-      const trimmedType = cleanedRow.vehicletype.toString().trim();
+  // Purchased Goods Type validation
+  if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
+    const goodsOptions = purchasedGoodsTypeMapping[cleanedRow.activitytype] || [];
+    const matchedGoods = goodsOptions.find(g =>
+      g.value.toLowerCase() === cleanedRow.purchasedgoodstype.toLowerCase()
+    );
+    if (goodsOptions.length > 0 && !matchedGoods) {
+      errors.push(`Invalid purchased goods type "${cleanedRow.purchasedgoodstype}" for activity "${cleanedRow.activitytype}"`);
+    } else if (matchedGoods) {
+      cleanedRow.purchasedgoodstype = matchedGoods.value;
+    }
+  }
 
-      let matched = validTypes.find(t =>
-        t.value.toLowerCase() === trimmedType.toLowerCase()
+  // Vehicle Category validation for purchasedGoods
+  if (cleanedRow.transportationcategory === 'purchasedGoods') {
+    if (isNA(cleanedRow.vehiclecategory)) {
+      errors.push('Vehicle category is required for purchased goods');
+    } else {
+      const trimmedCategory = cleanedRow.vehiclecategory.toString().trim();
+
+      let matched = vehicleCategoryOptions.find(v =>
+        v.value.toLowerCase() === trimmedCategory.toLowerCase()
       );
 
       if (!matched) {
-        matched = validTypes.find(t =>
-          t.label?.toLowerCase() === trimmedType.toLowerCase()
+        matched = vehicleCategoryOptions.find(v =>
+          v.label.toLowerCase() === trimmedCategory.toLowerCase()
         );
       }
 
-      if (validTypes.length > 0 && !matched) {
-        errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for category "${cleanedRow.vehiclecategory}". Valid options: ${validTypes.map(t => t.label || t.value).join(', ')}`);
-      } else if (matched) {
-        cleanedRow.vehicletype = matched.value;
-      }
-    }
-
-    if (cleanedRow.transportationcategory === 'purchasedGoods') {
-      if (cleanedRow.weightloaded) {
-        const num = Number(cleanedRow.weightloaded);
-        if (isNaN(num)) {
-          errors.push(`Weight loaded must be a number, got "${cleanedRow.weightloaded}"`);
-        } else if (num < 0) {
-          errors.push('Weight loaded cannot be negative');
-        } else {
-          cleanedRow.weightloaded = num.toString();
-        }
-      } else {
-        errors.push('Weight loaded is required for purchased goods');
-      }
-
-      if (cleanedRow.distancetravelled) {
-        const num = Number(cleanedRow.distancetravelled);
-        if (isNaN(num)) {
-          errors.push(`Distance travelled must be a number, got "${cleanedRow.distancetravelled}"`);
-        } else if (num < 0) {
-          errors.push('Distance travelled cannot be negative');
-        } else {
-          cleanedRow.distancetravelled = num.toString();
-        }
-      } else {
-        errors.push('Distance travelled is required for purchased goods');
-      }
-    }
-
-    if (cleanedRow.transportationcategory === 'purchasedServices') {
-      if (cleanedRow.amountspent) {
-        const num = Number(cleanedRow.amountspent);
-        if (isNaN(num)) {
-          errors.push(`Amount spent must be a number, got "${cleanedRow.amountspent}"`);
-        } else if (num < 0) {
-          errors.push('Amount spent cannot be negative');
-        } else {
-          cleanedRow.amountspent = num.toString();
-        }
-      } else {
-        errors.push('Amount spent is required for purchased services');
-      }
-    }
-
-    if (cleanedRow.qualitycontrol) {
-      const validQC = processQualityControlOptions.map(q => q.value);
-      const matched = validQC.find(q =>
-        q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
-      );
       if (!matched) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+        errors.push(`Invalid vehicle category "${cleanedRow.vehiclecategory}". Valid options: ${vehicleCategoryOptions.map(v => v.label).join(', ')}`);
       } else {
-        cleanedRow.qualitycontrol = matched;
+        cleanedRow.vehiclecategory = matched.value;
       }
     }
+  }
 
-    if (cleanedRow.postingdate) {
-      const isoDate = parseDateToISO(cleanedRow.postingdate);
+  // Vehicle Type validation
+  if (cleanedRow.vehiclecategory && !isNA(cleanedRow.vehicletype)) {
+    const validTypes = vehicleTypeOptions[cleanedRow.vehiclecategory] || [];
+    const trimmedType = cleanedRow.vehicletype.toString().trim();
 
-      if (!isoDate) {
-        errors.push(`Invalid date format "${cleanedRow.postingdate}". Please use DD/MM/YYYY format (e.g., 17/02/2026)`);
+    let matched = validTypes.find(t =>
+      t.value.toLowerCase() === trimmedType.toLowerCase()
+    );
+
+    if (!matched) {
+      matched = validTypes.find(t =>
+        t.label?.toLowerCase() === trimmedType.toLowerCase()
+      );
+    }
+
+    if (validTypes.length > 0 && !matched) {
+      errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for category "${cleanedRow.vehiclecategory}". Valid options: ${validTypes.map(t => t.label || t.value).join(', ')}`);
+    } else if (matched) {
+      cleanedRow.vehicletype = matched.value;
+    }
+  }
+
+  // Numeric validations for purchased goods
+  if (cleanedRow.transportationcategory === 'purchasedGoods') {
+    // Weight Loaded validation
+    const weightLoaded = cleanNumber(cleanedRow.weightloaded, 'Weight loaded');
+    if (weightLoaded === null && !isNA(cleanedRow.weightloaded)) {
+      // Error already pushed by cleanNumber
+    } else if (weightLoaded === null && isNA(cleanedRow.weightloaded)) {
+      errors.push('Weight loaded is required for purchased goods');
+    } else {
+      cleanedRow.weightloaded = weightLoaded;
+    }
+
+    // Distance Travelled validation
+    const distanceTravelled = cleanNumber(cleanedRow.distancetravelled, 'Distance travelled');
+    if (distanceTravelled === null && !isNA(cleanedRow.distancetravelled)) {
+      // Error already pushed by cleanNumber
+    } else if (distanceTravelled === null && isNA(cleanedRow.distancetravelled)) {
+      errors.push('Distance travelled is required for purchased goods');
+    } else {
+      cleanedRow.distancetravelled = distanceTravelled;
+    }
+  }
+
+  // Numeric validations for purchased services
+  if (cleanedRow.transportationcategory === 'purchasedServices') {
+    const amountSpent = cleanNumber(cleanedRow.amountspent, 'Amount spent');
+    if (amountSpent === null && !isNA(cleanedRow.amountspent)) {
+      // Error already pushed by cleanNumber
+    } else if (amountSpent === null && isNA(cleanedRow.amountspent)) {
+      errors.push('Amount spent is required for purchased services');
+    } else {
+      cleanedRow.amountspent = amountSpent;
+    }
+  }
+
+  // Quality Control validation
+  if (!isNA(cleanedRow.qualitycontrol)) {
+    const validQC = processQualityControlOptions.map(q => q.value);
+    const matched = validQC.find(q =>
+      q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
+    );
+    if (!matched) {
+      errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+    } else {
+      cleanedRow.qualitycontrol = matched;
+    }
+  } else {
+    errors.push('Quality control is required');
+  }
+
+  // Date validation
+  if (!isNA(cleanedRow.postingdate)) {
+    const isoDate = parseDateToISO(cleanedRow.postingdate);
+
+    if (!isoDate) {
+      errors.push(`Invalid date format "${cleanedRow.postingdate}". Please use DD/MM/YYYY format (e.g., 17/02/2026)`);
+    } else {
+      const datePart = isoDate.split('T')[0];
+      const date = new Date(datePart);
+
+      if (isNaN(date.getTime())) {
+        errors.push(`Invalid date "${cleanedRow.postingdate}"`);
+      } else if (date > new Date()) {
+        errors.push('Date cannot be in the future');
       } else {
-        const datePart = isoDate.split('T')[0];
-        const date = new Date(datePart);
-
-        if (isNaN(date.getTime())) {
-          errors.push(`Invalid date "${cleanedRow.postingdate}"`);
-        } else if (date > new Date()) {
-          errors.push('Date cannot be in the future');
-        } else {
-          cleanedRow.postingdate = isoDate;
-        }
+        cleanedRow.postingdate = isoDate;
       }
     }
+  } else {
+    errors.push('Posting date is required');
+  }
 
-    if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
-      errors.push('Remarks cannot exceed 500 characters');
-    }
+  // Remarks validation
+  if (!isNA(cleanedRow.remarks) && cleanedRow.remarks.length > 500) {
+    errors.push('Remarks cannot exceed 500 characters');
+  }
 
-    if (errors.length === 0) {
-      Object.keys(cleanedRow).forEach(key => {
-        row[key] = cleanedRow[key];
-      });
-    }
+  if (errors.length === 0) {
+    Object.keys(cleanedRow).forEach(key => {
+      row[key] = cleanedRow[key];
+    });
+  }
 
-    return errors;
-  }, [buildings, parseDateToISO, normalizeHeader]);
+  return errors;
+}, [buildings, parseDateToISO, normalizeHeader]);
 
   // Transform row to API payload
   const transformToPayload = useCallback((row) => {
@@ -1989,22 +2047,22 @@ const useUpstreamCSVUpload = (buildings = []) => {
     };
 
     return {
-      buildingCode: row.buildingcode,
-      stakeholderDepartment: row.stakeholder,
-      transportationCategory: row.transportationcategory,
-      activityType: row.activitytype,
-      purchasedGoodsType: row.purchasedgoodstype || '',
-      vehicleCategory: row.vehiclecategory || '',
-      vehicleType: row.vehicletype || '',
-      weightLoaded: row.weightloaded || '',
-      distanceTravelled: row.distancetravelled || '',
-      amountSpent: row.amountspent || '',
-      unit: row.transportationcategory === 'purchasedServices' ? 'USD' : '',
-      qualityControl: row.qualitycontrol,
-      remarks: capitalizeFirstLetter(row.remarks || ''),
-      calculatedEmissionKgCo2e: calculatedEmissions.calculatedEmissionKgCo2e || 0,
-      calculatedEmissionTCo2e: calculatedEmissions.calculatedEmissionTCo2e || 0,
-      postingDate: row.postingdate,
+    buildingCode: row.buildingcode,
+    stakeholderDepartment: row.stakeholder,
+    transportationCategory: row.transportationcategory,
+    activityType: row.activitytype,
+    purchasedGoodsType: cleanStringValue(row.purchasedgoodstype) || '',
+    vehicleCategory: cleanStringValue(row.vehiclecategory) || '',
+    vehicleType: cleanStringValue(row.vehicletype) || '',
+    weightLoaded: cleanNumberValue(row.weightloaded),
+    distanceTravelled: cleanNumberValue(row.distancetravelled),
+    amountSpent: cleanNumberValue(row.amountspent),
+    unit: row.transportationcategory === 'purchasedServices' ? 'USD' : '',
+    qualityControl: row.qualitycontrol,
+    remarks: capitalizeFirstLetter(cleanStringValue(row.remarks) || ''),
+    calculatedEmissionKgCo2e: calculatedEmissions.calculatedEmissionKgCo2e || 0,
+    calculatedEmissionTCo2e: calculatedEmissions.calculatedEmissionTCo2e || 0,
+    postingDate: row.postingdate,
     };
   }, []);
 
