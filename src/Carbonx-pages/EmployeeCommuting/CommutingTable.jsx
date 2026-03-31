@@ -148,11 +148,11 @@ const GroupRow = ({ subject, recordCount, isExpanded, onToggle, groupTotals, dis
                             ({recordCount} record{recordCount !== 1 ? 's' : ''})
                         </span>
                     </div>
-                    <div className="flex space-x-6">
+                    {/* <div className="flex space-x-6">
                         <span className="text-sm">Total Distance: {groupTotals.totalDistance} km</span>
                         <span className="text-sm">Total Emissions: {groupTotals.totalEmissionsKg} kgCO₂e</span>
                         <span className="text-sm">Total: {groupTotals.totalEmissionsTonnes} tCO₂e</span>
-                    </div>
+                    </div> */}
                 </div>
             </td>
         </tr>

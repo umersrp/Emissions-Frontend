@@ -106,6 +106,285 @@ const ErrorMessage = ({ message }) => {
     );
 };
 
+// const AlreadySubmittedModal = ({ isOpen, onClose, message }) => {
+//   const navigate = useNavigate();
+  
+//   if (!isOpen) return null;
+  
+//   // Determine if it's expired vs already submitted
+//   const isExpired = message?.toLowerCase().includes('expired');
+//   const title = isExpired ? "Form Expired" : "Form Already Submitted";
+//   const iconColor = isExpired ? "bg-yellow-100" : "bg-red-100";
+//   const iconPathColor = isExpired ? "text-yellow-600" : "text-red-600";
+  
+//   return (
+//     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+//       <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+//         <div className="p-6">
+//           <div className="flex items-center justify-center mb-4">
+//             <div className={`${iconColor} rounded-full p-3`}>
+//               <svg className={`h-10 w-10 ${iconPathColor}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                 {isExpired ? (
+//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                 ) : (
+//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+//                 )}
+//               </svg>
+//             </div>
+//           </div>
+          
+//           <h3 className="text-xl font-bold text-gray-900 text-center mb-3">
+//             {title}
+//           </h3>
+          
+//           <p className="text-gray-600 text-center mb-6">
+//             {message || (isExpired 
+//               ? "This form has expired and can no longer be submitted." 
+//               : "This form has already been submitted. You cannot submit it again.")}
+//           </p>
+          
+//           <div className="flex justify-center space-x-3">
+           
+//             <button
+//               onClick={() => {
+//                 if (onClose) onClose();
+//                 window.location.reload();
+//               }}
+//               className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+//             >
+//               Refresh
+//             </button>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// ADD THIS NEW COMPONENT HERE - AFTER ErrorMessage and BEFORE EmployeeCommutingForm
+const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate }) => {
+  const navigate = useNavigate();
+  
+  if (!isOpen) return null;
+  
+  // Format dates nicely
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric'
+    });
+  };
+  
+  // Determine the configuration based on status
+  const getConfig = () => {
+    if (status === 'not-started') {
+      return {
+        title: "Form Not Yet Available",
+        icon: (
+          <svg className="h-10 w-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        ),
+        bgColor: "bg-yellow-100",
+        iconBgColor: "bg-yellow-100",
+        buttonClass: "bg-yellow-600 hover:bg-yellow-700",
+        defaultMessage: "This form has not started yet."
+      };
+    } else if (status === 'expired') {
+      return {
+        title: "Form Expired",
+        icon: (
+          <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        ),
+        bgColor: "bg-red-100",
+        iconBgColor: "bg-red-100",
+        buttonClass: "bg-red-600 hover:bg-red-700",
+        defaultMessage: "This form has expired and can no longer be submitted."
+      };
+    } else if (status === 'already-submitted') {
+      return {
+        title: "Form Already Submitted",
+        icon: (
+          <svg className="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        ),
+        bgColor: "bg-green-100",
+        iconBgColor: "bg-green-100",
+        buttonClass: "bg-green-600 hover:bg-green-700",
+        defaultMessage: "You have already submitted this form. Thank you for your response!"
+      };
+    } else {
+      // Fallback for unknown status - check message text
+      const msg = message || '';
+      if (msg.toLowerCase().includes('not started')) {
+        return {
+          title: "Form Not Yet Available",
+          icon: (
+            <svg className="h-10 w-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
+          bgColor: "bg-yellow-100",
+          iconBgColor: "bg-yellow-100",
+          buttonClass: "bg-yellow-600 hover:bg-yellow-700",
+          defaultMessage: msg
+        };
+      } else if (msg.toLowerCase().includes('expired')) {
+        return {
+          title: "Form Expired",
+          icon: (
+            <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
+          bgColor: "bg-red-100",
+          iconBgColor: "bg-red-100",
+          buttonClass: "bg-red-600 hover:bg-red-700",
+          defaultMessage: msg
+        };
+      } else {
+        return {
+          title: "Form Already Submitted",
+          icon: (
+            <svg className="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
+          bgColor: "bg-blue-100",
+          iconBgColor: "bg-blue-100",
+          buttonClass: "bg-blue-600 hover:bg-blue-700",
+          defaultMessage: msg || "This form has already been submitted."
+        };
+      }
+    }
+  };
+  
+  const config = getConfig();
+  
+  // Get detailed message based on status
+  const getDetailedMessage = () => {
+    if (status === 'not-started') {
+      return (
+        <div className="space-y-3">
+          <p className="text-gray-700 text-center">
+            {message || config.defaultMessage}
+          </p>
+          {startDate && (
+            <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+              <p className="text-sm font-medium text-yellow-800 mb-1">
+                📅 Submission Opens:
+              </p>
+              <p className="text-sm text-yellow-700">
+                {formatDate(startDate)}
+              </p>
+              <p className="text-xs text-yellow-600 mt-2">
+                Please check back on this date to submit your commuting data.
+              </p>
+            </div>
+          )}
+          <div className="mt-2 text-center text-sm text-gray-500">
+            You'll be able to submit your employee commuting information once the form becomes available.
+          </div>
+        </div>
+      );
+    } else if (status === 'expired') {
+      return (
+        <div className="space-y-3">
+          <p className="text-gray-700 text-center">
+            {message || config.defaultMessage}
+          </p>
+          {endDate && (
+            <div className="mt-3 p-3 bg-red-50 rounded-lg border border-red-200">
+              <p className="text-sm font-medium text-red-800 mb-1">
+                ⏰ Deadline Passed:
+              </p>
+              <p className="text-sm text-red-700">
+                {formatDate(endDate)}
+              </p>
+              <p className="text-xs text-red-600 mt-2">
+                Late submissions are not accepted for this reporting period.
+              </p>
+            </div>
+          )}
+          <div className="mt-2 text-center text-sm text-gray-500">
+            Please contact your administrator if you need assistance.
+          </div>
+        </div>
+      );
+    } else {
+      return (
+        <div className="space-y-3">
+          <p className="text-gray-700 text-center">
+            {message || config.defaultMessage}
+          </p>
+          <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+            <p className="text-sm font-medium text-green-800 mb-1">
+              ✓ Submission Confirmed
+            </p>
+            <p className="text-sm text-green-700">
+              Thank you for completing the employee commuting data collection form.
+            </p>
+            <p className="text-xs text-green-600 mt-2">
+              Your response has been recorded and will be included in the emissions calculation.
+            </p>
+          </div>
+          <div className="mt-2 text-center text-sm text-gray-500">
+            If you need to update your submission, please contact your administrator.
+          </div>
+        </div>
+      );
+    }
+  };
+  
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div className="p-6">
+          <div className="flex items-center justify-center mb-4">
+            <div className={`${config.iconBgColor} rounded-full p-3`}>
+              {config.icon}
+            </div>
+          </div>
+          
+          <h3 className="text-xl font-bold text-gray-900 text-center mb-3">
+            {config.title}
+          </h3>
+          
+          {getDetailedMessage()}
+          
+          <div className="flex justify-center space-x-3 mt-6">
+            {status === 'already-submitted' && (
+              <button
+                onClick={() => {
+                  if (onClose) onClose();
+                  navigate('/my-submissions');
+                }}
+                className={`px-4 py-2 text-white rounded-md transition-colors ${config.buttonClass}`}
+              >
+                View My Submission
+              </button>
+            )}
+            <button
+              onClick={() => {
+                if (onClose) onClose();
+                window.location.reload();
+              }}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+            >
+              Refresh
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 const EmployeeCommutingForm = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -113,6 +392,14 @@ const EmployeeCommutingForm = () => {
     const urlUserId = queryParams.get('userId');
     const [emailDocId, setEmailDocId] = useState(null);
     const [checkingSubmission, setCheckingSubmission] = useState(true);
+const [formAccessStatus, setFormAccessStatus] = useState({
+  checking: true,
+  canAccess: false,
+  message: '',
+  status: null, // 'not-started', 'expired', 'already-submitted'
+  startDate: null,
+  endDate: null
+});
     const navigate = useNavigate();
     console.log('URL UserId:', urlUserId);
 
@@ -270,6 +557,122 @@ const EmployeeCommutingForm = () => {
             return null;
         }
     };
+const checkFormAccess = async () => {
+  const currentToken = getToken();
+  const currentUserId = urlUserId || getUserIdFromToken(currentToken);
+  const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
+
+  if (!currentToken || !currentUserId || !currentEmailDocId) {
+    console.log('Missing required parameters for form access check');
+    setFormAccessStatus({
+      checking: false,
+      canAccess: true,
+      message: '',
+      status: null,
+      startDate: null,
+      endDate: null
+    });
+    return;
+  }
+
+  try {
+    console.log('Checking form access for:', { 
+      userId: currentUserId, 
+      emailDocId: currentEmailDocId 
+    });
+    
+    const response = await axios.get(
+      `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/check-access`,
+      {
+        params: {
+          emailDocId: currentEmailDocId,
+          userId: currentUserId
+        },
+        headers: {
+          Authorization: `Bearer ${currentToken}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    // If we get a successful response (200), form is available and not submitted
+    setFormAccessStatus({
+      checking: false,
+      canAccess: true,
+      message: '',
+      status: null,
+      startDate: null,
+      endDate: null
+    });
+    console.log('Form access granted - user can submit');
+    
+  } catch (error) {
+    console.error('Form access check error:', error);
+    
+    if (error.response && error.response.status === 403) {
+      const errorMessage = error.response.data?.message || '';
+      console.log('Error message received:', errorMessage);
+      
+      // Exact message matching for your three statuses
+      if (errorMessage === "Form not started yet") {
+        setFormAccessStatus({
+          checking: false,
+          canAccess: false,
+          message: errorMessage,
+          status: 'not-started',
+          startDate: error.response.data?.startDate || null,
+          endDate: error.response.data?.endDate || null
+        });
+        console.log('Form access denied - form not started yet');
+      } 
+      else if (errorMessage === "Form Expired") {
+        setFormAccessStatus({
+          checking: false,
+          canAccess: false,
+          message: errorMessage,
+          status: 'expired',
+          startDate: error.response.data?.startDate || null,
+          endDate: error.response.data?.endDate || null
+        });
+        console.log('Form access denied - form expired');
+      }
+      else if (errorMessage === "Form Already Submitted") {
+        setFormAccessStatus({
+          checking: false,
+          canAccess: false,
+          message: errorMessage,
+          status: 'already-submitted',
+          startDate: null,
+          endDate: null
+        });
+        console.log('Form access denied - already submitted');
+      }
+      else {
+        // Handle any other 403 messages as generic error
+        console.warn('Unknown 403 error message:', errorMessage);
+        setFormAccessStatus({
+          checking: false,
+          canAccess: false,
+          message: errorMessage || 'Unable to access form',
+          status: 'expired', // default to expired if unknown
+          startDate: null,
+          endDate: null
+        });
+      }
+    } else {
+      // Network or other errors - allow access as fallback
+      console.warn('Unexpected error, allowing access:', error);
+      setFormAccessStatus({
+        checking: false,
+        canAccess: true,
+        message: '',
+        status: null,
+        startDate: null,
+        endDate: null
+      });
+    }
+  }
+};
 
     // Fetch buildings from API
     const fetchBuildings = async (authToken) => {
@@ -401,7 +804,8 @@ const EmployeeCommutingForm = () => {
                 if (formUserData.email) {
                     setFormData(prev => ({
                         ...prev,
-                        submittedByEmail: formUserData.email
+                        submittedByEmail: formUserData.email,
+                        employeeID: formUserData.employeeID || formUserData.employeeId || '' 
                     }));
                 }
                 // Auto-fill department field
@@ -516,7 +920,7 @@ const EmployeeCommutingForm = () => {
             setCompanyUsersLoading(true);
 
             const response = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/auth/GetCompanyUsers`,
+                `${process.env.REACT_APP_BASE_URL}/auth/GetCompanyUsers?limit=1000`,
                 {
                     headers: {
                         Authorization: `Bearer ${authToken}`,
@@ -570,6 +974,27 @@ const EmployeeCommutingForm = () => {
         }
     }, [location.search]);
 
+    // Check if form has already been submitted
+// Check if form has already been submitted
+useEffect(() => {
+  const performAccessCheck = async () => {
+    // Wait for token to be available
+    const currentToken = getToken();
+    const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
+    
+    // Don't check until we have token and emailDocId
+    if (!currentToken || !currentEmailDocId) {
+      console.log('Waiting for token or emailDocId');
+      return;
+    }
+    
+    // Wait a moment for other data to load
+    await new Promise(resolve => setTimeout(resolve, 500));
+    await checkFormAccess();
+  };
+  
+  performAccessCheck();
+}, [token, urlToken, urlUserId, location.search]); // Add location.search as dependency
     // Update the markUserAsFilled function
     const markUserAsFilled = async (userId, token, emailDocIdToUse) => {
         if (!userId || !token) {
@@ -3004,6 +3429,61 @@ const EmployeeCommutingForm = () => {
         );
     }
 
+
+    // Show loading while checking form access
+if (formAccessStatus.checking || checkingSubmission) {
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      <Card>
+        <div className="text-center py-12">
+          <div className="flex justify-center mb-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+          <p className="text-gray-600">Checking form access...</p>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+// Show modal if form already submitted
+if (!formAccessStatus.canAccess && formAccessStatus.message) {
+  return (
+      <FormStatusModal  // ← Change this from AlreadySubmittedModal to FormStatusModal
+      isOpen={true}
+      status={formAccessStatus.status}
+      message={formAccessStatus.message}
+      startDate={formAccessStatus.startDate}
+      endDate={formAccessStatus.endDate}
+      onClose={() => {}}
+    />
+  );
+}
+
+// Show authentication error if no token
+if (!token && !urlToken && !getToken()) {
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      <Card>
+        <div className="text-center py-12">
+          <div className="text-red-500 text-5xl mb-4">⚠</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            Authentication Required
+          </h2>
+          <p className="text-gray-600 mb-8">
+            Please access this form with a valid token in the URL.
+          </p>
+          <Button
+            text="Retry Authentication"
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+            onClick={() => window.location.reload()}
+          />
+        </div>
+      </Card>
+    </div>
+  );
+}
+
     return (
         <div className="max-w-6xl mx-auto p-6">
             <Card title={"Employee Commuting Data Collection"}>
@@ -3056,7 +3536,7 @@ const EmployeeCommutingForm = () => {
                             <label className="field-label">Employee ID</label>
                             <InputGroup
                                 type="text"
-                                value={userInfo?.employeeId || ''}
+                                value={userInfo?.employeeID || formData.employeeID || ''}
                                 onChange={(e) => handleInputChange('employeeID', e.target.value)}
                                 placeholder="Enter Employee ID"
                                 className="input-field w-full"

@@ -2447,7 +2447,7 @@ const EmployeeCommutingFormCarpool = () => {
             setCompanyUsersLoading(true);
 
             const response = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/auth/GetCompanyUsers`,
+                `${process.env.REACT_APP_BASE_URL}/auth/GetCompanyUsers?limit=1000`,
                 {
                     headers: {
                         Authorization: `Bearer ${authToken}`,
