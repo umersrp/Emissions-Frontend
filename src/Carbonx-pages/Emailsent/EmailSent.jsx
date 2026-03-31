@@ -164,60 +164,60 @@ const EmailSent = () => {
             }
         }
         // ... rest of the function remains the same
-      else if (field === 'minEmployeesRequired') {
-    const newMin = Number(value);
-    const total = Number(formData.totalEmployees);
+        else if (field === 'minEmployeesRequired') {
+            const newMin = Number(value);
+            const total = Number(formData.totalEmployees);
 
-    // If total is empty or 0, don't allow setting minEmployeesRequired
-    if (!total || total === 0) {
-        setFormData(prev => ({
-            ...prev,
-            minEmployeesRequired: 0 // Keep it at 0
-        }));
-        
-        // Show a toast message
-        toast.error("Please set Total Number of Employees first", {
-            autoClose: 3000,
-            position: "top-right"
-        });
-        return;
-    }
+            // If total is empty or 0, don't allow setting minEmployeesRequired
+            if (!total || total === 0) {
+                setFormData(prev => ({
+                    ...prev,
+                    minEmployeesRequired: 0 // Keep it at 0
+                }));
 
-    // Check if newMin exceeds total
-    if (newMin > total) {
-        // Show error toast
-        // toast.error(`Minimum required (${newMin}) cannot exceed total employees (${total})`, {
-        //     autoClose: 3000,
-        //     position: "top-right"
-        // });
-        
-        // Keep the previous value
-        setFormData(prev => ({
-            ...prev,
-            minEmployeesRequired: prev.minEmployeesRequired
-        }));
-        
-        // Set error state
-        setErrors(prev => ({
-            ...prev,
-            minEmployeesRequired: ` Cannot exceed total no of employees `
-        }));
-        return;
-    }
+                // Show a toast message
+                toast.error("Please set Total Number of Employees first", {
+                    autoClose: 3000,
+                    position: "top-right"
+                });
+                return;
+            }
 
-    // If validation passes, update the value
-    setFormData(prev => ({
-        ...prev,
-        [field]: value
-    }));
+            // Check if newMin exceeds total
+            if (newMin > total) {
+                // Show error toast
+                // toast.error(`Minimum required (${newMin}) cannot exceed total employees (${total})`, {
+                //     autoClose: 3000,
+                //     position: "top-right"
+                // });
 
-    // Clear any existing error
-    setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors.minEmployeesRequired;
-        return newErrors;
-    });
-}
+                // Keep the previous value
+                setFormData(prev => ({
+                    ...prev,
+                    minEmployeesRequired: prev.minEmployeesRequired
+                }));
+
+                // Set error state
+                setErrors(prev => ({
+                    ...prev,
+                    minEmployeesRequired: ` Cannot exceed total no of employees `
+                }));
+                return;
+            }
+
+            // If validation passes, update the value
+            setFormData(prev => ({
+                ...prev,
+                [field]: value
+            }));
+
+            // Clear any existing error
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.minEmployeesRequired;
+                return newErrors;
+            });
+        }
         else if (field === 'selectedEmployees') {
             const selectedCount = value.length;
             const total = Number(formData.totalEmployees);
@@ -379,7 +379,7 @@ const EmailSent = () => {
         const totalReminders = Number(formData.totalReminders);
         if (isNaN(totalReminders) || totalReminders <= 0) {
             newErrors.totalReminders = "Total number of reminders must be greater than 0";
-        } 
+        }
         // If user specified any reminders, require the "Set Reminder Interval" toggle to be enabled
         if (!isNaN(totalReminders) && totalReminders > 0 && !showReminderDates) {
             newErrors.reminderDates = "Please enable 'Set Reminder Interval' to configure reminder intervals";
@@ -451,27 +451,27 @@ const EmailSent = () => {
         // If using interval-based reminders
         // USING startDateTime instead of reminderStartDateTime
         if (showReminderDates && formData.totalReminders > 0 &&
-                formData.intervalValue && formData.intervalType && formData.startDateTime) {
+            formData.intervalValue && formData.intervalType && formData.startDateTime) {
 
-                const dates = [];
-                const interval = Number(formData.intervalValue);
-                const startDate = new Date(formData.startDateTime);
+            const dates = [];
+            const interval = Number(formData.intervalValue);
+            const startDate = new Date(formData.startDateTime);
 
-                for (let i = 1; i <= formData.totalReminders; i++) {
-                    let reminderDate;
-                    if (formData.intervalType === "hours") {
-                        reminderDate = new Date(startDate.getTime() + (i * interval * 60 * 60 * 1000));
-                    } else {
-                        reminderDate = new Date(startDate.getTime() + (i * interval * 24 * 60 * 60 * 1000));
-                    }
-
-                    // Only add reminders that are before or equal to end date (if end provided)
-                    if (!formData.endDateTime || reminderDate <= new Date(formData.endDateTime)) {
-                        dates.push(reminderDate.toISOString());
-                    }
+            for (let i = 1; i <= formData.totalReminders; i++) {
+                let reminderDate;
+                if (formData.intervalType === "hours") {
+                    reminderDate = new Date(startDate.getTime() + (i * interval * 60 * 60 * 1000));
+                } else {
+                    reminderDate = new Date(startDate.getTime() + (i * interval * 24 * 60 * 60 * 1000));
                 }
-                return dates;
+
+                // Only add reminders that are before or equal to end date (if end provided)
+                if (!formData.endDateTime || reminderDate <= new Date(formData.endDateTime)) {
+                    dates.push(reminderDate.toISOString());
+                }
             }
+            return dates;
+        }
 
         // Fallback to old method (individual date fields)
         if (showReminderDates && formData.totalReminders > 0 && formData.totalReminders <= 3) {
@@ -672,26 +672,26 @@ const EmailSent = () => {
                             />
                             <ErrorMessage message={errors.totalEmployees} />
                         </div>
-                       <div>
-    <label className="field-label">Minimum Number of Employees Required to Submit Data</label>
-    <InputGroup
-        type="number"
-        placeholder="e.g., 1, 2, 3"
-        value={formData.minEmployeesRequired}
-        onChange={(e) =>
-            handleInputChange("minEmployeesRequired", Number(e.target.value))
-        }
-        min="1"
-        required
-        disabled={!formData.totalEmployees || Number(formData.totalEmployees) <= 0}
-    />
-    {!formData.totalEmployees && (
-        <p className="text-xs text-amber-600 mt-1">
-            Please fill "Total Number of Employees" first
-        </p>
-    )}
-    <ErrorMessage message={errors.minEmployeesRequired} />
-</div>
+                        <div>
+                            <label className="field-label">Minimum Number of Employees Required to Submit Data</label>
+                            <InputGroup
+                                type="number"
+                                placeholder="e.g., 1, 2, 3"
+                                value={formData.minEmployeesRequired}
+                                onChange={(e) =>
+                                    handleInputChange("minEmployeesRequired", Number(e.target.value))
+                                }
+                                min="1"
+                                required
+                                disabled={!formData.totalEmployees || Number(formData.totalEmployees) <= 0}
+                            />
+                            {!formData.totalEmployees && (
+                                <p className="text-xs text-amber-600 mt-1">
+                                    Please fill "Total Number of Employees" first
+                                </p>
+                            )}
+                            <ErrorMessage message={errors.minEmployeesRequired} />
+                        </div>
                     </div>
                     <div>
                         <label className="field-label">Employees Email List</label>
@@ -1006,9 +1006,21 @@ const EmailSent = () => {
                                 <p className="text-sm text-blue-600">
                                     Reminders will start from the <span className="font-semibold">Data Collection Start Date & Time</span>.
                                 </p>
-                                {formData.startDateTime && (
+                                {/* {formData.startDateTime && (
                                     <p className="text-sm text-green-600 mt-1">
                                         ✓ Set to: {new Date(formData.startDateTime).toLocaleString()}
+                                    </p>
+                                )} */}
+                                {formData.startDateTime && (
+                                    <p className="text-sm text-green-600 mt-1">
+                                        ✓ Set to: {new Date(formData.startDateTime).toLocaleString('en-US', {
+                                            hour12: true,
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: 'numeric',
+                                            minute: '2-digit'
+                                        })}
                                     </p>
                                 )}
                                 {!formData.startDateTime && (
@@ -1076,8 +1088,18 @@ const EmailSent = () => {
                             {formData.intervalValue && formData.startDateTime && (
                                 <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
                                     <h5 className="text-sm font-medium text-blue-800 mb-2">Reminder Schedule Preview:</h5>
-                                    <p className="text-xs text-blue-600 mb-2">
+                                    {/* <p className="text-xs text-blue-600 mb-2">
                                         Starting from: {new Date(formData.startDateTime).toLocaleString()}
+                                    </p> */}
+                                    <p className="text-xs text-blue-600 mb-2">
+                                        Starting from: {new Date(formData.startDateTime).toLocaleString('en-US', {
+                                            hour12: true,
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: 'numeric',
+                                            minute: '2-digit'
+                                        })}
                                     </p>
                                     {Array.from({ length: formData.totalReminders }, (_, index) => {
                                         const reminderNumber = index + 1;
@@ -1095,8 +1117,19 @@ const EmailSent = () => {
                                         const isAfterEnd = formData.endDateTime && reminderDate > new Date(formData.endDateTime);
 
                                         return (
+                                            // <div key={index} className={`text-sm ${isAfterEnd ? 'text-red-600' : 'text-blue-700'}`}>
+                                            //     {reminderNumber}{getOrdinalSuffix(reminderNumber)} reminder: {reminderDate.toLocaleString()}
+                                            //     {isAfterEnd && " ⚠ (After data collection end)"}
+                                            // </div>
                                             <div key={index} className={`text-sm ${isAfterEnd ? 'text-red-600' : 'text-blue-700'}`}>
-                                                {reminderNumber}{getOrdinalSuffix(reminderNumber)} reminder: {reminderDate.toLocaleString()}
+                                                {reminderNumber}{getOrdinalSuffix(reminderNumber)} reminder: {reminderDate.toLocaleString('en-US', {
+                                                    hour12: true,
+                                                    year: 'numeric',
+                                                    month: 'short',
+                                                    day: 'numeric',
+                                                    hour: 'numeric',
+                                                    minute: '2-digit'
+                                                })}
                                                 {isAfterEnd && " ⚠ (After data collection end)"}
                                             </div>
                                         );

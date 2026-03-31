@@ -20,7 +20,7 @@ const UserAddPage = () => {
     companyId: "",
     companyName: "",
     buildingId: "",
-    employeeId: "",
+    employeeID: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -122,13 +122,12 @@ const UserAddPage = () => {
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/auth/register`,
         {
-          username: formData.username,
           name: formData.name,
           email: formData.email.toLowerCase(),
           password: encryptedPassword,
           companyId: formData.companyId,
           buildingId: selectedBuilding?.value,
-          employeeId: formData.employeeId,
+          employeeID: formData.employeeID,
           type: "user",
         },
         {
@@ -179,14 +178,14 @@ const UserAddPage = () => {
                 type="email"
                 placeholder="Enter Email"
                 value={formData.email}
-                onChange={(e) => handleInputChange('email',  e.target.value.toLowerCase())}
+                onChange={(e) => handleInputChange('email', e.target.value.toLowerCase())}
                 className={errors.email ? "border-red-500" : ""}
-                   id="email-input" 
+                id="email-input"
               />
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
             </div>
 
-             <div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Name<span className="text-red-500">*</span>
               </label>
@@ -201,17 +200,17 @@ const UserAddPage = () => {
               {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
 
-             <div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Employee ID
               </label>
               <Textinput
                 type="text"
                 placeholder="Enter Employee ID"
-                value={formData.username}
-                onChange={(e) => handleInputChange('employeeId', e.target.value)}
+                value={formData.employeeID}  // ✅ Changed from username to employeeId
+                onChange={(e) => handleInputChange('employeeID', e.target.value)}
                 className={errors.username ? "border-red-500" : ""}
-                id="employeeId-input" 
+                id="employeeId-input"
               />
             </div>
           </div>
@@ -219,7 +218,7 @@ const UserAddPage = () => {
           {/* Row 2: Company and Building */}
           <div className="grid lg:grid-cols-3 grid-cols-2 gap-5">
             {/* <div> */}
-              {/* <div className="flex justify-between items-center">
+            {/* <div className="flex justify-between items-center">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Password<span className="text-red-500">*</span>
                 </label>
@@ -231,7 +230,7 @@ const UserAddPage = () => {
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div> */}
-              {/* <Textinput
+            {/* <Textinput
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter Password"
                 value={formData.password}
@@ -240,8 +239,8 @@ const UserAddPage = () => {
               />
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>} */}
 
-              {/* Optional: Password strength indicator */}
-              {/* {formData.password && (
+            {/* Optional: Password strength indicator */}
+            {/* {formData.password && (
                 <div className="mt-2">
                   <div className="flex items-center justify-between text-xs text-gray-600">
                     <span>Password strength:</span>
@@ -265,8 +264,8 @@ const UserAddPage = () => {
                 </div>
               )}
             </div> */}
-           
-              <div>
+
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Company<span className="text-red-500">*</span>
               </label>
@@ -280,7 +279,7 @@ const UserAddPage = () => {
                 <p className="text-red-500 text-sm mt-1">{errors.companyId}</p>
               )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Building<span className="text-red-500">*</span>
@@ -292,7 +291,7 @@ const UserAddPage = () => {
                 placeholder="Select Building"
                 className={errors.buildingId ? "border-red-500" : ""}
                 visibleOptions={3}
-                menuPlacement="auto" 
+                menuPlacement="auto"
               />
               {errors.buildingId && (
                 <p className="text-red-500 text-sm mt-1">{errors.buildingId}</p>
