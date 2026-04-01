@@ -120,7 +120,7 @@ export const transportationOptions = {
 
         trainTypes: [
             { value: 'National rail', label: 'National Rail' },
-            { value: 'Subway/Metro', label: 'Subway/Metro' },
+            { value: 'Subway (underground)', label: 'Subway (underground)' },
             { value: 'Green Line Train', label: 'Green Line Train' },
             { value: 'Metro', label: 'Metro' },
         ],
