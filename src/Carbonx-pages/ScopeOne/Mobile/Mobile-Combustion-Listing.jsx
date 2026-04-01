@@ -1035,36 +1035,6 @@ const MobileCombustionListing = () => {
         }
       },
       {
-        Header: "Calculated Bio Emissions (kgCO₂e)",
-        accessor: "calculatedBioEmissionKgCo2e",
-        Cell: ({ cell }) => {
-          const rawValue = cell.value;
-          if (rawValue === null || rawValue === undefined || rawValue === "") {
-            return "N/A";
-          }
-          const numValue = Number(rawValue);
-          if (isNaN(numValue)) {
-            return "N/A";
-          }
-          return numValue.toFixed(2);
-        }
-      },
-      {
-        Header: "Calculated Bio Emissions (tCO₂e)",
-        accessor: "calculatedBioEmissionTCo2e",
-        Cell: ({ cell }) => {
-          const rawValue = cell.value;
-          if (rawValue === null || rawValue === undefined || rawValue === "") {
-            return "N/A";
-          }
-          const numValue = Number(rawValue);
-          if (isNaN(numValue)) {
-            return "N/A";
-          }
-          return numValue.toFixed(2);
-        }
-      },
-      {
         Header: "Remarks",
         accessor: "remarks",
         Cell: ({ cell }) => cell.value || "N/A"

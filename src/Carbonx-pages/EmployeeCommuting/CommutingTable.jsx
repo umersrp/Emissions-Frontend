@@ -97,7 +97,7 @@ const EMISSION_FACTORS = {
     },
     taxis: {
         "Regular taxi": 0.14861,
-        "Business Class Taxi": 0.20402
+        "Business class taxi": 0.20402
     },
     buses: {
         "Green Line Bus": 0.02776,
