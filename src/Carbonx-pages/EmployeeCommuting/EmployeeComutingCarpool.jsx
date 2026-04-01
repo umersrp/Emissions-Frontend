@@ -1697,7 +1697,7 @@ const EMISSION_FACTORS = {
         "Regular taxi": 0.14861, "Business class taxi": 0.20402
     },
     buses: {
-        "Green Line Bus": 0.02776, "Local Bus": 0.12525, "Intercity Bus (Non A.C)": 0.06875, "Intercity Bus (A.C)": 0.10385
+        "Green Line Bus": 0.02776, "Local bus": 0.12525, "Intercity Bus (Non A.C)": 0.06875, "Intercity Bus (A.C)": 0.10385
     },
     trains: {
         "National Rail": 0.03546, "Subway (underground)": 0.02780, "Metro": 0.02860, "Green Line Train":0.00446

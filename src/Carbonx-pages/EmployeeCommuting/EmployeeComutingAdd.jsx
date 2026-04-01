@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,  useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -53,7 +53,7 @@ const EMISSION_FACTORS = {
         "Regular taxi": 0.14861, "Business class taxi": 0.20402
     },
     buses: {
-        "Green Line Bus": 0.02776, "Local Bus": 0.12525, "Intercity Bus (Non A.C)": 0.06875, "Intercity Bus (A.C)": 0.10385
+        "Green Line Bus": 0.02776, "Local bus": 0.12525, "Intercity Bus (Non A.C)": 0.06875, "Intercity Bus (A.C)": 0.10385
     },
     trains: {
         "National Rail": 0.03546, "Subway (underground)": 0.02780, "Metro": 0.02860, "Green Line Train": 0.00446
@@ -1210,6 +1210,76 @@ useEffect(() => {
 
         checkForPreviousSubmission();
     }, [reportingYear, userInfo, targetUserData, companyData, urlToken]);
+
+// Real-time console logging for emissions calculation
+// useEffect(() => {
+//     // Only log if at least one commute method is selected
+//     if (formData.commuteByMotorbike || formData.commuteByCar || formData.commuteByTaxi || 
+//         formData.commuteByBus || formData.commuteByTrain) {
+        
+//         // Create a data object for real-time calculation
+//         const realTimeData = {
+//             commuteByMotorbike: formData.commuteByMotorbike,
+//             motorbikeDistance: formData.motorbikeDistance,
+//             motorbikeType: formData.motorbikeType?.value,
+//             motorbikeMode: formData.motorbikeMode,
+//             carryOthersMotorbike: formData.carryOthersMotorbike,
+//             personsCarriedMotorbike: formData.personsCarriedMotorbike?.value,
+            
+//             commuteByCar: formData.commuteByCar,
+//             carDistance: formData.carDistance,
+//             carType: formData.carType?.value,
+//             carFuelType: formData.carFuelType?.value,
+//             carMode: formData.carMode,
+//             carryOthersCar: formData.carryOthersCar,
+//             personsCarriedCar: formData.personsCarriedCar?.value,
+            
+//             commuteByTaxi: formData.commuteByTaxi,
+//             taxiDistance: formData.taxiDistance,
+//             taxiType: formData.taxiType?.value,
+//             taxiMode: formData.taxiMode,
+//             travelWithOthersTaxi: formData.travelWithOthersTaxi,
+//             personsTravelWithTaxi: formData.personsTravelWithTaxi?.value,
+            
+//             commuteByBus: formData.commuteByBus,
+//             busDistance: formData.busDistance,
+//             busType: formData.busType?.value,
+            
+//             commuteByTrain: formData.commuteByTrain,
+//             trainDistance: formData.trainDistance,
+//             trainType: formData.trainType?.value,
+//         };
+        
+//         console.log('\n🟢 ========== LIVE EMISSION UPDATE ========== 🟢');
+//         console.log('⏱️  Time:', new Date().toLocaleTimeString());
+//         console.log('📊 Current Values:', {
+//             Motorbike: realTimeData.commuteByMotorbike ? `${realTimeData.motorbikeDistance}km (${realTimeData.motorbikeType})` : 'Not used',
+//             Car: realTimeData.commuteByCar ? `${realTimeData.carDistance}km (${realTimeData.carType}, ${realTimeData.carFuelType})` : 'Not used',
+//             Taxi: realTimeData.commuteByTaxi ? `${realTimeData.taxiDistance}km (${realTimeData.taxiType})` : 'Not used',
+//             Bus: realTimeData.commuteByBus ? `${realTimeData.busDistance}km (${realTimeData.busType})` : 'Not used',
+//             Train: realTimeData.commuteByTrain ? `${realTimeData.trainDistance}km (${realTimeData.trainType})` : 'Not used',
+//         });
+        
+//         // Call your calculateEmissions function
+//         const result = calculateEmissions(realTimeData);
+        
+//         console.log('✅ EMISSIONS:', result.totalEmissionsKg.toFixed(4), 'kg CO₂e');
+//         console.log('✅ EMISSIONS:', result.totalEmissionsTonnes.toFixed(6), 'tonnes CO₂e');
+//         console.log('🟢 ==========================================\n');
+//     }
+// }, 
+
+//     [formData.commuteByMotorbike, formData.motorbikeDistance, formData.motorbikeType,
+//     formData.commuteByCar, formData.carDistance, formData.carType, formData.carFuelType,
+//     formData.commuteByTaxi, formData.taxiDistance, formData.taxiType,
+//     formData.commuteByBus, formData.busDistance, formData.busType,
+//     formData.commuteByTrain, formData.trainDistance, formData.trainType,
+//     formData.carMode, formData.motorbikeMode, formData.taxiMode,
+//     formData.carryOthersCar, formData.personsCarriedCar,
+//     formData.carryOthersMotorbike, formData.personsCarriedMotorbike,
+//     formData.travelWithOthersTaxi, formData.personsTravelWithTaxi]);
+
+
 
     const handleReportingYearChange = (selectedOption) => {
         try {

@@ -101,7 +101,7 @@ const EMISSION_FACTORS = {
     },
     buses: {
         "Green Line Bus": 0.02776,
-        "Local Bus": 0.12525,
+        "Local bus": 0.12525,
         "Intercity Bus (Non A.C)": 0.06875,
         "Intercity Bus (A.C)": 0.10385
     },
