@@ -524,36 +524,66 @@ if (isHGV && cleanedRow.weightloaded) {
     return errors;
   }, [buildings, cleanValue]);
 
-  const transformMobilePayload = useCallback((row) => {
-    const isHGV = row.vehicleclassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
-                  row.vehicleclassification === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
+const transformMobilePayload = useCallback((row) => {
+  const isHGV = row.vehicleclassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
+                row.vehicleclassification === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
 
-    const result = calculateMobileCombustion(
-      isHGV ? null : row.fuelname,
-      Number(row.distancetravelled),
-      row.distanceunit,
-      row.vehicletype,
-      row.vehicleclassification,
-      isHGV ? row.weightloaded || null : null
-    );
+  // Normalize weight loaded for HGV vehicles
+  const normalizeWeightLoaded = (weight) => {
+    if (!weight) return null;
+    let weightStr = weight.toString().trim();
+    
+    // Handle decimal numbers (0.5 -> 50%)
+    const decimalNum = parseFloat(weightStr);
+    if (!isNaN(decimalNum) && weightStr.match(/^[\d.]+$/)) {
+      const percentage = decimalNum * 100;
+      if (percentage === 0) return "0%";
+      if (percentage === 50) return "50%";
+      if (percentage === 100) return "100%";
+      return `${percentage}%`;
+    }
+    
+    // Handle percentage strings (0.00%, 50.00%, 100.00%)
+    const percentageMatch = weightStr.match(/^(\d+(?:\.\d+)?)%$/);
+    if (percentageMatch) {
+      const num = parseFloat(percentageMatch[1]);
+      if (num === 0) return "0%";
+      if (num === 50) return "50%";
+      if (num === 100) return "100%";
+      return weightStr;
+    }
+    
+    // Handle "Average" (case insensitive)
+    if (weightStr.toLowerCase() === "average") return "Average";
+    
+    return weightStr;
+  };
 
-   return {
-  buildingCode: row.buildingcode?.trim() || '',
-  stakeholder: row.stakeholder,
-  vehicleClassification: row.vehicleclassification,
-  vehicleType: row.vehicletype,
-  fuelName: row.fuelname,
-  distanceTraveled: cleanNumberValue(row.distancetravelled, 'Distance travelled'),
-  distanceUnit: cleanStringValue(row.distanceunit),
-  qualityControl: row.qualitycontrol,
-  weightLoaded: cleanNumberValue(row.weightloaded, 'Weight loaded'),
-  calculatedEmissionKgCo2e: result?.totalEmissionKg || 0,
-  calculatedEmissionTCo2e: result?.totalEmissionTonnes || 0,
-  remarks: cleanStringValue(row.remarks) || '',
-  postingDate: row.postingdate || new Date().toISOString().split('T')[0],
-};
-  }, []);
+  const result = calculateMobileCombustion(
+    isHGV ? null : row.fuelname,
+    Number(row.distancetravelled),
+    row.distanceunit,
+    row.vehicletype,
+    row.vehicleclassification,
+    isHGV ? normalizeWeightLoaded(row.weightloaded) : null
+  );
 
+  return {
+    buildingCode: row.buildingcode?.trim() || '',
+    stakeholder: row.stakeholder,
+    vehicleClassification: row.vehicleclassification,
+    vehicleType: row.vehicletype,
+    fuelName: row.fuelname,
+    distanceTraveled: row.distancetravelled ? Number(row.distancetravelled) : null,
+    distanceUnit: row.distanceunit?.trim() || null,
+    qualityControl: row.qualitycontrol,
+    weightLoaded: isHGV ? normalizeWeightLoaded(row.weightloaded) : null,
+    calculatedEmissionKgCo2e: result?.totalEmissionKg || 0,
+    calculatedEmissionTCo2e: result?.totalEmissionTonnes || 0,
+    remarks: row.remarks?.trim() || '',
+    postingDate: row.postingdate || new Date().toISOString().split('T')[0],
+  };
+}, []); // Remove dependencies since we're not using cleanNumberValue/cleanStringValue
   const processUpload = useCallback(async (onSuccess = null) => {
     const { file, parsedData, validationErrors } = csvState;
 
