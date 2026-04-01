@@ -93,38 +93,23 @@ const EMISSION_FACTORS = {
         "Small": 0.08319,
         "Medium": 0.10108,
         "Large": 0.13252,
-        "Average": 0.11367,
-        "Small (<125cc)": 0.08319,
-        "Medium (125-500cc)": 0.10108,
-        "Large (>500cc)": 0.13252,
-        "Electric Motorbike": 0.03688
+        "Average": 0.11367
     },
     taxis: {
         "Regular taxi": 0.14861,
-        "Premium taxi": 0.20402,
-        "Electric taxi": 0.03688,
-        "Shared taxi": 0.14861,
-        "Regular Taxi": 0.14861,
-        "Premium Taxi": 0.20402,
-        "Electric Taxi": 0.03688,
-        "Shared Taxi/Pool": 0.14861
+        "Business Class Taxi": 0.20402
     },
     buses: {
         "Green Line Bus": 0.02776,
-        "Local bus": 0.12525,
-        "Express bus": 0.06875,
-        "Electric bus": 0.03688,
-        "Private bus": 0.12525,
         "Local Bus": 0.12525,
-        "Electric Bus": 0.03688,
-        "Private Company Bus": 0.12525
+        "Intercity Bus (Non A.C)": 0.06875,
+        "Intercity Bus (A.C)": 0.10385
     },
     trains: {
         "National Rail": 0.03546,
-        "Subway/Metro": 0.02860,
-        "Light Rail": 0.02860,
-        "Commuter Rail": 0.03546,
-        "High Speed Rail": 0.03546
+        "Subway (underground)": 0.02780,
+        "Metro": 0.02860,
+        "Green Line Train": 0.00446
     }
 };
 
