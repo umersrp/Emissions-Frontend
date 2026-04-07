@@ -60,40 +60,176 @@ const EMISSION_FACTORS = {
     }
 };
 
+//car pool and individuala
 // const calculateEmissions = (data) => {
-//     let distance = 0, passengers = 1, factor = 0;
+//     let totalEmissionsKg = 0;
+//     let totalDistance = 0;
+//     let totalPassengers = 0;
+//     const emissionDetails = [];
+
+//     console.log('=== STARTING EMISSION CALCULATION FOR ALL MODES ===');
+
+//     // Calculate Motorbike emissions
 //     if (data.commuteByMotorbike) {
-//         distance = Number(data.motorbikeDistance) || 0;
-//         passengers = 1;
+//         let distance = Number(data.motorbikeDistance) || 0;
+//         let passengers = 1;
 //         const motorbikeType = data.motorbikeType || "Average";
-//         factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
-//     } else if (data.commuteByCar) {
-//         distance = Number(data.carDistance) || 0;
-//         passengers = data.carryOthersCar ? (Number(data.personsCarriedCar || 0) + 1) : 1;
-//         const carType = data.carType || "Average car - Unknown engine size";
-//         const fuelType = data.carFuelType || "Unknown";
-//         factor = (EMISSION_FACTORS.cars[carType]?.[fuelType] || EMISSION_FACTORS.cars[carType]?.["Unknown"]) || (EMISSION_FACTORS.cars["Average car - Unknown engine size"][fuelType] || EMISSION_FACTORS.cars["Average car - Unknown engine size"]["Unknown"]);
-//         factor = factor / passengers;
-//     } else if (data.commuteByTaxi) {
-//         distance = Number(data.taxiDistance) || 0;
-//         // passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : Number(data.taxiPassengers || 1);
-//         passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : 1;
-//         const taxiType = data.taxiType || "Regular taxi";
-//         factor = EMISSION_FACTORS.taxis[taxiType] || EMISSION_FACTORS.taxis["Regular taxi"];
-//         factor = factor / passengers;
-//     } else if (data.commuteByBus) {
-//         distance = Number(data.busDistance) || 0;
-//         passengers = 1;
-//         const busType = data.busType || "Green Line Bus";
-//         factor = EMISSION_FACTORS.buses[busType] || EMISSION_FACTORS.buses["Green Line Bus"];
-//     } else if (data.commuteByTrain) {
-//         distance = Number(data.trainDistance) || 0;
-//         passengers = 1;
-//         const trainType = data.trainType || "National Rail";
-//         factor = EMISSION_FACTORS.trains[trainType] || EMISSION_FACTORS.trains["National Rail"];
+//         let factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
+//         let emissions = distance * factor;
+        
+//         console.log('=== EMISSION CALCULATION - MOTORBIKE ===');
+//         console.log('Motorbike Type:', motorbikeType);
+//         console.log('Distance:', distance, 'km');
+//         console.log('Passengers:', passengers);
+//         console.log('Emission Factor:', factor, 'kg CO2e/km');
+//         console.log('Emissions:', emissions, 'kg CO2e');
+        
+//         totalEmissionsKg += emissions;
+//         totalDistance += distance;
+//         totalPassengers += passengers;
+//         emissionDetails.push({
+//             mode: 'Motorbike',
+//             distance,
+//             passengers,
+//             factor,
+//             emissions
+//         });
 //     }
-//     const totalEmissionsKg = distance * passengers * factor;
-//     return { distance, passengers, factor, totalEmissionsKg, totalEmissionsTonnes: totalEmissionsKg / 1000 };
+
+//     // Calculate Car emissions
+//     if (data.commuteByCar) {
+//         let distance = Number(data.carDistance) || 0;
+//         let passengers = data.carryOthersCar ? (Number(data.personsCarriedCar || 0) + 1) : 1;
+//         const carType = data.carType;
+//         const fuelType = data.carFuelType || "Unknown";
+//         let baseFactor = EMISSION_FACTORS.cars[carType]?.[fuelType];
+//         let factor = baseFactor;
+//         let emissions = distance * factor;
+        
+//         console.log('=== EMISSION CALCULATION - CAR ===');
+//         console.log('Car Type:', carType);
+//         console.log('Fuel Type:', fuelType);
+//         console.log('Distance:', distance, 'km');
+//         console.log('Carrying Others:', data.carryOthersCar);
+//         console.log('Persons Carried:', data.personsCarriedCar || 0);
+//         console.log('Total Passengers (including driver):', passengers);
+//         console.log('Base Emission Factor:', baseFactor, 'kg CO2e/km');
+//         console.log('Per Person Emission Factor:', factor, 'kg CO2e/km');
+//         console.log('Emissions:', emissions, 'kg CO2e');
+        
+//         totalEmissionsKg += emissions;
+//         totalDistance += distance;
+//         totalPassengers += passengers;
+//         emissionDetails.push({
+//             mode: 'Car',
+//             distance,
+//             passengers,
+//             factor,
+//             emissions
+//         });
+//     }
+
+//     // Calculate Taxi emissions
+//     if (data.commuteByTaxi) {
+//         let distance = Number(data.taxiDistance) || 0;
+//         let passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : 1;
+//         const taxiType = data.taxiType ;
+//         let baseFactor = EMISSION_FACTORS.taxis[taxiType] ;
+//         let factor = baseFactor;
+//         let emissions = distance * factor;
+        
+//         console.log('=== EMISSION CALCULATION - TAXI ===');
+//         console.log('Taxi Type:', taxiType);
+//         console.log('Distance:', distance, 'km');
+//         console.log('Traveling With Others:', data.travelWithOthersTaxi);
+//         console.log('Persons Traveling With:', data.personsTravelWithTaxi || 0);
+//         console.log('Total Passengers (including self):', passengers);
+//         console.log('Base Emission Factor:', baseFactor, 'kg CO2e/km');
+//         console.log('Per Person Emission Factor:', factor, 'kg CO2e/km');
+//         console.log('Emissions:', emissions, 'kg CO2e');
+        
+//         totalEmissionsKg += emissions;
+//         totalDistance += distance;
+//         totalPassengers += passengers;
+//         emissionDetails.push({
+//             mode: 'Taxi',
+//             distance,
+//             passengers,
+//             factor,
+//             emissions
+//         });
+//     }
+
+//     // Calculate Bus emissions
+//     if (data.commuteByBus) {
+//         let distance = Number(data.busDistance) || 0;
+//         let passengers = 1;
+//         const busType = data.busType ;
+//         let factor = EMISSION_FACTORS.buses[busType] ;
+//         let emissions = distance * passengers * factor;
+        
+//         console.log('=== EMISSION CALCULATION - BUS ===');
+//         console.log('Bus Type:', busType);
+//         console.log('Distance:', distance, 'km');
+//         console.log('Passengers:', passengers);
+//         console.log('Emission Factor:', factor, 'kg CO2e/km');
+//         console.log('Emissions:', emissions, 'kg CO2e');
+        
+//         totalEmissionsKg += emissions;
+//         totalDistance += distance;
+//         totalPassengers += passengers;
+//         emissionDetails.push({
+//             mode: 'Bus',
+//             distance,
+//             passengers,
+//             factor,
+//             emissions
+//         });
+//     }
+
+//     // Calculate Train emissions
+//     if (data.commuteByTrain) {
+//         let distance = Number(data.trainDistance) || 0;
+//         let passengers = 1;
+//         const trainType = data.trainType ;
+//         let factor = EMISSION_FACTORS.trains[trainType] ;
+//         let emissions = distance * passengers * factor;
+        
+//         console.log('=== EMISSION CALCULATION - TRAIN ===');
+//         console.log('Train Type:', trainType);
+//         console.log('Distance:', distance, 'km');
+//         console.log('Passengers:', passengers);
+//         console.log('Emission Factor:', factor, 'kg CO2e/km');
+//         console.log('Emissions:', emissions, 'kg CO2e');
+        
+//         totalEmissionsKg += emissions;
+//         totalDistance += distance;
+//         totalPassengers += passengers;
+//         emissionDetails.push({
+//             mode: 'Train',
+//             distance,
+//             passengers,
+//             factor,
+//             emissions
+//         });
+//     }
+
+//     const totalEmissionsTonnes = totalEmissionsKg / 1000;
+    
+//     console.log('=== FINAL EMISSION CALCULATION SUMMARY ===');
+//     console.log('All Modes Calculated:', emissionDetails.map(d => d.mode).join(', '));
+//     console.log('Total Emissions:', totalEmissionsKg.toFixed(4), 'kg CO2e');
+//     console.log('Total Emissions:', totalEmissionsTonnes.toFixed(6), 'tonnes CO2e');
+//     console.log('===================================\n');
+    
+//     return { 
+//         distance: totalDistance, 
+//         passengers: totalPassengers, 
+//         factor: totalEmissionsKg / (totalDistance || 1), 
+//         totalEmissionsKg, 
+//         totalEmissionsTonnes,
+//         emissionDetails 
+//     };
 // };
 
 const calculateEmissions = (data) => {
@@ -106,92 +242,151 @@ const calculateEmissions = (data) => {
 
     // Calculate Motorbike emissions
     if (data.commuteByMotorbike) {
-        let distance = Number(data.motorbikeDistance) || 0;
+        let individualDistance = Number(data.motorbikeDistance) || 0;
+        let carpoolDistance = 0;
         let passengers = 1;
         const motorbikeType = data.motorbikeType || "Average";
         let factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
-        let emissions = distance * passengers * factor;
+        
+        let individualEmissions = individualDistance * factor;
+        let totalMotorbikeEmissions = individualEmissions;
+        let motorbikeTotalDistance = individualDistance;
         
         console.log('=== EMISSION CALCULATION - MOTORBIKE ===');
         console.log('Motorbike Type:', motorbikeType);
-        console.log('Distance:', distance, 'km');
-        console.log('Passengers:', passengers);
         console.log('Emission Factor:', factor, 'kg CO2e/km');
-        console.log('Emissions:', emissions, 'kg CO2e');
+        console.log('Individual Distance:', individualDistance, 'km');
+        console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
         
-        totalEmissionsKg += emissions;
-        totalDistance += distance;
+        // Check if mode is 'both' and carpool distance exists
+        if (data.motorbikeMode === 'both' && data.motorbikeDistanceCarpool) {
+            carpoolDistance = Number(data.motorbikeDistanceCarpool) || 0;
+            let carpoolEmissions = carpoolDistance * factor;
+            totalMotorbikeEmissions += carpoolEmissions;
+            motorbikeTotalDistance += carpoolDistance;
+            
+            console.log('Carpool Distance:', carpoolDistance, 'km');
+            console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
+            console.log('Total Motorbike Emissions (Individual + Carpool):', totalMotorbikeEmissions, 'kg CO2e');
+        }
+        
+        console.log('Total Motorbike Distance:', motorbikeTotalDistance, 'km');
+        
+        totalEmissionsKg += totalMotorbikeEmissions;
+        totalDistance += motorbikeTotalDistance;
         totalPassengers += passengers;
         emissionDetails.push({
             mode: 'Motorbike',
-            distance,
-            passengers,
+            modeType: data.motorbikeMode === 'both' ? 'Individual + Carpool' : 'Individual',
+            individualDistance,
+            carpoolDistance,
+            totalDistance: motorbikeTotalDistance,
             factor,
-            emissions
+            emissions: totalMotorbikeEmissions
         });
     }
 
     // Calculate Car emissions
     if (data.commuteByCar) {
-        let distance = Number(data.carDistance) || 0;
+        let individualDistance = Number(data.carDistance) || 0;
+        let carpoolDistance = 0;
         let passengers = data.carryOthersCar ? (Number(data.personsCarriedCar || 0) + 1) : 1;
         const carType = data.carType;
         const fuelType = data.carFuelType || "Unknown";
         let baseFactor = EMISSION_FACTORS.cars[carType]?.[fuelType];
-        let factor = baseFactor / passengers;
-        let emissions = distance * factor;
+        let factor = baseFactor;
+        
+        let individualEmissions = individualDistance * factor;
+        let totalCarEmissions = individualEmissions;
+        let carTotalDistance = individualDistance;
         
         console.log('=== EMISSION CALCULATION - CAR ===');
         console.log('Car Type:', carType);
         console.log('Fuel Type:', fuelType);
-        console.log('Distance:', distance, 'km');
+        console.log('Emission Factor:', factor, 'kg CO2e/km');
         console.log('Carrying Others:', data.carryOthersCar);
         console.log('Persons Carried:', data.personsCarriedCar || 0);
         console.log('Total Passengers (including driver):', passengers);
-        console.log('Base Emission Factor:', baseFactor, 'kg CO2e/km');
-        console.log('Per Person Emission Factor:', factor, 'kg CO2e/km');
-        console.log('Emissions:', emissions, 'kg CO2e');
+        console.log('Individual Distance:', individualDistance, 'km');
+        console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
         
-        totalEmissionsKg += emissions;
-        totalDistance += distance;
+        // Check if mode is 'both' and carpool distance exists
+        if (data.carMode === 'both' && data.carDistanceCarpool) {
+            carpoolDistance = Number(data.carDistanceCarpool) || 0;
+            let carpoolEmissions = carpoolDistance * factor;
+            totalCarEmissions += carpoolEmissions;
+            carTotalDistance += carpoolDistance;
+            
+            console.log('Carpool Distance:', carpoolDistance, 'km');
+            console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
+            console.log('Total Car Emissions (Individual + Carpool):', totalCarEmissions, 'kg CO2e');
+        }
+        
+        console.log('Total Car Distance:', carTotalDistance, 'km');
+        
+        totalEmissionsKg += totalCarEmissions;
+        totalDistance += carTotalDistance;
         totalPassengers += passengers;
         emissionDetails.push({
             mode: 'Car',
-            distance,
+            modeType: data.carMode === 'both' ? 'Individual + Carpool' : 'Individual',
+            individualDistance,
+            carpoolDistance,
+            totalDistance: carTotalDistance,
             passengers,
             factor,
-            emissions
+            emissions: totalCarEmissions
         });
     }
 
     // Calculate Taxi emissions
     if (data.commuteByTaxi) {
-        let distance = Number(data.taxiDistance) || 0;
+        let individualDistance = Number(data.taxiDistance) || 0;
+        let carpoolDistance = 0;
         let passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : 1;
-        const taxiType = data.taxiType ;
-        let baseFactor = EMISSION_FACTORS.taxis[taxiType] ;
-        let factor = baseFactor / passengers;
-        let emissions = distance * factor;
+        const taxiType = data.taxiType;
+        let baseFactor = EMISSION_FACTORS.taxis[taxiType];
+        let factor = baseFactor;
+        
+        let individualEmissions = individualDistance * factor;
+        let totalTaxiEmissions = individualEmissions;
+        let taxiTotalDistance = individualDistance;
         
         console.log('=== EMISSION CALCULATION - TAXI ===');
         console.log('Taxi Type:', taxiType);
-        console.log('Distance:', distance, 'km');
+        console.log('Emission Factor:', factor, 'kg CO2e/km');
         console.log('Traveling With Others:', data.travelWithOthersTaxi);
         console.log('Persons Traveling With:', data.personsTravelWithTaxi || 0);
         console.log('Total Passengers (including self):', passengers);
-        console.log('Base Emission Factor:', baseFactor, 'kg CO2e/km');
-        console.log('Per Person Emission Factor:', factor, 'kg CO2e/km');
-        console.log('Emissions:', emissions, 'kg CO2e');
+        console.log('Individual Distance:', individualDistance, 'km');
+        console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
         
-        totalEmissionsKg += emissions;
-        totalDistance += distance;
+        // Check if mode is 'both' and carpool distance exists
+        if (data.taxiMode === 'both' && data.taxiDistanceCarpool) {
+            carpoolDistance = Number(data.taxiDistanceCarpool) || 0;
+            let carpoolEmissions = carpoolDistance * factor;
+            totalTaxiEmissions += carpoolEmissions;
+            taxiTotalDistance += carpoolDistance;
+            
+            console.log('Carpool Distance:', carpoolDistance, 'km');
+            console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
+            console.log('Total Taxi Emissions (Individual + Carpool):', totalTaxiEmissions, 'kg CO2e');
+        }
+        
+        console.log('Total Taxi Distance:', taxiTotalDistance, 'km');
+        
+        totalEmissionsKg += totalTaxiEmissions;
+        totalDistance += taxiTotalDistance;
         totalPassengers += passengers;
         emissionDetails.push({
             mode: 'Taxi',
-            distance,
+            modeType: data.taxiMode === 'both' ? 'Individual + Carpool' : 'Individual',
+            individualDistance,
+            carpoolDistance,
+            totalDistance: taxiTotalDistance,
             passengers,
             factor,
-            emissions
+            emissions: totalTaxiEmissions
         });
     }
 
@@ -199,9 +394,9 @@ const calculateEmissions = (data) => {
     if (data.commuteByBus) {
         let distance = Number(data.busDistance) || 0;
         let passengers = 1;
-        const busType = data.busType ;
-        let factor = EMISSION_FACTORS.buses[busType] ;
-        let emissions = distance * passengers * factor;
+        const busType = data.busType;
+        let factor = EMISSION_FACTORS.buses[busType];
+        let emissions = distance * factor;
         
         console.log('=== EMISSION CALCULATION - BUS ===');
         console.log('Bus Type:', busType);
@@ -215,7 +410,8 @@ const calculateEmissions = (data) => {
         totalPassengers += passengers;
         emissionDetails.push({
             mode: 'Bus',
-            distance,
+            modeType: 'Individual',
+            totalDistance: distance,
             passengers,
             factor,
             emissions
@@ -226,9 +422,9 @@ const calculateEmissions = (data) => {
     if (data.commuteByTrain) {
         let distance = Number(data.trainDistance) || 0;
         let passengers = 1;
-        const trainType = data.trainType ;
-        let factor = EMISSION_FACTORS.trains[trainType] ;
-        let emissions = distance * passengers * factor;
+        const trainType = data.trainType;
+        let factor = EMISSION_FACTORS.trains[trainType];
+        let emissions = distance * factor;
         
         console.log('=== EMISSION CALCULATION - TRAIN ===');
         console.log('Train Type:', trainType);
@@ -242,7 +438,8 @@ const calculateEmissions = (data) => {
         totalPassengers += passengers;
         emissionDetails.push({
             mode: 'Train',
-            distance,
+            modeType: 'Individual',
+            totalDistance: distance,
             passengers,
             factor,
             emissions
@@ -252,7 +449,15 @@ const calculateEmissions = (data) => {
     const totalEmissionsTonnes = totalEmissionsKg / 1000;
     
     console.log('=== FINAL EMISSION CALCULATION SUMMARY ===');
-    console.log('All Modes Calculated:', emissionDetails.map(d => d.mode).join(', '));
+    console.log('All Modes Calculated:', emissionDetails.map(d => `${d.mode} (${d.modeType})`).join(', '));
+    console.log('Emissions Breakdown:');
+    emissionDetails.forEach(detail => {
+        if (detail.carpoolDistance) {
+            console.log(`  - ${detail.mode}: ${detail.individualDistance}km (individual) + ${detail.carpoolDistance}km (carpool) = ${detail.emissions.toFixed(4)} kg CO2e`);
+        } else {
+            console.log(`  - ${detail.mode}: ${detail.totalDistance}km = ${detail.emissions.toFixed(4)} kg CO2e`);
+        }
+    });
     console.log('Total Emissions:', totalEmissionsKg.toFixed(4), 'kg CO2e');
     console.log('Total Emissions:', totalEmissionsTonnes.toFixed(6), 'tonnes CO2e');
     console.log('===================================\n');
@@ -507,6 +712,7 @@ const EmployeeCommutingForm = () => {
     const urlUserId = queryParams.get('userId');
     const [emailDocId, setEmailDocId] = useState(null);
     const [checkingSubmission, setCheckingSubmission] = useState(true);
+    const [formDocumentId, setFormDocumentId] = useState(null);   
 const [formAccessStatus, setFormAccessStatus] = useState({
   checking: true,
   canAccess: false,
@@ -1110,6 +1316,38 @@ useEffect(() => {
   
   performAccessCheck();
 }, [token, urlToken, urlUserId, location.search]); // Add location.search as dependency
+
+
+useEffect(() => {
+    const fetchEmailDocument = async () => {
+        const currentToken = getToken();
+        const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
+        
+        if (!currentToken || !currentEmailDocId) return;
+        
+        try {
+            const response = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${currentEmailDocId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            
+            if (response.data && response.data.data && response.data.data._id) {
+                setFormDocumentId(response.data.data._id);
+                console.log('Form document ID fetched:', response.data.data._id);
+            }
+        } catch (error) {
+            console.error('Failed to fetch email document:', error);
+        }
+    };
+    
+    fetchEmailDocument();
+}, [token, location.search]);
+
     // Update the markUserAsFilled function
     const markUserAsFilled = async (userId, token, emailDocIdToUse) => {
         if (!userId || !token) {
@@ -1211,73 +1449,108 @@ useEffect(() => {
         checkForPreviousSubmission();
     }, [reportingYear, userInfo, targetUserData, companyData, urlToken]);
 
-// Real-time console logging for emissions calculation
-// useEffect(() => {
-//     // Only log if at least one commute method is selected
-//     if (formData.commuteByMotorbike || formData.commuteByCar || formData.commuteByTaxi || 
-//         formData.commuteByBus || formData.commuteByTrain) {
+//Real-time console logging for emissions calculation
+useEffect(() => {
+    // Only log if at least one commute method is selected
+    if (formData.commuteByMotorbike || formData.commuteByCar || formData.commuteByTaxi || 
+        formData.commuteByBus || formData.commuteByTrain) {
         
-//         // Create a data object for real-time calculation
-//         const realTimeData = {
-//             commuteByMotorbike: formData.commuteByMotorbike,
-//             motorbikeDistance: formData.motorbikeDistance,
-//             motorbikeType: formData.motorbikeType?.value,
-//             motorbikeMode: formData.motorbikeMode,
-//             carryOthersMotorbike: formData.carryOthersMotorbike,
-//             personsCarriedMotorbike: formData.personsCarriedMotorbike?.value,
+        // Create a data object for real-time calculation
+        const realTimeData = {
+            commuteByMotorbike: formData.commuteByMotorbike,
+            motorbikeDistance: formData.motorbikeDistance,
+            motorbikeDistanceCarpool: formData.motorbikeDistanceCarpool,
+            motorbikeType: formData.motorbikeType?.value,
+            motorbikeMode: formData.motorbikeMode,
+            carryOthersMotorbike: formData.carryOthersMotorbike,
+            personsCarriedMotorbike: formData.personsCarriedMotorbike?.value,
             
-//             commuteByCar: formData.commuteByCar,
-//             carDistance: formData.carDistance,
-//             carType: formData.carType?.value,
-//             carFuelType: formData.carFuelType?.value,
-//             carMode: formData.carMode,
-//             carryOthersCar: formData.carryOthersCar,
-//             personsCarriedCar: formData.personsCarriedCar?.value,
+            commuteByCar: formData.commuteByCar,
+            carDistance: formData.carDistance,
+            carDistanceCarpool: formData.carDistanceCarpool,
+            carType: formData.carType?.value,
+            carFuelType: formData.carFuelType?.value,
+            carMode: formData.carMode,
+            carryOthersCar: formData.carryOthersCar,
+            personsCarriedCar: formData.personsCarriedCar?.value,
             
-//             commuteByTaxi: formData.commuteByTaxi,
-//             taxiDistance: formData.taxiDistance,
-//             taxiType: formData.taxiType?.value,
-//             taxiMode: formData.taxiMode,
-//             travelWithOthersTaxi: formData.travelWithOthersTaxi,
-//             personsTravelWithTaxi: formData.personsTravelWithTaxi?.value,
+            commuteByTaxi: formData.commuteByTaxi,
+            taxiDistance: formData.taxiDistance,
+            taxiDistanceCarpool: formData.taxiDistanceCarpool,
+            taxiType: formData.taxiType?.value,
+            taxiMode: formData.taxiMode,
+            travelWithOthersTaxi: formData.travelWithOthersTaxi,
+            personsTravelWithTaxi: formData.personsTravelWithTaxi?.value,
             
-//             commuteByBus: formData.commuteByBus,
-//             busDistance: formData.busDistance,
-//             busType: formData.busType?.value,
+            commuteByBus: formData.commuteByBus,
+            busDistance: formData.busDistance,
+            busType: formData.busType?.value,
             
-//             commuteByTrain: formData.commuteByTrain,
-//             trainDistance: formData.trainDistance,
-//             trainType: formData.trainType?.value,
-//         };
+            commuteByTrain: formData.commuteByTrain,
+            trainDistance: formData.trainDistance,
+            trainType: formData.trainType?.value,
+        };
         
-//         console.log('\n🟢 ========== LIVE EMISSION UPDATE ========== 🟢');
-//         console.log('⏱️  Time:', new Date().toLocaleTimeString());
-//         console.log('📊 Current Values:', {
-//             Motorbike: realTimeData.commuteByMotorbike ? `${realTimeData.motorbikeDistance}km (${realTimeData.motorbikeType})` : 'Not used',
-//             Car: realTimeData.commuteByCar ? `${realTimeData.carDistance}km (${realTimeData.carType}, ${realTimeData.carFuelType})` : 'Not used',
-//             Taxi: realTimeData.commuteByTaxi ? `${realTimeData.taxiDistance}km (${realTimeData.taxiType})` : 'Not used',
-//             Bus: realTimeData.commuteByBus ? `${realTimeData.busDistance}km (${realTimeData.busType})` : 'Not used',
-//             Train: realTimeData.commuteByTrain ? `${realTimeData.trainDistance}km (${realTimeData.trainType})` : 'Not used',
-//         });
+        console.log('\n ========== LIVE EMISSION UPDATE ========== ');
+        console.log('Time:', new Date().toLocaleTimeString());
+        console.log(' Current Values:', {
+            Motorbike: realTimeData.commuteByMotorbike ? 
+                (realTimeData.motorbikeMode === 'both' ? 
+                    `${realTimeData.motorbikeDistance}km (individual) + ${realTimeData.motorbikeDistanceCarpool}km (carpool)` : 
+                    `${realTimeData.motorbikeDistance}km`) : 'Not used',
+            Car: realTimeData.commuteByCar ? 
+                (realTimeData.carMode === 'both' ? 
+                    `${realTimeData.carDistance}km (individual) + ${realTimeData.carDistanceCarpool}km (carpool)` : 
+                    `${realTimeData.carDistance}km`) : 'Not used',
+            Taxi: realTimeData.commuteByTaxi ? 
+                (realTimeData.taxiMode === 'both' ? 
+                    `${realTimeData.taxiDistance}km (individual) + ${realTimeData.taxiDistanceCarpool}km (carpool)` : 
+                    `${realTimeData.taxiDistance}km`) : 'Not used',
+            Bus: realTimeData.commuteByBus ? `${realTimeData.busDistance}km` : 'Not used',
+            Train: realTimeData.commuteByTrain ? `${realTimeData.trainDistance}km` : 'Not used',
+        });
         
-//         // Call your calculateEmissions function
-//         const result = calculateEmissions(realTimeData);
+        // Call your calculateEmissions function
+        const result = calculateEmissions(realTimeData);
         
-//         console.log('✅ EMISSIONS:', result.totalEmissionsKg.toFixed(4), 'kg CO₂e');
-//         console.log('✅ EMISSIONS:', result.totalEmissionsTonnes.toFixed(6), 'tonnes CO₂e');
-//         console.log('🟢 ==========================================\n');
-//     }
-// }, 
-
-//     [formData.commuteByMotorbike, formData.motorbikeDistance, formData.motorbikeType,
-//     formData.commuteByCar, formData.carDistance, formData.carType, formData.carFuelType,
-//     formData.commuteByTaxi, formData.taxiDistance, formData.taxiType,
-//     formData.commuteByBus, formData.busDistance, formData.busType,
-//     formData.commuteByTrain, formData.trainDistance, formData.trainType,
-//     formData.carMode, formData.motorbikeMode, formData.taxiMode,
-//     formData.carryOthersCar, formData.personsCarriedCar,
-//     formData.carryOthersMotorbike, formData.personsCarriedMotorbike,
-//     formData.travelWithOthersTaxi, formData.personsTravelWithTaxi]);
+        console.log(' EMISSIONS:', result.totalEmissionsKg.toFixed(4), 'kg CO₂e');
+        console.log(' EMISSIONS:', result.totalEmissionsTonnes.toFixed(6), 'tonnes CO₂e');
+        console.log(' ==========================================\n');
+    }
+}, 
+    [formData.commuteByMotorbike, 
+     formData.motorbikeDistance, 
+     formData.motorbikeDistanceCarpool,  // ← ADD THIS
+     formData.motorbikeType,
+     formData.motorbikeMode,
+     formData.carryOthersMotorbike,
+     formData.personsCarriedMotorbike,
+     
+     formData.commuteByCar, 
+     formData.carDistance, 
+     formData.carDistanceCarpool,  // ← ADD THIS
+     formData.carType, 
+     formData.carFuelType,
+     formData.carMode,
+     formData.carryOthersCar,
+     formData.personsCarriedCar,
+     
+     formData.commuteByTaxi, 
+     formData.taxiDistance,
+     formData.taxiDistanceCarpool,  // ← ADD THIS
+     formData.taxiType,
+     formData.taxiMode,
+     formData.travelWithOthersTaxi,
+     formData.personsTravelWithTaxi,
+     
+     formData.commuteByBus, 
+     formData.busDistance, 
+     formData.busType,
+     
+     formData.commuteByTrain, 
+     formData.trainDistance, 
+     formData.trainType
+]);
 
 
 
@@ -3375,6 +3648,7 @@ useEffect(() => {
                 submissionMode: targetUserData ? 'admin' : 'self',
                 targetUserId: urlUserId || null,
                 companyUserId: companyData?._id || null,
+                parentId: formDocumentId || null,
 
                 // Motorbike Commute
                 commuteByMotorbike: formData.commuteByMotorbike,

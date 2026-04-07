@@ -721,19 +721,19 @@ const useDownstreamTransportationCSVUpload = (buildings = []) => {
     const year = currentDate.getFullYear();
     const formattedDate = `${day}/${month}/${year}`;
 
-    const headers = [
-      'building code',
-      'stakeholder',
-      'posting date',
-      'sold product activity type',
-      'sold goods type',
-      'transportation vehicle category',
-      'transportation vehicle type',
-      'weight loaded',
-      'distance travelled',
-      'quality control',
-      'remarks'
-    ];
+   const headers = [
+  'Building Code',
+  'Stakeholder',
+  'Posting Date',
+  'Sold Product Activity Type',
+  'Sold Goods Type',
+  'Transportation Vehicle Category',
+  'Transportation Vehicle Type',
+  'Weight Loaded',
+  'Distance Travelled',
+  'Quality Control',
+  'Remarks'
+];
 
     const exampleRow = [
       exampleBuildingCode,

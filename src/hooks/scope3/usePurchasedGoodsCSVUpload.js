@@ -24,7 +24,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     parsedData: null,
   });
 
-   const isNA = useCallback((value) => {
+  const isNA = useCallback((value) => {
     if (!value) return true;
     const val = value.toString().toLowerCase().trim();
     return val === 'n/a' || val === 'na' || val === '';
@@ -58,20 +58,20 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
   // Helper function to parse date in any format to ISO
   const parseDateToISO = useCallback((dateString) => {
     if (!dateString) return null;
-    
+
     let cleanedDate = dateString.toString().trim();
     cleanedDate = cleanedDate.replace(/"/g, ''); // Remove quotes
-    
+
     if (!cleanedDate || cleanedDate === '') return null;
-    
+
     let date;
     let year, month, day;
-    
+
     if (cleanedDate.includes('T')) {
       date = new Date(cleanedDate.split('T')[0]);
     } else {
       const parts = cleanedDate.split(/[\/\-\.]/);
-      
+
       if (parts.length === 3) {
         if (parts[0].length === 4) {
           // Format: YYYY-MM-DD
@@ -97,7 +97,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
             // Ambiguous - try both
             let testDate1 = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
             let testDate2 = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-            
+
             if (!isNaN(testDate1.getTime()) && testDate1.getDate() === parseInt(parts[1])) {
               date = testDate1;
             } else if (!isNaN(testDate2.getTime()) && testDate2.getDate() === parseInt(parts[0])) {
@@ -113,11 +113,11 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         date = new Date(cleanedDate);
       }
     }
-    
+
     if (!date || isNaN(date.getTime())) {
       return null;
     }
-    
+
     const isoDate = new Date(
       Date.UTC(
         date.getFullYear(),
@@ -126,7 +126,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         0, 0, 0, 0
       )
     ).toISOString();
-    
+
     return isoDate;
   }, []);
 
@@ -175,7 +175,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
           const headerRowIndex = 0;
           const headerValues = parseCSVLine(lines[headerRowIndex]);
-          
+
           console.log('Parsed headers:', headerValues);
 
           const headers = headerValues.map(h => {
@@ -188,7 +188,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
           const requiredCoreHeaders = ['buildingcode', 'stakeholder', 'postingdate', 'purchasecategory', 'purchasedactivitytype', 'purchasedgoodsservicestype', 'amountspent', 'unit', 'qualitycontrol'];
           const missingCoreHeaders = requiredCoreHeaders.filter(h => !headers.includes(h));
-          
+
           if (missingCoreHeaders.length > 0) {
             reject(new Error(`Missing required columns: ${missingCoreHeaders.join(', ')}. Found: ${headerValues.join(', ')}`));
             return;
@@ -201,7 +201,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
             const values = parseCSVLine(line);
             const row = {};
-            
+
             headers.forEach((header, index) => {
               row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
             });
@@ -230,7 +230,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       reader.onload = (event) => {
         try {
           const data = new Uint8Array(event.target.result);
-          const workbook = XLSX.read(data, { 
+          const workbook = XLSX.read(data, {
             type: 'array',
             cellDates: false,
             cellText: true,
@@ -238,13 +238,13 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
             cellHTML: false
           });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
-            header: 1, 
+
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+            header: 1,
             defval: '',
             raw: false
           });
-          
+
           if (!jsonData || jsonData.length === 0) {
             reject(new Error('Excel file is empty'));
             return;
@@ -252,7 +252,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
           const headerRowIndex = 0;
           const headerValues = jsonData[headerRowIndex] || [];
-          
+
           console.log('Parsed Excel headers:', headerValues);
 
           const headers = headerValues.map(h => {
@@ -265,7 +265,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
           const requiredCoreHeaders = ['buildingcode', 'stakeholder', 'postingdate', 'purchasecategory', 'purchasedactivitytype', 'purchasedgoodsservicestype', 'amountspent', 'unit', 'qualitycontrol'];
           const missingCoreHeaders = requiredCoreHeaders.filter(h => !headers.includes(h));
-          
+
           if (missingCoreHeaders.length > 0) {
             reject(new Error(`Missing required columns: ${missingCoreHeaders.join(', ')}. Found: ${headerValues.join(', ')}`));
             return;
@@ -369,7 +369,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       const matchedActivity = validActivityTypes.find(a =>
         a.toLowerCase() === cleanedRow.purchasedactivitytype.toLowerCase()
       );
-      
+
       if (!matchedActivity) {
         errors.push(`Invalid purchased activity type "${cleanedRow.purchasedactivitytype}" for category "${cleanedRow.purchasecategory}"`);
       } else {
@@ -381,11 +381,11 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     if (cleanedRow.purchasedactivitytype && cleanedRow.purchasedgoodsservicestype) {
       const validTypes = purchasedGoodsServicesTypes[cleanedRow.purchasedactivitytype] || [];
       const validTypeValues = validTypes.map(t => t.value);
-      
+
       const matchedType = validTypeValues.find(t =>
         t.toLowerCase() === cleanedRow.purchasedgoodsservicestype.toLowerCase()
       );
-      
+
       if (!matchedType && validTypeValues.length > 0) {
         errors.push(`Invalid purchased goods/services type "${cleanedRow.purchasedgoodsservicestype}" for activity "${cleanedRow.purchasedactivitytype}"`);
       } else if (matchedType) {
@@ -396,9 +396,9 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     // isCapitalGoods - for capital goods listing
     if (isCapitalGoods) {
       if (cleanedRow.iscapitalgoods) {
-        cleanedRow.iscapitalgoods = cleanedRow.iscapitalgoods.toLowerCase() === 'yes' || 
-                                    cleanedRow.iscapitalgoods.toLowerCase() === 'true' || 
-                                    cleanedRow.iscapitalgoods === '1';
+        cleanedRow.iscapitalgoods = cleanedRow.iscapitalgoods.toLowerCase() === 'yes' ||
+          cleanedRow.iscapitalgoods.toLowerCase() === 'true' ||
+          cleanedRow.iscapitalgoods === '1';
       } else {
         cleanedRow.iscapitalgoods = false;
       }
@@ -483,29 +483,29 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       return text.charAt(0).toUpperCase() + text.slice(1);
     };
 
- return {
-  buildingCode: row.buildingcode,
-  stakeholder: row.stakeholder,
-  purchaseCategory: row.purchasecategory,
-  purchasedActivityType: row.purchasedactivitytype,
-  purchasedGoodsServicesType: cleanStringValue(row.purchasedgoodsservicestype),
-  isCapitalGoods: isCapitalGoods ? (row.iscapitalgoods || false) : false,
-  amountSpent: cleanNumberValue(row.amountspent, 'Amount spent') || 0,
-  unit: cleanStringValue(row.unit),
-  qualityControl: row.qualitycontrol,
-  remarks: capitalizeFirstLetter(cleanStringValue(row.remarks) || ''),
-  postingDate: row.postingdate,
-  calculatedEmissionKgCo2e: emissionResult?.calculatedEmissionKgCo2e || 0,
-  calculatedEmissionTCo2e: emissionResult?.calculatedEmissionTCo2e || 0,
-  createdBy: userId,
-  updatedBy: userId,
-};
+    return {
+      buildingCode: row.buildingcode,
+      stakeholder: row.stakeholder,
+      purchaseCategory: row.purchasecategory,
+      purchasedActivityType: row.purchasedactivitytype,
+      purchasedGoodsServicesType: cleanStringValue(row.purchasedgoodsservicestype),
+      isCapitalGoods: isCapitalGoods ? (row.iscapitalgoods || false) : false,
+      amountSpent: cleanNumberValue(row.amountspent, 'Amount spent') || 0,
+      unit: cleanStringValue(row.unit),
+      qualityControl: row.qualitycontrol,
+      remarks: capitalizeFirstLetter(cleanStringValue(row.remarks) || ''),
+      postingDate: row.postingdate,
+      calculatedEmissionKgCo2e: emissionResult?.calculatedEmissionKgCo2e || 0,
+      calculatedEmissionTCo2e: emissionResult?.calculatedEmissionTCo2e || 0,
+      createdBy: userId,
+      updatedBy: userId,
+    };
   }, []);
 
   const handleFileSelect = async (file, isCapitalGoods = false) => {
     const fileExtension = file.name.split('.').pop().toLowerCase();
     const isValidFile = ['csv', 'xlsx', 'xls'].includes(fileExtension);
-    
+
     if (!isValidFile) {
       toast.error('Please select a CSV or Excel file');
       console.error('Invalid file type selected:', file.name);
@@ -524,7 +524,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       } else {
         data = await parseExcel(file);
       }
-      
+
       if (!data || data.length === 0) {
         toast.error('No data found in file');
         return null;
@@ -641,7 +641,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
           toast.warning(`Uploaded ${results.success} records, ${results.failed} failed.`);
         }
       }, 2000);
-      
+
       console.log('processUpload completed successfully');
       return results;
 
@@ -656,7 +656,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       throw error;
     }
   };
-  
+
   const resetUpload = () => {
     setCsvState({
       file: null,
@@ -671,7 +671,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
   const downloadPurchasedGoodsTemplate = useCallback((isCapitalGoods = false) => {
     const exampleBuildings = buildings.slice(0, 1);
     const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
-    
+
     const exampleStakeholder = 'Procurement';
     const examplePurchaseCategory = 'Purchased Goods';
     const exampleActivityType = 'Food & Drinks';
@@ -690,19 +690,19 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
     if (isCapitalGoods) {
       headers = [
-        'building code',
-        'stakeholder',
-        'posting date',
-        'purchase category',
-        'purchased activity type',
-        'purchased goods services type',
-        'is capital goods',
-        'amount spent',
-        'unit',
-        'quality control',
-        'remarks'
+        'Building Code',
+        'Stakeholder',
+        'Posting Date',
+        'Purchase Category',
+        'Purchased Activity Type',
+        'Purchased Goods Services Type',
+        'Is Capital Goods',
+        'Amount Spent',
+        'Unit',
+        'Quality Control',
+        'Remarks'
       ];
-      
+
       exampleRow = [
         exampleBuildingCode,
         exampleStakeholder,
@@ -718,18 +718,18 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       ];
     } else {
       headers = [
-        'building code',
-        'stakeholder',
-        'posting date',
-        'purchase category',
-        'purchased activity type',
-        'purchased goods services type',
-        'amount spent',
-        'unit',
-        'quality control',
-        'remarks'
+        'Building Code',
+        'Stakeholder',
+        'Posting Date',
+        'Purchase Category',
+        'Purchased Activity Type',
+        'Purchased Goods Services Type',
+        'Amount Spent',
+        'Unit',
+        'Quality Control',
+        'Remarks'
       ];
-      
+
       exampleRow = [
         exampleBuildingCode,
         exampleStakeholder,
@@ -748,13 +748,13 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     const worksheetData = [
       headers,
       exampleRow,
-     
+
     ];
 
     // Create workbook and worksheet
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-    
+
     // Auto-size columns for better readability
     const colWidths = headers.map(header => ({
       wch: Math.min(Math.max(header.length, 15), 35)
@@ -774,7 +774,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
 
     // Add the worksheet to the workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 
+    XLSX.utils.book_append_sheet(workbook, worksheet,
       isCapitalGoods ? 'Capital Goods Template' : 'Purchased Goods Template');
 
     // Download the Excel file

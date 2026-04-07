@@ -38,7 +38,7 @@ const ProcessEmissionsFormPage = () => {
     postingDate: "",
   });
 
-  const [amountLabel, setAmountLabel] = useState("Amount of Emissions"); // dynamic label
+  const [amountLabel, setAmountLabel] = useState("Process Activity Data"); // dynamic label
   const [errors, setErrors] = useState({});
   const [buildingOptions, setBuildingOptions] = useState([]);
 

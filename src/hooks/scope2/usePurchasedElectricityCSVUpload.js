@@ -873,137 +873,133 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
     });
   };
 
-  const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
-    const exampleBuildings = buildings.slice(0, 1);
-    const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-4334';
-    const exampleQC = 'Good';
-    const exampleUnit = 'kWh';
-    const exampleGridStation = 'Hyderabad Electric Supply Company (HESCO)';
+const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
+  const exampleBuildings = buildings.slice(0, 1);
+  const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-4334';
+  const exampleQC = 'Good';
+  const exampleUnit = 'kWh';
+  const exampleGridStation = 'Hyderabad Electric Supply Company (HESCO)';
 
-    const currentDate = new Date();
-    const day = String(currentDate.getDate()).padStart(2, '0');
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const year = currentDate.getFullYear();
-    const formattedDate = `${day}/${month}/${year}`;
+  // Use a valid example date in DD/MM/YYYY format (not future date)
+  const exampleDate = '03/04/2026'; // 3rd April 2026
 
-    let headers = [];
-    let exampleRow = [];
+  let headers = [];
+  let exampleRow = [];
 
-    if (selectedMethod === 'location_based') {
-      headers = [
-        'building code',
-        'total electricity consumption',
-        'unit',
-        'total gross electricity purchased from grid station',
-        'grid station',
-        'total other supplier specific electricity purchased or purchased under power purchased agreement (ppa)',
-        'quality control',
-        'posting date',
-        'remarks'
-      ];
-      
-      exampleRow = [
-        exampleBuildingCode,
-        '1500',
-        exampleUnit,
-        '1000',
-        exampleGridStation,
-        '500',
-        exampleQC,
-        formattedDate,
-        'Example location based record'
-      ];
-    } else {
-      headers = [
-        'building code',
-        'total purchased electricity (grid / supplier specific / ppa)',
-        'unit',
-        'total gross electricity purchased from grid station',
-        'grid station',
-        'quality control',
-        'posting date',
-        'remarks',
-        'do you have your own solar panels or any other renewable electricity generation plant installed at your facility that is retained by you under valid renewable energy instruments?',
-        'what is the total onsite solar electricity consumption?',
-        'how much solar electricity is retained by you under valid recs or any other energy attributes?',
-        'how much solar electricity is consumed by you but its renewable instruments or attributes is sold by you to another entity?',
-        'do you purchase supplier specific electricity?',
-        'how much electricity from total electricity consumption is purchased from specific supplier under contractual instrument?',
-        'do you have the supplier specific emission factor in kgco2e/kwh for purchased supplier specific electricity under contractual instrument?',
-        'emission factor',
-        "i don't have supplier specific emission factor",
-        'do you purchase electricity under power purchase agreements (ppa)?',
-        'how much electricity from total electricity consumption is purchased or covered under power purchase agreement (ppa)?',
-        'do you have the supplier specific emission factor in kgco2e/kwh for purchased electricity under power purchased agreement (ppa)?',
-        'ppa emission factor',
-        'or do you have the valid energy instruments or renewable energy attributes (rec / rec-i) etc. under power purchased agreements (ppa)?',
-        'do you have any other types of renewable energy attributes market-based instruments or renewable energy certificates (recs) that are separate from power purchase agreements (ppa) and from those covering on-site renewable electricity generation?',
-        'how much of your total electricity consumption (excluding solar generation and ppa-covered electricity) is covered by valid renewable energy attributes or market-based instruments?',
-      ];
-      
-      exampleRow = [
-        exampleBuildingCode,
-        '1500',
-        exampleUnit,
-        '1000',
-        exampleGridStation,
-        exampleQC,
-        formattedDate,
-        'Example market based record',
-        'Yes',
-        '500',
-        '400',
-        '100',
-        'Yes',
-        '300',
-        'Yes',
-        '0.5',
-        'No',
-        'Yes',
-        '200',
-        'Yes',
-        '0.4',
-        'No',
-        'Yes',
-        '150'
-      ];
-    }
-
-    // Create worksheet data with headers and example row
-    const worksheetData = [
-      headers,
-      exampleRow,
+  if (selectedMethod === 'location_based') {
+    headers = [
+      'Building Code',
+      'Total Electricity Consumption',
+      'Unit',
+      'Total Gross Electricity Purchased From Grid Station',
+      'Grid Station',
+      'Total Other Supplier Specific Electricity Purchased Or Purchased Under Power Purchased Agreement (PPA)',
+      'Quality Control',
+      'Posting Date',
+      'Remarks'
     ];
-
-    // Create workbook and worksheet
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
     
-    // Auto-size columns for better readability
-    const colWidths = headers.map(header => ({
-      wch: Math.min(Math.max(header.length, 15), 50)
-    }));
-    worksheet['!cols'] = colWidths;
+    exampleRow = [
+      exampleBuildingCode,
+      '1500',
+      exampleUnit,
+      '1000',
+      exampleGridStation,
+      '500',
+      exampleQC,
+      exampleDate,  // Using fixed valid date
+      'Example location based record'
+    ];
+  } else {
+    headers = [
+      'Building Code',
+      'Total Purchased Electricity (Grid / Supplier Specific / PPA)',
+      'Unit',
+      'Total Gross Electricity Purchased From Grid Station',
+      'Grid Station',
+      'Quality Control',
+      'Posting Date',
+      'Remarks',
+      'Do You Have Your Own Solar Panels Or Any Other Renewable Electricity Generation Plant Installed At Your Facility That Is Retained By You Under Valid Renewable Energy Instruments?',
+      'What Is The Total Onsite Solar Electricity Consumption?',
+      'How Much Solar Electricity Is Retained By You Under Valid RECs Or Any Other Energy Attributes?',
+      'How Much Solar Electricity Is Consumed By You But Its Renewable Instruments Or Attributes Is Sold By You To Another Entity?',
+      'Do You Purchase Supplier Specific Electricity?',
+      'How Much Electricity From Total Electricity Consumption Is Purchased From Specific Supplier Under Contractual Instrument?',
+      'Do You Have The Supplier Specific Emission Factor In kgCO2e/kWh For Purchased Supplier Specific Electricity Under Contractual Instrument?',
+      'Emission Factor',
+      'I Don\'t Have Supplier Specific Emission Factor',
+      'Do You Purchase Electricity Under Power Purchase Agreements (PPA)?',
+      'How Much Electricity From Total Electricity Consumption Is Purchased Or Covered Under Power Purchase Agreement (PPA)?',
+      'Do You Have The Supplier Specific Emission Factor In kgCO2e/kWh For Purchased Electricity Under Power Purchased Agreement (PPA)?',
+      'PPA Emission Factor',
+      'Or Do You Have The Valid Energy Instruments Or Renewable Energy Attributes (REC / REC-I) Etc. Under Power Purchased Agreements (PPA)?',
+      'Do You Have Any Other Types Of Renewable Energy Attributes Market-Based Instruments Or Renewable Energy Certificates (RECs) That Are Separate From Power Purchase Agreements (PPA) And From Those Covering On-Site Renewable Electricity Generation?',
+      'How Much Of Your Total Electricity Consumption (Excluding Solar Generation And PPA-Covered Electricity) Is Covered By Valid Renewable Energy Attributes Or Market-Based Instruments?',
+    ];
+    
+    exampleRow = [
+      exampleBuildingCode,
+      '1500',
+      exampleUnit,
+      '1000',
+      exampleGridStation,
+      exampleQC,
+      exampleDate,  // Using fixed valid date
+      'Example market based record',
+      'Yes',
+      '500',
+      '400',
+      '100',
+      'Yes',
+      '300',
+      'Yes',
+      '0.5',
+      'No',
+      'Yes',
+      '200',
+      'Yes',
+      '0.4',
+      'No',
+      'Yes',
+      '150'
+    ];
+  }
 
-    // Style the header row
-    const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
-    for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-      if (!worksheet[cellAddress]) continue;
-      worksheet[cellAddress].s = {
-        font: { bold: true, sz: 12 },
-        fill: { fgColor: { rgb: "E0E0E0" } }
-      };
-    }
+  // Create worksheet data with headers and example row
+  const worksheetData = [
+    headers,
+    exampleRow,
+  ];
 
-    // Add the worksheet to the workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 
-      selectedMethod === 'location_based' ? 'Location Based Template' : 'Market Based Template');
+  // Create workbook and worksheet
+  const workbook = XLSX.utils.book_new();
+  const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+  
+  // Auto-size columns for better readability
+  const colWidths = headers.map(header => ({
+    wch: Math.min(Math.max(header.length, 15), 50)
+  }));
+  worksheet['!cols'] = colWidths;
 
-    // Download the Excel file
-    XLSX.writeFile(workbook, `purchased_electricity_${selectedMethod}_template.xlsx`);
-  }, [buildings]);
+  // Style the header row
+  const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
+  for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+    const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+    if (!worksheet[cellAddress]) continue;
+    worksheet[cellAddress].s = {
+      font: { bold: true, sz: 12 },
+      fill: { fgColor: { rgb: "E0E0E0" } }
+    };
+  }
 
+  // Add the worksheet to the workbook
+  XLSX.utils.book_append_sheet(workbook, worksheet, 
+    selectedMethod === 'location_based' ? 'Location Based Template' : 'Market Based Template');
+
+  // Download the Excel file
+  XLSX.writeFile(workbook, `purchased_electricity_${selectedMethod}_template.xlsx`);
+}, [buildings]);
   return {
     csvState,
     handleFileSelect,

@@ -22,7 +22,7 @@ const useFugitiveCSVUpload = (buildings = []) => {
     parsedData: null,
   });
 
-   const isNA = useCallback((value) => {
+  const isNA = useCallback((value) => {
     if (!value) return true;
     const val = value.toString().toLowerCase().trim();
     return val === 'n/a' || val === 'na' || val === '';
@@ -161,7 +161,7 @@ const useFugitiveCSVUpload = (buildings = []) => {
       reader.onload = (event) => {
         try {
           const data = new Uint8Array(event.target.result);
-          const workbook = XLSX.read(data, { 
+          const workbook = XLSX.read(data, {
             type: 'array',
             cellDates: false,
             cellText: true,
@@ -169,13 +169,13 @@ const useFugitiveCSVUpload = (buildings = []) => {
             cellHTML: false
           });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
-            header: 1, 
+
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+            header: 1,
             defval: '',
             raw: false
           });
-          
+
           if (!jsonData || jsonData.length === 0) {
             reject(new Error('Excel file is empty'));
             return;
@@ -186,10 +186,10 @@ const useFugitiveCSVUpload = (buildings = []) => {
           for (let i = 0; i < jsonData.length; i++) {
             const row = jsonData[i];
             if (row && row.length > 0) {
-              const rowText = row.map(cell => 
+              const rowText = row.map(cell =>
                 cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
               ).join('');
-              
+
               if (rowText.includes('buildingcode') && rowText.includes('stakeholder')) {
                 headerRowIndex = i;
                 break;
@@ -203,7 +203,7 @@ const useFugitiveCSVUpload = (buildings = []) => {
           }
 
           // Get headers
-          const headers = jsonData[headerRowIndex].map(header => 
+          const headers = jsonData[headerRowIndex].map(header =>
             cleanValue(header).toLowerCase().replace(/[^a-z0-9]/g, '')
           );
 
@@ -272,8 +272,8 @@ const useFugitiveCSVUpload = (buildings = []) => {
 
     // Required fields validation
     const requiredFields = [
-      'buildingcode', 'stakeholder', 'equipmenttype', 
-      'materialrefrigerant', 'leakagevalue', 'consumptionunit', 
+      'buildingcode', 'stakeholder', 'equipmenttype',
+      'materialrefrigerant', 'leakagevalue', 'consumptionunit',
       'qualitycontrol', 'postingdate'
     ];
 
@@ -308,12 +308,12 @@ const useFugitiveCSVUpload = (buildings = []) => {
     if (cleanedRow.equipmenttype) {
       const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
       const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
-      
+
       const matchedEquipment = validEquipmentTypes.find(equipment => {
         const normalizedEquipment = normalizeSubscriptNumbers(equipment);
         return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
       });
-      
+
       if (!matchedEquipment) {
         errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
       } else {
@@ -338,7 +338,7 @@ const useFugitiveCSVUpload = (buildings = []) => {
     if (cleanedRow.leakagevalue) {
       const cleanNum = cleanedRow.leakagevalue.toString()
         .replace(/[^0-9.-]/g, '');
-      
+
       const num = Number(cleanNum);
       if (isNaN(num)) {
         errors.push(`Leakage value must be a number, got "${cleanedRow.leakagevalue}"`);
@@ -387,18 +387,18 @@ const useFugitiveCSVUpload = (buildings = []) => {
 
       const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
       const match = dateStr.match(ddmmyyyyRegex);
-      
+
       if (match) {
         const day = parseInt(match[1], 10);
         const month = parseInt(match[2], 10) - 1;
         const year = parseInt(match[3], 10);
-        
+
         const date = new Date(year, month, day);
-        
-        if (isNaN(date.getTime()) || 
-            date.getDate() !== day || 
-            date.getMonth() !== month || 
-            date.getFullYear() !== year) {
+
+        if (isNaN(date.getTime()) ||
+          date.getDate() !== day ||
+          date.getMonth() !== month ||
+          date.getFullYear() !== year) {
           errors.push(`Invalid date "${dateStr}" - please provide a valid DD/MM/YYYY date`);
         } else if (date > new Date()) {
           errors.push('Date cannot be in the future');
@@ -413,7 +413,7 @@ const useFugitiveCSVUpload = (buildings = []) => {
         if (yyyymmddRegex.test(dateStr)) {
           const [year, month, day] = dateStr.split('-').map(Number);
           const date = new Date(year, month - 1, day);
-          
+
           if (isNaN(date.getTime())) {
             errors.push(`Invalid date "${dateStr}"`);
           } else if (date > new Date()) {
@@ -456,34 +456,34 @@ const useFugitiveCSVUpload = (buildings = []) => {
     );
     const tEmission = kgEmission / 1000;
 
-   return {
-  buildingCode: row.buildingcode ? row.buildingcode.trim() : '',
-  buildingId: (() => {
-    if (!row.buildingcode) return undefined;
-    const match = buildings.find(b =>
-      (b.buildingCode && b.buildingCode === row.buildingcode) ||
-      (b.buildingName && b.buildingName === row.buildingcode) ||
-      (b._id && b._id === row.buildingcode)
-    );
-    return match ? match._id : row.buildingcode.trim();
-  })(),
-  stakeholder: row.stakeholder,
-  equipmentType: row.equipmenttype,
-  materialRefrigerant: row.materialrefrigerant,
-  leakageValue: cleanNumberValue(row.leakagevalue, 'Leakage value'),
-  consumptionUnit: cleanStringValue(row.consumptionunit),
-  qualityControl: row.qualitycontrol,
-  calculatedEmissionKgCo2e: kgEmission || 0,
-  calculatedEmissionTCo2e: tEmission || 0,
-  remarks: cleanStringValue(row.remarks) || '',
-  postingDate: row.postingdate || new Date().toISOString().split('T')[0],
-};
+    return {
+      buildingCode: row.buildingcode ? row.buildingcode.trim() : '',
+      buildingId: (() => {
+        if (!row.buildingcode) return undefined;
+        const match = buildings.find(b =>
+          (b.buildingCode && b.buildingCode === row.buildingcode) ||
+          (b.buildingName && b.buildingName === row.buildingcode) ||
+          (b._id && b._id === row.buildingcode)
+        );
+        return match ? match._id : row.buildingcode.trim();
+      })(),
+      stakeholder: row.stakeholder,
+      equipmentType: row.equipmenttype,
+      materialRefrigerant: row.materialrefrigerant,
+      leakageValue: cleanNumberValue(row.leakagevalue, 'Leakage value'),
+      consumptionUnit: cleanStringValue(row.consumptionunit),
+      qualityControl: row.qualitycontrol,
+      calculatedEmissionKgCo2e: kgEmission || 0,
+      calculatedEmissionTCo2e: tEmission || 0,
+      remarks: cleanStringValue(row.remarks) || '',
+      postingDate: row.postingdate || new Date().toISOString().split('T')[0],
+    };
   }, [buildings]);
 
   const handleFileSelect = useCallback(async (file) => {
     const fileExtension = file.name.split('.').pop().toLowerCase();
     const isValidFile = ['csv', 'xlsx', 'xls'].includes(fileExtension);
-    
+
     if (!isValidFile) {
       toast.error('Please select a CSV or Excel file');
       console.error('Invalid file type selected:', file.name);
@@ -503,7 +503,7 @@ const useFugitiveCSVUpload = (buildings = []) => {
       } else {
         data = await parseExcel(file);
       }
-      
+
       if (!data || data.length === 0) {
         toast.error('No data found in file');
         return null;
@@ -655,13 +655,13 @@ const useFugitiveCSVUpload = (buildings = []) => {
   const downloadFugitiveTemplate = useCallback(() => {
     const exampleBuildings = buildings.slice(0, 2);
     const exampleBuilding1 = exampleBuildings[0]?.buildingCode || 'BLD-8182';
-    
+
     const exampleStakeholder = FugitiveAndMobileStakeholderOptions[0]?.value || 'Assembly';
     const exampleEquipmentType = FugitiveEquipmentTypeOptions.find(e => e.value === 'Air Handling Units (AHUs) with Refrigerants')?.value || 'Air Handling Units (AHUs) with Refrigerants';
     const exampleMaterial = materialRefrigerantOptions[0]?.value || 'R-134a';
     const exampleUnit = consumptionUnitOptions[0]?.value || 'kg';
     const exampleQC = qualityControlOptions[0]?.value || 'Good';
-    
+
     const currentDate = new Date();
     const day = String(currentDate.getDate()).padStart(2, '0');
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
@@ -671,15 +671,15 @@ const useFugitiveCSVUpload = (buildings = []) => {
     // Create worksheet data with headers
     const worksheetData = [
       [
-        'building code',
-        'stakeholder',
-        'equipment type',
-        'material refrigerant',
-        'leakage value',
-        'unit',
-        'quality control',
-        'remarks',
-        'posting date'
+        'Building Code',
+        'Stakeholder',
+        'Equipment Type',
+        'Material Refrigerant',
+        'Leakage Value',
+        'Unit',
+        'Quality Control',
+        'Remarks',
+        'Posting Date'
       ],
       [
         exampleBuilding1,
@@ -692,13 +692,13 @@ const useFugitiveCSVUpload = (buildings = []) => {
         'AC maintenance - Unit 1',
         formattedDate
       ],
-      
+
     ];
 
     // Create workbook and worksheet
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-    
+
     // Auto-size columns for better readability
     worksheet['!cols'] = [
       { wch: 20 }, // building code
