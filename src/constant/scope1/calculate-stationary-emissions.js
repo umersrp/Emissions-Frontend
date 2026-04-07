@@ -304,42 +304,42 @@ export const outOfScopeEmissionFactors = {
   // BIOFUELS
   "Bioethanol": {
     "litres": 1.52,
-    "kwh": 0.25693,
+    "kwh": 0.256929944560444,
     "tonnes": 1910.0,
   },
   "Biodiesel ME": {
     "litres": 2.39,
-    "kwh": 0.25977,
+    "kwh": 0.259773921808626,
     "tonnes": 2680.0,
   },
   "Biomethane (compressed)": {
-    "kwh": 0.19901,
+    "kwh": 0.199006407948736,
     "tonnes": 2710.0,
   },
   "Biodiesel ME (from used cooking oil)": {
     "litres": 2.39,
-    "kwh": 0.25977,
+    "kwh": 0.259773921808626,
     "tonnes": 2680.0,
   },
   "Biodiesel ME (from tallow)": {
     "litres": 2.39,
-    "kwh": 0.25977,
+    "kwh": 0.259773921808626,
     "tonnes": 2680.0,
   },
   "Biodiesel HVO": {
     "litres": 2.43,
-    "kwh": 0.25499,
+    "kwh": 0.254985960112319,
     "tonnes": 3120.0,
   },
   "Biopropane": {
     "litres": 1.54,
-    "kwh": 0.23223,
+    "kwh": 0.232234142126863,
     "tonnes": 2990.0,
   },
   "Development diesel": {
-    "litres": 2.33,
-    "kwh": 0.25275,
-    "tonnes": 3130.0,
+    "litres": 2.63,
+    "kwh": 0.264741882064944,
+    "tonnes": 3160.0,
   },
    "Development petrol": {
     "litres": 2.33,
@@ -348,21 +348,21 @@ export const outOfScopeEmissionFactors = {
   },
   "Off road biodiesel": {
     "litres": 2.39,
-    "kwh": 0.25977,
+    "kwh": 0.259773921808626,
     "tonnes": 2680.0,
   },
   "Biomethane (liquified)": {
-    "kwh": 0.20448,
+    "kwh": 0.204478364173087,
     "tonnes": 2780.0,
   },
   "Methanol (bio)": {
     "litres": 1.09,
-    "kwh": 0.24811,
+    "kwh": 0.248110015119879,
     "tonnes": 1370.0,
   },
   "Avtur (renewable)": {
     "litres": 2.51,
-    "kwh": 0.25826,
+    "kwh": 0.258261933904529,
     "tonnes": 3150.0,
   },
 

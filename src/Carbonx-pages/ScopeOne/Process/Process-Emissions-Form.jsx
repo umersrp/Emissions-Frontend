@@ -33,6 +33,7 @@ const ProcessEmissionsFormPage = () => {
     amountOfEmissions: "",
     qualityControl: null,
     remarks: "",
+    processActivityData:"testing Activity Data",
     calculatedEmissionKgCo2e: "",
     calculatedEmissionTCo2e: "",
     postingDate: "",
@@ -241,6 +242,7 @@ const ProcessEmissionsFormPage = () => {
       amountOfEmissions: formData.amountOfEmissions,
       qualityControl: formData.qualityControl?.value,
       remarks: capitalizeFirstLetter(formData.remarks),
+      processActivityData: formData.processActivityData,  
       calculatedEmissionKgCo2e: formData.calculatedEmissionKgCo2e,  // added
       calculatedEmissionTCo2e: formData.calculatedEmissionTCo2e,
       postingDate: formData.postingDate,
