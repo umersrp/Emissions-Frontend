@@ -23,7 +23,7 @@ const useMobileCSVUpload = (buildings = []) => {
     parsedData: null,
   });
 
-   const isNA = useCallback((value) => {
+  const isNA = useCallback((value) => {
     if (!value) return true;
     const val = value.toString().toLowerCase().trim();
     return val === 'n/a' || val === 'na' || val === '';
@@ -157,113 +157,113 @@ const useMobileCSVUpload = (buildings = []) => {
   }, [cleanValue]);
 
   // Excel Parser
-// Excel Parser - Updated to preserve number formatting
-const parseExcel = useCallback((file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const data = new Uint8Array(event.target.result);
-        const workbook = XLSX.read(data, { 
-          type: 'array',
-          cellDates: false, // Don't convert dates automatically
-          cellText: true,   // Keep cell text
-          cellNF: true,     // Keep number formats
-          cellHTML: false
-        });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        
-        // Use raw: false to get formatted values
-        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
-          header: 1, 
-          defval: '',
-          raw: false  // This will return formatted values (e.g., "50%" instead of 0.5)
-        });
-        
-        if (!jsonData || jsonData.length === 0) {
-          reject(new Error('Excel file is empty'));
-          return;
-        }
+  // Excel Parser - Updated to preserve number formatting
+  const parseExcel = useCallback((file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = new Uint8Array(event.target.result);
+          const workbook = XLSX.read(data, {
+            type: 'array',
+            cellDates: false, // Don't convert dates automatically
+            cellText: true,   // Keep cell text
+            cellNF: true,     // Keep number formats
+            cellHTML: false
+          });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
 
-        // Find header row
-        let headerRowIndex = -1;
-        for (let i = 0; i < jsonData.length; i++) {
-          const row = jsonData[i];
-          if (row && row.length > 0) {
-            const rowText = row.map(cell => 
-              cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
-            ).join('');
-            
-            if (rowText.includes('buildingcode') && rowText.includes('stakeholder')) {
-              headerRowIndex = i;
-              break;
-            }
-          }
-        }
-
-        if (headerRowIndex === -1) {
-          reject(new Error('Excel must contain header row with: buildingCode, stakeholder, vehicleClassification, vehicleType, fuelName, distanceTravelled, distanceUnit, qualityControl, weightLoaded, remarks, postingDate'));
-          return;
-        }
-
-        // Get headers
-        const headers = jsonData[headerRowIndex].map(header => 
-          cleanValue(header).toLowerCase().replace(/[^a-z0-9]/g, '')
-        );
-
-        // Expected headers
-        const expectedHeaders = [
-          'buildingcode', 'stakeholder', 'vehicleclassification', 'vehicletype',
-          'fuelname', 'distancetravelled', 'distanceunit', 'qualitycontrol',
-          'weightloaded', 'remarks', 'postingdate'
-        ];
-
-        // Check for missing headers
-        const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
-        if (missingHeaders.length > 0) {
-          reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
-          return;
-        }
-
-        // Parse data rows
-        const parsedData = [];
-        for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
-          const row = jsonData[i];
-          if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
-
-          const rowData = {};
-          headers.forEach((header, index) => {
-            let value = index < row.length ? row[index] : '';
-            
-            // Special handling for weight loaded to preserve percentage format
-            if (header === 'weightloaded' && value) {
-              // If value is a number (like 0.5), convert to percentage string
-              if (typeof value === 'number') {
-                const percentage = value * 100;
-                if (percentage === 0) value = '0%';
-                else if (percentage === 50) value = '50%';
-                else if (percentage === 100) value = '100%';
-                else value = `${percentage}%`;
-              }
-              // If value is already a string, keep as is
-            }
-            
-            rowData[header] = value ? cleanValue(value) : '';
+          // Use raw: false to get formatted values
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+            header: 1,
+            defval: '',
+            raw: false  // This will return formatted values (e.g., "50%" instead of 0.5)
           });
 
-          parsedData.push(rowData);
-        }
+          if (!jsonData || jsonData.length === 0) {
+            reject(new Error('Excel file is empty'));
+            return;
+          }
 
-        console.log('Parsed Excel data:', JSON.stringify(parsedData, null, 2));
-        resolve(parsedData);
-      } catch (error) {
-        reject(new Error(`Error parsing Excel file: ${error.message}`));
-      }
-    };
-    reader.onerror = () => reject(new Error('Failed to read file'));
-    reader.readAsArrayBuffer(file);
-  });
-}, [cleanValue]);
+          // Find header row
+          let headerRowIndex = -1;
+          for (let i = 0; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (row && row.length > 0) {
+              const rowText = row.map(cell =>
+                cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
+              ).join('');
+
+              if (rowText.includes('buildingcode') && rowText.includes('stakeholder')) {
+                headerRowIndex = i;
+                break;
+              }
+            }
+          }
+
+          if (headerRowIndex === -1) {
+            reject(new Error('Excel must contain header row with: buildingCode, stakeholder, vehicleClassification, vehicleType, fuelName, distanceTravelled, distanceUnit, qualityControl, weightLoaded, remarks, postingDate'));
+            return;
+          }
+
+          // Get headers
+          const headers = jsonData[headerRowIndex].map(header =>
+            cleanValue(header).toLowerCase().replace(/[^a-z0-9]/g, '')
+          );
+
+          // Expected headers
+          const expectedHeaders = [
+            'buildingcode', 'stakeholder', 'vehicleclassification', 'vehicletype',
+            'fuelname', 'distancetravelled', 'distanceunit', 'qualitycontrol',
+            'weightloaded', 'remarks', 'postingdate'
+          ];
+
+          // Check for missing headers
+          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+          if (missingHeaders.length > 0) {
+            reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+            return;
+          }
+
+          // Parse data rows
+          const parsedData = [];
+          for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+
+            const rowData = {};
+            headers.forEach((header, index) => {
+              let value = index < row.length ? row[index] : '';
+
+              // Special handling for weight loaded to preserve percentage format
+              if (header === 'weightloaded' && value) {
+                // If value is a number (like 0.5), convert to percentage string
+                if (typeof value === 'number') {
+                  const percentage = value * 100;
+                  if (percentage === 0) value = '0%';
+                  else if (percentage === 50) value = '50%';
+                  else if (percentage === 100) value = '100%';
+                  else value = `${percentage}%`;
+                }
+                // If value is already a string, keep as is
+              }
+
+              rowData[header] = value ? cleanValue(value) : '';
+            });
+
+            parsedData.push(rowData);
+          }
+
+          console.log('Parsed Excel data:', JSON.stringify(parsedData, null, 2));
+          resolve(parsedData);
+        } catch (error) {
+          reject(new Error(`Error parsing Excel file: ${error.message}`));
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsArrayBuffer(file);
+    });
+  }, [cleanValue]);
 
   const validateMobileRow = useCallback((row, index) => {
     const errors = [];
@@ -296,7 +296,7 @@ const parseExcel = useCallback((file) => {
         (b._id && b._id.toString() === cleanedRow.buildingcode)
       );
       if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0,3).map(b => b.buildingCode || b._id).join(', ')}...`);
+        errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0, 3).map(b => b.buildingCode || b._id).join(', ')}...`);
       } else {
         const matched = buildings.find(b => b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase());
         if (matched && matched.buildingCode) cleanedRow.buildingcode = matched.buildingCode;
@@ -395,120 +395,171 @@ const parseExcel = useCallback((file) => {
         cleanedRow.qualitycontrol = matchedQC;
       }
     }
-// Weight loaded validation (conditional)
-const isHGV = cleanedRow.vehicleclassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
-              cleanedRow.vehicleclassification === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
+    // Weight loaded validation (conditional)
+    const isHGV = cleanedRow.vehicleclassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
+      cleanedRow.vehicleclassification === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
 
-if (isHGV && cleanedRow.weightloaded) {
-  const validWeights = weightLoadedOptions.map(w => w.value);
-  
-  const normalizeWeight = (weight) => {
-    if (!weight) return weight;
+    if (isHGV && cleanedRow.weightloaded) {
+      const validWeights = weightLoadedOptions.map(w => w.value);
+
+      const normalizeWeight = (weight) => {
+        if (!weight) return weight;
+
+        let weightStr = String(weight).trim();
+
+        // Check if it's a decimal number (from Excel parsing percentages)
+        // Handle cases like 0.5 (which is 50%), 1 (which is 100%), etc.
+        const decimalNumber = parseFloat(weightStr);
+        if (!isNaN(decimalNumber) && weightStr.match(/^[\d.]+$/)) {
+          // Convert decimal to percentage format
+          const percentageValue = decimalNumber * 100;
+          if (percentageValue === 0) return "0%";
+          if (percentageValue === 50) return "50%";
+          if (percentageValue === 100) return "100%";
+          // If it's a different number, format it as percentage
+          return `${percentageValue}%`;
+        }
+
+        // Check for percentage with decimal places (e.g., "0.00%", "50.00%", "100.00%")
+        const decimalPattern = /^(\d+(?:\.\d+)?)%$/;
+        const match = weightStr.match(decimalPattern);
+
+        if (match) {
+          const number = parseFloat(match[1]);
+          if (number === 0) return "0%";
+          if (number === 50) return "50%";
+          if (number === 100) return "100%";
+          // If it's a different number, keep the original format
+          return weightStr;
+        }
+
+        // Check for simple percentage format (e.g., "0%", "50%", "100%")
+        const simplePattern = /^(\d+)%$/;
+        const simpleMatch = weightStr.match(simplePattern);
+        if (simpleMatch) {
+          const number = parseInt(simpleMatch[1]);
+          if (number === 0) return "0%";
+          if (number === 50) return "50%";
+          if (number === 100) return "100%";
+          return weightStr;
+        }
+
+        // Check for "Average" (case insensitive)
+        if (weightStr.toLowerCase() === "average") {
+          return "Average";
+        }
+
+        // If it's already in the standard format
+        if (validWeights.includes(weightStr)) {
+          return weightStr;
+        }
+
+        return null;
+      };
+
+      const normalizedWeight = normalizeWeight(cleanedRow.weightloaded);
+
+      if (!normalizedWeight) {
+        errors.push(`Invalid weight loaded "${cleanedRow.weightloaded}". Accepted values: 0%, 0.00%, 50%, 50.00%, 100%, 100.00%, Average`);
+      } else {
+        cleanedRow.weightloaded = normalizedWeight;
+      }
+    }
+    // Date validation
+   // Date validation
+if (cleanedRow.postingdate) {
+  const parseToISODatePart = (input) => {
+    if (!input) return null;
+    let s = input.toString().trim().replace(/"/g, '');
+    if (s.includes('T')) s = s.split('T')[0];
     
-    let weightStr = String(weight).trim();
+    // Remove any extra spaces
+    s = s.trim();
     
-    // Check if it's a decimal number (from Excel parsing percentages)
-    // Handle cases like 0.5 (which is 50%), 1 (which is 100%), etc.
-    const decimalNumber = parseFloat(weightStr);
-    if (!isNaN(decimalNumber) && weightStr.match(/^[\d.]+$/)) {
-      // Convert decimal to percentage format
-      const percentageValue = decimalNumber * 100;
-      if (percentageValue === 0) return "0%";
-      if (percentageValue === 50) return "50%";
-      if (percentageValue === 100) return "100%";
-      // If it's a different number, format it as percentage
-      return `${percentageValue}%`;
+    // Check for DD/MM/YYYY format
+    const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+    const matchDDMMYYYY = s.match(ddmmyyyyRegex);
+    
+    if (matchDDMMYYYY) {
+      const day = parseInt(matchDDMMYYYY[1], 10);
+      const month = parseInt(matchDDMMYYYY[2], 10);
+      const year = parseInt(matchDDMMYYYY[3], 10);
+      
+      // Validate day, month, year ranges
+      if (month < 1 || month > 12) return null;
+      if (day < 1 || day > 31) return null;
+      if (year < 1900 || year > 2100) return null;
+      
+      const date = new Date(year, month - 1, day);
+      
+      // Validate the date is real (e.g., not 31/02/2025)
+      if (date.getFullYear() !== year || 
+          date.getMonth() !== month - 1 || 
+          date.getDate() !== day) {
+        return null;
+      }
+      
+      // Check if date is in the future
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (date > today) return null;
+      
+      // Return ISO format
+      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     }
     
-    // Check for percentage with decimal places (e.g., "0.00%", "50.00%", "100.00%")
-    const decimalPattern = /^(\d+(?:\.\d+)?)%$/;
-    const match = weightStr.match(decimalPattern);
+    // Check for YYYY-MM-DD format
+    const yyyymmddRegex = /^(\d{4})-(\d{1,2})-(\d{1,2})$/;
+    const matchYYYYMMDD = s.match(yyyymmddRegex);
     
-    if (match) {
-      const number = parseFloat(match[1]);
-      if (number === 0) return "0%";
-      if (number === 50) return "50%";
-      if (number === 100) return "100%";
-      // If it's a different number, keep the original format
-      return weightStr;
+    if (matchYYYYMMDD) {
+      const year = parseInt(matchYYYYMMDD[1], 10);
+      const month = parseInt(matchYYYYMMDD[2], 10);
+      const day = parseInt(matchYYYYMMDD[3], 10);
+      
+      // Validate ranges
+      if (month < 1 || month > 12) return null;
+      if (day < 1 || day > 31) return null;
+      if (year < 1900 || year > 2100) return null;
+      
+      const date = new Date(year, month - 1, day);
+      
+      if (date.getFullYear() !== year || 
+          date.getMonth() !== month - 1 || 
+          date.getDate() !== day) {
+        return null;
+      }
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (date > today) return null;
+      
+      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     }
     
-    // Check for simple percentage format (e.g., "0%", "50%", "100%")
-    const simplePattern = /^(\d+)%$/;
-    const simpleMatch = weightStr.match(simplePattern);
-    if (simpleMatch) {
-      const number = parseInt(simpleMatch[1]);
-      if (number === 0) return "0%";
-      if (number === 50) return "50%";
-      if (number === 100) return "100%";
-      return weightStr;
-    }
-    
-    // Check for "Average" (case insensitive)
-    if (weightStr.toLowerCase() === "average") {
-      return "Average";
-    }
-    
-    // If it's already in the standard format
-    if (validWeights.includes(weightStr)) {
-      return weightStr;
+    // Try parsing with Date constructor as fallback
+    const parsed = new Date(s);
+    if (!isNaN(parsed.getTime())) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (parsed <= today) {
+        return parsed.toISOString().split('T')[0];
+      }
     }
     
     return null;
   };
-  
-  const normalizedWeight = normalizeWeight(cleanedRow.weightloaded);
-  
-  if (!normalizedWeight) {
-    errors.push(`Invalid weight loaded "${cleanedRow.weightloaded}". Accepted values: 0%, 0.00%, 50%, 50.00%, 100%, 100.00%, Average`);
+
+  const iso = parseToISODatePart(cleanedRow.postingdate);
+  if (!iso) {
+    errors.push(`Invalid date. Please use DD/MM/YYYY or YYYY-MM-DD (got "${cleanedRow.postingdate}")`);
   } else {
-    cleanedRow.weightloaded = normalizedWeight;
+    cleanedRow.postingdate = iso;
   }
+} else {
+  // If no date provided, use current date
+  cleanedRow.postingdate = new Date().toISOString().split('T')[0];
 }
-    // Date validation
-    if (cleanedRow.postingdate) {
-      const parseToISODatePart = (input) => {
-        if (!input) return null;
-        let s = input.toString().trim().replace(/"/g, '');
-        if (s.includes('T')) s = s.split('T')[0];
-        s = s.replace(/\./g, '/').replace(/-/g, '/');
-        const parts = s.split('/').map(p => p.trim()).filter(Boolean);
-
-        if (parts.length === 3) {
-          let day, month, year;
-          if (parts[0].length === 4) {
-            year = parts[0]; month = parts[1]; day = parts[2];
-          } else {
-            day = parts[0]; month = parts[1]; year = parts[2];
-          }
-          const d = parseInt(day, 10);
-          const m = parseInt(month, 10);
-          const y = parseInt(year, 10);
-          if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
-          const date = new Date(y, m - 1, d);
-          if (isNaN(date.getTime())) return null;
-          if (date.getFullYear() !== y || date.getMonth() !== m - 1 || date.getDate() !== d) return null;
-          if (date > new Date()) return null;
-          return date.toISOString().split('T')[0];
-        }
-
-        const parsed = new Date(s);
-        if (isNaN(parsed.getTime())) return null;
-        if (parsed > new Date()) return null;
-        return parsed.toISOString().split('T')[0];
-      };
-
-      const iso = parseToISODatePart(cleanedRow.postingdate);
-      if (!iso) {
-        errors.push(`Invalid date. Please use DD/MM/YYYY or YYYY-MM-DD (got "${cleanedRow.postingdate}")`);
-      } else {
-        cleanedRow.postingdate = iso;
-      }
-    } else {
-      // If no date provided, use current date
-      cleanedRow.postingdate = new Date().toISOString().split('T')[0];
-    }
-
     // Remarks validation
     if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
       errors.push('Remarks cannot exceed 500 characters');
@@ -526,7 +577,38 @@ if (isHGV && cleanedRow.weightloaded) {
 
   const transformMobilePayload = useCallback((row) => {
     const isHGV = row.vehicleclassification === "Heavy Good Vehicles (HGVs All Diesel)" ||
-                  row.vehicleclassification === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
+      row.vehicleclassification === "Heavy Good Vehicles (Refrigirated HGVs All Diesel)";
+
+    // Normalize weight loaded for HGV vehicles
+    const normalizeWeightLoaded = (weight) => {
+      if (!weight) return null;
+      let weightStr = weight.toString().trim();
+
+      // Handle decimal numbers (0.5 -> 50%)
+      const decimalNum = parseFloat(weightStr);
+      if (!isNaN(decimalNum) && weightStr.match(/^[\d.]+$/)) {
+        const percentage = decimalNum * 100;
+        if (percentage === 0) return "0%";
+        if (percentage === 50) return "50%";
+        if (percentage === 100) return "100%";
+        return `${percentage}%`;
+      }
+
+      // Handle percentage strings (0.00%, 50.00%, 100.00%)
+      const percentageMatch = weightStr.match(/^(\d+(?:\.\d+)?)%$/);
+      if (percentageMatch) {
+        const num = parseFloat(percentageMatch[1]);
+        if (num === 0) return "0%";
+        if (num === 50) return "50%";
+        if (num === 100) return "100%";
+        return weightStr;
+      }
+
+      // Handle "Average" (case insensitive)
+      if (weightStr.toLowerCase() === "average") return "Average";
+
+      return weightStr;
+    };
 
     const result = calculateMobileCombustion(
       isHGV ? null : row.fuelname,
@@ -534,26 +616,25 @@ if (isHGV && cleanedRow.weightloaded) {
       row.distanceunit,
       row.vehicletype,
       row.vehicleclassification,
-      isHGV ? row.weightloaded || null : null
+      isHGV ? normalizeWeightLoaded(row.weightloaded) : null
     );
 
-   return {
-  buildingCode: row.buildingcode?.trim() || '',
-  stakeholder: row.stakeholder,
-  vehicleClassification: row.vehicleclassification,
-  vehicleType: row.vehicletype,
-  fuelName: row.fuelname,
-  distanceTraveled: cleanNumberValue(row.distancetravelled, 'Distance travelled'),
-  distanceUnit: cleanStringValue(row.distanceunit),
-  qualityControl: row.qualitycontrol,
-  weightLoaded: cleanNumberValue(row.weightloaded, 'Weight loaded'),
-  calculatedEmissionKgCo2e: result?.totalEmissionKg || 0,
-  calculatedEmissionTCo2e: result?.totalEmissionTonnes || 0,
-  remarks: cleanStringValue(row.remarks) || '',
-  postingDate: row.postingdate || new Date().toISOString().split('T')[0],
-};
-  }, []);
-
+    return {
+      buildingCode: row.buildingcode?.trim() || '',
+      stakeholder: row.stakeholder,
+      vehicleClassification: row.vehicleclassification,
+      vehicleType: row.vehicletype,
+      fuelName: row.fuelname,
+      distanceTraveled: row.distancetravelled ? Number(row.distancetravelled) : null,
+      distanceUnit: row.distanceunit?.trim() || null,
+      qualityControl: row.qualitycontrol,
+      weightLoaded: isHGV ? normalizeWeightLoaded(row.weightloaded) : null,
+      calculatedEmissionKgCo2e: result?.totalEmissionKg || 0,
+      calculatedEmissionTCo2e: result?.totalEmissionTonnes || 0,
+      remarks: row.remarks?.trim() || '',
+      postingDate: row.postingdate || new Date().toISOString().split('T')[0],
+    };
+  }, []); // Remove dependencies since we're not using cleanNumberValue/cleanStringValue
   const processUpload = useCallback(async (onSuccess = null) => {
     const { file, parsedData, validationErrors } = csvState;
 
@@ -650,7 +731,7 @@ if (isHGV && cleanedRow.weightloaded) {
   const handleFileSelect = useCallback(async (file) => {
     const fileExtension = file.name.split('.').pop().toLowerCase();
     const isValidFile = ['csv', 'xlsx', 'xls'].includes(fileExtension);
-    
+
     if (!isValidFile) {
       toast.error('Please select a CSV or Excel file');
       console.error('Invalid file type selected:', file.name);
@@ -670,7 +751,7 @@ if (isHGV && cleanedRow.weightloaded) {
       } else {
         data = await parseExcel(file);
       }
-      
+
       if (!data || data.length === 0) {
         toast.error('No data found in file');
         return null;
@@ -735,25 +816,25 @@ if (isHGV && cleanedRow.weightloaded) {
     });
   }, []);
 
-const downloadMobileTemplate = useCallback(() => {
-  const exampleBuildingCode = buildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
+  const downloadMobileTemplate = useCallback(() => {
+    const exampleBuildingCode = buildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
 
-  // Create worksheet data with headers
-  const worksheetData = [
-    [
-      'building code',
-      'stakeholder',
-      'vehicle classification',
-      'vehicle type',
-      'fuel name',
-      'distance travelled',
-      'distance unit',
-      'quality control',
-      'weight loaded',
-      'remarks',
-      'posting date'
-    ],
-    [
+    // Create worksheet data with headers
+    const worksheetData = [
+      [
+        'Building Code',
+        'Stakeholder',
+        'Vehicle Classification',
+        'Vehicle Type',
+        'Fuel Name',
+        'Distance Travelled',
+        'Distance Unit',
+        'Quality Control',
+        'Weight Loaded',
+        'Remarks',
+        'Posting Date'
+      ],
+      [
       exampleBuildingCode,
       'Assembly',
       'By Market Segment',
@@ -765,34 +846,34 @@ const downloadMobileTemplate = useCallback(() => {
       '',
       'Example record',
       'dd/mm/yyyy'
-    ],
-  ];
+      ],
+    ];
 
-  // Create workbook and worksheet
-  const workbook = XLSX.utils.book_new();
-  const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-  
-  // Auto-size columns for better readability
-  worksheet['!cols'] = [
-    { wch: 20 }, // building code
-    { wch: 15 }, // stakeholder
-    { wch: 25 }, // vehicle classification
-    { wch: 35 }, // vehicle type
-    { wch: 15 }, // fuel name
-    { wch: 20 }, // distance travelled
-    { wch: 15 }, // distance unit
-    { wch: 20 }, // quality control
-    { wch: 15 }, // weight loaded
-    { wch: 30 }, // remarks
-    { wch: 15 }  // posting date
-  ];
+    // Create workbook and worksheet
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-  // Add the worksheet to the workbook
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Mobile Template');
+    // Auto-size columns for better readability
+    worksheet['!cols'] = [
+      { wch: 20 }, // building code
+      { wch: 15 }, // stakeholder
+      { wch: 25 }, // vehicle classification
+      { wch: 35 }, // vehicle type
+      { wch: 15 }, // fuel name
+      { wch: 20 }, // distance travelled
+      { wch: 15 }, // distance unit
+      { wch: 20 }, // quality control
+      { wch: 15 }, // weight loaded
+      { wch: 30 }, // remarks
+      { wch: 15 }  // posting date
+    ];
 
-  // Download the Excel file
-  XLSX.writeFile(workbook, 'mobile_template.xlsx');
-}, [buildings]);
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Mobile Template');
+
+    // Download the Excel file
+    XLSX.writeFile(workbook, 'mobile_template.xlsx');
+  }, [buildings]);
 
   return {
     csvState,

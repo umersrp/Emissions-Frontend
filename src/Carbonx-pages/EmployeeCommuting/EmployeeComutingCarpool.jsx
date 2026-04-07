@@ -1697,47 +1697,13 @@ const EMISSION_FACTORS = {
         "Regular taxi": 0.14861, "Business class taxi": 0.20402
     },
     buses: {
-        "Green Line Bus": 0.02776, "Local Bus": 0.12525, "Intercity Bus (Non A.C)": 0.06875, "Intercity Bus (A.C)": 0.10385
+        "Green Line Bus": 0.02776, "Local bus": 0.12525, "Intercity Bus (Non A.C)": 0.06875, "Intercity Bus (A.C)": 0.10385
     },
     trains: {
         "National Rail": 0.03546, "Subway (underground)": 0.02780, "Metro": 0.02860, "Green Line Train":0.00446
     }
 };
 
-// const calculateEmissions = (data) => {
-//     let distance = 0, passengers = 1, factor = 0;
-//     if (data.commuteByMotorbike) {
-//         distance = Number(data.motorbikeDistance) || 0;
-//         passengers = 1;
-//         const motorbikeType = data.motorbikeType || "Average";
-//         factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
-//     } else if (data.commuteByCar) {
-//         distance = Number(data.carDistance) || 0;
-//         passengers = data.carryOthersCar ? (Number(data.personsCarriedCar || 0) + 1) : 1;
-//         const carType = data.carType || "Average car - Unknown engine size";
-//         const fuelType = data.carFuelType || "Unknown";
-//         factor = (EMISSION_FACTORS.cars[carType]?.[fuelType] || EMISSION_FACTORS.cars[carType]?.["Unknown"]) || (EMISSION_FACTORS.cars["Average car - Unknown engine size"][fuelType] || EMISSION_FACTORS.cars["Average car - Unknown engine size"]["Unknown"]);
-//         factor = factor / passengers;
-//     } else if (data.commuteByTaxi) {
-//         distance = Number(data.taxiDistance) || 0;
-//         passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : 1;
-//         const taxiType = data.taxiType || "Regular taxi";
-//         factor = EMISSION_FACTORS.taxis[taxiType] || EMISSION_FACTORS.taxis["Regular taxi"];
-//         factor = factor / passengers;
-//     } else if (data.commuteByBus) {
-//         distance = Number(data.busDistance) || 0;
-//         passengers = 1;
-//         const busType = data.busType || "Green Line Bus";
-//         factor = EMISSION_FACTORS.buses[busType] || EMISSION_FACTORS.buses["Green Line Bus"];
-//     } else if (data.commuteByTrain) {
-//         distance = Number(data.trainDistance) || 0;
-//         passengers = 1;
-//         const trainType = data.trainType || "National Rail";
-//         factor = EMISSION_FACTORS.trains[trainType] || EMISSION_FACTORS.trains["National Rail"];
-//     }
-//     const totalEmissionsKg = distance * passengers * factor;
-//     return { distance, passengers, factor, totalEmissionsKg, totalEmissionsTonnes: totalEmissionsKg / 1000 };
-// };
 const calculateEmissions = (data) => {
     let totalEmissionsKg = 0;
     let totalDistance = 0;
@@ -1748,92 +1714,151 @@ const calculateEmissions = (data) => {
 
     // Calculate Motorbike emissions
     if (data.commuteByMotorbike) {
-        let distance = Number(data.motorbikeDistance) || 0;
+        let individualDistance = Number(data.motorbikeDistance) || 0;
+        let carpoolDistance = 0;
         let passengers = 1;
         const motorbikeType = data.motorbikeType || "Average";
         let factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
-        let emissions = distance * passengers * factor;
+        
+        let individualEmissions = individualDistance * factor;
+        let totalMotorbikeEmissions = individualEmissions;
+        let motorbikeTotalDistance = individualDistance;
         
         console.log('=== EMISSION CALCULATION - MOTORBIKE ===');
         console.log('Motorbike Type:', motorbikeType);
-        console.log('Distance:', distance, 'km');
-        console.log('Passengers:', passengers);
         console.log('Emission Factor:', factor, 'kg CO2e/km');
-        console.log('Emissions:', emissions, 'kg CO2e');
+        console.log('Individual Distance:', individualDistance, 'km');
+        console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
         
-        totalEmissionsKg += emissions;
-        totalDistance += distance;
+        // Check if mode is 'both' and carpool distance exists
+        if (data.motorbikeMode === 'both' && data.motorbikeDistanceCarpool) {
+            carpoolDistance = Number(data.motorbikeDistanceCarpool) || 0;
+            let carpoolEmissions = carpoolDistance * factor;
+            totalMotorbikeEmissions += carpoolEmissions;
+            motorbikeTotalDistance += carpoolDistance;
+            
+            console.log('Carpool Distance:', carpoolDistance, 'km');
+            console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
+            console.log('Total Motorbike Emissions (Individual + Carpool):', totalMotorbikeEmissions, 'kg CO2e');
+        }
+        
+        console.log('Total Motorbike Distance:', motorbikeTotalDistance, 'km');
+        
+        totalEmissionsKg += totalMotorbikeEmissions;
+        totalDistance += motorbikeTotalDistance;
         totalPassengers += passengers;
         emissionDetails.push({
             mode: 'Motorbike',
-            distance,
-            passengers,
+            modeType: data.motorbikeMode === 'both' ? 'Individual + Carpool' : 'Individual',
+            individualDistance,
+            carpoolDistance,
+            totalDistance: motorbikeTotalDistance,
             factor,
-            emissions
+            emissions: totalMotorbikeEmissions
         });
     }
 
     // Calculate Car emissions
     if (data.commuteByCar) {
-        let distance = Number(data.carDistance) || 0;
+        let individualDistance = Number(data.carDistance) || 0;
+        let carpoolDistance = 0;
         let passengers = data.carryOthersCar ? (Number(data.personsCarriedCar || 0) + 1) : 1;
         const carType = data.carType;
         const fuelType = data.carFuelType || "Unknown";
         let baseFactor = EMISSION_FACTORS.cars[carType]?.[fuelType];
-        let factor = baseFactor / passengers;
-        let emissions = distance * factor;
+        let factor = baseFactor;
+        
+        let individualEmissions = individualDistance * factor;
+        let totalCarEmissions = individualEmissions;
+        let carTotalDistance = individualDistance;
         
         console.log('=== EMISSION CALCULATION - CAR ===');
         console.log('Car Type:', carType);
         console.log('Fuel Type:', fuelType);
-        console.log('Distance:', distance, 'km');
+        console.log('Emission Factor:', factor, 'kg CO2e/km');
         console.log('Carrying Others:', data.carryOthersCar);
         console.log('Persons Carried:', data.personsCarriedCar || 0);
         console.log('Total Passengers (including driver):', passengers);
-        console.log('Base Emission Factor:', baseFactor, 'kg CO2e/km');
-        console.log('Per Person Emission Factor:', factor, 'kg CO2e/km');
-        console.log('Emissions:', emissions, 'kg CO2e');
+        console.log('Individual Distance:', individualDistance, 'km');
+        console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
         
-        totalEmissionsKg += emissions;
-        totalDistance += distance;
+        // Check if mode is 'both' and carpool distance exists
+        if (data.carMode === 'both' && data.carDistanceCarpool) {
+            carpoolDistance = Number(data.carDistanceCarpool) || 0;
+            let carpoolEmissions = carpoolDistance * factor;
+            totalCarEmissions += carpoolEmissions;
+            carTotalDistance += carpoolDistance;
+            
+            console.log('Carpool Distance:', carpoolDistance, 'km');
+            console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
+            console.log('Total Car Emissions (Individual + Carpool):', totalCarEmissions, 'kg CO2e');
+        }
+        
+        console.log('Total Car Distance:', carTotalDistance, 'km');
+        
+        totalEmissionsKg += totalCarEmissions;
+        totalDistance += carTotalDistance;
         totalPassengers += passengers;
         emissionDetails.push({
             mode: 'Car',
-            distance,
+            modeType: data.carMode === 'both' ? 'Individual + Carpool' : 'Individual',
+            individualDistance,
+            carpoolDistance,
+            totalDistance: carTotalDistance,
             passengers,
             factor,
-            emissions
+            emissions: totalCarEmissions
         });
     }
 
     // Calculate Taxi emissions
     if (data.commuteByTaxi) {
-        let distance = Number(data.taxiDistance) || 0;
+        let individualDistance = Number(data.taxiDistance) || 0;
+        let carpoolDistance = 0;
         let passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : 1;
-        const taxiType = data.taxiType ;
-        let baseFactor = EMISSION_FACTORS.taxis[taxiType] ;
-        let factor = baseFactor / passengers;
-        let emissions = distance * factor;
+        const taxiType = data.taxiType;
+        let baseFactor = EMISSION_FACTORS.taxis[taxiType];
+        let factor = baseFactor;
+        
+        let individualEmissions = individualDistance * factor;
+        let totalTaxiEmissions = individualEmissions;
+        let taxiTotalDistance = individualDistance;
         
         console.log('=== EMISSION CALCULATION - TAXI ===');
         console.log('Taxi Type:', taxiType);
-        console.log('Distance:', distance, 'km');
+        console.log('Emission Factor:', factor, 'kg CO2e/km');
         console.log('Traveling With Others:', data.travelWithOthersTaxi);
         console.log('Persons Traveling With:', data.personsTravelWithTaxi || 0);
         console.log('Total Passengers (including self):', passengers);
-        console.log('Base Emission Factor:', baseFactor, 'kg CO2e/km');
-        console.log('Per Person Emission Factor:', factor, 'kg CO2e/km');
-        console.log('Emissions:', emissions, 'kg CO2e');
+        console.log('Individual Distance:', individualDistance, 'km');
+        console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
         
-        totalEmissionsKg += emissions;
-        totalDistance += distance;
+        // Check if mode is 'both' and carpool distance exists
+        if (data.taxiMode === 'both' && data.taxiDistanceCarpool) {
+            carpoolDistance = Number(data.taxiDistanceCarpool) || 0;
+            let carpoolEmissions = carpoolDistance * factor;
+            totalTaxiEmissions += carpoolEmissions;
+            taxiTotalDistance += carpoolDistance;
+            
+            console.log('Carpool Distance:', carpoolDistance, 'km');
+            console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
+            console.log('Total Taxi Emissions (Individual + Carpool):', totalTaxiEmissions, 'kg CO2e');
+        }
+        
+        console.log('Total Taxi Distance:', taxiTotalDistance, 'km');
+        
+        totalEmissionsKg += totalTaxiEmissions;
+        totalDistance += taxiTotalDistance;
         totalPassengers += passengers;
         emissionDetails.push({
             mode: 'Taxi',
-            distance,
+            modeType: data.taxiMode === 'both' ? 'Individual + Carpool' : 'Individual',
+            individualDistance,
+            carpoolDistance,
+            totalDistance: taxiTotalDistance,
             passengers,
             factor,
-            emissions
+            emissions: totalTaxiEmissions
         });
     }
 
@@ -1841,9 +1866,9 @@ const calculateEmissions = (data) => {
     if (data.commuteByBus) {
         let distance = Number(data.busDistance) || 0;
         let passengers = 1;
-        const busType = data.busType ;
-        let factor = EMISSION_FACTORS.buses[busType] ;
-        let emissions = distance * passengers * factor;
+        const busType = data.busType;
+        let factor = EMISSION_FACTORS.buses[busType];
+        let emissions = distance * factor;
         
         console.log('=== EMISSION CALCULATION - BUS ===');
         console.log('Bus Type:', busType);
@@ -1857,7 +1882,8 @@ const calculateEmissions = (data) => {
         totalPassengers += passengers;
         emissionDetails.push({
             mode: 'Bus',
-            distance,
+            modeType: 'Individual',
+            totalDistance: distance,
             passengers,
             factor,
             emissions
@@ -1868,9 +1894,9 @@ const calculateEmissions = (data) => {
     if (data.commuteByTrain) {
         let distance = Number(data.trainDistance) || 0;
         let passengers = 1;
-        const trainType = data.trainType ;
-        let factor = EMISSION_FACTORS.trains[trainType] ;
-        let emissions = distance * passengers * factor;
+        const trainType = data.trainType;
+        let factor = EMISSION_FACTORS.trains[trainType];
+        let emissions = distance * factor;
         
         console.log('=== EMISSION CALCULATION - TRAIN ===');
         console.log('Train Type:', trainType);
@@ -1884,7 +1910,8 @@ const calculateEmissions = (data) => {
         totalPassengers += passengers;
         emissionDetails.push({
             mode: 'Train',
-            distance,
+            modeType: 'Individual',
+            totalDistance: distance,
             passengers,
             factor,
             emissions
@@ -1894,7 +1921,15 @@ const calculateEmissions = (data) => {
     const totalEmissionsTonnes = totalEmissionsKg / 1000;
     
     console.log('=== FINAL EMISSION CALCULATION SUMMARY ===');
-    console.log('All Modes Calculated:', emissionDetails.map(d => d.mode).join(', '));
+    console.log('All Modes Calculated:', emissionDetails.map(d => `${d.mode} (${d.modeType})`).join(', '));
+    console.log('Emissions Breakdown:');
+    emissionDetails.forEach(detail => {
+        if (detail.carpoolDistance) {
+            console.log(`  - ${detail.mode}: ${detail.individualDistance}km (individual) + ${detail.carpoolDistance}km (carpool) = ${detail.emissions.toFixed(4)} kg CO2e`);
+        } else {
+            console.log(`  - ${detail.mode}: ${detail.totalDistance}km = ${detail.emissions.toFixed(4)} kg CO2e`);
+        }
+    });
     console.log('Total Emissions:', totalEmissionsKg.toFixed(4), 'kg CO2e');
     console.log('Total Emissions:', totalEmissionsTonnes.toFixed(6), 'tonnes CO2e');
     console.log('===================================\n');
@@ -1962,6 +1997,8 @@ const EmployeeCommutingFormCarpool = () => {
     const [formData, setFormData] = useState({
         employeeName: '',
         employeeID: '',
+        emailDocId: '',
+        parentId:'',
         // Basic Information
         siteBuildingName: null,
         stakeholderDepartment: null,
@@ -2155,59 +2192,68 @@ const EmployeeCommutingFormCarpool = () => {
         }
     };
 
-    // Fetch the original form data by ID
-    const fetchOriginalFormData = async (authToken) => {
-        try {
-            setLoadingForm(true);
-            
-            if (!urlFormId) {
-                toast.error('Form ID is missing from URL');
-                return;
-            }
-
-            const response = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/employee-commute/Detail/${urlFormId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${authToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
-            
-            console.log('Original form data:', response.data);
-            console.log('Motorbike date range:', response.data.data?.motorbikeDateRange);
-            console.log('Car date range:', response.data.data?.carDateRange);
-            console.log('Taxi date range:', response.data.data?.taxiDateRange);
-            console.log('Motorbike passenger IDs:', response.data.data?.motorbikePassengerUserIds);
-            console.log('Car passenger IDs:', response.data.data?.carPassengerUserIds);
-            console.log('Taxi passenger IDs:', response.data.data?.taxiPassengerUserIds);
-
-            if (response.data && response.data.data) {
-                const formDataFromApi = response.data.data;
-                setOriginalFormData(formDataFromApi);
-                
-                // Find which commute types the participant is a passenger in
-                findUserAsPassenger(formDataFromApi, urlParticipantId);
-                
-                // Set reporting year from form data
-                if (formDataFromApi.reportingYear) {
-                    setReportingYear(formDataFromApi.reportingYear);
-                }
-                
-                return formDataFromApi;
-            } else {
-                toast.error('No form data received from server');
-                return null;
-            }
-        } catch (error) {
-            console.error('Error fetching form data:', error);
-            toast.error('Failed to load form data. Please try again later.');
-            return null;
-        } finally {
-            setLoadingForm(false);
+   // Fetch the original form data by ID
+const fetchOriginalFormData = async (authToken) => {
+    try {
+        setLoadingForm(true);
+        
+        if (!urlFormId) {
+            toast.error('Form ID is missing from URL');
+            return;
         }
-    };
+
+        const response = await axios.get(
+            `${process.env.REACT_APP_BASE_URL}/employee-commute/Detail/${urlFormId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        
+        console.log('Original form data:', response.data);
+        console.log('Motorbike date range:', response.data.data?.motorbikeDateRange);
+        console.log('Car date range:', response.data.data?.carDateRange);
+        console.log('Taxi date range:', response.data.data?.taxiDateRange);
+        console.log('Motorbike passenger IDs:', response.data.data?.motorbikePassengerUserIds);
+        console.log('Car passenger IDs:', response.data.data?.carPassengerUserIds);
+        console.log('Taxi passenger IDs:', response.data.data?.taxiPassengerUserIds);
+
+        if (response.data && response.data.data) {
+            const formDataFromApi = response.data.data;
+            setOriginalFormData(formDataFromApi);
+            
+            // ✅ SET emailDocId FROM API RESPONSE
+            if (formDataFromApi.emailDocId) {
+                setFormData(prev => ({
+                    ...prev,
+                    emailDocId: formDataFromApi.emailDocId
+                }));
+                console.log('Email Doc ID set from API:', formDataFromApi.emailDocId);
+            }
+            
+            // Find which commute types the participant is a passenger in
+            findUserAsPassenger(formDataFromApi, urlParticipantId);
+            
+            // Set reporting year from form data
+            if (formDataFromApi.reportingYear) {
+                setReportingYear(formDataFromApi.reportingYear);
+            }
+            
+            return formDataFromApi;
+        } else {
+            toast.error('No form data received from server');
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching form data:', error);
+        toast.error('Failed to load form data. Please try again later.');
+        return null;
+    } finally {
+        setLoadingForm(false);
+    }
+};
 
     // Function to find where the participant is a passenger
     const findUserAsPassenger = (formData, participantId) => {
@@ -2829,9 +2875,295 @@ const EmployeeCommutingFormCarpool = () => {
         }
     };
 
+//update distance
+// const handleSubmit = async (e) => {
+//     e.preventDefault();
 
+//     const validationErrors = validateForm();
 
-   const handleSubmit = async (e) => {
+//     if (Object.keys(validationErrors).length > 0) {
+//         setErrors(validationErrors);
+//         toast.error('Please fill all required fields');
+//         setTimeout(() => scrollToFirstError(validationErrors), 100);
+//         return;
+//     }
+
+//     setLoading(true);
+
+//     try {
+//         const currentToken = getToken();
+//         if (!currentToken) {
+//             toast.error('Authentication token is missing. Please refresh the page.');
+//             setLoading(false);
+//             return;
+//         }
+
+//         // ============ STEP 1: CREATE PASSENGER SUBMISSION ============
+//         const passengerSubmissionData = {
+//             originalFormId: urlFormId,
+//             emailDocId: originalFormData?.emailDocId || null,
+//             parentId: formData.parentId || null,
+//             participantId: urlParticipantId,
+//             employeeName: formData.employeeName || userInfo?.name || '',
+//             employeeID: formData.employeeID || userInfo?.employeeId || '',
+//             usersubmittedId: userInfo?._id || null,
+//             siteBuildingName: formData.siteBuildingName?.value || '',
+//             stakeholderDepartment: formData.stakeholderDepartment?.value || '',
+//             submittedByEmail: formData.submittedByEmail || '',
+//             reportingYear: reportingYear,
+//             qualityControlRemarks: formData.qualityControlRemarks || '',
+//             qualityControl: formData.qualityControl || '',
+//             submittedAt: new Date().toISOString(),
+//             commuteTypes: userPassengerDetails.transportTypes
+//         };
+
+//         // Add passenger's distance data
+//         if (userPassengerDetails.transportTypes.includes('motorbike')) {
+//             const motorbikeDetails = userPassengerDetails.details.motorbike;
+//             passengerSubmissionData.commuteByMotorbike = true;
+//             passengerSubmissionData.motorbikeMode = formData.motorbikeMode || 'carpool';
+//             passengerSubmissionData.motorbikeDistance = Number(formData.motorbikeDistance) || 0;
+//             passengerSubmissionData.motorbikeType = formData.motorbikeType?.value || originalFormData?.motorbikeType || '';
+            
+//             if (formData.motorbikeDateRange) {
+//                 passengerSubmissionData.motorbikeDates = dateRangeToDates(formData.motorbikeDateRange).map(date => date.toISOString());
+//                 passengerSubmissionData.motorbikeDateRange = formData.motorbikeDateRange;
+//             }
+
+//             passengerSubmissionData.motorbikePassengerIndex = motorbikeDetails.passengerIndex;
+//             passengerSubmissionData.motorbikeIsDriverCarrying = motorbikeDetails.isDriverCarrying;
+//             passengerSubmissionData.motorbikeIsTravelWith = motorbikeDetails.isTravelWith;
+//         }
+
+//         if (userPassengerDetails.transportTypes.includes('car')) {
+//             const carDetails = userPassengerDetails.details.car;
+//             passengerSubmissionData.commuteByCar = true;
+//             passengerSubmissionData.carMode = formData.carMode || 'carpool';
+//             passengerSubmissionData.carDistance = Number(formData.carDistance) || 0;
+//             passengerSubmissionData.carType = formData.carType?.value || originalFormData?.carType || '';
+//             passengerSubmissionData.carFuelType = formData.carFuelType?.value || originalFormData?.carFuelType || '';
+            
+//             if (formData.carDateRange) {
+//                 passengerSubmissionData.carDates = dateRangeToDates(formData.carDateRange).map(date => date.toISOString());
+//                 passengerSubmissionData.carDateRange = formData.carDateRange;
+//             }
+
+//             passengerSubmissionData.carPassengerIndex = carDetails.passengerIndex;
+//             passengerSubmissionData.carIsDriverCarrying = carDetails.isDriverCarrying;
+//             passengerSubmissionData.carIsTravelWith = carDetails.isTravelWith;
+//         }
+
+//         if (userPassengerDetails.transportTypes.includes('taxi')) {
+//             const taxiDetails = userPassengerDetails.details.taxi;
+//             passengerSubmissionData.commuteByTaxi = true;
+//             passengerSubmissionData.taxiMode = formData.taxiMode || 'carpool';
+//             passengerSubmissionData.taxiDistance = Number(formData.taxiDistance) || 0;
+//             passengerSubmissionData.taxiType = formData.taxiType?.value || originalFormData?.taxiType || '';
+            
+//             if (formData.taxiDateRange) {
+//                 passengerSubmissionData.taxiDates = dateRangeToDates(formData.taxiDateRange).map(date => date.toISOString());
+//                 passengerSubmissionData.taxiDateRange = formData.taxiDateRange;
+//             }
+
+//             passengerSubmissionData.taxiPassengerIndex = taxiDetails.passengerIndex;
+//         }
+
+//         // Calculate emissions for passenger submission
+//         const passengerEmissions = calculateEmissions(passengerSubmissionData);
+//         passengerSubmissionData.calculatedEmissionKgCo2e = passengerEmissions.totalEmissionsKg;
+//         passengerSubmissionData.calculatedEmissionTCo2e = passengerEmissions.totalEmissionsTonnes;
+
+//         console.log('=== STEP 1: Creating passenger submission ===');
+//         console.log('Passenger submission data:', passengerSubmissionData);
+
+//         const passengerResponse = await axios.post(
+//             `${process.env.REACT_APP_BASE_URL}/employee-commute/Create`,
+//             passengerSubmissionData,
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${currentToken}`,
+//                     'Content-Type': 'application/json',
+//                 },
+//             }
+//         );
+
+//         if (passengerResponse.status !== 200 && passengerResponse.status !== 201) {
+//             throw new Error('Failed to create passenger submission');
+//         }
+
+//         console.log('Passenger submission created successfully:', passengerResponse.data);
+
+//         // ============ STEP 2: UPDATE ORIGINAL DRIVER FORM WITH RECALCULATED EMISSIONS ============
+        
+//         // Get the current driver form data
+//         const driverFormResponse = await axios.get(
+//             `${process.env.REACT_APP_BASE_URL}/employee-commute/Detail/${urlFormId}`,
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${currentToken}`,
+//                     'Content-Type': 'application/json',
+//                 },
+//             }
+//         );
+
+//         const currentDriverData = driverFormResponse.data.data;
+//         console.log('Current driver data:', currentDriverData);
+//         console.log('Passenger entered distances:', {
+//             motorbikeDistance: Number(formData.motorbikeDistance) || 0,
+//             carDistance: Number(formData.carDistance) || 0,
+//             taxiDistance: Number(formData.taxiDistance) || 0
+//         });
+
+//         // Prepare update payload - ONLY add if passenger distance is HIGHER
+//         const updatePayload = {};
+//         const distancesToUpdate = [];
+
+//         const getNumericValue = (value) => Number(value) || 0;
+
+//         // Check Motorbike distance
+//         if (userPassengerDetails.transportTypes.includes('motorbike')) {
+//             const passengerMotorbikeDistance = getNumericValue(formData.motorbikeDistance);
+//             const driverMotorbikeDistance = getNumericValue(currentDriverData.motorbikeDistance);
+            
+//             if (passengerMotorbikeDistance > driverMotorbikeDistance) {
+//                 updatePayload.motorbikeDistance = passengerMotorbikeDistance;
+//                 distancesToUpdate.push('Motorbike');
+//                 console.log(`✓ Motorbike distance will be updated: ${driverMotorbikeDistance} → ${passengerMotorbikeDistance}`);
+//             } else {
+//                 console.log(`✗ Motorbike distance NOT updated: ${passengerMotorbikeDistance} is not higher than ${driverMotorbikeDistance}`);
+//             }
+//         }
+
+//         // Check Car distance
+//         if (userPassengerDetails.transportTypes.includes('car')) {
+//             const passengerCarDistance = getNumericValue(formData.carDistance);
+//             const driverCarDistance = getNumericValue(currentDriverData.carDistance);
+            
+//             if (passengerCarDistance > driverCarDistance) {
+//                 updatePayload.carDistance = passengerCarDistance;
+//                 distancesToUpdate.push('Car');
+//                 console.log(`✓ Car distance will be updated: ${driverCarDistance} → ${passengerCarDistance}`);
+//             } else {
+//                 console.log(`✗ Car distance NOT updated: ${passengerCarDistance} is not higher than ${driverCarDistance}`);
+//             }
+//         }
+
+//         // Check Taxi distance
+//         if (userPassengerDetails.transportTypes.includes('taxi')) {
+//             const passengerTaxiDistance = getNumericValue(formData.taxiDistance);
+//             const driverTaxiDistance = getNumericValue(currentDriverData.taxiDistance);
+            
+//             if (passengerTaxiDistance > driverTaxiDistance) {
+//                 updatePayload.taxiDistance = passengerTaxiDistance;
+//                 distancesToUpdate.push('Taxi');
+//                 console.log(`✓ Taxi distance will be updated: ${driverTaxiDistance} → ${passengerTaxiDistance}`);
+//             } else {
+//                 console.log(`✗ Taxi distance NOT updated: ${passengerTaxiDistance} is not higher than ${driverTaxiDistance}`);
+//             }
+//         }
+
+//         // If no distances were updated, skip update
+//         if (Object.keys(updatePayload).length === 0) {
+//             console.log('No distances were higher than current driver distances. Skipping driver form update.');
+//             toast.info('No distances were updated as all entered distances are lower than or equal to current values.');
+//         } else {
+//             console.log('Distances to update:', updatePayload);
+//             console.log('Updating:', distancesToUpdate.join(', '));
+            
+//             // Calculate final distances for emission recalculation
+//             const finalMotorbikeDistance = updatePayload.motorbikeDistance !== undefined 
+//                 ? updatePayload.motorbikeDistance 
+//                 : getNumericValue(currentDriverData.motorbikeDistance);
+            
+//             const finalCarDistance = updatePayload.carDistance !== undefined 
+//                 ? updatePayload.carDistance 
+//                 : getNumericValue(currentDriverData.carDistance);
+            
+//             const finalTaxiDistance = updatePayload.taxiDistance !== undefined 
+//                 ? updatePayload.taxiDistance 
+//                 : getNumericValue(currentDriverData.taxiDistance);
+            
+//             console.log('Final distances for emission calculation:', {
+//                 motorbikeDistance: finalMotorbikeDistance,
+//                 carDistance: finalCarDistance,
+//                 taxiDistance: finalTaxiDistance
+//             });
+            
+//             // Create merged data object for emission calculation
+//             const emissionCalculationData = {
+//                 ...currentDriverData,
+//                 motorbikeDistance: finalMotorbikeDistance,
+//                 carDistance: finalCarDistance,
+//                 taxiDistance: finalTaxiDistance,
+//                 carryOthersCar: currentDriverData.carryOthersCar,
+//                 personsCarriedCar: currentDriverData.personsCarriedCar,
+//                 travelWithOthersTaxi: currentDriverData.travelWithOthersTaxi,
+//                 personsTravelWithTaxi: currentDriverData.personsTravelWithTaxi,
+//             };
+            
+//             console.log('=== RECALCULATING EMISSIONS FOR DRIVER ===');
+            
+//             // Recalculate emissions with final distances
+//             const recalculatedEmissions = calculateEmissions(emissionCalculationData);
+            
+//             // Add recalculated emissions to update payload
+//             updatePayload.calculatedEmissionKgCo2e = recalculatedEmissions.totalEmissionsKg;
+//             updatePayload.calculatedEmissionTCo2e = recalculatedEmissions.totalEmissionsTonnes;
+            
+//             console.log('=== UPDATE SUMMARY ===');
+//             console.log('Updated distances:', distancesToUpdate.join(', '));
+//             console.log('Old Emissions (kg):', currentDriverData.calculatedEmissionKgCo2e);
+//             console.log('New Emissions (kg):', recalculatedEmissions.totalEmissionsKg);
+//             console.log('=====================');
+            
+//             // Update driver form
+//             try {
+//                 const updateResponse = await axios.put(
+//                     `${process.env.REACT_APP_BASE_URL}/employee-commute/Update/${urlFormId}`,
+//                     updatePayload,
+//                     {
+//                         headers: {
+//                             Authorization: `Bearer ${currentToken}`,
+//                             'Content-Type': 'application/json',
+//                         },
+//                         timeout: 30000,
+//                     }
+//                 );
+//                 console.log('Driver form updated successfully:', updateResponse.data);
+//                 toast.success(`Updated ${distancesToUpdate.join(', ')} distance(s) (higher values) and recalculated emissions!`);
+//             } catch (updateError) {
+//                 console.warn('Driver form update failed:', updateError.message);
+//                 toast.warning('Passenger submission created, but driver form update failed');
+//             }
+//         }
+
+//         setSubmitted(true);
+//         toast.success('Your commute distances submitted successfully!');
+
+//         navigate('/formSubmittedSuccessfully', {
+//             state: {
+//                 formType: 'employee-commuting-carpool',
+//                 reportingYear: reportingYear,
+//                 userInfo: userInfo,
+//                 submissionTime: new Date().toISOString()
+//             }
+//         });
+
+//     } catch (error) {
+//         console.error('Submission error:', error);
+//         if (error.response) {
+//             toast.error(`Server error: ${error.response.data?.message || error.response.status}`);
+//         } else if (error.request) {
+//             toast.error('Network error. Please check your connection.');
+//         } else {
+//             toast.error(`Error: ${error.message}`);
+//         }
+//     } finally {
+//         setLoading(false);
+//     }
+// };
+
+const handleSubmit = async (e) => {
     e.preventDefault();
 
     const validationErrors = validateForm();
@@ -2853,9 +3185,11 @@ const EmployeeCommutingFormCarpool = () => {
             return;
         }
 
-        // Prepare submission data - include all commutes where user is a passenger
-        const submissionData = {
+        // ============ STEP 1: CREATE PASSENGER SUBMISSION ============
+        const passengerSubmissionData = {
             originalFormId: urlFormId,
+            emailDocId: formData.emailDocId || originalFormData?.emailDocId || null,
+            parentId: urlFormId, 
             participantId: urlParticipantId,
             employeeName: formData.employeeName || userInfo?.name || '',
             employeeID: formData.employeeID || userInfo?.employeeId || '',
@@ -2867,75 +3201,72 @@ const EmployeeCommutingFormCarpool = () => {
             qualityControlRemarks: formData.qualityControlRemarks || '',
             qualityControl: formData.qualityControl || '',
             submittedAt: new Date().toISOString(),
-            
-            // Include all commute types where user is a passenger
             commuteTypes: userPassengerDetails.transportTypes
+            
         };
 
-        // Add motorbike data if user is passenger
+        // Add passenger's distance data
         if (userPassengerDetails.transportTypes.includes('motorbike')) {
             const motorbikeDetails = userPassengerDetails.details.motorbike;
-            submissionData.commuteByMotorbike = true;
-            submissionData.motorbikeMode = formData.motorbikeMode || 'carpool';
-            submissionData.motorbikeDistance = Number(formData.motorbikeDistance) || 0;
-            submissionData.motorbikeType = formData.motorbikeType?.value || originalFormData?.motorbikeType || '';
+            passengerSubmissionData.commuteByMotorbike = true;
+            passengerSubmissionData.motorbikeMode = formData.motorbikeMode || 'carpool';
+            passengerSubmissionData.motorbikeDistance = Number(formData.motorbikeDistance) || 0;
+            passengerSubmissionData.motorbikeType = formData.motorbikeType?.value || originalFormData?.motorbikeType || '';
             
-            // Convert date range to dates array
             if (formData.motorbikeDateRange) {
-                submissionData.motorbikeDates = dateRangeToDates(formData.motorbikeDateRange).map(date => date.toISOString());
-                submissionData.motorbikeDateRange = formData.motorbikeDateRange;
+                passengerSubmissionData.motorbikeDates = dateRangeToDates(formData.motorbikeDateRange).map(date => date.toISOString());
+                passengerSubmissionData.motorbikeDateRange = formData.motorbikeDateRange;
             }
 
-            // Mark which passenger this user is
-            submissionData.motorbikePassengerIndex = motorbikeDetails.passengerIndex;
-            submissionData.motorbikeIsDriverCarrying = motorbikeDetails.isDriverCarrying;
-            submissionData.motorbikeIsTravelWith = motorbikeDetails.isTravelWith;
+            passengerSubmissionData.motorbikePassengerIndex = motorbikeDetails.passengerIndex;
+            passengerSubmissionData.motorbikeIsDriverCarrying = motorbikeDetails.isDriverCarrying;
+            passengerSubmissionData.motorbikeIsTravelWith = motorbikeDetails.isTravelWith;
         }
 
-        // Add car data if user is passenger
         if (userPassengerDetails.transportTypes.includes('car')) {
             const carDetails = userPassengerDetails.details.car;
-            submissionData.commuteByCar = true;
-            submissionData.carMode = formData.carMode || 'carpool';
-            submissionData.carDistance = Number(formData.carDistance) || 0;
-            submissionData.carType = formData.carType?.value || originalFormData?.carType || '';
-            submissionData.carFuelType = formData.carFuelType?.value || originalFormData?.carFuelType || '';
+            passengerSubmissionData.commuteByCar = true;
+            passengerSubmissionData.carMode = formData.carMode || 'carpool';
+            passengerSubmissionData.carDistance = Number(formData.carDistance) || 0;
+            passengerSubmissionData.carType = formData.carType?.value || originalFormData?.carType || '';
+            passengerSubmissionData.carFuelType = formData.carFuelType?.value || originalFormData?.carFuelType || '';
             
             if (formData.carDateRange) {
-                submissionData.carDates = dateRangeToDates(formData.carDateRange).map(date => date.toISOString());
-                submissionData.carDateRange = formData.carDateRange;
+                passengerSubmissionData.carDates = dateRangeToDates(formData.carDateRange).map(date => date.toISOString());
+                passengerSubmissionData.carDateRange = formData.carDateRange;
             }
 
-            submissionData.carPassengerIndex = carDetails.passengerIndex;
-            submissionData.carIsDriverCarrying = carDetails.isDriverCarrying;
-            submissionData.carIsTravelWith = carDetails.isTravelWith;
+            passengerSubmissionData.carPassengerIndex = carDetails.passengerIndex;
+            passengerSubmissionData.carIsDriverCarrying = carDetails.isDriverCarrying;
+            passengerSubmissionData.carIsTravelWith = carDetails.isTravelWith;
         }
 
-        // Add taxi data if user is passenger
         if (userPassengerDetails.transportTypes.includes('taxi')) {
             const taxiDetails = userPassengerDetails.details.taxi;
-            submissionData.commuteByTaxi = true;
-            submissionData.taxiMode = formData.taxiMode || 'carpool';
-            submissionData.taxiDistance = Number(formData.taxiDistance) || 0;
-            submissionData.taxiType = formData.taxiType?.value || originalFormData?.taxiType || '';
+            passengerSubmissionData.commuteByTaxi = true;
+            passengerSubmissionData.taxiMode = formData.taxiMode || 'carpool';
+            passengerSubmissionData.taxiDistance = Number(formData.taxiDistance) || 0;
+            passengerSubmissionData.taxiType = formData.taxiType?.value || originalFormData?.taxiType || '';
             
             if (formData.taxiDateRange) {
-                submissionData.taxiDates = dateRangeToDates(formData.taxiDateRange).map(date => date.toISOString());
-                submissionData.taxiDateRange = formData.taxiDateRange;
+                passengerSubmissionData.taxiDates = dateRangeToDates(formData.taxiDateRange).map(date => date.toISOString());
+                passengerSubmissionData.taxiDateRange = formData.taxiDateRange;
             }
 
-            submissionData.taxiPassengerIndex = taxiDetails.passengerIndex;
+            passengerSubmissionData.taxiPassengerIndex = taxiDetails.passengerIndex;
         }
 
-        // Calculate emissions
-        const emissions = calculateEmissions(submissionData);
-        submissionData.calculatedEmissionKgCo2e = emissions.totalEmissionsKg;
-        submissionData.calculatedEmissionTCo2e = emissions.totalEmissionsTonnes;
+        // Calculate emissions for passenger submission
+        const passengerEmissions = calculateEmissions(passengerSubmissionData);
+        passengerSubmissionData.calculatedEmissionKgCo2e = passengerEmissions.totalEmissionsKg;
+        passengerSubmissionData.calculatedEmissionTCo2e = passengerEmissions.totalEmissionsTonnes;
 
-        // Submit to backend
-        const response = await axios.post(
+        console.log('=== STEP 1: Creating passenger submission ===');
+        console.log('Passenger submission data:', passengerSubmissionData);
+
+        const passengerResponse = await axios.post(
             `${process.env.REACT_APP_BASE_URL}/employee-commute/Create`,
-            submissionData,
+            passengerSubmissionData,
             {
                 headers: {
                     Authorization: `Bearer ${currentToken}`,
@@ -2944,21 +3275,234 @@ const EmployeeCommutingFormCarpool = () => {
             }
         );
 
-        if (response.status === 200 || response.status === 201) {
-            setSubmitted(true);
-            toast.success('Your commute distances submitted successfully!');
-
-            navigate('/formSubmittedSuccessfully', {
-                state: {
-                    formType: 'employee-commuting-carpool',
-                    reportingYear: reportingYear,
-                    userInfo: userInfo,
-                    submissionTime: new Date().toISOString()
-                }
-            });
-        } else {
-            throw new Error(`Unexpected response status: ${response.status}`);
+        if (passengerResponse.status !== 200 && passengerResponse.status !== 201) {
+            throw new Error('Failed to create passenger submission');
         }
+
+        console.log('Passenger submission created successfully:', passengerResponse.data);
+
+        // ============ STEP 2: UPDATE ORIGINAL DRIVER FORM ============
+        
+        // Get the current driver form data
+        const driverFormResponse = await axios.get(
+            `${process.env.REACT_APP_BASE_URL}/employee-commute/Detail/${urlFormId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${currentToken}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        const currentDriverData = driverFormResponse.data.data;
+        console.log('Current driver data:', currentDriverData);
+        console.log('Passenger entered distances:', {
+            motorbikeDistance: Number(formData.motorbikeDistance) || 0,
+            carDistance: Number(formData.carDistance) || 0,
+            taxiDistance: Number(formData.taxiDistance) || 0
+        });
+
+        // Prepare update payload - handle both individual and carpool distances
+        const updatePayload = {};
+        const distancesToUpdate = [];
+
+        const getNumericValue = (value) => Number(value) || 0;
+
+        // ============ HANDLE MOTORBIKE ============
+        if (userPassengerDetails.transportTypes.includes('motorbike')) {
+            const passengerMotorbikeDistance = getNumericValue(formData.motorbikeDistance);
+            const driverMotorbikeDistance = getNumericValue(currentDriverData.motorbikeDistance);
+            const driverMotorbikeCarpoolDistance = getNumericValue(currentDriverData.motorbikeDistanceCarpool);
+            
+            // Check what mode the driver originally selected
+            const driverMotorbikeMode = currentDriverData.motorbikeMode || 'individual';
+            
+            if (driverMotorbikeMode === 'both') {
+                // Driver is in "both" mode - compare with carpool distance
+                if (passengerMotorbikeDistance > driverMotorbikeCarpoolDistance) {
+                    updatePayload.motorbikeDistanceCarpool = passengerMotorbikeDistance;
+                    distancesToUpdate.push('Motorbike Carpool');
+                    console.log(`✓ Motorbike carpool distance will be updated: ${driverMotorbikeCarpoolDistance} → ${passengerMotorbikeDistance}`);
+                } else {
+                    console.log(`✗ Motorbike carpool distance NOT updated: ${passengerMotorbikeDistance} is not higher than ${driverMotorbikeCarpoolDistance}`);
+                }
+            } else {
+                // Driver is in "carpool" or "individual" mode - compare with regular distance
+                if (passengerMotorbikeDistance > driverMotorbikeDistance) {
+                    updatePayload.motorbikeDistance = passengerMotorbikeDistance;
+                    distancesToUpdate.push('Motorbike');
+                    console.log(`✓ Motorbike distance will be updated: ${driverMotorbikeDistance} → ${passengerMotorbikeDistance}`);
+                } else {
+                    console.log(`✗ Motorbike distance NOT updated: ${passengerMotorbikeDistance} is not higher than ${driverMotorbikeDistance}`);
+                }
+            }
+        }
+
+        // ============ HANDLE CAR ============
+        if (userPassengerDetails.transportTypes.includes('car')) {
+            const passengerCarDistance = getNumericValue(formData.carDistance);
+            const driverCarDistance = getNumericValue(currentDriverData.carDistance);
+            const driverCarCarpoolDistance = getNumericValue(currentDriverData.carDistanceCarpool);
+            
+            // Check what mode the driver originally selected
+            const driverCarMode = currentDriverData.carMode || 'individual';
+            
+            if (driverCarMode === 'both') {
+                // Driver is in "both" mode - compare with carpool distance
+                if (passengerCarDistance > driverCarCarpoolDistance) {
+                    updatePayload.carDistanceCarpool = passengerCarDistance;
+                    distancesToUpdate.push('Car Carpool');
+                    console.log(`✓ Car carpool distance will be updated: ${driverCarCarpoolDistance} → ${passengerCarDistance}`);
+                } else {
+                    console.log(`✗ Car carpool distance NOT updated: ${passengerCarDistance} is not higher than ${driverCarCarpoolDistance}`);
+                }
+            } else {
+                // Driver is in "carpool" or "individual" mode - compare with regular distance
+                if (passengerCarDistance > driverCarDistance) {
+                    updatePayload.carDistance = passengerCarDistance;
+                    distancesToUpdate.push('Car');
+                    console.log(`✓ Car distance will be updated: ${driverCarDistance} → ${passengerCarDistance}`);
+                } else {
+                    console.log(`✗ Car distance NOT updated: ${passengerCarDistance} is not higher than ${driverCarDistance}`);
+                }
+            }
+        }
+
+        // ============ HANDLE TAXI ============
+        if (userPassengerDetails.transportTypes.includes('taxi')) {
+            const passengerTaxiDistance = getNumericValue(formData.taxiDistance);
+            const driverTaxiDistance = getNumericValue(currentDriverData.taxiDistance);
+            const driverTaxiCarpoolDistance = getNumericValue(currentDriverData.taxiDistanceCarpool);
+            
+            // Check what mode the driver originally selected
+            const driverTaxiMode = currentDriverData.taxiMode || 'individual';
+            
+            if (driverTaxiMode === 'both') {
+                // Driver is in "both" mode - compare with carpool distance
+                if (passengerTaxiDistance > driverTaxiCarpoolDistance) {
+                    updatePayload.taxiDistanceCarpool = passengerTaxiDistance;
+                    distancesToUpdate.push('Taxi Carpool');
+                    console.log(`✓ Taxi carpool distance will be updated: ${driverTaxiCarpoolDistance} → ${passengerTaxiDistance}`);
+                } else {
+                    console.log(`✗ Taxi carpool distance NOT updated: ${passengerTaxiDistance} is not higher than ${driverTaxiCarpoolDistance}`);
+                }
+            } else {
+                // Driver is in "carpool" or "individual" mode - compare with regular distance
+                if (passengerTaxiDistance > driverTaxiDistance) {
+                    updatePayload.taxiDistance = passengerTaxiDistance;
+                    distancesToUpdate.push('Taxi');
+                    console.log(`✓ Taxi distance will be updated: ${driverTaxiDistance} → ${passengerTaxiDistance}`);
+                } else {
+                    console.log(`✗ Taxi distance NOT updated: ${passengerTaxiDistance} is not higher than ${driverTaxiDistance}`);
+                }
+            }
+        }
+
+        // If no distances were updated, skip update
+        if (Object.keys(updatePayload).length === 0) {
+            console.log('No distances were higher than current driver distances. Skipping driver form update.');
+            toast.info('No distances were updated as all entered distances are lower than or equal to current values.');
+        } else {
+            console.log('Distances to update:', updatePayload);
+            console.log('Updating:', distancesToUpdate.join(', '));
+            
+            // Calculate final distances for emission recalculation
+            // For each mode, use updated value if available, otherwise keep current
+            const finalMotorbikeDistance = updatePayload.motorbikeDistance !== undefined 
+                ? updatePayload.motorbikeDistance 
+                : getNumericValue(currentDriverData.motorbikeDistance);
+            
+            const finalMotorbikeCarpoolDistance = updatePayload.motorbikeDistanceCarpool !== undefined 
+                ? updatePayload.motorbikeDistanceCarpool 
+                : getNumericValue(currentDriverData.motorbikeDistanceCarpool);
+            
+            const finalCarDistance = updatePayload.carDistance !== undefined 
+                ? updatePayload.carDistance 
+                : getNumericValue(currentDriverData.carDistance);
+            
+            const finalCarCarpoolDistance = updatePayload.carDistanceCarpool !== undefined 
+                ? updatePayload.carDistanceCarpool 
+                : getNumericValue(currentDriverData.carDistanceCarpool);
+            
+            const finalTaxiDistance = updatePayload.taxiDistance !== undefined 
+                ? updatePayload.taxiDistance 
+                : getNumericValue(currentDriverData.taxiDistance);
+            
+            const finalTaxiCarpoolDistance = updatePayload.taxiDistanceCarpool !== undefined 
+                ? updatePayload.taxiDistanceCarpool 
+                : getNumericValue(currentDriverData.taxiDistanceCarpool);
+            
+            console.log('Final distances for emission calculation:', {
+                motorbikeDistance: finalMotorbikeDistance,
+                motorbikeDistanceCarpool: finalMotorbikeCarpoolDistance,
+                carDistance: finalCarDistance,
+                carDistanceCarpool: finalCarCarpoolDistance,
+                taxiDistance: finalTaxiDistance,
+                taxiDistanceCarpool: finalTaxiCarpoolDistance
+            });
+            
+            // Create merged data object for emission calculation
+            const emissionCalculationData = {
+                ...currentDriverData,
+                motorbikeDistance: finalMotorbikeDistance,
+                motorbikeDistanceCarpool: finalMotorbikeCarpoolDistance,
+                carDistance: finalCarDistance,
+                carDistanceCarpool: finalCarCarpoolDistance,
+                taxiDistance: finalTaxiDistance,
+                taxiDistanceCarpool: finalTaxiCarpoolDistance,
+                carryOthersCar: currentDriverData.carryOthersCar,
+                personsCarriedCar: currentDriverData.personsCarriedCar,
+                travelWithOthersTaxi: currentDriverData.travelWithOthersTaxi,
+                personsTravelWithTaxi: currentDriverData.personsTravelWithTaxi,
+            };
+            
+            console.log('=== RECALCULATING EMISSIONS FOR DRIVER ===');
+            
+            // Recalculate emissions with final distances
+            const recalculatedEmissions = calculateEmissions(emissionCalculationData);
+            
+            // Add recalculated emissions to update payload
+            updatePayload.calculatedEmissionKgCo2e = recalculatedEmissions.totalEmissionsKg;
+            updatePayload.calculatedEmissionTCo2e = recalculatedEmissions.totalEmissionsTonnes;
+            
+            console.log('=== UPDATE SUMMARY ===');
+            console.log('Updated distances:', distancesToUpdate.join(', '));
+            console.log('Old Emissions (kg):', currentDriverData.calculatedEmissionKgCo2e);
+            console.log('New Emissions (kg):', recalculatedEmissions.totalEmissionsKg);
+            console.log('=====================');
+            
+            // Update driver form
+            try {
+                const updateResponse = await axios.put(
+                    `${process.env.REACT_APP_BASE_URL}/employee-commute/Update/${urlFormId}`,
+                    updatePayload,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${currentToken}`,
+                            'Content-Type': 'application/json',
+                        },
+                        timeout: 30000,
+                    }
+                );
+                console.log('Driver form updated successfully:', updateResponse.data);
+                toast.success(`Updated ${distancesToUpdate.join(', ')} distance(s) (higher values) and recalculated emissions!`);
+            } catch (updateError) {
+                console.warn('Driver form update failed:', updateError.message);
+                toast.warning('Passenger submission created, but driver form update failed');
+            }
+        }
+
+        setSubmitted(true);
+        toast.success('Your commute distances submitted successfully!');
+
+        navigate('/formSubmittedSuccessfully', {
+            state: {
+                formType: 'employee-commuting-carpool',
+                reportingYear: reportingYear,
+                userInfo: userInfo,
+                submissionTime: new Date().toISOString()
+            }
+        });
 
     } catch (error) {
         console.error('Submission error:', error);
@@ -2974,7 +3518,6 @@ const EmployeeCommutingFormCarpool = () => {
     }
 };
 
-    // Render all commute sections where user is a passenger
     const renderCommuteSections = () => {
         if (!userPassengerDetails.transportTypes || userPassengerDetails.transportTypes.length === 0) {
             return (

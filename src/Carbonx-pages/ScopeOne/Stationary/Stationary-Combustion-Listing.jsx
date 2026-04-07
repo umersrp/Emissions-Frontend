@@ -1,3 +1,4 @@
+
 // import React, { useState, useEffect, useMemo, Fragment, useRef } from "react";
 // import Card from "@/components/ui/Card";
 // import Button from "@/components/ui/Button";
@@ -16,11 +17,10 @@
 // import Modal from "@/components/ui/Modal";
 // import { formatUnitDisplay } from "@/constant/scope1/stationary-data";
 
-
-// // Import reusable components and hooks
+// // Import reusable components
 // import CSVUploadModal from "@/components/ui/CSVUploadModal";
+// import ExcelExportButton from "@/components/ui/ExcelExportButton"; // Import the reusable component
 // import useStationaryCSVUpload from "@/hooks/scope1/useStationaryCSVUpload";
-// import { Dialog, Transition } from "@headlessui/react";
 
 // const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
 //   const defaultRef = React.useRef();
@@ -41,6 +41,9 @@
 //   const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
 //   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
 //   const [isUploading, setIsUploading] = useState(false);
+//   const [selectedRows, setSelectedRows] = useState({});
+// const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
+
 //   const [pagination, setPagination] = useState({
 //     currentPage: 1,
 //     totalPages: 1,
@@ -63,6 +66,77 @@
 //     downloadStationaryTemplate
 //   } = useStationaryCSVUpload(buildings);
 
+//   // Add this function to handle selection changes
+// const handleRowSelection = (rowId, isSelected) => {
+//   setSelectedRows(prev => ({
+//     ...prev,
+//     [rowId]: isSelected
+//   }));
+// };
+
+// // Add this function to handle select all
+// const handleSelectAll = (isSelected, rows) => {
+//   const newSelection = {};
+//   if (isSelected) {
+//     rows.forEach(row => {
+//       newSelection[row.original._id] = true;
+//     });
+//   }
+//   setSelectedRows(newSelection);
+// };
+
+// // Add this function to delete multiple records
+// const handleDeleteMultiple = async () => {
+//   const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
+
+//   if (selectedIds.length === 0) {
+//     toast.warning("Please select records to delete");
+//     return;
+//   }
+
+//   setIsDeletingMultiple(true);
+
+//   try {
+//     // Option 1: Delete one by one (safer for large numbers)
+//     const deletePromises = selectedIds.map(id =>
+//       axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
+//         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+//       })
+//     );
+
+//     await Promise.all(deletePromises);
+
+//     toast.success(`${selectedIds.length} record(s) deleted successfully`);
+
+//     // Clear selection and refresh
+//     setSelectedRows({});
+//     fetchStationaryRecords(pagination.currentPage, globalFilterValue);
+//   } catch (err) {
+//     console.error("Error deleting records:", err);
+//     toast.error("Failed to delete some records");
+//   } finally {
+//     setIsDeletingMultiple(false);
+//     setDeleteModalOpen(false);
+//   }
+// };
+
+//   // Function to fetch ALL records for export - DEFINE IT BEFORE ANY HOOKS THAT USE IT
+//   const fetchAllStationaryRecords = async () => {
+//     try {
+//       const res = await axios.get(
+//         `${process.env.REACT_APP_BASE_URL}/stationary/Get-All?limit=1000000`,
+//         {
+//           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+//         }
+//       );
+//       return res.data.data || [];
+//     } catch (err) {
+//       console.error("Error fetching records for export:", err);
+//       toast.error("Failed to fetch records for export");
+//       return [];
+//     }
+//   };
+
 //   React.useEffect(() => {
 //     console.log('  bulkUploadModalOpen changed to:', bulkUploadModalOpen);
 //     console.trace('Stack trace:');
@@ -74,6 +148,10 @@
 //       setForceModalOpen(false);
 //     }
 //   }, [isUploading, forceModalOpen]);
+
+//   useEffect(() => {
+//   setSelectedRows({});
+// }, [pagination.currentPage, globalFilterValue]);
 
 //   const capitalizeLabel = (text) => {
 //     if (!text) return "N/A";
@@ -120,6 +198,78 @@
 //         return result;
 //       })
 //       .join(" ");
+//   };
+
+//   // Custom formatter for export
+//   const customFormatter = (value, column, row, index) => {
+//     // If value is already "N/A", keep it as "N/A"
+//     if (value === "N/A") {
+//       return "N/A";
+//     }
+
+//     // Handle Sr.No specially
+//     if (column.Header === "Sr.No" || column.id === "serialNo") {
+//       return index + 1;
+//     }
+
+//     // For buildingId.buildingName or buildingId.buildingCode that might be "N/A"
+//     if (column.accessor === "buildingId.buildingName" ||
+//       column.accessor === "buildingId.buildingCode") {
+//       // If value is "N/A" or empty, return "N/A"
+//       if (!value || value === "N/A") {
+//         return "N/A";
+//       }
+//       // For buildingName, apply capitalizeLabel
+//       if (column.accessor === "buildingId.buildingName") {
+//         return capitalizeLabel(value);
+//       }
+//       // For buildingCode, return as is
+//       return value;
+//     }
+
+//     // Handle other special cases
+//     if (column.accessor === "stakeholder" ||
+//       column.accessor === "equipmentType" ||
+//       column.accessor === "fuelName") {
+//       if (!value || value === "N/A") {
+//         return "N/A";
+//       }
+//       return capitalizeLabel(value);
+//     }
+
+//     if (column.accessor === "consumptionUnit") {
+//       if (!value || value === "N/A") {
+//         return "N/A";
+//       }
+//       return formatUnitDisplay(value);
+//     }
+
+//     if (column.accessor === "postingDate") {
+//       if (!value || value === "N/A") {
+//         return "N/A";
+//       }
+//       try {
+//         return new Date(value).toLocaleDateString('en-GB');
+//       } catch {
+//         return "Invalid Date";
+//       }
+//     }
+
+//     // Handle numeric formatting for emission fields
+//     if (column.accessor === "calculatedEmissionKgCo2e" ||
+//       column.accessor === "calculatedEmissionTCo2e") {
+//       if (!value || value === "N/A") {
+//         return "N/A";
+//       }
+//       const numValue = Number(value);
+//       if (isNaN(numValue)) {
+//         return "N/A";
+//       }
+//       return numValue.toFixed(2);
+//     }
+
+//     // For all other columns, return value or "N/A"
+//     return value || "N/A";
 //   };
 
 //   const fetchStationaryRecords = async (page = 1, search = "") => {
@@ -206,7 +356,7 @@
 //     setBulkUploadModalOpen(true);
 //   };
 
-//   //  FIX: Don't set isUploading during file selection
+//   // FIX: Don't set isUploading during file selection
 //   const handleCSVFileSelect = async (selectedFile) => {
 //     if (!selectedFile) {
 //       toast.error('No file selected');
@@ -222,7 +372,7 @@
 //     }
 //   };
 
-//   //  FIX: Simplified upload handler
+//   // FIX: Simplified upload handler
 //   const handleCSVUpload = async () => {
 //     // Only check csvState.uploading (single source of truth)
 //     if (csvState.uploading) return;
@@ -251,7 +401,7 @@
 //     }
 //   };
 
-//   //  FIX: Simplified close handler
+//   // FIX: Simplified close handler
 //   const handleModalClose = () => {
 //     // Use csvState.uploading as single source of truth
 //     if (csvState.uploading) {
@@ -262,8 +412,9 @@
 //     resetUpload();
 //     setBulkUploadModalOpen(false);
 //   };
+
 //   const templateInstructions = (
-//     <ol className="text-sm text-blue-700 space-y-1 list-decimal pl-4">
+//     <ol className="text-sm text-black-700 space-y-1 list-decimal pl-4">
 //       <li>Download the template below</li>
 //       <li>Fill in your data (keep column headers as is)</li>
 //       <li>Save as xlsx file</li>
@@ -271,8 +422,8 @@
 //       <li>Review validation results and submit</li>
 //     </ol>
 //   );
-//   // Modal new code start
 
+//   // Modal new code start
 //   const { file, uploading, progress, validationErrors, results } = csvState;
 //   const fileInputRef = useRef(null);
 
@@ -434,55 +585,184 @@
 //     ],
 //     [pagination.currentPage, pagination.limit]
 //   );
+//   // const tableInstance = useTable(
+//   //   {
+//   //     columns: COLUMNS,
+//   //     data: records,
+//   //     manualPagination: true,
+//   //   },
+//   //   useSortBy,
+//   //   useRowSelect,
+//   //   (hooks) => {
+//   //     hooks.visibleColumns.push((columns) => [
+//   //       {
+//   //         id: "selection",
+//   //         Header: ({ getToggleAllRowsSelectedProps }) => (
+//   //           <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+//   //         ),
+//   //         Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
+//   //       },
+//   //       ...columns,
+//   //     ]);
+//   //   }
+//   // );
+// // Update the tableInstance configuration to include selection handling
+// const tableInstance = useTable(
+//   {
+//     columns: COLUMNS,
+//     data: records,
+//     manualPagination: true,
+//     autoResetSelectedRows: false,
+//   },
+//   useSortBy,
+//   useRowSelect,
+//   (hooks) => {
+//     hooks.visibleColumns.push((columns) => [
+//       {
+//         id: "selection",
+//         Header: ({ getToggleAllRowsSelectedProps, rows }) => {
+//           const allSelected = rows.length > 0 && rows.every(row => selectedRows[row.original._id]);
+//           const someSelected = rows.some(row => selectedRows[row.original._id]);
 
-//   const tableInstance = useTable(
-//     {
-//       columns: COLUMNS,
-//       data: records,
-//       manualPagination: true,
-//     },
-//     useSortBy,
-//     useRowSelect,
-//     (hooks) => {
-//       hooks.visibleColumns.push((columns) => [
-//         {
-//           id: "selection",
-//           Header: ({ getToggleAllRowsSelectedProps }) => (
-//             <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-//           ),
-//           Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
+//           return (
+//             <IndeterminateCheckbox
+//               {...getToggleAllRowsSelectedProps()}
+//               checked={allSelected}
+//               indeterminate={someSelected && !allSelected}
+//               onChange={(e) => handleSelectAll(e.target.checked, rows)}
+//             />
+//           );
 //         },
-//         ...columns,
-//       ]);
-//     }
-//   );
+//         Cell: ({ row }) => (
+//           <IndeterminateCheckbox
+//             {...row.getToggleRowSelectedProps()}
+//             checked={selectedRows[row.original._id] || false}
+//             onChange={(e) => handleRowSelection(row.original._id, e.target.checked)}
+//           />
+//         ),
+//       },
+//       ...columns,
+//     ]);
+//   }
+// );
+
+// // Update the selected rows count and show delete button
+// const selectedCount = Object.values(selectedRows).filter(Boolean).length;
 
 //   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
 
 //   return (
 //     <>
 //       <Card noborder>
+
 //         <div className="md:flex pb-6 items-center">
 //           <h6 className="flex-1 md:mb-0">Stationary Combustion Records</h6>
-//           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
+
+//           <div className="md:flex 2xl:space-x-3  space-x-1 items-center flex-none rtl:space-x-reverse">
 //             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
 
+//              {selectedCount > 0 && (
+//       <Tippy content={`Delete ${selectedCount} selected record(s)`}>
+//         <Button
+//           icon="heroicons:trash"
+//           text={`Delete Selected (${selectedCount})`}
+//           className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
+//           iconClass="text-lg"
+//           onClick={() => setDeleteModalOpen(true)}
+//           disabled={isDeletingMultiple}
+//         />
+//       </Tippy>
+//     )}
+//           {records.length > 0 && (
+//               <ExcelExportButton
+//                 data={records}
+//                 columns={COLUMNS}
+//                 exportFields={[
+//                   "buildingId.buildingCode",      // Building Code
+//                   "buildingId.buildingName",       // Building Name
+//                   "stakeholder",                   // Stakeholder
+//                   "equipmentType",                  // Equipment Type
+//                   "fuelType",                       // Fuel Type
+//                   "fuelName",                       // Fuel Name
+//                   "fuelConsumption",                 // Fuel Consumption
+//                   "consumptionUnit",                  // Consumption Unit
+//                   "qualityControl",                    // Quality Control
+//                   "calculatedEmissionKgCo2e",          // Emission in kg CO2e
+//                   "calculatedEmissionTCo2e",         
+//                   "remarks",                            // Remarks
+//                   "postingDate",                         // Posting Date
+//                   "createdBy.name",                       // Created By
+//                   "updatedBy.name"                         // Updated By
+//                 ]}
+//                 fileName="stationary_combustion_current_page"
+//                 sheetName="Current Page"
+//                 buttonText="Export Page"
+//                 buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+//                 exportFormat="current"
+//                 customFormatter={customFormatter}
+//                 pageInfo={{ currentPage: pagination.currentPage, limit: pagination.limit }}  // FIX: Use pagination state
+//               />
+//             )}
+
+//             {/* Reusable Excel Export Button */}
+//             <ExcelExportButton
+//               data={records}
+//               fetchAllData={fetchAllStationaryRecords}
+//               columns={COLUMNS}
+//               exportFields={[
+//                 "buildingId.buildingCode",      // Building Code
+//                 "buildingId.buildingName",       // Building Name
+//                 "stakeholder",                   // Stakeholder
+//                 "equipmentType",                  // Equipment Type
+//                 "fuelType",                       // Fuel Type
+//                 "fuelName",                       // Fuel Name
+//                 "fuelConsumption",                 // Fuel Consumption
+//                 "consumptionUnit",                  // Consumption Unit
+//                 "qualityControl",                    // Quality Control
+//                 "calculatedEmissionKgCo2e",          // Emission in kg CO2e
+//                 "calculatedEmissionTCo2e",   
+//                 "remarks",                            // Remarks
+//                 "postingDate",                         // Posting Date
+//                 "createdBy.name",                       // Created By
+//                 "updatedBy.name"                         // Updated By
+//               ]}
+//               fileName="stationary_combustion_records"
+//               sheetName="Stationary Combustion"
+//               buttonText="Export All Entries"
+//               buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+//               successMessage="Stationary records exported successfully!"
+//               customFormatter={customFormatter}
+//               exportFormat="all"
+//               pageInfo={pagination}
+//             />
+//             {/* Import Button */}
 //             <Button
-//               icon={isUploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
-//               text={isUploading ? "Uploading..." : "Bulk Upload CSV"}
+//               icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
+//               text={csvState.uploading ? "Uploading..." : "Import"}
 //               className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
-//               iconClass={isUploading ? "text-lg animate-spin" : "text-lg"}
-//               onClick={handleBulkUploadClick}  // Use new handler
-//               disabled={isUploading}
+//               iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}
+//               onClick={() => setBulkUploadModalOpen(true)}
+//               disabled={csvState.uploading}
 //             />
 
-//             <Button
-//               icon="heroicons-outline:plus-sm"
-//               text="Add Record"
-//               className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
-//               iconClass="text-lg"
-//               onClick={() => navigate("/Stationary-Combustion-Form/Add")}
-//             />
+//             <div className="2xl:hidden">
+//               <Button
+//                 icon="heroicons-outline:plus-sm"
+//                 text="Add"
+//                 className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+//                 iconClass="text-lg"
+//                 onClick={() => navigate("/Stationary-Combustion-Form/Add")}
+//               />
+//             </div>
+//             <div className="hidden 2xl:block">
+//               <Button
+//                 icon="heroicons-outline:plus-sm"
+//                 text="Add Record"
+//                 className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+//                 iconClass="text-lg"
+//                 onClick={() => navigate("/Stationary-Combustion-Form/Add")}
+//               />
+//             </div>
 //           </div>
 //         </div>
 
@@ -696,35 +976,63 @@
 //                 </option>
 //               ))}
 //             </select>
+
+//             {/* Optional: Add button to export current page */}
+
 //           </div>
 //         </div>
 //       </Card>
 
 //       {/* Delete Confirmation Modal */}
 //       <Modal
-//         activeModal={deleteModalOpen}
-//         onClose={() => setDeleteModalOpen(false)}
-//         title="Confirm Delete"
-//         themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
-//         centered
-//         footerContent={
-//           <>
-//             <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
-//             <Button
-//               text="Delete"
-//               className="btn-danger"
-//               onClick={async () => {
-//                 await handleDelete(selectedBuildingId);
-//                 setDeleteModalOpen(false);
-//               }}
-//             />
-//           </>
-//         }
-//       >
-//         <p className="text-gray-700 text-center">
-//           Are you sure you want to delete this Stationary? This action cannot be undone.
-//         </p>
-//       </Modal>
+//   activeModal={deleteModalOpen}
+//   onClose={() => setDeleteModalOpen(false)}
+//   title="Confirm Delete"
+//   themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+//   centered
+//   footerContent={
+//     <>
+//       <Button 
+//         text="Cancel" 
+//         className="btn-light" 
+//         onClick={() => setDeleteModalOpen(false)} 
+//       />
+//       <Button
+//         text={isDeletingMultiple ? "Deleting..." : "Delete"}
+//         className="btn-danger"
+//         onClick={async () => {
+//           if (selectedCount > 1) {
+//             await handleDeleteMultiple();
+//           } else if (selectedBuildingId) {
+//             await handleDelete(selectedBuildingId);
+//             setDeleteModalOpen(false);
+//           }
+//         }}
+//         disabled={isDeletingMultiple}
+//       />
+//     </>
+//   }
+// >
+//   <p className="text-gray-700 text-center">
+//     {selectedCount > 1 
+//       ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
+//       : "Are you sure you want to delete this Stationary? This action cannot be undone."
+//     }
+//   </p>
+// </Modal>
+
+// // Optional: Add a clear selection button near the table
+// // Add this after the table, before pagination
+// {selectedCount > 0 && (
+//   <div className="mb-4 flex justify-end">
+//     <Button
+//       text="Clear Selection"
+//       className="btn-sm btn-light"
+//       onClick={() => setSelectedRows({})}
+//       icon="heroicons:x-mark"
+//     />
+//   </div>
+// )}
 
 //       <CSVUploadModal
 //         activeModal={bulkUploadModalOpen}
@@ -738,12 +1046,13 @@
 //         templateInstructions={templateInstructions}
 //         isLoading={isUploading}
 //       />
-
 //     </>
 //   );
 // };
 
 // export default StationaryCombustionListing;
+
+
 
 import React, { useState, useEffect, useMemo, Fragment, useRef } from "react";
 import Card from "@/components/ui/Card";
@@ -765,16 +1074,30 @@ import { formatUnitDisplay } from "@/constant/scope1/stationary-data";
 
 // Import reusable components
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
-import ExcelExportButton from "@/components/ui/ExcelExportButton"; // Import the reusable component
+import ExcelExportButton from "@/components/ui/ExcelExportButton";
 import useStationaryCSVUpload from "@/hooks/scope1/useStationaryCSVUpload";
 
-const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
+const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
   const defaultRef = React.useRef();
   const resolvedRef = ref || defaultRef;
+
   React.useEffect(() => {
-    resolvedRef.current.indeterminate = indeterminate;
+    if (resolvedRef.current) {
+      resolvedRef.current.indeterminate = indeterminate;
+    }
   }, [resolvedRef, indeterminate]);
-  return <input type="checkbox" ref={resolvedRef} {...rest} className="table-checkbox" />;
+
+  return (
+    <input
+      type="checkbox"
+      ref={resolvedRef}
+      checked={checked}
+      className="table-checkbox"
+      onChange={onChange}
+      {...rest}
+
+    />
+  );
 });
 
 const StationaryCombustionListing = () => {
@@ -787,6 +1110,9 @@ const StationaryCombustionListing = () => {
   const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedRows, setSelectedRows] = useState({});
+  const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
+  const selectedRowsRef = useRef(selectedRows);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -809,7 +1135,39 @@ const StationaryCombustionListing = () => {
     downloadStationaryTemplate
   } = useStationaryCSVUpload(buildings);
 
-  // Function to fetch ALL records for export - DEFINE IT BEFORE ANY HOOKS THAT USE IT
+  // Delete multiple records
+  const handleDeleteMultiple = async () => {
+    const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
+
+    if (selectedIds.length === 0) {
+      toast.warning("Please select records to delete");
+      return;
+    }
+
+    setIsDeletingMultiple(true);
+
+    try {
+      const deletePromises = selectedIds.map(id =>
+        axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        })
+      );
+
+      await Promise.all(deletePromises);
+
+      toast.success(`${selectedIds.length} record(s) deleted successfully`);
+      setSelectedRows({});
+      fetchStationaryRecords(pagination.currentPage, globalFilterValue);
+    } catch (err) {
+      console.error("Error deleting records:", err);
+      toast.error("Failed to delete some records");
+    } finally {
+      setIsDeletingMultiple(false);
+      setDeleteModalOpen(false);
+    }
+  };
+
+  // Fetch all records for export
   const fetchAllStationaryRecords = async () => {
     try {
       const res = await axios.get(
@@ -827,16 +1185,18 @@ const StationaryCombustionListing = () => {
   };
 
   React.useEffect(() => {
-    console.log('  bulkUploadModalOpen changed to:', bulkUploadModalOpen);
-    console.trace('Stack trace:');
+    console.log('bulkUploadModalOpen changed to:', bulkUploadModalOpen);
   }, [bulkUploadModalOpen]);
 
   useEffect(() => {
-    // If upload finished but forceModalOpen is still true, reset it
     if (!isUploading && forceModalOpen) {
       setForceModalOpen(false);
     }
   }, [isUploading, forceModalOpen]);
+
+  useEffect(() => {
+    setSelectedRows({});
+  }, [pagination.currentPage, globalFilterValue]);
 
   const capitalizeLabel = (text) => {
     if (!text) return "N/A";
@@ -885,34 +1245,30 @@ const StationaryCombustionListing = () => {
       .join(" ");
   };
 
+  useEffect(() => {
+    setSelectedRows({});
+  }, [pagination.currentPage, globalFilterValue, pagination.limit]);
   // Custom formatter for export
   const customFormatter = (value, column, row, index) => {
-    // If value is already "N/A", keep it as "N/A"
     if (value === "N/A") {
       return "N/A";
     }
 
-    // Handle Sr.No specially
     if (column.Header === "Sr.No" || column.id === "serialNo") {
       return index + 1;
     }
 
-    // For buildingId.buildingName or buildingId.buildingCode that might be "N/A"
     if (column.accessor === "buildingId.buildingName" ||
       column.accessor === "buildingId.buildingCode") {
-      // If value is "N/A" or empty, return "N/A"
       if (!value || value === "N/A") {
         return "N/A";
       }
-      // For buildingName, apply capitalizeLabel
       if (column.accessor === "buildingId.buildingName") {
         return capitalizeLabel(value);
       }
-      // For buildingCode, return as is
       return value;
     }
 
-    // Handle other special cases
     if (column.accessor === "stakeholder" ||
       column.accessor === "equipmentType" ||
       column.accessor === "fuelName") {
@@ -940,7 +1296,6 @@ const StationaryCombustionListing = () => {
       }
     }
 
-    // Handle numeric formatting for emission fields
     if (column.accessor === "calculatedEmissionKgCo2e" ||
       column.accessor === "calculatedEmissionTCo2e") {
       if (!value || value === "N/A") {
@@ -953,7 +1308,6 @@ const StationaryCombustionListing = () => {
       return numValue.toFixed(2);
     }
 
-    // For all other columns, return value or "N/A"
     return value || "N/A";
   };
 
@@ -968,7 +1322,6 @@ const StationaryCombustionListing = () => {
       );
 
       setRecords(res.data.data || []);
-
       const meta = res.data.meta || {};
 
       setPagination({
@@ -1024,6 +1377,10 @@ const StationaryCombustionListing = () => {
     return () => clearTimeout(delayDebounce);
   }, [globalFilterValue]);
 
+  useEffect(() => {
+    selectedRowsRef.current = selectedRows;
+  }, [selectedRows]);
+
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
@@ -1041,7 +1398,6 @@ const StationaryCombustionListing = () => {
     setBulkUploadModalOpen(true);
   };
 
-  // FIX: Don't set isUploading during file selection
   const handleCSVFileSelect = async (selectedFile) => {
     if (!selectedFile) {
       toast.error('No file selected');
@@ -1049,7 +1405,6 @@ const StationaryCombustionListing = () => {
     }
 
     try {
-      // Remove setIsUploading - file selection is not uploading!
       await handleFileSelect(selectedFile);
     } catch (error) {
       console.error('Error handling file select:', error);
@@ -1057,38 +1412,27 @@ const StationaryCombustionListing = () => {
     }
   };
 
-  // FIX: Simplified upload handler
   const handleCSVUpload = async () => {
-    // Only check csvState.uploading (single source of truth)
     if (csvState.uploading) return;
 
     try {
       const results = await processUpload();
 
       if (results && results.failed === 0) {
-        // Wait to show completion
         await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // Close modal and cleanup
         setBulkUploadModalOpen(false);
         resetUpload();
-
-        // Fetch in background
         setTimeout(() => {
           fetchStationaryRecords(pagination.currentPage);
         }, 100);
       }
-      // If there are failures, processUpload already set uploading to false
-      // Modal stays open automatically
     } catch (error) {
       console.error('Upload error:', error);
       toast.error('Upload failed');
     }
   };
 
-  // FIX: Simplified close handler
   const handleModalClose = () => {
-    // Use csvState.uploading as single source of truth
     if (csvState.uploading) {
       toast.warning('Please wait for upload to complete');
       return;
@@ -1108,11 +1452,9 @@ const StationaryCombustionListing = () => {
     </ol>
   );
 
-  // Modal new code start
   const { file, uploading, progress, validationErrors, results } = csvState;
   const fileInputRef = useRef(null);
 
-  // Memoize handlers to prevent recreation on every render
   const handleFileInputChange = useMemo(() => (e) => {
     const selectedFile = e?.target?.files?.[0];
     if (selectedFile && handleCSVFileSelect) {
@@ -1138,15 +1480,13 @@ const StationaryCombustionListing = () => {
 
   const handleClose = useMemo(() => () => {
     if (uploading) {
-      return; // Silently prevent close during upload
+      return;
     }
     handleReset();
     if (handleModalClose) {
       handleModalClose();
     }
   }, [uploading, handleModalClose, handleReset]);
-
-  // Modal new code end
 
   const COLUMNS = useMemo(
     () => [
@@ -1157,7 +1497,7 @@ const StationaryCombustionListing = () => {
           <span>{(pagination.currentPage - 1) * pagination.limit + row.index + 1}</span>
         ),
       },
-       { Header: "Building Code", accessor: "buildingId.buildingCode",  Cell: ({ cell }) => cell.value || "N/A",  },
+      { Header: "Building Code", accessor: "buildingId.buildingCode", Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ value }) => capitalizeLabel(value) },
       { Header: "Stakeholder", accessor: "stakeholder", Cell: ({ value }) => capitalizeLabel(value) },
       { Header: "Equipment Type", accessor: "equipmentType", Cell: ({ value }) => capitalizeLabel(value) },
@@ -1268,13 +1608,17 @@ const StationaryCombustionListing = () => {
         ),
       },
     ],
-    [pagination.currentPage, pagination.limit]
+    [pagination.currentPage, pagination.limit, selectedRows]
   );
+
   const tableInstance = useTable(
     {
       columns: COLUMNS,
       data: records,
       manualPagination: true,
+      autoResetSelectedRows: false,
+      // Add this to help with selection
+      getRowId: (row) => row._id,
     },
     useSortBy,
     useRowSelect,
@@ -1282,45 +1626,103 @@ const StationaryCombustionListing = () => {
       hooks.visibleColumns.push((columns) => [
         {
           id: "selection",
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-          ),
-          Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
+          width: 50,
+          Header: ({ rows }) => {
+            const allSelected = rows.length > 0 && rows.every(row => selectedRows[row.original._id]);
+            const someSelected = rows.some(row => selectedRows[row.original._id]);
+
+            return (
+              <IndeterminateCheckbox
+                checked={allSelected}
+                indeterminate={someSelected && !allSelected}
+                onChange={(e) => {
+                  const isChecked = e.target.checked;
+                  const newSelection = {};
+                  if (isChecked) {
+                    rows.forEach(row => {
+                      newSelection[row.original._id] = true;
+                    });
+                  }
+                  setSelectedRows(newSelection);
+                }}
+              />
+            );
+          },
+          Cell: ({ row }) => {
+            const [, forceUpdate] = useState(0);
+            const isChecked = selectedRowsRef.current[row.original._id] || false;
+
+            return (
+              <IndeterminateCheckbox
+                checked={isChecked}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  if (e.target.checked) {
+                    setSelectedRows(prev => ({ ...prev, [row.original._id]: true }));
+                  } else {
+                    setSelectedRows(prev => {
+                      const newState = { ...prev };
+                      delete newState[row.original._id];
+                      return newState;
+                    });
+                  }
+                  forceUpdate(n => n + 1); // force this cell to re-render
+                }}
+              />
+            );
+          },
         },
         ...columns,
       ]);
     }
   );
-
+  const selectedCount = Object.values(selectedRows).filter(Boolean).length;
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
 
   return (
     <>
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0">Stationary Combustion Records</h6>
-          <div className="md:flex 2xl:space-x-3  space-x-1 items-center flex-none rtl:space-x-reverse">
+          <div className="flex-1 md:mb-0 flex items-center space-x-3">
+            <h6>Stationary Combustion Records</h6>
+          </div>
+
+          <div className="md:flex 2xl:space-x-3 space-x-1 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-          {records.length > 0 && (
+
+            {selectedCount > 0 && (
+              <Tippy content={`Delete ${selectedCount} selected record`}>
+                <Button
+                  icon="heroicons:trash"
+                  text={`Delete Selected (${selectedCount})`}
+                  className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
+                  iconClass="text-lg"
+                  onClick={() => setDeleteModalOpen(true)}
+                  disabled={isDeletingMultiple}
+                />
+              </Tippy>
+            )}
+
+            {records.length > 0 && (
               <ExcelExportButton
                 data={records}
                 columns={COLUMNS}
                 exportFields={[
-                  "buildingId.buildingCode",      // Building Code
-                  "buildingId.buildingName",       // Building Name
-                  "stakeholder",                   // Stakeholder
-                  "equipmentType",                  // Equipment Type
-                  "fuelType",                       // Fuel Type
-                  "fuelName",                       // Fuel Name
-                  "fuelConsumption",                 // Fuel Consumption
-                  "consumptionUnit",                  // Consumption Unit
-                  "qualityControl",                    // Quality Control
-                  "calculatedEmissionKgCo2e",          // Emission in kg CO2e
-                  "calculatedEmissionTCo2e",         
-                  "remarks",                            // Remarks
-                  "postingDate",                         // Posting Date
-                  "createdBy.name",                       // Created By
-                  "updatedBy.name"                         // Updated By
+                  "buildingId.buildingCode",
+                  "buildingId.buildingName",
+                  "stakeholder",
+                  "equipmentType",
+                  "fuelType",
+                  "fuelName",
+                  "fuelConsumption",
+                  "consumptionUnit",
+                  "qualityControl",
+                  "calculatedEmissionKgCo2e",
+                  "calculatedEmissionTCo2e",
+                  "remarks",
+                  "postingDate",
+                  "createdBy.name",
+                  "updatedBy.name"
                 ]}
                 fileName="stationary_combustion_current_page"
                 sheetName="Current Page"
@@ -1328,31 +1730,30 @@ const StationaryCombustionListing = () => {
                 buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
                 exportFormat="current"
                 customFormatter={customFormatter}
-                pageInfo={{ currentPage: pagination.currentPage, limit: pagination.limit }}  // FIX: Use pagination state
+                pageInfo={{ currentPage: pagination.currentPage, limit: pagination.limit }}
               />
             )}
 
-            {/* Reusable Excel Export Button */}
             <ExcelExportButton
               data={records}
               fetchAllData={fetchAllStationaryRecords}
               columns={COLUMNS}
               exportFields={[
-                "buildingId.buildingCode",      // Building Code
-                "buildingId.buildingName",       // Building Name
-                "stakeholder",                   // Stakeholder
-                "equipmentType",                  // Equipment Type
-                "fuelType",                       // Fuel Type
-                "fuelName",                       // Fuel Name
-                "fuelConsumption",                 // Fuel Consumption
-                "consumptionUnit",                  // Consumption Unit
-                "qualityControl",                    // Quality Control
-                "calculatedEmissionKgCo2e",          // Emission in kg CO2e
-                "calculatedEmissionTCo2e",   
-                "remarks",                            // Remarks
-                "postingDate",                         // Posting Date
-                "createdBy.name",                       // Created By
-                "updatedBy.name"                         // Updated By
+                "buildingId.buildingCode",
+                "buildingId.buildingName",
+                "stakeholder",
+                "equipmentType",
+                "fuelType",
+                "fuelName",
+                "fuelConsumption",
+                "consumptionUnit",
+                "qualityControl",
+                "calculatedEmissionKgCo2e",
+                "calculatedEmissionTCo2e",
+                "remarks",
+                "postingDate",
+                "createdBy.name",
+                "updatedBy.name"
               ]}
               fileName="stationary_combustion_records"
               sheetName="Stationary Combustion"
@@ -1363,7 +1764,7 @@ const StationaryCombustionListing = () => {
               exportFormat="all"
               pageInfo={pagination}
             />
-            {/* Import Button */}
+
             <Button
               icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
               text={csvState.uploading ? "Uploading..." : "Import"}
@@ -1415,15 +1816,21 @@ const StationaryCombustionListing = () => {
                             {...column.getHeaderProps(column.getSortByToggleProps())}
                             className="table-th text-white whitespace-nowrap"
                             key={column.id}
+                            style={{
+                              width: column.id === 'selection' ? '50px' : 'auto',
+                              textAlign: column.id === 'selection' ? 'center' : 'left'
+                            }}
                           >
                             {column.render("Header")}
-                            <span>
-                              {column.isSorted
-                                ? column.isSortedDesc
-                                  ? " 🔽"
-                                  : " 🔼"
-                                : ""}
-                            </span>
+                            {column.id !== 'selection' && (
+                              <span>
+                                {column.isSorted
+                                  ? column.isSortedDesc
+                                    ? " 🔽"
+                                    : " 🔼"
+                                  : ""}
+                              </span>
+                            )}
                           </th>
                         ))}
                       </tr>
@@ -1449,6 +1856,9 @@ const StationaryCombustionListing = () => {
                               <td
                                 {...cell.getCellProps()}
                                 className="px-6 py-4 whitespace-nowrap"
+                                style={{
+                                  textAlign: cell.column.id === 'selection' ? 'center' : 'left'
+                                }}
                               >
                                 {cell.render("Cell")}
                               </td>
@@ -1463,6 +1873,18 @@ const StationaryCombustionListing = () => {
             </div>
           </div>
         </div>
+
+        {/* Clear Selection Button */}
+        {selectedCount > 0 && (
+          <div className="mb-4 mt-4 flex justify-end">
+            <Button
+              text="Clear Selection"
+              className="btn-sm btn-light"
+              onClick={() => setSelectedRows({})}
+              icon="heroicons:x-mark"
+            />
+          </div>
+        )}
 
         {/* Pagination */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
@@ -1604,9 +2026,6 @@ const StationaryCombustionListing = () => {
                 </option>
               ))}
             </select>
-
-            {/* Optional: Add button to export current page */}
-
           </div>
         </div>
       </Card>
@@ -1620,20 +2039,32 @@ const StationaryCombustionListing = () => {
         centered
         footerContent={
           <>
-            <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
             <Button
-              text="Delete"
+              text="Cancel"
+              className="btn-light"
+              onClick={() => setDeleteModalOpen(false)}
+            />
+            <Button
+              text={isDeletingMultiple ? "Deleting..." : "Delete"}
               className="btn-danger"
               onClick={async () => {
-                await handleDelete(selectedBuildingId);
-                setDeleteModalOpen(false);
+                if (selectedCount > 1) {
+                  await handleDeleteMultiple();
+                } else if (selectedBuildingId) {
+                  await handleDelete(selectedBuildingId);
+                  setDeleteModalOpen(false);
+                }
               }}
+              disabled={isDeletingMultiple}
             />
           </>
         }
       >
         <p className="text-gray-700 text-center">
-          Are you sure you want to delete this Stationary? This action cannot be undone.
+          {selectedCount > 1
+            ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
+            : "Are you sure you want to delete this Stationary? This action cannot be undone."
+          }
         </p>
       </Modal>
 
@@ -1654,5 +2085,4 @@ const StationaryCombustionListing = () => {
 };
 
 export default StationaryCombustionListing;
-
 

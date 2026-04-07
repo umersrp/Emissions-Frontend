@@ -151,6 +151,47 @@
   outline: none;
   text-align: center;
 }
+
+
+/* Table checkbox styling - Make checkboxes visible */
+.table-checkbox {
+  width: 18px !important;
+  height: 18px !important;
+  /* Remove native checkbox rendering so our ::before pseudo-element is the only visual */
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  accent-color: #3AB89D !important;
+  margin: 0 auto !important;
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Ensure checkbox column has proper width and alignment */
+th:first-child,
+td:first-child {
+  width: 50px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+/* Force non-.table-checkbox checkboxes to be visible in table.
+   Exclude `.table-checkbox` so only its styles apply when present. */
+table input[type="checkbox"]:not(.table-checkbox) {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Style for the selection column header */
+th .table-checkbox {
+  margin: 0 auto;
+}
 @keyframes fadeInUp {
   0% {
     opacity: 0;

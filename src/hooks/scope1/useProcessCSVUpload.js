@@ -1,3 +1,4 @@
+
 // hooks/scope1/useProcessCSVUpload.js
 import { useState, useCallback } from 'react';
 import axios from 'axios';
@@ -13,6 +14,27 @@ import {
 } from '@/constant/scope1/options';
 import { normalizeSubscriptNumbers } from '@/utils/normalizeText';
 
+// User-friendly column names and mappings
+const USER_FRIENDLY_COLUMNS = {
+  'buildingcode': 'Building Code',
+  'stakeholderdepartment': 'Stakeholder Department',
+  'activitytype': 'Type Of Activity / Process',
+  'amountofemissions': 'Process Activity Data',
+  'qualitycontrol': 'Quality Control',
+  'remarks': 'Remarks',
+  'postingdate': 'Posting Date'
+};
+
+const COLUMN_MAPPING = {
+  'buildingcode': ['buildingcode', 'Building Code', 'building code', 'building-code', 'building_code'],
+  'stakeholderdepartment': ['stakeholderdepartment', 'Stakeholder Department', 'stakeholder department', 'stakeholder-department', 'stakeholder_department'],
+  'amountofemissions': ['processactivitydata', 'Process Activity Data', 'process activity data', 'amountofemissions', 'amount of emissions', 'Amount Of Emissions'],
+  'activitytype': ['typeofactivityprocess', 'Type Of Activity / Process', 'type of activity / process', 'activitytype', 'activity type', 'type-of-activity-process'],
+  'qualitycontrol': ['qualitycontrol', 'Quality Control', 'quality control', 'quality-control', 'quality_control'],
+  'remarks': ['remarks', 'Remarks', 'remark', 'comments', 'notes'],
+  'postingdate': ['postingdate', 'Posting Date', 'posting date', 'date', 'posting-date', 'posting_date']
+};
+
 const useProcessCSVUpload = (buildings = []) => {
   const [csvState, setCsvState] = useState({
     file: null,
@@ -23,7 +45,7 @@ const useProcessCSVUpload = (buildings = []) => {
     parsedData: null,
   });
 
- const isNA = useCallback((value) => {
+  const isNA = useCallback((value) => {
     if (!value) return true;
     const val = value.toString().toLowerCase().trim();
     return val === 'n/a' || val === 'na' || val === '';
@@ -39,7 +61,6 @@ const useProcessCSVUpload = (buildings = []) => {
     if (isNA(value)) return null;
     return value.toString().trim();
   }, [isNA]);
-
 
   const cleanCSVValue = useCallback((value) => {
     if (typeof value !== 'string') return value;
@@ -141,6 +162,18 @@ const useProcessCSVUpload = (buildings = []) => {
     return isoDate;
   }, []);
 
+  // Helper function to normalize header
+  const normalizeHeader = useCallback((header) => {
+    if (!header) return '';
+    return header.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+  }, []);
+
+  // Helper function to find matching column
+  const findMatchingColumn = useCallback((header, possibleMatches) => {
+    const normalizedHeader = normalizeHeader(header);
+    return possibleMatches.some(match => normalizeHeader(match) === normalizedHeader);
+  }, [normalizeHeader]);
+
   // CSV Parser
   const parseCSV = useCallback((file) => {
     return new Promise((resolve, reject) => {
@@ -185,47 +218,46 @@ const useProcessCSVUpload = (buildings = []) => {
             return;
           }
 
-          // Find header row - LOOK FOR USER-FRIENDLY HEADERS
-          let headerRowIndex = 0; // Assume first row is header
-          
-          // Parse headers (keep original case/spacing for mapping)
+          // Find header row
+          let headerRowIndex = 0;
           const headerValues = parseCSVLine(lines[headerRowIndex]);
           
-          // Create header mapping for validation
-          const headerMapping = {
-            'typeofactivityprocess': 'activitytype',
-          };
-          
-          // Normalize headers for checking
-          const normalizedHeaders = headerValues.map(h => 
-            h.toLowerCase().replace(/[^a-z0-9]/g, '')
-          );
-          
-          console.log('Normalized headers:', normalizedHeaders);
+          // Find matching columns
+          const foundColumns = {};
+          const requiredFields = ['buildingcode', 'stakeholderdepartment', 'amountofemissions', 'qualitycontrol', 'postingdate'];
 
-          // Check if we have the required headers (using normalized versions)
-          const requiredNormalized = [
-            'buildingcode', 'stakeholderdepartment', 'amountofemissions', 
-            'qualitycontrol', 'remarks', 'postingdate'
-          ];
-          
-          // Also check for activity type variations
-          const hasActivityType = normalizedHeaders.some(h => 
-            h.includes('activity') || h.includes('process')
-          );
-          
+          headerValues.forEach(header => {
+            for (const [field, possibleNames] of Object.entries(COLUMN_MAPPING)) {
+              if (findMatchingColumn(header, possibleNames)) {
+                foundColumns[field] = header;
+                break;
+              }
+            }
+          });
+
+          // Check for activity type column
+          let hasActivityType = false;
+          for (const header of headerValues) {
+            if (findMatchingColumn(header, COLUMN_MAPPING.activitytype)) {
+              hasActivityType = true;
+              foundColumns.activitytype = header;
+              break;
+            }
+          }
+
           if (!hasActivityType) {
             reject(new Error('CSV must contain an activity type column'));
             return;
           }
-          
-          const missingHeaders = requiredNormalized.filter(h => !normalizedHeaders.includes(h));
+
+          const missingHeaders = requiredFields.filter(field => !foundColumns[field]);
           if (missingHeaders.length > 0) {
-            reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+            const friendlyMissing = missingHeaders.map(h => USER_FRIENDLY_COLUMNS[h]);
+            reject(new Error(`Missing required columns: ${friendlyMissing.join(', ')}`));
             return;
           }
 
-          // Parse data rows - KEEP ORIGINAL HEADERS for mapping in validation
+          // Parse data rows
           const data = [];
           for (let i = headerRowIndex + 1; i < lines.length; i++) {
             const line = lines[i].trim();
@@ -234,9 +266,10 @@ const useProcessCSVUpload = (buildings = []) => {
             const values = parseCSVLine(line);
             const row = {};
             
-            // Use ORIGINAL headers (not normalized) so mapping works
-            headerValues.forEach((header, index) => {
-              row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
+            // Use the found column mapping
+            Object.entries(foundColumns).forEach(([field, headerName]) => {
+              const index = headerValues.findIndex(h => h === headerName);
+              row[field] = index < values.length ? cleanCSVValue(values[index]) : '';
             });
 
             if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
@@ -253,7 +286,7 @@ const useProcessCSVUpload = (buildings = []) => {
       reader.onerror = () => reject(new Error('Failed to read file'));
       reader.readAsText(file);
     });
-  }, [cleanCSVValue]);
+  }, [cleanCSVValue, findMatchingColumn, normalizeHeader]);
 
   // Excel Parser
   const parseExcel = useCallback((file) => {
@@ -286,32 +319,39 @@ const useProcessCSVUpload = (buildings = []) => {
           let headerRowIndex = 0;
           const headerValues = jsonData[headerRowIndex] || [];
           
-          // Normalize headers for checking
-          const normalizedHeaders = headerValues.map(h => 
-            h ? h.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
-          );
-          
-          console.log('Normalized Excel headers:', normalizedHeaders);
+          // Find matching columns
+          const foundColumns = {};
+          const requiredFields = ['buildingcode', 'stakeholderdepartment', 'amountofemissions', 'qualitycontrol', 'postingdate'];
 
-          // Check if we have the required headers
-          const requiredNormalized = [
-            'buildingcode', 'stakeholderdepartment', 'amountofemissions', 
-            'qualitycontrol', 'remarks', 'postingdate'
-          ];
-          
-          // Also check for activity type variations
-          const hasActivityType = normalizedHeaders.some(h => 
-            h.includes('activity') || h.includes('process')
-          );
-          
+          headerValues.forEach(header => {
+            if (!header) return;
+            for (const [field, possibleNames] of Object.entries(COLUMN_MAPPING)) {
+              if (findMatchingColumn(header, possibleNames)) {
+                foundColumns[field] = header;
+                break;
+              }
+            }
+          });
+
+          // Check for activity type column
+          let hasActivityType = false;
+          for (const header of headerValues) {
+            if (header && findMatchingColumn(header, COLUMN_MAPPING.activitytype)) {
+              hasActivityType = true;
+              foundColumns.activitytype = header;
+              break;
+            }
+          }
+
           if (!hasActivityType) {
             reject(new Error('Excel must contain an activity type column'));
             return;
           }
-          
-          const missingHeaders = requiredNormalized.filter(h => !normalizedHeaders.includes(h));
+
+          const missingHeaders = requiredFields.filter(field => !foundColumns[field]);
           if (missingHeaders.length > 0) {
-            reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+            const friendlyMissing = missingHeaders.map(h => USER_FRIENDLY_COLUMNS[h]);
+            reject(new Error(`Missing required columns: ${friendlyMissing.join(', ')}`));
             return;
           }
 
@@ -322,9 +362,10 @@ const useProcessCSVUpload = (buildings = []) => {
             if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
 
             const rowData = {};
-            headerValues.forEach((header, index) => {
+            Object.entries(foundColumns).forEach(([field, headerName]) => {
+              const index = headerValues.findIndex(h => h === headerName);
               const value = index < row.length ? row[index] : '';
-              rowData[header] = value ? cleanCSVValue(value) : '';
+              rowData[field] = value ? cleanCSVValue(value) : '';
             });
 
             parsedData.push(rowData);
@@ -339,64 +380,55 @@ const useProcessCSVUpload = (buildings = []) => {
       reader.onerror = () => reject(new Error('Failed to read file'));
       reader.readAsArrayBuffer(file);
     });
-  }, [cleanCSVValue]);
+  }, [cleanCSVValue, findMatchingColumn]);
 
   const validateProcessRow = useCallback((row, index) => {
     const errors = [];
 
-    // Header mapping for user-friendly column names
-    const headerMapping = {
-      'typeofactivityprocess': 'activitytype',
-    };
-
-    const cleanedRow = {};
-    Object.keys(row).forEach(key => {
-      const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const mappedKey = headerMapping[normalizedKey] || normalizedKey;
-      cleanedRow[mappedKey] = row[key]?.toString().trim();
-    });
-
-    // Required fields validation
+    // Required fields validation with user-friendly names
     const requiredFields = [
-      'buildingcode', 'stakeholderdepartment', 'activitytype',
-      'amountofemissions', 'qualitycontrol'
+      { field: 'buildingcode', friendlyName: 'Building Code' },
+      { field: 'stakeholderdepartment', friendlyName: 'Stakeholder Department' },
+      { field: 'activitytype', friendlyName: 'Type Of Activity / Process' },
+      { field: 'amountofemissions', friendlyName: 'Process Activity Data' },
+      { field: 'qualitycontrol', friendlyName: 'Quality Control' }
     ];
 
-    requiredFields.forEach(field => {
-      if (!cleanedRow[field] || cleanedRow[field] === '') {
-        errors.push(`${field} is required`);
+    requiredFields.forEach(({ field, friendlyName }) => {
+      if (!row[field] || row[field] === '' || row[field].toString().trim() === '') {
+        errors.push(`${friendlyName} is required`);
       }
     });
 
     // Building validation
-    if (cleanedRow.buildingcode && buildings.length > 0) {
+    if (row.buildingcode && buildings.length > 0) {
       const buildingExists = buildings.some(b =>
-        b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
+        b.buildingCode && b.buildingCode.toLowerCase() === row.buildingcode.toLowerCase()
       );
       if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0, 3).map(b => b.buildingCode).join(', ')}...`);
+        errors.push(`Invalid building code "${row.buildingcode}". Available: ${buildings.slice(0, 3).map(b => b.buildingCode).join(', ')}...`);
       }
     }
 
     // Stakeholder validation
-    if (cleanedRow.stakeholderdepartment) {
+    if (row.stakeholderdepartment) {
       const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
       const matchedStakeholder = validStakeholders.find(s =>
-        s.toLowerCase() === cleanedRow.stakeholderdepartment.toLowerCase()
+        s.toLowerCase() === row.stakeholderdepartment.toLowerCase()
       );
       if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholderdepartment}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
+        errors.push(`Invalid stakeholder "${row.stakeholderdepartment}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
       } else {
-        cleanedRow.stakeholderdepartment = matchedStakeholder;
+        row.stakeholderdepartment = matchedStakeholder;
       }
     }
 
     // Activity type validation with subscript normalization
-    if (cleanedRow.activitytype) {
+    if (row.activitytype) {
       const validActivities = activityTypeOptions.map(a => a.value);
       
       let matchedActivity = null;
-      const normalizedInput = normalizeSubscriptNumbers(cleanedRow.activitytype);
+      const normalizedInput = normalizeSubscriptNumbers(row.activitytype);
       
       matchedActivity = validActivities.find(activity => {
         const normalizedActivity = normalizeSubscriptNumbers(activity);
@@ -404,9 +436,9 @@ const useProcessCSVUpload = (buildings = []) => {
       });
 
       if (!matchedActivity) {
-        errors.push(`Invalid activity type "${cleanedRow.activitytype}". Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
+        errors.push(`Invalid activity type "${row.activitytype}". Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
       } else {
-        cleanedRow.activitytype = matchedActivity;
+        row.activitytype = matchedActivity;
 
         // AUTO-POPULATE gas emitted based on activity type
         if (Array.isArray(activityMetadata)) {
@@ -418,8 +450,8 @@ const useProcessCSVUpload = (buildings = []) => {
           });
           
           if (activityMeta && activityMeta.gasEmitted) {
-            cleanedRow.gasemitted = activityMeta.gasEmitted;
-            console.log(`Auto-populated gas emitted for ${matchedActivity}: ${cleanedRow.gasemitted}`);
+            row.gasemitted = activityMeta.gasEmitted;
+            console.log(`Auto-populated gas emitted for ${matchedActivity}: ${row.gasemitted}`);
           } else {
             errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
           }
@@ -432,8 +464,8 @@ const useProcessCSVUpload = (buildings = []) => {
           });
           
           if (matchedKey && activityMetadata[matchedKey] && activityMetadata[matchedKey].gasEmitted) {
-            cleanedRow.gasemitted = activityMetadata[matchedKey].gasEmitted;
-            console.log(`Auto-populated gas emitted for ${matchedActivity}: ${cleanedRow.gasemitted}`);
+            row.gasemitted = activityMetadata[matchedKey].gasEmitted;
+            console.log(`Auto-populated gas emitted for ${matchedActivity}: ${row.gasemitted}`);
           } else {
             errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
           }
@@ -442,47 +474,47 @@ const useProcessCSVUpload = (buildings = []) => {
     }
 
     // Amount of emissions validation
-    if (cleanedRow.amountofemissions) {
-      const cleanNum = cleanedRow.amountofemissions.toString()
+    if (row.amountofemissions) {
+      const cleanNum = row.amountofemissions.toString()
         .replace(/[^0-9.-]/g, '')
         .replace(/^"+|"+$/g, '');
 
       const num = Number(cleanNum);
       if (isNaN(num)) {
-        errors.push(`Amount of emissions must be a number, got "${cleanedRow.amountofemissions}"`);
+        errors.push(`Process Activity Data must be a number, got "${row.amountofemissions}"`);
       } else if (num < 0) {
-        errors.push('Amount of emissions cannot be negative');
+        errors.push('Process Activity Data cannot be negative');
       } else if (num > 1000000000) {
-        errors.push('Amount of emissions seems too large');
+        errors.push('Process Activity Data seems too large');
       } else {
-        cleanedRow.amountofemissions = num.toString();
+        row.amountofemissions = num.toString();
       }
     }
 
     // Quality control validation
-    if (cleanedRow.qualitycontrol) {
+    if (row.qualitycontrol) {
       const validQC = qualityControlOptions.map(q => q.value);
       const matchedQC = validQC.find(q =>
-        q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
+        q.toLowerCase() === row.qualitycontrol.toLowerCase()
       );
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}". Valid: ${validQC.join(', ')}`);
+        errors.push(`Invalid quality control "${row.qualitycontrol}". Valid: ${validQC.join(', ')}`);
       } else {
-        cleanedRow.qualitycontrol = matchedQC;
+        row.qualitycontrol = matchedQC;
       }
     }
 
     // Date validation
-    if (cleanedRow.postingdate) {
-      const isoDate = parseDateToISO(cleanedRow.postingdate);
+    if (row.postingdate) {
+      const isoDate = parseDateToISO(row.postingdate);
 
       if (!isoDate) {
-        errors.push(`Invalid date format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 2024-01-15, 01/15/2024, 15-01-2024)`);
+        errors.push(`Invalid date format: "${row.postingdate}". Please provide a valid date (e.g., 2024-01-15, 01/15/2024, 15-01-2024)`);
       } else {
-        cleanedRow.postingdate = isoDate;
+        row.postingdate = isoDate;
       }
     } else {
-      cleanedRow.postingdate = new Date(
+      row.postingdate = new Date(
         Date.UTC(
           new Date().getFullYear(),
           new Date().getMonth(),
@@ -493,15 +525,8 @@ const useProcessCSVUpload = (buildings = []) => {
     }
 
     // Remarks validation
-    if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
+    if (row.remarks && row.remarks.length > 500) {
       errors.push('Remarks cannot exceed 500 characters');
-    }
-
-    // Update original row with cleaned values if no errors
-    if (errors.length === 0) {
-      Object.keys(cleanedRow).forEach(key => {
-        row[key] = cleanedRow[key];
-      });
     }
 
     return errors;
@@ -552,21 +577,21 @@ const useProcessCSVUpload = (buildings = []) => {
       Number(row.amountofemissions)
     );
 
-  return {
-  buildingCode: row.buildingcode,
-  stakeholderDepartment: row.stakeholderdepartment,
-  activityType: row.activitytype,
-  gasEmitted: row.gasemitted,
-  amountOfEmissions: cleanNumberValue(row.amountofemissions, 'Amount of emissions'),
-  qualityControl: row.qualitycontrol,
-  remarks: cleanStringValue(row.remarks) || '',
-  postingDate: row.postingdate,
-  calculatedEmissionKgCo2e: emissions?.totalEmissionInScope || 0,
-  calculatedEmissionTCo2e: emissions?.totalEmissionInScope ? emissions.totalEmissionInScope / 1000 : 0,
-  calculatedBioEmissionKgCo2e: emissions?.totalEmissionOutScope || 0,
-  calculatedBioEmissionTCo2e: emissions?.totalEmissionOutScope ? emissions.totalEmissionOutScope / 1000 : 0,
-};
-  }, [calculateProcessEmissions]);
+    return {
+      buildingCode: row.buildingcode,
+      stakeholderDepartment: row.stakeholderdepartment,
+      activityType: row.activitytype,
+      gasEmitted: row.gasemitted,
+      amountOfEmissions: cleanNumberValue(row.amountofemissions),
+      qualityControl: row.qualitycontrol,
+      remarks: cleanStringValue(row.remarks) || '',
+      postingDate: row.postingdate,
+      calculatedEmissionKgCo2e: emissions?.totalEmissionInScope || 0,
+      calculatedEmissionTCo2e: emissions?.totalEmissionInScope ? emissions.totalEmissionInScope / 1000 : 0,
+      calculatedBioEmissionKgCo2e: emissions?.totalEmissionOutScope || 0,
+      calculatedBioEmissionTCo2e: emissions?.totalEmissionOutScope ? emissions.totalEmissionOutScope / 1000 : 0,
+    };
+  }, [calculateProcessEmissions, cleanNumberValue, cleanStringValue]);
 
   const handleFileSelect = async (file) => {
     const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -748,16 +773,16 @@ const useProcessCSVUpload = (buildings = []) => {
     const year = currentDate.getFullYear();
     const formattedDate = `${day}/${month}/${year}`;
 
-    // Create worksheet data with headers
+    // Create worksheet data with headers (capital first letters)
     const worksheetData = [
       [
-        'building code',
-        'stakeholder department',
-        'type of activity / process',
-        'amount of emissions',  
-        'quality control',
-        'remarks',
-        'posting date'
+        'Building Code',
+        'Stakeholder Department',
+        'Type Of Activity / Process',
+        'Process Activity Data',
+        'Quality Control',
+        'Remarks',
+        'Posting Date'
       ],
       [
         exampleBuildingCode,
@@ -776,13 +801,13 @@ const useProcessCSVUpload = (buildings = []) => {
     
     // Auto-size columns for better readability
     worksheet['!cols'] = [
-      { wch: 20 }, // building code
-      { wch: 25 }, // stakeholder department
-      { wch: 45 }, // type of activity / process
-      { wch: 20 }, // amount of emissions
-      { wch: 20 }, // quality control
-      { wch: 30 }, // remarks
-      { wch: 15 }  // posting date
+      { wch: 20 }, // Building Code
+      { wch: 25 }, // Stakeholder Department
+      { wch: 45 }, // Type Of Activity / Process
+      { wch: 20 }, // Process Activity Data
+      { wch: 20 }, // Quality Control
+      { wch: 30 }, // Remarks
+      { wch: 15 }  // Posting Date
     ];
 
     // Style the header row (bold text with background)
@@ -796,7 +821,6 @@ const useProcessCSVUpload = (buildings = []) => {
       };
     }
 
-   
     // Add the worksheet to the workbook
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Process Emissions Template');
 

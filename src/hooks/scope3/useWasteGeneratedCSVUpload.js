@@ -30,7 +30,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
     parsedData: null,
   });
 
-   const isNA = useCallback((value) => {
+  const isNA = useCallback((value) => {
     if (!value) return true;
     const val = value.toString().toLowerCase().trim();
     return val === 'n/a' || val === 'na' || val === '';
@@ -65,20 +65,20 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
   // Helper function to parse date in any format to ISO
   const parseDateToISO = useCallback((dateString) => {
     if (!dateString) return null;
-    
+
     let cleanedDate = dateString.toString().trim();
     cleanedDate = cleanedDate.replace(/"/g, ''); // Remove quotes
-    
+
     if (!cleanedDate || cleanedDate === '') return null;
-    
+
     let date;
     let year, month, day;
-    
+
     if (cleanedDate.includes('T')) {
       date = new Date(cleanedDate.split('T')[0]);
     } else {
       const parts = cleanedDate.split(/[\/\-\.]/);
-      
+
       if (parts.length === 3) {
         if (parts[0].length === 4) {
           year = parseInt(parts[0]);
@@ -99,7 +99,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
           } else {
             let testDate1 = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
             let testDate2 = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-            
+
             if (!isNaN(testDate1.getTime()) && testDate1.getDate() === parseInt(parts[1])) {
               date = testDate1;
             } else if (!isNaN(testDate2.getTime()) && testDate2.getDate() === parseInt(parts[0])) {
@@ -115,11 +115,11 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
         date = new Date(cleanedDate);
       }
     }
-    
+
     if (!date || isNaN(date.getTime())) {
       return null;
     }
-    
+
     const isoDate = new Date(
       Date.UTC(
         date.getFullYear(),
@@ -128,7 +128,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
         0, 0, 0, 0
       )
     ).toISOString();
-    
+
     return isoDate;
   }, []);
 
@@ -178,9 +178,9 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
           let headerRowIndex = -1;
           for (let i = 0; i < lines.length; i++) {
             const lineLower = lines[i].toLowerCase();
-            if (lineLower.includes('buildingcode') || 
-                (lineLower.includes('building') && lineLower.includes('code')) ||
-                (lineLower.includes('building') && lineLower.includes('wastecategory'))) {
+            if (lineLower.includes('buildingcode') ||
+              (lineLower.includes('building') && lineLower.includes('code')) ||
+              (lineLower.includes('building') && lineLower.includes('wastecategory'))) {
               headerRowIndex = i;
               break;
             }
@@ -199,15 +199,15 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
           });
 
           const expectedHeaders = [
-            'buildingcode', 
-            'stakeholder', 
-            'wastecategory', 
+            'buildingcode',
+            'stakeholder',
+            'wastecategory',
             'wastetype',
-            'wastetreatmentmethod', 
-            'unit', 
-            'totalwasteqty', 
+            'wastetreatmentmethod',
+            'unit',
+            'totalwasteqty',
             'qualitycontrol',
-            'remarks', 
+            'remarks',
             'postingdate'
           ];
 
@@ -224,7 +224,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
 
             const values = parseCSVLine(line);
             const row = {};
-            
+
             headers.forEach((header, index) => {
               row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
             });
@@ -253,7 +253,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
       reader.onload = (event) => {
         try {
           const data = new Uint8Array(event.target.result);
-          const workbook = XLSX.read(data, { 
+          const workbook = XLSX.read(data, {
             type: 'array',
             cellDates: false,
             cellText: true,
@@ -261,13 +261,13 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
             cellHTML: false
           });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
-            header: 1, 
+
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+            header: 1,
             defval: '',
             raw: false
           });
-          
+
           if (!jsonData || jsonData.length === 0) {
             reject(new Error('Excel file is empty'));
             return;
@@ -277,13 +277,13 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
           for (let i = 0; i < jsonData.length; i++) {
             const row = jsonData[i];
             if (row && row.length > 0) {
-              const rowText = row.map(cell => 
+              const rowText = row.map(cell =>
                 cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
               ).join('');
-              
-              if (rowText.includes('buildingcode') || 
-                  (rowText.includes('building') && rowText.includes('code')) ||
-                  (rowText.includes('building') && rowText.includes('wastecategory'))) {
+
+              if (rowText.includes('buildingcode') ||
+                (rowText.includes('building') && rowText.includes('code')) ||
+                (rowText.includes('building') && rowText.includes('wastecategory'))) {
                 headerRowIndex = i;
                 break;
               }
@@ -303,15 +303,15 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
           });
 
           const expectedHeaders = [
-            'buildingcode', 
-            'stakeholder', 
-            'wastecategory', 
+            'buildingcode',
+            'stakeholder',
+            'wastecategory',
             'wastetype',
-            'wastetreatmentmethod', 
-            'unit', 
-            'totalwasteqty', 
+            'wastetreatmentmethod',
+            'unit',
+            'totalwasteqty',
             'qualitycontrol',
-            'remarks', 
+            'remarks',
             'postingdate'
           ];
 
@@ -357,12 +357,12 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
     console.log(`Validating row ${index + 1}:`, cleanedRow);
 
     const requiredFields = [
-      'buildingcode', 
-      'stakeholder', 
-      'wastecategory', 
+      'buildingcode',
+      'stakeholder',
+      'wastecategory',
       'wastetype',
-      'wastetreatmentmethod', 
-      'totalwasteqty', 
+      'wastetreatmentmethod',
+      'totalwasteqty',
       'qualitycontrol'
     ];
 
@@ -411,7 +411,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
 
     if (cleanedRow.wastecategory && cleanedRow.wastetype) {
       const validWasteTypes = wasteTypeOptions[cleanedRow.wastecategory] || [];
-      
+
       if (validWasteTypes.length === 0) {
         errors.push(`No waste types found for category "${cleanedRow.wastecategory}"`);
       } else {
@@ -419,7 +419,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
         const matchedWasteType = validWasteTypeValues.find(w =>
           w.toLowerCase() === cleanedRow.wastetype.toLowerCase()
         );
-        
+
         if (!matchedWasteType) {
           errors.push(`Invalid waste type "${cleanedRow.wastetype}" for category "${cleanedRow.wastecategory}". Valid options: ${validWasteTypeValues.slice(0, 5).join(', ')}...`);
         } else {
@@ -430,11 +430,11 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
 
     if (cleanedRow.wastetype && cleanedRow.wastetreatmentmethod) {
       let validTreatments = wasteTreatmentOptions[cleanedRow.wastetype];
-      
+
       if (!validTreatments || validTreatments.length === 0) {
         validTreatments = wasteTreatmentOptions.default || [];
       }
-      
+
       if (validTreatments.length === 0) {
         errors.push(`No treatment methods found for waste type "${cleanedRow.wastetype}"`);
       } else {
@@ -442,7 +442,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
         const matchedTreatment = validTreatmentValues.find(t =>
           t.toLowerCase() === cleanedRow.wastetreatmentmethod.toLowerCase()
         );
-        
+
         if (!matchedTreatment) {
           errors.push(`Invalid treatment method "${cleanedRow.wastetreatmentmethod}" for waste type "${cleanedRow.wastetype}". Valid options: ${validTreatmentValues.slice(0, 5).join(', ')}...`);
         } else {
@@ -496,7 +496,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
 
     if (cleanedRow.postingdate) {
       const isoDate = parseDateToISO(cleanedRow.postingdate);
-      
+
       if (!isoDate) {
         errors.push(`Invalid date format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 2024-01-15, 01/15/2024, 15-01-2024)`);
       } else {
@@ -528,9 +528,9 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
 
   const transformWastePayload = useCallback((row) => {
     const userId = localStorage.getItem('userId');
-    
+
     let qtyForCalculation = Number(row.totalwasteqty);
-    
+
     if (row.unit?.toLowerCase() === 'kg') {
       qtyForCalculation = Number(row.totalwasteqty) / 1000;
     } else if (row.unit?.toLowerCase() === 'lbs') {
@@ -548,28 +548,28 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
       return text.charAt(0).toUpperCase() + text.slice(1);
     };
 
-   return {
-  buildingCode: row.buildingcode,
-  stakeholder: row.stakeholder,
-  wasteCategory: row.wastecategory,
-  wasteType: row.wastetype,
-  wasteTreatmentMethod: row.wastetreatmentmethod,
-  unit: cleanStringValue(row.unit) || 'Tonnes',
-  totalWasteQty: cleanNumberValue(row.totalwasteqty, 'Total waste quantity') || 0,
-  qualityControl: row.qualitycontrol,
-  remarks: capitalizeFirstLetter(cleanStringValue(row.remarks) || ''),
-  postingDate: row.postingdate,
-  calculatedEmissionKgCo2e: emissionKg || 0,
-  calculatedEmissionTCo2e: (emissionKg || 0) / 1000,
-  createdBy: userId,
-  updatedBy: userId,
-};
+    return {
+      buildingCode: row.buildingcode,
+      stakeholder: row.stakeholder,
+      wasteCategory: row.wastecategory,
+      wasteType: row.wastetype,
+      wasteTreatmentMethod: row.wastetreatmentmethod,
+      unit: cleanStringValue(row.unit) || 'Tonnes',
+      totalWasteQty: cleanNumberValue(row.totalwasteqty, 'Total waste quantity') || 0,
+      qualityControl: row.qualitycontrol,
+      remarks: capitalizeFirstLetter(cleanStringValue(row.remarks) || ''),
+      postingDate: row.postingdate,
+      calculatedEmissionKgCo2e: emissionKg || 0,
+      calculatedEmissionTCo2e: (emissionKg || 0) / 1000,
+      createdBy: userId,
+      updatedBy: userId,
+    };
   }, []);
 
   const handleFileSelect = async (file) => {
     const fileExtension = file.name.split('.').pop().toLowerCase();
     const isValidFile = ['csv', 'xlsx', 'xls'].includes(fileExtension);
-    
+
     if (!isValidFile) {
       toast.error('Please select a CSV or Excel file');
       console.error('Invalid file type selected:', file.name);
@@ -588,7 +588,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
       } else {
         data = await parseExcel(file);
       }
-      
+
       if (!data || data.length === 0) {
         toast.error('No data found in file');
         return null;
@@ -705,7 +705,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
           toast.warning(`Uploaded ${results.success} records, ${results.failed} failed.`);
         }
       }, 2000);
-      
+
       console.log('processUpload completed successfully');
       return results;
 
@@ -720,7 +720,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
       throw error;
     }
   };
-  
+
   const resetUpload = () => {
     setCsvState({
       file: null,
@@ -735,7 +735,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
   const downloadWasteTemplate = useCallback(() => {
     const exampleBuildings = buildings.slice(0, 1);
     const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
-    
+
     const exampleStakeholder = FugitiveAndMobileStakeholderOptions[0]?.value || 'Assembly';
     const exampleWasteCategory = 'Construction';
     const exampleWasteType = 'Average construction';
@@ -750,16 +750,16 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
     const formattedDate = `${day}/${month}/${year}`;
 
     const headers = [
-      'building code',
-      'stakeholder',
-      'waste category',
-      'waste type',
-      'waste treatment method',
-      'unit',
-      'total waste qty',
-      'quality control',
-      'remarks',
-      'posting date'
+      'Building Code',
+      'Stakeholder',
+      'Waste Category',
+      'Waste Type',
+      'Waste Treatment Method',
+      'Unit',
+      'Total Waste Qty',
+      'Quality Control',
+      'Remarks',
+      'Posting Date'
     ];
 
     const exampleRow = [
@@ -782,7 +782,7 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
 
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-    
+
     const colWidths = headers.map(header => ({
       wch: Math.min(Math.max(header.length, 15), 35)
     }));

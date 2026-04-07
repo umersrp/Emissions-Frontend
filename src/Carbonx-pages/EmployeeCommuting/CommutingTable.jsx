@@ -9,109 +9,6 @@ import Tippy from "@tippyjs/react";
 import Logo from "../../assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
 
-// UK Government GHG Conversion Factors (2025)
-const EMISSION_FACTORS = {
-    // Cars by size and fuel type
-    cars: {
-        "Small car - Petrol/LPG/CNG - up to 1.4-litre engine. Diesel - up to a 1.7-litre engine. Others - vehicles models of a similar size (i.e. market segment A or B)": {
-            Diesel: 0.14340,
-            Petrol: 0.14308,
-            Hybrid: 0.11413,
-            CNG: 0.18800,
-            LPG: 0.21260,
-            Unknown: 0.14322,
-            "Plug-in Hybrid Electric Vehicle": 0.05669,
-            "Battery Electric Vehicle": 0.03688
-        },
-        "Medium car - Petrol/LPG/CNG - from 1.4-litre to 2.0-litre engine. Diesel - from 1.7-litre to 2.0-litre engine. Others - vehicles models of a similar size (i.e. generally market segment C)": {
-            Diesel: 0.17174,
-            Petrol: 0.17474,
-            Hybrid: 0.11724,
-            CNG: 0.15504,
-            LPG: 0.17427,
-            Unknown: 0.17322,
-            "Plug-in Hybrid Electric Vehicle": 0.08820,
-            "Battery Electric Vehicle": 0.03882
-        },
-        "Large car - Petrol/LPG/CNG - 2.0-litre engine (+) . Diesel - 2.0-litre engine (+). Others - vehicles models of a similar size (i.e. generally market segment D and above)": {
-            Diesel: 0.21007,
-            Petrol: 0.26828,
-            Hybrid: 0.15650,
-            CNG: 0.23722,
-            LPG: 0.26771,
-            Unknown: 0.22678,
-            "Plug-in Hybrid Electric Vehicle": 0.11430,
-            "Battery Electric Vehicle": 0.04205
-        },
-        "Average car - Unknown engine size.": {
-            Diesel: 0.17304,
-            Petrol: 0.16272,
-            Hybrid: 0.12825,
-            CNG: 0.17414,
-            LPG: 0.19599,
-            Unknown: 0.16725,
-            "Plug-in Hybrid Electric Vehicle": 0.10461,
-            "Battery Electric Vehicle": 0.04047
-        },
-        "Executive - Large Executive or E-Segment Passenger Cars (2000 cc - 3500+ cc)": {
-            Diesel: 0.17088,
-            Petrol: 0.20073,
-            Unknown: 0.17846,
-            "Plug-in Hybrid Electric Vehicle": 0.09133,
-            "Battery Electric Vehicle": 0.03702
-        },
-        "Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000 cc - 6000 cc)": {
-            Diesel: 0.20632,
-            Petrol: 0.30752,
-            Unknown: 0.25196,
-            "Plug-in Hybrid Electric Vehicle": 0.12510,
-            "Battery Electric Vehicle": 0.04902
-        },
-        "Sports - High Performance - High Speed Vehicles ( 2000 cc - 4000 cc+)": {
-            Diesel: 0.17323,
-            Petrol: 0.23396,
-            Unknown: 0.22400,
-            "Plug-in Hybrid Electric Vehicle": 0.14904,
-            "Battery Electric Vehicle": 0.06260
-        },
-        "Dual purpose 4X4 - SUVs 4 wheel Drive or All Wheel Drive (1500 cc - 6000 cc)": {
-            Diesel: 0.19973,
-            Petrol: 0.19219,
-            Unknown: 0.19690,
-            "Plug-in Hybrid Electric Vehicle": 0.11663,
-            "Battery Electric Vehicle": 0.04228
-        },
-        "MPV - Multi-Purpose Vehicles / People Carriers (Highroof, Hiace,Suzuki APV, Vans etc.)  - Passenger or Transport Vehicle (1200 cc - 2000 cc)": {
-            Diesel: 0.18072,
-            Petrol: 0.17903,
-            Unknown: 0.18030,
-            "Plug-in Hybrid Electric Vehicle": 0.10193,
-            "Battery Electric Vehicle": 0.05202
-        }
-    },
-    motorbikes: {
-        "Small": 0.08319,
-        "Medium": 0.10108,
-        "Large": 0.13252,
-        "Average": 0.11367
-    },
-    taxis: {
-        "Regular taxi": 0.14861,
-        "Business class taxi": 0.20402
-    },
-    buses: {
-        "Green Line Bus": 0.02776,
-        "Local Bus": 0.12525,
-        "Intercity Bus (Non A.C)": 0.06875,
-        "Intercity Bus (A.C)": 0.10385
-    },
-    trains: {
-        "National Rail": 0.03546,
-        "Subway (underground)": 0.02780,
-        "Metro": 0.02860,
-        "Green Line Train": 0.00446
-    }
-};
 
 // Group Row Component for Email Subject
 const GroupRow = ({ subject, recordCount, isExpanded, onToggle, groupTotals, displayIndex }) => {
@@ -145,6 +42,92 @@ const GroupRow = ({ subject, recordCount, isExpanded, onToggle, groupTotals, dis
 };
 
 // Record Row Component
+// const RecordRow = ({ record, index, onDelete }) => {
+//     const toTitleCase = (str) => {
+//         if (!str) return "N/A";
+//         return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+//     };
+
+//     const formatDateRange = (dateRange) => {
+//         if (!dateRange?.startDate && !dateRange?.endDate) return "N/A";
+//         const start = dateRange?.startDate ? new Date(dateRange.startDate).toLocaleDateString() : "";
+//         const end = dateRange?.endDate ? new Date(dateRange.endDate).toLocaleDateString() : "";
+//         return start && end ? `${start} - ${end}` : start || end || "N/A";
+//     };
+
+//     return (
+//         <tr className="even:bg-gray-50 hover:bg-gray-100">
+//             <td className="px-6 py-4 whitespace-nowrap">{index}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.emailDoc?.subject || "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.building?.buildingCode || "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.building?.buildingName || "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.createdAt ? new Date(record.createdAt).getFullYear() : "N/A"}</td>
+
+//             {/* Motorbike Section */}
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? "Motorbike" : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? toTitleCase(record.motorbikeType) : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? Number(record.motorbikeDistance || 0).toFixed(2) : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike && record.motorbikeMode === "carpool" ? "Yes" : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? formatDateRange(record.motorbikeDateRange) : "N/A"}</td>
+
+//             {/* Taxi Section */}
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? "Taxi" : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? toTitleCase(record.taxiType) : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? Number(record.taxiDistance || 0).toFixed(2) : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi && record.taxiMode === "carpool" ? "Yes" : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? formatDateRange(record.taxiDateRange) : "N/A"}</td>
+
+//             {/* Bus Section */}
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByBus ? "Bus" : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByBus ? toTitleCase(record.busType) : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByBus ? Number(record.busDistance || 0).toFixed(2) : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{formatDateRange(record.busDateRange)}</td>
+
+//             {/* Train Section */}
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTrain ? "Train" : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTrain ? toTitleCase(record.trainType) : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTrain ? Number(record.trainDistance || 0).toFixed(2) : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{formatDateRange(record.trainDateRange)}</td>
+
+//             {/* Car Section */}
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? "Car" : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? toTitleCase(record.carType) : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? (record.carFuelType || "N/A") : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? Number(record.carDistance || 0).toFixed(2) : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar && record.carMode === "carpool" ? "Yes" : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? formatDateRange(record.carDateRange) : "N/A"}</td>
+
+//             {/* Work From Home Section */}
+//             <td className="px-6 py-4 whitespace-nowrap">{record.workFromHome ? "Yes" : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.fteWorkingHours || "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{formatDateRange(record.workFromHomeDateRange)}</td>
+
+//             {/* Quality Control & Remarks */}
+//             <td className="px-6 py-4 whitespace-nowrap">{record.qualityControlRemarks ? "Good" : "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.qualityControlRemarks || "N/A"}</td>
+
+//             {/* Emissions */}
+//             <td className="px-6 py-4 whitespace-nowrap">{record.calculatedEmissionKgCo2e?.toFixed(2) || "0"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.calculatedEmissionTCo2e?.toFixed(6) || "0"}</td>
+
+//             {/* Submitted By & Department */}
+//             <td className="px-6 py-4 whitespace-nowrap">{record.submittedByEmail || "N/A"}</td>
+//             <td className="px-6 py-4 whitespace-nowrap">{record.stakeholderDepartment || "N/A"}</td>
+
+//             {/* Actions */}
+//             <td className="px-6 py-4 whitespace-nowrap">
+//                 <div className="flex space-x-3 rtl:space-x-reverse">
+//                     <Tippy content="Delete">
+//                         <button className="action-btn" onClick={() => onDelete(record._id)}>
+//                             <Icon icon="heroicons:trash" className="text-red-600" />
+//                         </button>
+//                     </Tippy>
+//                 </div>
+//             </td>
+//         </tr>
+//     );
+// };
+// Record Row Component
 const RecordRow = ({ record, index, onDelete }) => {
     const toTitleCase = (str) => {
         if (!str) return "N/A";
@@ -156,6 +139,12 @@ const RecordRow = ({ record, index, onDelete }) => {
         const start = dateRange?.startDate ? new Date(dateRange.startDate).toLocaleDateString() : "";
         const end = dateRange?.endDate ? new Date(dateRange.endDate).toLocaleDateString() : "";
         return start && end ? `${start} - ${end}` : start || end || "N/A";
+    };
+
+    // Helper function to format passenger emails
+    const formatPassengerEmails = (emails) => {
+        if (!emails || emails.length === 0) return "N/A";
+        return emails.join(", ");
     };
 
     return (
@@ -172,6 +161,12 @@ const RecordRow = ({ record, index, onDelete }) => {
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? Number(record.motorbikeDistance || 0).toFixed(2) : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike && record.motorbikeMode === "carpool" ? "Yes" : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? formatDateRange(record.motorbikeDateRange) : "N/A"}</td>
+            {/* New: Motorbike Carpool Partners */}
+            <td className="px-6 py-4 whitespace-nowrap">
+                {record.commuteByMotorbike && (record.motorbikeMode === "carpool" || record.motorbikeMode === "both")
+                    ? formatPassengerEmails(record.motorbikePassengerEmails) 
+                    : "N/A"}
+            </td>
 
             {/* Taxi Section */}
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? "Taxi" : "N/A"}</td>
@@ -179,6 +174,12 @@ const RecordRow = ({ record, index, onDelete }) => {
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? Number(record.taxiDistance || 0).toFixed(2) : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi && record.taxiMode === "carpool" ? "Yes" : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? formatDateRange(record.taxiDateRange) : "N/A"}</td>
+            {/* New: Taxi Carpool Partners */}
+            <td className="px-6 py-4 whitespace-nowrap">
+                {record.commuteByTaxi && (record.taxiMode === "carpool" || record.taxiMode === "both")
+                    ? formatPassengerEmails(record.taxiPassengerEmails) 
+                    : "N/A"}
+            </td>
 
             {/* Bus Section */}
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByBus ? "Bus" : "N/A"}</td>
@@ -199,6 +200,12 @@ const RecordRow = ({ record, index, onDelete }) => {
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? Number(record.carDistance || 0).toFixed(2) : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar && record.carMode === "carpool" ? "Yes" : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? formatDateRange(record.carDateRange) : "N/A"}</td>
+            {/* New: Car Carpool Partners */}
+            <td className="px-6 py-4 whitespace-nowrap">
+                {record.commuteByCar && (record.carMode === "carpool" || record.carMode === "both")
+                    ? formatPassengerEmails(record.carPassengerEmails) 
+                    : "N/A"}
+            </td>
 
             {/* Work From Home Section */}
             <td className="px-6 py-4 whitespace-nowrap">{record.workFromHome ? "Yes" : "N/A"}</td>
@@ -480,7 +487,7 @@ const CommutingTable = () => {
                                 </div>
                             ) : (
                                 <table className="min-w-full divide-y divide-slate-100">
-                                    <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
+                                    {/* <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
                                         <tr>
                                             <th className="table-th text-white whitespace-nowrap">Sr.No</th>
                                             <th className="table-th text-white whitespace-nowrap">Email Subject</th>
@@ -522,7 +529,73 @@ const CommutingTable = () => {
                                             <th className="table-th text-white whitespace-nowrap">Department</th>
                                             <th className="table-th text-white whitespace-nowrap">Actions</th>
                                         </tr>
-                                    </thead>
+                                    </thead> */}
+                                    <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
+    <tr>
+        <th className="table-th text-white whitespace-nowrap">Sr.No</th>
+        <th className="table-th text-white whitespace-nowrap">Email Subject</th>
+        <th className="table-th text-white whitespace-nowrap">Building Code</th>
+        <th className="table-th text-white whitespace-nowrap">Building</th>
+        <th className="table-th text-white whitespace-nowrap">Reporting Year</th>
+        
+        {/* Motorbike Section */}
+        <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
+        <th className="table-th text-white whitespace-nowrap">Motor Bike Type</th>
+        <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+        <th className="table-th text-white whitespace-nowrap">Car Pool</th>
+        <th className="table-th text-white whitespace-nowrap">Date Range</th>
+        <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
+        
+        {/* Taxi Section */}
+        <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
+        <th className="table-th text-white whitespace-nowrap">Taxi Type</th>
+        <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+        <th className="table-th text-white whitespace-nowrap">Car Pool</th>
+        <th className="table-th text-white whitespace-nowrap">Date Range</th>
+        <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
+        
+        {/* Bus Section */}
+        <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
+        <th className="table-th text-white whitespace-nowrap">Bus Type</th>
+        <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+        <th className="table-th text-white whitespace-nowrap">Date Range</th>
+        
+        {/* Train Section */}
+        <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
+        <th className="table-th text-white whitespace-nowrap">Train Type</th>
+        <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+        <th className="table-th text-white whitespace-nowrap">Date Range</th>
+        
+        {/* Car Section */}
+        <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
+        <th className="table-th text-white whitespace-nowrap">Car Type</th>
+        <th className="table-th text-white whitespace-nowrap">Car Fuel Type</th>
+        <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+        <th className="table-th text-white whitespace-nowrap">Car Pool</th>
+        <th className="table-th text-white whitespace-nowrap">Date Range</th>
+        <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
+        
+        {/* Work From Home Section */}
+        <th className="table-th text-white whitespace-nowrap">Work from Home</th>
+        <th className="table-th text-white whitespace-nowrap">FTE Working Hours</th>
+        <th className="table-th text-white whitespace-nowrap">Date Range</th>
+        
+        {/* Quality Control & Remarks */}
+        <th className="table-th text-white whitespace-nowrap">Quality Control</th>
+        <th className="table-th text-white whitespace-nowrap">Remarks</th>
+        
+        {/* Emissions */}
+        <th className="table-th text-white whitespace-nowrap">Calculate Emission (kgCO₂e)</th>
+        <th className="table-th text-white whitespace-nowrap">Calculate Emissions (tCO₂e)</th>
+        
+        {/* Submitted By & Department */}
+        <th className="table-th text-white whitespace-nowrap">Submitted By</th>
+        <th className="table-th text-white whitespace-nowrap">Department</th>
+        
+        {/* Actions */}
+        <th className="table-th text-white whitespace-nowrap">Actions</th>
+    </tr>
+</thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {currentRows.map((row, idx) => {
                                             if (row.type === 'group') {

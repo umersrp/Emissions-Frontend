@@ -787,6 +787,8 @@ const ProcessEmissionsListing = () => {
   const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
   const [goToValue, setGoToValue] = useState(pageIndex);
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedRows, setSelectedRows] = useState({});
+const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
 
   // CSV Upload using custom hook
   const {
@@ -973,6 +975,32 @@ const ProcessEmissionsListing = () => {
     </ol>
   );
 
+  const handleDeleteMultiple = async () => {
+  const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
+  if (selectedIds.length === 0) {
+    toast.warning("Please select records to delete");
+    return;
+  }
+  setIsDeletingMultiple(true);
+  try {
+    await Promise.all(
+      selectedIds.map(id =>
+        axios.delete(`${process.env.REACT_APP_BASE_URL}/AutoMobile/Delete/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        })
+      )
+    );
+    toast.success(`${selectedIds.length} record(s) deleted successfully`);
+    setSelectedRows({});
+    fetchRecords(pageIndex, pageSize, globalFilterValue);
+  } catch (err) {
+    console.error("Error deleting records:", err);
+    toast.error("Failed to delete some records");
+  } finally {
+    setIsDeletingMultiple(false);
+    setDeleteModalOpen(false);
+  }
+}; 
   // Delete Record
   const handleDelete = async (id) => {
     try {

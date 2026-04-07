@@ -680,7 +680,13 @@ const PurchasedElectricityListing = () => {
                     pageInfo={{ currentPage: pageIndex, totalPages }}
                   />
 
-                  {/* Import Button - Disabled until filter selected */}
+               
+                </>
+              )}
+
+              {emissionFilter && (
+                <>
+                 {/* Import Button - Disabled until filter selected */}
                   <Button
                     icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
                     text={csvState.uploading ? "Uploading..." : "Import"}
@@ -689,8 +695,8 @@ const PurchasedElectricityListing = () => {
                     onClick={() => setBulkUploadModalOpen(true)}
                     disabled={csvState.uploading || !emissionFilter}
                   />
-                </>
-              )}
+                  </>
+                )}
 
 
               {/* Add Record Button */}
