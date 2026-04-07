@@ -31,6 +31,7 @@ const BuildingTable = () => {
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
+  const [modalError, setModalError] = useState("");
 
   // **Controlled page index & size**
   const [controlledPageIndex, setControlledPageIndex] = useState(0);
@@ -232,7 +233,7 @@ const BuildingTable = () => {
     console.log("Export Data:", data); // 👈 DEBUG
 
     if (!data.length) {
-      alert("No data to export");
+      toast.error("No data to export");
       return;
     }
 
@@ -280,9 +281,6 @@ const BuildingTable = () => {
         );
         data = res.data.data || [];
       }
-
-
-
 
       if (type === "fugitive") {
         res = await axios.get(
@@ -375,9 +373,9 @@ const BuildingTable = () => {
         );
         data = res.data.data || [];
       }
-     
 
-       if (type === "employee-commute") {
+
+      if (type === "employee-commute") {
         res = await axios.get(
           `${process.env.REACT_APP_BASE_URL}/employee-commute/List`,
           {
@@ -419,7 +417,7 @@ const BuildingTable = () => {
 
     } catch (err) {
       console.error(err);
-      alert("Export failed");
+      toast.error("Export failed");
     }
   };
 
@@ -832,7 +830,7 @@ const BuildingTable = () => {
                 />
               </button>
             </div>
-             <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-3 text-center">
+            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-3 text-center">
               <div className="text-slate-700 font-semibold mb-3 text-sm">
                 Employee Commute
               </div>
