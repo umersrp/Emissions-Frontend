@@ -31,7 +31,6 @@ const BuildingTable = () => {
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedBuildingId, setSelectedBuildingId] = useState(null);
-  const [modalError, setModalError] = useState("");
 
   // **Controlled page index & size**
   const [controlledPageIndex, setControlledPageIndex] = useState(0);
@@ -229,6 +228,11 @@ const BuildingTable = () => {
   };
 
 
+  // ✅ CLEAN + FORMAT DATA
+
+
+
+
   const exportToExcel = (data, fileName = "data") => {
     console.log("Export Data:", data); // 👈 DEBUG
 
@@ -281,6 +285,9 @@ const BuildingTable = () => {
         );
         data = res.data.data || [];
       }
+
+
+
 
       if (type === "fugitive") {
         res = await axios.get(
@@ -410,16 +417,62 @@ const BuildingTable = () => {
       }
 
 
+
+      const formattedData = data.map((item, index) => {
+        const {
+          _id,
+          isDeleted,
+          createdBy,
+          updatedBy,
+          createdAt,
+          updatedAt,
+          siteBuildingName,
+          __v,
+          building,
+          buildingId,
+          ...rest
+        } = item;
+
+        // ✅ Pick whichever exists
+        const buildingObj =
+          (typeof building === "object" && building) ||
+          (typeof buildingId === "object" && buildingId) ||
+          {};
+
+        return {
+          "Sr.No": index + 1,
+
+          "Building Code": buildingObj?.buildingCode || "N/A",
+          "Building Name": buildingObj?.buildingName || "N/A",
+
+          ...rest,
+        };
+      });
       console.log("EXPORTED DATA:", data);
 
       // ✅ DIRECT EXPORT (NO FILTER)
-      exportToExcel(data, `${type}_${buildingName}`);
+      exportToExcel(formattedData, `${type}_${buildingName}`);
 
     } catch (err) {
       console.error(err);
       toast.error("Export failed");
     }
   };
+
+  const exportItems = [
+    { label: "Stationary", type: "stationary" },
+    { label: "Mobile", type: "automobile" },
+    { label: "Fugitive", type: "fugitive" },
+    { label: "Process Emission", type: "process-emission" },
+    { label: "Purchased Goods", type: "purchased-goods" },
+    { label: "Capital Goods", type: "capital-goods-services" },
+    { label: "Fuel & Energy", type: "fuelandenergy" },
+    { label: "Waste", type: "waste-generate" },
+    { label: "Business Travel", type: "business-travel" },
+    { label: "Upstream", type: "upstream" },
+    { label: "Downstream", type: "downstream" },
+    { label: "Employee", type: "employee-commute" },
+  ];
 
   return (
     <>
@@ -620,13 +673,13 @@ const BuildingTable = () => {
           {/* Header Warning Card */}
           <div className="rounded-xl border border-red-200 bg-red-50 p-5 text-center shadow-sm">
             <div className="text-red-600 text-lg font-bold mb-1">
-              ⚠️ Delete Building Confirmation
+              Delete Building Confirmation
             </div>
             <p className="text-sm text-red-500">
               This action will permanently remove all associated data.
             </p>
 
-            <div className="mt-3 text-gray-700">
+            <div className="mt-1 text-gray-700">
               <span className="font-semibold">Building:</span>{" "}
               <span className="text-gray-900">{selectedBuildingName}</span>
             </div>
@@ -643,214 +696,33 @@ const BuildingTable = () => {
           </div>
 
           {/* Export Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {exportItems.map((item, index) => (
+              <div
+                key={index}
+                className="rounded-lg border bg-white shadow-sm hover:shadow-md transition p-2 text-center"
+              >
+                <div className="text-xs font-medium text-slate-600 mb-2 truncate">
+                  {item.label}
+                </div>
 
-            {/* Stationary */}
-            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-4 text-center">
-              <div className="text-slate-700 font-semibold mb-3 text-sm">
-                Stationary
+                <button
+                  onClick={() =>
+                    handleExportBeforeDelete(
+                      selectedBuildingId,
+                      selectedBuildingName,
+                      item.type
+                    )
+                  }
+                  className="group w-full flex items-center justify-center py-2 rounded-md hover:bg-green-50 transition"
+                >
+                  <Icon
+                    icon="vscode-icons:file-type-excel"
+                    className="w-6 h-6 group-hover:scale-110 transition"
+                  />
+                </button>
               </div>
-              <button
-                onClick={() =>
-                  handleExportBeforeDelete(
-                    selectedBuildingId,
-                    selectedBuildingName,
-                    "stationary"
-                  )
-                }
-                className="group w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-white-500 to-white-600 text-white font-medium hover:scale-105 transition"
-              >
-                <Icon
-                  icon="vscode-icons:file-type-excel"
-                  className="w-10 h-10 group-hover:scale-110 transition"
-                />
-              </button>
-            </div>
-
-            {/* Automobile */}
-            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-3 text-center">
-              <div className="text-slate-700 font-semibold mb-3 text-sm">
-                Mobile
-              </div>
-              <button
-                onClick={() =>
-                  handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "automobile")
-                }
-                className="group w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-white-500 to-white-600 text-white font-medium hover:scale-105 transition"
-              >
-                <Icon
-                  icon="vscode-icons:file-type-excel"
-                  className="w-10 h-10 group-hover:scale-110 transition"
-                />
-              </button>
-            </div>
-
-            {/* Fugitive */}
-            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-4 text-center">
-              <div className="text-slate-700 font-semibold mb-3 text-sm">
-                Fugitive
-              </div>
-              <button
-                onClick={() =>
-                  handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "fugitive")
-                }
-                className="group w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-white-500 to-white-600 text-white font-medium hover:scale-105 transition"
-              >
-                <Icon
-                  icon="vscode-icons:file-type-excel"
-                  className="w-10 h-10 group-hover:scale-110 transition"
-                />
-              </button>
-            </div>
-            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-4 text-center">
-              <div className="text-slate-700 font-semibold mb-3 text-sm">
-                Process-Emission
-              </div>
-              <button
-                onClick={() =>
-                  handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "process-emission")
-                }
-                className="group w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-white-500 to-white-600 text-white font-medium hover:scale-105 transition"
-              >
-                <Icon
-                  icon="vscode-icons:file-type-excel"
-                  className="w-10 h-10 group-hover:scale-110 transition"
-                />
-              </button>
-            </div>
-            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-3 text-center">
-              <div className="text-slate-700 font-semibold mb-3 text-sm">
-                Purchased Goods Service
-              </div>
-              <button
-                onClick={() =>
-                  handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "purchased-goods")
-                }
-                className="group w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-white-500 to-white-600 text-white font-medium hover:scale-105 transition"
-              >
-                <Icon
-                  icon="vscode-icons:file-type-excel"
-                  className="w-10 h-10 group-hover:scale-110 transition"
-                />
-              </button>
-            </div>
-            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-3 text-center">
-              <div className="text-slate-700 font-semibold mb-3 text-sm">
-                Capital Goods Service
-              </div>
-              <button
-                onClick={() =>
-                  handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "capital-goods-services")
-                }
-                className="group w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-white-500 to-white-600 text-white font-medium hover:scale-105 transition"
-              >
-                <Icon
-                  icon="vscode-icons:file-type-excel"
-                  className="w-10 h-10 group-hover:scale-110 transition"
-                />
-              </button>
-            </div>
-            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-3 text-center">
-              <div className="text-slate-700 font-semibold mb-3 text-sm">
-                Fuel and Energy
-              </div>
-              <button
-                onClick={() =>
-                  handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "fuelandenergy")
-                }
-                className="group w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-white-500 to-white-600 text-white font-medium hover:scale-105 transition"
-              >
-                <Icon
-                  icon="vscode-icons:file-type-excel"
-                  className="w-10 h-10 group-hover:scale-110 transition"
-                />
-              </button>
-            </div>
-            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-3 text-center">
-              <div className="text-slate-700 font-semibold mb-3 text-sm">
-                Waste Generate
-              </div>
-              <button
-                onClick={() =>
-                  handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "waste-generate")
-                }
-                className="group w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-white-500 to-white-600 text-white font-medium hover:scale-105 transition"
-              >
-                <Icon
-                  icon="vscode-icons:file-type-excel"
-                  className="w-10 h-10 group-hover:scale-110 transition"
-                />
-              </button>
-            </div>
-            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-3 text-center">
-              <div className="text-slate-700 font-semibold mb-3 text-sm">
-                Business Travel
-              </div>
-              <button
-                onClick={() =>
-                  handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "business-travel")
-                }
-                className="group w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-white-500 to-white-600 text-white font-medium hover:scale-105 transition"
-              >
-                <Icon
-                  icon="vscode-icons:file-type-excel"
-                  className="w-10 h-10 group-hover:scale-110 transition"
-                />
-              </button>
-            </div>
-            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-3 text-center">
-              <div className="text-slate-700 font-semibold mb-3 text-sm">
-                Upstream
-              </div>
-              <button
-                onClick={() =>
-                  handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "upstream")
-                }
-                className="group w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-white-500 to-white-600 text-white font-medium hover:scale-105 transition"
-              >
-                <Icon
-                  icon="vscode-icons:file-type-excel"
-                  className="w-10 h-10 group-hover:scale-110 transition"
-                />
-              </button>
-            </div>
-            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-3 text-center">
-              <div className="text-slate-700 font-semibold mb-3 text-sm">
-                Downstream
-              </div>
-              <button
-                onClick={() =>
-                  handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "downstream")
-                }
-                className="group w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-white-500 to-white-600 text-white font-medium hover:scale-105 transition"
-              >
-                <Icon
-                  icon="vscode-icons:file-type-excel"
-                  className="w-10 h-10 group-hover:scale-110 transition"
-                />
-              </button>
-            </div>
-            <div className="rounded-xl border bg-white shadow hover:shadow-lg transition p-3 text-center">
-              <div className="text-slate-700 font-semibold mb-3 text-sm">
-                Employee Commute
-              </div>
-              <button
-                onClick={() =>
-                  handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "employee-commute")
-                }
-                className="group w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-gradient-to-r from-white-500 to-white-600 text-white font-medium hover:scale-105 transition"
-              >
-                <Icon
-                  icon="vscode-icons:file-type-excel"
-                  className="w-10 h-10 group-hover:scale-110 transition"
-                />
-              </button>
-            </div>
-
-
-
-
-
+            ))}
           </div>
         </div>
       </Modal>
