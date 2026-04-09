@@ -275,7 +275,7 @@ const BuildingTable = () => {
 
 
 
-      if (type === "automobile") {
+      if (type === "mobile-combustion") {
         res = await axios.get(
           `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All`,
           {
@@ -300,6 +300,8 @@ const BuildingTable = () => {
         data = res.data.data || [];
       }
 
+
+
       if (type === "process-emission") {
         res = await axios.get(
           `${process.env.REACT_APP_BASE_URL}/Process-Emissions/Get-All`,
@@ -311,6 +313,17 @@ const BuildingTable = () => {
         data = res.data.data || [];
       }
 
+        if (type === "purchased-electricity") {
+        res = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get-All`,
+          {
+            headers,
+            params: { buildingId, limit: 1000000 }
+          }
+        );
+        data = res.data.data || [];
+      }
+      
       if (type === "purchased-goods") {
         res = await axios.get(
           `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
@@ -461,9 +474,10 @@ const BuildingTable = () => {
 
   const exportItems = [
     { label: "Stationary", type: "stationary" },
-    { label: "Mobile", type: "automobile" },
+    { label: "Mobile", type: "mobile-combustion" },
     { label: "Fugitive", type: "fugitive" },
     { label: "Process Emission", type: "process-emission" },
+    { label: "Electricity", type: "purchased-electricity" },
     { label: "Purchased Goods", type: "purchased-goods" },
     { label: "Capital Goods", type: "capital-goods-services" },
     { label: "Fuel & Energy", type: "fuelandenergy" },
