@@ -12,7 +12,7 @@ import Modal from "@/components/ui/Modal";
 
 // Group Row Component for Email Subject
 const GroupRow = ({ subject, recordCount, isExpanded, onToggle, groupTotals, displayIndex }) => {
-    const totalColumns = 38; // Total number of columns in the table
+    const totalColumns = 43; // Total number of columns in the table
 
     return (
         <tr className="bg-gray-100 cursor-pointer hover:bg-gray-200" onClick={onToggle}>
@@ -164,7 +164,7 @@ const RecordRow = ({ record, index, onDelete }) => {
             {/* New: Motorbike Carpool Partners */}
             <td className="px-6 py-4 whitespace-nowrap">
                 {record.commuteByMotorbike && (record.motorbikeMode === "carpool" || record.motorbikeMode === "both")
-                    ? formatPassengerEmails(record.motorbikePassengerEmails) 
+                    ? formatPassengerEmails(record.motorbikePassengerEmails)
                     : "N/A"}
             </td>
 
@@ -177,7 +177,7 @@ const RecordRow = ({ record, index, onDelete }) => {
             {/* New: Taxi Carpool Partners */}
             <td className="px-6 py-4 whitespace-nowrap">
                 {record.commuteByTaxi && (record.taxiMode === "carpool" || record.taxiMode === "both")
-                    ? formatPassengerEmails(record.taxiPassengerEmails) 
+                    ? formatPassengerEmails(record.taxiPassengerEmails)
                     : "N/A"}
             </td>
 
@@ -203,7 +203,7 @@ const RecordRow = ({ record, index, onDelete }) => {
             {/* New: Car Carpool Partners */}
             <td className="px-6 py-4 whitespace-nowrap">
                 {record.commuteByCar && (record.carMode === "carpool" || record.carMode === "both")
-                    ? formatPassengerEmails(record.carPassengerEmails) 
+                    ? formatPassengerEmails(record.carPassengerEmails)
                     : "N/A"}
             </td>
 
@@ -531,71 +531,71 @@ const CommutingTable = () => {
                                         </tr>
                                     </thead> */}
                                     <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
-    <tr>
-        <th className="table-th text-white whitespace-nowrap">Sr.No</th>
-        <th className="table-th text-white whitespace-nowrap">Email Subject</th>
-        <th className="table-th text-white whitespace-nowrap">Building Code</th>
-        <th className="table-th text-white whitespace-nowrap">Building</th>
-        <th className="table-th text-white whitespace-nowrap">Reporting Year</th>
-        
-        {/* Motorbike Section */}
-        <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-        <th className="table-th text-white whitespace-nowrap">Motor Bike Type</th>
-        <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
-        <th className="table-th text-white whitespace-nowrap">Car Pool</th>
-        <th className="table-th text-white whitespace-nowrap">Date Range</th>
-        <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
-        
-        {/* Taxi Section */}
-        <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-        <th className="table-th text-white whitespace-nowrap">Taxi Type</th>
-        <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
-        <th className="table-th text-white whitespace-nowrap">Car Pool</th>
-        <th className="table-th text-white whitespace-nowrap">Date Range</th>
-        <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
-        
-        {/* Bus Section */}
-        <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-        <th className="table-th text-white whitespace-nowrap">Bus Type</th>
-        <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
-        <th className="table-th text-white whitespace-nowrap">Date Range</th>
-        
-        {/* Train Section */}
-        <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-        <th className="table-th text-white whitespace-nowrap">Train Type</th>
-        <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
-        <th className="table-th text-white whitespace-nowrap">Date Range</th>
-        
-        {/* Car Section */}
-        <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-        <th className="table-th text-white whitespace-nowrap">Car Type</th>
-        <th className="table-th text-white whitespace-nowrap">Car Fuel Type</th>
-        <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
-        <th className="table-th text-white whitespace-nowrap">Car Pool</th>
-        <th className="table-th text-white whitespace-nowrap">Date Range</th>
-        <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
-        
-        {/* Work From Home Section */}
-        <th className="table-th text-white whitespace-nowrap">Work from Home</th>
-        <th className="table-th text-white whitespace-nowrap">FTE Working Hours</th>
-        <th className="table-th text-white whitespace-nowrap">Date Range</th>
-        
-        {/* Quality Control & Remarks */}
-        <th className="table-th text-white whitespace-nowrap">Quality Control</th>
-        <th className="table-th text-white whitespace-nowrap">Remarks</th>
-        
-        {/* Emissions */}
-        <th className="table-th text-white whitespace-nowrap">Calculate Emission (kgCO₂e)</th>
-        <th className="table-th text-white whitespace-nowrap">Calculate Emissions (tCO₂e)</th>
-        
-        {/* Submitted By & Department */}
-        <th className="table-th text-white whitespace-nowrap">Submitted By</th>
-        <th className="table-th text-white whitespace-nowrap">Department</th>
-        
-        {/* Actions */}
-        <th className="table-th text-white whitespace-nowrap">Actions</th>
-    </tr>
-</thead>
+                                        <tr>
+                                            <th className="table-th text-white whitespace-nowrap">Sr.No</th>
+                                            <th className="table-th text-white whitespace-nowrap">Email Subject</th>
+                                            <th className="table-th text-white whitespace-nowrap">Building Code</th>
+                                            <th className="table-th text-white whitespace-nowrap">Building</th>
+                                            <th className="table-th text-white whitespace-nowrap">Reporting Year</th>
+
+                                            {/* Motorbike Section */}
+                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
+                                            <th className="table-th text-white whitespace-nowrap">Motor Bike Type</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Car Pool</th>
+                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
+                                            <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
+
+                                            {/* Taxi Section */}
+                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
+                                            <th className="table-th text-white whitespace-nowrap">Taxi Type</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Car Pool</th>
+                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
+                                            <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
+
+                                            {/* Bus Section */}
+                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
+                                            <th className="table-th text-white whitespace-nowrap">Bus Type</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
+
+                                            {/* Train Section */}
+                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
+                                            <th className="table-th text-white whitespace-nowrap">Train Type</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
+
+                                            {/* Car Section */}
+                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
+                                            <th className="table-th text-white whitespace-nowrap">Car Type</th>
+                                            <th className="table-th text-white whitespace-nowrap">Car Fuel Type</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Car Pool</th>
+                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
+                                            <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
+
+                                            {/* Work From Home Section */}
+                                            <th className="table-th text-white whitespace-nowrap">Work from Home</th>
+                                            <th className="table-th text-white whitespace-nowrap">FTE Working Hours</th>
+                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
+
+                                            {/* Quality Control & Remarks */}
+                                            <th className="table-th text-white whitespace-nowrap">Quality Control</th>
+                                            <th className="table-th text-white whitespace-nowrap">Remarks</th>
+
+                                            {/* Emissions */}
+                                            <th className="table-th text-white whitespace-nowrap">Calculate Emission (kgCO₂e)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Calculate Emissions (tCO₂e)</th>
+
+                                            {/* Submitted By & Department */}
+                                            <th className="table-th text-white whitespace-nowrap">Submitted By</th>
+                                            <th className="table-th text-white whitespace-nowrap">Department</th>
+
+                                            {/* Actions */}
+                                            <th className="table-th text-white whitespace-nowrap">Actions</th>
+                                        </tr>
+                                    </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
                                         {currentRows.map((row, idx) => {
                                             if (row.type === 'group') {
@@ -612,12 +612,12 @@ const CommutingTable = () => {
                                                 );
                                             } else {
                                                 // Calculate serial number for this record
-                                              
+
                                                 return (
                                                     <RecordRow
                                                         key={`record-${row.record._id}`}
                                                         record={row.record}
-                                                         index={row.recordIndex}
+                                                        index={row.recordIndex}
                                                         onDelete={(id) => {
                                                             setSelectedRecordId(id);
                                                             setDeleteModalOpen(true);
@@ -654,7 +654,7 @@ const CommutingTable = () => {
                             </span>
                             <span className="text-sm font-medium text-slate-600">
                                 Page {currentPage} of {totalPages}
-                               
+
                                 {globalFilterValue && (
                                     <span className="text-xs text-gray-500 ml-2">
                                         (Filtered results)

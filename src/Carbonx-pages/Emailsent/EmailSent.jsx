@@ -770,7 +770,7 @@ const EmailSent = () => {
                                 <div>
                                     <label className="field-label">Data Collection Start Date<span className="text-red-500">*</span></label>
 
-                                    <InputGroup
+                                    {/* <InputGroup
                                         type="date"
                                         value={formData.startDate || ""}
                                         onChange={(e) => {
@@ -783,13 +783,34 @@ const EmailSent = () => {
                                             handleInputChange("startDate", date);
                                         }}
                                         required
+                                    /> */}
+
+                                    <InputGroup
+                                        type="date"
+                                        value={formData.startDate || ""}
+                                        onChange={(e) => {
+                                            const date = e.target.value;
+                                            const time = formData.startTime || "00:00";
+
+                                            handleInputChange("startDate", date);
+
+                                            // ✅ Update startDateTime when date changes
+                                            if (date && time) {
+                                                const local = new Date(`${date}T${time}:00`);
+                                                handleInputChange("startDateTime", local.toISOString());
+                                            }
+
+                                            if (errors.startDate) {
+                                                setErrors(prev => ({ ...prev, startDate: undefined }));
+                                            }
+                                        }}
                                     />
                                     <ErrorMessage message={errors.startDateTime} />
                                 </div>
                                 <div>
                                     <label className="field-label">Data Collection Start Time <span className="text-red-500">*</span></label>
 
-                                    <InputGroup
+                                    {/* <InputGroup
                                         type="time"
                                         value={formData.startTime || ""}
                                         onChange={(e) => {
@@ -808,6 +829,26 @@ const EmailSent = () => {
                                             }
                                         }}
                                         required
+                                    /> */}
+                                    <InputGroup
+                                        type="time"
+                                        value={formData.startTime || ""}
+                                        onChange={(e) => {
+                                            const time = e.target.value;
+                                            const date = formData.startDate;
+
+                                            handleInputChange("startTime", time);
+
+                                            // ✅ Update startDateTime when time changes
+                                            if (date && time) {
+                                                const local = new Date(`${date}T${time}:00`);
+                                                handleInputChange("startDateTime", local.toISOString());
+                                            }
+
+                                            if (errors.startDateTime) {
+                                                setErrors(prev => ({ ...prev, startDateTime: undefined }));
+                                            }
+                                        }}
                                     />
                                     <ErrorMessage message={errors.startDateTime} />
                                 </div>
@@ -819,7 +860,7 @@ const EmailSent = () => {
                                 <div>
                                     <label className="field-label">Data Collection End Date <span className="text-red-500">*</span></label>
 
-                                    <InputGroup
+                                    {/* <InputGroup
                                         type="date"
                                         value={formData.endDate || ""}
                                         onChange={(e) => {
@@ -833,13 +874,35 @@ const EmailSent = () => {
                                             handleInputChange("endDate", date);
                                         }}
                                         required
+                                    /> */}
+
+                                    <InputGroup
+                                        type="date"
+                                        value={formData.endDate || ""}
+                                        onChange={(e) => {
+                                            const date = e.target.value;
+                                            const time = formData.endTime || "00:00";
+
+                                            handleInputChange("endDate", date);
+
+                                            // ✅ Update endDateTime when date changes
+                                            if (date && time) {
+                                                const local = new Date(`${date}T${time}:00`);
+                                                handleInputChange("endDateTime", local.toISOString());
+                                            }
+
+                                            if (errors.endDate) {
+                                                setErrors(prev => ({ ...prev, endDate: undefined }));
+                                            }
+                                        }}
                                     />
+
                                     <ErrorMessage message={errors.endDateTime} />
                                 </div>
                                 <div>
                                     <label className="field-label">Data Collection End Time <span className="text-red-500">*</span></label>
 
-                                    <InputGroup
+                                    {/* <InputGroup
                                         type="time"
                                         value={formData.endTime || ""}
                                         onChange={(e) => {
@@ -858,6 +921,27 @@ const EmailSent = () => {
                                             }
                                         }}
                                         required
+                                    /> */}
+
+                                    <InputGroup
+                                        type="time"
+                                        value={formData.endTime || ""}
+                                        onChange={(e) => {
+                                            const time = e.target.value;
+                                            const date = formData.endDate || new Date().toISOString().split('T')[0];
+
+                                            handleInputChange("endTime", time);
+
+                                            // ✅ Update endDateTime when time changes
+                                            if (date && time) {
+                                                const local = new Date(`${date}T${time}:00`);
+                                                handleInputChange("endDateTime", local.toISOString());
+                                            }
+
+                                            if (errors.endDateTime) {
+                                                setErrors(prev => ({ ...prev, endDateTime: undefined }));
+                                            }
+                                        }}
                                     />
                                     <ErrorMessage message={errors.endDateTime} />
                                 </div>
@@ -931,14 +1015,17 @@ const EmailSent = () => {
                                             hour: 'numeric',
                                             minute: '2-digit',
                                             hour12: true
-                                        }).replace(',', '') +
-                                        ' ' +
-                                        new Date(formData.startDateTime).toLocaleTimeString('en-US', {
-                                            hour: 'numeric',
-                                            minute: '2-digit',
-                                            hour12: true
-                                        }).replace(':', '.').toLowerCase()
-                                        : "Not set"}
+                                        }).replace(',', '')
+                                        // +
+                                        // ' ' +
+                                        // new Date(formData.startDateTime).toLocaleTimeString('en-US', {
+                                        //     hour: 'numeric',
+                                        //     minute: '2-digit',
+                                        //     hour12: true
+                                        // }).replace(':', '.').toLowerCase()
+                                        : "Not set"
+
+                                    }
                                 </div>
                                 <div className="mb-1 text-sm font-small">
                                     Data Collection End Date and Time: {formData.endDateTime ?
@@ -949,13 +1036,14 @@ const EmailSent = () => {
                                             hour: 'numeric',
                                             minute: '2-digit',
                                             hour12: true
-                                        }).replace(',', '') +
-                                        ' ' +
-                                        new Date(formData.endDateTime).toLocaleTimeString('en-US', {
-                                            hour: 'numeric',
-                                            minute: '2-digit',
-                                            hour12: true
-                                        }).replace(':', '.').toLowerCase()
+                                        }).replace(',', '')
+                                        // +
+                                        // ' ' +
+                                        // new Date(formData.endDateTime).toLocaleTimeString('en-US', {
+                                        //     hour: 'numeric',
+                                        //     minute: '2-digit',
+                                        //     hour12: true
+                                        // }).replace(':', '.').toLowerCase()
                                         : "Not set"}
                                 </div>
                                 <div className="text-sm font-small">

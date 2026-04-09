@@ -754,7 +754,9 @@ const [formAccessStatus, setFormAccessStatus] = useState({
     console.log('URL UserId:', urlUserId);
 
     // Current year for reporting
-    const currentYear = 2024;
+    const currentYear = 2026;
+    const yearEnd = 2024; 
+    const [reportingYearEnd, setReportingYearEnd] = useState(yearEnd);
     const [reportingYear, setReportingYear] = useState(currentYear);
     const [errors, setErrors] = useState({});
 
@@ -854,6 +856,8 @@ const [formAccessStatus, setFormAccessStatus] = useState({
     const [companyUsers, setCompanyUsers] = useState([]);
     const [companyUsersLoading, setCompanyUsersLoading] = useState(false);
     const [token, setToken] = useState('');
+
+    
 
     // Year selection dropdown options
     const yearOptions = [
@@ -1347,37 +1351,38 @@ useEffect(() => {
 }, [token, urlToken, urlUserId, location.search]); // Add location.search as dependency
 
 
-useEffect(() => {
-    const fetchEmailDocument = async () => {
-        const currentToken = getToken();
-        const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
+// useEffect(() => {
+//     const fetchEmailDocument = async () => {
+//         const currentToken = getToken();
+//         const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
         
-        if (!currentToken || !currentEmailDocId) return;
+//         if (!currentToken || !currentEmailDocId) return;
         
-        try {
-            const response = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${currentEmailDocId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${currentToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
+//         try {
+//             const response = await axios.get(
+//                 `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${currentEmailDocId}`,
+//                 {
+//                     headers: {
+//                         Authorization: `Bearer ${currentToken}`,
+//                         'Content-Type': 'application/json',
+//                     },
+//                 }
+//             );
             
-            if (response.data && response.data.data && response.data.data._id) {
-                setFormDocumentId(response.data.data._id);
-                console.log('Form document ID fetched:', response.data.data._id);
-            }
-        } catch (error) {
-            console.error('Failed to fetch email document:', error);
-        }
-    };
+//             if (response.data && response.data.data && response.data.data._id) {
+//                 setFormDocumentId(response.data.data._id);
+//                 console.log('Form document ID fetched:', response.data.data._id);
+//             }
+//         } catch (error) {
+//             console.error('Failed to fetch email document:', error);
+//         }
+//     };
     
-    fetchEmailDocument();
-}, [token, location.search]);
+//     fetchEmailDocument();
+// }, [token, location.search]);
 
     // Update the markUserAsFilled function
+    
     const markUserAsFilled = async (userId, token, emailDocIdToUse) => {
         if (!userId || !token) {
             console.warn('Cannot mark user as filled - missing userId or token');
@@ -2632,7 +2637,7 @@ useEffect(() => {
                         showFooter={true}
                         primaryColor="blue"
                         minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
-                        maxDate={new Date(reportingYear, 11, 31)}
+                        maxDate={new Date(reportingYearEnd, 11, 31)}
                         configs={{
                             shortcuts: {
                                 today: {
@@ -4386,7 +4391,7 @@ if (!token && !urlToken && !getToken()) {
                                                                     showFooter={true}
                                                                     primaryColor="blue"
                                                                     minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
-                                                                    maxDate={new Date(reportingYear, 11, 31)} 
+                                                                    maxDate={new Date(reportingYearEnd, 11, 31)} 
                                                                     configs={{
                                                                         shortcuts: {
                                                                             thisMonth: {
@@ -4636,7 +4641,7 @@ if (!token && !urlToken && !getToken()) {
                                                                 showFooter={true}
                                                                 primaryColor="blue"
                                                                 minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
-                                                                maxDate={new Date(reportingYear, 11, 31)}
+                                                                maxDate={new Date(reportingYearEnd, 11, 31)}
                                                                 configs={{
                                                                     shortcuts: {
                                                                         thisMonth: {
@@ -5011,7 +5016,7 @@ if (!token && !urlToken && !getToken()) {
                                                                     showFooter={true}
                                                                     primaryColor="blue"
                                                                     minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
-                                                                    maxDate={new Date(reportingYear, 11, 31)}
+                                                                    maxDate={new Date(reportingYearEnd, 11, 31)}
                                                                     configs={{
                                                                         shortcuts: {
                                                                             thisMonth: {

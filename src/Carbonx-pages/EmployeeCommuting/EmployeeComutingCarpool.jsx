@@ -1580,7 +1580,7 @@ const handleSubmit = async (e) => {
                     }
                 );
                 console.log('Driver form updated successfully:', updateResponse.data);
-                toast.success(`Updated ${distancesToUpdate.join(', ')} distance(s) (higher values) and recalculated emissions!`);
+                // toast.success(`Updated ${distancesToUpdate.join(', ')} distance(s) (higher values) and recalculated emissions!`);
             } catch (updateError) {
                 console.warn('Driver form update failed:', updateError.message);
                 toast.warning('Passenger submission created, but driver form update failed');

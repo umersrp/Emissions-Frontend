@@ -345,38 +345,38 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
   }, [cleanCSVValue]);
 
   // Helper function for normalization (handles spaces around slashes)
-const normalizeWithSlash = (str) => {
-  if (!str) return '';
-  return str
-    .toLowerCase()
-    .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
-    .replace(/\s+/g, ' ')        // Normalize multiple spaces
-    .trim();
-};
+  const normalizeWithSlash = (str) => {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
+      .replace(/\s+/g, ' ')        // Normalize multiple spaces
+      .trim();
+  };
 
-// Flexible matching function
-const findFlexibleMatch = (input, validOptions) => {
-  if (!input || !validOptions.length) return null;
-  
-  const normalizedInput = normalizeWithSlash(input);
-  
-  // Try direct match with normalization
-  let match = validOptions.find(option => 
-    normalizeWithSlash(option) === normalizedInput
-  );
-  
-  if (match) return match;
-  
-  // Try with spaces around slashes (for cases like "A/B" vs "A / B")
-  const spacedInput = normalizedInput.replace(/\//g, ' / ');
-  match = validOptions.find(option => {
-    const normalizedOption = normalizeWithSlash(option);
-    const spacedOption = normalizedOption.replace(/\//g, ' / ');
-    return spacedOption === spacedInput;
-  });
-  
-  return match;
-};
+  // Flexible matching function
+  const findFlexibleMatch = (input, validOptions) => {
+    if (!input || !validOptions.length) return null;
+
+    const normalizedInput = normalizeWithSlash(input);
+
+    // Try direct match with normalization
+    let match = validOptions.find(option =>
+      normalizeWithSlash(option) === normalizedInput
+    );
+
+    if (match) return match;
+
+    // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+    const spacedInput = normalizedInput.replace(/\//g, ' / ');
+    match = validOptions.find(option => {
+      const normalizedOption = normalizeWithSlash(option);
+      const spacedOption = normalizedOption.replace(/\//g, ' / ');
+      return spacedOption === spacedInput;
+    });
+
+    return match;
+  };
 
   const validateFuelAndEnergyRow = useCallback((row, index) => {
     const errors = [];
@@ -453,16 +453,16 @@ const findFlexibleMatch = (input, validOptions) => {
     //   }
     // }
     // Stakeholder validation with flexible matching
-if (cleanedRow.stakeholder) {
-  const validStakeholders = stakeholderOptions.map(s => s.value);
-  const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
-  
-  if (!matchedStakeholder) {
-    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-  } else {
-    cleanedRow.stakeholder = matchedStakeholder;
-  }
-}
+    if (cleanedRow.stakeholder) {
+      const validStakeholders = stakeholderOptions.map(s => s.value);
+      const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+
+      if (!matchedStakeholder) {
+        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+      } else {
+        cleanedRow.stakeholder = matchedStakeholder;
+      }
+    }
 
     // Fuel Type validation
     if (cleanedRow.fueltype) {
@@ -493,26 +493,23 @@ if (cleanedRow.stakeholder) {
     // my logic to handle subscript numbers and spaces around slashes in fuel name
 
     if (cleanedRow.fueltype && cleanedRow.fuel) {
-  const validFuels = fuelEnergyTypesChildTypes[cleanedRow.fueltype]?.map(f => f.value) || [];
-  
-  const normalizeFuel = (fuel) => fuel.replace(/\s*\/\s*/g, '/').toLowerCase();
-  
-  const matchedFuel = validFuels.find(f => 
-    normalizeFuel(f) === normalizeFuel(cleanedRow.fuel)
-  );
-  
-  if (!matchedFuel) {
-    errors.push(`Invalid fuel name "${cleanedRow.fuel}" for type "${cleanedRow.fueltype}"`);
-  } else {
-    cleanedRow.fuel = matchedFuel;
-  }
-}
+      const validFuels = fuelEnergyTypesChildTypes[cleanedRow.fueltype]?.map(f => f.value) || [];
+
+      // Use the flexible matching function
+      const matchedFuel = findFlexibleMatch(cleanedRow.fuel, validFuels);
+
+      if (!matchedFuel) {
+        errors.push(`Invalid fuel name "${cleanedRow.fuel}" for type "${cleanedRow.fueltype}"`);
+      } else {
+        cleanedRow.fuel = matchedFuel;
+      }
+    }
 
     // Fuel Consumption validation
     if (cleanedRow.totalfuelconsumption) {
       const cleanNum = cleanedRow.totalfuelconsumption.toString()
         .replace(/[^0-9.-]/g, '')
-        .replace(/^"+|"+$/g, '');        
+        .replace(/^"+|"+$/g, '');
 
       const num = Number(cleanNum);
       if (isNaN(num)) {
