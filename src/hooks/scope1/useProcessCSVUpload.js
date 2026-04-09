@@ -13,6 +13,7 @@ import {
 } from '@/constant/scope1/options';
 import {   PROCESS_ACTIVITY_DATA } from '@/constant/scope1/calculate-process-emission';
 import { normalizeSubscriptNumbers } from '@/utils/normalizeText';
+import { processEmissionFactors } from '@/constant/scope1/calculate-process-emission';
 
 // User-friendly column names and mappings
 const USER_FRIENDLY_COLUMNS = {
@@ -690,47 +691,71 @@ if (row.activitytype) {
   }, [buildings, parseDateToISO, validateProcessActivityData]);
 
   // Helper function to calculate process emissions
-  const calculateProcessEmissions = useCallback((gasEmitted, amount) => {
-    // GWP (Global Warming Potential) values
-    const gwpValues = {
-      'CO2': 1,
-      'CH4': 28,
-      'N2O': 265,
-      'HFC-23': 12400,
-      'HFC-32': 677,
-      'HFC-125': 3170,
-      'HFC-134a': 1300,
-      'HFC-143a': 4800,
-      'HFC-152a': 138,
-      'HFC-227ea': 3350,
-      'HFC-236fa': 8060,
-      'HFC-245fa': 858,
-      'HFC-365mfc': 804,
-      'HFC-43-10mee': 1650,
-      'CF4': 6630,
-      'C2F6': 11100,
-      'C3F8': 8900,
-      'C4F10': 9200,
-      'C5F12': 8550,
-      'C6F14': 7910,
-      'SF6': 23500,
-      'NF3': 16100
-    };
+  // const calculateProcessEmissions = useCallback((gasEmitted, amount) => {
+  //   // GWP (Global Warming Potential) values
+  //   const gwpValues = {
+  //     'CO2': 1,
+  //     'CH4': 28,
+  //     'N2O': 265,
+  //     'HFC-23': 12400,
+  //     'HFC-32': 677,
+  //     'HFC-125': 3170,
+  //     'HFC-134a': 1300,
+  //     'HFC-143a': 4800,
+  //     'HFC-152a': 138,
+  //     'HFC-227ea': 3350,
+  //     'HFC-236fa': 8060,
+  //     'HFC-245fa': 858,
+  //     'HFC-365mfc': 804,
+  //     'HFC-43-10mee': 1650,
+  //     'CF4': 6630,
+  //     'C2F6': 11100,
+  //     'C3F8': 8900,
+  //     'C4F10': 9200,
+  //     'C5F12': 8550,
+  //     'C6F14': 7910,
+  //     'SF6': 23500,
+  //     'NF3': 16100
+  //   };
 
-    const gwp = gwpValues[gasEmitted] || 1;
-    const amountNum = Number(amount) || 0;
+  //   const gwp = gwpValues[gasEmitted] || 1;
+  //   const amountNum = Number(amount) || 0;
 
-    const totalEmissionInScope = amountNum * gwp;
+  //   const totalEmissionInScope = amountNum * gwp;
 
+  //   return {
+  //     totalEmissionInScope,
+  //     totalEmissionOutScope: 0
+  //   };
+  // }, []);
+  const calculateProcessEmissions = useCallback((activityType, amount) => {
+  // Get the emission factor for this activity type
+  const emissionFactor = processEmissionFactors[activityType];
+  
+  if (!emissionFactor) {
+    console.warn(`No emission factor found for activity type: "${activityType}"`);
     return {
-      totalEmissionInScope,
+      totalEmissionInScope: 0,
       totalEmissionOutScope: 0
     };
-  }, []);
+  }
+  
+  const amountNum = Number(amount) || 0;
+  const totalEmissionKg = amountNum * emissionFactor; // kgCO2e
+  const totalEmissionT = totalEmissionKg / 1000; // tCO2e
+
+  return {
+    totalEmissionInScope: totalEmissionKg,
+    totalEmissionOutScope: 0
+  };
+}, []);
+
+// Also update the transformProcessPayload function to pass activityType instead of gasEmitted:
+
 
   const transformProcessPayload = useCallback((row) => {
     const emissions = calculateProcessEmissions(
-      row.gasemitted,
+      row.activitytype, 
       Number(row.amountofemissions)
     );
 

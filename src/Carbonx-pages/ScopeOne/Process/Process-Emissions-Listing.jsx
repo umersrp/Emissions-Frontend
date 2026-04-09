@@ -1033,7 +1033,7 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
         Cell: ({ value }) => capitalizeLabel(value), // use the function here
       },
       { Header: "Gas Emitted", accessor: "gasEmitted" },
-      { Header: "Amount of Emissions", accessor: "amountOfEmissions" },
+      { Header: "Process Activity Data", accessor: "amountOfEmissions" },
       { Header: "Quality Control", accessor: "qualityControl" },
       { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",
          Cell: ({ cell }) => {
