@@ -55,7 +55,7 @@
 //   const fetchData = async (pageIndex, pageSize) => {
 //     try {
 //       setLoading(true);
-      
+
 //       const response = await axios.get(
 //         `${process.env.REACT_APP_BASE_URL}/auth/GetCompanyUsers`,
 //         {
@@ -70,16 +70,16 @@
 //       );
 
 //       console.log("API RESPONSE:", response.data);
-      
+
 //       // Set data from API response
 //       const users = response.data.data.users || [];
 //       const pagination = response.data.pagination || {};
-      
+
 //       setUserData(users);
 //       setTotal(pagination.total || 0);
 //       setTotalPages(pagination.totalPages || 1);
 //       setHasNextPage(pagination.hasNextPage || false);
-      
+
 //     } catch (error) {
 //       console.error(error);
 //       toast.error("Failed to fetch users");
@@ -430,7 +430,7 @@
 //                 Prev
 //               </button>
 //             </li>
-            
+
 //             {/* Show page numbers with ellipsis for better UX */}
 //             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
 //               let pageNum;
@@ -443,7 +443,7 @@
 //               } else {
 //                 pageNum = pageIndex - 2 + i;
 //               }
-              
+
 //               return (
 //                 <li key={pageNum}>
 //                   <button
@@ -559,7 +559,7 @@ const UserPage = () => {
   const fetchData = async (page, size) => {
     try {
       setLoading(true);
-      
+
       const response = await axios.get(
         `${process.env.REACT_APP_BASE_URL}/auth/GetCompanyUsers`,
         {
@@ -574,20 +574,20 @@ const UserPage = () => {
       );
 
       console.log("API Response:", response.data);
-      
+
       // Extract data from response - FIX: Access the correct path
       const users = response.data?.data?.users || [];
       const pagination = response.data?.data?.pagination || response.data?.pagination || {};
-      
+
       console.log("Users:", users);
       console.log("Pagination:", pagination);
-      
+
       setUserData(users);
       setTotalRecords(pagination.total || 0);
       setPageCount(pagination.totalPages || 1);
       setCanNextPage(pagination.hasNextPage || false);
       setCanPreviousPage(pagination.hasPreviousPage || false);
-      
+
     } catch (error) {
       console.error("Error fetching users:", error);
       toast.error("Failed to fetch users");
@@ -606,11 +606,8 @@ const UserPage = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/${user.type}/user/delete-user/${id}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/auth/DeleteUser/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("User deleted successfully");
       // Refresh current page after deletion
@@ -667,10 +664,10 @@ const UserPage = () => {
       accessor: "companyId.companyName",
       Cell: (row) => <span>{row?.cell?.value || "-"}</span>,
     },
-    { 
-      Header: "Created At", 
-      accessor: "createdAt", 
-      Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "N/A") 
+    {
+      Header: "Created At",
+      accessor: "createdAt",
+      Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "N/A")
     },
     {
       Header: "Updated At",
@@ -690,6 +687,11 @@ const UserPage = () => {
           <Tippy content="Edit">
             <button className="action-btn" onClick={() => navigate(`/Employee-edit/${cell.value}`)}>
               <Icon className="text-blue-600" icon="heroicons:pencil-square" />
+            </button>
+          </Tippy>
+          <Tippy content="Delete">
+            <button className="action-btn" onClick={() => handleDelete(cell.value)}>
+              <Icon className="text-red-300" icon="heroicons:trash-solid" />
             </button>
           </Tippy>
         </div>
@@ -797,7 +799,7 @@ const UserPage = () => {
   const getPageNumbers = () => {
     const pageNumbers = [];
     const maxPagesToShow = 5;
-    
+
     if (pageCount <= maxPagesToShow) {
       for (let i = 0; i < pageCount; i++) {
         pageNumbers.push(i);
@@ -825,7 +827,7 @@ const UserPage = () => {
         pageNumbers.push(pageCount - 1);
       }
     }
-    
+
     return pageNumbers;
   };
 
@@ -935,131 +937,131 @@ const UserPage = () => {
         </div>
 
         {/* Pagination Controls */}
-       {totalRecords > 0 && (
-  <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
-    <div className="flex items-center space-x-3 rtl:space-x-reverse">
-      <span className="flex space-x-2 items-center">
-        <span className="text-sm font-medium text-slate-600">Go</span>
-        <input
-          type="number"
-          className="form-control py-2"
-          min="1"
-          max={pageCount}
-          value={pageIndex + 1}
-          onChange={(e) => {
-            const page = Number(e.target.value);
-            if (page >= 1 && page <= pageCount && page !== pageIndex + 1) {
-              handlePageChange(page - 1);
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              const page = Number(e.target.value);
-              if (page >= 1 && page <= pageCount && page !== pageIndex + 1) {
-                handlePageChange(page - 1);
-              }
-            }
-          }}
-          style={{ width: "70px" }}
-        />
-      </span>
-      <span className="text-sm font-medium text-slate-600">
-        Page {pageIndex + 1} of {pageCount}
-      </span>
-    </div>
+        {totalRecords > 0 && (
+          <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
+            <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <span className="flex space-x-2 items-center">
+                <span className="text-sm font-medium text-slate-600">Go</span>
+                <input
+                  type="number"
+                  className="form-control py-2"
+                  min="1"
+                  max={pageCount}
+                  value={pageIndex + 1}
+                  onChange={(e) => {
+                    const page = Number(e.target.value);
+                    if (page >= 1 && page <= pageCount && page !== pageIndex + 1) {
+                      handlePageChange(page - 1);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      const page = Number(e.target.value);
+                      if (page >= 1 && page <= pageCount && page !== pageIndex + 1) {
+                        handlePageChange(page - 1);
+                      }
+                    }
+                  }}
+                  style={{ width: "70px" }}
+                />
+              </span>
+              <span className="text-sm font-medium text-slate-600">
+                Page {pageIndex + 1} of {pageCount}
+              </span>
+            </div>
 
-    <ul className="flex items-center space-x-3 rtl:space-x-reverse">
-      <li>
-        <button
-          onClick={() => handlePageChange(0)}
-          disabled={pageIndex === 0}
-          className={`${pageIndex === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
-        >
-          <Icon icon="heroicons:chevron-double-left-solid" />
-        </button>
-      </li>
+            <ul className="flex items-center space-x-3 rtl:space-x-reverse">
+              <li>
+                <button
+                  onClick={() => handlePageChange(0)}
+                  disabled={pageIndex === 0}
+                  className={`${pageIndex === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <Icon icon="heroicons:chevron-double-left-solid" />
+                </button>
+              </li>
 
-      <li>
-        <button
-          onClick={handlePreviousPage}
-          disabled={pageIndex === 0}
-          className={`${pageIndex === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
-        >
-          Prev
-        </button>
-      </li>
+              <li>
+                <button
+                  onClick={handlePreviousPage}
+                  disabled={pageIndex === 0}
+                  className={`${pageIndex === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  Prev
+                </button>
+              </li>
 
-      {(() => {
-        const total = pageCount;
-        const current = pageIndex + 1;
-        const showPages = [];
+              {(() => {
+                const total = pageCount;
+                const current = pageIndex + 1;
+                const showPages = [];
 
-        if (total > 0) showPages.push(1);
-        if (total > 1) showPages.push(2);
-        if (current > 4) showPages.push("left-ellipsis");
-        if (current > 2 && current < total - 1) showPages.push(current);
-        if (current < total - 3) showPages.push("right-ellipsis");
-        if (total > 2) showPages.push(total - 1);
-        if (total > 1) showPages.push(total);
+                if (total > 0) showPages.push(1);
+                if (total > 1) showPages.push(2);
+                if (current > 4) showPages.push("left-ellipsis");
+                if (current > 2 && current < total - 1) showPages.push(current);
+                if (current < total - 3) showPages.push("right-ellipsis");
+                if (total > 2) showPages.push(total - 1);
+                if (total > 1) showPages.push(total);
 
-        const finalPages = [...new Set(showPages.filter((p) => p >= 1 && p <= total || typeof p === "string"))];
+                const finalPages = [...new Set(showPages.filter((p) => p >= 1 && p <= total || typeof p === "string"))];
 
-        return finalPages.map((p, idx) => (
-          <li key={idx}>
-            {typeof p === "string" ? (
-              <span className="text-slate-500 px-1">...</span>
-            ) : (
-              <button
-                className={`${p === current
-                  ? "bg-slate-900 text-white font-medium"
-                  : "bg-slate-100 text-slate-900 font-normal"
-                  } text-sm rounded h-6 w-6 flex items-center justify-center`}
-                onClick={() => handlePageChange(p - 1)}
+                return finalPages.map((p, idx) => (
+                  <li key={idx}>
+                    {typeof p === "string" ? (
+                      <span className="text-slate-500 px-1">...</span>
+                    ) : (
+                      <button
+                        className={`${p === current
+                          ? "bg-slate-900 text-white font-medium"
+                          : "bg-slate-100 text-slate-900 font-normal"
+                          } text-sm rounded h-6 w-6 flex items-center justify-center`}
+                        onClick={() => handlePageChange(p - 1)}
+                      >
+                        {p}
+                      </button>
+                    )}
+                  </li>
+                ));
+              })()}
+
+              <li>
+                <button
+                  onClick={handleNextPage}
+                  disabled={!canNextPage}
+                  className={`${!canNextPage ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  Next
+                </button>
+              </li>
+
+              <li>
+                <button
+                  onClick={() => handlePageChange(pageCount - 1)}
+                  disabled={!canNextPage}
+                  className={`${!canNextPage ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  <Icon icon="heroicons:chevron-double-right-solid" />
+                </button>
+              </li>
+            </ul>
+
+            <div className="flex items-center space-x-3">
+              <span className="text-sm font-medium text-slate-600">Show</span>
+              <select
+                value={pageSize}
+                onChange={(e) => handlePageSizeChange(e.target.value)}
+                className="form-select py-2"
               >
-                {p}
-              </button>
-            )}
-          </li>
-        ));
-      })()}
-
-      <li>
-        <button
-          onClick={handleNextPage}
-          disabled={!canNextPage}
-          className={`${!canNextPage ? "opacity-50 cursor-not-allowed" : ""}`}
-        >
-          Next
-        </button>
-      </li>
-
-      <li>
-        <button
-          onClick={() => handlePageChange(pageCount - 1)}
-          disabled={!canNextPage}
-          className={`${!canNextPage ? "opacity-50 cursor-not-allowed" : ""}`}
-        >
-          <Icon icon="heroicons:chevron-double-right-solid" />
-        </button>
-      </li>
-    </ul>
-
-    <div className="flex items-center space-x-3">
-      <span className="text-sm font-medium text-slate-600">Show</span>
-      <select
-        value={pageSize}
-        onChange={(e) => handlePageSizeChange(e.target.value)}
-        className="form-select py-2"
-      >
-        {[5, 10, 20, 50].map((size) => (
-          <option key={size} value={size}>
-            {size}
-          </option>
-        ))}
-      </select>
-    </div>
-  </div>
-)}
+                {[5, 10, 20, 50].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
       </Card>
     </>
   );

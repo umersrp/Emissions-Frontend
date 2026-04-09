@@ -794,13 +794,18 @@ const EmailSent = () => {
                                         value={formData.startTime || ""}
                                         onChange={(e) => {
                                             const time = e.target.value;
-                                            const date = formData.startDate || new Date().toISOString().split('T')[0]; // Fixed
-                                            const dateTime = date && time ? `${date}T${time}` : "";
+                                            const date = formData.startDate;
+
+                                            handleInputChange("startTime", time);
+
+                                            if (date && time) {
+                                                const local = new Date(`${date}T${time}:00`);
+                                                handleInputChange("startDateTime", local.toISOString());
+                                            }
+
                                             if (errors.startDateTime) {
                                                 setErrors(prev => ({ ...prev, startDateTime: undefined }));
                                             }
-                                            handleInputChange("startDateTime", dateTime);
-                                            handleInputChange("startTime", time);
                                         }}
                                         required
                                     />
@@ -839,13 +844,18 @@ const EmailSent = () => {
                                         value={formData.endTime || ""}
                                         onChange={(e) => {
                                             const time = e.target.value;
-                                            const date = formData.endDate || new Date().toISOString().split('T')[0]; // Fixed
-                                            const dateTime = date && time ? `${date}T${time}` : "";
-                                            if (errors.endTime) {
-                                                setErrors(prev => ({ ...prev, startDate: undefined }));
-                                            }
-                                            handleInputChange("endDateTime", dateTime);
+                                            const date = formData.endDate || new Date().toISOString().split('T')[0];
+
                                             handleInputChange("endTime", time);
+
+                                            if (date && time) {
+                                                const local = new Date(`${date}T${time}:00`);
+                                                handleInputChange("endDateTime", local.toISOString());
+                                            }
+
+                                            if (errors.endDateTime) {
+                                                setErrors(prev => ({ ...prev, endDateTime: undefined }));
+                                            }
                                         }}
                                         required
                                     />
