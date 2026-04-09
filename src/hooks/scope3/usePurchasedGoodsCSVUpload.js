@@ -14,6 +14,22 @@ import {
   currencyUnitOptions
 } from "@/constant/scope3/options";
 
+
+// Add this header mapping object at the top of your file (after imports)
+const HEADER_MAPPING = {
+  'buildingcode': ['buildingcode', 'building code', 'building-code', 'building_code'],
+  'stakeholder': ['stakeholder', 'stake holder', 'stake-holder', 'stakeholder department'],
+  'postingdate': ['postingdate', 'posting date', 'date', 'posting-date', 'posting_date'],
+  'purchasecategory': ['purchasecategory', 'purchase category', 'purchase-category', 'purchase_category', 'category'],
+  'purchasedactivitytype': ['purchasedactivitytype', 'purchased activity type', 'purchased-activity-type', 'purchased_activity_type', 'activity type'],
+  'purchasedgoodsservicestype': ['purchasedgoodsservicestype', 'purchased goods services type', 'purchased goods or services type', 'purchased goods/services type', 'goods/services type'],
+  'amountspent': ['amountspent', 'amount spent', 'amount-spent', 'amount_spent', 'amount', 'spent'],
+  'unit': ['unit', 'currency', 'currency unit'],
+  'qualitycontrol': ['qualitycontrol', 'quality control', 'quality-control', 'quality_control'],
+  'iscapitalgoods': ['pleasespecifywhethertheselecteditemisacapitalgood', 'please specify whether the selected item is a capital good', 'iscapitalgoods', 'is capital goods'],
+  'remarks': ['remarks', 'remark', 'comments', 'notes']
+};
+
 const usePurchasedGoodsCSVUpload = (buildings = []) => {
   const [csvState, setCsvState] = useState({
     file: null,
@@ -23,6 +39,21 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     validationErrors: [],
     parsedData: null,
   });
+  // Helper function to normalize header
+  const normalizeHeader = (header) => {
+    return header.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+  };
+
+  // Helper function to find matching field
+  const findMatchingField = (normalizedHeader, headersToCheck) => {
+    for (const [field, possibleNames] of Object.entries(HEADER_MAPPING)) {
+      const normalizedPossibleNames = possibleNames.map(name => normalizeHeader(name));
+      if (normalizedPossibleNames.includes(normalizedHeader)) {
+        return field;
+      }
+    }
+    return null;
+  };
 
   const isNA = useCallback((value) => {
     if (!value) return true;
@@ -131,6 +162,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
   }, []);
 
   // CSV Parser
+  // CSV Parser
   const parseCSV = useCallback((file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -178,19 +210,23 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
           console.log('Parsed headers:', headerValues);
 
-          const headers = headerValues.map(h => {
-            return cleanCSVValue(h)
-              .toLowerCase()
-              .replace(/[^a-z0-9]/g, '');
+          // Map headers to field names
+          const fieldMapping = {};
+          const requiredFields = ['buildingcode', 'stakeholder', 'postingdate', 'purchasecategory', 'purchasedactivitytype', 'purchasedgoodsservicestype', 'amountspent', 'unit', 'qualitycontrol'];
+
+          headerValues.forEach(header => {
+            const normalizedHeader = normalizeHeader(header);
+            const matchedField = findMatchingField(normalizedHeader, requiredFields);
+            if (matchedField) {
+              fieldMapping[matchedField] = header;
+            }
           });
 
-          console.log('Normalized headers:', headers);
+          // Check for missing required fields
+          const missingFields = requiredFields.filter(field => !fieldMapping[field]);
 
-          const requiredCoreHeaders = ['buildingcode', 'stakeholder', 'postingdate', 'purchasecategory', 'purchasedactivitytype', 'purchasedgoodsservicestype', 'amountspent', 'unit', 'qualitycontrol'];
-          const missingCoreHeaders = requiredCoreHeaders.filter(h => !headers.includes(h));
-
-          if (missingCoreHeaders.length > 0) {
-            reject(new Error(`Missing required columns: ${missingCoreHeaders.join(', ')}. Found: ${headerValues.join(', ')}`));
+          if (missingFields.length > 0) {
+            reject(new Error(`Missing required columns: ${missingFields.join(', ')}. Found: ${headerValues.join(', ')}`));
             return;
           }
 
@@ -202,8 +238,10 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
             const values = parseCSVLine(line);
             const row = {};
 
-            headers.forEach((header, index) => {
-              row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
+            // Use the mapped field names
+            Object.entries(fieldMapping).forEach(([field, headerName]) => {
+              const index = headerValues.findIndex(h => h === headerName);
+              row[field] = index < values.length ? cleanCSVValue(values[index]) : '';
             });
 
             if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
@@ -223,6 +261,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     });
   }, [cleanCSVValue]);
 
+  // Excel Parser
   // Excel Parser
   const parseExcel = useCallback((file) => {
     return new Promise((resolve, reject) => {
@@ -255,19 +294,23 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
           console.log('Parsed Excel headers:', headerValues);
 
-          const headers = headerValues.map(h => {
-            return cleanCSVValue(h)
-              .toLowerCase()
-              .replace(/[^a-z0-9]/g, '');
+          // Map headers to field names
+          const fieldMapping = {};
+          const requiredFields = ['buildingcode', 'stakeholder', 'postingdate', 'purchasecategory', 'purchasedactivitytype', 'purchasedgoodsservicestype', 'amountspent', 'unit', 'qualitycontrol'];
+
+          headerValues.forEach(header => {
+            const normalizedHeader = normalizeHeader(header);
+            const matchedField = findMatchingField(normalizedHeader, requiredFields);
+            if (matchedField) {
+              fieldMapping[matchedField] = header;
+            }
           });
 
-          console.log('Normalized Excel headers:', headers);
+          // Check for missing required fields
+          const missingFields = requiredFields.filter(field => !fieldMapping[field]);
 
-          const requiredCoreHeaders = ['buildingcode', 'stakeholder', 'postingdate', 'purchasecategory', 'purchasedactivitytype', 'purchasedgoodsservicestype', 'amountspent', 'unit', 'qualitycontrol'];
-          const missingCoreHeaders = requiredCoreHeaders.filter(h => !headers.includes(h));
-
-          if (missingCoreHeaders.length > 0) {
-            reject(new Error(`Missing required columns: ${missingCoreHeaders.join(', ')}. Found: ${headerValues.join(', ')}`));
+          if (missingFields.length > 0) {
+            reject(new Error(`Missing required columns: ${missingFields.join(', ')}. Found: ${headerValues.join(', ')}`));
             return;
           }
 
@@ -277,9 +320,12 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
             if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
 
             const rowData = {};
-            headers.forEach((header, index) => {
+
+            // Use the mapped field names
+            Object.entries(fieldMapping).forEach(([field, headerName]) => {
+              const index = headerValues.findIndex(h => h === headerName);
               const value = index < row.length ? row[index] : '';
-              rowData[header] = value ? cleanCSVValue(value) : '';
+              rowData[field] = value ? cleanCSVValue(value) : '';
             });
 
             parsedData.push(rowData);
@@ -298,38 +344,38 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
 
   // Helper function for normalization (handles spaces around slashes)
-const normalizeWithSlash = (str) => {
-  if (!str) return '';
-  return str
-    .toLowerCase()
-    .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
-    .replace(/\s+/g, ' ')        // Normalize multiple spaces
-    .trim();
-};
+  const normalizeWithSlash = (str) => {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
+      .replace(/\s+/g, ' ')        // Normalize multiple spaces
+      .trim();
+  };
 
-// Flexible matching function
-const findFlexibleMatch = (input, validOptions) => {
-  if (!input || !validOptions.length) return null;
-  
-  const normalizedInput = normalizeWithSlash(input);
-  
-  // Try direct match with normalization
-  let match = validOptions.find(option => 
-    normalizeWithSlash(option) === normalizedInput
-  );
-  
-  if (match) return match;
-  
-  // Try with spaces around slashes (for cases like "A/B" vs "A / B")
-  const spacedInput = normalizedInput.replace(/\//g, ' / ');
-  match = validOptions.find(option => {
-    const normalizedOption = normalizeWithSlash(option);
-    const spacedOption = normalizedOption.replace(/\//g, ' / ');
-    return spacedOption === spacedInput;
-  });
-  
-  return match;
-};
+  // Flexible matching function
+  const findFlexibleMatch = (input, validOptions) => {
+    if (!input || !validOptions.length) return null;
+
+    const normalizedInput = normalizeWithSlash(input);
+
+    // Try direct match with normalization
+    let match = validOptions.find(option =>
+      normalizeWithSlash(option) === normalizedInput
+    );
+
+    if (match) return match;
+
+    // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+    const spacedInput = normalizedInput.replace(/\//g, ' / ');
+    match = validOptions.find(option => {
+      const normalizedOption = normalizeWithSlash(option);
+      const spacedOption = normalizedOption.replace(/\//g, ' / ');
+      return spacedOption === spacedInput;
+    });
+
+    return match;
+  };
 
   const validatePurchasedGoodsRow = useCallback((row, index, isCapitalGoods = false) => {
     const errors = [];
@@ -379,15 +425,15 @@ const findFlexibleMatch = (input, validOptions) => {
     //   }
     // }
     if (cleanedRow.stakeholder) {
-  const validStakeholders = stakeholderOptions.map(s => s.value);
-  const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
-  
-  if (!matchedStakeholder) {
-    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-  } else {
-    cleanedRow.stakeholder = matchedStakeholder;
-  }
-}
+      const validStakeholders = stakeholderOptions.map(s => s.value);
+      const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+
+      if (!matchedStakeholder) {
+        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+      } else {
+        cleanedRow.stakeholder = matchedStakeholder;
+      }
+    }
 
     // Purchase Category validation
     if (cleanedRow.purchasecategory) {
@@ -438,16 +484,43 @@ const findFlexibleMatch = (input, validOptions) => {
       }
     }
 
-    // isCapitalGoods - for capital goods listing
-    if (isCapitalGoods) {
-      if (cleanedRow.iscapitalgoods) {
-        cleanedRow.iscapitalgoods = cleanedRow.iscapitalgoods.toLowerCase() === 'yes' ||
-          cleanedRow.iscapitalgoods.toLowerCase() === 'true' ||
-          cleanedRow.iscapitalgoods === '1';
+    // In validatePurchasedGoodsRow, add handling for iscapitalgoods
+    // if (isCapitalGoods) {
+    //   // Check for iscapitalgoods field (from the friendly header)
+    //   let isCapitalGoodsValue = cleanedRow.iscapitalgoods || cleanedRow['pleasespecifywhethertheselecteditemisacapitalgood'];
+
+    //   if (isCapitalGoodsValue) {
+    //     cleanedRow.iscapitalgoods = isCapitalGoodsValue.toLowerCase() === 'yes' ||
+    //       isCapitalGoodsValue.toLowerCase() === 'true' ||
+    //       isCapitalGoodsValue === '1';
+    //   } else {
+    //     cleanedRow.iscapitalgoods = false;
+    //   }
+    // }
+    // Handle isCapitalGoods based on purchase category
+  if (isCapitalGoods) {
+    // Only apply capital goods logic for 'Purchased Goods' category
+    if (cleanedRow.purchasecategory === 'Purchased Goods') {
+      // Check for iscapitalgoods field
+      let isCapitalGoodsValue = cleanedRow.iscapitalgoods || cleanedRow['pleasespecifywhethertheselecteditemisacapitalgood'];
+      
+      if (isCapitalGoodsValue) {
+        cleanedRow.iscapitalgoods = isCapitalGoodsValue.toLowerCase() === 'yes' ||
+          isCapitalGoodsValue.toLowerCase() === 'true' ||
+          isCapitalGoodsValue === '1';
       } else {
         cleanedRow.iscapitalgoods = false;
       }
+    } else if (cleanedRow.purchasecategory === 'Purchased Services') {
+      // For Purchased Services, force isCapitalGoods to false
+      cleanedRow.iscapitalgoods = false;
+      
+      // Optional: Add a warning if user provided a value
+      if (cleanedRow.iscapitalgoods || cleanedRow['pleasespecifywhethertheselecteditemisacapitalgood']) {
+        console.warn(`Row ${index + 2}: isCapitalGoods field ignored for Purchased Services category`);
+      }
     }
+  }
 
     // Amount Spent validation
     if (cleanedRow.amountspent) {
@@ -713,6 +786,119 @@ const findFlexibleMatch = (input, validOptions) => {
     });
   };
 
+  // const downloadPurchasedGoodsTemplate = useCallback((isCapitalGoods = false) => {
+  //   const exampleBuildings = buildings.slice(0, 1);
+  //   const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
+
+  //   const exampleStakeholder = 'Procurement';
+  //   const examplePurchaseCategory = 'Purchased Goods';
+  //   const exampleActivityType = 'Food & Drinks';
+  //   const exampleGoodsType = 'Bakery and Farinaceous Products';
+  //   const exampleUnit = 'USD';
+  //   const exampleQC = 'Good';
+
+  //   const currentDate = new Date();
+  //   const day = String(currentDate.getDate()).padStart(2, '0');
+  //   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  //   const year = currentDate.getFullYear();
+  //   const formattedDate = `${day}/${month}/${year}`;
+
+  //   let headers = [];
+  //   let exampleRow = [];
+
+  //   if (isCapitalGoods) {
+  //     headers = [
+  //       'Building Code',
+  //       'Stakeholder',
+  //       'Purchase Category',
+  //       'Purchased Activity Type',
+  //       'Purchased Goods or Services Type',
+  //       'Please specify whether the selected item is a capital good.',
+  //       'Amount Spent',
+  //       'Unit',
+  //       'Quality Control',
+  //       'Posting Date',
+  //       'Remarks'
+  //     ];
+
+  //     exampleRow = [
+  //       exampleBuildingCode,
+  //       exampleStakeholder,
+  //       examplePurchaseCategory,
+  //       exampleActivityType,
+  //       exampleGoodsType,
+  //       '',
+  //       '1000',
+  //       exampleUnit,
+  //       exampleQC,
+  //       formattedDate,
+  //       'Example capital goods record'
+  //     ];
+  //   } else {
+  //     headers = [
+  //       'Building Code',
+  //       'Stakeholder',
+  //       'Purchase Category',
+  //       'Purchased Activity Type',
+  //       'Purchased Goods or Services Type',
+  //       'Amount Spent',
+  //       'Unit',
+  //       'Quality Control',
+  //       'Posting Date',
+  //       'Remarks'
+  //     ];
+
+  //     exampleRow = [
+  //       exampleBuildingCode,
+  //       exampleStakeholder,
+  //       examplePurchaseCategory,
+  //       exampleActivityType,
+  //       exampleGoodsType,
+  //       '1000',
+  //       exampleUnit,
+  //       exampleQC,
+  //       formattedDate,
+  //       'Example purchased goods record'
+  //     ];
+  //   }
+
+  //   // Create worksheet data with headers and example row
+  //   const worksheetData = [
+  //     headers,
+  //     exampleRow,
+
+  //   ];
+
+  //   // Create workbook and worksheet
+  //   const workbook = XLSX.utils.book_new();
+  //   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+  //   // Auto-size columns for better readability
+  //   const colWidths = headers.map(header => ({
+  //     wch: Math.min(Math.max(header.length, 15), 35)
+  //   }));
+  //   worksheet['!cols'] = colWidths;
+
+  //   // Style the header row
+  //   const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
+  //   for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
+  //     const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+  //     if (!worksheet[cellAddress]) continue;
+  //     worksheet[cellAddress].s = {
+  //       font: { bold: true, sz: 12 },
+  //       fill: { fgColor: { rgb: "E0E0E0" } }
+  //     };
+  //   }
+
+
+  //   // Add the worksheet to the workbook
+  //   XLSX.utils.book_append_sheet(workbook, worksheet,
+  //     isCapitalGoods ? 'Capital Goods Template' : 'Purchased Goods Template');
+
+  //   // Download the Excel file
+  //   XLSX.writeFile(workbook, isCapitalGoods ? 'purchased_goods_and_services_capital_template.xlsx' : 'purchased_goods_and_services_template.xlsx');
+  // }, [buildings]);
+
   const downloadPurchasedGoodsTemplate = useCallback((isCapitalGoods = false) => {
     const exampleBuildings = buildings.slice(0, 1);
     const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
@@ -737,21 +923,20 @@ const findFlexibleMatch = (input, validOptions) => {
       headers = [
         'Building Code',
         'Stakeholder',
-        'Posting Date',
         'Purchase Category',
         'Purchased Activity Type',
-        'Purchased Goods Services Type',
+        'Purchased Goods or Services Type',
         'Please specify whether the selected item is a capital good.',
         'Amount Spent',
         'Unit',
         'Quality Control',
+        'Posting Date',
         'Remarks'
       ];
 
       exampleRow = [
         exampleBuildingCode,
         exampleStakeholder,
-        formattedDate,
         examplePurchaseCategory,
         exampleActivityType,
         exampleGoodsType,
@@ -759,33 +944,34 @@ const findFlexibleMatch = (input, validOptions) => {
         '1000',
         exampleUnit,
         exampleQC,
-        'Example capital goods record'
+        formattedDate,
+        'Example record'
       ];
     } else {
       headers = [
         'Building Code',
         'Stakeholder',
-        'Posting Date',
         'Purchase Category',
         'Purchased Activity Type',
-        'Purchased Goods Services Type',
+        'Purchased Goods or Services Type',
         'Amount Spent',
         'Unit',
         'Quality Control',
+        'Posting Date',
         'Remarks'
       ];
 
       exampleRow = [
         exampleBuildingCode,
         exampleStakeholder,
-        formattedDate,
         examplePurchaseCategory,
         exampleActivityType,
         exampleGoodsType,
         '1000',
         exampleUnit,
         exampleQC,
-        'Example purchased goods record'
+        formattedDate,
+        'Example record'
       ];
     }
 
@@ -793,7 +979,6 @@ const findFlexibleMatch = (input, validOptions) => {
     const worksheetData = [
       headers,
       exampleRow,
-
     ];
 
     // Create workbook and worksheet
@@ -816,7 +1001,6 @@ const findFlexibleMatch = (input, validOptions) => {
         fill: { fgColor: { rgb: "E0E0E0" } }
       };
     }
-
 
     // Add the worksheet to the workbook
     XLSX.utils.book_append_sheet(workbook, worksheet,
