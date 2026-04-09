@@ -27,7 +27,7 @@ const useDownstreamTransportationCSVUpload = (buildings = []) => {
   });
 
 
-   const isNA = useCallback((value) => {
+  const isNA = useCallback((value) => {
     if (!value) return true;
     const val = value.toString().toLowerCase().trim();
     return val === 'n/a' || val === 'na' || val === '';
@@ -285,6 +285,41 @@ const useDownstreamTransportationCSVUpload = (buildings = []) => {
     });
   }, [cleanCSVValue]);
 
+  // Helper function for normalization (handles spaces around slashes)
+  const normalizeWithSlash = (str) => {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
+      .replace(/\s+/g, ' ')        // Normalize multiple spaces
+      .trim();
+  };
+
+  // Flexible matching function
+  const findFlexibleMatch = (input, validOptions) => {
+    if (!input || !validOptions.length) return null;
+
+    const normalizedInput = normalizeWithSlash(input);
+
+    // Try direct match with normalization
+    let match = validOptions.find(option =>
+      normalizeWithSlash(option) === normalizedInput
+    );
+
+    if (match) return match;
+
+    // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+    const spacedInput = normalizedInput.replace(/\//g, ' / ');
+    match = validOptions.find(option => {
+      const normalizedOption = normalizeWithSlash(option);
+      const spacedOption = normalizedOption.replace(/\//g, ' / ');
+      return spacedOption === spacedInput;
+    });
+
+    return match;
+  };
+
+
   const validateDownstreamRow = useCallback((row, index) => {
     const errors = [];
 
@@ -352,11 +387,22 @@ const useDownstreamTransportationCSVUpload = (buildings = []) => {
     }
 
     // Stakeholder validation
+    // if (cleanedRow.stakeholder) {
+    //   const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
+    //   const matchedStakeholder = validStakeholders.find(s =>
+    //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
+    //   );
+    //   if (!matchedStakeholder) {
+    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+    //   } else {
+    //     cleanedRow.stakeholder = matchedStakeholder;
+    //   }
+    // }
+
     if (cleanedRow.stakeholder) {
       const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-      const matchedStakeholder = validStakeholders.find(s =>
-        s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-      );
+      const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+
       if (!matchedStakeholder) {
         errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
       } else {
@@ -378,13 +424,31 @@ const useDownstreamTransportationCSVUpload = (buildings = []) => {
     }
 
     // Sold Goods Type validation (based on activity type)
+    // if (cleanedRow.soldproductactivitytype && cleanedRow.soldgoodstype) {
+    //   const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
+    //   const validGoodsValues = validGoodsTypes.map(g => g.value);
+
+    //   const matchedGoodsType = validGoodsValues.find(g =>
+    //     g.toLowerCase() === cleanedRow.soldgoodstype.toLowerCase()
+    //   );
+
+    //   if (!matchedGoodsType && validGoodsValues.length > 0) {
+    //     errors.push(`Invalid sold goods type "${cleanedRow.soldgoodstype}" for activity type "${cleanedRow.soldproductactivitytype}"`);
+    //   } else if (matchedGoodsType) {
+    //     cleanedRow.soldgoodstype = matchedGoodsType;
+    //   }
+    // } else if (cleanedRow.soldproductactivitytype && !cleanedRow.soldgoodstype) {
+    //   const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
+    //   if (validGoodsTypes.length > 0) {
+    //     errors.push('soldgoodstype is required for this activity type');
+    //   }
+    // }
+    // Sold Goods Type validation (based on activity type) with flexible matching
     if (cleanedRow.soldproductactivitytype && cleanedRow.soldgoodstype) {
       const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
       const validGoodsValues = validGoodsTypes.map(g => g.value);
 
-      const matchedGoodsType = validGoodsValues.find(g =>
-        g.toLowerCase() === cleanedRow.soldgoodstype.toLowerCase()
-      );
+      const matchedGoodsType = findFlexibleMatch(cleanedRow.soldgoodstype, validGoodsValues);
 
       if (!matchedGoodsType && validGoodsValues.length > 0) {
         errors.push(`Invalid sold goods type "${cleanedRow.soldgoodstype}" for activity type "${cleanedRow.soldproductactivitytype}"`);
@@ -519,24 +583,24 @@ const useDownstreamTransportationCSVUpload = (buildings = []) => {
       return text.charAt(0).toUpperCase() + text.slice(1);
     };
 
-   return {
-  buildingCode: row.buildingcode,
-  stakeholder: row.stakeholder,
-  transportationCategory: 'Sold Goods',
-  soldProductActivityType: row.soldproductactivitytype,
-  soldGoodsType: cleanStringValue(row.soldgoodstype),
-  transportationVehicleCategory: row.transportationvehiclecategory,
-  transportationVehicleType: cleanStringValue(row.transportationvehicletype),
-  weightLoaded: cleanNumberValue(row.weightloaded, 'Weight loaded') || 0,
-  distanceTravelled: cleanNumberValue(row.distancetravelled, 'Distance travelled') || 0,
-  qualityControl: row.qualitycontrol === 'Certain',
-  remarks: capitalizeFirstLetter(cleanStringValue(row.remarks) || ''),
-  postingDate: row.postingdate,
-  calculatedEmissionKgCo2e: emissionResult?.calculatedEmissionKgCo2e || 0,
-  calculatedEmissionTCo2e: emissionResult?.calculatedEmissionTCo2e || 0,
-  createdBy: userId,
-  updatedBy: userId,
-};
+    return {
+      buildingCode: row.buildingcode,
+      stakeholder: row.stakeholder,
+      transportationCategory: 'Sold Goods',
+      soldProductActivityType: row.soldproductactivitytype,
+      soldGoodsType: cleanStringValue(row.soldgoodstype),
+      transportationVehicleCategory: row.transportationvehiclecategory,
+      transportationVehicleType: cleanStringValue(row.transportationvehicletype),
+      weightLoaded: cleanNumberValue(row.weightloaded, 'Weight loaded') || 0,
+      distanceTravelled: cleanNumberValue(row.distancetravelled, 'Distance travelled') || 0,
+      qualityControl: row.qualitycontrol === 'Certain',
+      remarks: capitalizeFirstLetter(cleanStringValue(row.remarks) || ''),
+      postingDate: row.postingdate,
+      calculatedEmissionKgCo2e: emissionResult?.calculatedEmissionKgCo2e || 0,
+      calculatedEmissionTCo2e: emissionResult?.calculatedEmissionTCo2e || 0,
+      createdBy: userId,
+      updatedBy: userId,
+    };
   }, []);
 
   const handleFileSelect = async (file) => {
@@ -721,19 +785,19 @@ const useDownstreamTransportationCSVUpload = (buildings = []) => {
     const year = currentDate.getFullYear();
     const formattedDate = `${day}/${month}/${year}`;
 
-   const headers = [
-  'Building Code',
-  'Stakeholder',
-  'Posting Date',
-  'Sold Product Activity Type',
-  'Sold Goods Type',
-  'Transportation Vehicle Category',
-  'Transportation Vehicle Type',
-  'Weight Loaded',
-  'Distance Travelled',
-  'Quality Control',
-  'Remarks'
-];
+    const headers = [
+      'Building Code',
+      'Stakeholder',
+      'Posting Date',
+      'Sold Product Activity Type',
+      'Sold Goods Type',
+      'Transportation Vehicle Category',
+      'Transportation Vehicle Type',
+      'Weight Loaded',
+      'Distance Travelled',
+      'Quality Control',
+      'Remarks'
+    ];
 
     const exampleRow = [
       exampleBuildingCode,

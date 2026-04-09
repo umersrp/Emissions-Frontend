@@ -10,7 +10,7 @@
   { value: "Quetta Electric Supply Company (QESCO)", label: "Quetta Electric Supply Company (QESCO)" },
   { value: "Sukkur Electric Power Company (SEPCO)", label: "Sukkur Electric Power Company (SEPCO)" },
   { value: "Tribal Electric Supply Company (TESCO)", label: "Tribal Electric Supply Company (TESCO)" },
-  { value: "K-Electric (KE)", label: "K-Electric (KE)" },
+  { value: "K‑Electric (KE)", label: "K‑Electric (KE)" },
   { value: "Others", label: "Others" }
 ];
  

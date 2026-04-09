@@ -346,6 +346,40 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
     });
   }, [cleanCSVValue]);
 
+  // Helper function for normalization (handles spaces around slashes)
+const normalizeWithSlash = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
+    .replace(/\s+/g, ' ')        // Normalize multiple spaces
+    .trim();
+};
+
+// Flexible matching function
+const findFlexibleMatch = (input, validOptions) => {
+  if (!input || !validOptions.length) return null;
+  
+  const normalizedInput = normalizeWithSlash(input);
+  
+  // Try direct match with normalization
+  let match = validOptions.find(option => 
+    normalizeWithSlash(option) === normalizedInput
+  );
+  
+  if (match) return match;
+  
+  // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+  const spacedInput = normalizedInput.replace(/\//g, ' / ');
+  match = validOptions.find(option => {
+    const normalizedOption = normalizeWithSlash(option);
+    const spacedOption = normalizedOption.replace(/\//g, ' / ');
+    return spacedOption === spacedInput;
+  });
+  
+  return match;
+};
+
   const validateWasteRow = useCallback((row, index) => {
     const errors = [];
     const cleanedRow = {};
@@ -385,48 +419,87 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
       }
     }
 
-    if (cleanedRow.stakeholder) {
-      const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
-      const matchedStakeholder = validStakeholders.find(s =>
-        s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-      );
-      if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
-      } else {
-        cleanedRow.stakeholder = matchedStakeholder;
-      }
+    // if (cleanedRow.stakeholder) {
+    //   const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
+    //   const matchedStakeholder = validStakeholders.find(s =>
+    //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
+    //   );
+    //   if (!matchedStakeholder) {
+    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
+    //   } else {
+    //     cleanedRow.stakeholder = matchedStakeholder;
+    //   }
+    // }
+    // Stakeholder validation with flexible matching
+if (cleanedRow.stakeholder) {
+  const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
+  const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+  
+  if (!matchedStakeholder) {
+    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
+  } else {
+    cleanedRow.stakeholder = matchedStakeholder;
+  }
+}
+
+    // if (cleanedRow.wastecategory) {
+    //   const validCategories = wasteCategoryOptions.map(c => c.value);
+    //   const matchedCategory = validCategories.find(c =>
+    //     c.toLowerCase() === cleanedRow.wastecategory.toLowerCase()
+    //   );
+    //   if (!matchedCategory) {
+    //     errors.push(`Invalid waste category "${cleanedRow.wastecategory}". Valid options: ${validCategories.slice(0, 5).join(', ')}...`);
+    //   } else {
+    //     cleanedRow.wastecategory = matchedCategory;
+    //   }
+    // }
+    // Waste category validation with flexible matching
+if (cleanedRow.wastecategory) {
+  const validCategories = wasteCategoryOptions.map(c => c.value);
+  const matchedCategory = findFlexibleMatch(cleanedRow.wastecategory, validCategories);
+  
+  if (!matchedCategory) {
+    errors.push(`Invalid waste category "${cleanedRow.wastecategory}". Valid options: ${validCategories.slice(0, 5).join(', ')}...`);
+  } else {
+    cleanedRow.wastecategory = matchedCategory;
+  }
+}
+
+    // if (cleanedRow.wastecategory && cleanedRow.wastetype) {
+    //   const validWasteTypes = wasteTypeOptions[cleanedRow.wastecategory] || [];
+
+    //   if (validWasteTypes.length === 0) {
+    //     errors.push(`No waste types found for category "${cleanedRow.wastecategory}"`);
+    //   } else {
+    //     const validWasteTypeValues = validWasteTypes.map(w => w.value);
+    //     const matchedWasteType = validWasteTypeValues.find(w =>
+    //       w.toLowerCase() === cleanedRow.wastetype.toLowerCase()
+    //     );
+
+    //     if (!matchedWasteType) {
+    //       errors.push(`Invalid waste type "${cleanedRow.wastetype}" for category "${cleanedRow.wastecategory}". Valid options: ${validWasteTypeValues.slice(0, 5).join(', ')}...`);
+    //     } else {
+    //       cleanedRow.wastetype = matchedWasteType;
+    //     }
+    //   }
+    // }
+    // Waste type validation based on category with flexible matching
+if (cleanedRow.wastecategory && cleanedRow.wastetype) {
+  const validWasteTypes = wasteTypeOptions[cleanedRow.wastecategory] || [];
+
+  if (validWasteTypes.length === 0) {
+    errors.push(`No waste types found for category "${cleanedRow.wastecategory}"`);
+  } else {
+    const validWasteTypeValues = validWasteTypes.map(w => w.value);
+    const matchedWasteType = findFlexibleMatch(cleanedRow.wastetype, validWasteTypeValues);
+
+    if (!matchedWasteType) {
+      errors.push(`Invalid waste type "${cleanedRow.wastetype}" for category "${cleanedRow.wastecategory}". Valid options: ${validWasteTypeValues.slice(0, 5).join(', ')}...`);
+    } else {
+      cleanedRow.wastetype = matchedWasteType;
     }
-
-    if (cleanedRow.wastecategory) {
-      const validCategories = wasteCategoryOptions.map(c => c.value);
-      const matchedCategory = validCategories.find(c =>
-        c.toLowerCase() === cleanedRow.wastecategory.toLowerCase()
-      );
-      if (!matchedCategory) {
-        errors.push(`Invalid waste category "${cleanedRow.wastecategory}". Valid options: ${validCategories.slice(0, 5).join(', ')}...`);
-      } else {
-        cleanedRow.wastecategory = matchedCategory;
-      }
-    }
-
-    if (cleanedRow.wastecategory && cleanedRow.wastetype) {
-      const validWasteTypes = wasteTypeOptions[cleanedRow.wastecategory] || [];
-
-      if (validWasteTypes.length === 0) {
-        errors.push(`No waste types found for category "${cleanedRow.wastecategory}"`);
-      } else {
-        const validWasteTypeValues = validWasteTypes.map(w => w.value);
-        const matchedWasteType = validWasteTypeValues.find(w =>
-          w.toLowerCase() === cleanedRow.wastetype.toLowerCase()
-        );
-
-        if (!matchedWasteType) {
-          errors.push(`Invalid waste type "${cleanedRow.wastetype}" for category "${cleanedRow.wastecategory}". Valid options: ${validWasteTypeValues.slice(0, 5).join(', ')}...`);
-        } else {
-          cleanedRow.wastetype = matchedWasteType;
-        }
-      }
-    }
+  }
+}
 
     if (cleanedRow.wastetype && cleanedRow.wastetreatmentmethod) {
       let validTreatments = wasteTreatmentOptions[cleanedRow.wastetype];

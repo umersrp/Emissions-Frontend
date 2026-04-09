@@ -10,6 +10,6 @@ export const GridStationEmissionFactors = {
   "Quetta Electric Supply Company (QESCO)": 0.37065,
   "Sukkur Electric Power Company (SEPCO)": 0.37065,
   "Tribal Electric Supply Company (TESCO)": 0.37065,
-  "K-Electric (KE)": 0.37065,
+  "K‑Electric (KE)": 0.37065,
   "Others": 0.37065
 }

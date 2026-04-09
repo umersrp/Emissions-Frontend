@@ -22,6 +22,7 @@ const useFugitiveCSVUpload = (buildings = []) => {
     parsedData: null,
   });
 
+
   const isNA = useCallback((value) => {
     if (!value) return true;
     const val = value.toString().toLowerCase().trim();
@@ -246,6 +247,38 @@ const useFugitiveCSVUpload = (buildings = []) => {
     });
   }, [cleanValue]);
 
+  const normalizeString = (str, options = {}) => {
+  let normalized = str.toLowerCase();
+  
+  // Remove spaces around slashes
+  normalized = normalized.replace(/\s*\/\s*/g, '/');
+  
+  // Add spaces around slashes (for comparison)
+  const withSpaces = normalized.replace(/\//g, ' / ');
+  
+  // Return both variations for matching
+  return {
+    original: str.toLowerCase(),
+    noSpacesAroundSlash: normalized,
+    withSpacesAroundSlash: withSpaces.replace(/\s+/g, ' ').trim()
+  };
+};
+
+const findFlexibleMatch = (input, validOptions) => {
+  if (!input || !validOptions.length) return null;
+  
+  const inputNormalized = normalizeString(input);
+  
+  return validOptions.find(option => {
+    const optionNormalized = normalizeString(option);
+    
+    return inputNormalized.original === optionNormalized.original ||
+           inputNormalized.noSpacesAroundSlash === optionNormalized.noSpacesAroundSlash ||
+           inputNormalized.withSpacesAroundSlash === optionNormalized.withSpacesAroundSlash;
+  });
+};
+
+
   const validateFugitiveRow = useCallback((row, index) => {
     const errors = [];
     const cleanedRow = {};
@@ -292,47 +325,98 @@ const useFugitiveCSVUpload = (buildings = []) => {
     }
 
     // Stakeholder validation
-    if (cleanedRow.stakeholder) {
-      const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
-      const matchedStakeholder = validStakeholders.find(s =>
-        s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-      );
-      if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-      } else {
-        cleanedRow.stakeholder = matchedStakeholder;
-      }
-    }
-
+    // if (cleanedRow.stakeholder) {
+    //   const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
+    //   const matchedStakeholder = validStakeholders.find(s =>
+    //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
+    //   );
+    //   if (!matchedStakeholder) {
+    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+    //   } else {
+    //     cleanedRow.stakeholder = matchedStakeholder;
+    //   }
+    // }
+if (cleanedRow.stakeholder) {
+  const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
+  const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+  
+  if (!matchedStakeholder) {
+    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+  } else {
+    cleanedRow.stakeholder = matchedStakeholder;
+  }
+}
     // Equipment type validation with subscript normalization
+    // if (cleanedRow.equipmenttype) {
+    //   const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
+    //   const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
+
+    //   const matchedEquipment = validEquipmentTypes.find(equipment => {
+    //     const normalizedEquipment = normalizeSubscriptNumbers(equipment);
+    //     return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
+    //   });
+
+    //   if (!matchedEquipment) {
+    //     errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+    //   } else {
+    //     cleanedRow.equipmenttype = matchedEquipment;
+    //   }
+    // }
     if (cleanedRow.equipmenttype) {
-      const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
-      const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
-
-      const matchedEquipment = validEquipmentTypes.find(equipment => {
-        const normalizedEquipment = normalizeSubscriptNumbers(equipment);
-        return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
-      });
-
-      if (!matchedEquipment) {
-        errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-      } else {
-        cleanedRow.equipmenttype = matchedEquipment;
-      }
+  const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
+  const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
+  
+  // First try with subscript normalization
+  let matchedEquipment = validEquipmentTypes.find(equipment => {
+    const normalizedEquipment = normalizeSubscriptNumbers(equipment);
+    return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
+  });
+  
+  // If no match, try flexible matching (handles spaces around slashes)
+  if (!matchedEquipment) {
+    // Prepare valid options with subscript normalization applied
+    const normalizedValidOptions = validEquipmentTypes.map(equipment => 
+      normalizeSubscriptNumbers(equipment)
+    );
+    
+    matchedEquipment = findFlexibleMatch(normalizedInput, normalizedValidOptions);
+    
+    // If found, get the original equipment type value
+    if (matchedEquipment) {
+      const originalIndex = normalizedValidOptions.findIndex(opt => opt === matchedEquipment);
+      matchedEquipment = validEquipmentTypes[originalIndex];
     }
+  }
+  
+  if (!matchedEquipment) {
+    errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+  } else {
+    cleanedRow.equipmenttype = matchedEquipment;
+  }
+}
 
     // Material/Refrigerant validation
+    // if (cleanedRow.materialrefrigerant) {
+    //   const validMaterials = materialRefrigerantOptions.map(m => m.value);
+    //   const matchedMaterial = validMaterials.find(m =>
+    //     m.toLowerCase() === cleanedRow.materialrefrigerant.toLowerCase()
+    //   );
+    //   if (!matchedMaterial) {
+    //     errors.push(`Invalid material/refrigerant "${cleanedRow.materialrefrigerant}"`);
+    //   } else {
+    //     cleanedRow.materialrefrigerant = matchedMaterial;
+    //   }
+    // }
     if (cleanedRow.materialrefrigerant) {
-      const validMaterials = materialRefrigerantOptions.map(m => m.value);
-      const matchedMaterial = validMaterials.find(m =>
-        m.toLowerCase() === cleanedRow.materialrefrigerant.toLowerCase()
-      );
-      if (!matchedMaterial) {
-        errors.push(`Invalid material/refrigerant "${cleanedRow.materialrefrigerant}"`);
-      } else {
-        cleanedRow.materialrefrigerant = matchedMaterial;
-      }
-    }
+  const validMaterials = materialRefrigerantOptions.map(m => m.value);
+  const matchedMaterial = findFlexibleMatch(cleanedRow.materialrefrigerant, validMaterials);
+  
+  if (!matchedMaterial) {
+    errors.push(`Invalid material/refrigerant "${cleanedRow.materialrefrigerant}"`);
+  } else {
+    cleanedRow.materialrefrigerant = matchedMaterial;
+  }
+}
 
     // Leakage value validation
     if (cleanedRow.leakagevalue) {
