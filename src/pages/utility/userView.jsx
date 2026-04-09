@@ -129,8 +129,15 @@ const UserViewPage = () => {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                <label className="form-label">Company</label>
+                <input
+                  type="text"
+                  className="border-[3px] h-10 w-full mb-3 p-2"
+                  value={formData.companyName}
+                  disabled
+                />
 
-                <label className="form-label">Username</label>
+                {/* <label className="form-label">Username</label>
                 <input
                   type="text"
                   className="border-[3px] h-10 w-full mb-3 p-2"
@@ -138,7 +145,7 @@ const UserViewPage = () => {
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 />
-                {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
+                {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>} */}
 
                 {/* <label className="form-label">Phone</label>
                 <input
@@ -168,13 +175,6 @@ const UserViewPage = () => {
                 />
                 {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
 
-                <label className="form-label">Company</label>
-                <input
-                  type="text"
-                  className="border-[3px] h-10 w-full mb-3 p-2"
-                  value={formData.companyName}
-                  disabled
-                />
 
                 <label className="form-label">Type</label>
                 <input

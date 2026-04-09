@@ -7,7 +7,7 @@ const Modal = ({
   onClose,
   noFade,
   disableBackdrop,
-  className = "max-w-md",
+  className = "max-w-[42rem]",
   children,
   footerContent,
   centered = true,
@@ -20,7 +20,6 @@ const Modal = ({
   ref,
 }) => {
   const [showModal, setShowModal] = useState(false);
-
   const closeModal = () => setShowModal(false);
   const openModal = () => setShowModal(!showModal);
   const returnNull = () => null;
@@ -43,7 +42,7 @@ const Modal = ({
             leaveFrom={noFade ? "" : "opacity-100"}
             leaveTo={noFade ? "" : "opacity-0"}
           >
-            <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm" />
+            <div className="fixed inset-0 opacity-20" />
           </Transition.Child>
         )}
 
@@ -86,7 +85,7 @@ const Modal = ({
 
                 {/*  Footer */}
                 {footerContent && (
-                  <div className="px-4 py-3 flex justify-between items-center border-t border-slate-100 dark:border-slate-700">
+                  <div className="px-4 py-2 flex justify-between items-center border-t border-slate-100 dark:border-slate-700">
                     {footerContent}
                   </div>
                 )}

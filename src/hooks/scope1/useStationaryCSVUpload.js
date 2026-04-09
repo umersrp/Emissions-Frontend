@@ -908,5 +908,3 @@ if (cleanedRow.equipmenttype) {
 };
 
 export default useStationaryCSVUpload;
-
-
