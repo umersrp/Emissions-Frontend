@@ -142,7 +142,7 @@ export const fuelEnergyTypesChildTypes = {
         { value: "Wood logs", label: "Wood logs" },
         { value: "Wood chips", label: "Wood chips" },
         { value: "Wood pellets", label: "Wood pellets" },
-        { value: "Grass/straw", label: "Grass / straw" }
+        { value: "Grass / straw", label: "Grass / straw" }
     ]
 };
 
@@ -596,7 +596,7 @@ export const unitsEmissionFactors = {
         tonnes: 177.00,
         kwh: 0.03744,
     },
-    "Grass/straw": {
+    "Grass / straw": {
         tonnes: 68.65,
         kwh: 0.01604,
     },

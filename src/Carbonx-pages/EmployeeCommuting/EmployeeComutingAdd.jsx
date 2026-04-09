@@ -59,6 +59,7 @@ const EMISSION_FACTORS = {
         "National Rail": 0.03546, "Subway (underground)": 0.02780, "Metro": 0.02860, "Green Line Train": 0.00446
     }
 };
+const WFH_EMISSION_FACTOR = 0.33378;
 
 //car pool and individuala
 // const calculateEmissions = (data) => {
@@ -446,13 +447,41 @@ const calculateEmissions = (data) => {
         });
     }
 
+    // Calculate Work From Home emissions
+    if (data.workFromHome) {
+        let fteWorkingHours = Number(data.fteWorkingHours) || 0;
+        let workFromHomeDistance = 0;
+        let passengers = 1;
+        let factor = WFH_EMISSION_FACTOR;
+        
+        // Calculate emissions: FTE hours * emission factor
+        let emissions = fteWorkingHours * factor;
+        
+        console.log('=== EMISSION CALCULATION - WORK FROM HOME ===');
+        console.log('FTE Working Hours:', fteWorkingHours, 'hours');
+        console.log('Emission Factor:', factor, 'kg CO2e per FTE hour');
+        console.log('Emissions:', emissions, 'kg CO2e');
+        
+        totalEmissionsKg += emissions;
+        totalDistance += workFromHomeDistance; // No distance for WFH
+        totalPassengers += passengers;
+        emissionDetails.push({
+            mode: 'Work From Home',
+            modeType: 'Individual',
+            fteWorkingHours,
+            factor,
+            emissions
+        });
+    }
     const totalEmissionsTonnes = totalEmissionsKg / 1000;
     
-    console.log('=== FINAL EMISSION CALCULATION SUMMARY ===');
+        console.log('=== FINAL EMISSION CALCULATION SUMMARY ===');
     console.log('All Modes Calculated:', emissionDetails.map(d => `${d.mode} (${d.modeType})`).join(', '));
     console.log('Emissions Breakdown:');
     emissionDetails.forEach(detail => {
-        if (detail.carpoolDistance) {
+        if (detail.mode === 'Work From Home') {
+            console.log(`  - Work From Home: ${detail.fteWorkingHours} FTE hours = ${detail.emissions.toFixed(4)} kg CO2e`);
+        } else if (detail.carpoolDistance) {
             console.log(`  - ${detail.mode}: ${detail.individualDistance}km (individual) + ${detail.carpoolDistance}km (carpool) = ${detail.emissions.toFixed(4)} kg CO2e`);
         } else {
             console.log(`  - ${detail.mode}: ${detail.totalDistance}km = ${detail.emissions.toFixed(4)} kg CO2e`);
@@ -1489,6 +1518,8 @@ useEffect(() => {
             commuteByTrain: formData.commuteByTrain,
             trainDistance: formData.trainDistance,
             trainType: formData.trainType?.value,
+
+            
         };
         
         console.log('\n ========== LIVE EMISSION UPDATE ========== ');
@@ -1549,7 +1580,10 @@ useEffect(() => {
      
      formData.commuteByTrain, 
      formData.trainDistance, 
-     formData.trainType
+     formData.trainType,
+
+     formData.workFromHome,      
+     formData.fteWorkingHours   
 ]);
 
 

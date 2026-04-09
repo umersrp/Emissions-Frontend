@@ -307,6 +307,40 @@ const useUpstreamCSVUpload = (buildings = []) => {
     });
   }, [cleanCSVValue]);
 
+  // Helper function for normalization (handles spaces around slashes)
+const normalizeWithSlash = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
+    .replace(/\s+/g, ' ')        // Normalize multiple spaces
+    .trim();
+};
+
+// Flexible matching function
+const findFlexibleMatch = (input, validOptions) => {
+  if (!input || !validOptions.length) return null;
+  
+  const normalizedInput = normalizeWithSlash(input);
+  
+  // Try direct match with normalization
+  let match = validOptions.find(option => 
+    normalizeWithSlash(option) === normalizedInput
+  );
+  
+  if (match) return match;
+  
+  // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+  const spacedInput = normalizedInput.replace(/\//g, ' / ');
+  match = validOptions.find(option => {
+    const normalizedOption = normalizeWithSlash(option);
+    const spacedOption = normalizedOption.replace(/\//g, ' / ');
+    return spacedOption === spacedInput;
+  });
+  
+  return match;
+};
+
   // Validate each row
 // Validate each row
 const validateRow = useCallback((row, index) => {
@@ -415,19 +449,33 @@ const validateRow = useCallback((row, index) => {
   }
 
   // Stakeholder validation
-  if (!isNA(cleanedRow.stakeholder)) {
-    const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-    const matched = validStakeholders.find(s =>
-      s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-    );
-    if (!matched) {
-      errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
-    } else {
-      cleanedRow.stakeholder = matched;
-    }
+  // if (!isNA(cleanedRow.stakeholder)) {
+  //   const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
+  //   const matched = validStakeholders.find(s =>
+  //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
+  //   );
+  //   if (!matched) {
+  //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
+  //   } else {
+  //     cleanedRow.stakeholder = matched;
+  //   }
+  // } else {
+  //   errors.push('Stakeholder is required');
+  // }
+  // Stakeholder validation with flexible matching
+if (!isNA(cleanedRow.stakeholder)) {
+  const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
+  const matched = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+  
+  if (!matched) {
+    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
   } else {
-    errors.push('Stakeholder is required');
+    cleanedRow.stakeholder = matched;
   }
+} else {
+  errors.push('Stakeholder is required');
+}
+  
 
   // Transportation Category validation
   if (!isNA(cleanedRow.transportationcategory)) {
@@ -476,17 +524,31 @@ const validateRow = useCallback((row, index) => {
   }
 
   // Purchased Goods Type validation
-  if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
-    const goodsOptions = purchasedGoodsTypeMapping[cleanedRow.activitytype] || [];
-    const matchedGoods = goodsOptions.find(g =>
-      g.value.toLowerCase() === cleanedRow.purchasedgoodstype.toLowerCase()
-    );
-    if (goodsOptions.length > 0 && !matchedGoods) {
-      errors.push(`Invalid purchased goods type "${cleanedRow.purchasedgoodstype}" for activity "${cleanedRow.activitytype}"`);
-    } else if (matchedGoods) {
-      cleanedRow.purchasedgoodstype = matchedGoods.value;
-    }
+  // if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
+  //   const goodsOptions = purchasedGoodsTypeMapping[cleanedRow.activitytype] || [];
+  //   const matchedGoods = goodsOptions.find(g =>
+  //     g.value.toLowerCase() === cleanedRow.purchasedgoodstype.toLowerCase()
+  //   );
+  //   if (goodsOptions.length > 0 && !matchedGoods) {
+  //     errors.push(`Invalid purchased goods type "${cleanedRow.purchasedgoodstype}" for activity "${cleanedRow.activitytype}"`);
+  //   } else if (matchedGoods) {
+  //     cleanedRow.purchasedgoodstype = matchedGoods.value;
+  //   }
+  // }
+
+  // Purchased Goods Type validation with flexible matching
+if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
+  const goodsOptions = purchasedGoodsTypeMapping[cleanedRow.activitytype] || [];
+  const validGoodsValues = goodsOptions.map(g => g.value);
+  
+  const matchedGoods = findFlexibleMatch(cleanedRow.purchasedgoodstype, validGoodsValues);
+  
+  if (goodsOptions.length > 0 && !matchedGoods) {
+    errors.push(`Invalid purchased goods type "${cleanedRow.purchasedgoodstype}" for activity "${cleanedRow.activitytype}"`);
+  } else if (matchedGoods) {
+    cleanedRow.purchasedgoodstype = matchedGoods;
   }
+}
 
   // Vehicle Category validation for purchasedGoods
   if (cleanedRow.transportationcategory === 'purchasedGoods') {

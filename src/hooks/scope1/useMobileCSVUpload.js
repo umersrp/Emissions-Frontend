@@ -265,6 +265,40 @@ const useMobileCSVUpload = (buildings = []) => {
     });
   }, [cleanValue]);
 
+  // Helper function for normalization (handles spaces around slashes)
+const normalizeWithSlash = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
+    .replace(/\s+/g, ' ')        // Normalize multiple spaces
+    .trim();
+};
+
+// Alternative: Also try with spaces around slashes for matching
+const findFlexibleMatch = (input, validOptions) => {
+  if (!input || !validOptions.length) return null;
+  
+  const normalizedInput = normalizeWithSlash(input);
+  
+  // Try direct match with normalization
+  let match = validOptions.find(option => 
+    normalizeWithSlash(option) === normalizedInput
+  );
+  
+  if (match) return match;
+  
+  // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+  const spacedInput = normalizedInput.replace(/\//g, ' / ');
+  match = validOptions.find(option => {
+    const normalizedOption = normalizeWithSlash(option);
+    const spacedOption = normalizedOption.replace(/\//g, ' / ');
+    return spacedOption === spacedInput;
+  });
+  
+  return match;
+};
+
   const validateMobileRow = useCallback((row, index) => {
     const errors = [];
     const cleanedRow = {};
@@ -304,17 +338,29 @@ const useMobileCSVUpload = (buildings = []) => {
     }
 
     // Stakeholder validation
-    if (cleanedRow.stakeholder) {
-      const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
-      const matchedStakeholder = validStakeholders.find(s =>
-        normalize(s) === normalize(cleanedRow.stakeholder)
-      );
-      if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-      } else {
-        cleanedRow.stakeholder = matchedStakeholder;
-      }
-    }
+    // if (cleanedRow.stakeholder) {
+    //   const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
+    //   const matchedStakeholder = validStakeholders.find(s =>
+    //     normalize(s) === normalize(cleanedRow.stakeholder)
+    //   );
+    //   if (!matchedStakeholder) {
+    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+    //   } else {
+    //     cleanedRow.stakeholder = matchedStakeholder;
+    //   }
+    // }
+
+    // Stakeholder validation with flexible matching
+if (cleanedRow.stakeholder) {
+  const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
+  const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+  
+  if (!matchedStakeholder) {
+    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+  } else {
+    cleanedRow.stakeholder = matchedStakeholder;
+  }
+}
 
     // Vehicle classification validation
     if (cleanedRow.vehicleclassification) {
@@ -330,17 +376,28 @@ const useMobileCSVUpload = (buildings = []) => {
     }
 
     // Vehicle type validation based on classification
-    if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
-      const validTypes = vehicleTypeOptionsByClassification[cleanedRow.vehicleclassification]?.map(v => v.value) || [];
-      const matchedType = validTypes.find(v =>
-        normalize(v) === normalize(cleanedRow.vehicletype)
-      );
-      if (!matchedType) {
-        errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for classification "${cleanedRow.vehicleclassification}"`);
-      } else {
-        cleanedRow.vehicletype = matchedType;
-      }
-    }
+    // if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
+    //   const validTypes = vehicleTypeOptionsByClassification[cleanedRow.vehicleclassification]?.map(v => v.value) || [];
+    //   const matchedType = validTypes.find(v =>
+    //     normalize(v) === normalize(cleanedRow.vehicletype)
+    //   );
+    //   if (!matchedType) {
+    //     errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for classification "${cleanedRow.vehicleclassification}"`);
+    //   } else {
+    //     cleanedRow.vehicletype = matchedType;
+    //   }
+    // }
+    // Vehicle type validation based on classification with flexible matching
+if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
+  const validTypes = vehicleTypeOptionsByClassification[cleanedRow.vehicleclassification]?.map(v => v.value) || [];
+  const matchedType = findFlexibleMatch(cleanedRow.vehicletype, validTypes);
+  
+  if (!matchedType) {
+    errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for classification "${cleanedRow.vehicleclassification}"`);
+  } else {
+    cleanedRow.vehicletype = matchedType;
+  }
+}
 
     // Fuel name validation based on classification
     if (cleanedRow.vehicleclassification && cleanedRow.fuelname) {

@@ -24,22 +24,22 @@ const useStationaryCSVUpload = (buildings = []) => {
   });
 
 
-   const isNA = useCallback((value) => {
-      if (!value) return true;
-      const val = value.toString().toLowerCase().trim();
-      return val === 'n/a' || val === 'na' || val === '';
-    }, []);
-  
-    const cleanNumberValue = useCallback((value) => {
-      if (isNA(value)) return null;
-      const num = Number(value);
-      return isNaN(num) ? null : num;
-    }, [isNA]);
-  
-    const cleanStringValue = useCallback((value) => {
-      if (isNA(value)) return null;
-      return value.toString().trim();
-    }, [isNA]);
+  const isNA = useCallback((value) => {
+    if (!value) return true;
+    const val = value.toString().toLowerCase().trim();
+    return val === 'n/a' || val === 'na' || val === '';
+  }, []);
+
+  const cleanNumberValue = useCallback((value) => {
+    if (isNA(value)) return null;
+    const num = Number(value);
+    return isNaN(num) ? null : num;
+  }, [isNA]);
+
+  const cleanStringValue = useCallback((value) => {
+    if (isNA(value)) return null;
+    return value.toString().trim();
+  }, [isNA]);
 
   const cleanCSVValue = useCallback((value) => {
     if (typeof value !== 'string') return value;
@@ -58,17 +58,17 @@ const useStationaryCSVUpload = (buildings = []) => {
   // Helper function to parse date in any format to ISO
   const parseDateToISO = useCallback((dateString) => {
     if (!dateString) return null;
-    
+
     let cleanedDate = dateString.toString().trim();
     cleanedDate = cleanedDate.replace(/"/g, ''); // Remove quotes
-    
+
     // Handle empty or invalid dates
     if (!cleanedDate || cleanedDate === '') return null;
-    
+
     // Try to parse the date
     let date;
     let year, month, day;
-    
+
     // Check if it's already an ISO string with timezone
     if (cleanedDate.includes('T')) {
       // Extract just the date part if it's a full ISO string
@@ -76,7 +76,7 @@ const useStationaryCSVUpload = (buildings = []) => {
     } else {
       // Try to parse common date formats
       const parts = cleanedDate.split(/[\/\-\.]/);
-      
+
       if (parts.length === 3) {
         // Try different date format interpretations
         if (parts[0].length === 4) {
@@ -106,7 +106,7 @@ const useStationaryCSVUpload = (buildings = []) => {
             let testDate1 = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
             // Then try DD/MM/YYYY
             let testDate2 = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-            
+
             if (!isNaN(testDate1.getTime()) && testDate1.getDate() === parseInt(parts[1])) {
               date = testDate1;
             } else if (!isNaN(testDate2.getTime()) && testDate2.getDate() === parseInt(parts[0])) {
@@ -122,12 +122,12 @@ const useStationaryCSVUpload = (buildings = []) => {
         date = new Date(cleanedDate);
       }
     }
-    
+
     // If still invalid, return null
     if (!date || isNaN(date.getTime())) {
       return null;
     }
-    
+
     // Create ISO string with time set to midnight UTC
     const isoDate = new Date(
       Date.UTC(
@@ -137,7 +137,7 @@ const useStationaryCSVUpload = (buildings = []) => {
         0, 0, 0, 0
       )
     ).toISOString();
-    
+
     return isoDate;
   }, []);
 
@@ -269,7 +269,7 @@ const useStationaryCSVUpload = (buildings = []) => {
           const workbook = XLSX.read(data, { type: 'array' });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
           const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
-          
+
           if (!jsonData || jsonData.length === 0) {
             reject(new Error('Excel file is empty'));
             return;
@@ -280,10 +280,10 @@ const useStationaryCSVUpload = (buildings = []) => {
           for (let i = 0; i < jsonData.length; i++) {
             const row = jsonData[i];
             if (row && row.length > 0) {
-              const rowText = row.map(cell => 
+              const rowText = row.map(cell =>
                 cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
               ).join('');
-              
+
               if (rowText.includes('buildingcode') && rowText.includes('stakeholder')) {
                 headerRowIndex = i;
                 break;
@@ -297,7 +297,7 @@ const useStationaryCSVUpload = (buildings = []) => {
           }
 
           // Get headers
-          const headers = jsonData[headerRowIndex].map(header => 
+          const headers = jsonData[headerRowIndex].map(header =>
             cleanCSVValue(header).toLowerCase().replace(/[^a-z0-9]/g, '')
           );
 
@@ -340,6 +340,40 @@ const useStationaryCSVUpload = (buildings = []) => {
     });
   }, [cleanCSVValue]);
 
+  // Helper function for normalization (handles spaces around slashes)
+const normalizeWithSlash = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
+    .replace(/\s+/g, ' ')        // Normalize multiple spaces
+    .trim();
+};
+
+// Flexible matching function
+const findFlexibleMatch = (input, validOptions) => {
+  if (!input || !validOptions.length) return null;
+  
+  const normalizedInput = normalizeWithSlash(input);
+  
+  // Try direct match with normalization
+  let match = validOptions.find(option => 
+    normalizeWithSlash(option) === normalizedInput
+  );
+  
+  if (match) return match;
+  
+  // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+  const spacedInput = normalizedInput.replace(/\//g, ' / ');
+  match = validOptions.find(option => {
+    const normalizedOption = normalizeWithSlash(option);
+    const spacedOption = normalizedOption.replace(/\//g, ' / ');
+    return spacedOption === spacedInput;
+  });
+  
+  return match;
+};
+
   const validateStationaryRow = useCallback((row, index) => {
     const errors = [];
     const cleanedRow = {};
@@ -372,35 +406,138 @@ const useStationaryCSVUpload = (buildings = []) => {
     }
 
     // Stakeholder validation
+    // if (cleanedRow.stakeholder) {
+    //   const validStakeholders = stakeholderOptions.map(s => s.value);
+    //   const matchedStakeholder = validStakeholders.find(s =>
+    //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
+    //   );
+    //   if (!matchedStakeholder) {
+    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
+    //   } else {
+    //     cleanedRow.stakeholder = matchedStakeholder;
+    //   }
+    // }
     if (cleanedRow.stakeholder) {
-      const validStakeholders = stakeholderOptions.map(s => s.value);
-      const matchedStakeholder = validStakeholders.find(s =>
-        s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-      );
-      if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
-      } else {
-        cleanedRow.stakeholder = matchedStakeholder;
-      }
-    }
+  const validStakeholders = stakeholderOptions.map(s => s.value);
+  const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+  
+  if (!matchedStakeholder) {
+    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
+  } else {
+    cleanedRow.stakeholder = matchedStakeholder;
+  }
+}
+
 
     // Equipment type validation
-    if (cleanedRow.equipmenttype) {
-      const validEquipment = equipmentTypeOptions.map(e => e.value);
-      const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
-      
-      const matchedEquipment = validEquipment.find(equipment => {
-        const normalizedEquipment = normalizeSubscriptNumbers(equipment);
-        return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
-      });
-      
-      if (!matchedEquipment) {
-        errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-      } else {
-        cleanedRow.equipmenttype = matchedEquipment;
-      }
-    }
+    // if (cleanedRow.equipmenttype) {
+    //   const validEquipment = equipmentTypeOptions.map(e => e.value);
+    //   const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
 
+    //   const matchedEquipment = validEquipment.find(equipment => {
+    //     const normalizedEquipment = normalizeSubscriptNumbers(equipment);
+    //     console.log('fron xlsx:', normalizedInput)
+    //     return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
+
+    //   });console.log('Matched equipment:', matchedEquipment);
+
+    //   if (!matchedEquipment) {
+    //     const sampleEquipment = normalizedInput.replace(/\s*\/\s*/g, '/');
+    //     console.log('Sample normalized input for equipment type:', sampleEquipment);
+    //     const normalizedValidEquipment = normalizeSubscriptNumbers(cleanedRow.sampleEquipment);
+
+    //     const matchedEquipmentagain = normalizedValidEquipment.find(equipment => {
+    //       const normalizedValidEquipment = normalizeSubscriptNumbers(equipment);
+
+    //       return normalizedValidEquipment.toLowerCase() === normalizedInput.toLowerCase();
+    //     });
+    //     if (!matchedEquipmentagain) {
+    //       const originalEquipment = validEquipment[normalizedValidEquipment.indexOf(matchedEquipmentagain)];
+    //       cleanedRow.equipmenttype = originalEquipment;
+    //     }
+
+    //     errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+    //   } else {
+    //     cleanedRow.equipmenttype = matchedEquipment;
+    //   }
+    // }
+
+    // my logic to handle subscript numbers and spaces around slashes in equipment type
+//     if (cleanedRow.equipmenttype) {
+//   const validEquipment = equipmentTypeOptions.map(e => e.value);
+//   const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
+
+//   const matchedEquipment = validEquipment.find(equipment => {
+//     const normalizedEquipment = normalizeSubscriptNumbers(equipment);
+//     console.log('from xlsx:', normalizedInput);
+//     return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
+//   });
+  
+//   console.log('Matched equipment:', matchedEquipment);
+
+//   if (!matchedEquipment) {
+//     // Try matching again after removing spaces around slashes
+//     const cleanedInput = normalizedInput.replace(/\s*\/\s*/g, '/');
+//     console.log('Cleaned input (spaces removed around slashes):', cleanedInput);
+    
+//     const matchedEquipmentAgain = validEquipment.find(equipment => {
+//       const cleanedEquipment = normalizeSubscriptNumbers(equipment).replace(/\s*\/\s*/g, '/');
+//       return cleanedEquipment.toLowerCase() === cleanedInput.toLowerCase();
+//     });
+    
+//     if (matchedEquipmentAgain) {
+//       // Found match after cleaning slashes
+//       cleanedRow.equipmenttype = matchedEquipmentAgain;
+//       console.log('Matched after removing slash spaces:', matchedEquipmentAgain);
+//     } else {
+//       // Still no match, add error
+//       errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+//     }
+//   } else {
+//     cleanedRow.equipmenttype = matchedEquipment;
+//   }
+// }
+
+// Equipment type validation with subscript normalization and flexible matching
+if (cleanedRow.equipmenttype) {
+  const validEquipment = equipmentTypeOptions.map(e => e.value);
+  const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
+
+  // First try with subscript normalization
+  let matchedEquipment = validEquipment.find(equipment => {
+    const normalizedEquipment = normalizeSubscriptNumbers(equipment);
+    console.log('from xlsx:', normalizedInput);
+    return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
+  });
+  
+  console.log('Matched equipment (first attempt):', matchedEquipment);
+
+  // If no match, try flexible matching (handles spaces around slashes)
+  if (!matchedEquipment) {
+    // Prepare valid options with subscript normalization applied
+    const normalizedValidEquipment = validEquipment.map(equipment => 
+      normalizeSubscriptNumbers(equipment)
+    );
+    
+    // Try flexible match
+    const flexibleMatch = findFlexibleMatch(normalizedInput, normalizedValidEquipment);
+    
+    if (flexibleMatch) {
+      // Find the original equipment value
+      const originalIndex = normalizedValidEquipment.findIndex(equip => 
+        normalizeWithSlash(equip) === normalizeWithSlash(flexibleMatch)
+      );
+      matchedEquipment = validEquipment[originalIndex];
+      console.log('Matched after flexible matching:', matchedEquipment);
+    }
+  }
+  
+  if (!matchedEquipment) {
+    errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+  } else {
+    cleanedRow.equipmenttype = matchedEquipment;
+  }
+}
     // Fuel type validation
     if (cleanedRow.fueltype) {
       const validFuelTypes = fuelTypeOptions.map(f => f.value);
@@ -478,7 +615,7 @@ const useStationaryCSVUpload = (buildings = []) => {
     // Date validation
     if (cleanedRow.postingdate) {
       const isoDate = parseDateToISO(cleanedRow.postingdate);
-      
+
       if (!isoDate) {
         errors.push(`Invalid date format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 2024-01-15, 01/15/2024, 15-01-2024)`);
       } else {
@@ -518,7 +655,7 @@ const useStationaryCSVUpload = (buildings = []) => {
       row.consumptionunit
     );
 
-   return {
+    return {
       buildingCode: row.buildingcode,
       stakeholder: row.stakeholder,
       equipmentType: row.equipmenttype,
@@ -540,7 +677,7 @@ const useStationaryCSVUpload = (buildings = []) => {
   const handleFileSelect = async (file) => {
     const fileExtension = file.name.split('.').pop().toLowerCase();
     const isValidFile = ['csv', 'xlsx', 'xls'].includes(fileExtension);
-    
+
     if (!isValidFile) {
       toast.error('Please select a CSV or Excel file');
       console.error('Invalid file type selected:', file.name);
@@ -560,7 +697,7 @@ const useStationaryCSVUpload = (buildings = []) => {
       } else {
         data = await parseExcel(file);
       }
-      
+
       const errors = [];
 
       // Validate each row
@@ -660,7 +797,7 @@ const useStationaryCSVUpload = (buildings = []) => {
         progress: 100,
         results: results,
         uploading: false
-      }));  
+      }));
 
       setTimeout(() => {
         if (results.failed === 0) {
@@ -670,7 +807,7 @@ const useStationaryCSVUpload = (buildings = []) => {
           toast.warning(`Uploaded ${results.success} records, ${results.failed} failed.`);
         }
       }, 2000);
-      
+
       console.log('processUpload completed successfully');
       return results;
 
@@ -685,7 +822,7 @@ const useStationaryCSVUpload = (buildings = []) => {
       throw error;
     }
   };
-  
+
   const resetUpload = () => {
     setCsvState({
       file: null,
@@ -697,69 +834,69 @@ const useStationaryCSVUpload = (buildings = []) => {
     });
   };
 
- const downloadStationaryTemplate = useCallback(() => {
-  const exampleBuildings = buildings.slice(0, 1);
-  const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
-  
-  const exampleStakeholder = stakeholderOptions[0]?.value || 'Assembly';
-  const exampleEquipment = equipmentTypeOptions.find(e => e.value === 'Amine Reboilers')?.value || 'Amine Reboilers';
-  const exampleFuelType = 'Gaseous Fuel';
-  const exampleFuelName = 'Butane';
-  const exampleUnit = 'kg';
-  const exampleQC = 'Good';
+  const downloadStationaryTemplate = useCallback(() => {
+    const exampleBuildings = buildings.slice(0, 1);
+    const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
 
-  // Create worksheet data with headers
-  const worksheetData = [
-    [
-      'building code',
-      'stakeholder',
-      'equipment type',
-      'fuel type',
-      'fuel name',
-      'fuel consumption',
-      'consumption unit',
-      'quality control',
-      'remarks',
-      'posting date'
-    ],
-    [
-      exampleBuildingCode,
-      exampleStakeholder,
-      exampleEquipment,
-      exampleFuelType,
-      exampleFuelName,
-      '100',
-      exampleUnit,
-      exampleQC,
-      'Example record',
-      'dd/mm/yyyy'
-    ],
-  ];
+    const exampleStakeholder = stakeholderOptions[0]?.value || 'Assembly';
+    const exampleEquipment = equipmentTypeOptions.find(e => e.value === 'Amine Reboilers')?.value || 'Amine Reboilers';
+    const exampleFuelType = 'Gaseous Fuel';
+    const exampleFuelName = 'Butane';
+    const exampleUnit = 'kg';
+    const exampleQC = 'Good';
 
-  // Create workbook and worksheet
-  const workbook = XLSX.utils.book_new();
-  const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-  
-  // Auto-size columns for better readability
-  worksheet['!cols'] = [
-    { wch: 20 }, // building code
-    { wch: 15 }, // stakeholder
-    { wch: 18 }, // equipment type
-    { wch: 15 }, // fuel type
-    { wch: 15 }, // fuel name
-    { wch: 18 }, // fuel consumption
-    { wch: 18 }, // consumption unit
-    { wch: 18 }, // quality control
-    { wch: 30 }, // remarks
-    { wch: 15 }  // posting date
-  ];
+    // Create worksheet data with headers
+    const worksheetData = [
+      [
+        'building code',
+        'stakeholder',
+        'equipment type',
+        'fuel type',
+        'fuel name',
+        'fuel consumption',
+        'consumption unit',
+        'quality control',
+        'remarks',
+        'posting date'
+      ],
+      [
+        exampleBuildingCode,
+        exampleStakeholder,
+        exampleEquipment,
+        exampleFuelType,
+        exampleFuelName,
+        '100',
+        exampleUnit,
+        exampleQC,
+        'Example record',
+        'dd/mm/yyyy'
+      ],
+    ];
 
-  // Add the worksheet to the workbook
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Stationary Template');
+    // Create workbook and worksheet
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
-  // Download the Excel file
-  XLSX.writeFile(workbook, 'stationary_template.xlsx');
-}, [buildings]);
+    // Auto-size columns for better readability
+    worksheet['!cols'] = [
+      { wch: 20 }, // building code
+      { wch: 15 }, // stakeholder
+      { wch: 18 }, // equipment type
+      { wch: 15 }, // fuel type
+      { wch: 15 }, // fuel name
+      { wch: 18 }, // fuel consumption
+      { wch: 18 }, // consumption unit
+      { wch: 18 }, // quality control
+      { wch: 30 }, // remarks
+      { wch: 15 }  // posting date
+    ];
+
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Stationary Template');
+
+    // Download the Excel file
+    XLSX.writeFile(workbook, 'stationary_template.xlsx');
+  }, [buildings]);
 
   return {
     csvState,

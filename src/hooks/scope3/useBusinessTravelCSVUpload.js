@@ -1,5 +1,3 @@
-
-
 // hooks/scope3/useBusinessTravelCSVUpload.js
 import { useState, useCallback } from 'react';
 import axios from 'axios';
@@ -299,6 +297,40 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
     });
   }, [cleanCSVValue]);
 
+  // Helper function for normalization (handles spaces around slashes)
+const normalizeWithSlash = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
+    .replace(/\s+/g, ' ')        // Normalize multiple spaces
+    .trim();
+};
+
+// Flexible matching function
+const findFlexibleMatch = (input, validOptions) => {
+  if (!input || !validOptions.length) return null;
+  
+  const normalizedInput = normalizeWithSlash(input);
+  
+  // Try direct match with normalization
+  let match = validOptions.find(option => 
+    normalizeWithSlash(option) === normalizedInput
+  );
+  
+  if (match) return match;
+  
+  // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+  const spacedInput = normalizedInput.replace(/\//g, ' / ');
+  match = validOptions.find(option => {
+    const normalizedOption = normalizeWithSlash(option);
+    const spacedOption = normalizedOption.replace(/\//g, ' / ');
+    return spacedOption === spacedInput;
+  });
+  
+  return match;
+};
+
   const validateBusinessTravelRow = useCallback((row, index) => {
     const errors = [];
     
@@ -442,17 +474,28 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
     }
 
     // Stakeholder validation
-    if (cleanedRow.stakeholder) {
-      const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-      const matchedStakeholder = validStakeholders.find(s =>
-        s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-      );
-      if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-      } else {
-        cleanedRow.stakeholder = matchedStakeholder;
-      }
-    }
+    // if (cleanedRow.stakeholder) {
+    //   const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
+    //   const matchedStakeholder = validStakeholders.find(s =>
+    //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
+    //   );
+    //   if (!matchedStakeholder) {
+    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+    //   } else {
+    //     cleanedRow.stakeholder = matchedStakeholder;
+    //   }
+    // }
+    // Stakeholder validation with flexible matching
+if (cleanedRow.stakeholder) {
+  const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
+  const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+  
+  if (!matchedStakeholder) {
+    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+  } else {
+    cleanedRow.stakeholder = matchedStakeholder;
+  }
+}
 
     // Quality Control validation
     if (cleanedRow.qualitycontrol) {
@@ -657,41 +700,77 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
     }
 
     // CAR TRAVEL VALIDATION
-    if (travelByCar) {
-      if (!cleanedRow.cardistancekm) {
-        errors.push('Distance Travelled (Car) is required when car travel is Yes');
-      } else {
-        validateNumeric(cleanedRow.cardistancekm, 'Car distance');
-      }
+    // if (travelByCar) {
+    //   if (!cleanedRow.cardistancekm) {
+    //     errors.push('Distance Travelled (Car) is required when car travel is Yes');
+    //   } else {
+    //     validateNumeric(cleanedRow.cardistancekm, 'Car distance');
+    //   }
       
-      if (!cleanedRow.cartype) {
-        errors.push('Car Type is required when car travel is Yes');
-      } else {
-        const validTypes = carTypeOptions.map(c => c.value);
-        const matchedType = validTypes.find(t => 
-          t.toLowerCase() === cleanedRow.cartype.toLowerCase()
-        );
-        if (!matchedType) {
-          errors.push(`Invalid car type "${cleanedRow.cartype}"`);
-        } else {
-          cleanedRow.cartype = matchedType;
-        }
-      }
+    //   if (!cleanedRow.cartype) {
+    //     errors.push('Car Type is required when car travel is Yes');
+    //   } else {
+    //     const validTypes = carTypeOptions.map(c => c.value);
+    //     const matchedType = validTypes.find(t => 
+    //       t.toLowerCase() === cleanedRow.cartype.toLowerCase()
+    //     );
+    //     if (!matchedType) {
+    //       errors.push(`Invalid car type "${cleanedRow.cartype}"`);
+    //     } else {
+    //       cleanedRow.cartype = matchedType;
+    //     }
+    //   }
       
-      if (!cleanedRow.carfueltype) {
-        errors.push('Fuel Type (Car) is required when car travel is Yes');
-      } else if (cleanedRow.cartype) {
-        const validFuelTypes = carFuelTypeOptions[cleanedRow.cartype] || [];
-        const matchedFuelType = validFuelTypes.find(f => 
-          f.toLowerCase() === cleanedRow.carfueltype.toLowerCase()
-        );
-        if (!matchedFuelType) {
-          errors.push(`Invalid car fuel type "${cleanedRow.carfueltype}" for car type "${cleanedRow.cartype}"`);
-        } else {
-          cleanedRow.carfueltype = matchedFuelType;
-        }
-      }
+    //   if (!cleanedRow.carfueltype) {
+    //     errors.push('Fuel Type (Car) is required when car travel is Yes');
+    //   } else if (cleanedRow.cartype) {
+    //     const validFuelTypes = carFuelTypeOptions[cleanedRow.cartype] || [];
+    //     const matchedFuelType = validFuelTypes.find(f => 
+    //       f.toLowerCase() === cleanedRow.carfueltype.toLowerCase()
+    //     );
+    //     if (!matchedFuelType) {
+    //       errors.push(`Invalid car fuel type "${cleanedRow.carfueltype}" for car type "${cleanedRow.cartype}"`);
+    //     } else {
+    //       cleanedRow.carfueltype = matchedFuelType;
+    //     }
+    //   }
+    // }
+    // CAR TRAVEL VALIDATION with flexible matching
+if (travelByCar) {
+  if (!cleanedRow.cardistancekm) {
+    errors.push('Distance Travelled (Car) is required when car travel is Yes');
+  } else {
+    validateNumeric(cleanedRow.cardistancekm, 'Car distance');
+  }
+  
+  // Car type validation with flexible matching
+  if (!cleanedRow.cartype) {
+    errors.push('Car Type is required when car travel is Yes');
+  } else {
+    const validTypes = carTypeOptions.map(c => c.value);
+    const matchedType = findFlexibleMatch(cleanedRow.cartype, validTypes);
+    
+    if (!matchedType) {
+      errors.push(`Invalid car type "${cleanedRow.cartype}"`);
+    } else {
+      cleanedRow.cartype = matchedType;
     }
+  }
+  
+  // Car fuel type validation with flexible matching
+  if (!cleanedRow.carfueltype) {
+    errors.push('Fuel Type (Car) is required when car travel is Yes');
+  } else if (cleanedRow.cartype) {
+    const validFuelTypes = carFuelTypeOptions[cleanedRow.cartype] || [];
+    const matchedFuelType = findFlexibleMatch(cleanedRow.carfueltype, validFuelTypes);
+    
+    if (!matchedFuelType) {
+      errors.push(`Invalid car fuel type "${cleanedRow.carfueltype}" for car type "${cleanedRow.cartype}"`);
+    } else {
+      cleanedRow.carfueltype = matchedFuelType;
+    }
+  }
+}
 
     // HOTEL STAY VALIDATION
     if (hotelStay) {
