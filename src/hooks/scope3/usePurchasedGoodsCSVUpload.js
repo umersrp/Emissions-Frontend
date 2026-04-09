@@ -741,7 +741,7 @@ const findFlexibleMatch = (input, validOptions) => {
         'Purchase Category',
         'Purchased Activity Type',
         'Purchased Goods Services Type',
-        'Is Capital Goods',
+        'Please specify whether the selected item is a capital good.',
         'Amount Spent',
         'Unit',
         'Quality Control',
