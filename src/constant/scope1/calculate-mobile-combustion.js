@@ -91,7 +91,7 @@ export const mobileEmissionFactors = {
     },
 
     // Type: Upper Medium
-    "Upper medium - Larger or D-Segment Passenger Cars (1500cc - 2700cc)": {
+    "Upper medium - Larger or D-Segment Passenger Cars (1500 cc - 2700 cc)": {
         km: {
             "Diesel": 0.16194,
             "Petrol": 0.18535,
@@ -151,7 +151,7 @@ export const mobileEmissionFactors = {
     },
 
     // Type: Luxury
-    "Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000cc - 6000cc)": {
+    "Luxury - Full size Luxury or F-Segment Premium Passenger Cars (3000 cc - 6000 cc)": {
         km: {
             "Diesel": 0.20632,
             "Petrol": 0.30752,
