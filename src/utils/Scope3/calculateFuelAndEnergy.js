@@ -80,8 +80,15 @@ export const calculateFuelAndEnergy = (data) => {
     fuelFactor
   });
   console.log("🅰️ Result A Total:", resultA);
-const totalGrossElectricityPurchased = Number(data.totalGrossElectricityPurchased);
-  
+  let totalGrossElectricityPurchased = Number(data.totalGrossElectricityPurchased) || 0;
+  const grossUnit = data.unit || data.totalGrossElectricityPurchasedUnit || '';
+
+  // If unit is MWh convert to kWh (1 MWh = 1000 kWh)
+  if (grossUnit === 'MWh') {
+    console.log('Converting totalGrossElectricityPurchased from MWh to kWh');
+    totalGrossElectricityPurchased = totalGrossElectricityPurchased * 1000;
+  }
+
   // ==================== RESULT B ====================
   console.group("🅱️ Result B – T&D + WTT");
 
@@ -89,6 +96,7 @@ const totalGrossElectricityPurchased = Number(data.totalGrossElectricityPurchase
   const b2 = totalGrossElectricityPurchased * WTT_FACTOR;
   const b3 = totalGrossElectricityPurchased * WTT_TD_FACTOR;
 
+  console.log("B Inputs:", { totalGrossElectricityPurchased, grossUnit });
   console.log("B Components:", { b1, b2, b3 });
 
   resultB = b1 + b2 + b3;

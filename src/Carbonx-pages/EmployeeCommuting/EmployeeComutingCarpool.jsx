@@ -771,174 +771,364 @@ const fetchOriginalFormData = async (authToken) => {
     };
 
     // Initialize form with data from original form
+    // const initializeFormWithOriginalData = (originalData) => {
+    //     if (!originalData) return;
+
+    //     console.log('Initializing form with data:', originalData);
+    //     console.log('User passenger details:', userPassengerDetails);
+
+    //     // Parse all date ranges first
+    //     const motorbikeDateRange = parseDateRange(originalData.motorbikeDateRange);
+    //     const motorbikeCarpoolDateRange = parseDateRange(originalData.motorbikeCarpoolDateRange);
+    //     const carDateRange = parseDateRange(originalData.carDateRange);
+    //     const carCarpoolDateRange = parseDateRange(originalData.carCarpoolDateRange);
+    //     const taxiDateRange = parseDateRange(originalData.taxiDateRange);
+    //     const taxiCarpoolDateRange = parseDateRange(originalData.taxiCarpoolDateRange);
+    //     const busDateRange = parseDateRange(originalData.busDateRange);
+    //     const trainDateRange = parseDateRange(originalData.trainDateRange);
+    //     const workFromHomeDateRange = parseDateRange(originalData.workFromHomeDateRange);
+
+    //     const newFormData = {
+    //         ...formData,
+    //         employeeName: originalData.employeeName || '',
+    //         employeeID: originalData.employeeID || '',
+    //         siteBuildingName: originalData.siteBuildingName ? {
+    //             value: originalData.siteBuildingName,
+    //             label: originalData.siteBuildingName
+    //         } : null,
+    //         stakeholderDepartment: originalData.stakeholderDepartment ? {
+    //             value: originalData.stakeholderDepartment,
+    //             label: originalData.stakeholderDepartment
+    //         } : null,
+            
+    //         // Set all parsed date ranges
+    //         motorbikeDateRange: motorbikeDateRange,
+    //         motorbikeCarpoolDateRange: motorbikeCarpoolDateRange,
+    //         carDateRange: carDateRange,
+    //         carCarpoolDateRange: carCarpoolDateRange,
+    //         taxiDateRange: taxiDateRange,
+    //         taxiCarpoolDateRange: taxiCarpoolDateRange,
+    //         busDateRange: busDateRange,
+    //         trainDateRange: trainDateRange,
+    //         workFromHomeDateRange: workFromHomeDateRange,
+    //     };
+
+    //     // Enable all commute types where user is a passenger
+    //     if (userPassengerDetails.transportTypes && userPassengerDetails.transportTypes.length > 0) {
+            
+    //         // Enable motorbike if user is passenger
+    //         if (userPassengerDetails.transportTypes.includes('motorbike')) {
+    //             const motorbikeDetails = userPassengerDetails.details.motorbike;
+    //             newFormData.commuteByMotorbike = true;
+    //             newFormData.motorbikeMode = motorbikeDetails.mode;
+                
+    //             // Copy motorbike type from original
+    //             if (originalData.motorbikeType) {
+    //                 newFormData.motorbikeType = {
+    //                     value: originalData.motorbikeType,
+    //                     label: originalData.motorbikeType
+    //                 };
+    //             }
+
+    //             // Set the appropriate passenger fields based on whether user is in carry or travel
+    //             if (motorbikeDetails.isDriverCarrying) {
+    //                 newFormData.carryOthersMotorbike = true;
+    //                 if (originalData.personsCarriedMotorbike) {
+    //                     newFormData.personsCarriedMotorbike = {
+    //                         value: originalData.personsCarriedMotorbike.toString(),
+    //                         label: originalData.personsCarriedMotorbike.toString()
+    //                     };
+    //                 }
+    //             } else if (motorbikeDetails.isTravelWith) {
+    //                 newFormData.travelWithOthersMotorbike = true;
+    //                 if (originalData.personsTravelWithMotorbike) {
+    //                     newFormData.personsTravelWithMotorbike = {
+    //                         value: originalData.personsTravelWithMotorbike.toString(),
+    //                         label: originalData.personsTravelWithMotorbike.toString()
+    //                     };
+    //                 }
+    //             }
+    //         }
+            
+    //         // Enable car if user is passenger
+    //         if (userPassengerDetails.transportTypes.includes('car')) {
+    //             const carDetails = userPassengerDetails.details.car;
+    //             newFormData.commuteByCar = true;
+    //             newFormData.carMode = carDetails.mode;
+                
+    //             // Copy car type and fuel type from original
+    //             if (originalData.carType) {
+    //                 newFormData.carType = {
+    //                     value: originalData.carType,
+    //                     label: originalData.carType
+    //                 };
+    //             }
+                
+    //             if (originalData.carFuelType) {
+    //                 newFormData.carFuelType = {
+    //                     value: originalData.carFuelType,
+    //                     label: originalData.carFuelType
+    //                 };
+    //             }
+
+    //             // Set the appropriate passenger fields
+    //             if (carDetails.isDriverCarrying) {
+    //                 newFormData.carryOthersCar = true;
+    //                 if (originalData.personsCarriedCar) {
+    //                     newFormData.personsCarriedCar = {
+    //                         value: originalData.personsCarriedCar.toString(),
+    //                         label: originalData.personsCarriedCar.toString()
+    //                     };
+    //                 }
+    //             } else if (carDetails.isTravelWith) {
+    //                 newFormData.travelWithOthersCar = true;
+    //                 if (originalData.personsTravelWithCar) {
+    //                     newFormData.personsTravelWithCar = {
+    //                         value: originalData.personsTravelWithCar.toString(),
+    //                         label: originalData.personsTravelWithCar.toString()
+    //                     };
+    //                 }
+    //             }
+    //         }
+            
+    //         // Enable taxi if user is passenger
+    //         if (userPassengerDetails.transportTypes.includes('taxi')) {
+    //             const taxiDetails = userPassengerDetails.details.taxi;
+    //             newFormData.commuteByTaxi = true;
+    //             newFormData.taxiMode = taxiDetails.mode;
+                
+    //             // Copy taxi type from original
+    //             if (originalData.taxiType) {
+    //                 newFormData.taxiType = {
+    //                     value: originalData.taxiType,
+    //                     label: originalData.taxiType
+    //                 };
+    //             }
+
+    //             if (originalData.taxiPassengers) {
+    //                 newFormData.taxiPassengers = {
+    //                     value: originalData.taxiPassengers.toString(),
+    //                     label: originalData.taxiPassengers.toString()
+    //                 };
+    //             }
+
+    //             // Set passenger fields
+    //             newFormData.travelWithOthersTaxi = true;
+    //             if (originalData.personsTravelWithTaxi) {
+    //                 newFormData.personsTravelWithTaxi = {
+    //                     value: originalData.personsTravelWithTaxi.toString(),
+    //                     label: originalData.personsTravelWithTaxi.toString()
+    //                 };
+    //             }
+    //         }
+    //     }
+
+    //     console.log('Setting new form data:', newFormData);
+    //     setFormData(newFormData);
+        
+    //     // Update selected date ranges state
+    //     setSelectedDateRanges({
+    //         motorbike: motorbikeDateRange,
+    //         motorbikeCarpool: motorbikeCarpoolDateRange,
+    //         taxi: taxiDateRange,
+    //         taxiCarpool: taxiCarpoolDateRange,
+    //         bus: busDateRange,
+    //         train: trainDateRange,
+    //         car: carDateRange,
+    //         carCarpool: carCarpoolDateRange,
+    //         workFromHome: workFromHomeDateRange
+    //     });
+    // };
     const initializeFormWithOriginalData = (originalData) => {
-        if (!originalData) return;
+    if (!originalData) return;
 
-        console.log('Initializing form with data:', originalData);
-        console.log('User passenger details:', userPassengerDetails);
+    console.log('Initializing form with data:', originalData);
+    console.log('User passenger details:', userPassengerDetails);
+    console.log('Participant building info:', userInfo?.buildingId);
 
-        // Parse all date ranges first
-        const motorbikeDateRange = parseDateRange(originalData.motorbikeDateRange);
-        const motorbikeCarpoolDateRange = parseDateRange(originalData.motorbikeCarpoolDateRange);
-        const carDateRange = parseDateRange(originalData.carDateRange);
-        const carCarpoolDateRange = parseDateRange(originalData.carCarpoolDateRange);
-        const taxiDateRange = parseDateRange(originalData.taxiDateRange);
-        const taxiCarpoolDateRange = parseDateRange(originalData.taxiCarpoolDateRange);
-        const busDateRange = parseDateRange(originalData.busDateRange);
-        const trainDateRange = parseDateRange(originalData.trainDateRange);
-        const workFromHomeDateRange = parseDateRange(originalData.workFromHomeDateRange);
+    // Parse all date ranges first
+    const motorbikeDateRange = parseDateRange(originalData.motorbikeDateRange);
+    const motorbikeCarpoolDateRange = parseDateRange(originalData.motorbikeCarpoolDateRange);
+    const carDateRange = parseDateRange(originalData.carDateRange);
+    const carCarpoolDateRange = parseDateRange(originalData.carCarpoolDateRange);
+    const taxiDateRange = parseDateRange(originalData.taxiDateRange);
+    const taxiCarpoolDateRange = parseDateRange(originalData.taxiCarpoolDateRange);
+    const busDateRange = parseDateRange(originalData.busDateRange);
+    const trainDateRange = parseDateRange(originalData.trainDateRange);
+    const workFromHomeDateRange = parseDateRange(originalData.workFromHomeDateRange);
 
-        const newFormData = {
-            ...formData,
-            employeeName: originalData.employeeName || '',
-            employeeID: originalData.employeeID || '',
-            siteBuildingName: originalData.siteBuildingName ? {
-                value: originalData.siteBuildingName,
-                label: originalData.siteBuildingName
-            } : null,
-            stakeholderDepartment: originalData.stakeholderDepartment ? {
-                value: originalData.stakeholderDepartment,
-                label: originalData.stakeholderDepartment
-            } : null,
-            
-            // Set all parsed date ranges
-            motorbikeDateRange: motorbikeDateRange,
-            motorbikeCarpoolDateRange: motorbikeCarpoolDateRange,
-            carDateRange: carDateRange,
-            carCarpoolDateRange: carCarpoolDateRange,
-            taxiDateRange: taxiDateRange,
-            taxiCarpoolDateRange: taxiCarpoolDateRange,
-            busDateRange: busDateRange,
-            trainDateRange: trainDateRange,
-            workFromHomeDateRange: workFromHomeDateRange,
-        };
-
-        // Enable all commute types where user is a passenger
-        if (userPassengerDetails.transportTypes && userPassengerDetails.transportTypes.length > 0) {
-            
-            // Enable motorbike if user is passenger
-            if (userPassengerDetails.transportTypes.includes('motorbike')) {
-                const motorbikeDetails = userPassengerDetails.details.motorbike;
-                newFormData.commuteByMotorbike = true;
-                newFormData.motorbikeMode = motorbikeDetails.mode;
-                
-                // Copy motorbike type from original
-                if (originalData.motorbikeType) {
-                    newFormData.motorbikeType = {
-                        value: originalData.motorbikeType,
-                        label: originalData.motorbikeType
-                    };
-                }
-
-                // Set the appropriate passenger fields based on whether user is in carry or travel
-                if (motorbikeDetails.isDriverCarrying) {
-                    newFormData.carryOthersMotorbike = true;
-                    if (originalData.personsCarriedMotorbike) {
-                        newFormData.personsCarriedMotorbike = {
-                            value: originalData.personsCarriedMotorbike.toString(),
-                            label: originalData.personsCarriedMotorbike.toString()
-                        };
-                    }
-                } else if (motorbikeDetails.isTravelWith) {
-                    newFormData.travelWithOthersMotorbike = true;
-                    if (originalData.personsTravelWithMotorbike) {
-                        newFormData.personsTravelWithMotorbike = {
-                            value: originalData.personsTravelWithMotorbike.toString(),
-                            label: originalData.personsTravelWithMotorbike.toString()
-                        };
-                    }
-                }
+    // Get participant's building from userInfo
+    let participantBuilding = null;
+    if (userInfo?.buildingId) {
+        // If buildingId is an object with _id and buildingName
+        if (typeof userInfo.buildingId === 'object' && userInfo.buildingId._id) {
+            participantBuilding = {
+                value: userInfo.buildingId._id,
+                label: userInfo.buildingId.buildingName || 'Building',
+                buildingData: userInfo.buildingId
+            };
+        } 
+        // If buildingId is just a string ID
+        else if (typeof userInfo.buildingId === 'string') {
+            // Find the building from the buildings list
+            const building = buildings.find(b => b.value === userInfo.buildingId);
+            if (building) {
+                participantBuilding = building;
             }
-            
-            // Enable car if user is passenger
-            if (userPassengerDetails.transportTypes.includes('car')) {
-                const carDetails = userPassengerDetails.details.car;
-                newFormData.commuteByCar = true;
-                newFormData.carMode = carDetails.mode;
-                
-                // Copy car type and fuel type from original
-                if (originalData.carType) {
-                    newFormData.carType = {
-                        value: originalData.carType,
-                        label: originalData.carType
-                    };
-                }
-                
-                if (originalData.carFuelType) {
-                    newFormData.carFuelType = {
-                        value: originalData.carFuelType,
-                        label: originalData.carFuelType
-                    };
-                }
+        }
+    }
 
-                // Set the appropriate passenger fields
-                if (carDetails.isDriverCarrying) {
-                    newFormData.carryOthersCar = true;
-                    if (originalData.personsCarriedCar) {
-                        newFormData.personsCarriedCar = {
-                            value: originalData.personsCarriedCar.toString(),
-                            label: originalData.personsCarriedCar.toString()
-                        };
-                    }
-                } else if (carDetails.isTravelWith) {
-                    newFormData.travelWithOthersCar = true;
-                    if (originalData.personsTravelWithCar) {
-                        newFormData.personsTravelWithCar = {
-                            value: originalData.personsTravelWithCar.toString(),
-                            label: originalData.personsTravelWithCar.toString()
-                        };
-                    }
-                }
+    const newFormData = {
+        ...formData,
+        employeeName: originalData.employeeName || userInfo?.name || '',
+        employeeID: originalData.employeeID || userInfo?.employeeID || '',
+        
+        // ✅ USE PARTICIPANT'S BUILDING INSTEAD OF ORIGINAL FORM'S BUILDING
+        siteBuildingName: participantBuilding || formData.siteBuildingName,
+        
+        stakeholderDepartment: originalData.stakeholderDepartment ? {
+            value: originalData.stakeholderDepartment,
+            label: originalData.stakeholderDepartment
+        } : null,
+        
+        // Set all parsed date ranges
+        motorbikeDateRange: motorbikeDateRange,
+        motorbikeCarpoolDateRange: motorbikeCarpoolDateRange,
+        carDateRange: carDateRange,
+        carCarpoolDateRange: carCarpoolDateRange,
+        taxiDateRange: taxiDateRange,
+        taxiCarpoolDateRange: taxiCarpoolDateRange,
+        busDateRange: busDateRange,
+        trainDateRange: trainDateRange,
+        workFromHomeDateRange: workFromHomeDateRange,
+    };
+
+    // Enable all commute types where user is a passenger
+    if (userPassengerDetails.transportTypes && userPassengerDetails.transportTypes.length > 0) {
+        
+        // Enable motorbike if user is passenger
+        if (userPassengerDetails.transportTypes.includes('motorbike')) {
+            const motorbikeDetails = userPassengerDetails.details.motorbike;
+            newFormData.commuteByMotorbike = true;
+            newFormData.motorbikeMode = motorbikeDetails.mode;
+            
+            // Copy motorbike type from original
+            if (originalData.motorbikeType) {
+                newFormData.motorbikeType = {
+                    value: originalData.motorbikeType,
+                    label: originalData.motorbikeType
+                };
             }
-            
-            // Enable taxi if user is passenger
-            if (userPassengerDetails.transportTypes.includes('taxi')) {
-                const taxiDetails = userPassengerDetails.details.taxi;
-                newFormData.commuteByTaxi = true;
-                newFormData.taxiMode = taxiDetails.mode;
-                
-                // Copy taxi type from original
-                if (originalData.taxiType) {
-                    newFormData.taxiType = {
-                        value: originalData.taxiType,
-                        label: originalData.taxiType
+
+            // Set the appropriate passenger fields based on whether user is in carry or travel
+            if (motorbikeDetails.isDriverCarrying) {
+                newFormData.carryOthersMotorbike = true;
+                if (originalData.personsCarriedMotorbike) {
+                    newFormData.personsCarriedMotorbike = {
+                        value: originalData.personsCarriedMotorbike.toString(),
+                        label: originalData.personsCarriedMotorbike.toString()
                     };
                 }
-
-                if (originalData.taxiPassengers) {
-                    newFormData.taxiPassengers = {
-                        value: originalData.taxiPassengers.toString(),
-                        label: originalData.taxiPassengers.toString()
-                    };
-                }
-
-                // Set passenger fields
-                newFormData.travelWithOthersTaxi = true;
-                if (originalData.personsTravelWithTaxi) {
-                    newFormData.personsTravelWithTaxi = {
-                        value: originalData.personsTravelWithTaxi.toString(),
-                        label: originalData.personsTravelWithTaxi.toString()
+            } else if (motorbikeDetails.isTravelWith) {
+                newFormData.travelWithOthersMotorbike = true;
+                if (originalData.personsTravelWithMotorbike) {
+                    newFormData.personsTravelWithMotorbike = {
+                        value: originalData.personsTravelWithMotorbike.toString(),
+                        label: originalData.personsTravelWithMotorbike.toString()
                     };
                 }
             }
         }
-
-        console.log('Setting new form data:', newFormData);
-        setFormData(newFormData);
         
-        // Update selected date ranges state
-        setSelectedDateRanges({
-            motorbike: motorbikeDateRange,
-            motorbikeCarpool: motorbikeCarpoolDateRange,
-            taxi: taxiDateRange,
-            taxiCarpool: taxiCarpoolDateRange,
-            bus: busDateRange,
-            train: trainDateRange,
-            car: carDateRange,
-            carCarpool: carCarpoolDateRange,
-            workFromHome: workFromHomeDateRange
-        });
-    };
+        // Enable car if user is passenger
+        if (userPassengerDetails.transportTypes.includes('car')) {
+            const carDetails = userPassengerDetails.details.car;
+            newFormData.commuteByCar = true;
+            newFormData.carMode = carDetails.mode;
+            
+            // Copy car type and fuel type from original
+            if (originalData.carType) {
+                newFormData.carType = {
+                    value: originalData.carType,
+                    label: originalData.carType
+                };
+            }
+            
+            if (originalData.carFuelType) {
+                newFormData.carFuelType = {
+                    value: originalData.carFuelType,
+                    label: originalData.carFuelType
+                };
+            }
+
+            // Set the appropriate passenger fields
+            if (carDetails.isDriverCarrying) {
+                newFormData.carryOthersCar = true;
+                if (originalData.personsCarriedCar) {
+                    newFormData.personsCarriedCar = {
+                        value: originalData.personsCarriedCar.toString(),
+                        label: originalData.personsCarriedCar.toString()
+                    };
+                }
+            } else if (carDetails.isTravelWith) {
+                newFormData.travelWithOthersCar = true;
+                if (originalData.personsTravelWithCar) {
+                    newFormData.personsTravelWithCar = {
+                        value: originalData.personsTravelWithCar.toString(),
+                        label: originalData.personsTravelWithCar.toString()
+                    };
+                }
+            }
+        }
+        
+        // Enable taxi if user is passenger
+        if (userPassengerDetails.transportTypes.includes('taxi')) {
+            const taxiDetails = userPassengerDetails.details.taxi;
+            newFormData.commuteByTaxi = true;
+            newFormData.taxiMode = taxiDetails.mode;
+            
+            // Copy taxi type from original
+            if (originalData.taxiType) {
+                newFormData.taxiType = {
+                    value: originalData.taxiType,
+                    label: originalData.taxiType
+                };
+            }
+
+            if (originalData.taxiPassengers) {
+                newFormData.taxiPassengers = {
+                    value: originalData.taxiPassengers.toString(),
+                    label: originalData.taxiPassengers.toString()
+                };
+            }
+
+            // Set passenger fields
+            newFormData.travelWithOthersTaxi = true;
+            if (originalData.personsTravelWithTaxi) {
+                newFormData.personsTravelWithTaxi = {
+                    value: originalData.personsTravelWithTaxi.toString(),
+                    label: originalData.personsTravelWithTaxi.toString()
+                };
+            }
+        }
+    }
+
+    console.log('Setting new form data with participant building:', newFormData.siteBuildingName);
+    setFormData(newFormData);
+    
+    // Update selected date ranges state
+    setSelectedDateRanges({
+        motorbike: motorbikeDateRange,
+        motorbikeCarpool: motorbikeCarpoolDateRange,
+        taxi: taxiDateRange,
+        taxiCarpool: taxiCarpoolDateRange,
+        bus: busDateRange,
+        train: trainDateRange,
+        car: carDateRange,
+        carCarpool: carCarpoolDateRange,
+        workFromHome: workFromHomeDateRange
+    });
+};
 
     // Fetch buildings from API
     const fetchBuildings = async (authToken) => {
@@ -1289,7 +1479,8 @@ const handleSubmit = async (e) => {
             employeeName: formData.employeeName || userInfo?.name || '',
             employeeID: formData.employeeID || userInfo?.employeeId || '',
             usersubmittedId: userInfo?._id || null,
-            siteBuildingName: formData.siteBuildingName?.value || '',
+            // siteBuildingName: formData.siteBuildingName?.value || '',
+               siteBuildingName: userInfo?.buildingId?._id || userInfo?.buildingId || formData.siteBuildingName?.value || '',
             stakeholderDepartment: formData.stakeholderDepartment?.value || '',
             submittedByEmail: formData.submittedByEmail || '',
             reportingYear: reportingYear,
@@ -1496,7 +1687,7 @@ const handleSubmit = async (e) => {
         // If no distances were updated, skip update
         if (Object.keys(updatePayload).length === 0) {
             console.log('No distances were higher than current driver distances. Skipping driver form update.');
-            toast.info('No distances were updated as all entered distances are lower than or equal to current values.');
+            // toast.info('No distances were updated as all entered distances are lower than or equal to current values.');
         } else {
             console.log('Distances to update:', updatePayload);
             console.log('Updating:', distancesToUpdate.join(', '));
@@ -1583,7 +1774,7 @@ const handleSubmit = async (e) => {
                 // toast.success(`Updated ${distancesToUpdate.join(', ')} distance(s) (higher values) and recalculated emissions!`);
             } catch (updateError) {
                 console.warn('Driver form update failed:', updateError.message);
-                toast.warning('Passenger submission created, but driver form update failed');
+                toast.warning('Carpool submission created, but Parent form update failed');
             }
         }
 

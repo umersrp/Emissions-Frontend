@@ -211,6 +211,31 @@ const PurchasedElectricityListing = () => {
     }
   };
 
+  // Delete multiple selected records
+  const handleDeleteMultiple = async () => {
+    try {
+      const ids = (selectedFlatRows || []).map(r => r.original?._id).filter(Boolean);
+      if (!ids.length) {
+        toast.warning('No records selected');
+        return;
+      }
+
+      const ok = window.confirm(`Delete ${ids.length} selected record(s)? This cannot be undone.`);
+      if (!ok) return;
+
+      // Delete in parallel
+      await Promise.all(ids.map(id => axios.delete(`${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      })));
+
+      toast.success(`${ids.length} record(s) deleted successfully`);
+      fetchData();
+    } catch (err) {
+      console.error('Failed to delete selected records', err);
+      toast.error('Failed to delete some records');
+    }
+  };
+
   // CSV Upload handlers
   // In your PurchasedElectricityListing.jsx, update the handleCSVFileSelect:
 
@@ -546,6 +571,7 @@ const PurchasedElectricityListing = () => {
   });
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
+  const { selectedFlatRows } = tableInstance;
 
   const handleGoToPage = (page) => {
     if (page < 1) page = 1;
@@ -706,6 +732,14 @@ const PurchasedElectricityListing = () => {
                 className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90 whitespace-nowrap"
                 onClick={() => navigate("/Purchased-Electricity-Form/Add")}
               />
+              {selectedFlatRows && selectedFlatRows.length > 0 && (
+                <Button
+                  icon="heroicons:trash"
+                  text={`Delete Selected (${selectedFlatRows.length})`}
+                  className="btn font-normal btn-sm bg-red-600 text-white border-0 hover:opacity-90 whitespace-nowrap"
+                  onClick={handleDeleteMultiple}
+                />
+              )}
             </div>
           </div>
         </div>

@@ -266,6 +266,7 @@ export const PROCESS_ACTIVITY_DATA = [
   { value: "Adipic acid production", label: "How many tonnes of adipic acid are produced?" },
   { value: "Carbon black manufacturing", label: "How many tonnes of carbon black are manufactured?" },
   { value: "Formaldehyde production", label: "How many tonnes of formaldehyde are produced?" },
+  { value: "Vinyl chloride monomer (VCM) production", label: "How many tonnes of VCM are produced?" },
   { value: "Terephthalic acid production (used in PET plastics)", label: "How many tonnes of PTA are produced?" },
   { value: "Acrylonitrile production", label: "How many tonnes of acrylonitrile are produced?" },
   { value: "Phthalic anhydride production", label: "How many tonnes of phthalic anhydride are produced?" },
@@ -312,6 +313,6 @@ export const PROCESS_ACTIVITY_DATA = [
   { value: "Methanol Synthesis", label: "How many kilograms of methanol are synthesized?" },
   { value: "other GHG Emission Process Activities", label: "Please write the total process emissions in KgCO2e." },
   { value: "Non Kyoto protocol / Other Non GHG Emissions", label: "Please write the total process emissions in Kg." },
-  { value: "other Biogenic GHG Emission Process Activities", label: "Please write the total process emissions in KgCO2e." },
-  { value: "Vinyl chloride monomer (VCM) production", label: "How many tonnes of VCM are produced?" }
+  { value: "other Biogenic GHG Emission Process Activities", label: "Please write the total process emissions in KgCO2e." }
+ 
 ];
