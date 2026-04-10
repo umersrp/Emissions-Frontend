@@ -755,9 +755,13 @@ const [formAccessStatus, setFormAccessStatus] = useState({
 
     // Current year for reporting
     const currentYear = 2026;
-    const yearEnd = 2024; 
+    const yearEnd = 2024;
     const [reportingYearEnd, setReportingYearEnd] = useState(yearEnd);
     const [reportingYear, setReportingYear] = useState(currentYear);
+
+    // Calendar window for datepickers (allow selection from 2024-01-01 through 2026-12-31)
+    const calendarMinDate = new Date('2023-12-31');
+    const calendarMaxDate = new Date('2050-12-31');
     const [errors, setErrors] = useState({});
 
     // Track all selected date ranges for validation
@@ -2301,9 +2305,9 @@ useEffect(() => {
             const startDate = new Date(value.startDate);
             const endDate = new Date(value.endDate);
 
-            // Check if dates are within reporting year
-            if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                toast.warning(`Selected date range is outside ${reportingYear}. Please select dates within the reporting year.`);
+            // Ensure selected dates fall within the allowed calendar window
+            if (startDate < calendarMinDate || endDate > calendarMaxDate) {
+                toast.warning(`Selected date range must be between ${calendarMinDate.toLocaleDateString('en-US')} and ${calendarMaxDate.toLocaleDateString('en-US')}.`);
                 return;
             }
 
@@ -2549,7 +2553,7 @@ useEffect(() => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                            {label} - Select Date Range for {reportingYear}
+                            {label} - Select Date Range (2024 - 2026)
                         </label>
                         <p className="text-xs text-gray-500">
                             Select dates that cover the entire year for accurate reporting
@@ -2636,8 +2640,8 @@ useEffect(() => {
                         showShortcuts={true}
                         showFooter={true}
                         primaryColor="blue"
-                        minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
-                        maxDate={new Date(reportingYearEnd, 11, 31)}
+                        minDate={calendarMinDate}
+                        maxDate={calendarMaxDate}
                         configs={{
                             shortcuts: {
                                 today: {
@@ -2703,17 +2707,17 @@ useEffect(() => {
                                         end: new Date(`${reportingYear}-12-31`)
                                     }
                                 },
-                                fullYear: {
-                                    text: "Full Year ✓",
+                                fullWindow: {
+                                    text: "Full Window ✓",
                                     period: {
-                                        start: new Date(`${reportingYear}-01-01`),
-                                        end: new Date(`${reportingYear}-12-31`)
+                                        start: calendarMinDate,
+                                        end: calendarMaxDate
                                     }
                                 }
                             }
                         }}
                         displayFormat="DD MMM YYYY"
-                        startFrom={new Date(`${reportingYear}-01-01`)}
+                        startFrom={new Date()}
                         popoverDirection="down"
                         containerClassName="relative w-full"
                         inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -4367,7 +4371,7 @@ if (!token && !urlToken && !getToken()) {
                                                         <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                                                             <div className="flex flex-col mb-4">
                                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                                    Motorbike Carpool Date Range - Select Date Range for {reportingYear}
+                                                                    Motorbike Carpool Date Range - Select Date Range (2024 - 2026)
                                                                 </label>
                                                                 <p className="text-xs text-gray-500">
                                                                     Select dates when you shared rides with colleagues
@@ -4390,8 +4394,8 @@ if (!token && !urlToken && !getToken()) {
                                                                     showShortcuts={true}
                                                                     showFooter={true}
                                                                     primaryColor="blue"
-                                                                    minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
-                                                                    maxDate={new Date(reportingYearEnd, 11, 31)} 
+                                                                    minDate={calendarMinDate}
+                                                                    maxDate={calendarMaxDate}
                                                                     configs={{
                                                                         shortcuts: {
                                                                             thisMonth: {
@@ -4411,7 +4415,7 @@ if (!token && !urlToken && !getToken()) {
                                                                         }
                                                                     }}
                                                                     displayFormat="DD MMM YYYY"
-                                                                    startFrom={new Date(`${reportingYear}-01-01`)}
+                                                                    startFrom={new Date()}
                                                                     popoverDirection="down"
                                                                     containerClassName="relative w-full"
                                                                     inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -4617,7 +4621,7 @@ if (!token && !urlToken && !getToken()) {
                                                     <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                                                         <div className="flex flex-col mb-4">
                                                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                                Taxi Carpool Date Range - Select Date Range for {reportingYear}
+                                                                Taxi Carpool Date Range - Select Date Range (2024 - 2026)
                                                             </label>
                                                             <p className="text-xs text-gray-500">
                                                                 Select dates when you shared rides with colleagues
@@ -4640,8 +4644,8 @@ if (!token && !urlToken && !getToken()) {
                                                                 showShortcuts={true}
                                                                 showFooter={true}
                                                                 primaryColor="blue"
-                                                                minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
-                                                                maxDate={new Date(reportingYearEnd, 11, 31)}
+                                                                minDate={calendarMinDate}
+                                                                maxDate={calendarMaxDate}
                                                                 configs={{
                                                                     shortcuts: {
                                                                         thisMonth: {
@@ -4661,7 +4665,7 @@ if (!token && !urlToken && !getToken()) {
                                                                     }
                                                                 }}
                                                                 displayFormat="DD MMM YYYY"
-                                                                startFrom={new Date(`${reportingYear}-01-01`)}
+                                                                startFrom={new Date()}
                                                                 popoverDirection="down"
                                                                 containerClassName="relative w-full"
                                                                 inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -4992,7 +4996,7 @@ if (!token && !urlToken && !getToken()) {
                                                         <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                                                             <div className="flex flex-col mb-4">
                                                                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                                    Car Carpool Date Range - Select Date Range for {reportingYear}
+                                                                    Car Carpool Date Range - Select Date Range (2024 - 2026)
                                                                 </label>
                                                                 <p className="text-xs text-gray-500">
                                                                     Select dates when you shared rides with colleagues
@@ -5015,8 +5019,8 @@ if (!token && !urlToken && !getToken()) {
                                                                     showShortcuts={true}
                                                                     showFooter={true}
                                                                     primaryColor="blue"
-                                                                    minDate={new Date(reportingYear, 0, 1)}  // Month is 0-indexed (0 = January)
-                                                                    maxDate={new Date(reportingYearEnd, 11, 31)}
+                                                                    minDate={calendarMinDate}
+                                                                    maxDate={calendarMaxDate}
                                                                     configs={{
                                                                         shortcuts: {
                                                                             thisMonth: {
@@ -5064,7 +5068,7 @@ if (!token && !urlToken && !getToken()) {
                                                                         }
                                                                     }}
                                                                     displayFormat="DD MMM YYYY"
-                                                                    startFrom={new Date(`${reportingYear}-01-01`)}
+                                                                    startFrom={new Date()}
                                                                     popoverDirection="down"
                                                                     containerClassName="relative w-full"
                                                                     inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"

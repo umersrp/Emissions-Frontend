@@ -141,6 +141,29 @@ const RecordRow = ({ record, index, onDelete }) => {
         return start && end ? `${start} - ${end}` : start || end || "N/A";
     };
 
+    // Helper function to get year from any available date range
+    const getReportingYear = (record) => {
+        // Check each commute mode's date range in priority order
+        const dateRanges = [
+            record.motorbikeDateRange,
+            record.taxiDateRange,
+            record.busDateRange,
+            record.trainDateRange,
+            record.carDateRange,
+            record.workFromHomeDateRange
+        ];
+        
+        // Find the first date range that has a startDate
+        for (const dateRange of dateRanges) {
+            if (dateRange?.startDate) {
+                return new Date(dateRange.startDate).getFullYear();
+            }
+        }
+        
+        // Fallback to createdAt if no date range found
+        return record.createdAt ? new Date(record.createdAt).getFullYear() : "N/A";
+    };
+
     // Helper function to format passenger emails
     const formatPassengerEmails = (emails) => {
         if (!emails || emails.length === 0) return "N/A";
@@ -153,8 +176,8 @@ const RecordRow = ({ record, index, onDelete }) => {
             <td className="px-6 py-4 whitespace-nowrap">{record.emailDoc?.subject || "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.building?.buildingCode || "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.building?.buildingName || "N/A"}</td>
-            <td className="px-6 py-4 whitespace-nowrap">{record.createdAt ? new Date(record.createdAt).getFullYear() : "N/A"}</td>
-
+            <td className="px-6 py-4 whitespace-nowrap">{getReportingYear(record)}</td>
+            
             {/* Motorbike Section */}
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? "Motorbike" : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? toTitleCase(record.motorbikeType) : "N/A"}</td>
@@ -254,20 +277,66 @@ const CommutingTable = () => {
     const [expandedGroups, setExpandedGroups] = useState({});
 
     // Group records by email subject
+    // const groupedData = useMemo(() => {
+    //     const groups = {};
+
+    //     commutingData.forEach(record => {
+    //         const subject = record.emailDoc?._id || "N/A";
+    //         if (!groups[subject]) {
+    //             groups[subject] = [];
+    //         }
+    //         groups[subject].push(record);
+    //     });
+
+    //     // Calculate group totals
+    //     const groupsWithTotals = {};
+    //     Object.entries(groups).forEach(([subject, records]) => {
+    //         let totalDistance = 0;
+    //         let totalEmissionsKg = 0;
+    //         let totalEmissionsTonnes = 0;
+
+    //         records.forEach(record => {
+    //             const distance = record.commuteByMotorbike ? Number(record.motorbikeDistance || 0) :
+    //                 record.commuteByCar ? Number(record.carDistance || 0) :
+    //                     record.commuteByBus ? Number(record.busDistance || 0) :
+    //                         record.commuteByTaxi ? Number(record.taxiDistance || 0) :
+    //                             record.commuteByTrain ? Number(record.trainDistance || 0) : 0;
+
+    //             totalDistance += distance;
+    //             totalEmissionsKg += record.calculatedEmissionKgCo2e || 0;
+    //             totalEmissionsTonnes += record.calculatedEmissionTCo2e || 0;
+    //         });
+
+    //         groupsWithTotals[subject] = {
+    //             records,
+    //             totals: {
+    //                 totalDistance: totalDistance.toFixed(2),
+    //                 totalEmissionsKg: totalEmissionsKg.toFixed(2),
+    //                 totalEmissionsTonnes: totalEmissionsTonnes.toFixed(6),
+    //                 recordCount: records.length
+    //             }
+    //         };
+    //     });
+
+    //     return groupsWithTotals;
+    // }, [commutingData]);
+
+    // Group records by email ID (not subject)
     const groupedData = useMemo(() => {
         const groups = {};
 
         commutingData.forEach(record => {
-            const subject = record.emailDoc?.subject || "N/A";
-            if (!groups[subject]) {
-                groups[subject] = [];
+            // Group by emailDoc._id instead of subject
+            const emailId = record.emailDoc?._id || "N/A";
+            if (!groups[emailId]) {
+                groups[emailId] = [];
             }
-            groups[subject].push(record);
+            groups[emailId].push(record);
         });
 
-        // Calculate group totals
+        // Calculate group totals and store email subject for display
         const groupsWithTotals = {};
-        Object.entries(groups).forEach(([subject, records]) => {
+        Object.entries(groups).forEach(([emailId, records]) => {
             let totalDistance = 0;
             let totalEmissionsKg = 0;
             let totalEmissionsTonnes = 0;
@@ -284,8 +353,12 @@ const CommutingTable = () => {
                 totalEmissionsTonnes += record.calculatedEmissionTCo2e || 0;
             });
 
-            groupsWithTotals[subject] = {
+            // Get the subject from the first record (all records in same email group will have same subject)
+            const emailSubject = records[0]?.emailDoc?.subject || "N/A";
+
+            groupsWithTotals[emailId] = {
                 records,
+                emailSubject, // Store subject for display
                 totals: {
                     totalDistance: totalDistance.toFixed(2),
                     totalEmissionsKg: totalEmissionsKg.toFixed(2),
@@ -303,12 +376,13 @@ const CommutingTable = () => {
         const rows = [];
         let groupIndex = 0;
 
-        Object.entries(groupedData).forEach(([subject, { records, totals }]) => {
+        Object.entries(groupedData).forEach(([emailId, { records, emailSubject, totals }]) => {
             groupIndex++;
-            // Add group header row
+            // Add group header row - now using emailSubject for display
             rows.push({
                 type: 'group',
-                subject,
+                id: emailId,        // Store email ID for expansion tracking
+                subject: emailSubject, // Show subject on frontend
                 totals,
                 recordCount: records.length,
                 records,
@@ -316,11 +390,11 @@ const CommutingTable = () => {
             });
 
             // If group is expanded, add all its record rows
-            if (expandedGroups[subject]) {
+            if (expandedGroups[emailId]) { // Use emailId for expansion state
                 records.forEach((record, idx) => {
                     rows.push({
                         type: 'record',
-                        subject,
+                        emailId,
                         record,
                         recordIndex: idx + 1
                     });
@@ -341,11 +415,11 @@ const CommutingTable = () => {
     const totalVisibleRows = allVisibleRows.length;
     const totalPages = Math.ceil(totalVisibleRows / rowsPerPage);
 
-    const toggleGroup = (subject) => {
+    const toggleGroup = (emailId) => {
         setExpandedGroups(prev => {
             const newExpanded = {
                 ...prev,
-                [subject]: !prev[subject]
+                [emailId]: !prev[emailId]
             };
             // Reset to page 1 when expanding/collapsing to avoid empty pages
             setCurrentPage(1);
@@ -487,49 +561,6 @@ const CommutingTable = () => {
                                 </div>
                             ) : (
                                 <table className="min-w-full divide-y divide-slate-100">
-                                    {/* <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
-                                        <tr>
-                                            <th className="table-th text-white whitespace-nowrap">Sr.No</th>
-                                            <th className="table-th text-white whitespace-nowrap">Email Subject</th>
-                                            <th className="table-th text-white whitespace-nowrap">Building Code</th>
-                                            <th className="table-th text-white whitespace-nowrap">Building</th>
-                                            <th className="table-th text-white whitespace-nowrap">Reporting Year</th>
-                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-                                            <th className="table-th text-white whitespace-nowrap">Motor Bike Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Car Pool</th>
-                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
-                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-                                            <th className="table-th text-white whitespace-nowrap">Taxi Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Car Pool</th>
-                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
-                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-                                            <th className="table-th text-white whitespace-nowrap">Bus Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
-                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-                                            <th className="table-th text-white whitespace-nowrap">Train Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
-                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-                                            <th className="table-th text-white whitespace-nowrap">Car Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Car Fuel Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Car Pool</th>
-                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
-                                            <th className="table-th text-white whitespace-nowrap">Work from Home</th>
-                                            <th className="table-th text-white whitespace-nowrap">FTE Working Hours</th>
-                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
-                                            <th className="table-th text-white whitespace-nowrap">Quality Control</th>
-                                            <th className="table-th text-white whitespace-nowrap">Remarks</th>
-                                            <th className="table-th text-white whitespace-nowrap">Calculate Emission (kgCO₂e)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Calculate Emissions (tCO₂e)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Submitted By</th>
-                                            <th className="table-th text-white whitespace-nowrap">Department</th>
-                                            <th className="table-th text-white whitespace-nowrap">Actions</th>
-                                        </tr>
-                                    </thead> */}
                                     <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
                                         <tr>
                                             <th className="table-th text-white whitespace-nowrap">Sr.No</th>
@@ -601,18 +632,16 @@ const CommutingTable = () => {
                                             if (row.type === 'group') {
                                                 return (
                                                     <GroupRow
-                                                        key={`group-${row.subject}`}
-                                                        subject={row.subject}
+                                                        key={`group-${row.id}`}
+                                                        subject={row.subject}  // This now shows the email subject
                                                         recordCount={row.recordCount}
-                                                        isExpanded={expandedGroups[row.subject] || false}
-                                                        onToggle={() => toggleGroup(row.subject)}
+                                                        isExpanded={expandedGroups[row.id] || false}
+                                                        onToggle={() => toggleGroup(row.id)}
                                                         groupTotals={row.totals}
                                                         displayIndex={row.groupIndex}
                                                     />
                                                 );
                                             } else {
-                                                // Calculate serial number for this record
-
                                                 return (
                                                     <RecordRow
                                                         key={`record-${row.record._id}`}

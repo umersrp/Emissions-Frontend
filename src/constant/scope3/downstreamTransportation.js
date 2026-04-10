@@ -109,7 +109,7 @@ export const transportationVehicleCategoryOptions = [
   { value: "vans", label: "Vans" },
   { value: "hqv", label: "Heavy Good Vehicles" },
   { value: "hqvRefrigerated", label: "Heavy Good Vehicles (Refrigerated)" },
-  { value: "freightFlights", label: "Freight flights" },
+  { value: "freightFlights", label: "Freight Flights" },
   { value: "rail", label: "Rail" },
   { value: "seaTanker", label: "Sea tanker" },
   { value: "cargoShip", label: "Cargo Ship" },
