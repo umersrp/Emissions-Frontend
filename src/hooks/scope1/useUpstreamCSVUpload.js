@@ -481,14 +481,14 @@ if (!isNA(cleanedRow.stakeholder)) {
   if (!isNA(cleanedRow.transportationcategory)) {
     const categoryMap = {
       'purchased goods': 'purchasedGoods',
-      'purchased services': 'purchasedServices',
+      'purchased third-party transportation and distribution services': 'purchasedServices',
     };
 
     const lowerCategory = cleanedRow.transportationcategory.toLowerCase();
     const mappedCategory = categoryMap[lowerCategory];
 
     if (!mappedCategory) {
-      errors.push(`Invalid transportation category "${cleanedRow.transportationcategory}". Expected "Purchased Goods" or "Purchased Services"`);
+      errors.push(`Invalid transportation category "${cleanedRow.transportationcategory}". Expected "Purchased Goods" or "Purchased Third-party Transportation and Distribution Services"`);
     } else {
       cleanedRow.transportationcategory = mappedCategory;
     }
@@ -514,7 +514,7 @@ if (!isNA(cleanedRow.stakeholder)) {
         a.toLowerCase() === cleanedRow.activitytype.toLowerCase()
       );
       if (!matchedActivity) {
-        errors.push(`Invalid activity type "${cleanedRow.activitytype}" for purchased services. Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
+        errors.push(`Invalid activity type "${cleanedRow.activitytype}" for Purchased Third-party Transportation and Distribution Services. Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
       } else {
         cleanedRow.activitytype = matchedActivity;
       }
@@ -620,13 +620,13 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
     }
   }
 
-  // Numeric validations for purchased services
+  // Numeric validations for Purchased Third-party Transportation and Distribution Services
   if (cleanedRow.transportationcategory === 'purchasedServices') {
     const amountSpent = cleanNumber(cleanedRow.amountspent, 'Amount spent');
     if (amountSpent === null && !isNA(cleanedRow.amountspent)) {
       // Error already pushed by cleanNumber
     } else if (amountSpent === null && isNA(cleanedRow.amountspent)) {
-      errors.push('Amount spent is required for purchased services');
+      errors.push('Amount spent is required for Purchased Third-party Transportation and Distribution Services');
     } else {
       cleanedRow.amountspent = amountSpent;
     }
@@ -659,9 +659,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
 
       if (isNaN(date.getTime())) {
         errors.push(`Invalid date "${cleanedRow.postingdate}"`);
-      } else if (date > new Date()) {
-        errors.push('Date cannot be in the future');
-      } else {
+      }else {
         cleanedRow.postingdate = isoDate;
       }
     }
@@ -934,7 +932,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
       [
         'BLD-1147',
         'Assembly',
-        'Purchased Services',
+        'Purchased Third-party Transportation and Distribution Services',
         'Warehousing and support services for transportation',
         '',
         '',

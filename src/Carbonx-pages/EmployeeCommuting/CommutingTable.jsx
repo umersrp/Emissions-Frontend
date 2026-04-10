@@ -512,12 +512,9 @@ const CommutingTable = () => {
                 }
             }
         );
-
         const data = res.data.data || [];
-
         // FILTER: Only keep records with entryStatus === "Parent"
         const filteredData = data.filter(item => item.entryStatus === "Parent");
-
         const dataWithBuilding = filteredData.map(item => ({
             ...item,
             building: item.building || {},

@@ -484,8 +484,6 @@ if (cleanedRow.stakeholder) {
           date.getMonth() !== month ||
           date.getFullYear() !== year) {
           errors.push(`Invalid date "${dateStr}" - please provide a valid DD/MM/YYYY date`);
-        } else if (date > new Date()) {
-          errors.push('Date cannot be in the future');
         } else {
           const formattedYear = year;
           const formattedMonth = String(month + 1).padStart(2, '0');
@@ -500,8 +498,6 @@ if (cleanedRow.stakeholder) {
 
           if (isNaN(date.getTime())) {
             errors.push(`Invalid date "${dateStr}"`);
-          } else if (date > new Date()) {
-            errors.push('Date cannot be in the future');
           } else {
             cleanedRow.postingdate = dateStr;
           }

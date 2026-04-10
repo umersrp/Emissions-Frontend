@@ -925,7 +925,7 @@ const UpstreamTransportationListing = () => {
     if (column.accessor === "transportationCategory") {
       if (!value) return "N/A";
       if (value === "purchasedGoods") return "Purchased Goods";
-      if (value === "purchasedServices") return "Purchased Services";
+      if (value === "purchasedServices") return "Purchased Third-party Transportation and Distribution Services";
       return capitalizeLabel(value);
     }
 
@@ -1029,7 +1029,7 @@ const UpstreamTransportationListing = () => {
         Cell: ({ value }) => {
           if (!value) return "N/A";
           return value === "purchasedGoods" ? "Purchased Goods" :
-            value === "purchasedServices" ? "Purchased Services" :
+            value === "purchasedServices" ? "Purchased Third-party Transportation and Distribution Services" :
               capitalizeLabel(value);
         }
       },

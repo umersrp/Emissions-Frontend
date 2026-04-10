@@ -285,288 +285,515 @@ const useDownstreamTransportationCSVUpload = (buildings = []) => {
     });
   }, [cleanCSVValue]);
 
-  // Helper function for normalization (handles spaces around slashes)
-  const normalizeWithSlash = (str) => {
-    if (!str) return '';
-    return str
-      .toLowerCase()
-      .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
-      .replace(/\s+/g, ' ')        // Normalize multiple spaces
-      .trim();
+ // Improved normalization function
+const normalizeWithSlash = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
+    .replace(/\s+/g, ' ')        // Normalize multiple spaces
+    .replace(/[^\w\s/]/g, '')    // Remove special characters except spaces and slashes
+    .trim();
+};
+
+ // Improved flexible matching function
+const findFlexibleMatch = (input, validOptions) => {
+  if (!input || !validOptions.length) return null;
+
+  const normalizedInput = normalizeWithSlash(input);
+
+  // Try direct match with normalization
+  let match = validOptions.find(option =>
+    normalizeWithSlash(option) === normalizedInput
+  );
+
+  if (match) return match;
+
+  // Try removing all spaces and special characters
+  const strippedInput = normalizedInput.replace(/[\s\-_/]/g, '');
+  match = validOptions.find(option => {
+    const strippedOption = normalizeWithSlash(option).replace(/[\s\-_/]/g, '');
+    return strippedOption === strippedInput;
+  });
+
+  if (match) return match;
+
+  // Try partial match (if input is a substring of an option)
+  match = validOptions.find(option => 
+    normalizeWithSlash(option).includes(normalizedInput) || 
+    normalizedInput.includes(normalizeWithSlash(option))
+  );
+
+  if (match) return match;
+
+  // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+  const spacedInput = normalizedInput.replace(/\//g, ' / ');
+  match = validOptions.find(option => {
+    const normalizedOption = normalizeWithSlash(option);
+    const spacedOption = normalizedOption.replace(/\//g, ' / ');
+    return spacedOption === spacedInput;
+  });
+
+  return match;
+};
+
+
+  // const validateDownstreamRow = useCallback((row, index) => {
+  //   const errors = [];
+
+  //   const headerMapping = {
+  //     'buildingcode': 'buildingcode',
+  //     'building': 'buildingcode',
+  //     'stakeholder': 'stakeholder',
+  //     'stakeholderdepartment': 'stakeholder',
+  //     'department': 'stakeholder',
+  //     'postingdate': 'postingdate',
+  //     'date': 'postingdate',
+  //     'soldproductactivitytype': 'soldproductactivitytype',
+  //     'activitytype': 'soldproductactivitytype',
+  //     'activity': 'soldproductactivitytype',
+  //     'soldgoodstype': 'soldgoodstype',
+  //     'goodstype': 'soldgoodstype',
+  //     'transportationvehiclecategory': 'transportationvehiclecategory',
+  //     'vehiclecategory': 'transportationvehiclecategory',
+  //     'transportationvehicletype': 'transportationvehicletype',
+  //     'vehicletype': 'transportationvehicletype',
+  //     'weightloaded': 'weightloaded',
+  //     'weight': 'weightloaded',
+  //     'distancetravelled': 'distancetravelled',
+  //     'distance': 'distancetravelled',
+  //     'qualitycontrol': 'qualitycontrol',
+  //     'quality': 'qualitycontrol',
+  //     'qc': 'qualitycontrol',
+  //     'remarks': 'remarks',
+  //     'remark': 'remarks',
+  //     'note': 'remarks',
+  //   };
+
+  //   const cleanedRow = {};
+
+  //   Object.keys(row).forEach(key => {
+  //     const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+  //     const mappedKey = headerMapping[normalizedKey] || normalizedKey;
+  //     cleanedRow[mappedKey] = row[key]?.toString().trim() || '';
+  //   });
+
+  //   console.log(`Validating row ${index + 1}:`, cleanedRow);
+
+  //   // Required fields validation
+  //   if (!cleanedRow.buildingcode) errors.push('buildingcode is required');
+  //   if (!cleanedRow.stakeholder) errors.push('stakeholder is required');
+  //   if (!cleanedRow.postingdate) errors.push('postingdate is required');
+  //   if (!cleanedRow.soldproductactivitytype) errors.push('soldproductactivitytype is required');
+  //   if (!cleanedRow.transportationvehiclecategory) errors.push('transportationvehiclecategory is required');
+  //   if (!cleanedRow.weightloaded) errors.push('weightloaded is required');
+  //   if (!cleanedRow.distancetravelled) errors.push('distancetravelled is required');
+  //   if (!cleanedRow.qualitycontrol) errors.push('qualitycontrol is required');
+
+  //   if (errors.length > 0) {
+  //     return errors;
+  //   }
+
+  //   // Building validation
+  //   if (cleanedRow.buildingcode && buildings.length > 0) {
+  //     const buildingExists = buildings.some(b =>
+  //       b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
+  //     );
+  //     if (!buildingExists) {
+  //       errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
+  //     }
+  //   }
+
+  //   // Stakeholder validation
+  //   // if (cleanedRow.stakeholder) {
+  //   //   const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
+  //   //   const matchedStakeholder = validStakeholders.find(s =>
+  //   //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
+  //   //   );
+  //   //   if (!matchedStakeholder) {
+  //   //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+  //   //   } else {
+  //   //     cleanedRow.stakeholder = matchedStakeholder;
+  //   //   }
+  //   // }
+
+  //   if (cleanedRow.stakeholder) {
+  //     const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
+  //     const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+
+  //     if (!matchedStakeholder) {
+  //       errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+  //     } else {
+  //       cleanedRow.stakeholder = matchedStakeholder;
+  //     }
+  //   }
+
+  //   // Sold Product Activity Type validation
+  //   if (cleanedRow.soldproductactivitytype) {
+  //     const validActivityTypes = soldProductActivityOptions.map(a => a.value);
+  //     const matchedActivity = validActivityTypes.find(a =>
+  //       a.toLowerCase() === cleanedRow.soldproductactivitytype.toLowerCase()
+  //     );
+  //     if (!matchedActivity) {
+  //       errors.push(`Invalid sold product activity type "${cleanedRow.soldproductactivitytype}"`);
+  //     } else {
+  //       cleanedRow.soldproductactivitytype = matchedActivity;
+  //     }
+  //   }
+
+  //   // Sold Goods Type validation (based on activity type)
+  //   // if (cleanedRow.soldproductactivitytype && cleanedRow.soldgoodstype) {
+  //   //   const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
+  //   //   const validGoodsValues = validGoodsTypes.map(g => g.value);
+
+  //   //   const matchedGoodsType = validGoodsValues.find(g =>
+  //   //     g.toLowerCase() === cleanedRow.soldgoodstype.toLowerCase()
+  //   //   );
+
+  //   //   if (!matchedGoodsType && validGoodsValues.length > 0) {
+  //   //     errors.push(`Invalid sold goods type "${cleanedRow.soldgoodstype}" for activity type "${cleanedRow.soldproductactivitytype}"`);
+  //   //   } else if (matchedGoodsType) {
+  //   //     cleanedRow.soldgoodstype = matchedGoodsType;
+  //   //   }
+  //   // } else if (cleanedRow.soldproductactivitytype && !cleanedRow.soldgoodstype) {
+  //   //   const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
+  //   //   if (validGoodsTypes.length > 0) {
+  //   //     errors.push('soldgoodstype is required for this activity type');
+  //   //   }
+  //   // }
+  //   // Sold Goods Type validation (based on activity type) with flexible matching
+  //   if (cleanedRow.soldproductactivitytype && cleanedRow.soldgoodstype) {
+  //     const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
+  //     const validGoodsValues = validGoodsTypes.map(g => g.value);
+
+  //     const matchedGoodsType = findFlexibleMatch(cleanedRow.soldgoodstype, validGoodsValues);
+
+  //     if (!matchedGoodsType && validGoodsValues.length > 0) {
+  //       errors.push(`Invalid sold goods type "${cleanedRow.soldgoodstype}" for activity type "${cleanedRow.soldproductactivitytype}"`);
+  //     } else if (matchedGoodsType) {
+  //       cleanedRow.soldgoodstype = matchedGoodsType;
+  //     }
+  //   } else if (cleanedRow.soldproductactivitytype && !cleanedRow.soldgoodstype) {
+  //     const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
+  //     if (validGoodsTypes.length > 0) {
+  //       errors.push('soldgoodstype is required for this activity type');
+  //     }
+  //   }
+
+  //   // Transportation Vehicle Category validation
+  //   if (cleanedRow.transportationvehiclecategory) {
+  //     const validCategories = transportationVehicleCategoryOptions.map(c => c.value);
+  //     const matchedCategory = validCategories.find(c =>
+  //       c.toLowerCase() === cleanedRow.transportationvehiclecategory.toLowerCase()
+  //     );
+  //     if (!matchedCategory) {
+  //       errors.push(`Invalid transportation vehicle category "${cleanedRow.transportationvehiclecategory}"`);
+  //     } else {
+  //       cleanedRow.transportationvehiclecategory = matchedCategory;
+  //     }
+  //   }
+
+  //   // Transportation Vehicle Type validation
+  //   if (cleanedRow.transportationvehiclecategory && cleanedRow.transportationvehicletype) {
+  //     const validTypes = transportationVehicleTypeOptions[cleanedRow.transportationvehiclecategory] || [];
+  //     const validTypeValues = validTypes.map(t => t.value);
+
+  //     const matchedType = validTypeValues.find(t =>
+  //       t.toLowerCase() === cleanedRow.transportationvehicletype.toLowerCase()
+  //     );
+
+  //     if (!matchedType && validTypeValues.length > 0) {
+  //       errors.push(`Invalid transportation vehicle type "${cleanedRow.transportationvehicletype}" for category "${cleanedRow.transportationvehiclecategory}"`);
+  //     } else if (matchedType) {
+  //       cleanedRow.transportationvehicletype = matchedType;
+  //     }
+  //   } else if (
+  //     cleanedRow.transportationvehiclecategory &&
+  //     ['freightFlights', 'seaTanker', 'cargoShip'].includes(cleanedRow.transportationvehiclecategory) &&
+  //     !cleanedRow.transportationvehicletype
+  //   ) {
+  //     errors.push('transportationvehicletype is required for this vehicle category');
+  //   }
+
+  //   // Weight Loaded validation
+  //   if (cleanedRow.weightloaded) {
+  //     const cleanNum = cleanedRow.weightloaded.toString()
+  //       .replace(/[^0-9.-]/g, '')
+  //       .replace(/^"+|"+$/g, '');
+
+  //     const num = Number(cleanNum);
+  //     if (isNaN(num) || cleanNum === '') {
+  //       errors.push(`Weight loaded must be a number, got "${cleanedRow.weightloaded}"`);
+  //     } else if (num <= 0) {
+  //       errors.push('Weight loaded must be greater than 0');
+  //     } else {
+  //       cleanedRow.weightloaded = num.toString();
+  //     }
+  //   }
+
+  //   // Distance Travelled validation
+  //   if (cleanedRow.distancetravelled) {
+  //     const cleanNum = cleanedRow.distancetravelled.toString()
+  //       .replace(/[^0-9.-]/g, '')
+  //       .replace(/^"+|"+$/g, '');
+
+  //     const num = Number(cleanNum);
+  //     if (isNaN(num) || cleanNum === '') {
+  //       errors.push(`Distance travelled must be a number, got "${cleanedRow.distancetravelled}"`);
+  //     } else if (num <= 0) {
+  //       errors.push('Distance travelled must be greater than 0');
+  //     } else {
+  //       cleanedRow.distancetravelled = num.toString();
+  //     }
+  //   }
+
+  //   // Quality Control validation
+  //   if (cleanedRow.qualitycontrol) {
+  //     const validQC = processQualityControlOptions.map(q => q.value);
+  //     const matchedQC = validQC.find(q =>
+  //       q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
+  //     );
+  //     if (!matchedQC) {
+  //       errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+  //     } else {
+  //       cleanedRow.qualitycontrol = matchedQC;
+  //     }
+  //   }
+
+  //   // Date validation
+  //   if (cleanedRow.postingdate) {
+  //     const isoDate = parseDateToISO(cleanedRow.postingdate);
+  //     if (!isoDate) {
+  //       errors.push(`Invalid date format: "${cleanedRow.postingdate}"`);
+  //     } else {
+  //       cleanedRow.postingdate = isoDate;
+  //     }
+  //   }
+
+  //   // Remarks validation
+  //   if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
+  //     errors.push('Remarks cannot exceed 500 characters');
+  //   }
+
+  //   // Update original row with cleaned values if no errors
+  //   if (errors.length === 0) {
+  //     Object.keys(cleanedRow).forEach(key => {
+  //       row[key] = cleanedRow[key];
+  //     });
+  //   }
+
+  //   return errors;
+  // }, [buildings, parseDateToISO]);
+const validateDownstreamRow = useCallback((row, index) => {
+  const errors = [];
+
+  const headerMapping = {
+    'buildingcode': 'buildingcode',
+    'building': 'buildingcode',
+    'stakeholder': 'stakeholder',
+    'stakeholderdepartment': 'stakeholder',
+    'department': 'stakeholder',
+    'postingdate': 'postingdate',
+    'date': 'postingdate',
+    'soldproductactivitytype': 'soldproductactivitytype',
+    'activitytype': 'soldproductactivitytype',
+    'activity': 'soldproductactivitytype',
+    'soldgoodstype': 'soldgoodstype',
+    'goodstype': 'soldgoodstype',
+    'transportationvehiclecategory': 'transportationvehiclecategory',
+    'vehiclecategory': 'transportationvehiclecategory',
+    'transportationvehicletype': 'transportationvehicletype',
+    'vehicletype': 'transportationvehicletype',
+    'weightloaded': 'weightloaded',
+    'weight': 'weightloaded',
+    'distancetravelled': 'distancetravelled',
+    'distance': 'distancetravelled',
+    'qualitycontrol': 'qualitycontrol',
+    'quality': 'qualitycontrol',
+    'qc': 'qualitycontrol',
+    'remarks': 'remarks',
+    'remark': 'remarks',
+    'note': 'remarks',
   };
 
-  // Flexible matching function
-  const findFlexibleMatch = (input, validOptions) => {
-    if (!input || !validOptions.length) return null;
+  const cleanedRow = {};
 
-    const normalizedInput = normalizeWithSlash(input);
+  Object.keys(row).forEach(key => {
+    const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const mappedKey = headerMapping[normalizedKey] || normalizedKey;
+    cleanedRow[mappedKey] = row[key]?.toString().trim() || '';
+  });
 
-    // Try direct match with normalization
-    let match = validOptions.find(option =>
-      normalizeWithSlash(option) === normalizedInput
-    );
+  console.log(`Validating row ${index + 1}:`, cleanedRow);
 
-    if (match) return match;
+  // Required fields validation
+  if (!cleanedRow.buildingcode) errors.push('buildingcode is required');
+  if (!cleanedRow.stakeholder) errors.push('stakeholder is required');
+  if (!cleanedRow.postingdate) errors.push('postingdate is required');
+  if (!cleanedRow.soldproductactivitytype) errors.push('soldproductactivitytype is required');
+  if (!cleanedRow.transportationvehiclecategory) errors.push('transportationvehiclecategory is required');
+  if (!cleanedRow.weightloaded) errors.push('weightloaded is required');
+  if (!cleanedRow.distancetravelled) errors.push('distancetravelled is required');
+  if (!cleanedRow.qualitycontrol) errors.push('qualitycontrol is required');
 
-    // Try with spaces around slashes (for cases like "A/B" vs "A / B")
-    const spacedInput = normalizedInput.replace(/\//g, ' / ');
-    match = validOptions.find(option => {
-      const normalizedOption = normalizeWithSlash(option);
-      const spacedOption = normalizedOption.replace(/\//g, ' / ');
-      return spacedOption === spacedInput;
-    });
-
-    return match;
-  };
-
-
-  const validateDownstreamRow = useCallback((row, index) => {
-    const errors = [];
-
-    const headerMapping = {
-      'buildingcode': 'buildingcode',
-      'building': 'buildingcode',
-      'stakeholder': 'stakeholder',
-      'stakeholderdepartment': 'stakeholder',
-      'department': 'stakeholder',
-      'postingdate': 'postingdate',
-      'date': 'postingdate',
-      'soldproductactivitytype': 'soldproductactivitytype',
-      'activitytype': 'soldproductactivitytype',
-      'activity': 'soldproductactivitytype',
-      'soldgoodstype': 'soldgoodstype',
-      'goodstype': 'soldgoodstype',
-      'transportationvehiclecategory': 'transportationvehiclecategory',
-      'vehiclecategory': 'transportationvehiclecategory',
-      'transportationvehicletype': 'transportationvehicletype',
-      'vehicletype': 'transportationvehicletype',
-      'weightloaded': 'weightloaded',
-      'weight': 'weightloaded',
-      'distancetravelled': 'distancetravelled',
-      'distance': 'distancetravelled',
-      'qualitycontrol': 'qualitycontrol',
-      'quality': 'qualitycontrol',
-      'qc': 'qualitycontrol',
-      'remarks': 'remarks',
-      'remark': 'remarks',
-      'note': 'remarks',
-    };
-
-    const cleanedRow = {};
-
-    Object.keys(row).forEach(key => {
-      const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const mappedKey = headerMapping[normalizedKey] || normalizedKey;
-      cleanedRow[mappedKey] = row[key]?.toString().trim() || '';
-    });
-
-    console.log(`Validating row ${index + 1}:`, cleanedRow);
-
-    // Required fields validation
-    if (!cleanedRow.buildingcode) errors.push('buildingcode is required');
-    if (!cleanedRow.stakeholder) errors.push('stakeholder is required');
-    if (!cleanedRow.postingdate) errors.push('postingdate is required');
-    if (!cleanedRow.soldproductactivitytype) errors.push('soldproductactivitytype is required');
-    if (!cleanedRow.transportationvehiclecategory) errors.push('transportationvehiclecategory is required');
-    if (!cleanedRow.weightloaded) errors.push('weightloaded is required');
-    if (!cleanedRow.distancetravelled) errors.push('distancetravelled is required');
-    if (!cleanedRow.qualitycontrol) errors.push('qualitycontrol is required');
-
-    if (errors.length > 0) {
-      return errors;
-    }
-
-    // Building validation
-    if (cleanedRow.buildingcode && buildings.length > 0) {
-      const buildingExists = buildings.some(b =>
-        b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
-      );
-      if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
-      }
-    }
-
-    // Stakeholder validation
-    // if (cleanedRow.stakeholder) {
-    //   const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-    //   const matchedStakeholder = validStakeholders.find(s =>
-    //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-    //   );
-    //   if (!matchedStakeholder) {
-    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-    //   } else {
-    //     cleanedRow.stakeholder = matchedStakeholder;
-    //   }
-    // }
-
-    if (cleanedRow.stakeholder) {
-      const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-      const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
-
-      if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-      } else {
-        cleanedRow.stakeholder = matchedStakeholder;
-      }
-    }
-
-    // Sold Product Activity Type validation
-    if (cleanedRow.soldproductactivitytype) {
-      const validActivityTypes = soldProductActivityOptions.map(a => a.value);
-      const matchedActivity = validActivityTypes.find(a =>
-        a.toLowerCase() === cleanedRow.soldproductactivitytype.toLowerCase()
-      );
-      if (!matchedActivity) {
-        errors.push(`Invalid sold product activity type "${cleanedRow.soldproductactivitytype}"`);
-      } else {
-        cleanedRow.soldproductactivitytype = matchedActivity;
-      }
-    }
-
-    // Sold Goods Type validation (based on activity type)
-    // if (cleanedRow.soldproductactivitytype && cleanedRow.soldgoodstype) {
-    //   const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
-    //   const validGoodsValues = validGoodsTypes.map(g => g.value);
-
-    //   const matchedGoodsType = validGoodsValues.find(g =>
-    //     g.toLowerCase() === cleanedRow.soldgoodstype.toLowerCase()
-    //   );
-
-    //   if (!matchedGoodsType && validGoodsValues.length > 0) {
-    //     errors.push(`Invalid sold goods type "${cleanedRow.soldgoodstype}" for activity type "${cleanedRow.soldproductactivitytype}"`);
-    //   } else if (matchedGoodsType) {
-    //     cleanedRow.soldgoodstype = matchedGoodsType;
-    //   }
-    // } else if (cleanedRow.soldproductactivitytype && !cleanedRow.soldgoodstype) {
-    //   const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
-    //   if (validGoodsTypes.length > 0) {
-    //     errors.push('soldgoodstype is required for this activity type');
-    //   }
-    // }
-    // Sold Goods Type validation (based on activity type) with flexible matching
-    if (cleanedRow.soldproductactivitytype && cleanedRow.soldgoodstype) {
-      const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
-      const validGoodsValues = validGoodsTypes.map(g => g.value);
-
-      const matchedGoodsType = findFlexibleMatch(cleanedRow.soldgoodstype, validGoodsValues);
-
-      if (!matchedGoodsType && validGoodsValues.length > 0) {
-        errors.push(`Invalid sold goods type "${cleanedRow.soldgoodstype}" for activity type "${cleanedRow.soldproductactivitytype}"`);
-      } else if (matchedGoodsType) {
-        cleanedRow.soldgoodstype = matchedGoodsType;
-      }
-    } else if (cleanedRow.soldproductactivitytype && !cleanedRow.soldgoodstype) {
-      const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
-      if (validGoodsTypes.length > 0) {
-        errors.push('soldgoodstype is required for this activity type');
-      }
-    }
-
-    // Transportation Vehicle Category validation
-    if (cleanedRow.transportationvehiclecategory) {
-      const validCategories = transportationVehicleCategoryOptions.map(c => c.value);
-      const matchedCategory = validCategories.find(c =>
-        c.toLowerCase() === cleanedRow.transportationvehiclecategory.toLowerCase()
-      );
-      if (!matchedCategory) {
-        errors.push(`Invalid transportation vehicle category "${cleanedRow.transportationvehiclecategory}"`);
-      } else {
-        cleanedRow.transportationvehiclecategory = matchedCategory;
-      }
-    }
-
-    // Transportation Vehicle Type validation
-    if (cleanedRow.transportationvehiclecategory && cleanedRow.transportationvehicletype) {
-      const validTypes = transportationVehicleTypeOptions[cleanedRow.transportationvehiclecategory] || [];
-      const validTypeValues = validTypes.map(t => t.value);
-
-      const matchedType = validTypeValues.find(t =>
-        t.toLowerCase() === cleanedRow.transportationvehicletype.toLowerCase()
-      );
-
-      if (!matchedType && validTypeValues.length > 0) {
-        errors.push(`Invalid transportation vehicle type "${cleanedRow.transportationvehicletype}" for category "${cleanedRow.transportationvehiclecategory}"`);
-      } else if (matchedType) {
-        cleanedRow.transportationvehicletype = matchedType;
-      }
-    } else if (
-      cleanedRow.transportationvehiclecategory &&
-      ['freightFlights', 'seaTanker', 'cargoShip'].includes(cleanedRow.transportationvehiclecategory) &&
-      !cleanedRow.transportationvehicletype
-    ) {
-      errors.push('transportationvehicletype is required for this vehicle category');
-    }
-
-    // Weight Loaded validation
-    if (cleanedRow.weightloaded) {
-      const cleanNum = cleanedRow.weightloaded.toString()
-        .replace(/[^0-9.-]/g, '')
-        .replace(/^"+|"+$/g, '');
-
-      const num = Number(cleanNum);
-      if (isNaN(num) || cleanNum === '') {
-        errors.push(`Weight loaded must be a number, got "${cleanedRow.weightloaded}"`);
-      } else if (num <= 0) {
-        errors.push('Weight loaded must be greater than 0');
-      } else {
-        cleanedRow.weightloaded = num.toString();
-      }
-    }
-
-    // Distance Travelled validation
-    if (cleanedRow.distancetravelled) {
-      const cleanNum = cleanedRow.distancetravelled.toString()
-        .replace(/[^0-9.-]/g, '')
-        .replace(/^"+|"+$/g, '');
-
-      const num = Number(cleanNum);
-      if (isNaN(num) || cleanNum === '') {
-        errors.push(`Distance travelled must be a number, got "${cleanedRow.distancetravelled}"`);
-      } else if (num <= 0) {
-        errors.push('Distance travelled must be greater than 0');
-      } else {
-        cleanedRow.distancetravelled = num.toString();
-      }
-    }
-
-    // Quality Control validation
-    if (cleanedRow.qualitycontrol) {
-      const validQC = processQualityControlOptions.map(q => q.value);
-      const matchedQC = validQC.find(q =>
-        q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
-      );
-      if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
-      } else {
-        cleanedRow.qualitycontrol = matchedQC;
-      }
-    }
-
-    // Date validation
-    if (cleanedRow.postingdate) {
-      const isoDate = parseDateToISO(cleanedRow.postingdate);
-      if (!isoDate) {
-        errors.push(`Invalid date format: "${cleanedRow.postingdate}"`);
-      } else {
-        cleanedRow.postingdate = isoDate;
-      }
-    }
-
-    // Remarks validation
-    if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
-      errors.push('Remarks cannot exceed 500 characters');
-    }
-
-    // Update original row with cleaned values if no errors
-    if (errors.length === 0) {
-      Object.keys(cleanedRow).forEach(key => {
-        row[key] = cleanedRow[key];
-      });
-    }
-
+  if (errors.length > 0) {
     return errors;
-  }, [buildings, parseDateToISO]);
+  }
 
+  // Building validation (case-insensitive)
+  if (cleanedRow.buildingcode && buildings.length > 0) {
+    const buildingExists = buildings.some(b =>
+      b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
+    );
+    if (!buildingExists) {
+      errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
+    }
+  }
+
+  // Stakeholder validation with flexible matching
+  if (cleanedRow.stakeholder) {
+    const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
+    const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+
+    if (!matchedStakeholder) {
+      errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+    } else {
+      cleanedRow.stakeholder = matchedStakeholder;
+    }
+  }
+
+  // Sold Product Activity Type validation with flexible matching
+  if (cleanedRow.soldproductactivitytype) {
+    const validActivityTypes = soldProductActivityOptions.map(a => a.value);
+    const matchedActivity = findFlexibleMatch(cleanedRow.soldproductactivitytype, validActivityTypes);
+    
+    if (!matchedActivity) {
+      errors.push(`Invalid sold product activity type "${cleanedRow.soldproductactivitytype}"`);
+    } else {
+      cleanedRow.soldproductactivitytype = matchedActivity;
+    }
+  }
+
+  // Sold Goods Type validation with flexible matching
+  if (cleanedRow.soldproductactivitytype && cleanedRow.soldgoodstype) {
+    const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
+    const validGoodsValues = validGoodsTypes.map(g => g.value);
+
+    const matchedGoodsType = findFlexibleMatch(cleanedRow.soldgoodstype, validGoodsValues);
+
+    if (!matchedGoodsType && validGoodsValues.length > 0) {
+      errors.push(`Invalid sold goods type "${cleanedRow.soldgoodstype}" for activity type "${cleanedRow.soldproductactivitytype}"`);
+    } else if (matchedGoodsType) {
+      cleanedRow.soldgoodstype = matchedGoodsType;
+    }
+  } else if (cleanedRow.soldproductactivitytype && !cleanedRow.soldgoodstype) {
+    const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
+    if (validGoodsTypes.length > 0) {
+      errors.push('soldgoodstype is required for this activity type');
+    }
+  }
+
+  // Transportation Vehicle Category validation with flexible matching
+  if (cleanedRow.transportationvehiclecategory) {
+    const validCategories = transportationVehicleCategoryOptions.map(c => c.value);
+    const matchedCategory = findFlexibleMatch(cleanedRow.transportationvehiclecategory, validCategories);
+    
+    if (!matchedCategory) {
+      errors.push(`Invalid transportation vehicle category "${cleanedRow.transportationvehiclecategory}"`);
+    } else {
+      cleanedRow.transportationvehiclecategory = matchedCategory;
+    }
+  }
+
+  // Transportation Vehicle Type validation with flexible matching
+  if (cleanedRow.transportationvehiclecategory && cleanedRow.transportationvehicletype) {
+    const validTypes = transportationVehicleTypeOptions[cleanedRow.transportationvehiclecategory] || [];
+    const validTypeValues = validTypes.map(t => t.value);
+
+    const matchedType = findFlexibleMatch(cleanedRow.transportationvehicletype, validTypeValues);
+
+    if (!matchedType && validTypeValues.length > 0) {
+      errors.push(`Invalid transportation vehicle type "${cleanedRow.transportationvehicletype}" for category "${cleanedRow.transportationvehiclecategory}"`);
+    } else if (matchedType) {
+      cleanedRow.transportationvehicletype = matchedType;
+    }
+  } else if (
+    cleanedRow.transportationvehiclecategory &&
+    ['freightFlights', 'seaTanker', 'cargoShip'].includes(cleanedRow.transportationvehiclecategory) &&
+    !cleanedRow.transportationvehicletype
+  ) {
+    errors.push('transportationvehicletype is required for this vehicle category');
+  }
+
+  // Weight Loaded validation
+  if (cleanedRow.weightloaded) {
+    const cleanNum = cleanedRow.weightloaded.toString()
+      .replace(/[^0-9.-]/g, '')
+      .replace(/^"+|"+$/g, '');
+
+    const num = Number(cleanNum);
+    if (isNaN(num) || cleanNum === '') {
+      errors.push(`Weight loaded must be a number, got "${cleanedRow.weightloaded}"`);
+    } else if (num <= 0) {
+      errors.push('Weight loaded must be greater than 0');
+    } else {
+      cleanedRow.weightloaded = num.toString();
+    }
+  }
+
+  // Distance Travelled validation
+  if (cleanedRow.distancetravelled) {
+    const cleanNum = cleanedRow.distancetravelled.toString()
+      .replace(/[^0-9.-]/g, '')
+      .replace(/^"+|"+$/g, '');
+
+    const num = Number(cleanNum);
+    if (isNaN(num) || cleanNum === '') {
+      errors.push(`Distance travelled must be a number, got "${cleanedRow.distancetravelled}"`);
+    } else if (num <= 0) {
+      errors.push('Distance travelled must be greater than 0');
+    } else {
+      cleanedRow.distancetravelled = num.toString();
+    }
+  }
+
+  // Quality Control validation with flexible matching
+  if (cleanedRow.qualitycontrol) {
+    const validQC = processQualityControlOptions.map(q => q.value);
+    const matchedQC = findFlexibleMatch(cleanedRow.qualitycontrol, validQC);
+    
+    if (!matchedQC) {
+      errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+    } else {
+      cleanedRow.qualitycontrol = matchedQC;
+    }
+  }
+
+  // Date validation
+  if (cleanedRow.postingdate) {
+    const isoDate = parseDateToISO(cleanedRow.postingdate);
+    if (!isoDate) {
+      errors.push(`Invalid date format: "${cleanedRow.postingdate}"`);
+    } else {
+      cleanedRow.postingdate = isoDate;
+    }
+  }
+
+  // Remarks validation
+  if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
+    errors.push('Remarks cannot exceed 500 characters');
+  }
+
+  // Update original row with cleaned values if no errors
+  if (errors.length === 0) {
+    Object.keys(cleanedRow).forEach(key => {
+      row[key] = cleanedRow[key];
+    });
+  }
+
+  return errors;
+}, [buildings, parseDateToISO, findFlexibleMatch]);
   const transformDownstreamPayload = useCallback((row) => {
     const userId = localStorage.getItem('userId');
 
