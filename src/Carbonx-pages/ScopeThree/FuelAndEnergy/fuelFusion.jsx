@@ -701,7 +701,8 @@ const FuelFusion = () => {
     const [selectedId, setSelectedId] = useState(null);
     const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
     const [goToValue, setGoToValue] = useState(pageIndex);
-
+  const [selectedRows, setSelectedRows] = useState([]);
+const [multiDeleteModalOpen, setMultiDeleteModalOpen] = useState(false);
     // CSV Upload using custom hook
     const {
         csvState,
@@ -882,6 +883,32 @@ const FuelFusion = () => {
             toast.error("Failed to delete record");
         }
     };
+    // Multi Delete Records
+const handleMultiDelete = async () => {
+    if (selectedRows.length === 0) {
+        toast.error("No records selected");
+        return;
+    }
+
+    try {
+        // Delete each selected record
+        const deletePromises = selectedRows.map(id => 
+            axios.delete(`${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/delete/${id}`, {
+                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            })
+        );
+        
+        await Promise.all(deletePromises);
+        
+        toast.success(`${selectedRows.length} record(s) deleted successfully`);
+        setSelectedRows([]);
+        setMultiDeleteModalOpen(false);
+        fetchData();
+    } catch (err) {
+        console.error(err);
+        toast.error("Failed to delete some records");
+    }
+};
 
     // CSV Upload handlers
     const handleCSVFileSelect = async (selectedFile) => {

@@ -427,64 +427,129 @@ const CommutingTable = () => {
         });
     };
 
+    // const fetchCommutingData = async () => {
+    //     setLoading(true);
+    //     try {
+    //         const search = globalFilterValue.trim();
+    //         const token = localStorage.getItem("token");
+
+    //         if (!token) {
+    //             toast.error("Authentication token missing. Please login again.");
+    //             navigate("/login");
+    //             return;
+    //         }
+
+    //         const params = {
+    //             page: 1,
+    //             limit: 10000,
+    //             ...(search && { search: search })
+    //         };
+
+    //         const res = await axios.get(
+    //             `${process.env.REACT_APP_BASE_URL}/employee-commute/List`,
+    //             {
+    //                 params,
+    //                 headers: {
+    //                     Authorization: `Bearer ${token}`
+    //                 }
+    //             }
+    //         );
+
+    //         const data = res.data.data || [];
+
+    //         const dataWithBuilding = data.map(item => ({
+    //             ...item,
+    //             building: item.building || {},
+    //             calculatedEmissionKgCo2e: item.calculatedEmissionKgCo2e || 0,
+    //             calculatedEmissionTCo2e: item.calculatedEmissionTCo2e || 0
+    //         }));
+
+    //         setCommutingData(dataWithBuilding);
+    //         setCurrentPage(1);
+    //         setExpandedGroups({});
+
+    //     } catch (err) {
+    //         console.error("Error fetching commuting data:", err);
+    //         if (err.response?.status === 401) {
+    //             toast.error("Session expired. Please login again.");
+    //             localStorage.removeItem("token");
+    //             navigate("/login");
+    //         } else if (err.response?.status === 403) {
+    //             toast.error("You don't have permission to access this resource.");
+    //         } else {
+    //             toast.error("Failed to fetch employee commuting data");
+    //         }
+    //         setCommutingData([]);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
     const fetchCommutingData = async () => {
-        setLoading(true);
-        try {
-            const search = globalFilterValue.trim();
-            const token = localStorage.getItem("token");
+    setLoading(true);
+    try {
+        const search = globalFilterValue.trim();
+        const token = localStorage.getItem("token");
 
-            if (!token) {
-                toast.error("Authentication token missing. Please login again.");
-                navigate("/login");
-                return;
-            }
-
-            const params = {
-                page: 1,
-                limit: 10000,
-                ...(search && { search: search })
-            };
-
-            const res = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/employee-commute/List`,
-                {
-                    params,
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            );
-
-            const data = res.data.data || [];
-
-            const dataWithBuilding = data.map(item => ({
-                ...item,
-                building: item.building || {},
-                calculatedEmissionKgCo2e: item.calculatedEmissionKgCo2e || 0,
-                calculatedEmissionTCo2e: item.calculatedEmissionTCo2e || 0
-            }));
-
-            setCommutingData(dataWithBuilding);
-            setCurrentPage(1);
-            setExpandedGroups({});
-
-        } catch (err) {
-            console.error("Error fetching commuting data:", err);
-            if (err.response?.status === 401) {
-                toast.error("Session expired. Please login again.");
-                localStorage.removeItem("token");
-                navigate("/login");
-            } else if (err.response?.status === 403) {
-                toast.error("You don't have permission to access this resource.");
-            } else {
-                toast.error("Failed to fetch employee commuting data");
-            }
-            setCommutingData([]);
-        } finally {
-            setLoading(false);
+        if (!token) {
+            toast.error("Authentication token missing. Please login again.");
+            navigate("/login");
+            return;
         }
-    };
 
+        const params = {
+            page: 1,
+            limit: 10000,
+            ...(search && { search: search })
+        };
+
+        const res = await axios.get(
+            `${process.env.REACT_APP_BASE_URL}/employee-commute/List`,
+            {
+                params,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        const data = res.data.data || [];
+
+        // FILTER: Only keep records with entryStatus === "Parent"
+        const filteredData = data.filter(item => item.entryStatus === "Parent");
+
+        const dataWithBuilding = filteredData.map(item => ({
+            ...item,
+            building: item.building || {},
+            calculatedEmissionKgCo2e: item.calculatedEmissionKgCo2e || 0,
+            calculatedEmissionTCo2e: item.calculatedEmissionTCo2e || 0
+        }));
+
+        setCommutingData(dataWithBuilding);
+        setCurrentPage(1);
+        setExpandedGroups({});
+
+        // Optional: Show message if no Parent records found
+        if (filteredData.length === 0 && data.length > 0) {
+            toast.info("No Parent records found. Only showing Parent entries.");
+        }
+
+    } catch (err) {
+        console.error("Error fetching commuting data:", err);
+        if (err.response?.status === 401) {
+            toast.error("Session expired. Please login again.");
+            localStorage.removeItem("token");
+            navigate("/login");
+        } else if (err.response?.status === 403) {
+            toast.error("You don't have permission to access this resource.");
+        } else {
+            toast.error("Failed to fetch employee commuting data");
+        }
+        setCommutingData([]);
+    } finally {
+        setLoading(false);
+    }
+};
     useEffect(() => {
         const delay = setTimeout(() => {
             fetchCommutingData();

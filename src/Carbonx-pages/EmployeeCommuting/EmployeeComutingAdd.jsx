@@ -1,4 +1,4 @@
-import React, { useState, useEffect,  useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -77,14 +77,14 @@ const WFH_EMISSION_FACTOR = 0.33378;
 //         const motorbikeType = data.motorbikeType || "Average";
 //         let factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
 //         let emissions = distance * factor;
-        
+
 //         console.log('=== EMISSION CALCULATION - MOTORBIKE ===');
 //         console.log('Motorbike Type:', motorbikeType);
 //         console.log('Distance:', distance, 'km');
 //         console.log('Passengers:', passengers);
 //         console.log('Emission Factor:', factor, 'kg CO2e/km');
 //         console.log('Emissions:', emissions, 'kg CO2e');
-        
+
 //         totalEmissionsKg += emissions;
 //         totalDistance += distance;
 //         totalPassengers += passengers;
@@ -106,7 +106,7 @@ const WFH_EMISSION_FACTOR = 0.33378;
 //         let baseFactor = EMISSION_FACTORS.cars[carType]?.[fuelType];
 //         let factor = baseFactor;
 //         let emissions = distance * factor;
-        
+
 //         console.log('=== EMISSION CALCULATION - CAR ===');
 //         console.log('Car Type:', carType);
 //         console.log('Fuel Type:', fuelType);
@@ -117,7 +117,7 @@ const WFH_EMISSION_FACTOR = 0.33378;
 //         console.log('Base Emission Factor:', baseFactor, 'kg CO2e/km');
 //         console.log('Per Person Emission Factor:', factor, 'kg CO2e/km');
 //         console.log('Emissions:', emissions, 'kg CO2e');
-        
+
 //         totalEmissionsKg += emissions;
 //         totalDistance += distance;
 //         totalPassengers += passengers;
@@ -138,7 +138,7 @@ const WFH_EMISSION_FACTOR = 0.33378;
 //         let baseFactor = EMISSION_FACTORS.taxis[taxiType] ;
 //         let factor = baseFactor;
 //         let emissions = distance * factor;
-        
+
 //         console.log('=== EMISSION CALCULATION - TAXI ===');
 //         console.log('Taxi Type:', taxiType);
 //         console.log('Distance:', distance, 'km');
@@ -148,7 +148,7 @@ const WFH_EMISSION_FACTOR = 0.33378;
 //         console.log('Base Emission Factor:', baseFactor, 'kg CO2e/km');
 //         console.log('Per Person Emission Factor:', factor, 'kg CO2e/km');
 //         console.log('Emissions:', emissions, 'kg CO2e');
-        
+
 //         totalEmissionsKg += emissions;
 //         totalDistance += distance;
 //         totalPassengers += passengers;
@@ -168,14 +168,14 @@ const WFH_EMISSION_FACTOR = 0.33378;
 //         const busType = data.busType ;
 //         let factor = EMISSION_FACTORS.buses[busType] ;
 //         let emissions = distance * passengers * factor;
-        
+
 //         console.log('=== EMISSION CALCULATION - BUS ===');
 //         console.log('Bus Type:', busType);
 //         console.log('Distance:', distance, 'km');
 //         console.log('Passengers:', passengers);
 //         console.log('Emission Factor:', factor, 'kg CO2e/km');
 //         console.log('Emissions:', emissions, 'kg CO2e');
-        
+
 //         totalEmissionsKg += emissions;
 //         totalDistance += distance;
 //         totalPassengers += passengers;
@@ -195,14 +195,14 @@ const WFH_EMISSION_FACTOR = 0.33378;
 //         const trainType = data.trainType ;
 //         let factor = EMISSION_FACTORS.trains[trainType] ;
 //         let emissions = distance * passengers * factor;
-        
+
 //         console.log('=== EMISSION CALCULATION - TRAIN ===');
 //         console.log('Train Type:', trainType);
 //         console.log('Distance:', distance, 'km');
 //         console.log('Passengers:', passengers);
 //         console.log('Emission Factor:', factor, 'kg CO2e/km');
 //         console.log('Emissions:', emissions, 'kg CO2e');
-        
+
 //         totalEmissionsKg += emissions;
 //         totalDistance += distance;
 //         totalPassengers += passengers;
@@ -216,13 +216,13 @@ const WFH_EMISSION_FACTOR = 0.33378;
 //     }
 
 //     const totalEmissionsTonnes = totalEmissionsKg / 1000;
-    
+
 //     console.log('=== FINAL EMISSION CALCULATION SUMMARY ===');
 //     console.log('All Modes Calculated:', emissionDetails.map(d => d.mode).join(', '));
 //     console.log('Total Emissions:', totalEmissionsKg.toFixed(4), 'kg CO2e');
 //     console.log('Total Emissions:', totalEmissionsTonnes.toFixed(6), 'tonnes CO2e');
 //     console.log('===================================\n');
-    
+
 //     return { 
 //         distance: totalDistance, 
 //         passengers: totalPassengers, 
@@ -248,31 +248,31 @@ const calculateEmissions = (data) => {
         let passengers = 1;
         const motorbikeType = data.motorbikeType || "Average";
         let factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
-        
+
         let individualEmissions = individualDistance * factor;
         let totalMotorbikeEmissions = individualEmissions;
         let motorbikeTotalDistance = individualDistance;
-        
+
         console.log('=== EMISSION CALCULATION - MOTORBIKE ===');
         console.log('Motorbike Type:', motorbikeType);
         console.log('Emission Factor:', factor, 'kg CO2e/km');
         console.log('Individual Distance:', individualDistance, 'km');
         console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
-        
+
         // Check if mode is 'both' and carpool distance exists
         if (data.motorbikeMode === 'both' && data.motorbikeDistanceCarpool) {
             carpoolDistance = Number(data.motorbikeDistanceCarpool) || 0;
             let carpoolEmissions = carpoolDistance * factor;
             totalMotorbikeEmissions += carpoolEmissions;
             motorbikeTotalDistance += carpoolDistance;
-            
+
             console.log('Carpool Distance:', carpoolDistance, 'km');
             console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
             console.log('Total Motorbike Emissions (Individual + Carpool):', totalMotorbikeEmissions, 'kg CO2e');
         }
-        
+
         console.log('Total Motorbike Distance:', motorbikeTotalDistance, 'km');
-        
+
         totalEmissionsKg += totalMotorbikeEmissions;
         totalDistance += motorbikeTotalDistance;
         totalPassengers += passengers;
@@ -296,11 +296,11 @@ const calculateEmissions = (data) => {
         const fuelType = data.carFuelType || "Unknown";
         let baseFactor = EMISSION_FACTORS.cars[carType]?.[fuelType];
         let factor = baseFactor;
-        
+
         let individualEmissions = individualDistance * factor;
         let totalCarEmissions = individualEmissions;
         let carTotalDistance = individualDistance;
-        
+
         console.log('=== EMISSION CALCULATION - CAR ===');
         console.log('Car Type:', carType);
         console.log('Fuel Type:', fuelType);
@@ -310,21 +310,21 @@ const calculateEmissions = (data) => {
         console.log('Total Passengers (including driver):', passengers);
         console.log('Individual Distance:', individualDistance, 'km');
         console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
-        
+
         // Check if mode is 'both' and carpool distance exists
         if (data.carMode === 'both' && data.carDistanceCarpool) {
             carpoolDistance = Number(data.carDistanceCarpool) || 0;
             let carpoolEmissions = carpoolDistance * factor;
             totalCarEmissions += carpoolEmissions;
             carTotalDistance += carpoolDistance;
-            
+
             console.log('Carpool Distance:', carpoolDistance, 'km');
             console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
             console.log('Total Car Emissions (Individual + Carpool):', totalCarEmissions, 'kg CO2e');
         }
-        
+
         console.log('Total Car Distance:', carTotalDistance, 'km');
-        
+
         totalEmissionsKg += totalCarEmissions;
         totalDistance += carTotalDistance;
         totalPassengers += passengers;
@@ -348,11 +348,11 @@ const calculateEmissions = (data) => {
         const taxiType = data.taxiType;
         let baseFactor = EMISSION_FACTORS.taxis[taxiType];
         let factor = baseFactor;
-        
+
         let individualEmissions = individualDistance * factor;
         let totalTaxiEmissions = individualEmissions;
         let taxiTotalDistance = individualDistance;
-        
+
         console.log('=== EMISSION CALCULATION - TAXI ===');
         console.log('Taxi Type:', taxiType);
         console.log('Emission Factor:', factor, 'kg CO2e/km');
@@ -361,21 +361,21 @@ const calculateEmissions = (data) => {
         console.log('Total Passengers (including self):', passengers);
         console.log('Individual Distance:', individualDistance, 'km');
         console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
-        
+
         // Check if mode is 'both' and carpool distance exists
         if (data.taxiMode === 'both' && data.taxiDistanceCarpool) {
             carpoolDistance = Number(data.taxiDistanceCarpool) || 0;
             let carpoolEmissions = carpoolDistance * factor;
             totalTaxiEmissions += carpoolEmissions;
             taxiTotalDistance += carpoolDistance;
-            
+
             console.log('Carpool Distance:', carpoolDistance, 'km');
             console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
             console.log('Total Taxi Emissions (Individual + Carpool):', totalTaxiEmissions, 'kg CO2e');
         }
-        
+
         console.log('Total Taxi Distance:', taxiTotalDistance, 'km');
-        
+
         totalEmissionsKg += totalTaxiEmissions;
         totalDistance += taxiTotalDistance;
         totalPassengers += passengers;
@@ -398,14 +398,14 @@ const calculateEmissions = (data) => {
         const busType = data.busType;
         let factor = EMISSION_FACTORS.buses[busType];
         let emissions = distance * factor;
-        
+
         console.log('=== EMISSION CALCULATION - BUS ===');
         console.log('Bus Type:', busType);
         console.log('Distance:', distance, 'km');
         console.log('Passengers:', passengers);
         console.log('Emission Factor:', factor, 'kg CO2e/km');
         console.log('Emissions:', emissions, 'kg CO2e');
-        
+
         totalEmissionsKg += emissions;
         totalDistance += distance;
         totalPassengers += passengers;
@@ -426,14 +426,14 @@ const calculateEmissions = (data) => {
         const trainType = data.trainType;
         let factor = EMISSION_FACTORS.trains[trainType];
         let emissions = distance * factor;
-        
+
         console.log('=== EMISSION CALCULATION - TRAIN ===');
         console.log('Train Type:', trainType);
         console.log('Distance:', distance, 'km');
         console.log('Passengers:', passengers);
         console.log('Emission Factor:', factor, 'kg CO2e/km');
         console.log('Emissions:', emissions, 'kg CO2e');
-        
+
         totalEmissionsKg += emissions;
         totalDistance += distance;
         totalPassengers += passengers;
@@ -453,15 +453,15 @@ const calculateEmissions = (data) => {
         let workFromHomeDistance = 0;
         let passengers = 1;
         let factor = WFH_EMISSION_FACTOR;
-        
+
         // Calculate emissions: FTE hours * emission factor
         let emissions = fteWorkingHours * factor;
-        
+
         console.log('=== EMISSION CALCULATION - WORK FROM HOME ===');
         console.log('FTE Working Hours:', fteWorkingHours, 'hours');
         console.log('Emission Factor:', factor, 'kg CO2e per FTE hour');
         console.log('Emissions:', emissions, 'kg CO2e');
-        
+
         totalEmissionsKg += emissions;
         totalDistance += workFromHomeDistance; // No distance for WFH
         totalPassengers += passengers;
@@ -474,8 +474,8 @@ const calculateEmissions = (data) => {
         });
     }
     const totalEmissionsTonnes = totalEmissionsKg / 1000;
-    
-        console.log('=== FINAL EMISSION CALCULATION SUMMARY ===');
+
+    console.log('=== FINAL EMISSION CALCULATION SUMMARY ===');
     console.log('All Modes Calculated:', emissionDetails.map(d => `${d.mode} (${d.modeType})`).join(', '));
     console.log('Emissions Breakdown:');
     emissionDetails.forEach(detail => {
@@ -490,14 +490,14 @@ const calculateEmissions = (data) => {
     console.log('Total Emissions:', totalEmissionsKg.toFixed(4), 'kg CO2e');
     console.log('Total Emissions:', totalEmissionsTonnes.toFixed(6), 'tonnes CO2e');
     console.log('===================================\n');
-    
-    return { 
-        distance: totalDistance, 
-        passengers: totalPassengers, 
-        factor: totalEmissionsKg / (totalDistance || 1), 
-        totalEmissionsKg, 
+
+    return {
+        distance: totalDistance,
+        passengers: totalPassengers,
+        factor: totalEmissionsKg / (totalDistance || 1),
+        totalEmissionsKg,
         totalEmissionsTonnes,
-        emissionDetails 
+        emissionDetails
     };
 };
 const ErrorMessage = ({ message }) => {
@@ -512,227 +512,227 @@ const ErrorMessage = ({ message }) => {
 
 
 const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate }) => {
-  const navigate = useNavigate();
-  
-  if (!isOpen) return null;
-  
-  // Format dates nicely
-  const formatDate = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric'
-    });
-  };
-  
-  // Determine the configuration based on status
-  const getConfig = () => {
-    if (status === 'not-started') {
-      return {
-        title: "Form Not Yet Available",
-        icon: (
-          <svg className="h-10 w-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        ),
-        bgColor: "bg-yellow-100",
-        iconBgColor: "bg-yellow-100",
-        buttonClass: "bg-yellow-600 hover:bg-yellow-700",
-        defaultMessage: "This form has not started yet."
-      };
-    } else if (status === 'expired') {
-      return {
-        title: "Form Expired",
-        icon: (
-          <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        ),
-        bgColor: "bg-red-100",
-        iconBgColor: "bg-red-100",
-        buttonClass: "bg-red-600 hover:bg-red-700",
-        defaultMessage: "This form has expired and can no longer be submitted."
-      };
-    } else if (status === 'already-submitted') {
-      return {
-        title: "Form Already Submitted",
-        icon: (
-          <svg className="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        ),
-        bgColor: "bg-green-100",
-        iconBgColor: "bg-green-100",
-        buttonClass: "bg-green-600 hover:bg-green-700",
-        defaultMessage: "You have already submitted this form. Thank you for your response!"
-      };
-    } else {
-      // Fallback for unknown status - check message text
-      const msg = message || '';
-      if (msg.toLowerCase().includes('not started')) {
-        return {
-          title: "Form Not Yet Available",
-          icon: (
-            <svg className="h-10 w-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          ),
-          bgColor: "bg-yellow-100",
-          iconBgColor: "bg-yellow-100",
-          buttonClass: "bg-yellow-600 hover:bg-yellow-700",
-          defaultMessage: msg
-        };
-      } else if (msg.toLowerCase().includes('expired')) {
-        return {
-          title: "Form Expired",
-          icon: (
-            <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          ),
-          bgColor: "bg-red-100",
-          iconBgColor: "bg-red-100",
-          buttonClass: "bg-red-600 hover:bg-red-700",
-          defaultMessage: msg
-        };
-      } else {
-        return {
-          title: "Form Already Submitted",
-          icon: (
-            <svg className="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          ),
-          bgColor: "bg-blue-100",
-          iconBgColor: "bg-blue-100",
-          buttonClass: "bg-blue-600 hover:bg-blue-700",
-          defaultMessage: msg || "This form has already been submitted."
-        };
-      }
-    }
-  };
-  
-  const config = getConfig();
-  
-  // Get detailed message based on status
-  const getDetailedMessage = () => {
-    if (status === 'not-started') {
-      return (
-        <div className="space-y-3">
-          <p className="text-gray-700 text-center">
-            {message || config.defaultMessage}
-          </p>
-          {startDate && (
-            <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-              <p className="text-sm font-medium text-yellow-800 mb-1">
-                📅 Submission Opens:
-              </p>
-              <p className="text-sm text-yellow-700">
-                {formatDate(startDate)}
-              </p>
-              <p className="text-xs text-yellow-600 mt-2">
-                Please check back on this date to submit your commuting data.
-              </p>
+    const navigate = useNavigate();
+
+    if (!isOpen) return null;
+
+    // Format dates nicely
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+
+    // Determine the configuration based on status
+    const getConfig = () => {
+        if (status === 'not-started') {
+            return {
+                title: "Form Not Yet Available",
+                icon: (
+                    <svg className="h-10 w-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                ),
+                bgColor: "bg-yellow-100",
+                iconBgColor: "bg-yellow-100",
+                buttonClass: "bg-yellow-600 hover:bg-yellow-700",
+                defaultMessage: "This form has not started yet."
+            };
+        } else if (status === 'expired') {
+            return {
+                title: "Form Expired",
+                icon: (
+                    <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                ),
+                bgColor: "bg-red-100",
+                iconBgColor: "bg-red-100",
+                buttonClass: "bg-red-600 hover:bg-red-700",
+                defaultMessage: "This form has expired and can no longer be submitted."
+            };
+        } else if (status === 'already-submitted') {
+            return {
+                title: "Form Already Submitted",
+                icon: (
+                    <svg className="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                ),
+                bgColor: "bg-green-100",
+                iconBgColor: "bg-green-100",
+                buttonClass: "bg-green-600 hover:bg-green-700",
+                defaultMessage: "You have already submitted this form. Thank you for your response!"
+            };
+        } else {
+            // Fallback for unknown status - check message text
+            const msg = message || '';
+            if (msg.toLowerCase().includes('not started')) {
+                return {
+                    title: "Form Not Yet Available",
+                    icon: (
+                        <svg className="h-10 w-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    ),
+                    bgColor: "bg-yellow-100",
+                    iconBgColor: "bg-yellow-100",
+                    buttonClass: "bg-yellow-600 hover:bg-yellow-700",
+                    defaultMessage: msg
+                };
+            } else if (msg.toLowerCase().includes('expired')) {
+                return {
+                    title: "Form Expired",
+                    icon: (
+                        <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    ),
+                    bgColor: "bg-red-100",
+                    iconBgColor: "bg-red-100",
+                    buttonClass: "bg-red-600 hover:bg-red-700",
+                    defaultMessage: msg
+                };
+            } else {
+                return {
+                    title: "Form Already Submitted",
+                    icon: (
+                        <svg className="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    ),
+                    bgColor: "bg-blue-100",
+                    iconBgColor: "bg-blue-100",
+                    buttonClass: "bg-blue-600 hover:bg-blue-700",
+                    defaultMessage: msg || "This form has already been submitted."
+                };
+            }
+        }
+    };
+
+    const config = getConfig();
+
+    // Get detailed message based on status
+    const getDetailedMessage = () => {
+        if (status === 'not-started') {
+            return (
+                <div className="space-y-3">
+                    <p className="text-gray-700 text-center">
+                        {message || config.defaultMessage}
+                    </p>
+                    {startDate && (
+                        <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <p className="text-sm font-medium text-yellow-800 mb-1">
+                                📅 Submission Opens:
+                            </p>
+                            <p className="text-sm text-yellow-700">
+                                {formatDate(startDate)}
+                            </p>
+                            <p className="text-xs text-yellow-600 mt-2">
+                                Please check back on this date to submit your commuting data.
+                            </p>
+                        </div>
+                    )}
+                    <div className="mt-2 text-center text-sm text-gray-500">
+                        You'll be able to submit your employee commuting information once the form becomes available.
+                    </div>
+                </div>
+            );
+        } else if (status === 'expired') {
+            return (
+                <div className="space-y-3">
+                    <p className="text-gray-700 text-center">
+                        {message || config.defaultMessage}
+                    </p>
+                    {endDate && (
+                        <div className="mt-3 p-3 bg-red-50 rounded-lg border border-red-200">
+                            <p className="text-sm font-medium text-red-800 mb-1">
+                                ⏰ Deadline Passed:
+                            </p>
+                            <p className="text-sm text-red-700">
+                                {formatDate(endDate)}
+                            </p>
+                            <p className="text-xs text-red-600 mt-2">
+                                Late submissions are not accepted for this reporting period.
+                            </p>
+                        </div>
+                    )}
+                    <div className="mt-2 text-center text-sm text-gray-500">
+                        Please contact your administrator if you need assistance.
+                    </div>
+                </div>
+            );
+        } else {
+            return (
+                <div className="space-y-3">
+                    <p className="text-gray-700 text-center">
+                        {message || config.defaultMessage}
+                    </p>
+                    <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <p className="text-sm font-medium text-green-800 mb-1">
+                            ✓ Submission Confirmed
+                        </p>
+                        <p className="text-sm text-green-700">
+                            Thank you for completing the employee commuting data collection form.
+                        </p>
+                        <p className="text-xs text-green-600 mt-2">
+                            Your response has been recorded and will be included in the emissions calculation.
+                        </p>
+                    </div>
+                    <div className="mt-2 text-center text-sm text-gray-500">
+                        If you need to update your submission, please contact your administrator.
+                    </div>
+                </div>
+            );
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div className="p-6">
+                    <div className="flex items-center justify-center mb-4">
+                        <div className={`${config.iconBgColor} rounded-full p-3`}>
+                            {config.icon}
+                        </div>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 text-center mb-3">
+                        {config.title}
+                    </h3>
+
+                    {getDetailedMessage()}
+
+                    <div className="flex justify-center space-x-3 mt-6">
+                        {status === 'already-submitted' && (
+                            <button
+                                onClick={() => {
+                                    if (onClose) onClose();
+                                    navigate('/my-submissions');
+                                }}
+                                className={`px-4 py-2 text-white rounded-md transition-colors ${config.buttonClass}`}
+                            >
+                                View My Submission
+                            </button>
+                        )}
+                        <button
+                            onClick={() => {
+                                if (onClose) onClose();
+                                window.location.reload();
+                            }}
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                        >
+                            Refresh
+                        </button>
+                    </div>
+                </div>
             </div>
-          )}
-          <div className="mt-2 text-center text-sm text-gray-500">
-            You'll be able to submit your employee commuting information once the form becomes available.
-          </div>
         </div>
-      );
-    } else if (status === 'expired') {
-      return (
-        <div className="space-y-3">
-          <p className="text-gray-700 text-center">
-            {message || config.defaultMessage}
-          </p>
-          {endDate && (
-            <div className="mt-3 p-3 bg-red-50 rounded-lg border border-red-200">
-              <p className="text-sm font-medium text-red-800 mb-1">
-                ⏰ Deadline Passed:
-              </p>
-              <p className="text-sm text-red-700">
-                {formatDate(endDate)}
-              </p>
-              <p className="text-xs text-red-600 mt-2">
-                Late submissions are not accepted for this reporting period.
-              </p>
-            </div>
-          )}
-          <div className="mt-2 text-center text-sm text-gray-500">
-            Please contact your administrator if you need assistance.
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        <div className="space-y-3">
-          <p className="text-gray-700 text-center">
-            {message || config.defaultMessage}
-          </p>
-          <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
-            <p className="text-sm font-medium text-green-800 mb-1">
-              ✓ Submission Confirmed
-            </p>
-            <p className="text-sm text-green-700">
-              Thank you for completing the employee commuting data collection form.
-            </p>
-            <p className="text-xs text-green-600 mt-2">
-              Your response has been recorded and will be included in the emissions calculation.
-            </p>
-          </div>
-          <div className="mt-2 text-center text-sm text-gray-500">
-            If you need to update your submission, please contact your administrator.
-          </div>
-        </div>
-      );
-    }
-  };
-  
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div className="p-6">
-          <div className="flex items-center justify-center mb-4">
-            <div className={`${config.iconBgColor} rounded-full p-3`}>
-              {config.icon}
-            </div>
-          </div>
-          
-          <h3 className="text-xl font-bold text-gray-900 text-center mb-3">
-            {config.title}
-          </h3>
-          
-          {getDetailedMessage()}
-          
-          <div className="flex justify-center space-x-3 mt-6">
-            {status === 'already-submitted' && (
-              <button
-                onClick={() => {
-                  if (onClose) onClose();
-                  navigate('/my-submissions');
-                }}
-                className={`px-4 py-2 text-white rounded-md transition-colors ${config.buttonClass}`}
-              >
-                View My Submission
-              </button>
-            )}
-            <button
-              onClick={() => {
-                if (onClose) onClose();
-                window.location.reload();
-              }}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
-            >
-              Refresh
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 const EmployeeCommutingForm = () => {
     const location = useLocation();
@@ -741,15 +741,15 @@ const EmployeeCommutingForm = () => {
     const urlUserId = queryParams.get('userId');
     const [emailDocId, setEmailDocId] = useState(null);
     const [checkingSubmission, setCheckingSubmission] = useState(true);
-    const [formDocumentId, setFormDocumentId] = useState(null);   
-const [formAccessStatus, setFormAccessStatus] = useState({
-  checking: true,
-  canAccess: false,
-  message: '',
-  status: null, // 'not-started', 'expired', 'already-submitted'
-  startDate: null,
-  endDate: null
-});
+    const [formDocumentId, setFormDocumentId] = useState(null);
+    const [formAccessStatus, setFormAccessStatus] = useState({
+        checking: true,
+        canAccess: false,
+        message: '',
+        status: null, // 'not-started', 'expired', 'already-submitted'
+        startDate: null,
+        endDate: null
+    });
     const navigate = useNavigate();
     console.log('URL UserId:', urlUserId);
 
@@ -861,7 +861,7 @@ const [formAccessStatus, setFormAccessStatus] = useState({
     const [companyUsersLoading, setCompanyUsersLoading] = useState(false);
     const [token, setToken] = useState('');
 
-    
+
 
     // Year selection dropdown options
     const yearOptions = [
@@ -915,122 +915,122 @@ const [formAccessStatus, setFormAccessStatus] = useState({
             return null;
         }
     };
-const checkFormAccess = async () => {
-  const currentToken = getToken();
-  const currentUserId = urlUserId || getUserIdFromToken(currentToken);
-  const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
+    const checkFormAccess = async () => {
+        const currentToken = getToken();
+        const currentUserId = urlUserId || getUserIdFromToken(currentToken);
+        const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
 
-  if (!currentToken || !currentUserId || !currentEmailDocId) {
-    console.log('Missing required parameters for form access check');
-    setFormAccessStatus({
-      checking: false,
-      canAccess: true,
-      message: '',
-      status: null,
-      startDate: null,
-      endDate: null
-    });
-    return;
-  }
+        if (!currentToken || !currentUserId || !currentEmailDocId) {
+            console.log('Missing required parameters for form access check');
+            setFormAccessStatus({
+                checking: false,
+                canAccess: true,
+                message: '',
+                status: null,
+                startDate: null,
+                endDate: null
+            });
+            return;
+        }
 
-  try {
-    console.log('Checking form access for:', { 
-      userId: currentUserId, 
-      emailDocId: currentEmailDocId 
-    });
-    
-    const response = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/check-access`,
-      {
-        params: {
-          emailDocId: currentEmailDocId,
-          userId: currentUserId
-        },
-        headers: {
-          Authorization: `Bearer ${currentToken}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+        try {
+            console.log('Checking form access for:', {
+                userId: currentUserId,
+                emailDocId: currentEmailDocId
+            });
 
-    // If we get a successful response (200), form is available and not submitted
-    setFormAccessStatus({
-      checking: false,
-      canAccess: true,
-      message: '',
-      status: null,
-      startDate: null,
-      endDate: null
-    });
-    console.log('Form access granted - user can submit');
-    
-  } catch (error) {
-    console.error('Form access check error:', error);
-    
-    if (error.response && error.response.status === 403) {
-      const errorMessage = error.response.data?.message || '';
-      console.log('Error message received:', errorMessage);
-      
-      // Exact message matching for your three statuses
-      if (errorMessage === "Form not started yet") {
-        setFormAccessStatus({
-          checking: false,
-          canAccess: false,
-          message: errorMessage,
-          status: 'not-started',
-          startDate: error.response.data?.startDate || null,
-          endDate: error.response.data?.endDate || null
-        });
-        console.log('Form access denied - form not started yet');
-      } 
-      else if (errorMessage === "Form Expired") {
-        setFormAccessStatus({
-          checking: false,
-          canAccess: false,
-          message: errorMessage,
-          status: 'expired',
-          startDate: error.response.data?.startDate || null,
-          endDate: error.response.data?.endDate || null
-        });
-        console.log('Form access denied - form expired');
-      }
-      else if (errorMessage === "Form Already Submitted") {
-        setFormAccessStatus({
-          checking: false,
-          canAccess: false,
-          message: errorMessage,
-          status: 'already-submitted',
-          startDate: null,
-          endDate: null
-        });
-        console.log('Form access denied - already submitted');
-      }
-      else {
-        // Handle any other 403 messages as generic error
-        console.warn('Unknown 403 error message:', errorMessage);
-        setFormAccessStatus({
-          checking: false,
-          canAccess: false,
-          message: errorMessage || 'Unable to access form',
-          status: 'expired', // default to expired if unknown
-          startDate: null,
-          endDate: null
-        });
-      }
-    } else {
-      // Network or other errors - allow access as fallback
-      console.warn('Unexpected error, allowing access:', error);
-      setFormAccessStatus({
-        checking: false,
-        canAccess: true,
-        message: '',
-        status: null,
-        startDate: null,
-        endDate: null
-      });
-    }
-  }
-};
+            const response = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/check-access`,
+                {
+                    params: {
+                        emailDocId: currentEmailDocId,
+                        userId: currentUserId
+                    },
+                    headers: {
+                        Authorization: `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            // If we get a successful response (200), form is available and not submitted
+            setFormAccessStatus({
+                checking: false,
+                canAccess: true,
+                message: '',
+                status: null,
+                startDate: null,
+                endDate: null
+            });
+            console.log('Form access granted - user can submit');
+
+        } catch (error) {
+            console.error('Form access check error:', error);
+
+            if (error.response && error.response.status === 403) {
+                const errorMessage = error.response.data?.message || '';
+                console.log('Error message received:', errorMessage);
+
+                // Exact message matching for your three statuses
+                if (errorMessage === "Form not started yet") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'not-started',
+                        startDate: error.response.data?.startDate || null,
+                        endDate: error.response.data?.endDate || null
+                    });
+                    console.log('Form access denied - form not started yet');
+                }
+                else if (errorMessage === "Form Expired") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'expired',
+                        startDate: error.response.data?.startDate || null,
+                        endDate: error.response.data?.endDate || null
+                    });
+                    console.log('Form access denied - form expired');
+                }
+                else if (errorMessage === "Form Already Submitted") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'already-submitted',
+                        startDate: null,
+                        endDate: null
+                    });
+                    console.log('Form access denied - already submitted');
+                }
+                else {
+                    // Handle any other 403 messages as generic error
+                    console.warn('Unknown 403 error message:', errorMessage);
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage || 'Unable to access form',
+                        status: 'expired', // default to expired if unknown
+                        startDate: null,
+                        endDate: null
+                    });
+                }
+            } else {
+                // Network or other errors - allow access as fallback
+                console.warn('Unexpected error, allowing access:', error);
+                setFormAccessStatus({
+                    checking: false,
+                    canAccess: true,
+                    message: '',
+                    status: null,
+                    startDate: null,
+                    endDate: null
+                });
+            }
+        }
+    };
 
     // Fetch buildings from API
     const fetchBuildings = async (authToken) => {
@@ -1163,7 +1163,7 @@ const checkFormAccess = async () => {
                     setFormData(prev => ({
                         ...prev,
                         submittedByEmail: formUserData.email,
-                        employeeID: formUserData.employeeID || formUserData.employeeId || '' 
+                        employeeID: formUserData.employeeID || formUserData.employeeId || ''
                     }));
                 }
                 // Auto-fill department field
@@ -1333,60 +1333,60 @@ const checkFormAccess = async () => {
     }, [location.search]);
 
     // Check if form has already been submitted
-// Check if form has already been submitted
-useEffect(() => {
-  const performAccessCheck = async () => {
-    // Wait for token to be available
-    const currentToken = getToken();
-    const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
-    
-    // Don't check until we have token and emailDocId
-    if (!currentToken || !currentEmailDocId) {
-      console.log('Waiting for token or emailDocId');
-      return;
-    }
-    
-    // Wait a moment for other data to load
-    await new Promise(resolve => setTimeout(resolve, 500));
-    await checkFormAccess();
-  };
-  
-  performAccessCheck();
-}, [token, urlToken, urlUserId, location.search]); // Add location.search as dependency
+    // Check if form has already been submitted
+    useEffect(() => {
+        const performAccessCheck = async () => {
+            // Wait for token to be available
+            const currentToken = getToken();
+            const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
+
+            // Don't check until we have token and emailDocId
+            if (!currentToken || !currentEmailDocId) {
+                console.log('Waiting for token or emailDocId');
+                return;
+            }
+
+            // Wait a moment for other data to load
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await checkFormAccess();
+        };
+
+        performAccessCheck();
+    }, [token, urlToken, urlUserId, location.search]); // Add location.search as dependency
 
 
-// useEffect(() => {
-//     const fetchEmailDocument = async () => {
-//         const currentToken = getToken();
-//         const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
-        
-//         if (!currentToken || !currentEmailDocId) return;
-        
-//         try {
-//             const response = await axios.get(
-//                 `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${currentEmailDocId}`,
-//                 {
-//                     headers: {
-//                         Authorization: `Bearer ${currentToken}`,
-//                         'Content-Type': 'application/json',
-//                     },
-//                 }
-//             );
-            
-//             if (response.data && response.data.data && response.data.data._id) {
-//                 setFormDocumentId(response.data.data._id);
-//                 console.log('Form document ID fetched:', response.data.data._id);
-//             }
-//         } catch (error) {
-//             console.error('Failed to fetch email document:', error);
-//         }
-//     };
-    
-//     fetchEmailDocument();
-// }, [token, location.search]);
+    // useEffect(() => {
+    //     const fetchEmailDocument = async () => {
+    //         const currentToken = getToken();
+    //         const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
+
+    //         if (!currentToken || !currentEmailDocId) return;
+
+    //         try {
+    //             const response = await axios.get(
+    //                 `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${currentEmailDocId}`,
+    //                 {
+    //                     headers: {
+    //                         Authorization: `Bearer ${currentToken}`,
+    //                         'Content-Type': 'application/json',
+    //                     },
+    //                 }
+    //             );
+
+    //             if (response.data && response.data.data && response.data.data._id) {
+    //                 setFormDocumentId(response.data.data._id);
+    //                 console.log('Form document ID fetched:', response.data.data._id);
+    //             }
+    //         } catch (error) {
+    //             console.error('Failed to fetch email document:', error);
+    //         }
+    //     };
+
+    //     fetchEmailDocument();
+    // }, [token, location.search]);
 
     // Update the markUserAsFilled function
-    
+
     const markUserAsFilled = async (userId, token, emailDocIdToUse) => {
         if (!userId || !token) {
             console.warn('Cannot mark user as filled - missing userId or token');
@@ -1487,113 +1487,113 @@ useEffect(() => {
         checkForPreviousSubmission();
     }, [reportingYear, userInfo, targetUserData, companyData, urlToken]);
 
-//Real-time console logging for emissions calculation
-useEffect(() => {
-    // Only log if at least one commute method is selected
-    if (formData.commuteByMotorbike || formData.commuteByCar || formData.commuteByTaxi || 
-        formData.commuteByBus || formData.commuteByTrain) {
-        
-        // Create a data object for real-time calculation
-        const realTimeData = {
-            commuteByMotorbike: formData.commuteByMotorbike,
-            motorbikeDistance: formData.motorbikeDistance,
-            motorbikeDistanceCarpool: formData.motorbikeDistanceCarpool,
-            motorbikeType: formData.motorbikeType?.value,
-            motorbikeMode: formData.motorbikeMode,
-            carryOthersMotorbike: formData.carryOthersMotorbike,
-            personsCarriedMotorbike: formData.personsCarriedMotorbike?.value,
-            
-            commuteByCar: formData.commuteByCar,
-            carDistance: formData.carDistance,
-            carDistanceCarpool: formData.carDistanceCarpool,
-            carType: formData.carType?.value,
-            carFuelType: formData.carFuelType?.value,
-            carMode: formData.carMode,
-            carryOthersCar: formData.carryOthersCar,
-            personsCarriedCar: formData.personsCarriedCar?.value,
-            
-            commuteByTaxi: formData.commuteByTaxi,
-            taxiDistance: formData.taxiDistance,
-            taxiDistanceCarpool: formData.taxiDistanceCarpool,
-            taxiType: formData.taxiType?.value,
-            taxiMode: formData.taxiMode,
-            travelWithOthersTaxi: formData.travelWithOthersTaxi,
-            personsTravelWithTaxi: formData.personsTravelWithTaxi?.value,
-            
-            commuteByBus: formData.commuteByBus,
-            busDistance: formData.busDistance,
-            busType: formData.busType?.value,
-            
-            commuteByTrain: formData.commuteByTrain,
-            trainDistance: formData.trainDistance,
-            trainType: formData.trainType?.value,
+    //Real-time console logging for emissions calculation
+    useEffect(() => {
+        // Only log if at least one commute method is selected
+        if (formData.commuteByMotorbike || formData.commuteByCar || formData.commuteByTaxi ||
+            formData.commuteByBus || formData.commuteByTrain) {
 
-            
-        };
-        
-        console.log('\n ========== LIVE EMISSION UPDATE ========== ');
-        console.log('Time:', new Date().toLocaleTimeString());
-        console.log(' Current Values:', {
-            Motorbike: realTimeData.commuteByMotorbike ? 
-                (realTimeData.motorbikeMode === 'both' ? 
-                    `${realTimeData.motorbikeDistance}km (individual) + ${realTimeData.motorbikeDistanceCarpool}km (carpool)` : 
-                    `${realTimeData.motorbikeDistance}km`) : 'Not used',
-            Car: realTimeData.commuteByCar ? 
-                (realTimeData.carMode === 'both' ? 
-                    `${realTimeData.carDistance}km (individual) + ${realTimeData.carDistanceCarpool}km (carpool)` : 
-                    `${realTimeData.carDistance}km`) : 'Not used',
-            Taxi: realTimeData.commuteByTaxi ? 
-                (realTimeData.taxiMode === 'both' ? 
-                    `${realTimeData.taxiDistance}km (individual) + ${realTimeData.taxiDistanceCarpool}km (carpool)` : 
-                    `${realTimeData.taxiDistance}km`) : 'Not used',
-            Bus: realTimeData.commuteByBus ? `${realTimeData.busDistance}km` : 'Not used',
-            Train: realTimeData.commuteByTrain ? `${realTimeData.trainDistance}km` : 'Not used',
-        });
-        
-        // Call your calculateEmissions function
-        const result = calculateEmissions(realTimeData);
-        
-        console.log(' EMISSIONS:', result.totalEmissionsKg.toFixed(4), 'kg CO₂e');
-        console.log(' EMISSIONS:', result.totalEmissionsTonnes.toFixed(6), 'tonnes CO₂e');
-        console.log(' ==========================================\n');
-    }
-}, 
-    [formData.commuteByMotorbike, 
-     formData.motorbikeDistance, 
-     formData.motorbikeDistanceCarpool,  // ← ADD THIS
-     formData.motorbikeType,
-     formData.motorbikeMode,
-     formData.carryOthersMotorbike,
-     formData.personsCarriedMotorbike,
-     
-     formData.commuteByCar, 
-     formData.carDistance, 
-     formData.carDistanceCarpool,  // ← ADD THIS
-     formData.carType, 
-     formData.carFuelType,
-     formData.carMode,
-     formData.carryOthersCar,
-     formData.personsCarriedCar,
-     
-     formData.commuteByTaxi, 
-     formData.taxiDistance,
-     formData.taxiDistanceCarpool,  // ← ADD THIS
-     formData.taxiType,
-     formData.taxiMode,
-     formData.travelWithOthersTaxi,
-     formData.personsTravelWithTaxi,
-     
-     formData.commuteByBus, 
-     formData.busDistance, 
-     formData.busType,
-     
-     formData.commuteByTrain, 
-     formData.trainDistance, 
-     formData.trainType,
+            // Create a data object for real-time calculation
+            const realTimeData = {
+                commuteByMotorbike: formData.commuteByMotorbike,
+                motorbikeDistance: formData.motorbikeDistance,
+                motorbikeDistanceCarpool: formData.motorbikeDistanceCarpool,
+                motorbikeType: formData.motorbikeType?.value,
+                motorbikeMode: formData.motorbikeMode,
+                carryOthersMotorbike: formData.carryOthersMotorbike,
+                personsCarriedMotorbike: formData.personsCarriedMotorbike?.value,
 
-     formData.workFromHome,      
-     formData.fteWorkingHours   
-]);
+                commuteByCar: formData.commuteByCar,
+                carDistance: formData.carDistance,
+                carDistanceCarpool: formData.carDistanceCarpool,
+                carType: formData.carType?.value,
+                carFuelType: formData.carFuelType?.value,
+                carMode: formData.carMode,
+                carryOthersCar: formData.carryOthersCar,
+                personsCarriedCar: formData.personsCarriedCar?.value,
+
+                commuteByTaxi: formData.commuteByTaxi,
+                taxiDistance: formData.taxiDistance,
+                taxiDistanceCarpool: formData.taxiDistanceCarpool,
+                taxiType: formData.taxiType?.value,
+                taxiMode: formData.taxiMode,
+                travelWithOthersTaxi: formData.travelWithOthersTaxi,
+                personsTravelWithTaxi: formData.personsTravelWithTaxi?.value,
+
+                commuteByBus: formData.commuteByBus,
+                busDistance: formData.busDistance,
+                busType: formData.busType?.value,
+
+                commuteByTrain: formData.commuteByTrain,
+                trainDistance: formData.trainDistance,
+                trainType: formData.trainType?.value,
+
+
+            };
+
+            console.log('\n ========== LIVE EMISSION UPDATE ========== ');
+            console.log('Time:', new Date().toLocaleTimeString());
+            console.log(' Current Values:', {
+                Motorbike: realTimeData.commuteByMotorbike ?
+                    (realTimeData.motorbikeMode === 'both' ?
+                        `${realTimeData.motorbikeDistance}km (individual) + ${realTimeData.motorbikeDistanceCarpool}km (carpool)` :
+                        `${realTimeData.motorbikeDistance}km`) : 'Not used',
+                Car: realTimeData.commuteByCar ?
+                    (realTimeData.carMode === 'both' ?
+                        `${realTimeData.carDistance}km (individual) + ${realTimeData.carDistanceCarpool}km (carpool)` :
+                        `${realTimeData.carDistance}km`) : 'Not used',
+                Taxi: realTimeData.commuteByTaxi ?
+                    (realTimeData.taxiMode === 'both' ?
+                        `${realTimeData.taxiDistance}km (individual) + ${realTimeData.taxiDistanceCarpool}km (carpool)` :
+                        `${realTimeData.taxiDistance}km`) : 'Not used',
+                Bus: realTimeData.commuteByBus ? `${realTimeData.busDistance}km` : 'Not used',
+                Train: realTimeData.commuteByTrain ? `${realTimeData.trainDistance}km` : 'Not used',
+            });
+
+            // Call your calculateEmissions function
+            const result = calculateEmissions(realTimeData);
+
+            console.log(' EMISSIONS:', result.totalEmissionsKg.toFixed(4), 'kg CO₂e');
+            console.log(' EMISSIONS:', result.totalEmissionsTonnes.toFixed(6), 'tonnes CO₂e');
+            console.log(' ==========================================\n');
+        }
+    },
+        [formData.commuteByMotorbike,
+        formData.motorbikeDistance,
+        formData.motorbikeDistanceCarpool,  // ← ADD THIS
+        formData.motorbikeType,
+        formData.motorbikeMode,
+        formData.carryOthersMotorbike,
+        formData.personsCarriedMotorbike,
+
+        formData.commuteByCar,
+        formData.carDistance,
+        formData.carDistanceCarpool,  // ← ADD THIS
+        formData.carType,
+        formData.carFuelType,
+        formData.carMode,
+        formData.carryOthersCar,
+        formData.personsCarriedCar,
+
+        formData.commuteByTaxi,
+        formData.taxiDistance,
+        formData.taxiDistanceCarpool,  // ← ADD THIS
+        formData.taxiType,
+        formData.taxiMode,
+        formData.travelWithOthersTaxi,
+        formData.personsTravelWithTaxi,
+
+        formData.commuteByBus,
+        formData.busDistance,
+        formData.busType,
+
+        formData.commuteByTrain,
+        formData.trainDistance,
+        formData.trainType,
+
+        formData.workFromHome,
+        formData.fteWorkingHours
+        ]);
 
 
 
@@ -3013,51 +3013,90 @@ useEffect(() => {
     };
 
     // Function to validate 12-month coverage across all selected commute methods
+    // const validateMonthCoverage = () => {
+    //     // Create a set to track all covered months across all transport methods
+    //     const coveredMonths = new Set();
+    //     // Helper function to add months from a date range
+    //     const addMonthsFromRange = (dateRange) => {
+    //         if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
+    //         const startDate = new Date(dateRange.startDate);
+    //         const endDate = new Date(dateRange.endDate);
+    //         // Reset to first day of month for consistent month tracking
+    //         const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+    //         const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+
+    //         while (currentDate <= endDateMonth) {
+    //             const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+    //             coveredMonths.add(monthKey);
+    //             currentDate.setMonth(currentDate.getMonth() + 1);
+    //         }
+    //     };
+
+    //     // Add months from all selected commute methods
+    //     if (formData.commuteByMotorbike && formData.motorbikeDateRange) { addMonthsFromRange(formData.motorbikeDateRange); }
+    //     if (formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.motorbikeCarpoolDateRange) { addMonthsFromRange(formData.motorbikeCarpoolDateRange); }
+    //     if (formData.commuteByTaxi && formData.taxiDateRange) { addMonthsFromRange(formData.taxiDateRange); }
+    //     if (formData.commuteByTaxi && formData.taxiMode === 'both' && formData.taxiCarpoolDateRange) { addMonthsFromRange(formData.taxiCarpoolDateRange); }
+    //     if (formData.commuteByBus && formData.busDateRange) { addMonthsFromRange(formData.busDateRange); }
+    //     if (formData.commuteByTrain && formData.trainDateRange) { addMonthsFromRange(formData.trainDateRange); }
+    //     if (formData.commuteByCar && formData.carDateRange) { addMonthsFromRange(formData.carDateRange); }
+    //     if (formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange) { addMonthsFromRange(formData.carCarpoolDateRange); }
+    //     if (formData.workFromHome && formData.workFromHomeDateRange) { addMonthsFromRange(formData.workFromHomeDateRange); }
+
+    //     // Check which months are covered
+    //     const allMonths = Array.from({ length: 12 }, (_, i) =>
+    //         `${reportingYear}-${String(i + 1).padStart(2, '0')}`
+    //     );
+
+    //     const uncoveredMonths = allMonths.filter(month => !coveredMonths.has(month));
+
+    //     return {
+    //         totalCovered: coveredMonths.size,
+    //         totalRequired: 12,
+    //         coveredMonths: Array.from(coveredMonths).sort(),
+    //         uncoveredMonths,
+    //         isComplete: coveredMonths.size === 12
+    //     };
+    // };
     const validateMonthCoverage = () => {
-        // Create a set to track all covered months across all transport methods
-        const coveredMonths = new Set();
-        // Helper function to add months from a date range
-        const addMonthsFromRange = (dateRange) => {
-            if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
-            const startDate = new Date(dateRange.startDate);
-            const endDate = new Date(dateRange.endDate);
-            // Reset to first day of month for consistent month tracking
-            const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-            const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+    const coveredMonths = new Set();
 
-            while (currentDate <= endDateMonth) {
-                const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-                coveredMonths.add(monthKey);
-                currentDate.setMonth(currentDate.getMonth() + 1);
-            }
-        };
+    const addMonthsFromRange = (dateRange) => {
+        if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
+        const startDate = new Date(dateRange.startDate);
+        const endDate = new Date(dateRange.endDate);
+        const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+        const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
 
-        // Add months from all selected commute methods
-        if (formData.commuteByMotorbike && formData.motorbikeDateRange) { addMonthsFromRange(formData.motorbikeDateRange); }
-        if (formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.motorbikeCarpoolDateRange) { addMonthsFromRange(formData.motorbikeCarpoolDateRange); }
-        if (formData.commuteByTaxi && formData.taxiDateRange) { addMonthsFromRange(formData.taxiDateRange); }
-        if (formData.commuteByTaxi && formData.taxiMode === 'both' && formData.taxiCarpoolDateRange) { addMonthsFromRange(formData.taxiCarpoolDateRange); }
-        if (formData.commuteByBus && formData.busDateRange) { addMonthsFromRange(formData.busDateRange); }
-        if (formData.commuteByTrain && formData.trainDateRange) { addMonthsFromRange(formData.trainDateRange); }
-        if (formData.commuteByCar && formData.carDateRange) { addMonthsFromRange(formData.carDateRange); }
-        if (formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange) { addMonthsFromRange(formData.carCarpoolDateRange); }
-        if (formData.workFromHome && formData.workFromHomeDateRange) { addMonthsFromRange(formData.workFromHomeDateRange); }
-
-        // Check which months are covered
-        const allMonths = Array.from({ length: 12 }, (_, i) =>
-            `${reportingYear}-${String(i + 1).padStart(2, '0')}`
-        );
-
-        const uncoveredMonths = allMonths.filter(month => !coveredMonths.has(month));
-
-        return {
-            totalCovered: coveredMonths.size,
-            totalRequired: 12,
-            coveredMonths: Array.from(coveredMonths).sort(),
-            uncoveredMonths,
-            isComplete: coveredMonths.size === 12
-        };
+        while (currentDate <= endDateMonth) {
+            const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+            coveredMonths.add(monthKey);
+            currentDate.setMonth(currentDate.getMonth() + 1);
+        }
     };
+
+    if (formData.commuteByMotorbike && formData.motorbikeDateRange) addMonthsFromRange(formData.motorbikeDateRange);
+    if (formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.motorbikeCarpoolDateRange) addMonthsFromRange(formData.motorbikeCarpoolDateRange);
+    if (formData.commuteByTaxi && formData.taxiDateRange) addMonthsFromRange(formData.taxiDateRange);
+    if (formData.commuteByTaxi && formData.taxiMode === 'both' && formData.taxiCarpoolDateRange) addMonthsFromRange(formData.taxiCarpoolDateRange);
+    if (formData.commuteByBus && formData.busDateRange) addMonthsFromRange(formData.busDateRange);
+    if (formData.commuteByTrain && formData.trainDateRange) addMonthsFromRange(formData.trainDateRange);
+    if (formData.commuteByCar && formData.carDateRange) addMonthsFromRange(formData.carDateRange);
+    if (formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange) addMonthsFromRange(formData.carCarpoolDateRange);
+    if (formData.workFromHome && formData.workFromHomeDateRange) addMonthsFromRange(formData.workFromHomeDateRange);
+
+    // ✅ FIX: Don't restrict to reportingYear — use all covered months
+    // Check any contiguous 12-month span within covered months
+    const sortedMonths = Array.from(coveredMonths).sort();
+    
+    return {
+        totalCovered: coveredMonths.size,
+        totalRequired: 12,
+        coveredMonths: sortedMonths,
+        uncoveredMonths: [], // Not restricting to a single year anymore
+        isComplete: coveredMonths.size >= 12
+    };
+};
 
     // Function to check for date range overlaps
     const checkAllDateRangeOverlaps = () => {
@@ -3260,10 +3299,14 @@ useEffect(() => {
                 errors[`${methodName}DateRange`] = 'Start date must be before end date';
                 return false;
             }
-            if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                errors[`${methodName}DateRange`] = `Date range must be within ${reportingYear}`;
-                return false;
-            }
+            // if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+            //     errors[`${methodName}DateRange`] = `Date range must be within ${reportingYear}`;
+            //     return false;
+            // }
+            // if (startYear < 2024 || startYear > 2026 || endYear < 2024 || endYear > 2026) {
+            //     errors[`${methodName}DateRange`] = 'Date range must be between 2024 and 2026';
+            //     return false;
+            // }
             return true;
         };
         // Only validate date ranges for enabled methods
@@ -3311,9 +3354,9 @@ useEffect(() => {
                     errors.motorbikeDateRange = 'Start date must be before end date';
                 }
 
-                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                    errors.motorbikeDateRange = `Date range must be within ${reportingYear}`;
-                }
+                // if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                //     errors.motorbikeDateRange = `Date range must be within ${reportingYear}`;
+                // }
             }
         }
 
@@ -3330,9 +3373,9 @@ useEffect(() => {
                     errors.motorbikeCarpoolDateRange = 'Start date must be before end date';
                 }
 
-                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                    errors.motorbikeCarpoolDateRange = `Date range must be within ${reportingYear}`;
-                }
+                // if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                //     errors.motorbikeCarpoolDateRange = `Date range must be within ${reportingYear}`;
+                // }
             }
         }
 
@@ -3349,9 +3392,9 @@ useEffect(() => {
                     errors.taxiDateRange = 'Start date must be before end date';
                 }
 
-                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                    errors.taxiDateRange = `Date range must be within ${reportingYear}`;
-                }
+                // if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                //     errors.taxiDateRange = `Date range must be within ${reportingYear}`;
+                // }
             }
         }
 
@@ -3368,9 +3411,9 @@ useEffect(() => {
                     errors.taxiCarpoolDateRange = 'Start date must be before end date';
                 }
 
-                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                    errors.taxiCarpoolDateRange = `Date range must be within ${reportingYear}`;
-                }
+                // if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                //     errors.taxiCarpoolDateRange = `Date range must be within ${reportingYear}`;
+                // }
             }
         }
 
@@ -3383,9 +3426,9 @@ useEffect(() => {
                 const startDate = new Date(formData.busDateRange.startDate);
                 const endDate = new Date(formData.busDateRange.endDate);
                 if (startDate > endDate) { errors.busDateRange = 'Start date must be before end date'; }
-                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                    errors.busDateRange = `Date range must be within ${reportingYear}`;
-                }
+                // if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                //     errors.busDateRange = `Date range must be within ${reportingYear}`;
+                // }
             }
         }
 
@@ -3401,9 +3444,9 @@ useEffect(() => {
                 if (startDate > endDate) {
                     errors.trainDateRange = 'Start date must be before end date';
                 }
-                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                    errors.trainDateRange = `Date range must be within ${reportingYear}`;
-                }
+                // if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                //     errors.trainDateRange = `Date range must be within ${reportingYear}`;
+                // }
             }
         }
 
@@ -3420,9 +3463,9 @@ useEffect(() => {
                     errors.carDateRange = 'Start date must be before end date';
                 }
 
-                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                    errors.carDateRange = `Date range must be within ${reportingYear}`;
-                }
+                // if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                //     errors.carDateRange = `Date range must be within ${reportingYear}`;
+                // }
             }
         }
 
@@ -3439,9 +3482,9 @@ useEffect(() => {
                     errors.carCarpoolDateRange = 'Start date must be before end date';
                 }
 
-                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                    errors.carCarpoolDateRange = `Date range must be within ${reportingYear}`;
-                }
+                // if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                //     errors.carCarpoolDateRange = `Date range must be within ${reportingYear}`;
+                // }
             }
         }
 
@@ -3458,9 +3501,9 @@ useEffect(() => {
                     errors.workFromHomeDateRange = 'Start date must be before end date';
                 }
 
-                if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
-                    errors.workFromHomeDateRange = `Date range must be within ${reportingYear}`;
-                }
+                // if (startDate.getFullYear() !== reportingYear || endDate.getFullYear() !== reportingYear) {
+                //     errors.workFromHomeDateRange = `Date range must be within ${reportingYear}`;
+                // }
             }
         }
 
@@ -3680,7 +3723,7 @@ useEffect(() => {
                 employeeID: String(formData.employeeID || ''),
                 usersubmittedId: urlUserId || userInfo?._id || targetUserData?._id || null,
 
-                 emailDocId: currentEmailDocId || emailDocId || null,  
+                emailDocId: currentEmailDocId || emailDocId || null,
                 // Basic Information
                 siteBuildingName: formData.siteBuildingName?.value || '',
                 stakeholderDepartment: formData.stakeholderDepartment?.value || '',
@@ -3933,58 +3976,58 @@ useEffect(() => {
 
 
     // Show loading while checking form access
-if (formAccessStatus.checking || checkingSubmission) {
-  return (
-    <div className="max-w-6xl mx-auto p-6">
-      <Card>
-        <div className="text-center py-12">
-          <div className="flex justify-center mb-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
-          <p className="text-gray-600">Checking form access...</p>
-        </div>
-      </Card>
-    </div>
-  );
-}
+    if (formAccessStatus.checking || checkingSubmission) {
+        return (
+            <div className="max-w-6xl mx-auto p-6">
+                <Card>
+                    <div className="text-center py-12">
+                        <div className="flex justify-center mb-4">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        </div>
+                        <p className="text-gray-600">Checking form access...</p>
+                    </div>
+                </Card>
+            </div>
+        );
+    }
 
-// Show modal if form already submitted
-if (!formAccessStatus.canAccess && formAccessStatus.message) {
-  return (
-      <FormStatusModal  // ← Change this from AlreadySubmittedModal to FormStatusModal
-      isOpen={true}
-      status={formAccessStatus.status}
-      message={formAccessStatus.message}
-      startDate={formAccessStatus.startDate}
-      endDate={formAccessStatus.endDate}
-      onClose={() => {}}
-    />
-  );
-}
+    // Show modal if form already submitted
+    if (!formAccessStatus.canAccess && formAccessStatus.message) {
+        return (
+            <FormStatusModal  // ← Change this from AlreadySubmittedModal to FormStatusModal
+                isOpen={true}
+                status={formAccessStatus.status}
+                message={formAccessStatus.message}
+                startDate={formAccessStatus.startDate}
+                endDate={formAccessStatus.endDate}
+                onClose={() => { }}
+            />
+        );
+    }
 
-// Show authentication error if no token
-if (!token && !urlToken && !getToken()) {
-  return (
-    <div className="max-w-6xl mx-auto p-6">
-      <Card>
-        <div className="text-center py-12">
-          <div className="text-red-500 text-5xl mb-4">⚠</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Authentication Required
-          </h2>
-          <p className="text-gray-600 mb-8">
-            Please access this form with a valid token in the URL.
-          </p>
-          <Button
-            text="Retry Authentication"
-            className="bg-blue-500 hover:bg-blue-600 text-white"
-            onClick={() => window.location.reload()}
-          />
-        </div>
-      </Card>
-    </div>
-  );
-}
+    // Show authentication error if no token
+    if (!token && !urlToken && !getToken()) {
+        return (
+            <div className="max-w-6xl mx-auto p-6">
+                <Card>
+                    <div className="text-center py-12">
+                        <div className="text-red-500 text-5xl mb-4">⚠</div>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                            Authentication Required
+                        </h2>
+                        <p className="text-gray-600 mb-8">
+                            Please access this form with a valid token in the URL.
+                        </p>
+                        <Button
+                            text="Retry Authentication"
+                            className="bg-blue-500 hover:bg-blue-600 text-white"
+                            onClick={() => window.location.reload()}
+                        />
+                    </div>
+                </Card>
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-6xl mx-auto p-6">
@@ -4121,7 +4164,7 @@ if (!token && !urlToken && !getToken()) {
                                 <div className="mt-4">
                                     <p className="text-sm font-medium text-gray-700 mb-2">Month-by-Month Breakdown:</p>
                                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
-                                        {monthNames.map((month, index) => {
+                                        {/* {monthNames.map((month, index) => {
                                             const monthKey = `${reportingYear}-${String(index + 1).padStart(2, '0')}`;
                                             const isCovered = coverage.coveredMonths.includes(monthKey);
 
@@ -4136,7 +4179,36 @@ if (!token && !urlToken && !getToken()) {
                                                     </div>
                                                 </div>
                                             );
-                                        })}
+                                        })} */}
+                                        {(() => {
+    const coverage = validateMonthCoverage();
+    // Build the 12-month window to display based on actual selections, 
+    // or fall back to reportingYear
+    const allMonthsToShow = Array.from({ length: 12 }, (_, i) => {
+        // Start from Jan of reportingYear - 1 if selections span previous year
+        const startYear = coverage.coveredMonths.length > 0 
+            ? parseInt(coverage.coveredMonths[0].split('-')[0])
+            : reportingYear;
+        const date = new Date(startYear, i, 1);
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    });
+
+    return allMonthsToShow.map((monthKey) => {
+        const [yr, mo] = monthKey.split('-');
+        const monthName = new Date(+yr, +mo - 1, 1).toLocaleString('en', { month: 'short' });
+        const isCovered = coverage.coveredMonths.includes(monthKey);
+        return (
+            <div key={monthKey}
+                className={`p-2 rounded border text-center ${isCovered ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                <div className="text-xs font-medium">{monthName}</div>
+                <div className="text-xs">{yr}</div>
+                <div className={`text-xs ${isCovered ? 'text-green-600' : 'text-red-600'}`}>
+                    {isCovered ? '✓' : '✗'}
+                </div>
+            </div>
+        );
+    });
+})()}
                                     </div>
                                 </div>
 

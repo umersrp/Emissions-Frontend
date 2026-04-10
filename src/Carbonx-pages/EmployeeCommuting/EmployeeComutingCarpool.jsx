@@ -445,6 +445,7 @@ const EmployeeCommutingFormCarpool = () => {
         qualityControlRemarks: '',
         qualityControl: '',
         submittedByEmail: '',
+        entryStatus: 'Carpool',
     });
 
     const [loading, setLoading] = useState(false);
@@ -1487,6 +1488,7 @@ const handleSubmit = async (e) => {
             qualityControlRemarks: formData.qualityControlRemarks || '',
             qualityControl: formData.qualityControl || '',
             submittedAt: new Date().toISOString(),
+            entryStatus: formData.entryStatus || 'Carpool', 
             commuteTypes: userPassengerDetails.transportTypes
             
         };
