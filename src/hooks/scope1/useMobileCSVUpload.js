@@ -524,6 +524,99 @@ if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
     }
     // Date validation
    // Date validation
+// if (cleanedRow.postingdate) {
+//   const parseToISODatePart = (input) => {
+//     if (!input) return null;
+//     let s = input.toString().trim().replace(/"/g, '');
+//     if (s.includes('T')) s = s.split('T')[0];
+    
+//     // Remove any extra spaces
+//     s = s.trim();
+    
+//     // Check for DD/MM/YYYY format
+//     const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+//     const matchDDMMYYYY = s.match(ddmmyyyyRegex);
+    
+//     if (matchDDMMYYYY) {
+//       const day = parseInt(matchDDMMYYYY[1], 10);
+//       const month = parseInt(matchDDMMYYYY[2], 10);
+//       const year = parseInt(matchDDMMYYYY[3], 10);
+      
+//       // Validate day, month, year ranges
+//       if (month < 1 || month > 12) return null;
+//       if (day < 1 || day > 31) return null;
+//       if (year < 1900 || year > 2100) return null;
+      
+//       const date = new Date(year, month - 1, day);
+      
+//       // Validate the date is real (e.g., not 31/02/2025)
+//       if (date.getFullYear() !== year || 
+//           date.getMonth() !== month - 1 || 
+//           date.getDate() !== day) {
+//         return null;
+//       }
+      
+//       // Check if date is in the future
+//       const today = new Date();
+//       today.setHours(0, 0, 0, 0);
+//       if (date > today) return null;
+      
+//       // Return ISO format
+//       return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+//     }
+    
+//     // Check for YYYY-MM-DD format
+//     const yyyymmddRegex = /^(\d{4})-(\d{1,2})-(\d{1,2})$/;
+//     const matchYYYYMMDD = s.match(yyyymmddRegex);
+    
+//     if (matchYYYYMMDD) {
+//       const year = parseInt(matchYYYYMMDD[1], 10);
+//       const month = parseInt(matchYYYYMMDD[2], 10);
+//       const day = parseInt(matchYYYYMMDD[3], 10);
+      
+//       // Validate ranges
+//       if (month < 1 || month > 12) return null;
+//       if (day < 1 || day > 31) return null;
+//       if (year < 1900 || year > 2100) return null;
+      
+//       const date = new Date(year, month - 1, day);
+      
+//       if (date.getFullYear() !== year || 
+//           date.getMonth() !== month - 1 || 
+//           date.getDate() !== day) {
+//         return null;
+//       }
+      
+//       const today = new Date();
+//       today.setHours(0, 0, 0, 0);
+//       if (date > today) return null;
+      
+//       return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+//     }
+    
+//     // Try parsing with Date constructor as fallback
+//     const parsed = new Date(s);
+//     if (!isNaN(parsed.getTime())) {
+//       const today = new Date();
+//       today.setHours(0, 0, 0, 0);
+//       if (parsed <= today) {
+//         return parsed.toISOString().split('T')[0];
+//       }
+//     }
+    
+//     return null;
+//   };
+
+//   const iso = parseToISODatePart(cleanedRow.postingdate);
+//   if (!iso) {
+//     errors.push(`Invalid date. Please use DD/MM/YYYY or YYYY-MM-DD (got "${cleanedRow.postingdate}")`);
+//   } else {
+//     cleanedRow.postingdate = iso;
+//   }
+// } else {
+//   // If no date provided, use current date
+//   cleanedRow.postingdate = new Date().toISOString().split('T')[0];
+// }
 if (cleanedRow.postingdate) {
   const parseToISODatePart = (input) => {
     if (!input) return null;
@@ -556,10 +649,7 @@ if (cleanedRow.postingdate) {
         return null;
       }
       
-      // Check if date is in the future
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (date > today) return null;
+      //  FUTURE DATE VALIDATION REMOVED - No longer checking if date is in the future
       
       // Return ISO format
       return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -587,9 +677,7 @@ if (cleanedRow.postingdate) {
         return null;
       }
       
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (date > today) return null;
+      //  FUTURE DATE VALIDATION REMOVED - No longer checking if date is in the future
       
       return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     }
@@ -597,11 +685,8 @@ if (cleanedRow.postingdate) {
     // Try parsing with Date constructor as fallback
     const parsed = new Date(s);
     if (!isNaN(parsed.getTime())) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (parsed <= today) {
-        return parsed.toISOString().split('T')[0];
-      }
+      //  FUTURE DATE VALIDATION REMOVED - Allow any valid date
+      return parsed.toISOString().split('T')[0];
     }
     
     return null;
