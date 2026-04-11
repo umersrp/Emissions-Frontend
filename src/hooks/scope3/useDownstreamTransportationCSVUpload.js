@@ -1015,7 +1015,6 @@ const validateDownstreamRow = useCallback((row, index) => {
     const headers = [
       'Building Code',
       'Stakeholder',
-      'Posting Date',
       'Sold Product Activity Type',
       'Sold Goods Type',
       'Transportation Vehicle Category',
@@ -1023,13 +1022,13 @@ const validateDownstreamRow = useCallback((row, index) => {
       'Weight Loaded',
       'Distance Travelled',
       'Quality Control',
-      'Remarks'
+      'Remarks',
+      'Posting Date'
     ];
 
     const exampleRow = [
       exampleBuildingCode,
       exampleStakeholder,
-      formattedDate,
       exampleActivityType,
       exampleGoodsType,
       exampleVehicleCategory,
@@ -1037,7 +1036,8 @@ const validateDownstreamRow = useCallback((row, index) => {
       '10',
       '500',
       exampleQC,
-      'Example downstream transportation record'
+      'Example downstream transportation record',
+      formattedDate
     ];
 
     const worksheetData = [

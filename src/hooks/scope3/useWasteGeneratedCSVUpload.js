@@ -20,6 +20,18 @@ const unitOptions = [
   { value: 'lbs', label: 'lbs' },
 ];
 
+const COLUMN_MAPPING = {
+  'buildingcode': ['buildingcode', 'building code', 'building-code', 'building_code'],
+  'stakeholder': ['stakeholder', 'stakeholder department', 'department'],
+  'wastecategory': ['wastecategory', 'waste category', 'waste-category'],
+  'wastetype': ['wastetype', 'waste type', 'waste-type'],
+  'wastetreatmentmethod': ['wastetreatmentmethod', 'waste treatment method', 'treatment method'],
+  'totalwasteqty': ['totalwasteqty', 'total waste qty', 'total waste qty (tonnes)', 'total waste quantity', 'waste quantity'],
+  'qualitycontrol': ['qualitycontrol', 'quality control', 'qc'],
+  'remarks': ['remarks', 'remark', 'notes'],
+  'postingdate': ['postingdate', 'posting date', 'date']
+};
+
 const useWasteGeneratedCSVUpload = (buildings = []) => {
   const [csvState, setCsvState] = useState({
     file: null,
@@ -61,6 +73,20 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
 
     return cleaned;
   }, []);
+
+  const normalizeHeader = useCallback((header) => {
+  if (!header) return '';
+  return header
+    .toString()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}, []);
+
+const findMatchingColumn = useCallback((header, possibleMatches) => {
+  const normalizedHeader = normalizeHeader(header);
+  return possibleMatches.some(match => normalizeHeader(match) === normalizedHeader);
+}, [normalizeHeader]);
+
 
   // Helper function to parse date in any format to ISO
   const parseDateToISO = useCallback((dateString) => {
@@ -133,218 +159,433 @@ const useWasteGeneratedCSVUpload = (buildings = []) => {
   }, []);
 
   // CSV Parser
-  const parseCSV = useCallback((file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const csvText = event.target.result;
+  // const parseCSV = useCallback((file) => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onload = (event) => {
+  //       try {
+  //         const csvText = event.target.result;
 
-          const parseCSVLine = (line) => {
-            const result = [];
-            let current = '';
-            let inQuotes = false;
+  //         const parseCSVLine = (line) => {
+  //           const result = [];
+  //           let current = '';
+  //           let inQuotes = false;
 
-            for (let i = 0; i < line.length; i++) {
-              const char = line[i];
-              const nextChar = line[i + 1];
+  //           for (let i = 0; i < line.length; i++) {
+  //             const char = line[i];
+  //             const nextChar = line[i + 1];
 
-              if (char === '"') {
-                if (inQuotes && nextChar === '"') {
-                  current += '"';
-                  i++;
-                } else {
-                  inQuotes = !inQuotes;
-                }
-              } else if (char === ',' && !inQuotes) {
-                result.push(current);
-                current = '';
+  //             if (char === '"') {
+  //               if (inQuotes && nextChar === '"') {
+  //                 current += '"';
+  //                 i++;
+  //               } else {
+  //                 inQuotes = !inQuotes;
+  //               }
+  //             } else if (char === ',' && !inQuotes) {
+  //               result.push(current);
+  //               current = '';
+  //             } else {
+  //               current += char;
+  //             }
+  //           }
+
+  //           result.push(current);
+  //           return result;
+  //         };
+
+  //         const lines = csvText.split('\n').filter(line => line.trim() !== '');
+
+  //         if (lines.length === 0) {
+  //           reject(new Error('CSV file is empty'));
+  //           return;
+  //         }
+
+  //         let headerRowIndex = -1;
+  //         for (let i = 0; i < lines.length; i++) {
+  //           const lineLower = lines[i].toLowerCase();
+  //           if (lineLower.includes('buildingcode') ||
+  //             (lineLower.includes('building') && lineLower.includes('code')) ||
+  //             (lineLower.includes('building') && lineLower.includes('wastecategory'))) {
+  //             headerRowIndex = i;
+  //             break;
+  //           }
+  //         }
+
+  //         if (headerRowIndex === -1) {
+  //           reject(new Error('CSV must contain header row with required columns'));
+  //           return;
+  //         }
+
+  //         const headerValues = parseCSVLine(lines[headerRowIndex]);
+  //         const headers = headerValues.map(h => {
+  //           return cleanCSVValue(h)
+  //             .toLowerCase()
+  //             .replace(/[^a-z0-9]/g, '');
+  //         });
+
+  //         const expectedHeaders = [
+  //           'buildingcode',
+  //           'stakeholder',
+  //           'wastecategory',
+  //           'wastetype',
+  //           'wastetreatmentmethod',
+  //           'totalwasteqty',
+  //           'qualitycontrol',
+  //           'remarks',
+  //           'postingdate'
+  //         ];
+
+  //         const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+  //         if (missingHeaders.length > 0) {
+  //           reject(new Error(`Missing required columns: ${missingHeaders.slice(0, 5).join(', ')}. Please ensure your CSV has the correct headers.`));
+  //           return;
+  //         }
+
+  //         const data = [];
+  //         for (let i = headerRowIndex + 1; i < lines.length; i++) {
+  //           const line = lines[i].trim();
+  //           if (!line) continue;
+
+  //           const values = parseCSVLine(line);
+  //           const row = {};
+
+  //           headers.forEach((header, index) => {
+  //             row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
+  //           });
+
+  //           if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
+  //             data.push(row);
+  //           }
+  //         }
+
+  //         console.log('Parsed CSV data:', data);
+  //         resolve(data);
+  //       } catch (error) {
+  //         console.error('CSV parsing error:', error);
+  //         reject(new Error(`Error parsing CSV: ${error.message}`));
+  //       }
+  //     };
+  //     reader.onerror = () => reject(new Error('Failed to read file'));
+  //     reader.readAsText(file);
+  //   });
+  // }, [cleanCSVValue]);
+
+  // // Excel Parser
+  // const parseExcel = useCallback((file) => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onload = (event) => {
+  //       try {
+  //         const data = new Uint8Array(event.target.result);
+  //         const workbook = XLSX.read(data, {
+  //           type: 'array',
+  //           cellDates: false,
+  //           cellText: true,
+  //           cellNF: true,
+  //           cellHTML: false
+  //         });
+  //         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+  //         const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+  //           header: 1,
+  //           defval: '',
+  //           raw: false
+  //         });
+
+  //         if (!jsonData || jsonData.length === 0) {
+  //           reject(new Error('Excel file is empty'));
+  //           return;
+  //         }
+
+  //         let headerRowIndex = -1;
+  //         for (let i = 0; i < jsonData.length; i++) {
+  //           const row = jsonData[i];
+  //           if (row && row.length > 0) {
+  //             const rowText = row.map(cell =>
+  //               cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
+  //             ).join('');
+
+  //             if (rowText.includes('buildingcode') ||
+  //               (rowText.includes('building') && rowText.includes('code')) ||
+  //               (rowText.includes('building') && rowText.includes('wastecategory'))) {
+  //               headerRowIndex = i;
+  //               break;
+  //             }
+  //           }
+  //         }
+
+  //         if (headerRowIndex === -1) {
+  //           reject(new Error('Excel must contain header row with required columns'));
+  //           return;
+  //         }
+
+  //         const headerValues = jsonData[headerRowIndex] || [];
+  //         const headers = headerValues.map(h => {
+  //           return cleanCSVValue(h)
+  //             .toLowerCase()
+  //             .replace(/[^a-z0-9]/g, '');
+  //         });
+
+  //         const expectedHeaders = [
+  //           'buildingcode',
+  //           'stakeholder',
+  //           'wastecategory',
+  //           'wastetype',
+  //           'wastetreatmentmethod',
+  //           'totalwasteqty',
+  //           'qualitycontrol',
+  //           'remarks',
+  //           'postingdate'
+  //         ];
+
+  //         const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+  //         if (missingHeaders.length > 0) {
+  //           reject(new Error(`Missing required columns: ${missingHeaders.slice(0, 5).join(', ')}`));
+  //           return;
+  //         }
+
+  //         const parsedData = [];
+  //         for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+  //           const row = jsonData[i];
+  //           if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+
+  //           const rowData = {};
+  //           headers.forEach((header, index) => {
+  //             const value = index < row.length ? row[index] : '';
+  //             rowData[header] = value ? cleanCSVValue(value) : '';
+  //           });
+
+  //           parsedData.push(rowData);
+  //         }
+
+  //         console.log('Parsed Excel data:', parsedData);
+  //         resolve(parsedData);
+  //       } catch (error) {
+  //         reject(new Error(`Error parsing Excel file: ${error.message}`));
+  //       }
+  //     };
+  //     reader.onerror = () => reject(new Error('Failed to read file'));
+  //     reader.readAsArrayBuffer(file);
+  //   });
+  // }, [cleanCSVValue]);
+
+  // CSV Parser - Updated
+const parseCSV = useCallback((file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const csvText = event.target.result;
+
+        const parseCSVLine = (line) => {
+          const result = [];
+          let current = '';
+          let inQuotes = false;
+
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            const nextChar = line[i + 1];
+
+            if (char === '"') {
+              if (inQuotes && nextChar === '"') {
+                current += '"';
+                i++;
               } else {
-                current += char;
+                inQuotes = !inQuotes;
               }
+            } else if (char === ',' && !inQuotes) {
+              result.push(current);
+              current = '';
+            } else {
+              current += char;
             }
-
-            result.push(current);
-            return result;
-          };
-
-          const lines = csvText.split('\n').filter(line => line.trim() !== '');
-
-          if (lines.length === 0) {
-            reject(new Error('CSV file is empty'));
-            return;
           }
 
-          let headerRowIndex = -1;
-          for (let i = 0; i < lines.length; i++) {
-            const lineLower = lines[i].toLowerCase();
-            if (lineLower.includes('buildingcode') ||
-              (lineLower.includes('building') && lineLower.includes('code')) ||
-              (lineLower.includes('building') && lineLower.includes('wastecategory'))) {
+          result.push(current);
+          return result;
+        };
+
+        const lines = csvText.split('\n').filter(line => line.trim() !== '');
+
+        if (lines.length === 0) {
+          reject(new Error('CSV file is empty'));
+          return;
+        }
+
+        // Find header row - look for any row that has building-related headers
+        let headerRowIndex = -1;
+        for (let i = 0; i < Math.min(lines.length, 5); i++) {
+          const line = lines[i].toLowerCase();
+          if (line.includes('buildingcode') || 
+              (line.includes('building') && line.includes('code')) ||
+              (line.includes('building') && line.includes('wastecategory'))) {
+            headerRowIndex = i;
+            break;
+          }
+        }
+
+        if (headerRowIndex === -1) {
+          reject(new Error('CSV must contain header row with required columns'));
+          return;
+        }
+
+        const headerValues = parseCSVLine(lines[headerRowIndex]);
+        console.log('Original CSV headers:', headerValues);
+
+        // Find matching columns using flexible mapping
+        const foundColumns = {};
+        const requiredFields = ['buildingcode', 'stakeholder', 'wastecategory', 'wastetype', 'wastetreatmentmethod', 'totalwasteqty', 'qualitycontrol', 'postingdate'];
+
+        headerValues.forEach(header => {
+          if (!header) return;
+          for (const [field, possibleNames] of Object.entries(COLUMN_MAPPING)) {
+            if (findMatchingColumn(header, possibleNames)) {
+              foundColumns[field] = header;
+              break;
+            }
+          }
+        });
+
+        const missingHeaders = requiredFields.filter(field => !foundColumns[field]);
+        if (missingHeaders.length > 0) {
+          reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+          return;
+        }
+
+        // Parse data rows
+        const data = [];
+        for (let i = headerRowIndex + 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+
+          const values = parseCSVLine(line);
+          const row = {};
+
+          // Use the found column mapping
+          Object.entries(foundColumns).forEach(([field, headerName]) => {
+            const index = headerValues.findIndex(h => h === headerName);
+            row[field] = index < values.length ? cleanCSVValue(values[index]) : '';
+          });
+
+          if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
+            data.push(row);
+          }
+        }
+
+        console.log('Parsed CSV data:', data);
+        resolve(data);
+      } catch (error) {
+        console.error('CSV parsing error:', error);
+        reject(new Error(`Error parsing CSV: ${error.message}`));
+      }
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsText(file);
+  });
+}, [cleanCSVValue, findMatchingColumn]);
+
+// Excel Parser - Updated
+const parseExcel = useCallback((file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, {
+          type: 'array',
+          cellDates: false,
+          cellText: true,
+          cellNF: true,
+          cellHTML: false
+        });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+          header: 1,
+          defval: '',
+          raw: false
+        });
+
+        if (!jsonData || jsonData.length === 0) {
+          reject(new Error('Excel file is empty'));
+          return;
+        }
+
+        // Find header row - look for any row that has building-related headers
+        let headerRowIndex = -1;
+        for (let i = 0; i < Math.min(jsonData.length, 5); i++) {
+          const row = jsonData[i];
+          if (row && row.length > 0) {
+            const rowText = row.map(cell =>
+              cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
+            ).join('');
+
+            if (rowText.includes('buildingcode') ||
+                (rowText.includes('building') && rowText.includes('code')) ||
+                (rowText.includes('building') && rowText.includes('wastecategory'))) {
               headerRowIndex = i;
               break;
             }
           }
+        }
 
-          if (headerRowIndex === -1) {
-            reject(new Error('CSV must contain header row with required columns'));
-            return;
-          }
+        if (headerRowIndex === -1) {
+          reject(new Error('Excel must contain header row with required columns'));
+          return;
+        }
 
-          const headerValues = parseCSVLine(lines[headerRowIndex]);
-          const headers = headerValues.map(h => {
-            return cleanCSVValue(h)
-              .toLowerCase()
-              .replace(/[^a-z0-9]/g, '');
-          });
+        const headerValues = jsonData[headerRowIndex] || [];
+        console.log('Original Excel headers:', headerValues);
 
-          const expectedHeaders = [
-            'buildingcode',
-            'stakeholder',
-            'wastecategory',
-            'wastetype',
-            'wastetreatmentmethod',
-            'unit',
-            'totalwasteqty',
-            'qualitycontrol',
-            'remarks',
-            'postingdate'
-          ];
+        // Find matching columns using flexible mapping
+        const foundColumns = {};
+        const requiredFields = ['buildingcode', 'stakeholder', 'wastecategory', 'wastetype', 'wastetreatmentmethod', 'totalwasteqty', 'qualitycontrol', 'postingdate'];
 
-          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
-          if (missingHeaders.length > 0) {
-            reject(new Error(`Missing required columns: ${missingHeaders.slice(0, 5).join(', ')}. Please ensure your CSV has the correct headers.`));
-            return;
-          }
-
-          const data = [];
-          for (let i = headerRowIndex + 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-
-            const values = parseCSVLine(line);
-            const row = {};
-
-            headers.forEach((header, index) => {
-              row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
-            });
-
-            if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
-              data.push(row);
+        headerValues.forEach(header => {
+          if (!header) return;
+          for (const [field, possibleNames] of Object.entries(COLUMN_MAPPING)) {
+            if (findMatchingColumn(header, possibleNames)) {
+              foundColumns[field] = header;
+              break;
             }
           }
+        });
 
-          console.log('Parsed CSV data:', data);
-          resolve(data);
-        } catch (error) {
-          console.error('CSV parsing error:', error);
-          reject(new Error(`Error parsing CSV: ${error.message}`));
+        const missingHeaders = requiredFields.filter(field => !foundColumns[field]);
+        if (missingHeaders.length > 0) {
+          reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+          return;
         }
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsText(file);
-    });
-  }, [cleanCSVValue]);
 
-  // Excel Parser
-  const parseExcel = useCallback((file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const data = new Uint8Array(event.target.result);
-          const workbook = XLSX.read(data, {
-            type: 'array',
-            cellDates: false,
-            cellText: true,
-            cellNF: true,
-            cellHTML: false
-          });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        // Parse data rows
+        const parsedData = [];
+        for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+          const row = jsonData[i];
+          if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
 
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
-            header: 1,
-            defval: '',
-            raw: false
+          const rowData = {};
+          
+          // Use the found column mapping
+          Object.entries(foundColumns).forEach(([field, headerName]) => {
+            const index = headerValues.findIndex(h => h === headerName);
+            const value = index < row.length ? row[index] : '';
+            rowData[field] = value ? cleanCSVValue(value) : '';
           });
 
-          if (!jsonData || jsonData.length === 0) {
-            reject(new Error('Excel file is empty'));
-            return;
-          }
-
-          let headerRowIndex = -1;
-          for (let i = 0; i < jsonData.length; i++) {
-            const row = jsonData[i];
-            if (row && row.length > 0) {
-              const rowText = row.map(cell =>
-                cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
-              ).join('');
-
-              if (rowText.includes('buildingcode') ||
-                (rowText.includes('building') && rowText.includes('code')) ||
-                (rowText.includes('building') && rowText.includes('wastecategory'))) {
-                headerRowIndex = i;
-                break;
-              }
-            }
-          }
-
-          if (headerRowIndex === -1) {
-            reject(new Error('Excel must contain header row with required columns'));
-            return;
-          }
-
-          const headerValues = jsonData[headerRowIndex] || [];
-          const headers = headerValues.map(h => {
-            return cleanCSVValue(h)
-              .toLowerCase()
-              .replace(/[^a-z0-9]/g, '');
-          });
-
-          const expectedHeaders = [
-            'buildingcode',
-            'stakeholder',
-            'wastecategory',
-            'wastetype',
-            'wastetreatmentmethod',
-            'unit',
-            'totalwasteqty',
-            'qualitycontrol',
-            'remarks',
-            'postingdate'
-          ];
-
-          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
-          if (missingHeaders.length > 0) {
-            reject(new Error(`Missing required columns: ${missingHeaders.slice(0, 5).join(', ')}`));
-            return;
-          }
-
-          const parsedData = [];
-          for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
-            const row = jsonData[i];
-            if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
-
-            const rowData = {};
-            headers.forEach((header, index) => {
-              const value = index < row.length ? row[index] : '';
-              rowData[header] = value ? cleanCSVValue(value) : '';
-            });
-
-            parsedData.push(rowData);
-          }
-
-          console.log('Parsed Excel data:', parsedData);
-          resolve(parsedData);
-        } catch (error) {
-          reject(new Error(`Error parsing Excel file: ${error.message}`));
+          parsedData.push(rowData);
         }
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsArrayBuffer(file);
-    });
-  }, [cleanCSVValue]);
+
+        console.log('Parsed Excel data:', parsedData);
+        resolve(parsedData);
+      } catch (error) {
+        reject(new Error(`Error parsing Excel file: ${error.message}`));
+      }
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsArrayBuffer(file);
+  });
+}, [cleanCSVValue, findMatchingColumn]);
 
   // Helper function for normalization (handles spaces around slashes)
 const normalizeWithSlash = (str) => {
@@ -524,19 +765,7 @@ if (cleanedRow.wastecategory && cleanedRow.wastetype) {
       }
     }
 
-    if (cleanedRow.unit) {
-      const validUnits = unitOptions.map(u => u.value);
-      const matchedUnit = validUnits.find(u =>
-        u.toLowerCase() === cleanedRow.unit.toLowerCase()
-      );
-      if (!matchedUnit) {
-        errors.push(`Invalid unit "${cleanedRow.unit}". Must be one of: ${validUnits.join(', ')}`);
-      } else {
-        cleanedRow.unit = matchedUnit;
-      }
-    } else {
-      cleanedRow.unit = 'Tonnes';
-    }
+   cleanedRow.unit = 'Tonnes';
 
     if (cleanedRow.totalwasteqty) {
       const cleanNum = cleanedRow.totalwasteqty.toString()
@@ -828,8 +1057,7 @@ if (cleanedRow.wastecategory && cleanedRow.wastetype) {
       'Waste Category',
       'Waste Type',
       'Waste Treatment Method',
-      'Unit',
-      'Total Waste Qty',
+      'Total Waste Qty (Tonnes)',
       'Quality Control',
       'Remarks',
       'Posting Date'
@@ -841,7 +1069,6 @@ if (cleanedRow.wastecategory && cleanedRow.wastetype) {
       exampleWasteCategory,
       exampleWasteType,
       exampleTreatment,
-      exampleUnit,
       '10',
       exampleQC,
       'Example waste record',

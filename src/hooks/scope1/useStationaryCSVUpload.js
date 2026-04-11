@@ -43,68 +43,49 @@ const useStationaryCSVUpload = (buildings = []) => {
 
   const cleanCSVValue = useCallback((value) => {
     if (typeof value !== 'string') return value;
-
     let cleaned = value.trim();
-
     // Remove surrounding quotes
     cleaned = cleaned.replace(/^["']+|["']+$/g, '');
-
     // Remove Excel formula prefix
     cleaned = cleaned.replace(/^=/, '');
-
     return cleaned;
   }, []);
 
-  // Helper function to parse date in any format to ISO
-  const parseDateToISO = useCallback((dateString) => {
+const parseDateToISO = useCallback((dateString) => {
     if (!dateString) return null;
 
     let cleanedDate = dateString.toString().trim();
     cleanedDate = cleanedDate.replace(/"/g, ''); // Remove quotes
 
-    // Handle empty or invalid dates
     if (!cleanedDate || cleanedDate === '') return null;
 
-    // Try to parse the date
     let date;
     let year, month, day;
 
-    // Check if it's already an ISO string with timezone
     if (cleanedDate.includes('T')) {
-      // Extract just the date part if it's a full ISO string
       date = new Date(cleanedDate.split('T')[0]);
     } else {
-      // Try to parse common date formats
       const parts = cleanedDate.split(/[\/\-\.]/);
 
       if (parts.length === 3) {
-        // Try different date format interpretations
         if (parts[0].length === 4) {
-          // Format: YYYY-MM-DD
           year = parseInt(parts[0]);
-          month = parseInt(parts[1]) - 1; // Month is 0-indexed
+          month = parseInt(parts[1]) - 1;
           day = parseInt(parts[2]);
           date = new Date(year, month, day);
         } else if (parts[2].length === 4) {
-          // Could be MM/DD/YYYY or DD/MM/YYYY
-          // Check if first part is > 12 (likely day in DD/MM/YYYY)
           if (parseInt(parts[0]) > 12) {
-            // Likely DD/MM/YYYY
             day = parseInt(parts[0]);
             month = parseInt(parts[1]) - 1;
             year = parseInt(parts[2]);
             date = new Date(year, month, day);
           } else if (parseInt(parts[1]) > 12) {
-            // Likely MM/DD/YYYY (second part is day)
             month = parseInt(parts[0]) - 1;
             day = parseInt(parts[1]);
             year = parseInt(parts[2]);
             date = new Date(year, month, day);
           } else {
-            // Ambiguous - try both and see which is valid
-            // First try MM/DD/YYYY
             let testDate1 = new Date(parseInt(parts[2]), parseInt(parts[0]) - 1, parseInt(parts[1]));
-            // Then try DD/MM/YYYY
             let testDate2 = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
 
             if (!isNaN(testDate1.getTime()) && testDate1.getDate() === parseInt(parts[1])) {
@@ -114,21 +95,17 @@ const useStationaryCSVUpload = (buildings = []) => {
             }
           }
         } else {
-          // Try creating date directly (browser might parse it)
           date = new Date(cleanedDate);
         }
       } else {
-        // Try creating date directly
         date = new Date(cleanedDate);
       }
     }
 
-    // If still invalid, return null
     if (!date || isNaN(date.getTime())) {
       return null;
     }
 
-    // Create ISO string with time set to midnight UTC
     const isoDate = new Date(
       Date.UTC(
         date.getFullYear(),
@@ -323,7 +300,36 @@ const useStationaryCSVUpload = (buildings = []) => {
             const rowData = {};
             headers.forEach((header, index) => {
               const value = index < row.length ? row[index] : '';
-              rowData[header] = value ? cleanCSVValue(value) : '';
+
+              const normalizedHeader = header ? header.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+
+              // Convert Excel numeric date serials to ISO when header indicates a date (e.g., postingdate)
+              if (typeof value === 'number' && (normalizedHeader.includes('date') || normalizedHeader.includes('postingdate'))) {
+                try {
+                  let iso = null;
+
+                  if (XLSX && XLSX.SSF && typeof XLSX.SSF.parse_date_code === 'function') {
+                    const d = XLSX.SSF.parse_date_code(value);
+                    if (d && d.y) {
+                      iso = new Date(Date.UTC(d.y, d.m - 1, d.d, 0, 0, 0, 0)).toISOString();
+                    }
+                  }
+
+                  if (!iso) {
+                    // Fallback conversion from Excel serial (assuming 1900-based epoch)
+                    const excelEpoch = Date.UTC(1899, 11, 30); // Excel epoch
+                    const msPerDay = 24 * 60 * 60 * 1000;
+                    const jsDate = new Date(excelEpoch + (value * msPerDay));
+                    iso = new Date(Date.UTC(jsDate.getUTCFullYear(), jsDate.getUTCMonth(), jsDate.getUTCDate(), 0, 0, 0, 0)).toISOString();
+                  }
+
+                  rowData[header] = iso;
+                } catch (e) {
+                  rowData[header] = cleanCSVValue(value);
+                }
+              } else {
+                rowData[header] = value ? cleanCSVValue(value) : '';
+              }
             });
 
             parsedData.push(rowData);

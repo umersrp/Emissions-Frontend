@@ -1438,9 +1438,6 @@ if (!isTravelFlagActive(cleanedRow.didtravelbytrain)) {
       'Fuel Consumption Unit',
       'Total Purchased Electricity (Grid / Supplier Specific / PPA)',
       'Unit',
-      'Quality Control',
-      'Remarks',
-      'Posting Date',
       'Did You Have Any Business Travel By Air During The Reporting Period?',
       'No Of Passenger (Air)',
       'Distance Travelled (Air)',
@@ -1457,7 +1454,10 @@ if (!isTravelFlagActive(cleanedRow.didtravelbytrain)) {
       'Did You Have Any Business Travel By Train During The Reporting Period?',
       'No Of Passenger (Train)',
       'Distance Travelled (Train)',
-      'Train Type'
+      'Train Type',
+      'Quality Control',
+      'Remarks',
+      'Posting Date',
     ];
 
     const exampleRow = [
@@ -1469,9 +1469,6 @@ if (!isTravelFlagActive(cleanedRow.didtravelbytrain)) {
       exampleFuelUnit,
       '500',
       exampleElectricityUnit,
-      exampleQC,
-      'Example record',
-      formattedDate,
       'Yes',
       '2',
       '1000',
@@ -1488,7 +1485,10 @@ if (!isTravelFlagActive(cleanedRow.didtravelbytrain)) {
       'Yes',
       '5',
       '200',
-      exampleTrainType
+      exampleTrainType,
+      exampleQC,
+      'Example record',
+      formattedDate,
     ];
 
     // Create worksheet data with headers and example row

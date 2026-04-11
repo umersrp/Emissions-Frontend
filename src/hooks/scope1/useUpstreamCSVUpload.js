@@ -906,7 +906,6 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
       'Weight Loaded (tonnes)',
       'Distance Travelled (km)',
       'Amount Spent ($)',
-      'Unit',
       'Quality Control',
       'Remarks',
       'Posting Date'
@@ -914,7 +913,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
 
     const exampleRows = [
       [
-        'BLD-8182',
+        'BLD-2706',
         'Assembly',
         'Purchased Goods',
         'Raw Materials',
@@ -924,13 +923,12 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
         '100',
         '500',
         '',
-        '',
         'Good',
         'Steel shipment',
         formattedDate
       ],
       [
-        'BLD-1147',
+        'BLD-2706',
         'Assembly',
         'Purchased Third-party Transportation and Distribution Services',
         'Warehousing and support services for transportation',
@@ -940,7 +938,6 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
         '',
         '',
         '5000',
-        'USD',
         'Fair',
         'Warehouse services',
         formattedDate
