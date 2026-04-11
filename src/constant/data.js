@@ -283,7 +283,7 @@ export const menuItems = [
         childlink: "Capital-Goods",
       },
       {
-        childtitle: "Fuels and Energy Related Activities",
+        childtitle: "Fuel and Energy Related Activities",
         childlink: "fuel-energy",
       },
       {

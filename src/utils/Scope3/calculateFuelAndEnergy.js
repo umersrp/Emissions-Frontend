@@ -26,25 +26,6 @@ export const calculateFuelAndEnergy = (data) => {
   let resultE = 0;
   let resultF = 0;
 
-  // ==================== RESULT A ====================
-  // console.group("🅰️ Result A – Fuel & Electricity");
-
-  // const totalFuelConsumption = Number(data.totalFuelConsumption);
-  // const fuel = data.fuel;
-  // const fuelUnit = data.fuelConsumptionUnit;
-
-  // const fuelFactor =
-  //   unitsEmissionFactors?.[fuel]?.[fuelUnit.toLowerCase()] ||
-  //   unitsEmissionFactors?.[fuel]?.[fuelUnit] ||
-  //   0;
-
-  // resultA = totalFuelConsumption * fuelFactor;
-
-  // console.log("A Inputs:", { totalFuelConsumption, fuel, fuelUnit, fuelFactor });
-  // console.log("🅰️ Result A Total:", resultA);
-  // const totalGrossElectricityPurchased = Number(data.totalGrossElectricityPurchased);
-
-  // console.groupEnd();
 
   console.group("🅰️ Result A – Fuel & Electricity");
 
@@ -108,8 +89,8 @@ export const calculateFuelAndEnergy = (data) => {
 
   const airPassengers = Number(data.airPassengers);
   const airDistanceKm = Number(data.airDistanceKm);
-  const airTravelClass = data.airTravelClass?.value;   // e.g., "Economy"
-  const airFlightType = data.airFlightType?.value;     // e.g., "Domestic"
+const airTravelClass = data.airTravelClass?.value ?? data.airTravelClass;
+const airFlightType = data.airFlightType?.value ?? data.airFlightType;    // e.g., "Domestic"
 
   const airFactor = airTravelEmissionFactors?.[airFlightType]?.[airTravelClass] || 0;
   resultC = airPassengers * airDistanceKm * airFactor;
@@ -123,7 +104,9 @@ export const calculateFuelAndEnergy = (data) => {
 
   const taxiPassengers = Number(data.taxiPassengers);
   const taxiDistanceKm = Number(data.taxiDistanceKm);
-  const taxiType = data.taxiType?.value;
+  // const taxiType = data.taxiType?.value;
+  const taxiType = data.taxiType?.value ?? data.taxiType;
+
 
   const taxiFactor = taxiEmissionFactors?.[taxiType] || 0;
   resultD = taxiPassengers * taxiDistanceKm * taxiFactor;
@@ -137,7 +120,9 @@ export const calculateFuelAndEnergy = (data) => {
 
   const busPassengers = Number(data.busPassengers);
   const busDistanceKm = Number(data.busDistanceKm);
-  const busType = data.busType?.value;
+  // const busType = data.busType?.value;
+  const busType = data.busType?.value ?? data.busType;
+
 
   const busFactor = busEmissionFactors?.[busType] || 0;
   resultE = busPassengers * busDistanceKm * busFactor;
@@ -151,7 +136,9 @@ export const calculateFuelAndEnergy = (data) => {
 
   const trainPassengers = Number(data.trainPassengers);
   const trainDistanceKm = Number(data.trainDistanceKm);
-  const trainType = data.trainType?.value;
+  // const trainType = data.trainType?.value;
+  const trainType = data.trainType?.value ?? data.trainType;
+
 
   const trainFactor = trainEmissionFactors?.[trainType] || 0;
   resultF = trainPassengers * trainDistanceKm * trainFactor;
