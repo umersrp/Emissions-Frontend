@@ -194,8 +194,10 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
             if (lower.includes('how much electricity') && lower.includes('power purchase agreement') && !lower.includes('valid') && !lower.includes('attributes')) return 'ppaelectricity';
             if (lower.includes('do you have the supplier specific emission factor') && lower.includes('power purchased agreement')) return 'hasppaemissionfactor';
             if (lower.includes('ppa emission factor') || (lower.includes('emission factor') && lower.includes('ppa'))) return 'ppaemissionfactor';
-            if ((lower.includes('valid energy instruments') || lower.includes('rec') && lower.includes('ppa')) && !lower.includes('how much')) return 'hasppavalidinstruments';
-            if (lower.includes('any other types of renewable energy attributes') || (lower.includes('renewable energy attributes') && !lower.includes('ppa'))) return 'hasrenewableattributes';
+            // if ((lower.includes('valid energy instruments') || lower.includes('rec') && lower.includes('ppa')) && !lower.includes('how much')) return 'hasppavalidinstruments';
+            // if (lower.includes('any other types of renewable energy attributes') || (lower.includes('renewable energy attributes') && !lower.includes('ppa'))) return 'hasrenewableattributes';
+            if (lower.includes('any other types of renewable energy attributes') || lower.includes('separate from power purchase')) return 'hasrenewableattributes';  // moved up, catches header 19
+            if ((lower.includes('valid energy instruments') || (lower.includes('rec') && lower.includes('ppa'))) && !lower.includes('how much') && !lower.includes('separate')) return 'hasppavalidinstruments';  //  'separate' guard added
             if (lower.includes('how much of your total electricity consumption') && lower.includes('renewable energy attributes')) return 'renewableattributeselectricity';
             if (lower.includes('total electricity consumption') && !lower.includes('grid') && !lower.includes('purchased')) return 'totalelectricity';
             if (lower.includes('quality control')) return 'qualitycontrol';
@@ -313,8 +315,10 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
             if (lower.includes('do you purchase electricity under power purchase agreements') && !lower.includes('how much')) return 'hasppa';
             if (lower.includes('how much electricity') && lower.includes('power purchase agreement') && !lower.includes('valid') && !lower.includes('attributes')) return 'ppaelectricity';
             if (lower.includes('do you have the supplier specific emission factor') && lower.includes('power purchased agreement')) return 'hasppaemissionfactor';
-            if (lower.includes('ppa emission factor') || (lower.includes('emission factor') && lower.includes('ppa'))) return 'ppaemissionfactor';
-            if ((lower.includes('valid energy instruments') || lower.includes('rec') && lower.includes('ppa')) && !lower.includes('how much')) return 'hasppavalidinstruments';
+            // if (lower.includes('ppa emission factor') || (lower.includes('emission factor') && lower.includes('ppa'))) return 'ppaemissionfactor';
+            // if ((lower.includes('valid energy instruments') || lower.includes('rec') && lower.includes('ppa')) && !lower.includes('how much')) return 'hasppavalidinstruments';
+            if (lower.includes('any other types of renewable energy attributes') || lower.includes('separate from power purchase')) return 'hasrenewableattributes';
+            if ((lower.includes('valid energy instruments') || (lower.includes('rec') && lower.includes('ppa'))) && !lower.includes('how much') && !lower.includes('separate')) return 'hasppavalidinstruments';
             if (lower.includes('any other types of renewable energy attributes') || (lower.includes('renewable energy attributes') && !lower.includes('ppa'))) return 'hasrenewableattributes';
             if (lower.includes('how much of your total electricity consumption') && lower.includes('renewable energy attributes')) return 'renewableattributeselectricity';
             if (lower.includes('total electricity consumption') && !lower.includes('grid') && !lower.includes('purchased')) return 'totalelectricity';
@@ -904,8 +908,8 @@ const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
       'Grid Station',
       'Total Other Supplier Specific Electricity Purchased Or Purchased Under Power Purchased Agreement (PPA)',
       'Quality Control',
-      'Posting Date',
-      'Remarks'
+      'Remarks',
+      'Posting Date'
     ];
     
     exampleRow = [
@@ -916,8 +920,9 @@ const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
       exampleGridStation,
       '500',
       exampleQC,
-      exampleDate,  // Using fixed valid date
-      'Example location based record'
+      'Example location based record',
+      exampleDate // Using fixed valid date
+      
     ];
   } else {
     headers = [
@@ -926,9 +931,6 @@ const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
       'Unit',
       'Total Gross Electricity Purchased From Grid Station',
       'Grid Station',
-      'Quality Control',
-      'Posting Date',
-      'Remarks',
       'Do You Have Your Own Solar Panels Or Any Other Renewable Electricity Generation Plant Installed At Your Facility That Is Retained By You Under Valid Renewable Energy Instruments?',
       'What Is The Total Onsite Solar Electricity Consumption?',
       'How Much Solar Electricity Is Retained By You Under Valid RECs Or Any Other Energy Attributes?',
@@ -945,6 +947,9 @@ const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
       'Or Do You Have The Valid Energy Instruments Or Renewable Energy Attributes (REC / REC-I) Etc. Under Power Purchased Agreements (PPA)?',
       'Do You Have Any Other Types Of Renewable Energy Attributes Market-Based Instruments Or Renewable Energy Certificates (RECs) That Are Separate From Power Purchase Agreements (PPA) And From Those Covering On-Site Renewable Electricity Generation?',
       'How Much Of Your Total Electricity Consumption (Excluding Solar Generation And PPA-Covered Electricity) Is Covered By Valid Renewable Energy Attributes Or Market-Based Instruments?',
+      'Quality Control',
+      'Remarks',
+      'Posting Date'
     ];
     
     exampleRow = [
@@ -953,9 +958,6 @@ const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
       exampleUnit,
       '1000',
       exampleGridStation,
-      exampleQC,
-      exampleDate,  // Using fixed valid date
-      'Example market based record',
       'Yes',
       '500',
       '400',
@@ -971,7 +973,10 @@ const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
       '0.4',
       'No',
       'Yes',
-      '150'
+      '150',
+      exampleQC,
+      'Example market based record',
+      exampleDate // Using fixed valid date
     ];
   }
 

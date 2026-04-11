@@ -930,8 +930,9 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         'Amount Spent',
         'Unit',
         'Quality Control',
-        'Posting Date',
-        'Remarks'
+        'Remarks',
+        'Posting Date'
+        
       ];
 
       exampleRow = [
@@ -944,8 +945,8 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         '1000',
         exampleUnit,
         exampleQC,
-        formattedDate,
-        'Example record'
+        'Example record',
+        formattedDate
       ];
     } else {
       headers = [
@@ -957,8 +958,8 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         'Amount Spent',
         'Unit',
         'Quality Control',
-        'Posting Date',
-        'Remarks'
+        'Remarks',
+        'Posting Date'
       ];
 
       exampleRow = [
@@ -970,8 +971,8 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         '1000',
         exampleUnit,
         exampleQC,
-        formattedDate,
-        'Example record'
+        'Example record',
+        formattedDate
       ];
     }
 

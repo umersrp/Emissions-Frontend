@@ -1100,8 +1100,7 @@ if (travelByCar) {
     const headers = [
       'Building Code',
       'Stakeholder',
-      'Quality Control',
-      'Posting Date',
+      
       'Did you have any business travel by air during the reporting period?',
       'Number of Passengers (Air)',
       'Distance Travelled (Air)',
@@ -1129,14 +1128,14 @@ if (travelByCar) {
       'Did you have any hotel stays during business travel in the reporting period?',
       'Number of Rooms',
       'Nights Stayed',
-      'Remarks'
+      'Quality Control',
+      'Remarks',
+      'Posting Date'
     ];
 
     const exampleRow = [
       exampleBuildingCode,
       exampleStakeholder,
-      exampleQC,
-      formattedDate,
       'Yes',
       '2',
       '1000',
@@ -1164,7 +1163,9 @@ if (travelByCar) {
       'No',
       '0',
       '0',
-      'Example business travel record'
+       exampleQC,
+      'Example business travel record',
+      formattedDate
     ];
 
     const worksheetData = [
