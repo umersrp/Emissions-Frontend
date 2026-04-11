@@ -803,6 +803,7 @@ export const unitConversion = {
   // Volume conversions
   "Litres": { factor: 1, to: "Litres" },
   "Gallons": { factor: 4.54609, to: "Litres" },
+  "m3": { factor: 1, to: "m3" },
   "ft3": { factor: 0.0283168, to: "m3" },
   "SCF": { factor: 0.0283168, to: "m3" },
   "in3": { factor: 1.63871e-5, to: "m3" },
