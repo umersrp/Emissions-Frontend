@@ -696,7 +696,7 @@ const FugitiveCombustionListing = () => {
           </div>
         </div>
 
-        {selectedCount > 0 && (
+        {/* {selectedCount > 0 && (
           <div className="mb-4 mt-4 flex justify-end">
             <Button
               text="Clear Selection"
@@ -705,7 +705,7 @@ const FugitiveCombustionListing = () => {
               icon="heroicons:x-mark"
             />
           </div>
-        )}
+        )} */}
 
         {/*  Server-side Pagination UI */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">

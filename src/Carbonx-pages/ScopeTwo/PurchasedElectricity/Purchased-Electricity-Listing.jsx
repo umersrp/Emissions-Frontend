@@ -18,15 +18,26 @@ import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import ExcelExportButton from "@/components/ui/ExcelExportButton";
 import usePurchasedElectricityCSVUpload from "@/hooks/scope2/usePurchasedElectricityCSVUpload";
 
-const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
+const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
   const defaultRef = React.useRef();
   const resolvedRef = ref || defaultRef;
 
   React.useEffect(() => {
-    resolvedRef.current.indeterminate = indeterminate;
+    if (resolvedRef.current) {
+      resolvedRef.current.indeterminate = indeterminate;
+    }
   }, [resolvedRef, indeterminate]);
 
-  return <input type="checkbox" ref={resolvedRef} {...rest} className="table-checkbox" />;
+  return (
+    <input
+      type="checkbox"
+      ref={resolvedRef}
+      checked={checked}
+      onChange={onChange}
+      className="table-checkbox w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+      {...rest}
+    />
+  );
 });
 
 const PurchasedElectricityListing = () => {
@@ -211,22 +222,26 @@ const PurchasedElectricityListing = () => {
     }
   };
 
-  // Delete multiple selected records
+ // Delete multiple selected records
   const handleDeleteMultiple = async () => {
+    const selectedRecords = selectedFlatRows || [];
+    const ids = selectedRecords.map(r => r.original?._id).filter(Boolean);
+
+    if (ids.length === 0) {
+      toast.warning('No records selected');
+      return;
+    }
+
+    // Confirm before deleting
+    const confirmed = window.confirm(`Delete ${ids.length} selected record(s)? This action cannot be undone.`);
+    if (!confirmed) return;
+
     try {
-      const ids = (selectedFlatRows || []).map(r => r.original?._id).filter(Boolean);
-      if (!ids.length) {
-        toast.warning('No records selected');
-        return;
-      }
-
-      const ok = window.confirm(`Delete ${ids.length} selected record(s)? This cannot be undone.`);
-      if (!ok) return;
-
-      // Delete in parallel
-      await Promise.all(ids.map(id => axios.delete(`${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      })));
+      await Promise.all(ids.map(id =>
+        axios.delete(`${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        })
+      ));
 
       toast.success(`${ids.length} record(s) deleted successfully`);
       fetchData();
@@ -235,6 +250,7 @@ const PurchasedElectricityListing = () => {
       toast.error('Failed to delete some records');
     }
   };
+
 
   // CSV Upload handlers
   // In your PurchasedElectricityListing.jsx, update the handleCSVFileSelect:
@@ -557,18 +573,46 @@ const PurchasedElectricityListing = () => {
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
   const data = useMemo(() => records, [records]);
 
-  const tableInstance = useTable({ columns, data }, useSortBy, useRowSelect, (hooks) => {
-    hooks.visibleColumns.push((columns) => [
-      {
-        id: "selection",
-        Header: ({ getToggleAllRowsSelectedProps }) => (
-          <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-        ),
-        Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
-      },
-      ...columns,
-    ]);
-  });
+  const tableInstance = useTable(
+    {
+      columns,
+      data,
+      getRowId: (row) => row._id,
+    },
+    useSortBy,
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [
+        {
+          id: "selection",
+          Header: ({ rows }) => {
+            const allSelected = rows.length > 0 && rows.every(row => row.isSelected);
+            const someSelected = rows.some(row => row.isSelected);
+            return (
+              <IndeterminateCheckbox
+                {...(allSelected ? { checked: true } : {})}
+                indeterminate={someSelected && !allSelected}
+                onChange={(e) => {
+                  const { checked } = e.target;
+                  rows.forEach(row => {
+                    if (checked) {
+                      row.toggleRowSelected(true);
+                    } else {
+                      row.toggleRowSelected(false);
+                    }
+                  });
+                }}
+              />
+            );
+          },
+          Cell: ({ row }) => (
+            <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+          ),
+        },
+        ...columns,
+      ]);
+    }
+  );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
   const { selectedFlatRows } = tableInstance;
@@ -583,6 +627,7 @@ const PurchasedElectricityListing = () => {
     setGoToValue(pageIndex);
   }, [pageIndex]);
 
+ 
   return (
     <>
       <Card noborder>
@@ -639,6 +684,16 @@ const PurchasedElectricityListing = () => {
                 <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
               </div>
 
+              {selectedFlatRows && selectedFlatRows.length > 0 && (
+                <Tippy content={`Delete ${selectedFlatRows.length} selected record(s)`}>
+                  <Button
+                    icon="heroicons:trash"
+                    text={`Delete Selected (${selectedFlatRows.length})`}
+                    className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90 whitespace-nowrap"
+                    onClick={handleDeleteMultiple}
+                  />
+                </Tippy>
+              )}
 
               {/* Export Buttons - Only show when filter is selected AND records exist */}
               {emissionFilter && records.length > 0 && (
@@ -706,13 +761,13 @@ const PurchasedElectricityListing = () => {
                     pageInfo={{ currentPage: pageIndex, totalPages }}
                   />
 
-               
+
                 </>
               )}
 
               {emissionFilter && (
                 <>
-                 {/* Import Button - Disabled until filter selected */}
+                  {/* Import Button - Disabled until filter selected */}
                   <Button
                     icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
                     text={csvState.uploading ? "Uploading..." : "Import"}
@@ -721,8 +776,8 @@ const PurchasedElectricityListing = () => {
                     onClick={() => setBulkUploadModalOpen(true)}
                     disabled={csvState.uploading || !emissionFilter}
                   />
-                  </>
-                )}
+                </>
+              )}
 
 
               {/* Add Record Button */}
@@ -912,8 +967,8 @@ const PurchasedElectricityListing = () => {
                   ) : (
                     <button
                       className={`${p === current
-                          ? "bg-slate-900 text-white font-medium"
-                          : "bg-slate-100 text-slate-900"
+                        ? "bg-slate-900 text-white font-medium"
+                        : "bg-slate-100 text-slate-900"
                         } text-sm rounded h-6 w-6 flex items-center justify-center`}
                       onClick={() => handleGoToPage(p)}
                     >
