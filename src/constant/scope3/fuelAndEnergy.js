@@ -522,65 +522,65 @@ export const unitsEmissionFactors = {
     //BIOFUELS
     "Bioethanol": {
         litres: 0.61516,
-        kwh: 0.10407,
+        kwh: 0.104071567427461,
         tonnes: 774.76000,
     },
     "Biodiesel ME": {
         litres: 0.39508,
-        kwh: 0.04296,
+        kwh: 0.0429584563323493,
         tonnes: 443.91000,
     },
     "Biomethane (compressed)": {
-        kwh: 0.05687,
+        kwh: 0.0568687450500396,
         tonnes: 774.05000,
     },
     "Biodiesel ME (from used cooking oil)": {
         litres: 0.35340,
-        kwh: 0.03843,
+        kwh: 0.0384268125854993,
         tonnes: 397.08,
     },
     "Biodiesel ME (from tallow)": {
         litres: 0.53232,
-        kwh: 0.05788,
+        kwh: 0.0578816329469364,
         tonnes: 598.12,
     },
     "Biodiesel HVO": {
         litres: 0.56439,
-        kwh: 0.05920,
+        kwh: 0.0592015263877889,
         tonnes: 723.58,
     },
     "Biopropane": {
         litres: 0.15752,
-        kwh: 0.02381,
+        kwh: 0.0238066095471236,
         tonnes: 306.84,
     },
     "Development diesel": {
         litres: 0.83338,
-        kwh: 0.08395,
+        kwh: 0.0839513283893729,
         tonnes: 1003.40,
     },
     "Development petrol": {
         litres: 0.76505,
-        kwh: 0.08315,
+        kwh: 0.0831485348117215,
         tonnes: 1031.29,
     },
     "Off road biodiesel": {
         litres: 0.39508,
-        kwh: 0.04296,
+        kwh: 0.0429584563323493,
         tonnes: 443.91,
     },
     "Biomethane (liquified)": {
-        kwh: 0.08605,
+        kwh: 0.0860501115991072,
         tonnes: 1171.25,
     },
     "Methanol (bio)": {
         litres: 0.59414,
-        kwh: 0.13535,
+        kwh: 0.135348117215062,
         tonnes: 749.23,
     },
     "Avtur (renewable)": {
         litres: 0.53386,
-        kwh: 0.05492,
+        kwh: 0.054921160630715,
         tonnes: 670.52,
     },
     //  BIOMASS 
