@@ -903,7 +903,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
       'Purchased Goods Type',
       'Transportation Vehicle Category',
       'Transportation Vehicle Type',
-      'Weight Loaded (tonnes)',
+      'Weight Loaded (Tonnes)',
       'Distance Travelled (km)',
       'Amount Spent ($)',
       'Quality Control',

@@ -23,8 +23,7 @@ const HEADER_MAPPING = {
   'purchasecategory': ['purchasecategory', 'purchase category', 'purchase-category', 'purchase_category', 'category'],
   'purchasedactivitytype': ['purchasedactivitytype', 'purchased activity type', 'purchased-activity-type', 'purchased_activity_type', 'activity type'],
   'purchasedgoodsservicestype': ['purchasedgoodsservicestype', 'purchased goods services type', 'purchased goods or services type', 'purchased goods/services type', 'goods/services type'],
-  'amountspent': ['amountspent', 'amount spent', 'amount-spent', 'amount_spent', 'amount', 'spent'],
-  'unit': ['unit', 'currency', 'currency unit'],
+  'amountspent': ['amountspent', 'amountspent$', 'amount-spent', 'amount_spent', 'amount', 'spent'],
   'qualitycontrol': ['qualitycontrol', 'quality control', 'quality-control', 'quality_control'],
   'iscapitalgoods': ['pleasespecifywhethertheselecteditemisacapitalgood', 'please specify whether the selected item is a capital good', 'iscapitalgoods', 'is capital goods'],
   'remarks': ['remarks', 'remark', 'comments', 'notes']
@@ -212,7 +211,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
           // Map headers to field names
           const fieldMapping = {};
-          const requiredFields = ['buildingcode', 'stakeholder', 'postingdate', 'purchasecategory', 'purchasedactivitytype', 'purchasedgoodsservicestype', 'amountspent', 'unit', 'qualitycontrol'];
+          const requiredFields = ['buildingcode', 'stakeholder', 'postingdate', 'purchasecategory', 'purchasedactivitytype', 'purchasedgoodsservicestype', 'amountspent','qualitycontrol'];
 
           headerValues.forEach(header => {
             const normalizedHeader = normalizeHeader(header);
@@ -296,7 +295,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
           // Map headers to field names
           const fieldMapping = {};
-          const requiredFields = ['buildingcode', 'stakeholder', 'postingdate', 'purchasecategory', 'purchasedactivitytype', 'purchasedgoodsservicestype', 'amountspent', 'unit', 'qualitycontrol'];
+          const requiredFields = ['buildingcode', 'stakeholder', 'postingdate', 'purchasecategory', 'purchasedactivitytype', 'purchasedgoodsservicestype', 'amountspent','qualitycontrol'];
 
           headerValues.forEach(header => {
             const normalizedHeader = normalizeHeader(header);
@@ -395,7 +394,6 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     if (!cleanedRow.purchasedactivitytype) errors.push('purchasedactivitytype is required');
     if (!cleanedRow.purchasedgoodsservicestype) errors.push('purchasedgoodsservicestype is required');
     if (!cleanedRow.amountspent) errors.push('amountspent is required');
-    if (!cleanedRow.unit) errors.push('unit is required');
     if (!cleanedRow.qualitycontrol) errors.push('qualitycontrol is required');
 
     if (errors.length > 0) {
@@ -538,19 +536,6 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       }
     }
 
-    // Unit validation
-    if (cleanedRow.unit) {
-      const validUnits = currencyUnitOptions.map(u => u.value);
-      const matchedUnit = validUnits.find(u =>
-        u.toLowerCase() === cleanedRow.unit.toLowerCase()
-      );
-      if (!matchedUnit) {
-        errors.push(`Invalid unit "${cleanedRow.unit}"`);
-      } else {
-        cleanedRow.unit = matchedUnit;
-      }
-    }
-
     // Quality Control validation
     if (cleanedRow.qualitycontrol) {
       const validQC = qualityControlOptions.map(q => q.value);
@@ -609,7 +594,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       purchasedGoodsServicesType: cleanStringValue(row.purchasedgoodsservicestype),
       isCapitalGoods: isCapitalGoods ? (row.iscapitalgoods || false) : false,
       amountSpent: cleanNumberValue(row.amountspent, 'Amount spent') || 0,
-      unit: cleanStringValue(row.unit),
+      unit: 'USD',
       qualityControl: row.qualitycontrol,
       remarks: capitalizeFirstLetter(cleanStringValue(row.remarks) || ''),
       postingDate: row.postingdate,
@@ -927,12 +912,10 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         'Purchased Activity Type',
         'Purchased Goods or Services Type',
         'Please specify whether the selected item is a capital good.',
-        'Amount Spent',
-        'Unit',
+        'Amount Spent ($)',
         'Quality Control',
         'Remarks',
-        'Posting Date'
-        
+        'Posting Date'        
       ];
 
       exampleRow = [
@@ -943,7 +926,6 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         exampleGoodsType,
         '',
         '1000',
-        exampleUnit,
         exampleQC,
         'Example record',
         formattedDate
@@ -955,8 +937,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         'Purchase Category',
         'Purchased Activity Type',
         'Purchased Goods or Services Type',
-        'Amount Spent',
-        'Unit',
+        'Amount Spent ($)',
         'Quality Control',
         'Remarks',
         'Posting Date'
@@ -969,7 +950,6 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         exampleActivityType,
         exampleGoodsType,
         '1000',
-        exampleUnit,
         exampleQC,
         'Example record',
         formattedDate

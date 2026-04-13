@@ -113,36 +113,63 @@ const useFugitiveCSVUpload = (buildings = []) => {
             cleanValue(h).toLowerCase().replace(/[^a-z0-9]/g, '')
           );
 
-          // Expected headers
-          const expectedHeaders = [
-            'buildingcode', 'stakeholder', 'equipmenttype', 'materialrefrigerant',
-            'leakagevalue', 'unit', 'qualitycontrol', 'remarks', 'postingdate'
-          ];
+         const expectedHeaders = [
+  { key: 'buildingcode', possible: ['buildingcode', 'building code', 'building'] },
+  { key: 'stakeholder', possible: ['stakeholder', 'stake holder'] },
+  { key: 'equipmenttype', possible: ['equipmenttype', 'equipment type', 'equipment'] },
+  { key: 'materialrefrigerant', possible: ['materialrefrigerant', 'material refrigerant', 'refrigerant', 'material'] },
+  { key: 'leakagevalue', possible: ['leakagevalue', 'leakage value', 'leakagevaluekg', 'leakage value (kg)'] },
+  { key: 'qualitycontrol', possible: ['qualitycontrol', 'quality control', 'quality'] },
+  { key: 'remarks', possible: ['remarks', 'remark', 'notes'] },
+  { key: 'postingdate', possible: ['postingdate', 'posting date', 'date'] }
+];
+// Create a mapping from actual header to expected key
+const headerMapping = {};
+const missingHeaders = [];
+
+expectedHeaders.forEach(expected => {
+  const foundHeader = headerValues.find(h => {
+    const normalizedH = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return expected.possible.some(possible => 
+      possible.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedH
+    );
+  });
+  
+  if (foundHeader) {
+    headerMapping[foundHeader] = expected.key;
+  } else {
+    missingHeaders.push(expected.key);
+  }
+});
+
+if (missingHeaders.length > 0) {
+  reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+  return;
+}
 
           // Check for missing headers
-          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
-          if (missingHeaders.length > 0) {
-            reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
-            return;
-          }
+        
 
           // Parse data rows
-          const data = [];
-          for (let i = headerRowIndex + 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
+         // Replace the data parsing section in parseCSV (around line 100-115):
+const data = [];
+for (let i = headerRowIndex + 1; i < lines.length; i++) {
+  const line = lines[i].trim();
+  if (!line) continue;
 
-            const values = parseCSVLine(line);
+  const values = parseCSVLine(line);
+  const row = {};
 
-            const row = {};
-            headers.forEach((header, index) => {
-              row[header] = index < values.length ? cleanValue(values[index]) : '';
-            });
+  // Use the header mapping
+  Object.keys(headerMapping).forEach((originalHeader, idx) => {
+    const mappedKey = headerMapping[originalHeader];
+    row[mappedKey] = idx < values.length ? cleanValue(values[idx]) : '';
+  });
 
-            if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
-              data.push(row);
-            }
-          }
+  if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
+    data.push(row);
+  }
+}
 
           console.log('Parsed CSV data:', JSON.stringify(data, null, 2));
           resolve(data);
@@ -209,32 +236,56 @@ const useFugitiveCSVUpload = (buildings = []) => {
           );
 
           // Expected headers
-          const expectedHeaders = [
-            'buildingcode', 'stakeholder', 'equipmenttype', 'materialrefrigerant',
-            'leakagevalue', 'unit', 'qualitycontrol', 'remarks', 'postingdate'
-          ];
+         // WITH THIS:
+const expectedHeaders = [
+  { key: 'buildingcode', possible: ['buildingcode', 'building code', 'building'] },
+  { key: 'stakeholder', possible: ['stakeholder', 'stake holder'] },
+  { key: 'equipmenttype', possible: ['equipmenttype', 'equipment type', 'equipment'] },
+  { key: 'materialrefrigerant', possible: ['materialrefrigerant', 'material refrigerant', 'refrigerant', 'material'] },
+  { key: 'leakagevalue', possible: ['leakagevalue', 'leakage value', 'leakagevaluekg', 'leakage value (kg)'] },
+  { key: 'qualitycontrol', possible: ['qualitycontrol', 'quality control', 'quality'] },
+  { key: 'remarks', possible: ['remarks', 'remark', 'notes'] },
+  { key: 'postingdate', possible: ['postingdate', 'posting date', 'date'] }
+];
 
-          // Check for missing headers
-          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
-          if (missingHeaders.length > 0) {
-            reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
-            return;
-          }
+       const headerMapping = {};
+const missingHeaders = [];
 
-          // Parse data rows
-          const parsedData = [];
-          for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
-            const row = jsonData[i];
-            if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+expectedHeaders.forEach(expected => {
+  const foundHeader = headers.find((h, idx) => {
+    const normalizedH = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return expected.possible.some(possible => 
+      possible.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedH
+    );
+  });
+  
+  if (foundHeader) {
+    const foundIndex = headers.findIndex(h => h === foundHeader);
+    headerMapping[foundHeader] = { key: expected.key, index: foundIndex };
+  } else {
+    missingHeaders.push(expected.key);
+  }
+});
 
-            const rowData = {};
-            headers.forEach((header, index) => {
-              const value = index < row.length ? row[index] : '';
-              rowData[header] = value ? cleanValue(value) : '';
-            });
+if (missingHeaders.length > 0) {
+  reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+  return;
+}
 
-            parsedData.push(rowData);
-          }
+// Then in the data parsing:
+const parsedData = [];
+for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+  const row = jsonData[i];
+  if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+
+  const rowData = {};
+  Object.values(headerMapping).forEach(({ key, index }) => {
+    const value = index < row.length ? row[index] : '';
+    rowData[key] = value ? cleanValue(value) : '';
+  });
+
+  parsedData.push(rowData);
+}
 
           console.log('Parsed Excel data:', JSON.stringify(parsedData, null, 2));
           resolve(parsedData);
@@ -285,11 +336,11 @@ const findFlexibleMatch = (input, validOptions) => {
 
     // Comprehensive header mapping
     const headerMapping = {
-      'unit': 'consumptionunit',
       'buildingcode': 'buildingcode',
       'refrigerant': 'materialrefrigerant',
       'equipment': 'equipmenttype',
       'leakagevalue': 'leakagevalue',
+      'leakagevaluekg': 'leakagevalue',
       'postingdate': 'postingdate',
       'quality': 'qualitycontrol',
     };
@@ -306,7 +357,7 @@ const findFlexibleMatch = (input, validOptions) => {
     // Required fields validation
     const requiredFields = [
       'buildingcode', 'stakeholder', 'equipmenttype',
-      'materialrefrigerant', 'leakagevalue', 'consumptionunit',
+      'materialrefrigerant', 'leakagevalue',
       'qualitycontrol', 'postingdate'
     ];
 
@@ -551,7 +602,7 @@ if (cleanedRow.stakeholder) {
       equipmentType: row.equipmenttype,
       materialRefrigerant: row.materialrefrigerant,
       leakageValue: cleanNumberValue(row.leakagevalue, 'Leakage value'),
-      consumptionUnit: cleanStringValue(row.consumptionunit),
+      consumptionUnit: 'kg',
       qualityControl: row.qualitycontrol,
       calculatedEmissionKgCo2e: kgEmission || 0,
       calculatedEmissionTCo2e: tEmission || 0,
@@ -755,8 +806,7 @@ if (cleanedRow.stakeholder) {
         'Stakeholder',
         'Equipment Type',
         'Material Refrigerant',
-        'Leakage Value',
-        'Unit',
+        'Leakage Value (kg)',
         'Quality Control',
         'Remarks',
         'Posting Date'
@@ -767,7 +817,6 @@ if (cleanedRow.stakeholder) {
         exampleEquipmentType,
         exampleMaterial,
         '10',
-        exampleUnit,
         exampleQC,
         'AC maintenance - Unit 1',
         formattedDate

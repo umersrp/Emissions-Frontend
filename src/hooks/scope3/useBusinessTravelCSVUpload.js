@@ -361,6 +361,7 @@ const findFlexibleMatch = (input, validOptions) => {
       'airpassengers': 'airpassengers',
       
       'distancetravelledair': 'airdistancekm',
+      'distancetravelledairkm': 'airdistancekm',
       'distanceair': 'airdistancekm',
       'airdistancekm': 'airdistancekm',
       
@@ -373,6 +374,7 @@ const findFlexibleMatch = (input, validOptions) => {
       
       // Motorbike travel fields
       'distancetravelledmotorbike': 'motorbikedistancekm',
+      'distancetravelledmotorbikekm': 'motorbikedistancekm',
       'distancemotorbike': 'motorbikedistancekm',
       'motorbikedistancekm': 'motorbikedistancekm',
       'motorbiketype': 'motorbiketype',
@@ -383,6 +385,7 @@ const findFlexibleMatch = (input, validOptions) => {
       'taxipassengers': 'taxipassengers',
       
       'distancetravelledtaxi': 'taxidistancekm',
+      'distancetravelledtaxikm': 'taxidistancekm',
       'distancetaxi': 'taxidistancekm',
       'taxidistancekm': 'taxidistancekm',
       
@@ -394,6 +397,7 @@ const findFlexibleMatch = (input, validOptions) => {
       'buspassengers': 'buspassengers',
       
       'distancetravelledbus': 'busdistancekm',
+      'distancetravelledbuskm': 'busdistancekm',
       'distancebus': 'busdistancekm',
       'busdistancekm': 'busdistancekm',
       
@@ -405,6 +409,7 @@ const findFlexibleMatch = (input, validOptions) => {
       'trainpassengers': 'trainpassengers',
       
       'distancetravelledtrain': 'traindistancekm',
+      'distancetravelledtrainkm': 'traindistancekm',
       'distancetrain': 'traindistancekm',
       'traindistancekm': 'traindistancekm',
       
@@ -412,6 +417,7 @@ const findFlexibleMatch = (input, validOptions) => {
       
       // Car travel fields
       'distancetravelledcar': 'cardistancekm',
+      'distancetravelledcarkm': 'cardistancekm',
       'distancecar': 'cardistancekm',
       'cardistancekm': 'cardistancekm',
       
@@ -1100,29 +1106,28 @@ if (travelByCar) {
     const headers = [
       'Building Code',
       'Stakeholder',
-      
       'Did you have any business travel by air during the reporting period?',
       'Number of Passengers (Air)',
-      'Distance Travelled (Air)',
+      'Distance Travelled (Air) (km)',
       'Travel Class (Air)',
       'Flight Type',
       'Did you have any business travel by motorbike during the reporting period?',
-      'Distance Travelled (Motorbike)',
+      'Distance Travelled (Motorbike) (km)',
       'Motorbike Type',
       'Did you have any business travel by taxi during the reporting period?',
       'Number of Passengers (Taxi)',
-      'Distance Travelled (Taxi)',
+      'Distance Travelled (Taxi) (km)',
       'Taxi Type',
       'Did you have any business travel by bus during the reporting period?',
       'Number of Passengers (Bus)',
-      'Distance Travelled (Bus)',
+      'Distance Travelled (Bus) (km)',
       'Bus Type',
       'Did you have any business travel by train during the reporting period?',
       'Number of Passengers (Train)',
-      'Distance Travelled (Train)',
+      'Distance Travelled (Train) (km)',
       'Train Type',
       'Did you have any business travel by car during the reporting period?',
-      'Distance Travelled (Car)',
+      'Distance Travelled (Car) (km)',
       'Car Type',
       'Fuel Type (Car)',
       'Did you have any hotel stays during business travel in the reporting period?',
