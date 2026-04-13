@@ -63,14 +63,14 @@
 //     .map((word, index) => {
 //       const hasOpenParen = word.startsWith("(");
 //       const hasCloseParen = word.endsWith(")");
-      
+
 //       let coreWord = word;
 //       if (hasOpenParen) coreWord = coreWord.slice(1);
 //       if (hasCloseParen) coreWord = coreWord.slice(0, -1);
 
 //       const lowerCore = coreWord.toLowerCase();
 //       let result;
-      
+
 //       // SPECIAL RULE: If word is "a" or "A", preserve original case
 //       if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT" || coreWord === "if") {
 //         result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
@@ -91,7 +91,7 @@
 //       else {
 //         result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
 //       }
-      
+
 //       // Reattach parentheses
 //       if (hasOpenParen) result = "(" + result;
 //       if (hasCloseParen) result = result + ")";
@@ -208,7 +208,7 @@
 //           return numValue.toFixed(2);
 //         }
 //        },
-       
+
 //       { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A"  },
 //       {
 //         Header: "Updated By",
@@ -755,15 +755,26 @@ import ExcelExportButton from "@/components/ui/ExcelExportButton";
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import useProcessCSVUpload from "@/hooks/scope1/useProcessCSVUpload";
 
-const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
+const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
   const defaultRef = React.useRef();
   const resolvedRef = ref || defaultRef;
 
   React.useEffect(() => {
-    resolvedRef.current.indeterminate = indeterminate;
+    if (resolvedRef.current) {
+      resolvedRef.current.indeterminate = indeterminate;
+    }
   }, [resolvedRef, indeterminate]);
 
-  return <input type="checkbox" ref={resolvedRef} {...rest} className="table-checkbox" />;
+  return (
+    <input
+      type="checkbox"
+      ref={resolvedRef}
+      checked={checked}
+      onChange={onChange}
+      className="table-checkbox w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+      {...rest}
+    />
+  );
 });
 
 const ProcessEmissionsListing = () => {
@@ -788,7 +799,7 @@ const ProcessEmissionsListing = () => {
   const [goToValue, setGoToValue] = useState(pageIndex);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedRows, setSelectedRows] = useState({});
-const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
+  const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
 
   // CSV Upload using custom hook
   const {
@@ -815,14 +826,14 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
       .map((word, index) => {
         const hasOpenParen = word.startsWith("(");
         const hasCloseParen = word.endsWith(")");
-        
+
         let coreWord = word;
         if (hasOpenParen) coreWord = coreWord.slice(1);
         if (hasCloseParen) coreWord = coreWord.slice(0, -1);
 
         const lowerCore = coreWord.toLowerCase();
         let result;
-        
+
         // SPECIAL RULE: If word is "a" or "A", preserve original case
         if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT" || coreWord === "if") {
           result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
@@ -832,7 +843,7 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
           result = coreWord.toUpperCase();
         }
         // First word OR word after opening parenthesis should be capitalized
-        else if (index === 0 || (index > 0 && text.split(" ")[index-1]?.endsWith("("))) {
+        else if (index === 0 || (index > 0 && text.split(" ")[index - 1]?.endsWith("("))) {
           result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
         }
         // Exception words (excluding "a" which we already handled)
@@ -843,7 +854,7 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
         else {
           result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
         }
-        
+
         // Reattach parentheses
         if (hasOpenParen) result = "(" + result;
         if (hasCloseParen) result = result + ")";
@@ -915,6 +926,10 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
     fetchData();
   }, [pageIndex, pageSize, debouncedSearch]);
 
+  useEffect(() => {
+    setSelectedRows({});
+  }, [pageIndex, pageSize, globalFilterValue]);
+
   // CSV Upload handlers
   const handleCSVFileSelect = async (selectedFile) => {
     if (!selectedFile) {
@@ -965,6 +980,32 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
     setBulkUploadModalOpen(false);
   };
 
+  const handleDeleteMultiple = async () => {
+    const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
+    if (selectedIds.length === 0) {
+      toast.warning("Please select records to delete");
+      return;
+    }
+    setIsDeletingMultiple(true);
+    try {
+      await Promise.all(
+        selectedIds.map(id =>
+          axios.delete(`${process.env.REACT_APP_BASE_URL}/Process-Emissions/${id}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          })
+        )
+      );
+      toast.success(`${selectedIds.length} record(s) deleted successfully`);
+      setSelectedRows({});
+      fetchData();
+    } catch (err) {
+      console.error("Error deleting records:", err);
+      toast.error("Failed to delete some records");
+    } finally {
+      setIsDeletingMultiple(false);
+      setDeleteModalOpen(false);
+    }
+  };
   const templateInstructions = (
     <ol className="text-sm text-black-700 space-y-1 list-decimal pl-4">
       <li>Download the template below</li>
@@ -976,32 +1017,7 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
     </ol>
   );
 
-  const handleDeleteMultiple = async () => {
-  const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
-  if (selectedIds.length === 0) {
-    toast.warning("Please select records to delete");
-    return;
-  }
-  setIsDeletingMultiple(true);
-  try {
-    await Promise.all(
-      selectedIds.map(id =>
-        axios.delete(`${process.env.REACT_APP_BASE_URL}/AutoMobile/Delete/${id}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        })
-      )
-    );
-    toast.success(`${selectedIds.length} record(s) deleted successfully`);
-    setSelectedRows({});
-    fetchRecords(pageIndex, pageSize, globalFilterValue);
-  } catch (err) {
-    console.error("Error deleting records:", err);
-    toast.error("Failed to delete some records");
-  } finally {
-    setIsDeletingMultiple(false);
-    setDeleteModalOpen(false);
-  }
-}; 
+
   // Delete Record
   const handleDelete = async (id) => {
     try {
@@ -1025,8 +1041,8 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
         Cell: ({ row }) => <span>{(pageIndex - 1) * pageSize + row.index + 1}</span>,
       },
       { Header: "Building Code", accessor: "buildingId.buildingCode", Cell: ({ cell }) => cell.value || "N/A", },
-      { Header: "Building", accessor: "buildingId.buildingName",Cell: ({ cell }) => cell.value || "N/A", },
-      { Header: "Stakeholder", accessor: "stakeholderDepartment",Cell: ({ cell }) => cell.value || "N/A", },
+      { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ cell }) => cell.value || "N/A", },
+      { Header: "Stakeholder", accessor: "stakeholderDepartment", Cell: ({ cell }) => cell.value || "N/A", },
       {
         Header: "Activity Type",
         accessor: "activityType",
@@ -1035,8 +1051,9 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
       { Header: "Gas Emitted", accessor: "gasEmitted" },
       { Header: "Process Activity Data", accessor: "amountOfEmissions" },
       { Header: "Quality Control", accessor: "qualityControl" },
-      { Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",
-         Cell: ({ cell }) => {
+      {
+        Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",
+        Cell: ({ cell }) => {
           const rawValue = cell.value;
           if (rawValue === null || rawValue === undefined || rawValue === "") {
             return "N/A";
@@ -1047,9 +1064,10 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
           }
           return numValue.toFixed(2);
         }
-       },
-      { Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",
-         Cell: ({ cell }) => {
+      },
+      {
+        Header: "Calculated Emissions (tCO₂e)", accessor: "calculatedEmissionTCo2e",
+        Cell: ({ cell }) => {
           const rawValue = cell.value;
           if (rawValue === null || rawValue === undefined || rawValue === "") {
             return "N/A";
@@ -1063,9 +1081,9 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
           }
           return numValue.toFixed(2);
         }
-       },
-       
-      { Header: "Remarks", accessor: "remarks",Cell: ({ cell }) => cell.value || "N/A"  },
+      },
+
+      { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => cell.value || "N/A" },
       {
         Header: "Updated By",
         accessor: "updatedBy.name",
@@ -1078,7 +1096,7 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
       },
       {
         Header: "Posting Date", accessor: "postingDate",
-         Cell: ({ cell }) => {
+        Cell: ({ cell }) => {
           if (!cell.value) return "N/A";
           try {
             return new Date(cell.value).toLocaleDateString('en-GB');
@@ -1139,7 +1157,7 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
         ),
       },
     ],
-    [pageIndex, pageSize]
+    [pageIndex, pageSize, selectedRows]
   );
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
@@ -1149,6 +1167,7 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
     {
       columns,
       data,
+      getRowId: (row) => row._id,
     },
     useSortBy,
     useRowSelect,
@@ -1156,15 +1175,43 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
       hooks.visibleColumns.push((columns) => [
         {
           id: "selection",
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+          width: 50,
+          Header: ({ rows }) => {
+            const allSelected = rows.length > 0 && rows.every(row => selectedRows[row.original._id]);
+            const someSelected = rows.some(row => selectedRows[row.original._id]);
+            return (
+              <IndeterminateCheckbox
+                checked={allSelected}
+                indeterminate={someSelected && !allSelected}
+                onChange={(e) => {
+                  const newSelection = {};
+                  if (e.target.checked) rows.forEach(row => { newSelection[row.original._id] = true; });
+                  setSelectedRows(newSelection);
+                }}
+              />
+            );
+          },
+          Cell: ({ row }) => (
+            <IndeterminateCheckbox
+              checked={selectedRows[row.original._id] || false}
+              indeterminate={false}
+              onChange={(e) => {
+                e.stopPropagation();
+                setSelectedRows(prev => {
+                  const newState = { ...prev };
+                  if (e.target.checked) newState[row.original._id] = true;
+                  else delete newState[row.original._id];
+                  return newState;
+                });
+              }}
+            />
           ),
-          Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
         },
         ...columns,
       ]);
     }
   );
+  const selectedCount = Object.values(selectedRows).filter(Boolean).length;
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
@@ -1246,7 +1293,7 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
 
     // Handle numeric formatting for emission fields
     if (column.accessor === "calculatedEmissionKgCo2e" ||
-        column.accessor === "calculatedEmissionTCo2e") {
+      column.accessor === "calculatedEmissionTCo2e") {
       if (!value || value === "N/A") {
         return "N/A";
       }
@@ -1281,7 +1328,18 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
 
           <div className="md:flex md:space-x-3 items-center">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-            
+            {selectedCount > 0 && (
+              <Tippy content={`Delete ${selectedCount} selected record(s)`}>
+                <Button
+                  icon="heroicons:trash"
+                  text={`Delete Selected (${selectedCount})`}
+                  className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
+                  iconClass="text-lg"
+                  onClick={() => setDeleteModalOpen(true)}
+                  disabled={isDeletingMultiple}
+                />
+              </Tippy>
+            )}
             {records.length > 0 && (
               <ExcelExportButton
                 data={records}
@@ -1428,6 +1486,17 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
             </div>
           </div>
         </div>
+
+        {/* {selectedCount > 0 && (
+  <div className="mb-4 mt-4 flex justify-end">
+    <Button
+      text="Clear Selection"
+      className="btn-sm btn-light"
+      onClick={() => setSelectedRows({})}
+      icon="heroicons:x-mark"
+    />
+  </div>
+        )} */}
 
         {/* CUSTOM PAGINATION UI (SERVER SIDE) */}
         <div className="md:flex md:space-y-0 space-y-5 justify-between mt-6 items-center">
@@ -1582,15 +1651,22 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
               text="Delete"
               className="btn-danger"
               onClick={async () => {
-                await handleDelete(selectedId);
-                setDeleteModalOpen(false);
+                if (selectedCount > 1) {
+                  await handleDeleteMultiple();
+                } else if (selectedId) {
+                  await handleDelete(selectedId);
+                  setDeleteModalOpen(false);
+                }
               }}
             />
           </>
         }
       >
         <p className="text-gray-700 text-center">
-          Are you sure you want to delete this Process? This action cannot be undone.
+          {selectedCount > 1
+            ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
+            : "Are you sure you want to delete this record? This action cannot be undone."
+          }
         </p>
       </Modal>
 

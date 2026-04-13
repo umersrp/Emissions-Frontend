@@ -68,14 +68,14 @@
 //     .map((word, index) => {
 //       const hasOpenParen = word.startsWith("(");
 //       const hasCloseParen = word.endsWith(")");
-      
+
 //       let coreWord = word;
 //       if (hasOpenParen) coreWord = coreWord.slice(1);
 //       if (hasCloseParen) coreWord = coreWord.slice(0, -1);
 
 //       const lowerCore = coreWord.toLowerCase();
 //       let result;
-      
+
 //       // SPECIAL RULE: If word is "a" or "A", preserve original case
 //       if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
 //         result = coreWord; // Keep as-is: "a" stays "a", "A" stays "A"
@@ -100,7 +100,7 @@
 //       else {
 //         result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
 //       }
-      
+
 //       // Reattach parentheses
 //       if (hasOpenParen) result = "(" + result;
 //       if (hasCloseParen) result = result + ")";
@@ -657,15 +657,26 @@ import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import ExcelExportButton from "@/components/ui/ExcelExportButton";
 import useBusinessTravelCSVUpload from "@/hooks/scope3/useBusinessTravelCSVUpload";
 
-const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
+const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
     const defaultRef = React.useRef();
     const resolvedRef = ref || defaultRef;
 
     React.useEffect(() => {
-        resolvedRef.current.indeterminate = indeterminate;
+        if (resolvedRef.current) {
+            resolvedRef.current.indeterminate = indeterminate;
+        }
     }, [resolvedRef, indeterminate]);
 
-    return <input type="checkbox" ref={resolvedRef} {...rest} className="table-checkbox" />;
+    return (
+        <input
+            type="checkbox"
+            ref={resolvedRef}
+            checked={checked}
+            onChange={onChange}
+            className="table-checkbox w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+            {...rest}
+        />
+    );
 });
 
 const BusinessTravel = () => {
@@ -688,6 +699,8 @@ const BusinessTravel = () => {
     const [selectedId, setSelectedId] = useState(null);
     const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
     const [goToValue, setGoToValue] = useState(pageIndex);
+    const [selectedRows, setSelectedRows] = useState({});
+    const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
 
     // CSV Upload using custom hook
     const {
@@ -717,6 +730,10 @@ const BusinessTravel = () => {
         fetchBuildings();
     }, []);
 
+    useEffect(() => {
+        setSelectedRows({});
+    }, [pageIndex, pageSize, globalFilterValue]);
+    
     const renderNA = (value) => {
         return value === null || value === undefined || value === "" ? "N/A" : value;
     };
@@ -769,77 +786,77 @@ const BusinessTravel = () => {
     };
 
     // Custom formatter for export
-   // Custom formatter for export - FIXED VERSION
-const customFormatter = (value, column, row, index) => {
-  // If value is already "N/A", keep it as "N/A"
-  if (value === "N/A") {
-    return "N/A";
-  }
+    // Custom formatter for export - FIXED VERSION
+    const customFormatter = (value, column, row, index) => {
+        // If value is already "N/A", keep it as "N/A"
+        if (value === "N/A") {
+            return "N/A";
+        }
 
-  // Handle Sr.No specially
-  if (column.Header === "Sr.No" || column.id === "serialNo") {
-    return index + 1;
-  }
+        // Handle Sr.No specially
+        if (column.Header === "Sr.No" || column.id === "serialNo") {
+            return index + 1;
+        }
 
-  // Safely get accessor string - handle both string accessor and function accessor
-  let accessorString = '';
-  if (typeof column.accessor === 'string') {
-    accessorString = column.accessor;
-  } else if (column.id) {
-    accessorString = column.id;
-  }
+        // Safely get accessor string - handle both string accessor and function accessor
+        let accessorString = '';
+        if (typeof column.accessor === 'string') {
+            accessorString = column.accessor;
+        } else if (column.id) {
+            accessorString = column.id;
+        }
 
-  // Handle building name
-  if (accessorString === "buildingId.buildingName" || accessorString.includes("buildingName")) {
-    return value || "N/A";
-  }
+        // Handle building name
+        if (accessorString === "buildingId.buildingName" || accessorString.includes("buildingName")) {
+            return value || "N/A";
+        }
 
-  // Handle posting date
-  if (accessorString === "postingDate" || accessorString.includes("postingDate")) {
-    if (!value) return "N/A";
-    try {
-      return new Date(value).toLocaleDateString('en-GB');
-    } catch {
-      return "Invalid Date";
-    }
-  }
+        // Handle posting date
+        if (accessorString === "postingDate" || accessorString.includes("postingDate")) {
+            if (!value) return "N/A";
+            try {
+                return new Date(value).toLocaleDateString('en-GB');
+            } catch {
+                return "Invalid Date";
+            }
+        }
 
-  // Handle boolean fields (travel toggles)
-  const booleanFields = [
-    "travelByAir", "travelByMotorbike", "travelByTaxi", 
-    "travelByBus", "travelByTrain", "travelByCar", "hotelStay"
-  ];
-  
-  if (booleanFields.some(field => accessorString.includes(field))) {
-    return value ? "Yes" : "No";
-  }
+        // Handle boolean fields (travel toggles)
+        const booleanFields = [
+            "travelByAir", "travelByMotorbike", "travelByTaxi",
+            "travelByBus", "travelByTrain", "travelByCar", "hotelStay"
+        ];
 
-  // Handle numeric fields that should be formatted
-  if (accessorString === "calculatedEmissionKgCo2e" || 
-      accessorString === "calculatedEmissionTCo2e" ||
-      accessorString.includes("Emission")) {
-    if (!value && value !== 0) return "N/A";
-    const numValue = Number(value);
-    if (isNaN(numValue)) return "N/A";
-    return numValue.toFixed(2);
-  }
+        if (booleanFields.some(field => accessorString.includes(field))) {
+            return value ? "Yes" : "No";
+        }
 
-  // Handle passenger and distance fields
-  const numberFields = [
-    "airPassengers", "airDistanceKm", "motorbikeDistanceKm",
-    "taxiPassengers", "taxiDistanceKm", "busPassengers", "busDistanceKm",
-    "trainPassengers", "trainDistanceKm", "carDistanceKm",
-    "hotelRooms", "hotelNights"
-  ];
-  
-  if (numberFields.some(field => accessorString.includes(field))) {
-    if (!value && value !== 0) return "N/A";
-    return value;
-  }
+        // Handle numeric fields that should be formatted
+        if (accessorString === "calculatedEmissionKgCo2e" ||
+            accessorString === "calculatedEmissionTCo2e" ||
+            accessorString.includes("Emission")) {
+            if (!value && value !== 0) return "N/A";
+            const numValue = Number(value);
+            if (isNaN(numValue)) return "N/A";
+            return numValue.toFixed(2);
+        }
 
-  // For all other columns, return value or "N/A"
-  return value || "N/A";
-};
+        // Handle passenger and distance fields
+        const numberFields = [
+            "airPassengers", "airDistanceKm", "motorbikeDistanceKm",
+            "taxiPassengers", "taxiDistanceKm", "busPassengers", "busDistanceKm",
+            "trainPassengers", "trainDistanceKm", "carDistanceKm",
+            "hotelRooms", "hotelNights"
+        ];
+
+        if (numberFields.some(field => accessorString.includes(field))) {
+            if (!value && value !== 0) return "N/A";
+            return value;
+        }
+
+        // For all other columns, return value or "N/A"
+        return value || "N/A";
+    };
 
     // Fetch data from server with pagination
     const fetchData = async () => {
@@ -911,6 +928,35 @@ const customFormatter = (value, column, row, index) => {
         }
     };
 
+    // Delete multiple selected records
+    const handleDeleteMultiple = async () => {
+        const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
+        if (selectedIds.length === 0) {
+            toast.warning("Please select records to delete");
+            return;
+        }
+        setIsDeletingMultiple(true);
+        try {
+            await Promise.all(
+                selectedIds.map(id =>
+                    axios.delete(`${process.env.REACT_APP_BASE_URL}/Business-Travel/Delete/${id}`, {
+                        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                    })
+                )
+            );
+            toast.success(`${selectedIds.length} record(s) deleted successfully`);
+            setSelectedRows({});
+            fetchData();
+        } catch (err) {
+            console.error("Error deleting records:", err);
+            toast.error("Failed to delete some records");
+        } finally {
+            setIsDeletingMultiple(false);
+            setDeleteModalOpen(false);
+        }
+    };
+    const selectedCount = Object.values(selectedRows).filter(Boolean).length;
+
     // CSV Upload handlers
     const handleCSVFileSelect = async (selectedFile) => {
         if (!selectedFile) {
@@ -977,7 +1023,7 @@ const customFormatter = (value, column, row, index) => {
                 ),
             },
             { Header: "Building Code", accessor: "buildingId.buildingCode", Cell: ({ cell }) => cell.value || "N/A", },
-            { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ cell }) => cell.value || "N/A",},
+            { Header: "Building", accessor: "buildingId.buildingName", Cell: ({ cell }) => cell.value || "N/A", },
             { Header: "Stakeholder", accessor: "stakeholder", Cell: ({ cell }) => cell.value || "N/A", },
 
             { Header: "Business Travel by Air", accessor: "travelByAir", Cell: ({ value }) => (value ? "Yes" : "No") },
@@ -1126,7 +1172,7 @@ const customFormatter = (value, column, row, index) => {
                 ),
             },
         ],
-        [pageIndex, pageSize]
+        [pageIndex, pageSize, selectedRows]
     );
 
     const columns = useMemo(() => COLUMNS, [COLUMNS]);
@@ -1136,6 +1182,7 @@ const customFormatter = (value, column, row, index) => {
         {
             columns,
             data,
+            getRowId: (row) => row._id,
         },
         useSortBy,
         useRowSelect,
@@ -1143,10 +1190,42 @@ const customFormatter = (value, column, row, index) => {
             hooks.visibleColumns.push((columns) => [
                 {
                     id: "selection",
-                    Header: ({ getToggleAllRowsSelectedProps }) => (
-                        <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+                    width: 50,
+                    Header: ({ rows }) => {
+                        const allSelected = rows.length > 0 && rows.every(row => selectedRows[row.original._id]);
+                        const someSelected = rows.some(row => selectedRows[row.original._id]);
+                        return (
+                            <IndeterminateCheckbox
+                                checked={allSelected}
+                                indeterminate={someSelected && !allSelected}
+                                onChange={(e) => {
+                                    const newSelection = {};
+                                    if (e.target.checked) {
+                                        rows.forEach(row => { newSelection[row.original._id] = true; });
+                                    }
+                                    setSelectedRows(newSelection);
+                                }}
+                            />
+                        );
+                    },
+                    Cell: ({ row }) => (
+                        <IndeterminateCheckbox
+                            checked={selectedRows[row.original._id] || false}
+                            indeterminate={false}
+                            onChange={(e) => {
+                                e.stopPropagation();
+                                setSelectedRows(prev => {
+                                    const newState = { ...prev };
+                                    if (e.target.checked) {
+                                        newState[row.original._id] = true;
+                                    } else {
+                                        delete newState[row.original._id];
+                                    }
+                                    return newState;
+                                });
+                            }}
+                        />
                     ),
-                    Cell: ({ row }) => <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />,
                 },
                 ...columns,
             ]);
@@ -1174,7 +1253,18 @@ const customFormatter = (value, column, row, index) => {
 
                     <div className="md:flex md:space-x-3 items-center">
                         <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-
+                        {selectedCount > 0 && (
+                            <Tippy content={`Delete ${selectedCount} selected record(s)`}>
+                                <Button
+                                    icon="heroicons:trash"
+                                    text={`Delete Selected (${selectedCount})`}
+                                    className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
+                                    iconClass="text-lg"
+                                    onClick={() => setDeleteModalOpen(true)}
+                                    disabled={isDeletingMultiple}
+                                />
+                            </Tippy>
+                        )}
                         {/* Export Current Page Button */}
                         {records.length > 0 && (
                             <ExcelExportButton
@@ -1510,22 +1600,29 @@ const customFormatter = (value, column, row, index) => {
                 themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
                 centered
                 footerContent={
-                    <>
-                        <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
-                        <Button
-                            text="Delete"
-                            className="btn-danger"
-                            onClick={async () => {
-                                await handleDelete(selectedId);
-                                setDeleteModalOpen(false);
-                            }}
-                        />
-                    </>
+    <>
+        <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
+        <Button
+            text="Delete"
+            className="btn-danger"
+            onClick={async () => {
+                if (selectedCount > 1) {
+                    await handleDeleteMultiple();
+                } else if (selectedId) {
+                    await handleDelete(selectedId);
+                    setDeleteModalOpen(false);
                 }
+            }}
+        />
+    </>
+}
             >
-                <p className="text-gray-700 text-center">
-                    Are you sure you want to delete this Record? This action cannot be undone.
-                </p>
+               <p className="text-gray-700 text-center">
+    {selectedCount > 1
+        ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
+        : "Are you sure you want to delete this Record? This action cannot be undone."
+    }
+</p>
             </Modal>
 
             {/* CSV UPLOAD MODAL */}
