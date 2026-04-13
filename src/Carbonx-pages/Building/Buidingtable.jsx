@@ -12,7 +12,6 @@ import Logo from "../../assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import Icons from "@/components/ui/Icon";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -24,6 +23,7 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref)
 });
 
 const BuildingTable = () => {
+
   const navigate = useNavigate();
   const [buildings, setBuildings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -234,14 +234,62 @@ const BuildingTable = () => {
 
 
   const exportToExcel = (data, fileName = "data") => {
-    console.log("Export Data:", data); // 👈 DEBUG
+    console.log("Export Data:", data);
 
     if (!data.length) {
       toast.error("No data to export");
       return;
     }
 
-    const ws = XLSX.utils.json_to_sheet(data);
+    // Function to format string values (for method field)
+    const formatMethodValue = (value) => {
+      if (typeof value === 'string') {
+        return value
+          .replace(/[_-]/g, ' ')  // Replace underscores/hyphens with spaces
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ');
+      }
+      return value;
+    };
+
+    // Transform all method values in the data
+    const formattedData = data.map(row => {
+      const newRow = { ...row };
+      if (newRow.method) {
+        newRow.method = formatMethodValue(newRow.method);
+      }
+      return newRow;
+    });
+
+    // Extract keys from first object
+    const originalKeys = Object.keys(formattedData[0]);
+
+    // Transform keys: camelCase/snake_case to Title Case with spaces
+    const transformedHeaders = originalKeys.map(key => {
+      // Special handling for 'method' key
+      if (key === 'method') {
+        return 'Method';
+      }
+      
+      // Convert camelCase/snake_case to words
+      return key
+        .replace(/([A-Z])/g, ' $1')  // Add space before capital letters
+        .replace(/[_-]/g, ' ')        // Replace underscores/hyphens with spaces
+        .replace(/^./, str => str.toUpperCase())  // Capitalize first letter
+        .trim();
+    });
+
+    // Create new data array with transformed headers
+    const transformedData = formattedData.map(row => {
+      const newRow = {};
+      originalKeys.forEach((key, index) => {
+        newRow[transformedHeaders[index]] = row[key];
+      });
+      return newRow;
+    });
+
+    const ws = XLSX.utils.json_to_sheet(transformedData);
     const wb = XLSX.utils.book_new();
 
     XLSX.utils.book_append_sheet(wb, ws, "Data");
@@ -313,7 +361,7 @@ const BuildingTable = () => {
         data = res.data.data || [];
       }
 
-        if (type === "purchased-electricity") {
+      if (type === "purchased-electricity") {
         res = await axios.get(
           `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get-All`,
           {
@@ -323,7 +371,7 @@ const BuildingTable = () => {
         );
         data = res.data.data || [];
       }
-      
+
       if (type === "purchased-goods") {
         res = await axios.get(
           `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
@@ -429,7 +477,21 @@ const BuildingTable = () => {
         data = res.data.data || [];
       }
 
-
+      if (type === "location_based" || type === "market_based") {
+        res = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get-All`,
+          {
+            headers,
+            params: {
+              buildingId,
+              page: 1,
+              limit: 1000000,
+              method: type
+            }
+          }
+        );
+        data = res.data.data || [];
+      }
 
       const formattedData = data.map((item, index) => {
         const {
@@ -477,7 +539,9 @@ const BuildingTable = () => {
     { label: "Mobile", type: "mobile-combustion" },
     { label: "Fugitive", type: "fugitive" },
     { label: "Process Emission", type: "process-emission" },
-    { label: "Electricity", type: "purchased-electricity" },
+    { label: "Market Based", type: "market_based" },
+    { label: "Location Based", type: "location_based" },
+    // { label: "Electricity", type: "purchased-electricity" },
     { label: "Purchased Goods", type: "purchased-goods" },
     { label: "Capital Goods", type: "capital-goods-services" },
     { label: "Fuel & Energy", type: "fuelandenergy" },
@@ -675,8 +739,13 @@ const BuildingTable = () => {
               text="Delete"
               className="btn-danger"
               onClick={async () => {
-                await handleDelete(selectedBuildingId);
-                setDeleteModalOpen(false);
+                try {
+                  await handleDelete(selectedBuildingId);
+                  setDeleteModalOpen(false);
+                } catch (error) {
+                  console.error('Export or delete failed:', error);
+                  toast.error('Failed to export data or delete building');
+                }
               }}
             />
           </>
@@ -709,38 +778,51 @@ const BuildingTable = () => {
             </p>
           </div>
 
+          {/* <div className="flex items-center space-x-2  xs:w-auto">
+            <Button
+              text={"Export By Location Based"}
+              icon="heroicons-outline:document-arrow-up"
+              className='btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90 whitespace-nowrap'
+              onClick={() => handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "location_based")}
+            />
+            <Button
+              text={"Export By Market Based"}
+              icon="heroicons-outline:document-arrow-up"
+              className='btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90 whitespace-nowrap'
+              onClick={() => handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, "market_based")}
+            />
+          </div> */}
+
           {/* Export Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div className="grid grid-cols-4 gap-4">
             {exportItems.map((item, index) => (
               <div
                 key={index}
-                className="rounded-lg border bg-white shadow-sm hover:shadow-md transition p-2 text-center"
+                className="rounded-xl border border-gray-200 bg-gradient-to-br from-white to-gray-50/50 shadow-sm hover:shadow-md hover:border-green-200 transition-all duration-200 group"
               >
-                <div className="text-xs font-medium text-slate-600 mb-2 truncate">
-                  {item.label}
-                </div>
+                <div className="p-3">
+                  <div className="text-xs font-semibold text-gray-700 mb-1 truncate text-center">
+                    {item.label}
+                  </div>
 
-                <button
-                  onClick={() =>
-                    handleExportBeforeDelete(
-                      selectedBuildingId,
-                      selectedBuildingName,
-                      item.type
-                    )
-                  }
-                  className="group w-full flex items-center justify-center py-2 rounded-md hover:bg-green-50 transition"
-                >
-                  <Icon
-                    icon="vscode-icons:file-type-excel"
-                    className="w-6 h-6 group-hover:scale-110 transition"
-                  />
-                </button>
+                  <button
+                    onClick={() => handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, item.type)}
+                    className="w-full flex items-center justify-center py-2.5 rounded-lg bg-gray-50 hover:bg-green-50 transition-all duration-200 group/btn"
+                  >
+                    <Icon
+                      icon="vscode-icons:file-type-excel"
+                      className="w-7 h-7 transition-transform duration-200 group-hover/btn:scale-110"
+                    />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
+
         </div>
       </Modal>
     </>
   );
 };
+
 export default BuildingTable;
