@@ -16,6 +16,16 @@ import {
   transportationVehicleTypeOptions
 } from '@/constant/scope3/downstreamTransportation';
 
+const VEHICLE_CATEGORY_MAPPING = {
+  'vans': ['vans', 'van'],
+  'hqv': ['hqv', 'heavy good vehicles', 'heavy goods vehicles', 'heavy good vehicle', 'heavy goods vehicle'],
+  'hqvRefrigerated': ['hqvrefrigerated', 'heavy good vehicles (refrigerated)', 'heavy goods vehicles (refrigerated)', 'refrigerated heavy goods', 'refrigerated hgv'],
+  'freightFlights': ['freightflights', 'freight flights', 'air freight', 'cargo flights'],
+  'rail': ['rail', 'train', 'railway', 'rail freight'],
+  'seaTanker': ['seatanker', 'sea tanker', 'tanker ship', 'oil tanker'],
+  'cargoShip': ['cargoship', 'cargo ship', 'container ship', 'freight ship']
+};
+
 const useDownstreamTransportationCSVUpload = (buildings = []) => {
   const [csvState, setCsvState] = useState({
     file: null,
@@ -298,10 +308,20 @@ const normalizeWithSlash = (str) => {
 };
 
  // Improved flexible matching function
-const findFlexibleMatch = (input, validOptions) => {
-  if (!input || !validOptions.length) return null;
+const findFlexibleMatch = (input, validOptions, isVehicleCategory = false) => {
+  if (!input || (!validOptions.length && !isVehicleCategory)) return null;
 
   const normalizedInput = normalizeWithSlash(input);
+
+  // For vehicle categories, check the mapping first
+  if (isVehicleCategory) {
+    for (const [key, possibleNames] of Object.entries(VEHICLE_CATEGORY_MAPPING)) {
+      const normalizedPossibleNames = possibleNames.map(name => normalizeWithSlash(name));
+      if (normalizedPossibleNames.includes(normalizedInput)) {
+        return key;
+      }
+    }
+  }
 
   // Try direct match with normalization
   let match = validOptions.find(option =>
@@ -327,7 +347,7 @@ const findFlexibleMatch = (input, validOptions) => {
 
   if (match) return match;
 
-  // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+  // Try with spaces around slashes
   const spacedInput = normalizedInput.replace(/\//g, ' / ');
   match = validOptions.find(option => {
     const normalizedOption = normalizeWithSlash(option);
@@ -337,7 +357,6 @@ const findFlexibleMatch = (input, validOptions) => {
 
   return match;
 };
-
 
   // const validateDownstreamRow = useCallback((row, index) => {
   //   const errors = [];
@@ -697,16 +716,18 @@ const validateDownstreamRow = useCallback((row, index) => {
   }
 
   // Transportation Vehicle Category validation with flexible matching
-  if (cleanedRow.transportationvehiclecategory) {
-    const validCategories = transportationVehicleCategoryOptions.map(c => c.value);
-    const matchedCategory = findFlexibleMatch(cleanedRow.transportationvehiclecategory, validCategories);
-    
-    if (!matchedCategory) {
-      errors.push(`Invalid transportation vehicle category "${cleanedRow.transportationvehiclecategory}"`);
-    } else {
-      cleanedRow.transportationvehiclecategory = matchedCategory;
-    }
+// Transportation Vehicle Category validation with flexible matching
+if (cleanedRow.transportationvehiclecategory) {
+  const validCategories = transportationVehicleCategoryOptions.map(c => c.value);
+  // Pass true for isVehicleCategory to use the mapping
+  const matchedCategory = findFlexibleMatch(cleanedRow.transportationvehiclecategory, validCategories, true);
+  
+  if (!matchedCategory) {
+    errors.push(`Invalid transportation vehicle category "${cleanedRow.transportationvehiclecategory}"`);
+  } else {
+    cleanedRow.transportationvehiclecategory = matchedCategory;
   }
+}
 
   // Transportation Vehicle Type validation with flexible matching
   if (cleanedRow.transportationvehiclecategory && cleanedRow.transportationvehicletype) {
@@ -1016,13 +1037,13 @@ const validateDownstreamRow = useCallback((row, index) => {
 
     const headers = [
       'Building Code',
-      'Stakeholder',
+      'Stakeholder / Department',
       'Sold Product Activity Type',
       'Sold Goods Type',
       'Transportation Vehicle Category',
       'Transportation Vehicle Type',
-      'Weight Loaded (Tonnes)',
-      'Distance Travelled (Km)',
+      'Weight Loaded (tonnes)',
+      'Distance Travelled (km)',
       'Quality Control',
       'Remarks',
       'Posting Date'

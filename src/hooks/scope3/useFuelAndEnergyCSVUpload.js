@@ -746,6 +746,8 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
 
     // ADD HEADER MAPPING FOR FRIENDLY HEADERS
     const headerMapping = {
+      'fuelname': 'fuel',
+      'stakeholderdepartment': 'stakeholder',
       'totalpurchasedelectricitygridsupplierspecificppa': 'totalgrosselectricitypurchased',
       'totalpurchasedelectricity': 'totalgrosselectricitypurchased',
       'totalgrosselectricitypurchased': 'totalgrosselectricitypurchased',
@@ -1437,9 +1439,9 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
 
     const headers = [
       'Building Code',
-      'Stakeholder',
+      'Stakeholder / Department',
       'Fuel Type',
-      'Fuel',
+      'Fuel Name',
       'Total Fuel Consumption',
       'Fuel Consumption Unit',
       'Total Purchased Electricity (Grid / Supplier Specific / PPA)',

@@ -115,10 +115,10 @@ const useFugitiveCSVUpload = (buildings = []) => {
 
          const expectedHeaders = [
   { key: 'buildingcode', possible: ['buildingcode', 'building code', 'building'] },
-  { key: 'stakeholder', possible: ['stakeholder', 'stake holder'] },
+  { key: 'stakeholder', possible: ['stakeholder', 'stakeholderdepartment'] },
   { key: 'equipmenttype', possible: ['equipmenttype', 'equipment type', 'equipment'] },
   { key: 'materialrefrigerant', possible: ['materialrefrigerant', 'material refrigerant', 'refrigerant', 'material'] },
-  { key: 'leakagevalue', possible: ['leakagevalue', 'leakage value', 'leakagevaluekg', 'leakage value (kg)'] },
+  { key: 'leakagevalue', possible: ['leakagevalue', 'leakagevaluerechargevaluekg', 'leakagevaluekg', 'leakage value (kg)'] },
   { key: 'qualitycontrol', possible: ['qualitycontrol', 'quality control', 'quality'] },
   { key: 'remarks', possible: ['remarks', 'remark', 'notes'] },
   { key: 'postingdate', possible: ['postingdate', 'posting date', 'date'] }
@@ -239,10 +239,10 @@ for (let i = headerRowIndex + 1; i < lines.length; i++) {
          // WITH THIS:
 const expectedHeaders = [
   { key: 'buildingcode', possible: ['buildingcode', 'building code', 'building'] },
-  { key: 'stakeholder', possible: ['stakeholder', 'stake holder'] },
+  { key: 'stakeholder', possible: ['stakeholder', 'stakeholderdepartment'] },
   { key: 'equipmenttype', possible: ['equipmenttype', 'equipment type', 'equipment'] },
   { key: 'materialrefrigerant', possible: ['materialrefrigerant', 'material refrigerant', 'refrigerant', 'material'] },
-  { key: 'leakagevalue', possible: ['leakagevalue', 'leakage value', 'leakagevaluekg', 'leakage value (kg)'] },
+  { key: 'leakagevalue', possible: ['leakagevalue', 'leakagevaluerechargevaluekg', 'leakagevaluekg', 'leakage value (kg)'] },
   { key: 'qualitycontrol', possible: ['qualitycontrol', 'quality control', 'quality'] },
   { key: 'remarks', possible: ['remarks', 'remark', 'notes'] },
   { key: 'postingdate', possible: ['postingdate', 'posting date', 'date'] }
@@ -338,9 +338,11 @@ const findFlexibleMatch = (input, validOptions) => {
     const headerMapping = {
       'buildingcode': 'buildingcode',
       'refrigerant': 'materialrefrigerant',
+      'materialrefrigerant': 'materialrefrigerant',
       'equipment': 'equipmenttype',
       'leakagevalue': 'leakagevalue',
       'leakagevaluekg': 'leakagevalue',
+      'leakagevaluerechargevaluekg': 'leakagevalue',
       'postingdate': 'postingdate',
       'quality': 'qualitycontrol',
     };
@@ -803,10 +805,10 @@ if (cleanedRow.stakeholder) {
     const worksheetData = [
       [
         'Building Code',
-        'Stakeholder',
+        'Stakeholder / Department',
         'Equipment Type',
-        'Material Refrigerant',
-        'Leakage Value (kg)',
+        'Material / Refrigerant',
+        'Leakage Value / Recharge Value (kg)',
         'Quality Control',
         'Remarks',
         'Posting Date'

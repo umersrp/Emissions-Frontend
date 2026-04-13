@@ -633,7 +633,7 @@ const StationaryCombustionListing = () => {
 
           <div className="md:flex 2xl:space-x-3 space-x-1 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-
+            
             {selectedCount > 0 && (
               <Tippy content={`Delete ${selectedCount} selected record`}>
                 <Button
@@ -1007,7 +1007,7 @@ const StationaryCombustionListing = () => {
         <p className="text-gray-700 text-center">
           {selectedCount > 1
             ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
-            : "Are you sure you want to delete this Stationary? This action cannot be undone."
+            : "Are you sure you want to delete this record? This action cannot be undone."
           }
         </p>
       </Modal>

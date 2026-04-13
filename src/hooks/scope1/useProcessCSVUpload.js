@@ -958,7 +958,7 @@ const downloadProcessTemplate = useCallback(() => {
     const worksheetData = [
       [
         'Building Code',
-        'Stakeholder Department',
+        'Stakeholder / Department',
         'Type Of Activity / Process',
         'Process Activity Data',
         'Amount',
