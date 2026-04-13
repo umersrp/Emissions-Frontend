@@ -705,42 +705,7 @@ if (cleanedRow.stakeholder) {
       }
     }
 
-    // CAR TRAVEL VALIDATION
-    // if (travelByCar) {
-    //   if (!cleanedRow.cardistancekm) {
-    //     errors.push('Distance Travelled (Car) is required when car travel is Yes');
-    //   } else {
-    //     validateNumeric(cleanedRow.cardistancekm, 'Car distance');
-    //   }
-      
-    //   if (!cleanedRow.cartype) {
-    //     errors.push('Car Type is required when car travel is Yes');
-    //   } else {
-    //     const validTypes = carTypeOptions.map(c => c.value);
-    //     const matchedType = validTypes.find(t => 
-    //       t.toLowerCase() === cleanedRow.cartype.toLowerCase()
-    //     );
-    //     if (!matchedType) {
-    //       errors.push(`Invalid car type "${cleanedRow.cartype}"`);
-    //     } else {
-    //       cleanedRow.cartype = matchedType;
-    //     }
-    //   }
-      
-    //   if (!cleanedRow.carfueltype) {
-    //     errors.push('Fuel Type (Car) is required when car travel is Yes');
-    //   } else if (cleanedRow.cartype) {
-    //     const validFuelTypes = carFuelTypeOptions[cleanedRow.cartype] || [];
-    //     const matchedFuelType = validFuelTypes.find(f => 
-    //       f.toLowerCase() === cleanedRow.carfueltype.toLowerCase()
-    //     );
-    //     if (!matchedFuelType) {
-    //       errors.push(`Invalid car fuel type "${cleanedRow.carfueltype}" for car type "${cleanedRow.cartype}"`);
-    //     } else {
-    //       cleanedRow.carfueltype = matchedFuelType;
-    //     }
-    //   }
-    // }
+ 
     // CAR TRAVEL VALIDATION with flexible matching
 if (travelByCar) {
   if (!cleanedRow.cardistancekm) {
