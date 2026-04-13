@@ -336,6 +336,7 @@ const findFlexibleMatch = (input, validOptions) => {
     
     // COMPLETE HEADER MAPPING for friendly headers
     const headerMapping = {
+      'stakeholderdepartment': 'stakeholder',
       // Friendly toggle headers - matching the form labels
       'didyouhaveanybusinesstravelbyairduringthereportingperiod': 'travelbyair',
       'didyouhaveanybusinesstravelbymotorbikeduringthereportingperiod': 'travelbymotorbike',
@@ -1070,7 +1071,7 @@ if (travelByCar) {
     // FRIENDLY HEADERS matching the form toggle labels
     const headers = [
       'Building Code',
-      'Stakeholder',
+      'Stakeholder / Department',
       'Did you have any business travel by air during the reporting period?',
       'Number of Passengers (Air)',
       'Distance Travelled (Air) (km)',

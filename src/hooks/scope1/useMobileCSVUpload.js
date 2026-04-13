@@ -13,6 +13,23 @@ import {
   weightLoadedOptions,
 } from '@/constant/scope1/options';
 
+const HEADER_MAPPING = {
+  'buildingcode': ['buildingcode', 'building code', 'building-code', 'building_code', 'building'],
+  'stakeholder': ['stakeholder', 'stake holder', 'stake-holder', 'stakeholder department', 'department', 'stakeholder / department'],
+  'vehicleclassification': ['vehicleclassification', 'vehicle classification', 'vehicle-classification', 'vehicle_classification', 'classification'],
+  'vehicletype': ['vehicletype', 'vehicle type', 'vehicle-type', 'vehicle_type', 'type'],
+  'fuelname': ['fuelname', 'fuel name', 'fuel-name', 'fuel_name', 'fuel'],
+  'distancetravelled': ['distancetravelled', 'distance travelled', 'distance-travelled', 'distance_travelled', 'distance', 'travelled'],
+  'distanceunit': ['distanceunit', 'distance unit', 'distance-unit', 'distance_unit', 'unit'],
+  'qualitycontrol': ['qualitycontrol', 'quality control', 'quality-control', 'quality_control', 'quality'],
+  'weightloaded': ['weightloaded', 'weight loaded', 'weight-loaded', 'weight_loaded', 'weight'],
+  'remarks': ['remarks', 'remark', 'comments', 'notes'],
+  'postingdate': ['postingdate', 'posting date', 'date', 'posting-date', 'posting_date', 'record date']
+};
+
+const normalizeHeader = (header) => {
+  return header.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+};
 const useMobileCSVUpload = (buildings = []) => {
   const [csvState, setCsvState] = useState({
     file: null,
@@ -45,6 +62,15 @@ const useMobileCSVUpload = (buildings = []) => {
     return value.replace(/["']/g, '').trim();
   }, []);
 
+  const findMatchingField = (normalizedHeader) => {
+    for (const [field, possibleNames] of Object.entries(HEADER_MAPPING)) {
+      const normalizedPossibleNames = possibleNames.map(name => normalizeHeader(name));
+      if (normalizedPossibleNames.includes(normalizedHeader)) {
+        return field;
+      }
+    }
+    return null;
+  };
   // CSV Parser
   const parseCSV = useCallback((file) => {
     return new Promise((resolve, reject) => {
@@ -107,21 +133,32 @@ const useMobileCSVUpload = (buildings = []) => {
             return;
           }
 
-          // Parse headers
-          const headerValues = parseCSVLine(lines[headerRowIndex]);
-          const headers = headerValues.map(h =>
-            cleanValue(h).toLowerCase().replace(/[^a-z0-9]/g, '')
-          );
+          // Parse headers - get raw header values
+          const rawHeaders = parseCSVLine(lines[headerRowIndex]);
 
-          // Expected headers
-          const expectedHeaders = [
+          // Create header mapping
+          const headerMapping = {};
+          const requiredFields = [
             'buildingcode', 'stakeholder', 'vehicleclassification', 'vehicletype',
-            'fuelname', 'distancetravelled', 'distanceunit', 'qualitycontrol',
-            'weightloaded', 'remarks', 'postingdate'
+            'fuelname', 'distancetravelled', 'distanceunit', 'qualitycontrol', 'postingdate'
           ];
 
-          // Check for missing headers
-          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+          const missingHeaders = [];
+
+          requiredFields.forEach(field => {
+            const foundHeader = rawHeaders.find(header => {
+              if (!header) return false;
+              const normalizedHeader = normalizeHeader(header);
+              return findMatchingField(normalizedHeader) === field;
+            });
+
+            if (foundHeader) {
+              headerMapping[foundHeader] = field;
+            } else {
+              missingHeaders.push(field);
+            }
+          });
+
           if (missingHeaders.length > 0) {
             reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
             return;
@@ -136,8 +173,9 @@ const useMobileCSVUpload = (buildings = []) => {
             const values = parseCSVLine(line);
 
             const row = {};
-            headers.forEach((header, index) => {
-              row[header] = index < values.length ? cleanValue(values[index]) : '';
+            Object.entries(headerMapping).forEach(([originalHeader, mappedKey]) => {
+              const headerIndex = rawHeaders.findIndex(h => h === originalHeader);
+              row[mappedKey] = headerIndex < values.length ? cleanValue(values[headerIndex]) : '';
             });
 
             if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
@@ -158,146 +196,289 @@ const useMobileCSVUpload = (buildings = []) => {
 
   // Excel Parser
   // Excel Parser - Updated to preserve number formatting
+  // const parseExcel = useCallback((file) => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onload = (event) => {
+  //       try {
+  //         const data = new Uint8Array(event.target.result);
+  //         const workbook = XLSX.read(data, {
+  //           type: 'array',
+  //           cellDates: false, // Don't convert dates automatically
+  //           cellText: true,   // Keep cell text
+  //           cellNF: true,     // Keep number formats
+  //           cellHTML: false
+  //         });
+  //         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+  //         // Use raw: false to get formatted values
+  //         const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+  //           header: 1,
+  //           defval: '',
+  //           raw: false  // This will return formatted values (e.g., "50%" instead of 0.5)
+  //         });
+
+  //         if (!jsonData || jsonData.length === 0) {
+  //           reject(new Error('Excel file is empty'));
+  //           return;
+  //         }
+
+  //         // Find header row
+  //         let headerRowIndex = -1;
+  //         for (let i = 0; i < jsonData.length; i++) {
+  //           const row = jsonData[i];
+  //           if (row && row.length > 0) {
+  //             const rowText = row.map(cell =>
+  //               cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
+  //             ).join('');
+
+  //             if (rowText.includes('buildingcode') && rowText.includes('stakeholder')) {
+  //               headerRowIndex = i;
+  //               break;
+  //             }
+  //           }
+  //         }
+
+  //         if (headerRowIndex === -1) {
+  //           reject(new Error('Excel must contain header row with: buildingCode, stakeholder, vehicleClassification, vehicleType, fuelName, distanceTravelled, distanceUnit, qualityControl, weightLoaded, remarks, postingDate'));
+  //           return;
+  //         }
+
+  //         // Get headers
+  //         const headers = jsonData[headerRowIndex].map(header =>
+  //           cleanValue(header).toLowerCase().replace(/[^a-z0-9]/g, '')
+  //         );
+
+  //         // Expected headers
+  //         const expectedHeaders = [
+  //           'buildingcode', 'stakeholder', 'vehicleclassification', 'vehicletype',
+  //           'fuelname', 'distancetravelled', 'distanceunit', 'qualitycontrol',
+  //           'weightloaded', 'remarks', 'postingdate'
+  //         ];
+
+  //         // Check for missing headers
+  //         const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+  //         if (missingHeaders.length > 0) {
+  //           reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+  //           return;
+  //         }
+
+  //         // Parse data rows
+  //         const parsedData = [];
+  //         for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+  //           const row = jsonData[i];
+  //           if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+
+  //           const rowData = {};
+  //           headers.forEach((header, index) => {
+  //             let value = index < row.length ? row[index] : '';
+
+  //             // Special handling for weight loaded to preserve percentage format
+  //             if (header === 'weightloaded' && value) {
+  //               // If value is a number (like 0.5), convert to percentage string
+  //               if (typeof value === 'number') {
+  //                 const percentage = value * 100;
+  //                 if (percentage === 0) value = '0%';
+  //                 else if (percentage === 50) value = '50%';
+  //                 else if (percentage === 100) value = '100%';
+  //                 else value = `${percentage}%`;
+  //               }
+  //               // If value is already a string, keep as is
+  //             }
+
+  //             rowData[header] = value ? cleanValue(value) : '';
+  //           });
+
+  //           parsedData.push(rowData);
+  //         }
+
+  //         console.log('Parsed Excel data:', JSON.stringify(parsedData, null, 2));
+  //         resolve(parsedData);
+  //       } catch (error) {
+  //         reject(new Error(`Error parsing Excel file: ${error.message}`));
+  //       }
+  //     };
+  //     reader.onerror = () => reject(new Error('Failed to read file'));
+  //     reader.readAsArrayBuffer(file);
+  //   });
+  // }, [cleanValue]);
+
   const parseExcel = useCallback((file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const data = new Uint8Array(event.target.result);
-          const workbook = XLSX.read(data, {
-            type: 'array',
-            cellDates: false, // Don't convert dates automatically
-            cellText: true,   // Keep cell text
-            cellNF: true,     // Keep number formats
-            cellHTML: false
-          });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, {
+          type: 'array',
+          cellDates: false, // Don't convert dates automatically
+          cellText: true,   // Keep cell text
+          cellNF: true,     // Keep number formats
+          cellHTML: false
+        });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
 
-          // Use raw: false to get formatted values
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
-            header: 1,
-            defval: '',
-            raw: false  // This will return formatted values (e.g., "50%" instead of 0.5)
-          });
+        // Use raw: false to get formatted values
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+          header: 1,
+          defval: '',
+          raw: false  // This will return formatted values (e.g., "50%" instead of 0.5)
+        });
 
-          if (!jsonData || jsonData.length === 0) {
-            reject(new Error('Excel file is empty'));
-            return;
-          }
+        if (!jsonData || jsonData.length === 0) {
+          reject(new Error('Excel file is empty'));
+          return;
+        }
 
-          // Find header row
-          let headerRowIndex = -1;
-          for (let i = 0; i < jsonData.length; i++) {
-            const row = jsonData[i];
-            if (row && row.length > 0) {
-              const rowText = row.map(cell =>
-                cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
-              ).join('');
+        // Find header row
+        let headerRowIndex = -1;
+        for (let i = 0; i < jsonData.length; i++) {
+          const row = jsonData[i];
+          if (row && row.length > 0) {
+            const rowText = row.map(cell =>
+              cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
+            ).join('');
 
-              if (rowText.includes('buildingcode') && rowText.includes('stakeholder')) {
-                headerRowIndex = i;
-                break;
-              }
+            if (rowText.includes('buildingcode') && rowText.includes('stakeholder')) {
+              headerRowIndex = i;
+              break;
             }
           }
-
-          if (headerRowIndex === -1) {
-            reject(new Error('Excel must contain header row with: buildingCode, stakeholder, vehicleClassification, vehicleType, fuelName, distanceTravelled, distanceUnit, qualityControl, weightLoaded, remarks, postingDate'));
-            return;
-          }
-
-          // Get headers
-          const headers = jsonData[headerRowIndex].map(header =>
-            cleanValue(header).toLowerCase().replace(/[^a-z0-9]/g, '')
-          );
-
-          // Expected headers
-          const expectedHeaders = [
-            'buildingcode', 'stakeholder', 'vehicleclassification', 'vehicletype',
-            'fuelname', 'distancetravelled', 'distanceunit', 'qualitycontrol',
-            'weightloaded', 'remarks', 'postingdate'
-          ];
-
-          // Check for missing headers
-          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
-          if (missingHeaders.length > 0) {
-            reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
-            return;
-          }
-
-          // Parse data rows
-          const parsedData = [];
-          for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
-            const row = jsonData[i];
-            if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
-
-            const rowData = {};
-            headers.forEach((header, index) => {
-              let value = index < row.length ? row[index] : '';
-
-              // Special handling for weight loaded to preserve percentage format
-              if (header === 'weightloaded' && value) {
-                // If value is a number (like 0.5), convert to percentage string
-                if (typeof value === 'number') {
-                  const percentage = value * 100;
-                  if (percentage === 0) value = '0%';
-                  else if (percentage === 50) value = '50%';
-                  else if (percentage === 100) value = '100%';
-                  else value = `${percentage}%`;
-                }
-                // If value is already a string, keep as is
-              }
-
-              rowData[header] = value ? cleanValue(value) : '';
-            });
-
-            parsedData.push(rowData);
-          }
-
-          console.log('Parsed Excel data:', JSON.stringify(parsedData, null, 2));
-          resolve(parsedData);
-        } catch (error) {
-          reject(new Error(`Error parsing Excel file: ${error.message}`));
         }
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsArrayBuffer(file);
-    });
-  }, [cleanValue]);
 
-  // Helper function for normalization (handles spaces around slashes)
-const normalizeWithSlash = (str) => {
-  if (!str) return '';
-  return str
-    .toLowerCase()
-    .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
-    .replace(/\s+/g, ' ')        // Normalize multiple spaces
-    .trim();
-};
+        if (headerRowIndex === -1) {
+          reject(new Error('Excel must contain header row with: buildingCode, stakeholder, vehicleClassification, vehicleType, fuelName, distanceTravelled, distanceUnit, qualityControl, weightLoaded, remarks, postingDate'));
+          return;
+        }
 
-// Alternative: Also try with spaces around slashes for matching
-const findFlexibleMatch = (input, validOptions) => {
-  if (!input || !validOptions.length) return null;
-  
-  const normalizedInput = normalizeWithSlash(input);
-  
-  // Try direct match with normalization
-  let match = validOptions.find(option => 
-    normalizeWithSlash(option) === normalizedInput
-  );
-  
-  if (match) return match;
-  
-  // Try with spaces around slashes (for cases like "A/B" vs "A / B")
-  const spacedInput = normalizedInput.replace(/\//g, ' / ');
-  match = validOptions.find(option => {
-    const normalizedOption = normalizeWithSlash(option);
-    const spacedOption = normalizedOption.replace(/\//g, ' / ');
-    return spacedOption === spacedInput;
+        // Get raw header values
+        const rawHeaders = jsonData[headerRowIndex];
+
+        // Create header mapping using friendly headers
+        const headerMapping = {};
+        const requiredFields = [
+          'buildingcode', 'stakeholder', 'vehicleclassification', 'vehicletype',
+          'fuelname', 'distancetravelled', 'distanceunit', 'qualitycontrol', 'postingdate'
+        ];
+
+        const missingHeaders = [];
+
+        requiredFields.forEach(field => {
+          const foundHeader = rawHeaders.find(header => {
+            if (!header) return false;
+            const normalizedHeader = normalizeHeader(header);
+            return findMatchingField(normalizedHeader) === field;
+          });
+          
+          if (foundHeader) {
+            headerMapping[foundHeader] = field;
+          } else {
+            missingHeaders.push(field);
+          }
+        });
+
+        if (missingHeaders.length > 0) {
+          reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+          return;
+        }
+
+        // Parse data rows
+        const parsedData = [];
+        for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+          const row = jsonData[i];
+          if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+
+          const rowData = {};
+          
+          // Use headerMapping to create row data with correct field names
+          Object.entries(headerMapping).forEach(([originalHeader, mappedKey]) => {
+            const headerIndex = rawHeaders.findIndex(h => h === originalHeader);
+            let value = headerIndex < row.length ? row[headerIndex] : '';
+
+            // Special handling for weight loaded to preserve percentage format
+            if (mappedKey === 'weightloaded' && value) {
+              // If value is a number (like 0.5), convert to percentage string
+              if (typeof value === 'number') {
+                const percentage = value * 100;
+                if (percentage === 0) value = '0%';
+                else if (percentage === 50) value = '50%';
+                else if (percentage === 100) value = '100%';
+                else value = `${percentage}%`;
+              }
+              // If value is already a string, keep as is
+            }
+
+            // Handle date conversion for postingdate field
+            if (mappedKey === 'postingdate' && typeof value === 'number') {
+              try {
+                let iso = null;
+                if (XLSX && XLSX.SSF && typeof XLSX.SSF.parse_date_code === 'function') {
+                  const d = XLSX.SSF.parse_date_code(value);
+                  if (d && d.y) {
+                    iso = new Date(Date.UTC(d.y, d.m - 1, d.d, 0, 0, 0, 0)).toISOString();
+                  }
+                }
+                if (!iso) {
+                  const excelEpoch = Date.UTC(1899, 11, 30);
+                  const msPerDay = 24 * 60 * 60 * 1000;
+                  const jsDate = new Date(excelEpoch + (value * msPerDay));
+                  iso = new Date(Date.UTC(jsDate.getUTCFullYear(), jsDate.getUTCMonth(), jsDate.getUTCDate(), 0, 0, 0, 0)).toISOString();
+                }
+                rowData[mappedKey] = iso;
+              } catch (e) {
+                rowData[mappedKey] = value ? cleanValue(value) : '';
+              }
+            } else {
+              rowData[mappedKey] = value ? cleanValue(value) : '';
+            }
+          });
+
+          parsedData.push(rowData);
+        }
+
+        console.log('Parsed Excel data:', JSON.stringify(parsedData, null, 2));
+        resolve(parsedData);
+      } catch (error) {
+        reject(new Error(`Error parsing Excel file: ${error.message}`));
+      }
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsArrayBuffer(file);
   });
-  
-  return match;
-};
+}, [cleanValue]);
+  // Helper function for normalization (handles spaces around slashes)
+  const normalizeWithSlash = (str) => {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
+      .replace(/\s+/g, ' ')        // Normalize multiple spaces
+      .trim();
+  };
+
+  // Alternative: Also try with spaces around slashes for matching
+  const findFlexibleMatch = (input, validOptions) => {
+    if (!input || !validOptions.length) return null;
+
+    const normalizedInput = normalizeWithSlash(input);
+
+    // Try direct match with normalization
+    let match = validOptions.find(option =>
+      normalizeWithSlash(option) === normalizedInput
+    );
+
+    if (match) return match;
+
+    // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+    const spacedInput = normalizedInput.replace(/\//g, ' / ');
+    match = validOptions.find(option => {
+      const normalizedOption = normalizeWithSlash(option);
+      const spacedOption = normalizedOption.replace(/\//g, ' / ');
+      return spacedOption === spacedInput;
+    });
+
+    return match;
+  };
 
   const validateMobileRow = useCallback((row, index) => {
     const errors = [];
@@ -351,16 +532,16 @@ const findFlexibleMatch = (input, validOptions) => {
     // }
 
     // Stakeholder validation with flexible matching
-if (cleanedRow.stakeholder) {
-  const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
-  const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
-  
-  if (!matchedStakeholder) {
-    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-  } else {
-    cleanedRow.stakeholder = matchedStakeholder;
-  }
-}
+    if (cleanedRow.stakeholder) {
+      const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
+      const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+
+      if (!matchedStakeholder) {
+        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+      } else {
+        cleanedRow.stakeholder = matchedStakeholder;
+      }
+    }
 
     // Vehicle classification validation
     if (cleanedRow.vehicleclassification) {
@@ -388,16 +569,16 @@ if (cleanedRow.stakeholder) {
     //   }
     // }
     // Vehicle type validation based on classification with flexible matching
-if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
-  const validTypes = vehicleTypeOptionsByClassification[cleanedRow.vehicleclassification]?.map(v => v.value) || [];
-  const matchedType = findFlexibleMatch(cleanedRow.vehicletype, validTypes);
-  
-  if (!matchedType) {
-    errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for classification "${cleanedRow.vehicleclassification}"`);
-  } else {
-    cleanedRow.vehicletype = matchedType;
-  }
-}
+    if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
+      const validTypes = vehicleTypeOptionsByClassification[cleanedRow.vehicleclassification]?.map(v => v.value) || [];
+      const matchedType = findFlexibleMatch(cleanedRow.vehicletype, validTypes);
+
+      if (!matchedType) {
+        errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for classification "${cleanedRow.vehicleclassification}"`);
+      } else {
+        cleanedRow.vehicletype = matchedType;
+      }
+    }
 
     // Fuel name validation based on classification
     if (cleanedRow.vehicleclassification && cleanedRow.fuelname) {
@@ -523,185 +704,185 @@ if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
       }
     }
     // Date validation
-   // Date validation
-// if (cleanedRow.postingdate) {
-//   const parseToISODatePart = (input) => {
-//     if (!input) return null;
-//     let s = input.toString().trim().replace(/"/g, '');
-//     if (s.includes('T')) s = s.split('T')[0];
-    
-//     // Remove any extra spaces
-//     s = s.trim();
-    
-//     // Check for DD/MM/YYYY format
-//     const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
-//     const matchDDMMYYYY = s.match(ddmmyyyyRegex);
-    
-//     if (matchDDMMYYYY) {
-//       const day = parseInt(matchDDMMYYYY[1], 10);
-//       const month = parseInt(matchDDMMYYYY[2], 10);
-//       const year = parseInt(matchDDMMYYYY[3], 10);
-      
-//       // Validate day, month, year ranges
-//       if (month < 1 || month > 12) return null;
-//       if (day < 1 || day > 31) return null;
-//       if (year < 1900 || year > 2100) return null;
-      
-//       const date = new Date(year, month - 1, day);
-      
-//       // Validate the date is real (e.g., not 31/02/2025)
-//       if (date.getFullYear() !== year || 
-//           date.getMonth() !== month - 1 || 
-//           date.getDate() !== day) {
-//         return null;
-//       }
-      
-//       // Check if date is in the future
-//       const today = new Date();
-//       today.setHours(0, 0, 0, 0);
-//       if (date > today) return null;
-      
-//       // Return ISO format
-//       return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-//     }
-    
-//     // Check for YYYY-MM-DD format
-//     const yyyymmddRegex = /^(\d{4})-(\d{1,2})-(\d{1,2})$/;
-//     const matchYYYYMMDD = s.match(yyyymmddRegex);
-    
-//     if (matchYYYYMMDD) {
-//       const year = parseInt(matchYYYYMMDD[1], 10);
-//       const month = parseInt(matchYYYYMMDD[2], 10);
-//       const day = parseInt(matchYYYYMMDD[3], 10);
-      
-//       // Validate ranges
-//       if (month < 1 || month > 12) return null;
-//       if (day < 1 || day > 31) return null;
-//       if (year < 1900 || year > 2100) return null;
-      
-//       const date = new Date(year, month - 1, day);
-      
-//       if (date.getFullYear() !== year || 
-//           date.getMonth() !== month - 1 || 
-//           date.getDate() !== day) {
-//         return null;
-//       }
-      
-//       const today = new Date();
-//       today.setHours(0, 0, 0, 0);
-//       if (date > today) return null;
-      
-//       return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-//     }
-    
-//     // Try parsing with Date constructor as fallback
-//     const parsed = new Date(s);
-//     if (!isNaN(parsed.getTime())) {
-//       const today = new Date();
-//       today.setHours(0, 0, 0, 0);
-//       if (parsed <= today) {
-//         return parsed.toISOString().split('T')[0];
-//       }
-//     }
-    
-//     return null;
-//   };
+    // Date validation
+    // if (cleanedRow.postingdate) {
+    //   const parseToISODatePart = (input) => {
+    //     if (!input) return null;
+    //     let s = input.toString().trim().replace(/"/g, '');
+    //     if (s.includes('T')) s = s.split('T')[0];
 
-//   const iso = parseToISODatePart(cleanedRow.postingdate);
-//   if (!iso) {
-//     errors.push(`Invalid date. Please use DD/MM/YYYY or YYYY-MM-DD (got "${cleanedRow.postingdate}")`);
-//   } else {
-//     cleanedRow.postingdate = iso;
-//   }
-// } else {
-//   // If no date provided, use current date
-//   cleanedRow.postingdate = new Date().toISOString().split('T')[0];
-// }
-if (cleanedRow.postingdate) {
-  const parseToISODatePart = (input) => {
-    if (!input) return null;
-    let s = input.toString().trim().replace(/"/g, '');
-    if (s.includes('T')) s = s.split('T')[0];
-    
-    // Remove any extra spaces
-    s = s.trim();
-    
-    // Check for DD/MM/YYYY format
-    const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
-    const matchDDMMYYYY = s.match(ddmmyyyyRegex);
-    
-    if (matchDDMMYYYY) {
-      const day = parseInt(matchDDMMYYYY[1], 10);
-      const month = parseInt(matchDDMMYYYY[2], 10);
-      const year = parseInt(matchDDMMYYYY[3], 10);
-      
-      // Validate day, month, year ranges
-      if (month < 1 || month > 12) return null;
-      if (day < 1 || day > 31) return null;
-      if (year < 1900 || year > 2100) return null;
-      
-      const date = new Date(year, month - 1, day);
-      
-      // Validate the date is real (e.g., not 31/02/2025)
-      if (date.getFullYear() !== year || 
-          date.getMonth() !== month - 1 || 
-          date.getDate() !== day) {
-        return null;
-      }
-      
-      //  FUTURE DATE VALIDATION REMOVED - No longer checking if date is in the future
-      
-      // Return ISO format
-      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    }
-    
-    // Check for YYYY-MM-DD format
-    const yyyymmddRegex = /^(\d{4})-(\d{1,2})-(\d{1,2})$/;
-    const matchYYYYMMDD = s.match(yyyymmddRegex);
-    
-    if (matchYYYYMMDD) {
-      const year = parseInt(matchYYYYMMDD[1], 10);
-      const month = parseInt(matchYYYYMMDD[2], 10);
-      const day = parseInt(matchYYYYMMDD[3], 10);
-      
-      // Validate ranges
-      if (month < 1 || month > 12) return null;
-      if (day < 1 || day > 31) return null;
-      if (year < 1900 || year > 2100) return null;
-      
-      const date = new Date(year, month - 1, day);
-      
-      if (date.getFullYear() !== year || 
-          date.getMonth() !== month - 1 || 
-          date.getDate() !== day) {
-        return null;
-      }
-      
-      //  FUTURE DATE VALIDATION REMOVED - No longer checking if date is in the future
-      
-      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    }
-    
-    // Try parsing with Date constructor as fallback
-    const parsed = new Date(s);
-    if (!isNaN(parsed.getTime())) {
-      //  FUTURE DATE VALIDATION REMOVED - Allow any valid date
-      return parsed.toISOString().split('T')[0];
-    }
-    
-    return null;
-  };
+    //     // Remove any extra spaces
+    //     s = s.trim();
 
-  const iso = parseToISODatePart(cleanedRow.postingdate);
-  if (!iso) {
-    errors.push(`Invalid date. Please use DD/MM/YYYY or YYYY-MM-DD (got "${cleanedRow.postingdate}")`);
-  } else {
-    cleanedRow.postingdate = iso;
-  }
-} else {
-  // If no date provided, use current date
-  cleanedRow.postingdate = new Date().toISOString().split('T')[0];
-}
+    //     // Check for DD/MM/YYYY format
+    //     const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+    //     const matchDDMMYYYY = s.match(ddmmyyyyRegex);
+
+    //     if (matchDDMMYYYY) {
+    //       const day = parseInt(matchDDMMYYYY[1], 10);
+    //       const month = parseInt(matchDDMMYYYY[2], 10);
+    //       const year = parseInt(matchDDMMYYYY[3], 10);
+
+    //       // Validate day, month, year ranges
+    //       if (month < 1 || month > 12) return null;
+    //       if (day < 1 || day > 31) return null;
+    //       if (year < 1900 || year > 2100) return null;
+
+    //       const date = new Date(year, month - 1, day);
+
+    //       // Validate the date is real (e.g., not 31/02/2025)
+    //       if (date.getFullYear() !== year || 
+    //           date.getMonth() !== month - 1 || 
+    //           date.getDate() !== day) {
+    //         return null;
+    //       }
+
+    //       // Check if date is in the future
+    //       const today = new Date();
+    //       today.setHours(0, 0, 0, 0);
+    //       if (date > today) return null;
+
+    //       // Return ISO format
+    //       return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    //     }
+
+    //     // Check for YYYY-MM-DD format
+    //     const yyyymmddRegex = /^(\d{4})-(\d{1,2})-(\d{1,2})$/;
+    //     const matchYYYYMMDD = s.match(yyyymmddRegex);
+
+    //     if (matchYYYYMMDD) {
+    //       const year = parseInt(matchYYYYMMDD[1], 10);
+    //       const month = parseInt(matchYYYYMMDD[2], 10);
+    //       const day = parseInt(matchYYYYMMDD[3], 10);
+
+    //       // Validate ranges
+    //       if (month < 1 || month > 12) return null;
+    //       if (day < 1 || day > 31) return null;
+    //       if (year < 1900 || year > 2100) return null;
+
+    //       const date = new Date(year, month - 1, day);
+
+    //       if (date.getFullYear() !== year || 
+    //           date.getMonth() !== month - 1 || 
+    //           date.getDate() !== day) {
+    //         return null;
+    //       }
+
+    //       const today = new Date();
+    //       today.setHours(0, 0, 0, 0);
+    //       if (date > today) return null;
+
+    //       return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    //     }
+
+    //     // Try parsing with Date constructor as fallback
+    //     const parsed = new Date(s);
+    //     if (!isNaN(parsed.getTime())) {
+    //       const today = new Date();
+    //       today.setHours(0, 0, 0, 0);
+    //       if (parsed <= today) {
+    //         return parsed.toISOString().split('T')[0];
+    //       }
+    //     }
+
+    //     return null;
+    //   };
+
+    //   const iso = parseToISODatePart(cleanedRow.postingdate);
+    //   if (!iso) {
+    //     errors.push(`Invalid date. Please use DD/MM/YYYY or YYYY-MM-DD (got "${cleanedRow.postingdate}")`);
+    //   } else {
+    //     cleanedRow.postingdate = iso;
+    //   }
+    // } else {
+    //   // If no date provided, use current date
+    //   cleanedRow.postingdate = new Date().toISOString().split('T')[0];
+    // }
+    if (cleanedRow.postingdate) {
+      const parseToISODatePart = (input) => {
+        if (!input) return null;
+        let s = input.toString().trim().replace(/"/g, '');
+        if (s.includes('T')) s = s.split('T')[0];
+
+        // Remove any extra spaces
+        s = s.trim();
+
+        // Check for DD/MM/YYYY format
+        const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
+        const matchDDMMYYYY = s.match(ddmmyyyyRegex);
+
+        if (matchDDMMYYYY) {
+          const day = parseInt(matchDDMMYYYY[1], 10);
+          const month = parseInt(matchDDMMYYYY[2], 10);
+          const year = parseInt(matchDDMMYYYY[3], 10);
+
+          // Validate day, month, year ranges
+          if (month < 1 || month > 12) return null;
+          if (day < 1 || day > 31) return null;
+          if (year < 1900 || year > 2100) return null;
+
+          const date = new Date(year, month - 1, day);
+
+          // Validate the date is real (e.g., not 31/02/2025)
+          if (date.getFullYear() !== year ||
+            date.getMonth() !== month - 1 ||
+            date.getDate() !== day) {
+            return null;
+          }
+
+          //  FUTURE DATE VALIDATION REMOVED - No longer checking if date is in the future
+
+          // Return ISO format
+          return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        }
+
+        // Check for YYYY-MM-DD format
+        const yyyymmddRegex = /^(\d{4})-(\d{1,2})-(\d{1,2})$/;
+        const matchYYYYMMDD = s.match(yyyymmddRegex);
+
+        if (matchYYYYMMDD) {
+          const year = parseInt(matchYYYYMMDD[1], 10);
+          const month = parseInt(matchYYYYMMDD[2], 10);
+          const day = parseInt(matchYYYYMMDD[3], 10);
+
+          // Validate ranges
+          if (month < 1 || month > 12) return null;
+          if (day < 1 || day > 31) return null;
+          if (year < 1900 || year > 2100) return null;
+
+          const date = new Date(year, month - 1, day);
+
+          if (date.getFullYear() !== year ||
+            date.getMonth() !== month - 1 ||
+            date.getDate() !== day) {
+            return null;
+          }
+
+          //  FUTURE DATE VALIDATION REMOVED - No longer checking if date is in the future
+
+          return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        }
+
+        // Try parsing with Date constructor as fallback
+        const parsed = new Date(s);
+        if (!isNaN(parsed.getTime())) {
+          //  FUTURE DATE VALIDATION REMOVED - Allow any valid date
+          return parsed.toISOString().split('T')[0];
+        }
+
+        return null;
+      };
+
+      const iso = parseToISODatePart(cleanedRow.postingdate);
+      if (!iso) {
+        errors.push(`Invalid date. Please use DD/MM/YYYY or YYYY-MM-DD (got "${cleanedRow.postingdate}")`);
+      } else {
+        cleanedRow.postingdate = iso;
+      }
+    } else {
+      // If no date provided, use current date
+      cleanedRow.postingdate = new Date().toISOString().split('T')[0];
+    }
     // Remarks validation
     if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
       errors.push('Remarks cannot exceed 500 characters');
@@ -965,7 +1146,7 @@ if (cleanedRow.postingdate) {
     const worksheetData = [
       [
         'Building Code',
-        'Stakeholder',
+        'Stakeholder / Department',
         'Vehicle Classification',
         'Vehicle Type',
         'Fuel Name',
@@ -977,17 +1158,17 @@ if (cleanedRow.postingdate) {
         'Posting Date'
       ],
       [
-      exampleBuildingCode,
-      'Assembly',
-      'By Market Segment',
-      'Mini - City or A-Segment Passenger Cars (600 cc - 1200 cc)',
-      'Diesel',
-      '50',
-      'km',
-      'Highly Uncertain',
-      '',
-      'Example record',
-      'dd/mm/yyyy'
+        exampleBuildingCode,
+        'Assembly',
+        'By Market Segment',
+        'Mini - City or A-Segment Passenger Cars (600 cc - 1200 cc)',
+        'Diesel',
+        '50',
+        'km',
+        'Highly Uncertain',
+        '',
+        'Example record',
+        'dd/mm/yyyy'
       ],
     ];
 

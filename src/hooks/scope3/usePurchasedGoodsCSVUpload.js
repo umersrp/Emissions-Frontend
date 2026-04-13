@@ -18,7 +18,7 @@ import {
 // Add this header mapping object at the top of your file (after imports)
 const HEADER_MAPPING = {
   'buildingcode': ['buildingcode', 'building code', 'building-code', 'building_code'],
-  'stakeholder': ['stakeholder', 'stake holder', 'stake-holder', 'stakeholder department'],
+  'stakeholder': ['stakeholder', 'stake holder', 'stake-holder', 'stakeholderdepartment'],
   'postingdate': ['postingdate', 'posting date', 'date', 'posting-date', 'posting_date'],
   'purchasecategory': ['purchasecategory', 'purchase category', 'purchase-category', 'purchase_category', 'category'],
   'purchasedactivitytype': ['purchasedactivitytype', 'purchased activity type', 'purchased-activity-type', 'purchased_activity_type', 'activity type'],
@@ -907,7 +907,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     if (isCapitalGoods) {
       headers = [
         'Building Code',
-        'Stakeholder',
+        'Stakeholder / Department',
         'Purchase Category',
         'Purchased Activity Type',
         'Purchased Goods or Services Type',
@@ -933,7 +933,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     } else {
       headers = [
         'Building Code',
-        'Stakeholder',
+        'Stakeholder / Department',
         'Purchase Category',
         'Purchased Activity Type',
         'Purchased Goods or Services Type',

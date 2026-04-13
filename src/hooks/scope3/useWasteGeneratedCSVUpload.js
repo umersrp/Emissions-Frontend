@@ -22,11 +22,11 @@ const unitOptions = [
 
 const COLUMN_MAPPING = {
   'buildingcode': ['buildingcode', 'building code', 'building-code', 'building_code'],
-  'stakeholder': ['stakeholder', 'stakeholder department', 'department'],
+  'stakeholder': ['stakeholder', 'stakeholderdepartment', 'department'],
   'wastecategory': ['wastecategory', 'waste category', 'waste-category'],
   'wastetype': ['wastetype', 'waste type', 'waste-type'],
   'wastetreatmentmethod': ['wastetreatmentmethod', 'waste treatment method', 'treatment method'],
-  'totalwasteqty': ['totalwasteqty', 'total waste qty', 'total waste qty (tonnes)', 'total waste quantity', 'waste quantity'],
+  'totalwasteqty': ['totalwasteqty', 'totalwastequantitytonnes', 'total waste qty (tonnes)', 'total waste quantity', 'waste quantity'],
   'qualitycontrol': ['qualitycontrol', 'quality control', 'qc'],
   'remarks': ['remarks', 'remark', 'notes'],
   'postingdate': ['postingdate', 'posting date', 'date']
@@ -1053,11 +1053,11 @@ if (cleanedRow.wastecategory && cleanedRow.wastetype) {
 
     const headers = [
       'Building Code',
-      'Stakeholder',
+      'Stakeholder / Department',
       'Waste Category',
       'Waste Type',
       'Waste Treatment Method',
-      'Total Waste Qty (Tonnes)',
+      'Total Waste Quantity (tonnes)',
       'Quality Control',
       'Remarks',
       'Posting Date'
