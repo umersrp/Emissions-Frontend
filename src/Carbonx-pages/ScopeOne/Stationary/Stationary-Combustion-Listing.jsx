@@ -689,7 +689,119 @@ const handleDelete = async (id) => {
   return (
     <>
       <Card noborder>
-        <div className="pb-6">
+        <div className="md:flex pb-6 items-center">
+          <div className="flex-1 md:mb-0 flex items-center space-x-3">
+            <h6>Stationary Combustion Records</h6>
+          </div>
+
+          <div className="md:flex 2xl:space-x-3 space-x-1 items-center flex-none rtl:space-x-reverse">
+            <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
+            
+            {selectedCount > 0 && (
+              <Tippy content={`Delete ${selectedCount} selected record`}>
+                <Button
+                  icon="heroicons:trash"
+                  text={`Delete Selected (${selectedCount})`}
+                  className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
+                  iconClass="text-lg"
+                  onClick={() => setDeleteModalOpen(true)}
+                  disabled={isDeletingMultiple}
+                />
+              </Tippy>
+            )}
+
+            {records.length > 0 && (
+              <ExcelExportButton
+                data={records}
+                columns={COLUMNS}
+                exportFields={[
+                  "buildingId.buildingCode",
+                  "buildingId.buildingName",
+                  "stakeholder",
+                  "equipmentType",
+                  "fuelType",
+                  "fuelName",
+                  "fuelConsumption",
+                  "consumptionUnit",
+                  "qualityControl",
+                  "calculatedEmissionKgCo2e",
+                  "calculatedEmissionTCo2e",
+                  "remarks",
+                  "postingDate",
+                  "createdBy.name",
+                  "updatedBy.name"
+                ]}
+                fileName="stationary_combustion_current_page"
+                sheetName="Current Page"
+                buttonText="Export Page"
+                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+                exportFormat="current"
+                customFormatter={customFormatter}
+                pageInfo={{ currentPage: pagination.currentPage, limit: pagination.limit }}
+              />
+            )}
+
+            <ExcelExportButton
+              data={records}
+              fetchAllData={fetchAllStationaryRecords}
+              columns={COLUMNS}
+              exportFields={[
+                "buildingId.buildingCode",
+                "buildingId.buildingName",
+                "stakeholder",
+                "equipmentType",
+                "fuelType",
+                "fuelName",
+                "fuelConsumption",
+                "consumptionUnit",
+                "qualityControl",
+                "calculatedEmissionKgCo2e",
+                "calculatedEmissionTCo2e",
+                "remarks",
+                "postingDate",
+                "createdBy.name",
+                "updatedBy.name"
+              ]}
+              fileName="stationary_combustion_records"
+              sheetName="Stationary Combustion"
+              buttonText="Export All Entries"
+              buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+              successMessage="Stationary records exported successfully!"
+              customFormatter={customFormatter}
+              exportFormat="all"
+              pageInfo={pagination}
+            />
+
+            <Button
+              icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
+              text={csvState.uploading ? "Uploading..." : "Import"}
+              className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+              iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}
+              onClick={() => setBulkUploadModalOpen(true)}
+              disabled={csvState.uploading}
+            />
+
+            <div className="2xl:hidden">
+              <Button
+                icon="heroicons-outline:plus-sm"
+                text="Add"
+                className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+                iconClass="text-lg"
+                onClick={() => navigate("/Stationary-Combustion-Form/Add")}
+              />
+            </div>
+            <div className="hidden 2xl:block">
+              <Button
+                icon="heroicons-outline:plus-sm"
+                text="Add Record"
+                className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+                iconClass="text-lg"
+                onClick={() => navigate("/Stationary-Combustion-Form/Add")}
+              />
+            </div>
+          </div>
+        </div>
+        {/* <div className="pb-6">
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <h6>Stationary Combustion Records</h6>
 
@@ -790,7 +902,7 @@ const handleDelete = async (id) => {
             />
 
           </div>
-        </div>
+        </div> */}
 
         {/* <div className="2xl:hidden">
               <Button
