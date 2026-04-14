@@ -61,7 +61,7 @@ const WasteGeneratedListing = () => {
   const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
   const [goToValue, setGoToValue] = useState(pageIndex);
   const [selectedRows, setSelectedRows] = useState({});
-const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
+  const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
 
   // CSV Upload using custom hook
   const {
@@ -106,21 +106,21 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
       .map((word, index) => {
         const hasOpenParen = word.startsWith("(");
         const hasCloseParen = word.endsWith(")");
-        
+
         let coreWord = word;
         if (hasOpenParen) coreWord = coreWord.slice(1);
         if (hasCloseParen) coreWord = coreWord.slice(0, -1);
 
         const lowerCore = coreWord.toLowerCase();
         let result;
-        
+
         if (coreWord === "a" || coreWord === "A" || coreWord === "it" || coreWord === "IT") {
           result = coreWord;
         }
         else if (coreWord.length === 1 && /^[A-Za-z]$/.test(coreWord)) {
           result = coreWord.toUpperCase();
         }
-        else if (index === 0 || (index > 0 && text.split(" ")[index-1]?.endsWith("("))) {
+        else if (index === 0 || (index > 0 && text.split(" ")[index - 1]?.endsWith("("))) {
           result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
         }
         else if (exceptions.includes(lowerCore) && lowerCore !== "a") {
@@ -129,7 +129,7 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
         else {
           result = coreWord.charAt(0).toUpperCase() + coreWord.slice(1);
         }
-        
+
         if (hasOpenParen) result = "(" + result;
         if (hasCloseParen) result = result + ")";
 
@@ -162,7 +162,7 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
     }
 
     if (column.accessor === "calculatedEmissionKgCo2e" ||
-        column.accessor === "calculatedEmissionTCo2e") {
+      column.accessor === "calculatedEmissionTCo2e") {
       if (!value) return "N/A";
       const numValue = Number(value);
       if (isNaN(numValue)) return "N/A";
@@ -223,37 +223,36 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
 
   useEffect(() => {
     fetchData();
-     setSelectedRows({});
+    setSelectedRows({});
   }, [pageIndex, pageSize, globalFilterValue]);
 
   // Delete multiple selected records
-const handleDeleteMultiple = async () => {
-  const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
-  if (selectedIds.length === 0) {
-    toast.warning("Please select records to delete");
-    return;
-  }
-  setIsDeletingMultiple(true);
-  try {
-    await Promise.all(
-      selectedIds.map(id =>
-        axios.delete(`${process.env.REACT_APP_BASE_URL}/Waste-Generate/Delete/${id}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        })
-      )
-    );
-    toast.success(`${selectedIds.length} record(s) deleted successfully`);
-    setSelectedRows({});
-    fetchData();
-  } catch (err) {
-    console.error("Error deleting records:", err);
-    toast.error("Failed to delete some records");
-  } finally {
-    setIsDeletingMultiple(false);
-    setDeleteModalOpen(false);
-  }
-};
-const selectedCount = Object.values(selectedRows).filter(Boolean).length;
+  const handleDeleteMultiple = async () => {
+    const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
+    if (selectedIds.length === 0) {
+      toast.warning("Please select records to delete");
+      return;
+    }
+    setIsDeletingMultiple(true);
+    try {
+      await Promise.all(
+        selectedIds.map(id =>
+          axios.delete(`${process.env.REACT_APP_BASE_URL}/Waste-Generate/Delete/${id}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          })
+        )
+      );
+  toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);      setSelectedRows({});
+      fetchData();
+    } catch (err) {
+      console.error("Error deleting records:", err);
+      toast.error("Failed to delete some records");
+    } finally {
+      setIsDeletingMultiple(false);
+      setDeleteModalOpen(false);
+    }
+  };
+  const selectedCount = Object.values(selectedRows).filter(Boolean).length;
 
   // Delete Record
   const handleDelete = async (id) => {
@@ -342,9 +341,9 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
       { Header: "Waste Treatment Method", accessor: "wasteTreatmentMethod", Cell: ({ value }) => capitalizeLabel(value) },
       { Header: "Unit", accessor: "unit", Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Total Waste Quantity", accessor: "totalWasteQty", Cell: ({ cell }) => cell.value || "N/A" },
-      { 
-        Header: "Calculated Emissions (kgCO₂e)", 
-        accessor: "calculatedEmissionKgCo2e",   
+      {
+        Header: "Calculated Emissions (kgCO₂e)",
+        accessor: "calculatedEmissionKgCo2e",
         Cell: ({ cell }) => {
           const rawValue = cell.value;
           if (rawValue === null || rawValue === undefined || rawValue === "") {
@@ -355,11 +354,11 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
             return "N/A";
           }
           return numValue.toFixed(2);
-        } 
+        }
       },
-      { 
-        Header: "Calculated Emissions (tCO₂e)", 
-        accessor: "calculatedEmissionTCo2e",   
+      {
+        Header: "Calculated Emissions (tCO₂e)",
+        accessor: "calculatedEmissionTCo2e",
         Cell: ({ cell }) => {
           const rawValue = cell.value;
           if (rawValue === null || rawValue === undefined || rawValue === "") {
@@ -373,7 +372,7 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
             return numValue.toExponential(2);
           }
           return numValue.toFixed(2);
-        } 
+        }
       },
       { Header: "Quality Control", accessor: "qualityControl", Cell: ({ cell }) => cell.value || "N/A" },
       { Header: "Remarks", accessor: "remarks", Cell: ({ cell }) => cell.value || "N/A" },
@@ -388,7 +387,7 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
         Cell: ({ cell }) => cell.value || "N/A",
       },
       {
-        Header: "Posting Date", 
+        Header: "Posting Date",
         accessor: "postingDate",
         Cell: ({ cell }) => {
           if (!cell.value) return "N/A";
@@ -457,59 +456,59 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
   const data = useMemo(() => records, [records]);
 
- const tableInstance = useTable(
-  {
-    columns,
-    data,
-    getRowId: (row) => row._id,
-  },
-  useSortBy,
-  useRowSelect,
-  (hooks) => {
-    hooks.visibleColumns.push((columns) => [
-      {
-        id: "selection",
-        width: 50,
-        Header: ({ rows }) => {
-          const allSelected = rows.length > 0 && rows.every(row => selectedRows[row.original._id]);
-          const someSelected = rows.some(row => selectedRows[row.original._id]);
-          return (
+  const tableInstance = useTable(
+    {
+      columns,
+      data,
+      getRowId: (row) => row._id,
+    },
+    useSortBy,
+    useRowSelect,
+    (hooks) => {
+      hooks.visibleColumns.push((columns) => [
+        {
+          id: "selection",
+          width: 50,
+          Header: ({ rows }) => {
+            const allSelected = rows.length > 0 && rows.every(row => selectedRows[row.original._id]);
+            const someSelected = rows.some(row => selectedRows[row.original._id]);
+            return (
+              <IndeterminateCheckbox
+                checked={allSelected}
+                indeterminate={someSelected && !allSelected}
+                onChange={(e) => {
+                  const newSelection = {};
+                  if (e.target.checked) {
+                    rows.forEach(row => { newSelection[row.original._id] = true; });
+                  }
+                  setSelectedRows(newSelection);
+                }}
+              />
+            );
+          },
+          Cell: ({ row }) => (
             <IndeterminateCheckbox
-              checked={allSelected}
-              indeterminate={someSelected && !allSelected}
+              checked={selectedRows[row.original._id] || false}
+              indeterminate={false}
               onChange={(e) => {
-                const newSelection = {};
-                if (e.target.checked) {
-                  rows.forEach(row => { newSelection[row.original._id] = true; });
-                }
-                setSelectedRows(newSelection);
+                e.stopPropagation();
+                setSelectedRows(prev => {
+                  const newState = { ...prev };
+                  if (e.target.checked) {
+                    newState[row.original._id] = true;
+                  } else {
+                    delete newState[row.original._id];
+                  }
+                  return newState;
+                });
               }}
             />
-          );
+          ),
         },
-        Cell: ({ row }) => (
-          <IndeterminateCheckbox
-            checked={selectedRows[row.original._id] || false}
-            indeterminate={false}
-            onChange={(e) => {
-              e.stopPropagation();
-              setSelectedRows(prev => {
-                const newState = { ...prev };
-                if (e.target.checked) {
-                  newState[row.original._id] = true;
-                } else {
-                  delete newState[row.original._id];
-                }
-                return newState;
-              });
-            }}
-          />
-        ),
-      },
-      ...columns,
-    ]);
-  }
-);
+        ...columns,
+      ]);
+    }
+  );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
@@ -533,17 +532,15 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
           <div className="md:flex md:space-x-3 items-center">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             {selectedCount > 0 && (
-  <Tippy content={`Delete ${selectedCount} selected record(s)`}>
-    <Button
-      icon="heroicons:trash"
-      text={`Delete Selected (${selectedCount})`}
-      className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
-      iconClass="text-lg"
-      onClick={() => setDeleteModalOpen(true)}
-      disabled={isDeletingMultiple}
-    />
-  </Tippy>
-)}
+                <Button
+                  icon="heroicons:trash"
+                  text={`Delete Selected (${selectedCount})`}
+                  className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
+                  iconClass="text-lg"
+                  onClick={() => setDeleteModalOpen(true)}
+                  disabled={isDeletingMultiple}
+                />
+            )}
 
             {/* Export Current Page Button */}
             {records.length > 0 && (
@@ -827,7 +824,7 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
               onChange={(e) => setPageSize(Number(e.target.value))}
               className="form-select py-2"
             >
-              {[10, 20, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
@@ -845,29 +842,29 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
         themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
         centered
         footerContent={
-  <>
-    <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
-    <Button
-      text="Delete"
-      className="btn-danger"
-      onClick={async () => {
-        if (selectedCount > 1) {
-          await handleDeleteMultiple();
-        } else if (selectedId) {
-          await handleDelete(selectedId);
-          setDeleteModalOpen(false);
+          <>
+            <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
+            <Button
+              text="Delete"
+              className="btn-danger"
+              onClick={async () => {
+                if (selectedCount >= 1) {
+                  await handleDeleteMultiple();
+                } else if (selectedId) {
+                  await handleDelete(selectedId);
+                  setDeleteModalOpen(false);
+                }
+              }}
+            />
+          </>
         }
-      }}
-    />
-  </>
-}
       >
-      <p className="text-gray-700 text-center">
-  {selectedCount > 1
-    ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
-    : "Are you sure you want to delete this Record? This action cannot be undone."
-  }
-</p>
+        <p className="text-gray-700 text-center">
+          {selectedCount > 1
+            ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
+            : "Are you sure you want to delete this Record? This action cannot be undone."
+          }
+        </p>
       </Modal>
 
       {/* CSV UPLOAD MODAL */}

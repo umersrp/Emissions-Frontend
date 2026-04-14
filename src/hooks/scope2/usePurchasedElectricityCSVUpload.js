@@ -423,10 +423,10 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
 
     console.log(`Row ${index + 1} - Cleaned row after mapping:`, cleanedRow);
 
-    if (!cleanedRow.buildingcode) errors.push('buildingcode is required');
-    if (!cleanedRow.unit) errors.push('unit is required');
-    if (!cleanedRow.qualitycontrol) errors.push('qualitycontrol is required');
-    if (!cleanedRow.postingdate) errors.push('postingdate is required');
+    if (!cleanedRow.buildingcode) errors.push('Building Code is required');
+    if (!cleanedRow.unit) errors.push('Unit is required');
+    if (!cleanedRow.qualitycontrol) errors.push('Qualitycontrol is required');
+    if (!cleanedRow.postingdate) errors.push('Postingdate is required');
 
     if (errors.length > 0) {
       return errors;
@@ -437,7 +437,7 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
         b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
       );
       if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
+        errors.push(`Invalid Building Code "${cleanedRow.buildingcode}"`);
       }
     }
 
@@ -447,7 +447,7 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
         u.toLowerCase() === cleanedRow.unit.toLowerCase()
       );
       if (!matchedUnit) {
-        errors.push(`Invalid unit "${cleanedRow.unit}". Valid options: kWh, MWh`);
+        errors.push(`Invalid Unit "${cleanedRow.unit}". Valid options: kWh, MWh`);
       } else {
         cleanedRow.unit = matchedUnit;
       }
@@ -461,18 +461,18 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
 
     if (cleanedRow.method === 'location_based') {
       if (!cleanedRow.totalelectricity) {
-        errors.push('totalElectricity is required for Location Based method');
+        errors.push('Total Electricity is required for Location Based Method');
       }
       
       const hasGrid = cleanedRow.totalgrosselectricitygrid && cleanedRow.totalgrosselectricitygrid !== '';
       const hasOtherSupplier = cleanedRow.totalothersupplierelectricity && cleanedRow.totalothersupplierelectricity !== '';
       
       if (!hasGrid && !hasOtherSupplier) {
-        errors.push('Either Total Gross Electricity Grid or Total Other Supplier Electricity must be provided for Location Based method');
+        errors.push('Either "Total Gross Electricity Purchased from Grid Station" or "Total other supplier specific electricity purchased or purchased under Power Purchased Agreement (PPA)" must be provided for Location Based Method');
       }
       
       if (hasGrid && !cleanedRow.gridstation) {
-        errors.push('gridstation is required when Total Gross Electricity Grid is provided');
+        errors.push('"Grid Station" is required when "Total Gross Electricity Purchased from Grid Station" is provided');
       }
       
       if (cleanedRow.gridstation) {
@@ -481,7 +481,7 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
           g.toLowerCase() === cleanedRow.gridstation.toLowerCase()
         );
         if (!matchedGridStation) {
-          errors.push(`Invalid grid station "${cleanedRow.gridstation}"`);
+          errors.push(`Invalid Grid Station "${cleanedRow.gridstation}"`);
         } else {
           cleanedRow.gridstation = matchedGridStation;
         }
@@ -490,15 +490,15 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
 
     if (cleanedRow.method === 'market_based') {
       if (!cleanedRow.totalpurchasedelectricity) {
-        errors.push('totalPurchasedElectricity is required for Market Based method');
+        errors.push('"Total Purchased Electricity (Grid / Supplier Specific / PPA)" is required for Market Based Method');
       }
       
       if (!cleanedRow.totalgrosselectricitygrid) {
-        errors.push('totalGrossElectricityGrid is required for Market Based method');
+        errors.push('"Total Gross Electricity Purchased from Grid Station" is required for Market Based Method');
       }
       
       if (!cleanedRow.gridstation) {
-        errors.push('gridstation is required for Market Based method');
+        errors.push('Grid Station is required for Market Based Method');
       }
       
       if (cleanedRow.gridstation) {
@@ -507,7 +507,7 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
           g.toLowerCase() === cleanedRow.gridstation.toLowerCase()
         );
         if (!matchedGridStation) {
-          errors.push(`Invalid grid station "${cleanedRow.gridstation}"`);
+          errors.push(`Invalid Grid Station "${cleanedRow.gridstation}"`);
         } else {
           cleanedRow.gridstation = matchedGridStation;
         }
@@ -526,13 +526,13 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
 
       if (hasSolarPanels) {
         if (!cleanedRow.totalonsitesolarconsumption) {
-          errors.push('totalOnsiteSolarConsumption is required when Solar Panels is Yes');
+          errors.push('"What is the total onsite solar electricity consumption?" is required when Solar Panels is Yes');
         }
         if (!cleanedRow.solarretainedunderrecs) {
-          errors.push('solarRetainedUnderRECs is required when Solar Panels is Yes');
+          errors.push('"How much solar electricity is retained by you under valid RECs or any other energy attributes?" is required when Solar Panels is Yes');
         }
         if (!cleanedRow.solarconsumedbutsold) {
-          errors.push('solarConsumedButSold is required when Solar Panels is Yes');
+          errors.push('"How much solar electricity is consumed but sold?"   is required when Solar Panels is Yes');
         }
       }
 

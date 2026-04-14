@@ -733,7 +733,7 @@ const BusinessTravel = () => {
     useEffect(() => {
         setSelectedRows({});
     }, [pageIndex, pageSize, globalFilterValue]);
-    
+
     const renderNA = (value) => {
         return value === null || value === undefined || value === "" ? "N/A" : value;
     };
@@ -944,8 +944,7 @@ const BusinessTravel = () => {
                     })
                 )
             );
-            toast.success(`${selectedIds.length} record(s) deleted successfully`);
-            setSelectedRows({});
+  toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);            setSelectedRows({});
             fetchData();
         } catch (err) {
             console.error("Error deleting records:", err);
@@ -1254,7 +1253,6 @@ const BusinessTravel = () => {
                     <div className="md:flex md:space-x-3 items-center">
                         <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
                         {selectedCount > 0 && (
-                            <Tippy content={`Delete ${selectedCount} selected record(s)`}>
                                 <Button
                                     icon="heroicons:trash"
                                     text={`Delete Selected (${selectedCount})`}
@@ -1263,7 +1261,6 @@ const BusinessTravel = () => {
                                     onClick={() => setDeleteModalOpen(true)}
                                     disabled={isDeletingMultiple}
                                 />
-                            </Tippy>
                         )}
                         {/* Export Current Page Button */}
                         {records.length > 0 && (
@@ -1582,7 +1579,7 @@ const BusinessTravel = () => {
                             onChange={(e) => setPageSize(Number(e.target.value))}
                             className="form-select py-2"
                         >
-                            {[10, 20, 50].map((size) => (
+                            {[10, 20, 50, 100].map((size) => (
                                 <option key={size} value={size}>
                                     {size}
                                 </option>
@@ -1600,29 +1597,29 @@ const BusinessTravel = () => {
                 themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
                 centered
                 footerContent={
-    <>
-        <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
-        <Button
-            text="Delete"
-            className="btn-danger"
-            onClick={async () => {
-                if (selectedCount > 1) {
-                    await handleDeleteMultiple();
-                } else if (selectedId) {
-                    await handleDelete(selectedId);
-                    setDeleteModalOpen(false);
+                    <>
+                        <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
+                        <Button
+                            text="Delete"
+                            className="btn-danger"
+                            onClick={async () => {
+                                if (selectedCount >= 1) {
+                                    await handleDeleteMultiple();
+                                } else if (selectedId) {
+                                    await handleDelete(selectedId);
+                                    setDeleteModalOpen(false);
+                                }
+                            }}
+                        />
+                    </>
                 }
-            }}
-        />
-    </>
-}
             >
-               <p className="text-gray-700 text-center">
-    {selectedCount > 1
-        ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
-        : "Are you sure you want to delete this Record? This action cannot be undone."
-    }
-</p>
+                <p className="text-gray-700 text-center">
+                    {selectedCount > 1
+                        ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
+                        : "Are you sure you want to delete this Record? This action cannot be undone."
+                    }
+                </p>
             </Modal>
 
             {/* CSV UPLOAD MODAL */}

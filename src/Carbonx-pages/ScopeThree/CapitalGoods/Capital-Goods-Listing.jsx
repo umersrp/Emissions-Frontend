@@ -251,8 +251,7 @@ const CapitalGoodsListing = () => {
           })
         )
       );
-      toast.success(`${selectedIds.length} record(s) deleted successfully`);
-      setSelectedRows({});
+  toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);      setSelectedRows({});
       fetchData();
     } catch (err) {
       console.error("Error deleting records:", err);
@@ -541,7 +540,6 @@ const CapitalGoodsListing = () => {
           <div className="md:flex md:space-x-3 items-center">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             {selectedCount > 0 && (
-              <Tippy content={`Delete ${selectedCount} selected record(s)`}>
                 <Button
                   icon="heroicons:trash"
                   text={`Delete Selected (${selectedCount})`}
@@ -550,7 +548,6 @@ const CapitalGoodsListing = () => {
                   onClick={() => setDeleteModalOpen(true)}
                   disabled={isDeletingMultiple}
                 />
-              </Tippy>
             )}
 
             {/* Export Current Page Button */}
@@ -814,7 +811,7 @@ const CapitalGoodsListing = () => {
               onChange={(e) => setPageSize(Number(e.target.value))}
               className="form-select py-2"
             >
-              {[10, 20, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
@@ -838,7 +835,7 @@ const CapitalGoodsListing = () => {
               text="Delete"
               className="btn-danger"
               onClick={async () => {
-                if (selectedCount > 1) {
+                if (selectedCount >= 1) {
                   await handleDeleteMultiple();
                 } else if (selectedId) {
                   await handleDelete(selectedId);

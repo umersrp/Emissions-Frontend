@@ -152,14 +152,14 @@ const RecordRow = ({ record, index, onDelete }) => {
             record.carDateRange,
             record.workFromHomeDateRange
         ];
-        
+
         // Find the first date range that has a startDate
         for (const dateRange of dateRanges) {
             if (dateRange?.startDate) {
                 return new Date(dateRange.startDate).getFullYear();
             }
         }
-        
+
         // Fallback to createdAt if no date range found
         return record.createdAt ? new Date(record.createdAt).getFullYear() : "N/A";
     };
@@ -177,7 +177,7 @@ const RecordRow = ({ record, index, onDelete }) => {
             <td className="px-6 py-4 whitespace-nowrap">{record.building?.buildingCode || "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.building?.buildingName || "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{getReportingYear(record)}</td>
-            
+
             {/* Motorbike Section */}
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? "Motorbike" : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? toTitleCase(record.motorbikeType) : "N/A"}</td>
@@ -271,8 +271,7 @@ const CommutingTable = () => {
 
     // Manual pagination states - each page shows max 10 TOTAL rows (group headers + record rows)
     const [currentPage, setCurrentPage] = useState(1);
-    const [rowsPerPage] = useState(10);
-
+    const [rowsPerPage, setRowsPerPage] = useState(10);
     // Track expanded groups
     const [expandedGroups, setExpandedGroups] = useState({});
 
@@ -486,67 +485,67 @@ const CommutingTable = () => {
     // };
 
     const fetchCommutingData = async () => {
-    setLoading(true);
-    try {
-        const search = globalFilterValue.trim();
-        const token = localStorage.getItem("token");
+        setLoading(true);
+        try {
+            const search = globalFilterValue.trim();
+            const token = localStorage.getItem("token");
 
-        if (!token) {
-            toast.error("Authentication token missing. Please login again.");
-            navigate("/login");
-            return;
-        }
-
-        const params = {
-            page: 1,
-            limit: 10000,
-            ...(search && { search: search })
-        };
-
-        const res = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}/employee-commute/List`,
-            {
-                params,
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+            if (!token) {
+                toast.error("Authentication token missing. Please login again.");
+                navigate("/login");
+                return;
             }
-        );
-        const data = res.data.data || [];
-        // FILTER: Only keep records with entryStatus === "Parent"
-        const filteredData = data.filter(item => item.entryStatus === "Parent");
-        const dataWithBuilding = filteredData.map(item => ({
-            ...item,
-            building: item.building || {},
-            calculatedEmissionKgCo2e: item.calculatedEmissionKgCo2e || 0,
-            calculatedEmissionTCo2e: item.calculatedEmissionTCo2e || 0
-        }));
 
-        setCommutingData(dataWithBuilding);
-        setCurrentPage(1);
-        setExpandedGroups({});
+            const params = {
+                page: 1,
+                limit: 10000,
+                ...(search && { search: search })
+            };
 
-        // Optional: Show message if no Parent records found
-        if (filteredData.length === 0 && data.length > 0) {
-            toast.info("No Parent records found. Only showing Parent entries.");
+            const res = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/employee-commute/List`,
+                {
+                    params,
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+            const data = res.data.data || [];
+            // FILTER: Only keep records with entryStatus === "Parent"
+            const filteredData = data.filter(item => item.entryStatus === "Parent");
+            const dataWithBuilding = filteredData.map(item => ({
+                ...item,
+                building: item.building || {},
+                calculatedEmissionKgCo2e: item.calculatedEmissionKgCo2e || 0,
+                calculatedEmissionTCo2e: item.calculatedEmissionTCo2e || 0
+            }));
+
+            setCommutingData(dataWithBuilding);
+            setCurrentPage(1);
+            setExpandedGroups({});
+
+            // Optional: Show message if no Parent records found
+            if (filteredData.length === 0 && data.length > 0) {
+                toast.info("No Parent records found. Only showing Parent entries.");
+            }
+
+        } catch (err) {
+            console.error("Error fetching commuting data:", err);
+            if (err.response?.status === 401) {
+                toast.error("Session expired. Please login again.");
+                localStorage.removeItem("token");
+                navigate("/login");
+            } else if (err.response?.status === 403) {
+                toast.error("You don't have permission to access this resource.");
+            } else {
+                toast.error("Failed to fetch employee commuting data");
+            }
+            setCommutingData([]);
+        } finally {
+            setLoading(false);
         }
-
-    } catch (err) {
-        console.error("Error fetching commuting data:", err);
-        if (err.response?.status === 401) {
-            toast.error("Session expired. Please login again.");
-            localStorage.removeItem("token");
-            navigate("/login");
-        } else if (err.response?.status === 403) {
-            toast.error("You don't have permission to access this resource.");
-        } else {
-            toast.error("Failed to fetch employee commuting data");
-        }
-        setCommutingData([]);
-    } finally {
-        setLoading(false);
-    }
-};
+    };
     useEffect(() => {
         const delay = setTimeout(() => {
             fetchCommutingData();
@@ -818,9 +817,24 @@ const CommutingTable = () => {
                         </ul>
 
                         <div className="flex items-center space-x-3">
-                            <span className="text-sm font-medium text-slate-600">
-                                Rows per page: {rowsPerPage}
-                            </span>
+                            <div className="flex items-center space-x-3">
+                                <span className="text-sm font-medium text-slate-600">Show</span>
+                                <select
+                                    value={rowsPerPage}
+                                    onChange={(e) => {
+                                        setRowsPerPage(Number(e.target.value));
+                                        setCurrentPage(1); // Reset to first page when changing rows per page
+                                    }}
+                                    className="form-select py-2 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#527dd2]"
+                                    style={{ width: "70px" }}
+                                >
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                    <option value={100}>100</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 )}
