@@ -1513,7 +1513,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
 
     // Auto-size columns for better readability
     const colWidths = headers.map(header => ({
-      wch: Math.min(Math.max(header.length, 15), 45)
+      wch: Math.min(Math.max(header.length, 25), 45)
     }));
     worksheet['!cols'] = colWidths;
 

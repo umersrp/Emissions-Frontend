@@ -392,7 +392,6 @@ const PurchasedElectricityFormPage = () => {
 
       if (formData.purchasesSupplierSpecific) {
         if (!formData.supplierSpecificElectricity) newErrors.supplierSpecificElectricity = "Required";
-
         // Only validate checkbox selection if the toggle is active
         if (
           !formData.hasSupplierEmissionFactor &&

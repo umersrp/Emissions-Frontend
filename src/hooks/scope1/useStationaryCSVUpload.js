@@ -938,7 +938,7 @@ const parseExcel = useCallback((file) => {
     // Auto-size columns for better readability
     worksheet['!cols'] = [
       { wch: 20 }, // building code
-      { wch: 15 }, // stakeholder
+      { wch: 25 }, // stakeholder
       { wch: 18 }, // equipment type
       { wch: 15 }, // fuel type
       { wch: 15 }, // fuel name

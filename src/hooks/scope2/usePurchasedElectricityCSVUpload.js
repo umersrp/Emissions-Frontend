@@ -713,10 +713,19 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
   qualityControl: row.qualitycontrol,
   remarks: capitalizeFirstLetter(cleanStringValue(row.remarks) || ''),
   postingDate: row.postingdate,
-  calculatedEmissionKgCo2e: result?.calculatedEmissionKgCo2e || 0,
-  calculatedEmissionTCo2e: result?.calculatedEmissionTCo2e || 0,
-  calculatedEmissionMarketKgCo2e: result?.calculatedEmissionMarketKgCo2e || null,
-  calculatedEmissionMarketTCo2e: result?.calculatedEmissionMarketTCo2e || null,
+  // calculatedEmissionKgCo2e: result?.calculatedEmissionKgCo2e || 0,
+  // calculatedEmissionTCo2e: result?.calculatedEmissionTCo2e || 0,
+  // calculatedEmissionMarketKgCo2e: result?.calculatedEmissionMarketKgCo2e || null,
+  // calculatedEmissionMarketTCo2e: result?.calculatedEmissionMarketTCo2e || null,
+   calculatedEmissionKgCo2e: result?.calculatedEmissionKgCo2e ?? 0,
+  calculatedEmissionTCo2e: result?.calculatedEmissionTCo2e ?? 0,
+  // For market-based emissions: if method is market_based, send 0 (not null), otherwise send null
+  calculatedEmissionMarketKgCo2e: row.method === 'market_based' 
+    ? (result?.calculatedEmissionMarketKgCo2e ?? 0)
+    : null,
+  calculatedEmissionMarketTCo2e: row.method === 'market_based'
+    ? (result?.calculatedEmissionMarketTCo2e ?? 0)
+    : null,
   createdBy: userId,
   updatedBy: userId,
 };
@@ -992,7 +1001,7 @@ const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
   
   // Auto-size columns for better readability
   const colWidths = headers.map(header => ({
-    wch: Math.min(Math.max(header.length, 15), 50)
+    wch: Math.min(Math.max(header.length, 25), 50)
   }));
   worksheet['!cols'] = colWidths;
 

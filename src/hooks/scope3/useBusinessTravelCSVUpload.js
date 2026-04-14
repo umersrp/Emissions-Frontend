@@ -1148,7 +1148,7 @@ if (travelByCar) {
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
     
     const colWidths = headers.map(header => ({
-      wch: Math.min(Math.max(header.length, 20), 65)
+      wch: Math.min(Math.max(header.length, 25), 65)
     }));
     worksheet['!cols'] = colWidths;
 

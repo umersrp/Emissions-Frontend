@@ -833,7 +833,7 @@ if (cleanedRow.stakeholder) {
     // Auto-size columns for better readability
     worksheet['!cols'] = [
       { wch: 20 }, // building code
-      { wch: 15 }, // stakeholder
+      { wch: 25 }, // stakeholder
       { wch: 35 }, // equipment type
       { wch: 25 }, // material refrigerant
       { wch: 18 }, // leakage value
