@@ -33,19 +33,19 @@ const SidebarLogo = ({ menuHover }) => {
         <div className="flex items-center space-x-4">
           <div className="logo-icon">
             {!isDark && !isSemiDark ? (
-              <img src={sufilogo} alt="" className="w-[160px]" />
+              <img src={sufilogo} alt="" className="w-[100px]" />
             ) : (
               <img src={MobileLogoWhite} alt="" />
             )}
           </div>
 
-          {(!collapsed || menuHover) && (
+          {/* {(!collapsed || menuHover) && (
             <div>
               <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
                 
               </h1>
             </div>
-          )}
+          )} */}
         </div>
       </Link>
 

@@ -189,10 +189,9 @@ const Sidebar = () => {
       <div
         className={`sidebar-wrapper bg-white dark:bg-slate-800
           ${collapsed ? "w-[72px] close_sidebar" : "w-[248px]"}
-          ${
-            skin === "bordered"
-              ? "border-r border-slate-200 dark:border-slate-700"
-              : "shadow-base"
+          ${skin === "bordered"
+            ? "border-r border-slate-200 dark:border-slate-700"
+            : "shadow-base"
           }
         `}
       >
@@ -201,17 +200,16 @@ const Sidebar = () => {
 
         {/* Shadow on scroll */}
         <div
-          className={`h-[60px] absolute top-[80px] nav-shadow z-[1] w-full transition-all duration-200 pointer-events-none ${
-            scroll ? "opacity-100" : "opacity-0"
-          }`}
+          className={`h-[60px] absolute top-[80px] nav-shadow z-[1] w-full transition-all duration-200 pointer-events-none ${scroll ? "opacity-100" : "opacity-0"
+            }`}
         />
 
         {/* Menu */}
         <SimpleBar
-          className="sidebar-menu px-3  pb-16 h-[calc(100%-80px)]"
+          className={`sidebar-menu ${collapsed ? 'px-0' : 'px-2'} pb-16 h-[calc(100%-80px)]`}
           scrollableNodeProps={{ ref: scrollableNodeRef }}
         >
-          <Navmenu menus={menuItems} />
+          <Navmenu menus={menuItems} collapsed={collapsed} />
         </SimpleBar>
       </div>
     </div>
