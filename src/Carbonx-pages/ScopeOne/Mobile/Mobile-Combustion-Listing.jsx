@@ -298,8 +298,9 @@ const MobileCombustionListing = () => {
           })
         )
       );
-      toast.success(`${selectedIds.length} records deleted successfully`);
+       toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);
       setSelectedRows({});
+       setSelectedBuildingId(null);
       fetchRecords(pageIndex, pageSize, globalFilterValue);
     } catch (err) {
       console.error("Error deleting records:", err);
@@ -634,7 +635,6 @@ const MobileCombustionListing = () => {
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             {selectedCount > 0 && (
-              <Tippy content={`Delete ${selectedCount} selected records`}>
                 <Button
                   icon="heroicons:trash"
                   text={`Delete Selected (${selectedCount})`}
@@ -643,7 +643,6 @@ const MobileCombustionListing = () => {
                   onClick={() => setDeleteModalOpen(true)}
                   disabled={isDeletingMultiple}
                 />
-              </Tippy>
             )}
 
             {/* Export Current Page Button */}
@@ -943,7 +942,7 @@ const MobileCombustionListing = () => {
               onChange={(e) => setPageSize(Number(e.target.value))}
               className="form-select py-2"
             >
-              {[5, 10, 20, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
@@ -966,7 +965,7 @@ const MobileCombustionListing = () => {
               text="Delete"
               className="btn-danger"
               onClick={async () => {
-                if (selectedCount > 1) {
+                if (selectedCount >= 1) {
                   await handleDeleteMultiple();
                 } else if (selectedBuildingId) {
                   await handleDelete(selectedBuildingId);

@@ -756,10 +756,9 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
       'didtravelbybus': 'didtravelbybus',
       'didtravelbytrain': 'didtravelbytrain',
 
-
-
       // Air travel fields
       'noofpassengerair': 'airpassengers',
+      'numberofpassengerair': 'airpassengers',
       'distancetravelledair': 'airdistancekm',
       'distancetravelledairkm': 'airdistancekm',
       'travelclass': 'airtravelclass',
@@ -767,18 +766,21 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
 
       // Taxi travel fields
       'noofpassengertaxi': 'taxipassengers',
+      'numberofpassengertaxi': 'taxipassengers',
       'distancetravelledtaxi': 'taxidistancekm',
       'distancetravelledtaxikm': 'taxidistancekm',
       'taxitype': 'taxitype',
 
       // Bus travel fields
       'noofpassengerbus': 'buspassengers',
+      'numberofpassengerbus': 'buspassengers',
       'distancetravelledbus': 'busdistancekm',
       'distancetravelledbuskm': 'busdistancekm',
       'bustype': 'bustype',
 
       // Train travel fields
       'noofpassengertrain': 'trainpassengers',
+      'numberofpassengertrain': 'trainpassengers',
       'distancetravelledtrain': 'traindistancekm',
       'distancetravelledtrainkm': 'traindistancekm',
       'traintype': 'traintype',
@@ -1446,21 +1448,21 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
       'Fuel Consumption Unit',
       'Total Purchased Electricity (Grid / Supplier Specific / PPA)',
       'Unit',
-      'Did You Have Any Business Travel By Air During The Reporting Period?',
-      'No of Passenger (Air)',
+      'Did you have any business travel by air during the reporting period?',
+      'Number of Passenger (Air)',
       'Distance Travelled (Air) (km)',
       'Travel Class',
       'Flight Type',
-      'Did You Have Any Business Travel By Taxi During The Reporting Period?',
-      'No of Passenger (Taxi)',
+      'Did you have any business travel by taxi during the reporting period?',
+      'Number of Passenger (Taxi)',
       'Distance Travelled (Taxi) (km)',
       'Taxi Type',
-      'Did You Have Any Business Travel By Bus During The Reporting Period?',
-      'No of Passenger (Bus)',
+      'Did you have any business travel by bus during the reporting period?',
+      'Number of Passenger (Bus)',
       'Distance Travelled (Bus) (km)',
       'Bus Type',
-      'Did You Have Any Business Travel By Train During The Reporting Period?',
-      'No of Passenger (Train)',
+      'Did you have any business travel by train during the reporting period?',
+      'Number of Passenger (Train)',
       'Distance Travelled (Train) (km)',
       'Train Type',
       'Quality Control',

@@ -387,8 +387,8 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     console.log(`Validating row ${index + 1}:`, cleanedRow);
 
     // Required fields validation
-    if (!cleanedRow.buildingcode) errors.push('buildingcode is required');
-    if (!cleanedRow.stakeholder) errors.push('stakeholder is required');
+    if (!cleanedRow.buildingcode) errors.push('Building Code is required');
+    if (!cleanedRow.stakeholder) errors.push('Stakeholder is required');
     if (!cleanedRow.postingdate) errors.push('postingdate is required');
     if (!cleanedRow.purchasecategory) errors.push('purchasecategory is required');
     if (!cleanedRow.purchasedactivitytype) errors.push('purchasedactivitytype is required');

@@ -54,8 +54,8 @@ const FuelFusion = () => {
     const [selectedId, setSelectedId] = useState(null);
     const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
     const [goToValue, setGoToValue] = useState(pageIndex);
-const [selectedRows, setSelectedRows] = useState({});
-const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
+    const [selectedRows, setSelectedRows] = useState({});
+    const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
     // CSV Upload using custom hook
     const {
         csvState,
@@ -116,7 +116,7 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
 
     useEffect(() => {
         fetchData();
-         setSelectedRows({});
+        setSelectedRows({});
     }, [pageIndex, pageSize, globalFilterValue]);
 
     // Function to fetch ALL records for export
@@ -237,34 +237,33 @@ const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
             toast.error("Failed to delete record");
         }
     };
-// Delete multiple selected records
-const handleDeleteMultiple = async () => {
-    const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
-    if (selectedIds.length === 0) {
-        toast.warning("Please select records to delete");
-        return;
-    }
-    setIsDeletingMultiple(true);
-    try {
-        await Promise.all(
-            selectedIds.map(id =>
-                axios.delete(`${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/delete/${id}`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-                })
-            )
-        );
-        toast.success(`${selectedIds.length} record(s) deleted successfully`);
-        setSelectedRows({});
-        fetchData();
-    } catch (err) {
-        console.error("Error deleting records:", err);
-        toast.error("Failed to delete some records");
-    } finally {
-        setIsDeletingMultiple(false);
-        setDeleteModalOpen(false);
-    }
-};
-const selectedCount = Object.values(selectedRows).filter(Boolean).length;
+    // Delete multiple selected records
+    const handleDeleteMultiple = async () => {
+        const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
+        if (selectedIds.length === 0) {
+            toast.warning("Please select records to delete");
+            return;
+        }
+        setIsDeletingMultiple(true);
+        try {
+            await Promise.all(
+                selectedIds.map(id =>
+                    axios.delete(`${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/delete/${id}`, {
+                        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                    })
+                )
+            );
+  toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);            setSelectedRows({});
+            fetchData();
+        } catch (err) {
+            console.error("Error deleting records:", err);
+            toast.error("Failed to delete some records");
+        } finally {
+            setIsDeletingMultiple(false);
+            setDeleteModalOpen(false);
+        }
+    };
+    const selectedCount = Object.values(selectedRows).filter(Boolean).length;
 
     // CSV Upload handlers
     const handleCSVFileSelect = async (selectedFile) => {
@@ -334,110 +333,110 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
             { Header: "Stakeholder", accessor: "stakeholder" },
             { Header: "Fuel Type", accessor: "fuelType" },
             { Header: "Fuel Name", accessor: "fuel", Cell: ({ value }) => capitalizeLabel(value) },
-            { 
-                Header: "Total Fuel Consumption", 
-                accessor: "totalFuelConsumption", 
-                Cell: ({ value }) => value === "0" || value === 0 || value === null ? "N/A" : value 
+            {
+                Header: "Total Fuel Consumption",
+                accessor: "totalFuelConsumption",
+                Cell: ({ value }) => value === "0" || value === 0 || value === null ? "N/A" : value
             },
-            { 
-                Header: "Consumption Unit", 
-                accessor: "fuelConsumptionUnit", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "Consumption Unit",
+                accessor: "fuelConsumptionUnit",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Total Purchased Electricity", 
-                accessor: "totalGrossElectricityPurchased", 
-                Cell: ({ value }) => value === "0" || value === 0 || value === null ? "N/A" : value 
+            {
+                Header: "Total Purchased Electricity",
+                accessor: "totalGrossElectricityPurchased",
+                Cell: ({ value }) => value === "0" || value === 0 || value === null ? "N/A" : value
             },
-            { 
-                Header: "Unit", 
-                accessor: "unit", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "Unit",
+                accessor: "unit",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Business Travel By Air", 
-                accessor: "didTravelByAir", 
-                Cell: ({ cell }) => cell.value ? "Yes" : "No" 
+            {
+                Header: "Business Travel By Air",
+                accessor: "didTravelByAir",
+                Cell: ({ cell }) => cell.value ? "Yes" : "No"
             },
-            { 
-                Header: "No of Passengers (Air)", 
-                accessor: "airPassengers", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "No of Passengers (Air)",
+                accessor: "airPassengers",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Distance Travelled (Air)", 
-                accessor: "airDistanceKm", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "Distance Travelled (Air)",
+                accessor: "airDistanceKm",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Travel Class", 
-                accessor: "airTravelClass", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "Travel Class",
+                accessor: "airTravelClass",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Flight Type", 
-                accessor: "airFlightType", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "Flight Type",
+                accessor: "airFlightType",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Business Travel By Taxi", 
-                accessor: "didTravelByTaxi", 
-                Cell: ({ cell }) => cell.value ? "Yes" : "No" 
+            {
+                Header: "Business Travel By Taxi",
+                accessor: "didTravelByTaxi",
+                Cell: ({ cell }) => cell.value ? "Yes" : "No"
             },
-            { 
-                Header: "No of Passengers (Taxi)", 
-                accessor: "taxiPassengers", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "No of Passengers (Taxi)",
+                accessor: "taxiPassengers",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Distance Travelled (Taxi)", 
-                accessor: "taxiDistanceKm", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "Distance Travelled (Taxi)",
+                accessor: "taxiDistanceKm",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Taxi Type", 
-                accessor: "taxiType", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "Taxi Type",
+                accessor: "taxiType",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Business Travel By Bus", 
-                accessor: "didTravelByBus", 
-                Cell: ({ cell }) => cell.value ? "Yes" : "No" 
+            {
+                Header: "Business Travel By Bus",
+                accessor: "didTravelByBus",
+                Cell: ({ cell }) => cell.value ? "Yes" : "No"
             },
-            { 
-                Header: "No of Passengers (Bus)", 
-                accessor: "busPassengers", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "No of Passengers (Bus)",
+                accessor: "busPassengers",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Distance Travelled (Bus)", 
-                accessor: "busDistanceKm", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "Distance Travelled (Bus)",
+                accessor: "busDistanceKm",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Bus Type", 
-                accessor: "busType", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "Bus Type",
+                accessor: "busType",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Business Travel By Train", 
-                accessor: "didTravelByTrain", 
-                Cell: ({ cell }) => cell.value ? "Yes" : "No" 
+            {
+                Header: "Business Travel By Train",
+                accessor: "didTravelByTrain",
+                Cell: ({ cell }) => cell.value ? "Yes" : "No"
             },
-            { 
-                Header: "No of Passengers (Train)", 
-                accessor: "trainPassengers", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "No of Passengers (Train)",
+                accessor: "trainPassengers",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Distance Travelled (Train)", 
-                accessor: "trainDistanceKm", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "Distance Travelled (Train)",
+                accessor: "trainDistanceKm",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
-            { 
-                Header: "Train Type", 
-                accessor: "trainType", 
-                Cell: ({ cell }) => cell.value || "N/A" 
+            {
+                Header: "Train Type",
+                accessor: "trainType",
+                Cell: ({ cell }) => cell.value || "N/A"
             },
             {
                 Header: "Calculated Emissions (kgCO₂e)",
@@ -484,8 +483,8 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
                 Cell: ({ cell }) => cell.value || "N/A",
             },
             {
-                Header: "Posting Date", 
-                accessor: "postingDate", 
+                Header: "Posting Date",
+                accessor: "postingDate",
                 Cell: ({ cell }) => {
                     if (!cell.value) return "N/A";
                     try {
@@ -546,65 +545,65 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
                 ),
             },
         ],
-        [pageIndex, pageSize,selectedRows]
+        [pageIndex, pageSize, selectedRows]
     );
 
     const columns = useMemo(() => COLUMNS, [COLUMNS]);
     const data = useMemo(() => records, [records]);
 
     const tableInstance = useTable(
-    {
-        columns,
-        data,
-        getRowId: (row) => row._id,
-    },
-    useSortBy,
-    useRowSelect,
-    (hooks) => {
-        hooks.visibleColumns.push((columns) => [
-            {
-                id: "selection",
-                width: 50,
-                Header: ({ rows }) => {
-                    const allSelected = rows.length > 0 && rows.every(row => selectedRows[row.original._id]);
-                    const someSelected = rows.some(row => selectedRows[row.original._id]);
-                    return (
+        {
+            columns,
+            data,
+            getRowId: (row) => row._id,
+        },
+        useSortBy,
+        useRowSelect,
+        (hooks) => {
+            hooks.visibleColumns.push((columns) => [
+                {
+                    id: "selection",
+                    width: 50,
+                    Header: ({ rows }) => {
+                        const allSelected = rows.length > 0 && rows.every(row => selectedRows[row.original._id]);
+                        const someSelected = rows.some(row => selectedRows[row.original._id]);
+                        return (
+                            <IndeterminateCheckbox
+                                checked={allSelected}
+                                indeterminate={someSelected && !allSelected}
+                                onChange={(e) => {
+                                    const newSelection = {};
+                                    if (e.target.checked) {
+                                        rows.forEach(row => { newSelection[row.original._id] = true; });
+                                    }
+                                    setSelectedRows(newSelection);
+                                }}
+                            />
+                        );
+                    },
+                    Cell: ({ row }) => (
                         <IndeterminateCheckbox
-                            checked={allSelected}
-                            indeterminate={someSelected && !allSelected}
+                            checked={selectedRows[row.original._id] || false}
+                            indeterminate={false}
                             onChange={(e) => {
-                                const newSelection = {};
-                                if (e.target.checked) {
-                                    rows.forEach(row => { newSelection[row.original._id] = true; });
-                                }
-                                setSelectedRows(newSelection);
+                                e.stopPropagation();
+                                setSelectedRows(prev => {
+                                    const newState = { ...prev };
+                                    if (e.target.checked) {
+                                        newState[row.original._id] = true;
+                                    } else {
+                                        delete newState[row.original._id];
+                                    }
+                                    return newState;
+                                });
                             }}
                         />
-                    );
+                    ),
                 },
-                Cell: ({ row }) => (
-                    <IndeterminateCheckbox
-                        checked={selectedRows[row.original._id] || false}
-                        indeterminate={false}
-                        onChange={(e) => {
-                            e.stopPropagation();
-                            setSelectedRows(prev => {
-                                const newState = { ...prev };
-                                if (e.target.checked) {
-                                    newState[row.original._id] = true;
-                                } else {
-                                    delete newState[row.original._id];
-                                }
-                                return newState;
-                            });
-                        }}
-                    />
-                ),
-            },
-            ...columns,
-        ]);
-    }
-);
+                ...columns,
+            ]);
+        }
+    );
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
         tableInstance;
@@ -628,17 +627,15 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
                     <div className="md:flex md:space-x-3 items-center">
                         <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
                         {selectedCount > 0 && (
-    <Tippy content={`Delete ${selectedCount} selected record(s)`}>
-        <Button
-            icon="heroicons:trash"
-            text={`Delete Selected (${selectedCount})`}
-            className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
-            iconClass="text-lg"
-            onClick={() => setDeleteModalOpen(true)}
-            disabled={isDeletingMultiple}
-        />
-    </Tippy>
-)}
+                                <Button
+                                    icon="heroicons:trash"
+                                    text={`Delete Selected (${selectedCount})`}
+                                    className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
+                                    iconClass="text-lg"
+                                    onClick={() => setDeleteModalOpen(true)}
+                                    disabled={isDeletingMultiple}
+                                />
+                        )}
 
                         {/* Export Current Page Button */}
                         {records.length > 0 && (
@@ -888,7 +885,7 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
                             const showPages = [];
                             const total = totalPages;
                             const current = pageIndex;
-                            
+
                             if (total > 0) showPages.push(1);
                             if (total > 1) showPages.push(2);
                             if (current > 4) showPages.push("left-ellipsis");
@@ -896,7 +893,7 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
                             if (current < total - 3) showPages.push("right-ellipsis");
                             if (total > 2) showPages.push(total - 1);
                             if (total > 1) showPages.push(total);
-                            
+
                             const finalPages = [...new Set(
                                 showPages.filter(
                                     (p) => (typeof p === "number" && p >= 1 && p <= total) || typeof p === "string"
@@ -948,7 +945,7 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
                             onChange={(e) => setPageSize(Number(e.target.value))}
                             className="form-select py-2"
                         >
-                            {[10, 20, 50].map((size) => (
+                            {[10, 20, 50, 100].map((size) => (
                                 <option key={size} value={size}>
                                     {size}
                                 </option>
@@ -965,30 +962,30 @@ const selectedCount = Object.values(selectedRows).filter(Boolean).length;
                 title="Confirm Delete"
                 themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
                 centered
-               footerContent={
-    <>
-        <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
-        <Button
-            text="Delete"
-            className="btn-danger"
-            onClick={async () => {
-                if (selectedCount > 1) {
-                    await handleDeleteMultiple();
-                } else if (selectedId) {
-                    await handleDelete(selectedId);
-                    setDeleteModalOpen(false);
+                footerContent={
+                    <>
+                        <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
+                        <Button
+                            text="Delete"
+                            className="btn-danger"
+                            onClick={async () => {
+                                if (selectedCount >= 1) {
+                                    await handleDeleteMultiple();
+                                } else if (selectedId) {
+                                    await handleDelete(selectedId);
+                                    setDeleteModalOpen(false);
+                                }
+                            }}
+                        />
+                    </>
                 }
-            }}
-        />
-    </>
-}
             >
-               <p className="text-gray-700 text-center">
-    {selectedCount > 1
-        ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
-        : "Are you sure you want to delete this Record? This action cannot be undone."
-    }
-</p>
+                <p className="text-gray-700 text-center">
+                    {selectedCount > 1
+                        ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
+                        : "Are you sure you want to delete this Record? This action cannot be undone."
+                    }
+                </p>
             </Modal>
 
             {/* CSV UPLOAD MODAL */}

@@ -99,8 +99,8 @@ const StationaryCombustionListing = () => {
 
       await Promise.all(deletePromises);
 
-      toast.success(`${selectedIds.length} record(s) deleted successfully`);
-      setSelectedRows({});
+  toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);      setSelectedRows({});
+       setSelectedBuildingId(null);
       fetchStationaryRecords(pagination.currentPage, globalFilterValue);
     } catch (err) {
       console.error("Error deleting records:", err);
@@ -626,16 +626,25 @@ const StationaryCombustionListing = () => {
   return (
     <>
       <Card noborder>
-        <div className="md:flex pb-6 items-center">
-          <div className="flex-1 md:mb-0 flex items-center space-x-3">
+        <div className="pb-6">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
             <h6>Stationary Combustion Records</h6>
-          </div>
+         
+          <div className="flex items-center gap-2">
+            <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />            
+             <Button
+                icon="heroicons-outline:plus-sm"
+                text="Add"
+                className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+                iconClass="text-lg"
+                onClick={() => navigate("/Stationary-Combustion-Form/Add")}
+              />
+               </div>
+        </div>
 
-          <div className="md:flex 2xl:space-x-3 space-x-1 items-center flex-none rtl:space-x-reverse">
-            <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-            
+          <div className="flex items-center gap-2 flex-wrap mt-3  border-t border-gray-100 justify-end">
+                      
             {selectedCount > 0 && (
-              <Tippy content={`Delete ${selectedCount} selected record`}>
                 <Button
                   icon="heroicons:trash"
                   text={`Delete Selected (${selectedCount})`}
@@ -644,7 +653,6 @@ const StationaryCombustionListing = () => {
                   onClick={() => setDeleteModalOpen(true)}
                   disabled={isDeletingMultiple}
                 />
-              </Tippy>
             )}
 
             {records.length > 0 && (
@@ -718,7 +726,10 @@ const StationaryCombustionListing = () => {
               disabled={csvState.uploading}
             />
 
-            <div className="2xl:hidden">
+            </div>
+         </div>
+
+            {/* <div className="2xl:hidden">
               <Button
                 icon="heroicons-outline:plus-sm"
                 text="Add"
@@ -735,9 +746,8 @@ const StationaryCombustionListing = () => {
                 iconClass="text-lg"
                 onClick={() => navigate("/Stationary-Combustion-Form/Add")}
               />
-            </div>
-          </div>
-        </div>
+            </div> */}
+         
 
         {/* Table */}
         <div className="overflow-x-auto -mx-6">
@@ -964,7 +974,7 @@ const StationaryCombustionListing = () => {
               }
               className="form-select py-2"
             >
-              {[5, 10, 20, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
@@ -992,7 +1002,7 @@ const StationaryCombustionListing = () => {
               text={isDeletingMultiple ? "Deleting..." : "Delete"}
               className="btn-danger"
               onClick={async () => {
-                if (selectedCount > 1) {
+                if (selectedCount >= 1) {
                   await handleDeleteMultiple();
                 } else if (selectedBuildingId) {
                   await handleDelete(selectedBuildingId);

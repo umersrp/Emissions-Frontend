@@ -401,8 +401,8 @@ const findFlexibleMatch = (input, validOptions, isVehicleCategory = false) => {
   //   console.log(`Validating row ${index + 1}:`, cleanedRow);
 
   //   // Required fields validation
-  //   if (!cleanedRow.buildingcode) errors.push('buildingcode is required');
-  //   if (!cleanedRow.stakeholder) errors.push('stakeholder is required');
+  //   if (!cleanedRow.buildingcode) errors.push('Building Code is required');
+  //   if (!cleanedRow.stakeholder) errors.push('Stakeholder is required');
   //   if (!cleanedRow.postingdate) errors.push('postingdate is required');
   //   if (!cleanedRow.soldproductactivitytype) errors.push('soldproductactivitytype is required');
   //   if (!cleanedRow.transportationvehiclecategory) errors.push('transportationvehiclecategory is required');
@@ -649,8 +649,8 @@ const validateDownstreamRow = useCallback((row, index) => {
   console.log(`Validating row ${index + 1}:`, cleanedRow);
 
   // Required fields validation
-  if (!cleanedRow.buildingcode) errors.push('buildingcode is required');
-  if (!cleanedRow.stakeholder) errors.push('stakeholder is required');
+  if (!cleanedRow.buildingcode) errors.push('Building Code is required');
+  if (!cleanedRow.stakeholder) errors.push('Stakeholder is required');
   if (!cleanedRow.postingdate) errors.push('postingdate is required');
   if (!cleanedRow.soldproductactivitytype) errors.push('soldproductactivitytype is required');
   if (!cleanedRow.transportationvehiclecategory) errors.push('transportationvehiclecategory is required');

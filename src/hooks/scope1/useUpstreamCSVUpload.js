@@ -448,21 +448,21 @@ const validateRow = useCallback((row, index) => {
     }
   }
 
-  // Stakeholder validation
+  // Stakeholder / Department validation
   // if (!isNA(cleanedRow.stakeholder)) {
-  //   const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-  //   const matched = validStakeholders.find(s =>
+  //   const validStakeholder / Departments = stakeholderDepartmentOptions.map(s => s.value);
+  //   const matched = validStakeholder / Departments.find(s =>
   //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
   //   );
   //   if (!matched) {
-  //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
+  //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholder / Departments.slice(0, 5).join(', ')}...`);
   //   } else {
   //     cleanedRow.stakeholder = matched;
   //   }
   // } else {
-  //   errors.push('Stakeholder is required');
+  //   errors.push('Stakeholder / Department is required');
   // }
-  // Stakeholder validation with flexible matching
+  // Stakeholder / Department validation with flexible matching
 if (!isNA(cleanedRow.stakeholder)) {
   const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
   const matched = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
@@ -897,7 +897,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
 
     const headers = [
       'Building Code',
-      'Stakeholder',
+      'Stakeholder / Department',
       'Transportation and Distribution Category',
       'Purchased Product Activity Type',
       'Purchased Goods Type',
