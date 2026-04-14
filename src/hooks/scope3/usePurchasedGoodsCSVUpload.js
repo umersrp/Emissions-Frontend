@@ -968,7 +968,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
     // Auto-size columns for better readability
     const colWidths = headers.map(header => ({
-      wch: Math.min(Math.max(header.length, 15), 35)
+      wch: Math.min(Math.max(header.length, 25), 35)
     }));
     worksheet['!cols'] = colWidths;
 

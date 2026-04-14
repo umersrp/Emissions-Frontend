@@ -1179,7 +1179,7 @@ const useMobileCSVUpload = (buildings = []) => {
     // Auto-size columns for better readability
     worksheet['!cols'] = [
       { wch: 20 }, // building code
-      { wch: 15 }, // stakeholder
+      { wch: 25 }, // stakeholder
       { wch: 25 }, // vehicle classification
       { wch: 35 }, // vehicle type
       { wch: 15 }, // fuel name
