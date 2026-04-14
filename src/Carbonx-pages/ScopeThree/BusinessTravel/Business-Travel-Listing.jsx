@@ -916,6 +916,7 @@ const BusinessTravel = () => {
 
     // Delete Record
     const handleDelete = async (id) => {
+                    setDeleteModalOpen(false);
         try {
             await axios.delete(`${process.env.REACT_APP_BASE_URL}/Business-Travel/Delete/${id}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -935,6 +936,7 @@ const BusinessTravel = () => {
             toast.warning("Please select records to delete");
             return;
         }
+                    setDeleteModalOpen(false);
         setIsDeletingMultiple(true);
         try {
             await Promise.all(
@@ -951,7 +953,6 @@ const BusinessTravel = () => {
             toast.error("Failed to delete some records");
         } finally {
             setIsDeletingMultiple(false);
-            setDeleteModalOpen(false);
         }
     };
     const selectedCount = Object.values(selectedRows).filter(Boolean).length;
@@ -1607,7 +1608,6 @@ const BusinessTravel = () => {
                                     await handleDeleteMultiple();
                                 } else if (selectedId) {
                                     await handleDelete(selectedId);
-                                    setDeleteModalOpen(false);
                                 }
                             }}
                         />

@@ -272,10 +272,12 @@ const FugitiveCombustionListing = () => {
 
   //  Delete Record
   const handleDelete = async (id) => {
+    setDeleteModalOpen(false);
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/Fugitive/delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
+      
       toast.success("Record deleted successfully");
       fetchFugitiveRecords(pageIndex, pageSize);
     } catch (err) {
@@ -306,6 +308,7 @@ const FugitiveCombustionListing = () => {
       toast.warning("Please select records to delete");
       return;
     }
+    setDeleteModalOpen(false);
     setIsDeletingMultiple(true);
     try {
       await Promise.all(
@@ -315,16 +318,17 @@ const FugitiveCombustionListing = () => {
           })
         )
       );
+      
       toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);
       setSelectedRows({});
        setSelectedBuildingId(null);
-      fetchRecords(pageIndex, pageSize, globalFilterValue);
+     fetchFugitiveRecords(pageIndex, pageSize, globalFilterValue);
     } catch (err) {
       console.error("Error deleting records:", err);
       toast.error("Failed to delete some records");
     } finally {
       setIsDeletingMultiple(false);
-      setDeleteModalOpen(false);
+      
     }
   };
   // Template instructions for fugitive
@@ -881,7 +885,6 @@ const FugitiveCombustionListing = () => {
                   await handleDeleteMultiple();
                 } else if (selectedBuildingId) {
                   await handleDelete(selectedBuildingId);
-                  setDeleteModalOpen(false);
                 }
               }}
             />

@@ -209,6 +209,7 @@ const PurchasedElectricityListing = () => {
   }, [pageIndex, pageSize, globalFilterValue, emissionFilter]);
 
   const handleDelete = async (id) => {
+      setDeleteModalOpen(false); 
     try {
       await axios.delete(
         `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${id}`,
@@ -221,53 +222,54 @@ const PurchasedElectricityListing = () => {
       toast.error("Failed to delete record");
     }
   };
+    
+const handleConfirmDelete = async () => {
+  const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
 
-  const handleConfirmDelete = async () => {
-    const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
-
-    if (selectedIds.length > 0) {
-      // Multi delete
-      setIsDeletingMultiple(true);
-      try {
-        await Promise.all(
-          selectedIds.map(id =>
-            axios.delete(`${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${id}`, {
-              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-            })
-          )
-        );
-        toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);
-        setSelectedRows({});
-        setSelectedId(null);
-        fetchData();
-      } catch (err) {
-        console.error("Error deleting records:", err);
-        toast.error("Failed to delete some records");
-      } finally {
-        setIsDeletingMultiple(false);
-        setDeleteModalOpen(false);
-      }
-    } else if (selectedId) {
-      // Single delete
-      try {
-        await axios.delete(
-          `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${selectedId}`,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        toast.success("Record deleted successfully");
-        fetchData();
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to delete record");
-      } finally {
-        setDeleteModalOpen(false);
-        setSelectedId(null);
-      }
-    } else {
-      toast.warning("No records selected for deletion");
-      setDeleteModalOpen(false);
+  if (selectedIds.length > 0) {
+    // Multi delete
+    setDeleteModalOpen(false); // ← CLOSE IMMEDIATELY at the beginning
+    setIsDeletingMultiple(true);
+    try {
+      await Promise.all(
+        selectedIds.map(id =>
+          axios.delete(`${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${id}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          })
+        )
+      );
+      toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);
+      setSelectedRows({});
+      setSelectedId(null);
+      await fetchData();
+    } catch (err) {
+      console.error("Error deleting records:", err);
+      toast.error("Failed to delete some records");
+    } finally {
+      setIsDeletingMultiple(false);
+      // NO setDeleteModalOpen(false) here - already closed at the beginning
     }
-  };
+  } else if (selectedId) {
+    // Single delete
+    setDeleteModalOpen(false); // ← CLOSE IMMEDIATELY at the beginning
+    try {
+      await axios.delete(
+        `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${selectedId}`,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      toast.success("Record deleted successfully");
+      setSelectedId(null);
+      await fetchData();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete record");
+    }
+    // NO setDeleteModalOpen(false) here - already closed at the beginning
+  } else {
+    toast.warning("No records selected for deletion");
+    setDeleteModalOpen(false);
+  }
+};
 
 
   // CSV Upload handlers
@@ -485,7 +487,7 @@ const PurchasedElectricityListing = () => {
       }
     },
      {
-      Header: "Calculated Location Based Emissions (kgCO₂e)",
+      Header: "Calculated Market Based Emissions (kgCO₂e)",
       accessor: "calculatedEmissionMarketKgCo2e",
       Cell: ({ value }) => {
         if (value === null || value === undefined || value === "") return "N/A";
@@ -495,7 +497,7 @@ const PurchasedElectricityListing = () => {
       }
     },
     {
-      Header: "Calculated Location Based Emissions (tCO₂e)",
+      Header: "Calculated Market Based Emissions (tCO₂e)",
       accessor: "calculatedEmissionMarketTCo2e",
       Cell: ({ value }) => {
         if (value === null || value === undefined || value === "") return "N/A";
