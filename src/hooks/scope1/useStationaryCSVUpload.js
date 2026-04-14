@@ -597,30 +597,54 @@ const parseExcel = useCallback((file) => {
       }
     }
     // Fuel type validation
-    if (cleanedRow.fueltype) {
-      const validFuelTypes = fuelTypeOptions.map(f => f.value);
-      const matchedFuelType = validFuelTypes.find(f =>
-        f.toLowerCase() === cleanedRow.fueltype.toLowerCase()
-      );
-      if (!matchedFuelType) {
-        errors.push(`Invalid fuel type "${cleanedRow.fueltype}". Valid: ${validFuelTypes.join(', ')}`);
-      } else {
-        cleanedRow.fueltype = matchedFuelType;
-      }
-    }
+    // if (cleanedRow.fueltype) {
+    //   const validFuelTypes = fuelTypeOptions.map(f => f.value);
+    //   const matchedFuelType = validFuelTypes.find(f =>
+    //     f.toLowerCase() === cleanedRow.fueltype.toLowerCase()
+    //   );
+    //   if (!matchedFuelType) {
+    //     errors.push(`Invalid fuel type "${cleanedRow.fueltype}". Valid: ${validFuelTypes.join(', ')}`);
+    //   } else {
+    //     cleanedRow.fueltype = matchedFuelType;
+    //   }
+    // }
+    // Fuel type validation - FIXED with flexible matching
+if (cleanedRow.fueltype) {
+  const validFuelTypes = fuelTypeOptions.map(f => f.value);
+  const matchedFuelType = findFlexibleMatch(cleanedRow.fueltype, validFuelTypes);
+  
+  if (!matchedFuelType) {
+    errors.push(`Invalid fuel type "${cleanedRow.fueltype}". Valid: ${validFuelTypes.join(', ')}`);
+  } else {
+    cleanedRow.fueltype = matchedFuelType;
+  }
+}
 
     // Fuel name validation
-    if (cleanedRow.fueltype && cleanedRow.fuelname) {
-      const validFuelNames = fuelNameOptionsByType[cleanedRow.fueltype]?.map(f => f.value) || [];
-      const matchedFuelName = validFuelNames.find(f =>
-        f.toLowerCase() === cleanedRow.fuelname.toLowerCase()
-      );
-      if (!matchedFuelName) {
-        errors.push(`Invalid fuel name "${cleanedRow.fuelname}" for type "${cleanedRow.fueltype}"`);
-      } else {
-        cleanedRow.fuelname = matchedFuelName;
-      }
-    }
+    // if (cleanedRow.fueltype && cleanedRow.fuelname) {
+    //   const validFuelNames = fuelNameOptionsByType[cleanedRow.fueltype]?.map(f => f.value) || [];
+    //   const matchedFuelName = validFuelNames.find(f =>
+    //     f.toLowerCase() === cleanedRow.fuelname.toLowerCase()
+    //   );
+    //   if (!matchedFuelName) {
+    //     errors.push(`Invalid fuel name "${cleanedRow.fuelname}" for type "${cleanedRow.fueltype}"`);
+    //   } else {
+    //     cleanedRow.fuelname = matchedFuelName;
+    //   }
+    // }
+    // Fuel name validation - FIXED with flexible matching
+if (cleanedRow.fueltype && cleanedRow.fuelname) {
+  const validFuelNames = fuelNameOptionsByType[cleanedRow.fueltype]?.map(f => f.value) || [];
+  
+  // Use flexible matching instead of exact match
+  const matchedFuelName = findFlexibleMatch(cleanedRow.fuelname, validFuelNames);
+  
+  if (!matchedFuelName) {
+    errors.push(`Invalid fuel name "${cleanedRow.fuelname}" for type "${cleanedRow.fueltype}". Valid options: ${validFuelNames.slice(0, 5).join(', ')}...`);
+  } else {
+    cleanedRow.fuelname = matchedFuelName;
+  }
+}
 
     // Fuel consumption validation
     if (cleanedRow.fuelconsumption) {
