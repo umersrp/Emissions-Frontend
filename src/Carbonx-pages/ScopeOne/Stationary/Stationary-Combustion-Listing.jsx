@@ -80,36 +80,92 @@ const StationaryCombustionListing = () => {
   } = useStationaryCSVUpload(buildings);
 
   // Delete multiple records
-  const handleDeleteMultiple = async () => {
-    const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
+  // const handleDeleteMultiple = async () => {
+  //   const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
 
-    if (selectedIds.length === 0) {
-      toast.warning("Please select records to delete");
-      return;
-    }
+  //   if (selectedIds.length === 0) {
+  //     toast.warning("Please select records to delete");
+  //     setDeleteModalOpen(false); 
+  //     return;
+  //   }
 
-    setIsDeletingMultiple(true);
+  //   setIsDeletingMultiple(true);
 
-    try {
-      const deletePromises = selectedIds.map(id =>
+  //   try {
+  //     const deletePromises = selectedIds.map(id =>
+  //       axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
+  //         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  //       })
+  //     );
+
+  //     await Promise.all(deletePromises);
+
+  // toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);
+  //         setSelectedRows({});
+  //      setSelectedBuildingId(null);
+  //      setDeleteModalOpen(false);
+  //     await fetchStationaryRecords(pagination.currentPage, globalFilterValue);
+  //   } catch (err) {
+  //     console.error("Error deleting records:", err);
+  //     toast.error("Failed to delete some records");
+  //     setDeleteModalOpen(false); 
+  //   } finally {
+  //     setIsDeletingMultiple(false);
+  //     setDeleteModalOpen(false);
+  //   }
+  // };
+  // Delete multiple records - FIXED
+const handleDeleteMultiple = async () => {
+  const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
+
+  if (selectedIds.length === 0) {
+    toast.warning("Please select records to delete");
+    setDeleteModalOpen(false);
+    return;
+  }
+
+  setDeleteModalOpen(false); //
+  setIsDeletingMultiple(true);
+
+  try {
+    await Promise.all(
+      selectedIds.map(id =>
         axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         })
-      );
+      )
+    );
 
-      await Promise.all(deletePromises);
+    toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);
+    setSelectedRows({});
+    setSelectedBuildingId(null);
+    await fetchStationaryRecords(pagination.currentPage, globalFilterValue);
 
-  toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);      setSelectedRows({});
-       setSelectedBuildingId(null);
-      fetchStationaryRecords(pagination.currentPage, globalFilterValue);
-    } catch (err) {
-      console.error("Error deleting records:", err);
-      toast.error("Failed to delete some records");
-    } finally {
-      setIsDeletingMultiple(false);
-      setDeleteModalOpen(false);
-    }
-  };
+  } catch (err) {
+    toast.error("Delete failed");
+  } finally {
+    setIsDeletingMultiple(false);
+  }
+};
+
+  // Single delete - FIXED
+const handleDelete = async (id) => {
+  setDeleteModalOpen(false); 
+
+  try {
+    await axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+
+    toast.success("Deleted");
+    setSelectedBuildingId(null);
+
+    await fetchStationaryRecords(pagination.currentPage, globalFilterValue);
+
+  } catch (err) {
+    toast.error("Delete failed");
+  }
+};
 
   // Fetch all records for export
   const fetchAllStationaryRecords = async () => {
@@ -325,18 +381,24 @@ const StationaryCombustionListing = () => {
     selectedRowsRef.current = selectedRows;
   }, [selectedRows]);
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      toast.success("Record deleted successfully");
-      fetchStationaryRecords(pagination.currentPage);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to delete record");
-    }
-  };
+  // const handleDelete = async (id) => {
+  //   try {
+  //     await axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
+  //       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  //     });
+  //     toast.success("Record deleted successfully");
+  //     // Close modal before fetching
+  //   setDeleteModalOpen(false);
+  //   setSelectedBuildingId(null);
+
+  //   // Fetch new data
+  //   await fetchStationaryRecords(pagination.currentPage, globalFilterValue);
+  //     fetchStationaryRecords(pagination.currentPage);
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Failed to delete record");
+  //   }
+  // };
 
   const handleBulkUploadClick = () => {
     setBulkUploadModalOpen(true);
@@ -541,6 +603,7 @@ const StationaryCombustionListing = () => {
               <button
                 className="action-btn"
                 onClick={() => {
+                    setSelectedRows({}); // clear multi selection
                   setSelectedBuildingId(cell.value);
                   setDeleteModalOpen(true);
                 }}
@@ -626,25 +689,16 @@ const StationaryCombustionListing = () => {
   return (
     <>
       <Card noborder>
-        <div className="pb-6">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="md:flex pb-6 items-center">
+          <div className="flex-1 md:mb-0 flex items-center space-x-3">
             <h6>Stationary Combustion Records</h6>
-         
-          <div className="flex items-center gap-2">
-            <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />            
-             <Button
-                icon="heroicons-outline:plus-sm"
-                text="Add"
-                className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
-                iconClass="text-lg"
-                onClick={() => navigate("/Stationary-Combustion-Form/Add")}
-              />
-               </div>
-        </div>
+          </div>
 
-          <div className="flex items-center gap-2 flex-wrap mt-3  border-t border-gray-100 justify-end">
-                      
+          <div className="md:flex 2xl:space-x-3 space-x-1 items-center flex-none rtl:space-x-reverse">
+            <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
+            
             {selectedCount > 0 && (
+              <Tippy content={`Delete ${selectedCount} selected record`}>
                 <Button
                   icon="heroicons:trash"
                   text={`Delete Selected (${selectedCount})`}
@@ -653,6 +707,7 @@ const StationaryCombustionListing = () => {
                   onClick={() => setDeleteModalOpen(true)}
                   disabled={isDeletingMultiple}
                 />
+              </Tippy>
             )}
 
             {records.length > 0 && (
@@ -726,10 +781,130 @@ const StationaryCombustionListing = () => {
               disabled={csvState.uploading}
             />
 
+            <div className="2xl:hidden">
+              <Button
+                icon="heroicons-outline:plus-sm"
+                text="Add"
+                className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+                iconClass="text-lg"
+                onClick={() => navigate("/Stationary-Combustion-Form/Add")}
+              />
             </div>
-         </div>
+            <div className="hidden 2xl:block">
+              <Button
+                icon="heroicons-outline:plus-sm"
+                text="Add Record"
+                className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+                iconClass="text-lg"
+                onClick={() => navigate("/Stationary-Combustion-Form/Add")}
+              />
+            </div>
+          </div>
+        </div>
+        {/* <div className="pb-6">
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <h6>Stationary Combustion Records</h6>
 
-            {/* <div className="2xl:hidden">
+            <div className="flex items-center gap-2">
+              <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
+              <Button
+                icon="heroicons-outline:plus-sm"
+                text="Add"
+                className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+                iconClass="text-lg"
+                onClick={() => navigate("/Stationary-Combustion-Form/Add")}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap mt-3  border-t border-gray-100 justify-end">
+
+            {selectedCount > 0 && (
+              <Button
+                icon="heroicons:trash"
+                text={`Delete Selected (${selectedCount})`}
+                className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
+                iconClass="text-lg"
+                onClick={() => setDeleteModalOpen(true)}
+                disabled={isDeletingMultiple}
+              />
+            )}
+
+            {records.length > 0 && (
+              <ExcelExportButton
+                data={records}
+                columns={COLUMNS}
+                exportFields={[
+                  "buildingId.buildingCode",
+                  "buildingId.buildingName",
+                  "stakeholder",
+                  "equipmentType",
+                  "fuelType",
+                  "fuelName",
+                  "fuelConsumption",
+                  "consumptionUnit",
+                  "qualityControl",
+                  "calculatedEmissionKgCo2e",
+                  "calculatedEmissionTCo2e",
+                  "remarks",
+                  "postingDate",
+                  "createdBy.name",
+                  "updatedBy.name"
+                ]}
+                fileName="stationary_combustion_current_page"
+                sheetName="Current Page"
+                buttonText="Export Page"
+                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+                exportFormat="current"
+                customFormatter={customFormatter}
+                pageInfo={{ currentPage: pagination.currentPage, limit: pagination.limit }}
+              />
+            )}
+
+            <ExcelExportButton
+              data={records}
+              fetchAllData={fetchAllStationaryRecords}
+              columns={COLUMNS}
+              exportFields={[
+                "buildingId.buildingCode",
+                "buildingId.buildingName",
+                "stakeholder",
+                "equipmentType",
+                "fuelType",
+                "fuelName",
+                "fuelConsumption",
+                "consumptionUnit",
+                "qualityControl",
+                "calculatedEmissionKgCo2e",
+                "calculatedEmissionTCo2e",
+                "remarks",
+                "postingDate",
+                "createdBy.name",
+                "updatedBy.name"
+              ]}
+              fileName="stationary_combustion_records"
+              sheetName="Stationary Combustion"
+              buttonText="Export All Entries"
+              buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+              successMessage="Stationary records exported successfully!"
+              customFormatter={customFormatter}
+              exportFormat="all"
+              pageInfo={pagination}
+            />
+
+            <Button
+              icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
+              text={csvState.uploading ? "Uploading..." : "Import"}
+              className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+              iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}
+              onClick={() => setBulkUploadModalOpen(true)}
+              disabled={csvState.uploading}
+            />
+
+          </div>
+        </div> */}
+
+        {/* <div className="2xl:hidden">
               <Button
                 icon="heroicons-outline:plus-sm"
                 text="Add"
@@ -747,7 +922,7 @@ const StationaryCombustionListing = () => {
                 onClick={() => navigate("/Stationary-Combustion-Form/Add")}
               />
             </div> */}
-         
+
 
         {/* Table */}
         <div className="overflow-x-auto -mx-6">
@@ -987,7 +1162,10 @@ const StationaryCombustionListing = () => {
       {/* Delete Confirmation Modal */}
       <Modal
         activeModal={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedBuildingId(null);
+        }}
         title="Confirm Delete"
         themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
         centered
@@ -996,17 +1174,21 @@ const StationaryCombustionListing = () => {
             <Button
               text="Cancel"
               className="btn-light"
-              onClick={() => setDeleteModalOpen(false)}
+              onClick={() => {
+                setDeleteModalOpen(false);
+                setSelectedBuildingId(null);
+              }}
             />
             <Button
               text={isDeletingMultiple ? "Deleting..." : "Delete"}
               className="btn-danger"
               onClick={async () => {
-                if (selectedCount >= 1) {
+                // Don't close modal here - let the delete functions handle it
+                if (selectedCount > 0 && !selectedBuildingId) {
                   await handleDeleteMultiple();
                 } else if (selectedBuildingId) {
                   await handleDelete(selectedBuildingId);
-                  setDeleteModalOpen(false);
+                  // REMOVE this line: setDeleteModalOpen(false);
                 }
               }}
               disabled={isDeletingMultiple}

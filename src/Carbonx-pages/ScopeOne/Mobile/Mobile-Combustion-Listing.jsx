@@ -289,6 +289,7 @@ const MobileCombustionListing = () => {
       toast.warning("Please select records to delete");
       return;
     }
+    setDeleteModalOpen(false);
     setIsDeletingMultiple(true);
     try {
       await Promise.all(
@@ -324,6 +325,7 @@ const MobileCombustionListing = () => {
 
   // Delete Record
   const handleDelete = async (id) => {
+    setDeleteModalOpen(false);
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/AutoMobile/Delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -969,7 +971,7 @@ const MobileCombustionListing = () => {
                   await handleDeleteMultiple();
                 } else if (selectedBuildingId) {
                   await handleDelete(selectedBuildingId);
-                  setDeleteModalOpen(false);
+                  
                 }
               }}
             />

@@ -226,6 +226,7 @@ const FuelFusion = () => {
 
     // Delete Record
     const handleDelete = async (id) => {
+        setDeleteModalOpen(false);
         try {
             await axios.delete(`${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/delete/${id}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -244,6 +245,7 @@ const FuelFusion = () => {
             toast.warning("Please select records to delete");
             return;
         }
+        setDeleteModalOpen(false);
         setIsDeletingMultiple(true);
         try {
             await Promise.all(
@@ -260,7 +262,7 @@ const FuelFusion = () => {
             toast.error("Failed to delete some records");
         } finally {
             setIsDeletingMultiple(false);
-            setDeleteModalOpen(false);
+            
         }
     };
     const selectedCount = Object.values(selectedRows).filter(Boolean).length;
@@ -973,7 +975,6 @@ const FuelFusion = () => {
                                     await handleDeleteMultiple();
                                 } else if (selectedId) {
                                     await handleDelete(selectedId);
-                                    setDeleteModalOpen(false);
                                 }
                             }}
                         />

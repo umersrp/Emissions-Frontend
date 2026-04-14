@@ -240,6 +240,7 @@ const PurchasedGoodServicesListing = () => {
 
   // Delete Record
   const handleDelete = async (id) => {
+    setDeleteModalOpen(false);
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -259,6 +260,7 @@ const PurchasedGoodServicesListing = () => {
       toast.warning("Please select records to delete");
       return;
     }
+    setDeleteModalOpen(false);
     setIsDeletingMultiple(true);
     try {
       await Promise.all(
@@ -275,7 +277,7 @@ const PurchasedGoodServicesListing = () => {
       toast.error("Failed to delete some records");
     } finally {
       setIsDeletingMultiple(false);
-      setDeleteModalOpen(false);
+      
     }
   };
   const selectedCount = Object.values(selectedRows).filter(Boolean).length;
@@ -849,7 +851,6 @@ const PurchasedGoodServicesListing = () => {
                   await handleDeleteMultiple();
                 } else if (selectedId) {
                   await handleDelete(selectedId);
-                  setDeleteModalOpen(false);
                 }
               }}
             />

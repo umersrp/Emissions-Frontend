@@ -133,167 +133,427 @@ const useDownstreamTransportationCSVUpload = (buildings = []) => {
   }, []);
 
   // CSV Parser
-  const parseCSV = useCallback((file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const csvText = event.target.result;
+  // const parseCSV = useCallback((file) => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onload = (event) => {
+  //       try {
+  //         const csvText = event.target.result;
 
-          const parseCSVLine = (line) => {
-            const result = [];
-            let current = '';
-            let inQuotes = false;
+  //         const parseCSVLine = (line) => {
+  //           const result = [];
+  //           let current = '';
+  //           let inQuotes = false;
 
-            for (let i = 0; i < line.length; i++) {
-              const char = line[i];
-              const nextChar = line[i + 1];
+  //           for (let i = 0; i < line.length; i++) {
+  //             const char = line[i];
+  //             const nextChar = line[i + 1];
 
-              if (char === '"') {
-                if (inQuotes && nextChar === '"') {
-                  current += '"';
-                  i++;
-                } else {
-                  inQuotes = !inQuotes;
-                }
-              } else if (char === ',' && !inQuotes) {
-                result.push(current);
-                current = '';
+  //             if (char === '"') {
+  //               if (inQuotes && nextChar === '"') {
+  //                 current += '"';
+  //                 i++;
+  //               } else {
+  //                 inQuotes = !inQuotes;
+  //               }
+  //             } else if (char === ',' && !inQuotes) {
+  //               result.push(current);
+  //               current = '';
+  //             } else {
+  //               current += char;
+  //             }
+  //           }
+  //           result.push(current);
+  //           return result;
+  //         };
+
+  //         const lines = csvText.split('\n').filter(line => line.trim() !== '');
+
+  //         if (lines.length === 0) {
+  //           reject(new Error('CSV file is empty'));
+  //           return;
+  //         }
+
+  //         const headerRowIndex = 0;
+  //         const headerValues = parseCSVLine(lines[headerRowIndex]);
+
+  //         console.log('Parsed headers:', headerValues);
+
+  //         const headers = headerValues.map(h => {
+  //           return cleanCSVValue(h)
+  //             .toLowerCase()
+  //             .replace(/[^a-z0-9]/g, '');
+  //         });
+
+  //         console.log('Normalized headers:', headers);
+
+  //         const requiredCoreHeaders = ['buildingcode', 'stakeholder', 'postingdate'];
+  //         const missingCoreHeaders = requiredCoreHeaders.filter(h => !headers.includes(h));
+
+  //         if (missingCoreHeaders.length > 0) {
+  //           reject(new Error(`CSV must contain at least these columns: building code, stakeholder, posting date. Found: ${headerValues.join(', ')}`));
+  //           return;
+  //         }
+
+  //         const data = [];
+  //         for (let i = headerRowIndex + 1; i < lines.length; i++) {
+  //           const line = lines[i].trim();
+  //           if (!line) continue;
+
+  //           const values = parseCSVLine(line);
+  //           const row = {};
+
+  //           headers.forEach((header, index) => {
+  //             row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
+  //           });
+
+  //           if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
+  //             data.push(row);
+  //           }
+  //         }
+
+  //         console.log('Parsed CSV data:', data);
+  //         resolve(data);
+  //       } catch (error) {
+  //         console.error('CSV parsing error:', error);
+  //         reject(new Error(`Error parsing CSV: ${error.message}`));
+  //       }
+  //     };
+  //     reader.onerror = () => reject(new Error('Failed to read file'));
+  //     reader.readAsText(file);
+  //   });
+  // }, [cleanCSVValue]);
+
+  // CSV Parser - FIXED
+const parseCSV = useCallback((file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const csvText = event.target.result;
+
+        const parseCSVLine = (line) => {
+          const result = [];
+          let current = '';
+          let inQuotes = false;
+
+          for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            const nextChar = line[i + 1];
+
+            if (char === '"') {
+              if (inQuotes && nextChar === '"') {
+                current += '"';
+                i++;
               } else {
-                current += char;
+                inQuotes = !inQuotes;
               }
+            } else if (char === ',' && !inQuotes) {
+              result.push(current);
+              current = '';
+            } else {
+              current += char;
             }
-            result.push(current);
-            return result;
-          };
-
-          const lines = csvText.split('\n').filter(line => line.trim() !== '');
-
-          if (lines.length === 0) {
-            reject(new Error('CSV file is empty'));
-            return;
           }
+          result.push(current);
+          return result;
+        };
 
-          const headerRowIndex = 0;
-          const headerValues = parseCSVLine(lines[headerRowIndex]);
+        const lines = csvText.split('\n').filter(line => line.trim() !== '');
 
-          console.log('Parsed headers:', headerValues);
+        if (lines.length === 0) {
+          reject(new Error('CSV file is empty'));
+          return;
+        }
 
-          const headers = headerValues.map(h => {
-            return cleanCSVValue(h)
-              .toLowerCase()
-              .replace(/[^a-z0-9]/g, '');
+        const headerRowIndex = 0;
+        const headerValues = parseCSVLine(lines[headerRowIndex]);
+
+        console.log('Original CSV headers:', headerValues);
+
+        const normalizeHeader = (header) => {
+          if (!header) return '';
+          return header
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s*\/\s*/g, '')
+            .replace(/[^a-z0-9]/g, '');
+        };
+
+        const headers = headerValues.map(h => normalizeHeader(h));
+
+        console.log('Normalized CSV headers:', headers);
+
+        const stakeholderAlternatives = ['stakeholder', 'stakeholderdepartment', 'department'];
+        const hasStakeholder = headers.some(h => stakeholderAlternatives.includes(h));
+        const hasPostingDate = headers.some(h => h === 'postingdate' || h === 'date');
+        const hasBuildingCode = headers.some(h => h === 'buildingcode' || h === 'building');
+
+        if (!hasBuildingCode || !hasStakeholder || !hasPostingDate) {
+          reject(new Error(`CSV must contain at least these columns: building code, stakeholder, posting date. Found: ${headerValues.join(', ')}`));
+          return;
+        }
+
+        const headerMapping = {};
+        headers.forEach((normHeader, idx) => {
+          const originalHeader = headerValues[idx];
+          
+          if (normHeader.includes('buildingcode') || normHeader === 'building') {
+            headerMapping[originalHeader] = 'buildingcode';
+          } else if (stakeholderAlternatives.includes(normHeader)) {
+            headerMapping[originalHeader] = 'stakeholder';
+          } else if (normHeader === 'soldproductactivitytype' || normHeader === 'activitytype') {
+            headerMapping[originalHeader] = 'soldproductactivitytype';
+          } else if (normHeader === 'soldgoodstype' || normHeader === 'goodstype') {
+            headerMapping[originalHeader] = 'soldgoodstype';
+          } else if (normHeader === 'transportationvehiclecategory' || normHeader === 'vehiclecategory') {
+            headerMapping[originalHeader] = 'transportationvehiclecategory';
+          } else if (normHeader === 'transportationvehicletype' || normHeader === 'vehicletype') {
+            headerMapping[originalHeader] = 'transportationvehicletype';
+          } else if (normHeader === 'weightloaded' || normHeader === 'weight') {
+            headerMapping[originalHeader] = 'weightloaded';
+          } else if (normHeader === 'distancetravelled' || normHeader === 'distance') {
+            headerMapping[originalHeader] = 'distancetravelled';
+          } else if (normHeader === 'qualitycontrol' || normHeader === 'quality') {
+            headerMapping[originalHeader] = 'qualitycontrol';
+          } else if (normHeader === 'remarks' || normHeader === 'remark') {
+            headerMapping[originalHeader] = 'remarks';
+          } else if (normHeader === 'postingdate' || normHeader === 'date') {
+            headerMapping[originalHeader] = 'postingdate';
+          } else {
+            headerMapping[originalHeader] = normHeader;
+          }
+        });
+
+        const data = [];
+        for (let i = headerRowIndex + 1; i < lines.length; i++) {
+          const line = lines[i].trim();
+          if (!line) continue;
+
+          const values = parseCSVLine(line);
+          const row = {};
+          
+          headerValues.forEach((header, idx) => {
+            const value = idx < values.length ? cleanCSVValue(values[idx]) : '';
+            const mappedKey = headerMapping[header] || normalizeHeader(header);
+            row[mappedKey] = value;
           });
 
-          console.log('Normalized headers:', headers);
-
-          const requiredCoreHeaders = ['buildingcode', 'stakeholder', 'postingdate'];
-          const missingCoreHeaders = requiredCoreHeaders.filter(h => !headers.includes(h));
-
-          if (missingCoreHeaders.length > 0) {
-            reject(new Error(`CSV must contain at least these columns: building code, stakeholder, posting date. Found: ${headerValues.join(', ')}`));
-            return;
+          if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
+            data.push(row);
           }
-
-          const data = [];
-          for (let i = headerRowIndex + 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-
-            const values = parseCSVLine(line);
-            const row = {};
-
-            headers.forEach((header, index) => {
-              row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
-            });
-
-            if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
-              data.push(row);
-            }
-          }
-
-          console.log('Parsed CSV data:', data);
-          resolve(data);
-        } catch (error) {
-          console.error('CSV parsing error:', error);
-          reject(new Error(`Error parsing CSV: ${error.message}`));
         }
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsText(file);
-    });
-  }, [cleanCSVValue]);
+
+        console.log('Parsed CSV data:', data);
+        resolve(data);
+      } catch (error) {
+        console.error('CSV parsing error:', error);
+        reject(new Error(`Error parsing CSV: ${error.message}`));
+      }
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsText(file);
+  });
+}, [cleanCSVValue]);
 
   // Excel Parser
-  const parseExcel = useCallback((file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const data = new Uint8Array(event.target.result);
-          const workbook = XLSX.read(data, {
-            type: 'array',
-            cellDates: false,
-            cellText: true,
-            cellNF: true,
-            cellHTML: false
-          });
-          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+  // const parseExcel = useCallback((file) => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onload = (event) => {
+  //       try {
+  //         const data = new Uint8Array(event.target.result);
+  //         const workbook = XLSX.read(data, {
+  //           type: 'array',
+  //           cellDates: false,
+  //           cellText: true,
+  //           cellNF: true,
+  //           cellHTML: false
+  //         });
+  //         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
 
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
-            header: 1,
-            defval: '',
-            raw: false
-          });
+  //         const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+  //           header: 1,
+  //           defval: '',
+  //           raw: false
+  //         });
 
-          if (!jsonData || jsonData.length === 0) {
-            reject(new Error('Excel file is empty'));
-            return;
-          }
+  //         if (!jsonData || jsonData.length === 0) {
+  //           reject(new Error('Excel file is empty'));
+  //           return;
+  //         }
 
-          const headerRowIndex = 0;
-          const headerValues = jsonData[headerRowIndex] || [];
+  //         const headerRowIndex = 0;
+  //         const headerValues = jsonData[headerRowIndex] || [];
 
-          console.log('Parsed Excel headers:', headerValues);
+  //         console.log('Parsed Excel headers:', headerValues);
 
-          const headers = headerValues.map(h => {
-            return h ? cleanCSVValue(h).toLowerCase().replace(/[^a-z0-9]/g, '') : '';
-          });
+  //         const headers = headerValues.map(h => {
+  //           return h ? cleanCSVValue(h).toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+  //         });
 
-          console.log('Normalized Excel headers:', headers);
+  //         console.log('Normalized Excel headers:', headers);
 
-          const requiredCoreHeaders = ['buildingcode', 'stakeholder', 'postingdate'];
-          const missingCoreHeaders = requiredCoreHeaders.filter(h => !headers.includes(h));
+  //         const requiredCoreHeaders = ['buildingcode', 'stakeholder', 'postingdate'];
+  //         const missingCoreHeaders = requiredCoreHeaders.filter(h => !headers.includes(h));
 
-          if (missingCoreHeaders.length > 0) {
-            reject(new Error(`Excel must contain at least these columns: building code, stakeholder, posting date. Found: ${headerValues.join(', ')}`));
-            return;
-          }
+  //         if (missingCoreHeaders.length > 0) {
+  //           reject(new Error(`Excel must contain at least these columns: building code, stakeholder, posting date. Found: ${headerValues.join(', ')}`));
+  //           return;
+  //         }
 
-          const parsedData = [];
-          for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
-            const row = jsonData[i];
-            if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+  //         const parsedData = [];
+  //         for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+  //           const row = jsonData[i];
+  //           if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
 
-            const rowData = {};
-            headers.forEach((header, index) => {
-              const value = index < row.length ? row[index] : '';
-              rowData[header] = value ? cleanCSVValue(value) : '';
-            });
+  //           const rowData = {};
+  //           headers.forEach((header, index) => {
+  //             const value = index < row.length ? row[index] : '';
+  //             rowData[header] = value ? cleanCSVValue(value) : '';
+  //           });
 
-            parsedData.push(rowData);
-          }
+  //           parsedData.push(rowData);
+  //         }
 
-          console.log('Parsed Excel data:', parsedData);
-          resolve(parsedData);
-        } catch (error) {
-          reject(new Error(`Error parsing Excel file: ${error.message}`));
+  //         console.log('Parsed Excel data:', parsedData);
+  //         resolve(parsedData);
+  //       } catch (error) {
+  //         reject(new Error(`Error parsing Excel file: ${error.message}`));
+  //       }
+  //     };
+  //     reader.onerror = () => reject(new Error('Failed to read file'));
+  //     reader.readAsArrayBuffer(file);
+  //   });
+  // }, [cleanCSVValue]);
+  // Excel Parser - FIXED
+const parseExcel = useCallback((file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, {
+          type: 'array',
+          cellDates: false,
+          cellText: true,
+          cellNF: true,
+          cellHTML: false
+        });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+          header: 1,
+          defval: '',
+          raw: false
+        });
+
+        if (!jsonData || jsonData.length === 0) {
+          reject(new Error('Excel file is empty'));
+          return;
         }
-      };
-      reader.onerror = () => reject(new Error('Failed to read file'));
-      reader.readAsArrayBuffer(file);
-    });
-  }, [cleanCSVValue]);
+
+        const headerRowIndex = 0;
+        const headerValues = jsonData[headerRowIndex] || [];
+
+        console.log('Original Excel headers:', headerValues);
+
+        // Improved header normalization
+        const normalizeHeader = (header) => {
+          if (!header) return '';
+          return header
+            .toString()
+            .toLowerCase()
+            .trim()
+            .replace(/\s*\/\s*/g, '')  // Remove slashes and spaces around them
+            .replace(/[^a-z0-9]/g, ''); // Remove all non-alphanumeric
+        };
+
+        const headers = headerValues.map(h => normalizeHeader(h));
+
+        console.log('Normalized Excel headers:', headers);
+
+        // Define required headers (normalized)
+        const requiredCoreHeaders = ['buildingcode', 'stakeholder', 'postingdate'];
+        
+        // Check which required headers are missing
+        const missingCoreHeaders = requiredCoreHeaders.filter(h => !headers.includes(h));
+        
+        // Also check for alternative header names
+        const stakeholderAlternatives = ['stakeholder', 'stakeholderdepartment', 'department'];
+        const hasStakeholder = headers.some(h => stakeholderAlternatives.includes(h));
+        
+        const postingDateAlternatives = ['postingdate', 'date', 'postingdate'];
+        const hasPostingDate = headers.some(h => postingDateAlternatives.includes(h));
+        
+        const buildingCodeAlternatives = ['buildingcode', 'building', 'buildingcode'];
+        const hasBuildingCode = headers.some(h => buildingCodeAlternatives.includes(h));
+
+        if (!hasBuildingCode || !hasStakeholder || !hasPostingDate) {
+          reject(new Error(`Excel must contain at least these columns: building code, stakeholder, posting date. Found: ${headerValues.join(', ')}`));
+          return;
+        }
+
+        // Create a mapping from original headers to normalized keys
+        const headerMapping = {};
+        headers.forEach((normHeader, idx) => {
+          const originalHeader = headerValues[idx];
+          
+          if (normHeader.includes('buildingcode') || normHeader === 'building') {
+            headerMapping[originalHeader] = 'buildingcode';
+          } else if (stakeholderAlternatives.includes(normHeader)) {
+            headerMapping[originalHeader] = 'stakeholder';
+          } else if (normHeader === 'soldproductactivitytype' || normHeader === 'activitytype' || normHeader === 'activity') {
+            headerMapping[originalHeader] = 'soldproductactivitytype';
+          } else if (normHeader === 'soldgoodstype' || normHeader === 'goodstype') {
+            headerMapping[originalHeader] = 'soldgoodstype';
+          } else if (normHeader === 'transportationvehiclecategory' || normHeader === 'vehiclecategory') {
+            headerMapping[originalHeader] = 'transportationvehiclecategory';
+          } else if (normHeader === 'transportationvehicletype' || normHeader === 'vehicletype') {
+            headerMapping[originalHeader] = 'transportationvehicletype';
+          } else if (normHeader === 'weightloaded' || normHeader === 'weightloadedtonnes' || normHeader === 'weight') {
+            headerMapping[originalHeader] = 'weightloaded';
+          } else if (normHeader === 'distancetravelled' || normHeader === 'distancetravelledkm' || normHeader === 'distance') {
+            headerMapping[originalHeader] = 'distancetravelled';
+          } else if (normHeader === 'qualitycontrol' || normHeader === 'quality' || normHeader === 'qc') {
+            headerMapping[originalHeader] = 'qualitycontrol';
+          } else if (normHeader === 'remarks' || normHeader === 'remark' || normHeader === 'note') {
+            headerMapping[originalHeader] = 'remarks';
+          } else if (normHeader === 'postingdate' || normHeader === 'date') {
+            headerMapping[originalHeader] = 'postingdate';
+          } else {
+            headerMapping[originalHeader] = normHeader;
+          }
+        });
+
+        console.log('Header mapping:', headerMapping);
+
+        const parsedData = [];
+        for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+          const row = jsonData[i];
+          if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+
+          const rowData = {};
+          headerValues.forEach((header, idx) => {
+            const value = idx < row.length ? row[idx] : '';
+            const mappedKey = headerMapping[header] || normalizeHeader(header);
+            rowData[mappedKey] = value ? cleanCSVValue(value) : '';
+          });
+
+          parsedData.push(rowData);
+        }
+
+        console.log('Parsed Excel data:', parsedData);
+        resolve(parsedData);
+      } catch (error) {
+        reject(new Error(`Error parsing Excel file: ${error.message}`));
+      }
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsArrayBuffer(file);
+  });
+}, [cleanCSVValue]);
 
  // Improved normalization function
 const normalizeWithSlash = (str) => {
@@ -358,252 +618,6 @@ const findFlexibleMatch = (input, validOptions, isVehicleCategory = false) => {
   return match;
 };
 
-  // const validateDownstreamRow = useCallback((row, index) => {
-  //   const errors = [];
-
-  //   const headerMapping = {
-  //     'buildingcode': 'buildingcode',
-  //     'building': 'buildingcode',
-  //     'stakeholder': 'stakeholder',
-  //     'stakeholderdepartment': 'stakeholder',
-  //     'department': 'stakeholder',
-  //     'postingdate': 'postingdate',
-  //     'date': 'postingdate',
-  //     'soldproductactivitytype': 'soldproductactivitytype',
-  //     'activitytype': 'soldproductactivitytype',
-  //     'activity': 'soldproductactivitytype',
-  //     'soldgoodstype': 'soldgoodstype',
-  //     'goodstype': 'soldgoodstype',
-  //     'transportationvehiclecategory': 'transportationvehiclecategory',
-  //     'vehiclecategory': 'transportationvehiclecategory',
-  //     'transportationvehicletype': 'transportationvehicletype',
-  //     'vehicletype': 'transportationvehicletype',
-  //     'weightloaded': 'weightloaded',
-  //     'weight': 'weightloaded',
-  //     'distancetravelled': 'distancetravelled',
-  //     'distance': 'distancetravelled',
-  //     'qualitycontrol': 'qualitycontrol',
-  //     'quality': 'qualitycontrol',
-  //     'qc': 'qualitycontrol',
-  //     'remarks': 'remarks',
-  //     'remark': 'remarks',
-  //     'note': 'remarks',
-  //   };
-
-  //   const cleanedRow = {};
-
-  //   Object.keys(row).forEach(key => {
-  //     const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
-  //     const mappedKey = headerMapping[normalizedKey] || normalizedKey;
-  //     cleanedRow[mappedKey] = row[key]?.toString().trim() || '';
-  //   });
-
-  //   console.log(`Validating row ${index + 1}:`, cleanedRow);
-
-  //   // Required fields validation
-  //   if (!cleanedRow.buildingcode) errors.push('Building Code is required');
-  //   if (!cleanedRow.stakeholder) errors.push('Stakeholder is required');
-  //   if (!cleanedRow.postingdate) errors.push('postingdate is required');
-  //   if (!cleanedRow.soldproductactivitytype) errors.push('soldproductactivitytype is required');
-  //   if (!cleanedRow.transportationvehiclecategory) errors.push('transportationvehiclecategory is required');
-  //   if (!cleanedRow.weightloaded) errors.push('weightloaded is required');
-  //   if (!cleanedRow.distancetravelled) errors.push('distancetravelled is required');
-  //   if (!cleanedRow.qualitycontrol) errors.push('qualitycontrol is required');
-
-  //   if (errors.length > 0) {
-  //     return errors;
-  //   }
-
-  //   // Building validation
-  //   if (cleanedRow.buildingcode && buildings.length > 0) {
-  //     const buildingExists = buildings.some(b =>
-  //       b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
-  //     );
-  //     if (!buildingExists) {
-  //       errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
-  //     }
-  //   }
-
-  //   // Stakeholder validation
-  //   // if (cleanedRow.stakeholder) {
-  //   //   const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-  //   //   const matchedStakeholder = validStakeholders.find(s =>
-  //   //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-  //   //   );
-  //   //   if (!matchedStakeholder) {
-  //   //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-  //   //   } else {
-  //   //     cleanedRow.stakeholder = matchedStakeholder;
-  //   //   }
-  //   // }
-
-  //   if (cleanedRow.stakeholder) {
-  //     const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-  //     const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
-
-  //     if (!matchedStakeholder) {
-  //       errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-  //     } else {
-  //       cleanedRow.stakeholder = matchedStakeholder;
-  //     }
-  //   }
-
-  //   // Sold Product Activity Type validation
-  //   if (cleanedRow.soldproductactivitytype) {
-  //     const validActivityTypes = soldProductActivityOptions.map(a => a.value);
-  //     const matchedActivity = validActivityTypes.find(a =>
-  //       a.toLowerCase() === cleanedRow.soldproductactivitytype.toLowerCase()
-  //     );
-  //     if (!matchedActivity) {
-  //       errors.push(`Invalid sold product activity type "${cleanedRow.soldproductactivitytype}"`);
-  //     } else {
-  //       cleanedRow.soldproductactivitytype = matchedActivity;
-  //     }
-  //   }
-
-  //   // Sold Goods Type validation (based on activity type)
-  //   // if (cleanedRow.soldproductactivitytype && cleanedRow.soldgoodstype) {
-  //   //   const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
-  //   //   const validGoodsValues = validGoodsTypes.map(g => g.value);
-
-  //   //   const matchedGoodsType = validGoodsValues.find(g =>
-  //   //     g.toLowerCase() === cleanedRow.soldgoodstype.toLowerCase()
-  //   //   );
-
-  //   //   if (!matchedGoodsType && validGoodsValues.length > 0) {
-  //   //     errors.push(`Invalid sold goods type "${cleanedRow.soldgoodstype}" for activity type "${cleanedRow.soldproductactivitytype}"`);
-  //   //   } else if (matchedGoodsType) {
-  //   //     cleanedRow.soldgoodstype = matchedGoodsType;
-  //   //   }
-  //   // } else if (cleanedRow.soldproductactivitytype && !cleanedRow.soldgoodstype) {
-  //   //   const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
-  //   //   if (validGoodsTypes.length > 0) {
-  //   //     errors.push('soldgoodstype is required for this activity type');
-  //   //   }
-  //   // }
-  //   // Sold Goods Type validation (based on activity type) with flexible matching
-  //   if (cleanedRow.soldproductactivitytype && cleanedRow.soldgoodstype) {
-  //     const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
-  //     const validGoodsValues = validGoodsTypes.map(g => g.value);
-
-  //     const matchedGoodsType = findFlexibleMatch(cleanedRow.soldgoodstype, validGoodsValues);
-
-  //     if (!matchedGoodsType && validGoodsValues.length > 0) {
-  //       errors.push(`Invalid sold goods type "${cleanedRow.soldgoodstype}" for activity type "${cleanedRow.soldproductactivitytype}"`);
-  //     } else if (matchedGoodsType) {
-  //       cleanedRow.soldgoodstype = matchedGoodsType;
-  //     }
-  //   } else if (cleanedRow.soldproductactivitytype && !cleanedRow.soldgoodstype) {
-  //     const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
-  //     if (validGoodsTypes.length > 0) {
-  //       errors.push('soldgoodstype is required for this activity type');
-  //     }
-  //   }
-
-  //   // Transportation Vehicle Category validation
-  //   if (cleanedRow.transportationvehiclecategory) {
-  //     const validCategories = transportationVehicleCategoryOptions.map(c => c.value);
-  //     const matchedCategory = validCategories.find(c =>
-  //       c.toLowerCase() === cleanedRow.transportationvehiclecategory.toLowerCase()
-  //     );
-  //     if (!matchedCategory) {
-  //       errors.push(`Invalid transportation vehicle category "${cleanedRow.transportationvehiclecategory}"`);
-  //     } else {
-  //       cleanedRow.transportationvehiclecategory = matchedCategory;
-  //     }
-  //   }
-
-  //   // Transportation Vehicle Type validation
-  //   if (cleanedRow.transportationvehiclecategory && cleanedRow.transportationvehicletype) {
-  //     const validTypes = transportationVehicleTypeOptions[cleanedRow.transportationvehiclecategory] || [];
-  //     const validTypeValues = validTypes.map(t => t.value);
-
-  //     const matchedType = validTypeValues.find(t =>
-  //       t.toLowerCase() === cleanedRow.transportationvehicletype.toLowerCase()
-  //     );
-
-  //     if (!matchedType && validTypeValues.length > 0) {
-  //       errors.push(`Invalid transportation vehicle type "${cleanedRow.transportationvehicletype}" for category "${cleanedRow.transportationvehiclecategory}"`);
-  //     } else if (matchedType) {
-  //       cleanedRow.transportationvehicletype = matchedType;
-  //     }
-  //   } else if (
-  //     cleanedRow.transportationvehiclecategory &&
-  //     ['freightFlights', 'seaTanker', 'cargoShip'].includes(cleanedRow.transportationvehiclecategory) &&
-  //     !cleanedRow.transportationvehicletype
-  //   ) {
-  //     errors.push('transportationvehicletype is required for this vehicle category');
-  //   }
-
-  //   // Weight Loaded validation
-  //   if (cleanedRow.weightloaded) {
-  //     const cleanNum = cleanedRow.weightloaded.toString()
-  //       .replace(/[^0-9.-]/g, '')
-  //       .replace(/^"+|"+$/g, '');
-
-  //     const num = Number(cleanNum);
-  //     if (isNaN(num) || cleanNum === '') {
-  //       errors.push(`Weight loaded must be a number, got "${cleanedRow.weightloaded}"`);
-  //     } else if (num <= 0) {
-  //       errors.push('Weight loaded must be greater than 0');
-  //     } else {
-  //       cleanedRow.weightloaded = num.toString();
-  //     }
-  //   }
-
-  //   // Distance Travelled validation
-  //   if (cleanedRow.distancetravelled) {
-  //     const cleanNum = cleanedRow.distancetravelled.toString()
-  //       .replace(/[^0-9.-]/g, '')
-  //       .replace(/^"+|"+$/g, '');
-
-  //     const num = Number(cleanNum);
-  //     if (isNaN(num) || cleanNum === '') {
-  //       errors.push(`Distance travelled must be a number, got "${cleanedRow.distancetravelled}"`);
-  //     } else if (num <= 0) {
-  //       errors.push('Distance travelled must be greater than 0');
-  //     } else {
-  //       cleanedRow.distancetravelled = num.toString();
-  //     }
-  //   }
-
-  //   // Quality Control validation
-  //   if (cleanedRow.qualitycontrol) {
-  //     const validQC = processQualityControlOptions.map(q => q.value);
-  //     const matchedQC = validQC.find(q =>
-  //       q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
-  //     );
-  //     if (!matchedQC) {
-  //       errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
-  //     } else {
-  //       cleanedRow.qualitycontrol = matchedQC;
-  //     }
-  //   }
-
-  //   // Date validation
-  //   if (cleanedRow.postingdate) {
-  //     const isoDate = parseDateToISO(cleanedRow.postingdate);
-  //     if (!isoDate) {
-  //       errors.push(`Invalid date format: "${cleanedRow.postingdate}"`);
-  //     } else {
-  //       cleanedRow.postingdate = isoDate;
-  //     }
-  //   }
-
-  //   // Remarks validation
-  //   if (cleanedRow.remarks && cleanedRow.remarks.length > 500) {
-  //     errors.push('Remarks cannot exceed 500 characters');
-  //   }
-
-  //   // Update original row with cleaned values if no errors
-  //   if (errors.length === 0) {
-  //     Object.keys(cleanedRow).forEach(key => {
-  //       row[key] = cleanedRow[key];
-  //     });
-  //   }
-
-  //   return errors;
-  // }, [buildings, parseDateToISO]);
 const validateDownstreamRow = useCallback((row, index) => {
   const errors = [];
 
@@ -817,6 +831,7 @@ if (cleanedRow.transportationvehiclecategory) {
 
   return errors;
 }, [buildings, parseDateToISO, findFlexibleMatch]);
+
   const transformDownstreamPayload = useCallback((row) => {
     const userId = localStorage.getItem('userId');
 

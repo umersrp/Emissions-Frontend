@@ -233,6 +233,7 @@ const WasteGeneratedListing = () => {
       toast.warning("Please select records to delete");
       return;
     }
+    setDeleteModalOpen(false);
     setIsDeletingMultiple(true);
     try {
       await Promise.all(
@@ -249,13 +250,14 @@ const WasteGeneratedListing = () => {
       toast.error("Failed to delete some records");
     } finally {
       setIsDeletingMultiple(false);
-      setDeleteModalOpen(false);
+      
     }
   };
   const selectedCount = Object.values(selectedRows).filter(Boolean).length;
 
   // Delete Record
   const handleDelete = async (id) => {
+    setDeleteModalOpen(false);
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/Waste-Generate/Delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -852,7 +854,6 @@ const WasteGeneratedListing = () => {
                   await handleDeleteMultiple();
                 } else if (selectedId) {
                   await handleDelete(selectedId);
-                  setDeleteModalOpen(false);
                 }
               }}
             />

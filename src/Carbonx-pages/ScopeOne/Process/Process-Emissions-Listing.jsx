@@ -986,6 +986,7 @@ const ProcessEmissionsListing = () => {
       toast.warning("Please select records to delete");
       return;
     }
+    setDeleteModalOpen(false);
     setIsDeletingMultiple(true);
     try {
       await Promise.all(
@@ -997,14 +998,14 @@ const ProcessEmissionsListing = () => {
       );
       toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);
       setSelectedRows({});
-      setSelectedBuildingId(null);
+      setSelectedId(null);
       fetchData();
     } catch (err) {
       console.error("Error deleting records:", err);
       toast.error("Failed to delete some records");
     } finally {
       setIsDeletingMultiple(false);
-      setDeleteModalOpen(false);
+      
     }
   };
   const templateInstructions = (
@@ -1021,6 +1022,7 @@ const ProcessEmissionsListing = () => {
 
   // Delete Record
   const handleDelete = async (id) => {
+    setDeleteModalOpen(false);
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/Process-Emissions/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -1654,7 +1656,7 @@ const ProcessEmissionsListing = () => {
                   await handleDeleteMultiple();
                 } else if (selectedId) {
                   await handleDelete(selectedId);
-                  setDeleteModalOpen(false);
+                  // setDeleteModalOpen(false);
                 }
               }}
             />
