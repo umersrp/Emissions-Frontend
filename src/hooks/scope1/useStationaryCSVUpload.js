@@ -459,102 +459,21 @@ const parseExcel = useCallback((file) => {
         b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
       );
       if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0, 3).map(b => b.buildingCode).join(', ')}...`);
+        errors.push(`Invalid Building code "${cleanedRow.buildingcode}".`);
       }
     }
 
-    // Stakeholder validation
-    // if (cleanedRow.stakeholder) {
-    //   const validStakeholders = stakeholderOptions.map(s => s.value);
-    //   const matchedStakeholder = validStakeholders.find(s =>
-    //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-    //   );
-    //   if (!matchedStakeholder) {
-    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
-    //   } else {
-    //     cleanedRow.stakeholder = matchedStakeholder;
-    //   }
-    // }
+ 
     if (cleanedRow.stakeholder) {
       const validStakeholders = stakeholderOptions.map(s => s.value);
       const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
 
       if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
+        errors.push(`Invalid Stakeholder "${cleanedRow.stakeholder}".`);
       } else {
         cleanedRow.stakeholder = matchedStakeholder;
       }
     }
-
-
-    // Equipment type validation
-    // if (cleanedRow.equipmenttype) {
-    //   const validEquipment = equipmentTypeOptions.map(e => e.value);
-    //   const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
-
-    //   const matchedEquipment = validEquipment.find(equipment => {
-    //     const normalizedEquipment = normalizeSubscriptNumbers(equipment);
-    //     console.log('fron xlsx:', normalizedInput)
-    //     return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
-
-    //   });console.log('Matched equipment:', matchedEquipment);
-
-    //   if (!matchedEquipment) {
-    //     const sampleEquipment = normalizedInput.replace(/\s*\/\s*/g, '/');
-    //     console.log('Sample normalized input for equipment type:', sampleEquipment);
-    //     const normalizedValidEquipment = normalizeSubscriptNumbers(cleanedRow.sampleEquipment);
-
-    //     const matchedEquipmentagain = normalizedValidEquipment.find(equipment => {
-    //       const normalizedValidEquipment = normalizeSubscriptNumbers(equipment);
-
-    //       return normalizedValidEquipment.toLowerCase() === normalizedInput.toLowerCase();
-    //     });
-    //     if (!matchedEquipmentagain) {
-    //       const originalEquipment = validEquipment[normalizedValidEquipment.indexOf(matchedEquipmentagain)];
-    //       cleanedRow.equipmenttype = originalEquipment;
-    //     }
-
-    //     errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-    //   } else {
-    //     cleanedRow.equipmenttype = matchedEquipment;
-    //   }
-    // }
-
-    // my logic to handle subscript numbers and spaces around slashes in equipment type
-    //     if (cleanedRow.equipmenttype) {
-    //   const validEquipment = equipmentTypeOptions.map(e => e.value);
-    //   const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
-
-    //   const matchedEquipment = validEquipment.find(equipment => {
-    //     const normalizedEquipment = normalizeSubscriptNumbers(equipment);
-    //     console.log('from xlsx:', normalizedInput);
-    //     return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
-    //   });
-
-    //   console.log('Matched equipment:', matchedEquipment);
-
-    //   if (!matchedEquipment) {
-    //     // Try matching again after removing spaces around slashes
-    //     const cleanedInput = normalizedInput.replace(/\s*\/\s*/g, '/');
-    //     console.log('Cleaned input (spaces removed around slashes):', cleanedInput);
-
-    //     const matchedEquipmentAgain = validEquipment.find(equipment => {
-    //       const cleanedEquipment = normalizeSubscriptNumbers(equipment).replace(/\s*\/\s*/g, '/');
-    //       return cleanedEquipment.toLowerCase() === cleanedInput.toLowerCase();
-    //     });
-
-    //     if (matchedEquipmentAgain) {
-    //       // Found match after cleaning slashes
-    //       cleanedRow.equipmenttype = matchedEquipmentAgain;
-    //       console.log('Matched after removing slash spaces:', matchedEquipmentAgain);
-    //     } else {
-    //       // Still no match, add error
-    //       errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-    //     }
-    //   } else {
-    //     cleanedRow.equipmenttype = matchedEquipment;
-    //   }
-    // }
 
     // Equipment type validation with subscript normalization and flexible matching
     if (cleanedRow.equipmenttype) {
@@ -591,47 +510,25 @@ const parseExcel = useCallback((file) => {
       }
 
       if (!matchedEquipment) {
-        errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+        errors.push(`Invalid "Equipment Type" "${cleanedRow.equipmenttype}"`);
       } else {
         cleanedRow.equipmenttype = matchedEquipment;
       }
     }
-    // Fuel type validation
-    // if (cleanedRow.fueltype) {
-    //   const validFuelTypes = fuelTypeOptions.map(f => f.value);
-    //   const matchedFuelType = validFuelTypes.find(f =>
-    //     f.toLowerCase() === cleanedRow.fueltype.toLowerCase()
-    //   );
-    //   if (!matchedFuelType) {
-    //     errors.push(`Invalid fuel type "${cleanedRow.fueltype}". Valid: ${validFuelTypes.join(', ')}`);
-    //   } else {
-    //     cleanedRow.fueltype = matchedFuelType;
-    //   }
-    // }
+  
     // Fuel type validation - FIXED with flexible matching
 if (cleanedRow.fueltype) {
   const validFuelTypes = fuelTypeOptions.map(f => f.value);
   const matchedFuelType = findFlexibleMatch(cleanedRow.fueltype, validFuelTypes);
   
   if (!matchedFuelType) {
-    errors.push(`Invalid fuel type "${cleanedRow.fueltype}". Valid: ${validFuelTypes.join(', ')}`);
+    errors.push(`Invalid "Fuel Type": "${cleanedRow.fueltype}".`);
   } else {
     cleanedRow.fueltype = matchedFuelType;
   }
 }
 
-    // Fuel name validation
-    // if (cleanedRow.fueltype && cleanedRow.fuelname) {
-    //   const validFuelNames = fuelNameOptionsByType[cleanedRow.fueltype]?.map(f => f.value) || [];
-    //   const matchedFuelName = validFuelNames.find(f =>
-    //     f.toLowerCase() === cleanedRow.fuelname.toLowerCase()
-    //   );
-    //   if (!matchedFuelName) {
-    //     errors.push(`Invalid fuel name "${cleanedRow.fuelname}" for type "${cleanedRow.fueltype}"`);
-    //   } else {
-    //     cleanedRow.fuelname = matchedFuelName;
-    //   }
-    // }
+ 
     // Fuel name validation - FIXED with flexible matching
 if (cleanedRow.fueltype && cleanedRow.fuelname) {
   const validFuelNames = fuelNameOptionsByType[cleanedRow.fueltype]?.map(f => f.value) || [];
@@ -640,7 +537,7 @@ if (cleanedRow.fueltype && cleanedRow.fuelname) {
   const matchedFuelName = findFlexibleMatch(cleanedRow.fuelname, validFuelNames);
   
   if (!matchedFuelName) {
-    errors.push(`Invalid fuel name "${cleanedRow.fuelname}" for type "${cleanedRow.fueltype}". Valid options: ${validFuelNames.slice(0, 5).join(', ')}...`);
+    errors.push(`Invalid "Fuel Name": "${cleanedRow.fuelname}" for type "${cleanedRow.fueltype}".`);
   } else {
     cleanedRow.fuelname = matchedFuelName;
   }
@@ -675,7 +572,7 @@ if (cleanedRow.fueltype && cleanedRow.fuelname) {
       const matchedUnit = allUnits.find(u => u.toLowerCase() === cleanUnit);
 
       if (!matchedUnit) {
-        errors.push(`Invalid consumption unit "${cleanedRow.consumptionunit}". Valid options include: ${allUnits.slice(0, 5).join(', ')}...`);
+        errors.push(`Invalid "Consumption Unit": "${cleanedRow.consumptionunit}".`);
       } else {
         cleanedRow.consumptionunit = matchedUnit;
       }
@@ -688,7 +585,7 @@ if (cleanedRow.fueltype && cleanedRow.fuelname) {
         q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
       );
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}". Valid: ${validQC.join(', ')}`);
+        errors.push(`Invalid "Quality Control": "${cleanedRow.qualitycontrol}".`);
       } else {
         cleanedRow.qualitycontrol = matchedQC;
       }
@@ -699,7 +596,7 @@ if (cleanedRow.fueltype && cleanedRow.fuelname) {
       const isoDate = parseDateToISO(cleanedRow.postingdate);
 
       if (!isoDate) {
-        errors.push(`Invalid date format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 2024-01-15, 01/15/2024, 15-01-2024)`);
+        errors.push(`Invalid Date Format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 01/15/2026)`);
       } else {
         cleanedRow.postingdate = isoDate;
       }

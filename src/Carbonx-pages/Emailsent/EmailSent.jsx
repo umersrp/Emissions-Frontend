@@ -1292,13 +1292,14 @@ const EmailSent = () => {
                                             hour: 'numeric',
                                             minute: '2-digit',
                                             hour12: true
-                                        }).replace(',', '') +
-                                        ' ' +
-                                        new Date(formData.endDateTime).toLocaleTimeString('en-US', {
-                                            hour: 'numeric',
-                                            minute: '2-digit',
-                                            hour12: true
-                                        }).replace(':', '.').toLowerCase()
+                                        }).replace(',', '') 
+                                        // +
+                                        // ' ' +
+                                        // new Date(formData.endDateTime).toLocaleTimeString('en-US', {
+                                        //     hour: 'numeric',
+                                        //     minute: '2-digit',
+                                        //     hour12: true
+                                        // }).replace(':', '.').toLowerCase()
                                         : "Not set"}
                                 </div>
                                 <div className="text-sm font-small mb-2">
