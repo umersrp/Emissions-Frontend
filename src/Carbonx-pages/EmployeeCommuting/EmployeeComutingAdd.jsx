@@ -734,6 +734,75 @@ const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate 
         </div>
     );
 };
+
+const YearChangeModal = ({ isOpen, onClose, onConfirm, currentYear, newYear }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div className="p-6">
+                    <div className="flex items-center justify-center mb-4">
+                        <div className="bg-yellow-100 rounded-full p-3">
+                            <svg className="h-10 w-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 text-center mb-3">
+                        Change Reporting Year?
+                    </h3>
+
+                    <div className="space-y-3">
+                        <p className="text-gray-700 text-center">
+                            You are trying to select a date from {newYear}, but your current reporting year is {currentYear}.
+                        </p>
+
+                        <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <p className="text-sm font-medium text-yellow-800 mb-2">
+                                ⚠ Warning:
+                            </p>
+                            <p className="text-sm text-yellow-700">
+                                Changing the reporting year will reset ALL previously entered date ranges for all commute methods.
+                                You will need to reselect all date ranges for the new year.
+                            </p>
+                        </div>
+
+                        <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <p className="text-sm font-medium text-blue-800 mb-1">
+                                What would you like to do?
+                            </p>
+                            <ul className="text-sm text-blue-700 list-disc pl-4 space-y-1">
+                                <li>Change reporting year to {newYear} and reset all date ranges</li>
+                                <li>Keep current reporting year ({currentYear}) and select dates within this year</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-center space-x-3 mt-6">
+                        <button
+                            onClick={() => {
+                                onConfirm();
+                                onClose();
+                            }}
+                            className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
+                        >
+                            Change to {newYear}
+                        </button>
+                        <button
+                            onClick={onClose}
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                        >
+                            Keep {currentYear}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const EmployeeCommutingForm = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -742,6 +811,10 @@ const EmployeeCommutingForm = () => {
     const [emailDocId, setEmailDocId] = useState(null);
     const [checkingSubmission, setCheckingSubmission] = useState(true);
     const [formDocumentId, setFormDocumentId] = useState(null);
+    const [showYearChangeModal, setShowYearChangeModal] = useState(false);
+    const [pendingYear, setPendingYear] = useState(null);
+    const [pendingDateRange, setPendingDateRange] = useState(null);
+    const [pendingTransportType, setPendingTransportType] = useState(null);
     const [formAccessStatus, setFormAccessStatus] = useState({
         checking: true,
         canAccess: false,
@@ -862,7 +935,49 @@ const EmployeeCommutingForm = () => {
     const [companyUsersLoading, setCompanyUsersLoading] = useState(false);
     const [token, setToken] = useState('');
 
+    // Add this function to reset all date ranges when changing year
+    const resetAllDateRanges = () => {
+        // Reset all date ranges in formData
+        setFormData(prev => ({
+            ...prev,
+            motorbikeDateRange: null,
+            motorbikeCarpoolDateRange: null,
+            taxiDateRange: null,
+            taxiCarpoolDateRange: null,
+            busDateRange: null,
+            trainDateRange: null,
+            carDateRange: null,
+            carCarpoolDateRange: null,
+            workFromHomeDateRange: null,
+        }));
 
+        // Reset selected date ranges tracking
+        setSelectedDateRanges({
+            motorbike: null,
+            motorbikeCarpool: null,
+            taxi: null,
+            taxiCarpool: null,
+            bus: null,
+            train: null,
+            car: null,
+            carCarpool: null,
+            workFromHome: null
+        });
+console.log("reset date ranges ", selectedDateRanges)
+
+        // Clear any date-related errors
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            Object.keys(newErrors).forEach(key => {
+                if (key.includes('DateRange') || key.includes('Coverage')) {
+                    delete newErrors[key];
+                }
+            });
+            return newErrors;
+        });
+
+        toast.info(`All date ranges have been reset for the new reporting year`);
+    };
 
     // Year selection dropdown options
     const yearOptions = [
@@ -1389,9 +1504,34 @@ const EmployeeCommutingForm = () => {
     // Update the markUserAsFilled function
 
     // Detect the year from the first selected date range and update reportingYear
-useEffect(() => {
-    // Check all date ranges to find the first valid year
-    const allDateRanges = [
+    useEffect(() => {
+        // Check all date ranges to find the first valid year
+        const allDateRanges = [
+            formData.motorbikeDateRange,
+            formData.taxiDateRange,
+            formData.busDateRange,
+            formData.trainDateRange,
+            formData.carDateRange,
+            formData.workFromHomeDateRange,
+            formData.motorbikeCarpoolDateRange,
+            formData.taxiCarpoolDateRange,
+            formData.carCarpoolDateRange
+        ];
+
+        for (const range of allDateRanges) {
+            if (range && range.startDate) {
+                const year = new Date(range.startDate).getFullYear();
+                if (year >= 2024 && year <= 2050 && year !== reportingYear) {
+                    setReportingYear(year);
+                    setDetectedYear(year);
+                    console.log(`Reporting year updated to: ${year} based on selection`);
+                    // Optional: Show toast notification
+                    toast.info(`Reporting year set to ${year} based on your selection`);
+                    return;
+                }
+            }
+        }
+    }, [
         formData.motorbikeDateRange,
         formData.taxiDateRange,
         formData.busDateRange,
@@ -1401,32 +1541,7 @@ useEffect(() => {
         formData.motorbikeCarpoolDateRange,
         formData.taxiCarpoolDateRange,
         formData.carCarpoolDateRange
-    ];
-    
-    for (const range of allDateRanges) {
-        if (range && range.startDate) {
-            const year = new Date(range.startDate).getFullYear();
-            if (year >= 2024 && year <= 2050 && year !== reportingYear) {
-                setReportingYear(year);
-                setDetectedYear(year);
-                console.log(`Reporting year updated to: ${year} based on selection`);
-                // Optional: Show toast notification
-                toast.info(`Reporting year set to ${year} based on your selection`);
-                return;
-            }
-        }
-    }
-}, [
-    formData.motorbikeDateRange,
-    formData.taxiDateRange,
-    formData.busDateRange,
-    formData.trainDateRange,
-    formData.carDateRange,
-    formData.workFromHomeDateRange,
-    formData.motorbikeCarpoolDateRange,
-    formData.taxiCarpoolDateRange,
-    formData.carCarpoolDateRange
-]);
+    ]);
 
     const markUserAsFilled = async (userId, token, emailDocIdToUse) => {
         if (!userId || !token) {
@@ -1471,7 +1586,6 @@ useEffect(() => {
             return false;
         }
     };
-
 
     // Fetch all data on component mount
     useEffect(() => {
@@ -1525,8 +1639,10 @@ useEffect(() => {
             }, 300);
         };
 
-        checkForPreviousSubmission();
-    }, [reportingYear, userInfo, targetUserData, companyData, urlToken]);
+        if(checkingSubmission){
+            checkForPreviousSubmission();
+        }
+    }, [checkingSubmission]);
 
     //Real-time console logging for emissions calculation
     useEffect(() => {
@@ -1770,16 +1886,16 @@ useEffect(() => {
                 return newErrors;
             });
         }
-            if (field === 'commuteByMotorbike') {
-        setFormData(prev => ({ ...prev, motorbikeMode: 'individual' }));
-    }
-    if (field === 'commuteByCar') {
-        setFormData(prev => ({ ...prev, carMode: 'individual' }));
-    }
-    if (field === 'commuteByTaxi') {
-        setFormData(prev => ({ ...prev, taxiMode: 'individual' }));
-    }
-    
+        if (field === 'commuteByMotorbike') {
+            setFormData(prev => ({ ...prev, motorbikeMode: 'individual' }));
+        }
+        if (field === 'commuteByCar') {
+            setFormData(prev => ({ ...prev, carMode: 'individual' }));
+        }
+        if (field === 'commuteByTaxi') {
+            setFormData(prev => ({ ...prev, taxiMode: 'individual' }));
+        }
+
         // If this is a carry/travel-with toggle, when turned off reset its dependent fields
         if ((field.startsWith('carryOthers') || field.startsWith('travelWithOthers'))) {
             if (!value) {
@@ -2524,192 +2640,262 @@ useEffect(() => {
     //     }));
     // };
 
-    // Update the handleDateRangeChange function with error clearing
-const handleDateRangeChange = (transportType, value) => {
-    // Clear date range error when user starts selecting
-    const dateRangeField = `${transportType}DateRange`;
-    if (errors[dateRangeField]) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors[dateRangeField];
-            return newErrors;
-        });
-    }
+    // Add this function to handle year change confirmation
+    const handleYearChangeConfirm = () => {
+        if (pendingYear && pendingDateRange && pendingTransportType) {
+            // Reset all date ranges first
+            resetAllDateRanges();
 
-    // Clear month coverage error when date range changes
-    if (errors.monthCoverage) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors.monthCoverage;
-            return newErrors;
-        });
-    }
-
-    // Clear date range overlap error when date range changes
-    if (errors.dateRangeOverlap) {
-        setErrors(prev => {
-            const newErrors = { ...prev };
-            delete newErrors.dateRangeOverlap;
-            return newErrors;
-        });
-    }
-
-    if (value && value.startDate && value.endDate) {
-        const startDate = new Date(value.startDate);
-        const endDate = new Date(value.endDate);
-        const startYear = startDate.getFullYear();
-        const endYear = endDate.getFullYear();
-
-        // Check if this is the first date range being selected
-        const hasAnyExistingRange = Object.values(selectedDateRanges).some(range => range !== null);
-        
-        // If it's the first selection and year is different, update reporting year first
-        if (!hasAnyExistingRange && startYear !== reportingYear && startYear >= 2024 && startYear <= 2050) {
             // Update reporting year
-            setReportingYear(startYear);
-            console.log(`Reporting year updated to: ${startYear} based on selected date range`);
-            
-            // Show a toast notification
-            toast.info(`Reporting year set to ${startYear}. Please select your date range again.`);
-            
-            // Don't proceed with setting the date range - user needs to select again with the new year
-            return;
+            setReportingYear(pendingYear);
+
+            // Small delay to ensure state updates are processed
+            setTimeout(() => {
+                // Now set the new date range
+                handleDateRangeChange(pendingTransportType, pendingDateRange);
+                toast.success(`Reporting year changed to ${pendingYear}`);
+            }, 100);
+
+            // Clear pending state
+            setPendingYear(null);
+            setPendingDateRange(null);
+            setPendingTransportType(null);
+        }
+    };
+
+    // Update the handleDateRangeChange function with error clearing
+    const handleDateRangeChange = (transportType, value) => {
+        // Clear date range error when user starts selecting
+        const dateRangeField = `${transportType}DateRange`;
+        if (errors[dateRangeField]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[dateRangeField];
+                return newErrors;
+            });
         }
 
-        // Now validate against the current reporting year
-        if (startYear !== reportingYear || endYear !== reportingYear) {
-            toast.error(
-                <div>
-                    <div className="font-semibold mb-1">Invalid Date Range</div>
-                    <div className="text-sm">
-                        All dates must be within the reporting year ({reportingYear}).<br />
-                        Selected: {startYear} - {endYear}
-                    </div>
-                </div>,
-                { autoClose: 5000, closeButton: true }
-            );
-            return;
+        // Clear month coverage error when date range changes
+        if (errors.monthCoverage) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.monthCoverage;
+                return newErrors;
+            });
         }
 
-        // Ensure selected dates fall within the allowed calendar window
-        if (startDate < calendarMinDate || endDate > calendarMaxDate) {
-            toast.warning(`Selected date range must be between ${calendarMinDate.toLocaleDateString('en-US')} and ${calendarMaxDate.toLocaleDateString('en-US')}.`);
-            return;
+        // Clear date range overlap error when date range changes
+        if (errors.dateRangeOverlap) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.dateRangeOverlap;
+                return newErrors;
+            });
         }
 
-        // Check for overlaps with other selected date ranges
-        const otherRanges = { ...selectedDateRanges };
-        delete otherRanges[transportType];
+        if (value && value.startDate && value.endDate) {
+            const startDate = new Date(value.startDate);
+            const endDate = new Date(value.endDate);
+            const startYear = startDate.getFullYear();
+            const endYear = endDate.getFullYear();
 
-        let hasOverlap = false;
-        let overlappingTransportType = '';
-        let overlappingMonths = [];
+            // Check if this is the first date range being selected
+            const hasAnyExistingRange = Object.values(selectedDateRanges).some(range => range !== null);
 
-        for (const [otherType, otherRange] of Object.entries(otherRanges)) {
-            if (otherRange && checkDateRangeOverlap(value, otherRange)) {
-                hasOverlap = true;
-                overlappingTransportType = otherType;
-                const overlapStart = new Date(Math.max(startDate, new Date(otherRange.startDate)));
-                const overlapEnd = new Date(Math.min(endDate, new Date(otherRange.endDate)));
-                for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
-                    const month = d.getMonth() + 1;
-                    if (!overlappingMonths.includes(month)) {
-                        overlappingMonths.push(month);
-                    }
-                }
-                break;
+            // If it's the first selection and year is different, update reporting year first
+            if (!hasAnyExistingRange && startYear !== reportingYear && startYear >= 2024 && startYear <= 2050) {
+                // Update reporting year
+                setReportingYear(startYear);
+                console.log(`Reporting year updated to: ${startYear} based on selected date range`);
+
+                // Show a toast notification
+                toast.info(`Reporting year set to ${startYear}. Please select your date range again.`);
+
+                // Don't proceed with setting the date range - user needs to select again with the new year
+                return;
             }
-        }
 
-        if (hasOverlap) {
-            const monthNames = overlappingMonths.map(m => getMonthName(m)).join(', ');
-            toast.error(
-                <div>
-                    <div className="font-semibold mb-1">Date Range Conflict!</div>
-                    <div className="text-sm mb-2">
-                        Your selected date range overlaps with {overlappingTransportType} commute
-                        in month(s): {monthNames}. Please select a different date range.
-                    </div>
-                </div>,
-                { autoClose: false, closeButton: true }
-            );
-            return;
-        }
+            // Now validate against the current reporting year
+            // if (startYear !== reportingYear || endYear !== reportingYear) {
+            //     toast.error(
+            //         <div>
+            //             <div className="font-semibold mb-1">Invalid Date Range</div>
+            //             <div className="text-sm">
+            //                 All dates must be within the reporting year ({reportingYear}).<br />
+            //                 Selected: {startYear} - {endYear}
+            //             </div>
+            //         </div>,
+            //         { autoClose: 5000, closeButton: true }
+            //     );
+            //     return;
+            // }
+            // Now validate against the current reporting year
+            if (startYear !== reportingYear || endYear !== reportingYear) {
+                // If it's the first selection, offer to change the reporting year
+                const hasAnyExistingRange = Object.values(selectedDateRanges).some(range => range !== null);
 
-        // Calculate overall coverage AFTER this change
-        const overallCoverageAfterChange = (() => {
-            const allMonths = new Set();
-            const addMonthsFromRange = (dateRange) => {
-                if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
-                const startDate = new Date(dateRange.startDate);
-                const endDate = new Date(dateRange.endDate);
-                const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-                const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
-                while (currentDate <= endDateMonth) {
-                    const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-                    allMonths.add(monthKey);
-                    currentDate.setMonth(currentDate.getMonth() + 1);
+                if (!hasAnyExistingRange) {
+                    // No existing ranges, offer to change the year
+                    setPendingYear(startYear);
+                    setPendingDateRange(value);
+                    setPendingTransportType(transportType);
+                    setShowYearChangeModal(true);
+                    return;
+                } else {
+                    // Has existing ranges, show error with option to reset
+                    toast.error(
+                        <div>
+                            <div className="font-semibold mb-1">Year Mismatch!</div>
+                            <div className="text-sm mb-2">
+                                You have existing date ranges for {reportingYear}.<br />
+                                Selected dates are from {startYear}.
+                            </div>
+                            <div className="flex gap-2 mt-2">
+                                <button
+                                    onClick={() => {
+                                        setPendingYear(startYear);
+                                        setPendingDateRange(value);
+                                        setPendingTransportType(transportType);
+                                        setShowYearChangeModal(true);
+                                        toast.dismiss();
+                                    }}
+                                    className="text-xs bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600"
+                                >
+                                    Change to {startYear} (Reset All)
+                                </button>
+                                <button
+                                    onClick={() => toast.dismiss()}
+                                    className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>,
+                        { autoClose: false, closeButton: true }
+                    );
+                    return;
                 }
-            };
-            const tempRanges = { ...selectedDateRanges, [transportType]: value };
-            Object.values(tempRanges).forEach(range => addMonthsFromRange(range));
-            return { totalCovered: allMonths.size, isComplete: allMonths.size === 12 };
-        })();
+            }
 
-        const remainingMonthsAfterChange = 12 - overallCoverageAfterChange.totalCovered;
+            // Ensure selected dates fall within the allowed calendar window
+            if (startDate < calendarMinDate || endDate > calendarMaxDate) {
+                toast.warning(`Selected date range must be between ${calendarMinDate.toLocaleDateString('en-US')} and ${calendarMaxDate.toLocaleDateString('en-US')}.`);
+                return;
+            }
 
-        if (!overallCoverageAfterChange.isComplete && remainingMonthsAfterChange > 0) {
-            const message = `Total coverage across all commute methods: ${overallCoverageAfterChange.totalCovered} month${overallCoverageAfterChange.totalCovered !== 1 ? 's' : ''} covered. ${remainingMonthsAfterChange} month${remainingMonthsAfterChange !== 1 ? 's' : ''} remaining. Select date ranges for other methods to cover the full year.`;
-            toast.warning(
-                <div>
-                    <div className="font-semibold mb-1">Incomplete Year Coverage</div>
-                    <div className="text-sm mb-2">{message}</div>
-                    <div className="text-xs text-gray-600 mt-1">
-                        Currently using: {[
-                            formData.commuteByMotorbike && 'Motorbike',
-                            formData.commuteByTaxi && 'Taxi',
-                            formData.commuteByBus && 'Bus',
-                            formData.commuteByTrain && 'Train',
-                            formData.commuteByCar && 'Car',
-                            formData.workFromHome && 'Work From Home'
-                        ].filter(Boolean).join(', ') || 'None'}
-                    </div>
-                    <div className="flex gap-2 mt-3">
-                        <button
-                            onClick={() => {
-                                handleDateRangeChange(transportType, {
-                                    startDate: new Date(`${reportingYear}-01-01`),
-                                    endDate: new Date(`${reportingYear}-12-31`),
-                                });
-                                toast.dismiss();
-                            }}
-                            className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                        >
-                            Select Full Year for {transportType} ({reportingYear})
-                        </button>
-                        <button
-                            onClick={() => toast.dismiss()}
-                            className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300"
-                        >
-                            Keep Selection
-                        </button>
-                    </div>
-                </div>,
-                { autoClose: 8000, closeButton: true }
-            );
-        } else if (overallCoverageAfterChange.isComplete) {
-            toast.success("✓ Complete year coverage achieved across all commute methods!");
+            // Check for overlaps with other selected date ranges
+            const otherRanges = { ...selectedDateRanges };
+            delete otherRanges[transportType];
+
+            let hasOverlap = false;
+            let overlappingTransportType = '';
+            let overlappingMonths = [];
+
+            for (const [otherType, otherRange] of Object.entries(otherRanges)) {
+                if (otherRange && checkDateRangeOverlap(value, otherRange)) {
+                    hasOverlap = true;
+                    overlappingTransportType = otherType;
+                    const overlapStart = new Date(Math.max(startDate, new Date(otherRange.startDate)));
+                    const overlapEnd = new Date(Math.min(endDate, new Date(otherRange.endDate)));
+                    for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
+                        const month = d.getMonth() + 1;
+                        if (!overlappingMonths.includes(month)) {
+                            overlappingMonths.push(month);
+                        }
+                    }
+                    break;
+                }
+            }
+
+            if (hasOverlap) {
+                const monthNames = overlappingMonths.map(m => getMonthName(m)).join(', ');
+                toast.error(
+                    <div>
+                        <div className="font-semibold mb-1">Date Range Conflict!</div>
+                        <div className="text-sm mb-2">
+                            Your selected date range overlaps with {overlappingTransportType} commute
+                            in month(s): {monthNames}. Please select a different date range.
+                        </div>
+                    </div>,
+                    { autoClose: false, closeButton: true }
+                );
+                return;
+            }
+
+            // Calculate overall coverage AFTER this change
+            const overallCoverageAfterChange = (() => {
+                const allMonths = new Set();
+                const addMonthsFromRange = (dateRange) => {
+                    if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
+                    const startDate = new Date(dateRange.startDate);
+                    const endDate = new Date(dateRange.endDate);
+                    const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+                    const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+                    while (currentDate <= endDateMonth) {
+                        const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+                        allMonths.add(monthKey);
+                        currentDate.setMonth(currentDate.getMonth() + 1);
+                    }
+                };
+                const tempRanges = { ...selectedDateRanges, [transportType]: value };
+                Object.values(tempRanges).forEach(range => addMonthsFromRange(range));
+                return { totalCovered: allMonths.size, isComplete: allMonths.size === 12 };
+            })();
+
+            const remainingMonthsAfterChange = 12 - overallCoverageAfterChange.totalCovered;
+
+            if (!overallCoverageAfterChange.isComplete && remainingMonthsAfterChange > 0) {
+                const message = `Total coverage across all commute methods: ${overallCoverageAfterChange.totalCovered} month${overallCoverageAfterChange.totalCovered !== 1 ? 's' : ''} covered. ${remainingMonthsAfterChange} month${remainingMonthsAfterChange !== 1 ? 's' : ''} remaining. Select date ranges for other methods to cover the full year.`;
+                toast.warning(
+                    <div>
+                        <div className="font-semibold mb-1">Incomplete Year Coverage</div>
+                        <div className="text-sm mb-2">{message}</div>
+                        <div className="text-xs text-gray-600 mt-1">
+                            Currently using: {[
+                                formData.commuteByMotorbike && 'Motorbike',
+                                formData.commuteByTaxi && 'Taxi',
+                                formData.commuteByBus && 'Bus',
+                                formData.commuteByTrain && 'Train',
+                                formData.commuteByCar && 'Car',
+                                formData.workFromHome && 'Work From Home'
+                            ].filter(Boolean).join(', ') || 'None'}
+                        </div>
+                        <div className="flex gap-2 mt-3">
+                            <button
+                                onClick={() => {
+                                    handleDateRangeChange(transportType, {
+                                        startDate: new Date(`${reportingYear}-01-01`),
+                                        endDate: new Date(`${reportingYear}-12-31`),
+                                    });
+                                    toast.dismiss();
+                                }}
+                                className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                            >
+                                Select Full Year for {transportType} ({reportingYear})
+                            </button>
+                            <button
+                                onClick={() => toast.dismiss()}
+                                className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300"
+                            >
+                                Keep Selection
+                            </button>
+                        </div>
+                    </div>,
+                    { autoClose: 8000, closeButton: true }
+                );
+            } else if (overallCoverageAfterChange.isComplete) {
+                toast.success("✓ Complete year coverage achieved across all commute methods!");
+            }
+
+            // Update the form data with the selected date range
+            setFormData(prev => ({ ...prev, [`${transportType}DateRange`]: value }));
+            setSelectedDateRanges(prev => ({ ...prev, [transportType]: value }));
+        } else {
+            // Handle clearing the date range
+            setFormData(prev => ({ ...prev, [`${transportType}DateRange`]: value }));
+            setSelectedDateRanges(prev => ({ ...prev, [transportType]: value }));
         }
-        
-        // Update the form data with the selected date range
-        setFormData(prev => ({ ...prev, [`${transportType}DateRange`]: value }));
-        setSelectedDateRanges(prev => ({ ...prev, [transportType]: value }));
-    } else {
-        // Handle clearing the date range
-        setFormData(prev => ({ ...prev, [`${transportType}DateRange`]: value }));
-        setSelectedDateRanges(prev => ({ ...prev, [transportType]: value }));
-    }
-};
+    };
 
     // Add this helper function to calculate remaining months
     const calculateRemainingMonths = (startDate, endDate, reportingYear) => {
@@ -2987,7 +3173,7 @@ const handleDateRangeChange = (transportType, value) => {
                             }
                         }}
                         displayFormat="DD MMM YYYY"
-                       startFrom={new Date(reportingYear, 0, 1)}
+                        startFrom={new Date(reportingYear, 0, 1)}
                         popoverDirection="down"
                         containerClassName="relative w-full"
                         inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -4234,6 +4420,10 @@ const handleDateRangeChange = (transportType, value) => {
         }
     };
 
+        console.log("Form access status:", 
+        {formAccessStatus, checkingSubmission
+    });  
+
 
     if (!token && !urlToken && !getToken()) {
         return (
@@ -4298,6 +4488,7 @@ const handleDateRangeChange = (transportType, value) => {
             </div>
         );
     }
+
 
     // Show modal if form already submitted
     if (!formAccessStatus.canAccess && formAccessStatus.message) {
@@ -4472,7 +4663,7 @@ const handleDateRangeChange = (transportType, value) => {
                                 <div className="mt-4">
                                     <p className="text-sm font-medium text-gray-700 mb-2">Month-by-Month Breakdown:</p>
                                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
-                                        
+
                                         {(() => {
                                             const coverage = validateMonthCoverage();
                                             // Build the 12-month window to display based on actual selections, 
@@ -4780,7 +4971,7 @@ const handleDateRangeChange = (transportType, value) => {
                                                                         }
                                                                     }}
                                                                     displayFormat="DD MMM YYYY"
-                                                                   startFrom={new Date(reportingYear, 0, 1)}
+                                                                    startFrom={new Date(reportingYear, 0, 1)}
                                                                     popoverDirection="down"
                                                                     containerClassName="relative w-full"
                                                                     inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -5030,7 +5221,7 @@ const handleDateRangeChange = (transportType, value) => {
                                                                     }
                                                                 }}
                                                                 displayFormat="DD MMM YYYY"
-                                                               startFrom={new Date(reportingYear, 0, 1)}
+                                                                startFrom={new Date(reportingYear, 0, 1)}
                                                                 popoverDirection="down"
                                                                 containerClassName="relative w-full"
                                                                 inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -5433,7 +5624,7 @@ const handleDateRangeChange = (transportType, value) => {
                                                                         }
                                                                     }}
                                                                     displayFormat="DD MMM YYYY"
-                                                                   startFrom={new Date(reportingYear, 0, 1)}
+                                                                    startFrom={new Date(reportingYear, 0, 1)}
                                                                     popoverDirection="down"
                                                                     containerClassName="relative w-full"
                                                                     inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -5597,6 +5788,20 @@ const handleDateRangeChange = (transportType, value) => {
                     />
                 </div>
                 {/* </form> */}
+
+                {/* Add this before the closing Card tag */}
+                <YearChangeModal
+                    isOpen={showYearChangeModal}
+                    onClose={() => {
+                        setShowYearChangeModal(false);
+                        setPendingYear(null);
+                        setPendingDateRange(null);
+                        setPendingTransportType(null);
+                    }}
+                    onConfirm={handleYearChangeConfirm}
+                    currentYear={reportingYear}
+                    newYear={pendingYear}
+                />
             </Card>
         </div>
     );
