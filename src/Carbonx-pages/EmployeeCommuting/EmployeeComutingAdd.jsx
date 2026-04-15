@@ -758,6 +758,7 @@ const EmployeeCommutingForm = () => {
     const yearEnd = 2024;
     const [reportingYearEnd, setReportingYearEnd] = useState(yearEnd);
     const [reportingYear, setReportingYear] = useState(currentYear);
+    const [detectedYear, setDetectedYear] = useState(reportingYear);
 
     // Calendar window for datepickers (allow selection from 2024-01-01 through 2026-12-31)
     const calendarMinDate = new Date('2023-12-31');
@@ -786,7 +787,7 @@ const EmployeeCommutingForm = () => {
         stakeholderDepartment: null,
         // Motorbike Commute
         commuteByMotorbike: false,
-        motorbikeMode: '', // possible values: 'individual', 'carpool', 'both'
+        motorbikeMode: 'individual', // possible values: 'individual', 'carpool', 'both'
         motorbikeDistance: '',
         motorbikeType: null,
         carryOthersMotorbike: true,
@@ -801,7 +802,7 @@ const EmployeeCommutingForm = () => {
         motorbikeCarpoolDateRange: null,
         // Taxi Commute
         commuteByTaxi: false,
-        taxiMode: '', // possible values: 'individual', 'carpool', 'both'
+        taxiMode: 'individual', // possible values: 'individual', 'carpool', 'both'
         taxiPassengers: null,
         taxiDistance: '',
         taxiType: null,
@@ -823,7 +824,7 @@ const EmployeeCommutingForm = () => {
         trainDateRange: null,
         // Car Commute
         commuteByCar: false,
-        carMode: '', // possible values: 'individual', 'carpool', 'both'
+        carMode: 'individual', // possible values: 'individual', 'carpool', 'both'
         carDistance: '',
         carType: null,
         carFuelType: null,
@@ -1387,6 +1388,46 @@ const EmployeeCommutingForm = () => {
 
     // Update the markUserAsFilled function
 
+    // Detect the year from the first selected date range and update reportingYear
+useEffect(() => {
+    // Check all date ranges to find the first valid year
+    const allDateRanges = [
+        formData.motorbikeDateRange,
+        formData.taxiDateRange,
+        formData.busDateRange,
+        formData.trainDateRange,
+        formData.carDateRange,
+        formData.workFromHomeDateRange,
+        formData.motorbikeCarpoolDateRange,
+        formData.taxiCarpoolDateRange,
+        formData.carCarpoolDateRange
+    ];
+    
+    for (const range of allDateRanges) {
+        if (range && range.startDate) {
+            const year = new Date(range.startDate).getFullYear();
+            if (year >= 2024 && year <= 2050 && year !== reportingYear) {
+                setReportingYear(year);
+                setDetectedYear(year);
+                console.log(`Reporting year updated to: ${year} based on selection`);
+                // Optional: Show toast notification
+                toast.info(`Reporting year set to ${year} based on your selection`);
+                return;
+            }
+        }
+    }
+}, [
+    formData.motorbikeDateRange,
+    formData.taxiDateRange,
+    formData.busDateRange,
+    formData.trainDateRange,
+    formData.carDateRange,
+    formData.workFromHomeDateRange,
+    formData.motorbikeCarpoolDateRange,
+    formData.taxiCarpoolDateRange,
+    formData.carCarpoolDateRange
+]);
+
     const markUserAsFilled = async (userId, token, emailDocIdToUse) => {
         if (!userId || !token) {
             console.warn('Cannot mark user as filled - missing userId or token');
@@ -1685,6 +1726,28 @@ const EmployeeCommutingForm = () => {
 
     // Handle checkbox changes
     const handleCheckboxChange = (field, value) => {
+        console.log('=== CHECKBOX CHANGE ===', {
+            field,
+            newValue: value,
+            currentFormData: {
+
+                commuteByMotorbike: formData.commuteByMotorbike,
+                motorbikeMode: formData.motorbikeMode,
+                carryOthersMotorbike: formData.carryOthersMotorbike,
+                personsCarriedMotorbike: formData.personsCarriedMotorbike,
+
+                commuteByTaxi: formData.commuteByTaxi,
+                taxiMode: formData.taxiMode,
+                travelWithOthersTaxi: formData.travelWithOthersTaxi,
+                personsTravelWithTaxi: formData.personsTravelWithTaxi,
+
+                commuteByCar: formData.commuteByCar,
+                carMode: formData.carMode,
+                carryOthersCar: formData.carryOthersCar,
+                personsCarriedCar: formData.personsCarriedCar,
+                carDistanceCarpool: formData.carDistanceCarpool,
+            }
+        });
         setFormData(prev => ({
             ...prev,
             [field]: value,
@@ -1707,7 +1770,16 @@ const EmployeeCommutingForm = () => {
                 return newErrors;
             });
         }
-
+            if (field === 'commuteByMotorbike') {
+        setFormData(prev => ({ ...prev, motorbikeMode: 'individual' }));
+    }
+    if (field === 'commuteByCar') {
+        setFormData(prev => ({ ...prev, carMode: 'individual' }));
+    }
+    if (field === 'commuteByTaxi') {
+        setFormData(prev => ({ ...prev, taxiMode: 'individual' }));
+    }
+    
         // If this is a carry/travel-with toggle, when turned off reset its dependent fields
         if ((field.startsWith('carryOthers') || field.startsWith('travelWithOthers'))) {
             if (!value) {
@@ -1812,6 +1884,11 @@ const EmployeeCommutingForm = () => {
             } else {
                 return; // Not a transport/work from home field
             }
+            console.log('=== RESETTING TRANSPORT TYPE ===', {
+                field,
+                transportType,
+                willReset: true
+            });
 
             if (transportType === 'motorbike' || transportType === 'taxi' || transportType === 'bus' ||
                 transportType === 'train' || transportType === 'car' || transportType === 'workfromhome') {
@@ -1830,7 +1907,7 @@ const EmployeeCommutingForm = () => {
                         motorbikeType: '',
                         motorbikeStartDate: '',
                         motorbikeEndDate: '',
-                        carryOthersMotorbike: false,
+                        carryOthersMotorbike: true,
                         personsCarriedMotorbike: '',
                         motorbikeDistanceCarpool: '',
                         motorbikePassengerEmails: [],
@@ -1855,7 +1932,7 @@ const EmployeeCommutingForm = () => {
                             taxiType: '',
                             taxiStartDate: '',
                             taxiEndDate: '',
-                            travelWithOthersTaxi: false,
+                            travelWithOthersTaxi: true,
                             personsTravelWithTaxi: '',
                             taxiDistanceCarpool: '',
                             taxiPassengerEmails: [],
@@ -1908,7 +1985,7 @@ const EmployeeCommutingForm = () => {
                             carFuelType: '',
                             carStartDate: '',
                             carEndDate: '',
-                            carryOthersCar: false,
+                            carryOthersCar: true,
                             personsCarriedCar: '',
                             carDistanceCarpool: '',
                             carPassengerEmails: [],
@@ -1951,6 +2028,13 @@ const EmployeeCommutingForm = () => {
 
     // Handle input changes for Textinput
     const handleInputChange = (field, value) => {
+        if (field === 'motorbikeMode') {
+            console.log('=== MODE CHANGED ===', {
+                newMode: value,
+                currentCarryOthersMotorbike: formData.carryOthersMotorbike,
+                willShowFields: value === 'carpool' || value === 'both'
+            });
+        }
         setFormData(prev => ({ ...prev, [field]: value }));
 
         // Clear error for this specific field
@@ -2272,174 +2356,360 @@ const EmployeeCommutingForm = () => {
         };
     };
     // Update the handleDateRangeChange function with error clearing
-    const handleDateRangeChange = (transportType, value) => {
-        // Clear date range error when user starts selecting
-        const dateRangeField = `${transportType}DateRange`;
-        if (errors[dateRangeField]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[dateRangeField];
-                return newErrors;
-            });
+    // const handleDateRangeChange = (transportType, value) => {
+    //     // Clear date range error when user starts selecting
+    //     const dateRangeField = `${transportType}DateRange`;
+    //     if (errors[dateRangeField]) {
+    //         setErrors(prev => {
+    //             const newErrors = { ...prev };
+    //             delete newErrors[dateRangeField];
+    //             return newErrors;
+    //         });
+    //     }
+
+    //     // Clear month coverage error when date range changes
+    //     if (errors.monthCoverage) {
+    //         setErrors(prev => {
+    //             const newErrors = { ...prev };
+    //             delete newErrors.monthCoverage;
+    //             return newErrors;
+    //         });
+    //     }
+
+    //     // Clear date range overlap error when date range changes
+    //     if (errors.dateRangeOverlap) {
+    //         setErrors(prev => {
+    //             const newErrors = { ...prev };
+    //             delete newErrors.dateRangeOverlap;
+    //             return newErrors;
+    //         });
+    //     }
+
+    //     if (value && value.startDate && value.endDate) {
+    //         const startDate = new Date(value.startDate);
+    //         const endDate = new Date(value.endDate);
+
+    //         // Ensure selected dates fall within the allowed calendar window
+    //         if (startDate < calendarMinDate || endDate > calendarMaxDate) {
+    //             toast.warning(`Selected date range must be between ${calendarMinDate.toLocaleDateString('en-US')} and ${calendarMaxDate.toLocaleDateString('en-US')}.`);
+    //             return;
+    //         }
+
+    //         // Check for overlaps with other selected date ranges
+    //         const otherRanges = { ...selectedDateRanges };
+    //         delete otherRanges[transportType];
+
+    //         let hasOverlap = false;
+    //         let overlappingTransportType = '';
+    //         let overlappingMonths = [];
+
+    //         // Check each existing date range for overlap
+    //         for (const [otherType, otherRange] of Object.entries(otherRanges)) {
+    //             if (otherRange && checkDateRangeOverlap(value, otherRange)) {
+    //                 hasOverlap = true;
+    //                 overlappingTransportType = otherType;
+
+    //                 // Find overlapping months
+    //                 const overlapStart = new Date(Math.max(startDate, new Date(otherRange.startDate)));
+    //                 const overlapEnd = new Date(Math.min(endDate, new Date(otherRange.endDate)));
+
+    //                 for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
+    //                     const month = d.getMonth() + 1;
+    //                     if (!overlappingMonths.includes(month)) {
+    //                         overlappingMonths.push(month);
+    //                     }
+    //                 }
+    //                 break;
+    //             }
+    //         }
+
+    //         if (hasOverlap) {
+    //             const monthNames = overlappingMonths.map(m => getMonthName(m)).join(', ');
+    //             toast.error(
+    //                 <div>
+    //                     <div className="font-semibold mb-1">Date Range Conflict!</div>
+    //                     <div className="text-sm mb-2">
+    //                         Your selected date range overlaps with {overlappingTransportType} commute
+    //                         in month(s): {monthNames}. Please select a different date range.
+    //                     </div>
+    //                 </div>,
+    //                 {
+    //                     autoClose: false,
+    //                     closeButton: true,
+    //                 }
+    //             );
+    //             return;
+    //         }
+
+    //         // Calculate how many months are covered for this specific transport method
+    //         const monthsCovered = calculateRemainingMonths(value.startDate, value.endDate, reportingYear);
+    //         const remainingMonths = 12 - monthsCovered;
+
+    //         // Calculate what the coverage will be AFTER this change
+    //         const simulatedFormData = {
+    //             ...formData,
+    //             [`${transportType}DateRange`]: value
+    //         };
+
+    //         const simulatedSelectedDateRanges = {
+    //             ...selectedDateRanges,
+    //             [transportType]: value
+    //         };
+
+    //         // Calculate overall coverage AFTER this change
+    //         const overallCoverageAfterChange = calculateOverallMonthCoverage(simulatedSelectedDateRanges);
+
+    //         // If overall coverage will be complete after this change, don't show the warning
+    //         if (overallCoverageAfterChange.isComplete) {
+    //             // Don't show warning - overall coverage will be complete
+    //         }
+    //         // If this specific method doesn't cover full year AND overall coverage will still be incomplete, show warning
+    //         else if (remainingMonths > 0) {
+    //             // Prepare a detailed message based on how many months remain
+    //             let message = '';
+
+    //             if (monthsCovered === 1) {
+    //                 message = `You've selected only ${monthsCovered} month. You should select dates to cover the entire year (${remainingMonths} more months needed). Use the "Full Year" shortcut or select manually.`;
+    //             } else {
+    //                 message = `You've selected ${monthsCovered} month${monthsCovered > 1 ? 's' : ''}. ${remainingMonths} month${remainingMonths > 1 ? 's' : ''} remain${remainingMonths > 1 ? '' : 's'} unselected. Consider selecting the full year for accurate reporting.`;
+    //             }
+
+    //             // Create a more prominent toast with action
+    //             toast.warning(
+    //                 <div>
+    //                     <div className="font-semibold mb-1">Incomplete Year Coverage</div>
+    //                     <div className="text-sm mb-2">{message}</div>
+    //                     <div className="flex gap-2 mt-2">
+    //                         <button
+    //                             onClick={() => {
+    //                                 // Set to full year
+    //                                 handleDateRangeChange(transportType, {
+    //                                     startDate: new Date(`${reportingYear}-01-01`),
+    //                                     endDate: new Date(`${reportingYear}-12-31`),
+    //                                 });
+    //                                 toast.dismiss();
+    //                             }}
+    //                             className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+    //                         >
+    //                             Select Full Year
+    //                         </button>
+    //                         <button
+    //                             onClick={() => toast.dismiss()}
+    //                             className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300"
+    //                         >
+    //                             Keep Selection
+    //                         </button>
+    //                     </div>
+    //                 </div>,
+    //                 {
+    //                     autoClose: 8000,
+    //                     closeButton: true,
+    //                 }
+    //             );
+    //         } else if (monthsCovered === 12) {
+    //             toast.success("✓ Full year selected for this transport method!");
+    //         }
+    //     }
+
+    //     // Update the form data with the selected date range
+    //     setFormData(prev => ({
+    //         ...prev,
+    //         [`${transportType}DateRange`]: value
+    //     }));
+
+    //     // Update the selected date ranges state
+    //     setSelectedDateRanges(prev => ({
+    //         ...prev,
+    //         [transportType]: value
+    //     }));
+    // };
+
+    // Update the handleDateRangeChange function with error clearing
+const handleDateRangeChange = (transportType, value) => {
+    // Clear date range error when user starts selecting
+    const dateRangeField = `${transportType}DateRange`;
+    if (errors[dateRangeField]) {
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors[dateRangeField];
+            return newErrors;
+        });
+    }
+
+    // Clear month coverage error when date range changes
+    if (errors.monthCoverage) {
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.monthCoverage;
+            return newErrors;
+        });
+    }
+
+    // Clear date range overlap error when date range changes
+    if (errors.dateRangeOverlap) {
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            delete newErrors.dateRangeOverlap;
+            return newErrors;
+        });
+    }
+
+    if (value && value.startDate && value.endDate) {
+        const startDate = new Date(value.startDate);
+        const endDate = new Date(value.endDate);
+        const startYear = startDate.getFullYear();
+        const endYear = endDate.getFullYear();
+
+        // Check if this is the first date range being selected
+        const hasAnyExistingRange = Object.values(selectedDateRanges).some(range => range !== null);
+        
+        // If it's the first selection and year is different, update reporting year first
+        if (!hasAnyExistingRange && startYear !== reportingYear && startYear >= 2024 && startYear <= 2050) {
+            // Update reporting year
+            setReportingYear(startYear);
+            console.log(`Reporting year updated to: ${startYear} based on selected date range`);
+            
+            // Show a toast notification
+            toast.info(`Reporting year set to ${startYear}. Please select your date range again.`);
+            
+            // Don't proceed with setting the date range - user needs to select again with the new year
+            return;
         }
 
-        // Clear month coverage error when date range changes
-        if (errors.monthCoverage) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors.monthCoverage;
-                return newErrors;
-            });
+        // Now validate against the current reporting year
+        if (startYear !== reportingYear || endYear !== reportingYear) {
+            toast.error(
+                <div>
+                    <div className="font-semibold mb-1">Invalid Date Range</div>
+                    <div className="text-sm">
+                        All dates must be within the reporting year ({reportingYear}).<br />
+                        Selected: {startYear} - {endYear}
+                    </div>
+                </div>,
+                { autoClose: 5000, closeButton: true }
+            );
+            return;
         }
 
-        // Clear date range overlap error when date range changes
-        if (errors.dateRangeOverlap) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors.dateRangeOverlap;
-                return newErrors;
-            });
+        // Ensure selected dates fall within the allowed calendar window
+        if (startDate < calendarMinDate || endDate > calendarMaxDate) {
+            toast.warning(`Selected date range must be between ${calendarMinDate.toLocaleDateString('en-US')} and ${calendarMaxDate.toLocaleDateString('en-US')}.`);
+            return;
         }
 
-        if (value && value.startDate && value.endDate) {
-            const startDate = new Date(value.startDate);
-            const endDate = new Date(value.endDate);
+        // Check for overlaps with other selected date ranges
+        const otherRanges = { ...selectedDateRanges };
+        delete otherRanges[transportType];
 
-            // Ensure selected dates fall within the allowed calendar window
-            if (startDate < calendarMinDate || endDate > calendarMaxDate) {
-                toast.warning(`Selected date range must be between ${calendarMinDate.toLocaleDateString('en-US')} and ${calendarMaxDate.toLocaleDateString('en-US')}.`);
-                return;
-            }
+        let hasOverlap = false;
+        let overlappingTransportType = '';
+        let overlappingMonths = [];
 
-            // Check for overlaps with other selected date ranges
-            const otherRanges = { ...selectedDateRanges };
-            delete otherRanges[transportType];
-
-            let hasOverlap = false;
-            let overlappingTransportType = '';
-            let overlappingMonths = [];
-
-            // Check each existing date range for overlap
-            for (const [otherType, otherRange] of Object.entries(otherRanges)) {
-                if (otherRange && checkDateRangeOverlap(value, otherRange)) {
-                    hasOverlap = true;
-                    overlappingTransportType = otherType;
-
-                    // Find overlapping months
-                    const overlapStart = new Date(Math.max(startDate, new Date(otherRange.startDate)));
-                    const overlapEnd = new Date(Math.min(endDate, new Date(otherRange.endDate)));
-
-                    for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
-                        const month = d.getMonth() + 1;
-                        if (!overlappingMonths.includes(month)) {
-                            overlappingMonths.push(month);
-                        }
+        for (const [otherType, otherRange] of Object.entries(otherRanges)) {
+            if (otherRange && checkDateRangeOverlap(value, otherRange)) {
+                hasOverlap = true;
+                overlappingTransportType = otherType;
+                const overlapStart = new Date(Math.max(startDate, new Date(otherRange.startDate)));
+                const overlapEnd = new Date(Math.min(endDate, new Date(otherRange.endDate)));
+                for (let d = new Date(overlapStart); d <= overlapEnd; d.setMonth(d.getMonth() + 1)) {
+                    const month = d.getMonth() + 1;
+                    if (!overlappingMonths.includes(month)) {
+                        overlappingMonths.push(month);
                     }
-                    break;
                 }
-            }
-
-            if (hasOverlap) {
-                const monthNames = overlappingMonths.map(m => getMonthName(m)).join(', ');
-                toast.error(
-                    <div>
-                        <div className="font-semibold mb-1">Date Range Conflict!</div>
-                        <div className="text-sm mb-2">
-                            Your selected date range overlaps with {overlappingTransportType} commute
-                            in month(s): {monthNames}. Please select a different date range.
-                        </div>
-                    </div>,
-                    {
-                        autoClose: false,
-                        closeButton: true,
-                    }
-                );
-                return;
-            }
-
-            // Calculate how many months are covered for this specific transport method
-            const monthsCovered = calculateRemainingMonths(value.startDate, value.endDate, reportingYear);
-            const remainingMonths = 12 - monthsCovered;
-
-            // Calculate what the coverage will be AFTER this change
-            const simulatedFormData = {
-                ...formData,
-                [`${transportType}DateRange`]: value
-            };
-
-            const simulatedSelectedDateRanges = {
-                ...selectedDateRanges,
-                [transportType]: value
-            };
-
-            // Calculate overall coverage AFTER this change
-            const overallCoverageAfterChange = calculateOverallMonthCoverage(simulatedSelectedDateRanges);
-
-            // If overall coverage will be complete after this change, don't show the warning
-            if (overallCoverageAfterChange.isComplete) {
-                // Don't show warning - overall coverage will be complete
-            }
-            // If this specific method doesn't cover full year AND overall coverage will still be incomplete, show warning
-            else if (remainingMonths > 0) {
-                // Prepare a detailed message based on how many months remain
-                let message = '';
-
-                if (monthsCovered === 1) {
-                    message = `You've selected only ${monthsCovered} month. You should select dates to cover the entire year (${remainingMonths} more months needed). Use the "Full Year" shortcut or select manually.`;
-                } else {
-                    message = `You've selected ${monthsCovered} month${monthsCovered > 1 ? 's' : ''}. ${remainingMonths} month${remainingMonths > 1 ? 's' : ''} remain${remainingMonths > 1 ? '' : 's'} unselected. Consider selecting the full year for accurate reporting.`;
-                }
-
-                // Create a more prominent toast with action
-                toast.warning(
-                    <div>
-                        <div className="font-semibold mb-1">Incomplete Year Coverage</div>
-                        <div className="text-sm mb-2">{message}</div>
-                        <div className="flex gap-2 mt-2">
-                            <button
-                                onClick={() => {
-                                    // Set to full year
-                                    handleDateRangeChange(transportType, {
-                                        startDate: new Date(`${reportingYear}-01-01`),
-                                        endDate: new Date(`${reportingYear}-12-31`),
-                                    });
-                                    toast.dismiss();
-                                }}
-                                className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                            >
-                                Select Full Year
-                            </button>
-                            <button
-                                onClick={() => toast.dismiss()}
-                                className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300"
-                            >
-                                Keep Selection
-                            </button>
-                        </div>
-                    </div>,
-                    {
-                        autoClose: 8000,
-                        closeButton: true,
-                    }
-                );
-            } else if (monthsCovered === 12) {
-                toast.success("✓ Full year selected for this transport method!");
+                break;
             }
         }
 
+        if (hasOverlap) {
+            const monthNames = overlappingMonths.map(m => getMonthName(m)).join(', ');
+            toast.error(
+                <div>
+                    <div className="font-semibold mb-1">Date Range Conflict!</div>
+                    <div className="text-sm mb-2">
+                        Your selected date range overlaps with {overlappingTransportType} commute
+                        in month(s): {monthNames}. Please select a different date range.
+                    </div>
+                </div>,
+                { autoClose: false, closeButton: true }
+            );
+            return;
+        }
+
+        // Calculate overall coverage AFTER this change
+        const overallCoverageAfterChange = (() => {
+            const allMonths = new Set();
+            const addMonthsFromRange = (dateRange) => {
+                if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
+                const startDate = new Date(dateRange.startDate);
+                const endDate = new Date(dateRange.endDate);
+                const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+                const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+                while (currentDate <= endDateMonth) {
+                    const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+                    allMonths.add(monthKey);
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                }
+            };
+            const tempRanges = { ...selectedDateRanges, [transportType]: value };
+            Object.values(tempRanges).forEach(range => addMonthsFromRange(range));
+            return { totalCovered: allMonths.size, isComplete: allMonths.size === 12 };
+        })();
+
+        const remainingMonthsAfterChange = 12 - overallCoverageAfterChange.totalCovered;
+
+        if (!overallCoverageAfterChange.isComplete && remainingMonthsAfterChange > 0) {
+            const message = `Total coverage across all commute methods: ${overallCoverageAfterChange.totalCovered} month${overallCoverageAfterChange.totalCovered !== 1 ? 's' : ''} covered. ${remainingMonthsAfterChange} month${remainingMonthsAfterChange !== 1 ? 's' : ''} remaining. Select date ranges for other methods to cover the full year.`;
+            toast.warning(
+                <div>
+                    <div className="font-semibold mb-1">Incomplete Year Coverage</div>
+                    <div className="text-sm mb-2">{message}</div>
+                    <div className="text-xs text-gray-600 mt-1">
+                        Currently using: {[
+                            formData.commuteByMotorbike && 'Motorbike',
+                            formData.commuteByTaxi && 'Taxi',
+                            formData.commuteByBus && 'Bus',
+                            formData.commuteByTrain && 'Train',
+                            formData.commuteByCar && 'Car',
+                            formData.workFromHome && 'Work From Home'
+                        ].filter(Boolean).join(', ') || 'None'}
+                    </div>
+                    <div className="flex gap-2 mt-3">
+                        <button
+                            onClick={() => {
+                                handleDateRangeChange(transportType, {
+                                    startDate: new Date(`${reportingYear}-01-01`),
+                                    endDate: new Date(`${reportingYear}-12-31`),
+                                });
+                                toast.dismiss();
+                            }}
+                            className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                        >
+                            Select Full Year for {transportType} ({reportingYear})
+                        </button>
+                        <button
+                            onClick={() => toast.dismiss()}
+                            className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300"
+                        >
+                            Keep Selection
+                        </button>
+                    </div>
+                </div>,
+                { autoClose: 8000, closeButton: true }
+            );
+        } else if (overallCoverageAfterChange.isComplete) {
+            toast.success("✓ Complete year coverage achieved across all commute methods!");
+        }
+        
         // Update the form data with the selected date range
-        setFormData(prev => ({
-            ...prev,
-            [`${transportType}DateRange`]: value
-        }));
-
-        // Update the selected date ranges state
-        setSelectedDateRanges(prev => ({
-            ...prev,
-            [transportType]: value
-        }));
-    };
-
+        setFormData(prev => ({ ...prev, [`${transportType}DateRange`]: value }));
+        setSelectedDateRanges(prev => ({ ...prev, [transportType]: value }));
+    } else {
+        // Handle clearing the date range
+        setFormData(prev => ({ ...prev, [`${transportType}DateRange`]: value }));
+        setSelectedDateRanges(prev => ({ ...prev, [transportType]: value }));
+    }
+};
 
     // Add this helper function to calculate remaining months
     const calculateRemainingMonths = (startDate, endDate, reportingYear) => {
@@ -2717,7 +2987,7 @@ const EmployeeCommutingForm = () => {
                             }
                         }}
                         displayFormat="DD MMM YYYY"
-                        startFrom={new Date()}
+                       startFrom={new Date(reportingYear, 0, 1)}
                         popoverDirection="down"
                         containerClassName="relative w-full"
                         inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -2791,7 +3061,7 @@ const EmployeeCommutingForm = () => {
                                                 }}
                                                 className="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                                             >
-                                                Select Full Year
+                                                Select Full Year ({reportingYear})
                                             </button>
                                         )}
                                     </div>
@@ -3058,45 +3328,84 @@ const EmployeeCommutingForm = () => {
     //         isComplete: coveredMonths.size === 12
     //     };
     // };
+    // const validateMonthCoverage = () => {
+    //     const coveredMonths = new Set();
+
+    //     const addMonthsFromRange = (dateRange) => {
+    //         if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
+    //         const startDate = new Date(dateRange.startDate);
+    //         const endDate = new Date(dateRange.endDate);
+    //         const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+    //         const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+
+    //         while (currentDate <= endDateMonth) {
+    //             const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+    //             coveredMonths.add(monthKey);
+    //             currentDate.setMonth(currentDate.getMonth() + 1);
+    //         }
+    //     };
+
+    //     if (formData.commuteByMotorbike && formData.motorbikeDateRange) addMonthsFromRange(formData.motorbikeDateRange);
+    //     if (formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.motorbikeCarpoolDateRange) addMonthsFromRange(formData.motorbikeCarpoolDateRange);
+    //     if (formData.commuteByTaxi && formData.taxiDateRange) addMonthsFromRange(formData.taxiDateRange);
+    //     if (formData.commuteByTaxi && formData.taxiMode === 'both' && formData.taxiCarpoolDateRange) addMonthsFromRange(formData.taxiCarpoolDateRange);
+    //     if (formData.commuteByBus && formData.busDateRange) addMonthsFromRange(formData.busDateRange);
+    //     if (formData.commuteByTrain && formData.trainDateRange) addMonthsFromRange(formData.trainDateRange);
+    //     if (formData.commuteByCar && formData.carDateRange) addMonthsFromRange(formData.carDateRange);
+    //     if (formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange) addMonthsFromRange(formData.carCarpoolDateRange);
+    //     if (formData.workFromHome && formData.workFromHomeDateRange) addMonthsFromRange(formData.workFromHomeDateRange);
+
+    //     // ✅ FIX: Don't restrict to reportingYear — use all covered months
+    //     // Check any contiguous 12-month span within covered months
+    //     const sortedMonths = Array.from(coveredMonths).sort();
+
+    //     return {
+    //         totalCovered: coveredMonths.size,
+    //         totalRequired: 12,
+    //         coveredMonths: sortedMonths,
+    //         uncoveredMonths: [], // Not restricting to a single year anymore
+    //         isComplete: coveredMonths.size >= 12
+    //     };
+    // };
     const validateMonthCoverage = () => {
-    const coveredMonths = new Set();
+        const coveredMonths = new Set();
 
-    const addMonthsFromRange = (dateRange) => {
-        if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
-        const startDate = new Date(dateRange.startDate);
-        const endDate = new Date(dateRange.endDate);
-        const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-        const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+        const addMonthsFromRange = (dateRange) => {
+            if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
+            const startDate = new Date(dateRange.startDate);
+            const endDate = new Date(dateRange.endDate);
+            const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+            const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
 
-        while (currentDate <= endDateMonth) {
-            const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-            coveredMonths.add(monthKey);
-            currentDate.setMonth(currentDate.getMonth() + 1);
-        }
+            while (currentDate <= endDateMonth) {
+                const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+                coveredMonths.add(monthKey);
+                currentDate.setMonth(currentDate.getMonth() + 1);
+            }
+        };
+
+        // Add months from ALL selected commute methods
+        if (formData.commuteByMotorbike && formData.motorbikeDateRange) addMonthsFromRange(formData.motorbikeDateRange);
+        if (formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.motorbikeCarpoolDateRange) addMonthsFromRange(formData.motorbikeCarpoolDateRange);
+        if (formData.commuteByTaxi && formData.taxiDateRange) addMonthsFromRange(formData.taxiDateRange);
+        if (formData.commuteByTaxi && formData.taxiMode === 'both' && formData.taxiCarpoolDateRange) addMonthsFromRange(formData.taxiCarpoolDateRange);
+        if (formData.commuteByBus && formData.busDateRange) addMonthsFromRange(formData.busDateRange);
+        if (formData.commuteByTrain && formData.trainDateRange) addMonthsFromRange(formData.trainDateRange);
+        if (formData.commuteByCar && formData.carDateRange) addMonthsFromRange(formData.carDateRange);
+        if (formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange) addMonthsFromRange(formData.carCarpoolDateRange);
+        if (formData.workFromHome && formData.workFromHomeDateRange) addMonthsFromRange(formData.workFromHomeDateRange);
+
+        const totalCovered = coveredMonths.size;
+        const remainingMonths = 12 - totalCovered;
+
+        return {
+            totalCovered,
+            totalRequired: 12,
+            remainingMonths,
+            coveredMonths: Array.from(coveredMonths).sort(),
+            isComplete: totalCovered === 12
+        };
     };
-
-    if (formData.commuteByMotorbike && formData.motorbikeDateRange) addMonthsFromRange(formData.motorbikeDateRange);
-    if (formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.motorbikeCarpoolDateRange) addMonthsFromRange(formData.motorbikeCarpoolDateRange);
-    if (formData.commuteByTaxi && formData.taxiDateRange) addMonthsFromRange(formData.taxiDateRange);
-    if (formData.commuteByTaxi && formData.taxiMode === 'both' && formData.taxiCarpoolDateRange) addMonthsFromRange(formData.taxiCarpoolDateRange);
-    if (formData.commuteByBus && formData.busDateRange) addMonthsFromRange(formData.busDateRange);
-    if (formData.commuteByTrain && formData.trainDateRange) addMonthsFromRange(formData.trainDateRange);
-    if (formData.commuteByCar && formData.carDateRange) addMonthsFromRange(formData.carDateRange);
-    if (formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange) addMonthsFromRange(formData.carCarpoolDateRange);
-    if (formData.workFromHome && formData.workFromHomeDateRange) addMonthsFromRange(formData.workFromHomeDateRange);
-
-    // ✅ FIX: Don't restrict to reportingYear — use all covered months
-    // Check any contiguous 12-month span within covered months
-    const sortedMonths = Array.from(coveredMonths).sort();
-    
-    return {
-        totalCovered: coveredMonths.size,
-        totalRequired: 12,
-        coveredMonths: sortedMonths,
-        uncoveredMonths: [], // Not restricting to a single year anymore
-        isComplete: coveredMonths.size >= 12
-    };
-};
 
     // Function to check for date range overlaps
     const checkAllDateRangeOverlaps = () => {
@@ -3415,7 +3724,7 @@ const EmployeeCommutingForm = () => {
                 //     errors.taxiCarpoolDateRange = `Date range must be within ${reportingYear}`;
                 // }
             }
-        }  
+        }
         // Bus date range validation
         if (formData.commuteByBus) {
             if (!formData.busDateRange || !formData.busDateRange.startDate || !formData.busDateRange.endDate) {
@@ -4163,56 +4472,41 @@ const EmployeeCommutingForm = () => {
                                 <div className="mt-4">
                                     <p className="text-sm font-medium text-gray-700 mb-2">Month-by-Month Breakdown:</p>
                                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
-                                        {/* {monthNames.map((month, index) => {
-                                            const monthKey = `${reportingYear}-${String(index + 1).padStart(2, '0')}`;
-                                            const isCovered = coverage.coveredMonths.includes(monthKey);
-
-                                            return (
-                                                <div
-                                                    key={month}
-                                                    className={`p-2 rounded border text-center ${isCovered ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}
-                                                >
-                                                    <div className="text-xs font-medium">{month.substring(0, 3)}</div>
-                                                    <div className={`text-xs ${isCovered ? 'text-green-600' : 'text-red-600'}`}>
-                                                        {isCovered ? '✓' : '✗'}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })} */}
+                                        
                                         {(() => {
-    const coverage = validateMonthCoverage();
-    // Build the 12-month window to display based on actual selections, 
-    // or fall back to reportingYear
-    const allMonthsToShow = Array.from({ length: 12 }, (_, i) => {
-        // Start from Jan of reportingYear - 1 if selections span previous year
-        const startYear = coverage.coveredMonths.length > 0 
-            ? parseInt(coverage.coveredMonths[0].split('-')[0])
-            : reportingYear;
-        const date = new Date(startYear, i, 1);
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    });
+                                            const coverage = validateMonthCoverage();
+                                            // Build the 12-month window to display based on actual selections, 
+                                            // or fall back to reportingYear
+                                            const allMonthsToShow = Array.from({ length: 12 }, (_, i) => {
+                                                // Start from Jan of reportingYear - 1 if selections span previous year
+                                                const startYear = coverage.coveredMonths.length > 0
+                                                    ? parseInt(coverage.coveredMonths[0].split('-')[0])
+                                                    : reportingYear;
+                                                const date = new Date(startYear, i, 1);
+                                                return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                                            });
 
-    return allMonthsToShow.map((monthKey) => {
-        const [yr, mo] = monthKey.split('-');
-        const monthName = new Date(+yr, +mo - 1, 1).toLocaleString('en', { month: 'short' });
-        const isCovered = coverage.coveredMonths.includes(monthKey);
-        return (
-            <div key={monthKey}
-                className={`p-2 rounded border text-center ${isCovered ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                <div className="text-xs font-medium">{monthName}</div>
-                <div className="text-xs">{yr}</div>
-                <div className={`text-xs ${isCovered ? 'text-green-600' : 'text-red-600'}`}>
-                    {isCovered ? '✓' : '✗'}
-                </div>
-            </div>
-        );
-    });
-})()}
+                                            return allMonthsToShow.map((monthKey) => {
+                                                const [yr, mo] = monthKey.split('-');
+                                                const monthName = new Date(+yr, +mo - 1, 1).toLocaleString('en', { month: 'short' });
+                                                const isCovered = coverage.coveredMonths.includes(monthKey);
+                                                return (
+                                                    <div key={monthKey}
+                                                        className={`p-2 rounded border text-center ${isCovered ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                                                        <div className="text-xs font-medium">{monthName}</div>
+                                                        <div className="text-xs">{yr}</div>
+                                                        <div className={`text-xs ${isCovered ? 'text-green-600' : 'text-red-600'}`}>
+                                                            {isCovered ? '✓' : '✗'}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            });
+                                        })()}
                                     </div>
                                 </div>
 
                                 {/* Methods coverage summary */}
-                                <div className="mt-4 pt-4 border-t border-gray-200">
+                                {/* <div className="mt-4 pt-4 border-t border-gray-200">
                                     <p className="text-sm font-medium text-gray-700 mb-2">Methods Used by Month:</p>
                                     <div className="space-y-2">
                                         {formData.commuteByMotorbike && formData.motorbikeDateRange && (
@@ -4288,7 +4582,7 @@ const EmployeeCommutingForm = () => {
                                             </div>
                                         )}
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         );
                     })()}
@@ -4486,7 +4780,7 @@ const EmployeeCommutingForm = () => {
                                                                         }
                                                                     }}
                                                                     displayFormat="DD MMM YYYY"
-                                                                    startFrom={new Date()}
+                                                                   startFrom={new Date(reportingYear, 0, 1)}
                                                                     popoverDirection="down"
                                                                     containerClassName="relative w-full"
                                                                     inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -4736,7 +5030,7 @@ const EmployeeCommutingForm = () => {
                                                                     }
                                                                 }}
                                                                 displayFormat="DD MMM YYYY"
-                                                                startFrom={new Date()}
+                                                               startFrom={new Date(reportingYear, 0, 1)}
                                                                 popoverDirection="down"
                                                                 containerClassName="relative w-full"
                                                                 inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -5139,7 +5433,7 @@ const EmployeeCommutingForm = () => {
                                                                         }
                                                                     }}
                                                                     displayFormat="DD MMM YYYY"
-                                                                    startFrom={new Date()}
+                                                                   startFrom={new Date(reportingYear, 0, 1)}
                                                                     popoverDirection="down"
                                                                     containerClassName="relative w-full"
                                                                     inputClassName="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
