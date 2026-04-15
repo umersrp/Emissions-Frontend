@@ -521,24 +521,24 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
       const hasAtLeastOneToggle = hasSolarPanels || hasSupplierSpecific || hasPPA || hasRenewableAttributes;
 
       if (!hasAtLeastOneToggle) {
-        errors.push('At least one option (Solar Panels, Supplier Specific, PPA, or Renewable Attributes) must be selected for Market Based method');
+        errors.push('At least one option (1:Do you have your own solar panels or any other renewable electricity generation plant installed at your facility that is retained by you under valid renewable energy instruments? ,2:Do you purchase supplier specific electricity?,3:Do you purchase electricity under power purchase agreements (PPA)?, or 4:Do you have any other types of renewable energy attributes, market-based instruments or renewable energy certificates (RECs) that are separate from power purchase agreements (PPA) and from those covering on-site renewable electricity generation?');
       }
 
       if (hasSolarPanels) {
         if (!cleanedRow.totalonsitesolarconsumption) {
-          errors.push('"What is the total onsite solar electricity consumption?" is required when Solar Panels is Yes');
+          errors.push('"What is the total onsite solar electricity consumption?" is required when "Do you have your own solar panels or any other renewable electricity generation plant installed at your facility that is retained by you under valid renewable energy instruments?" is Yes');
         }
         if (!cleanedRow.solarretainedunderrecs) {
-          errors.push('"How much solar electricity is retained by you under valid RECs or any other energy attributes?" is required when Solar Panels is Yes');
+          errors.push('"How much solar electricity is retained by you under valid RECs or any other energy attributes?" is required when "Do you have your own solar panels or any other renewable electricity generation plant installed at your facility that is retained by you under valid renewable energy instruments?" is Yes');
         }
         if (!cleanedRow.solarconsumedbutsold) {
-          errors.push('"How much solar electricity is consumed but sold?"   is required when Solar Panels is Yes');
+          errors.push('"How much solar electricity is consumed but sold?"   is required when "Do you have your own solar panels or any other renewable electricity generation plant installed at your facility that is retained by you under valid renewable energy instruments?" is Yes');
         }
       }
 
       if (hasSupplierSpecific) {
         if (!cleanedRow.supplierspecificelectricity) {
-          errors.push('supplierSpecificElectricity is required when Supplier Specific is Yes');
+          errors.push('"How much electricity from total electricity consumption is purchased from specific supplier under contractual instrument? " is required when "Do you purchase supplier specific electricity?" is Yes');
         }
         
         const hasEmissionFactor = isYes(cleanedRow.hassupplieremissionfactor);
@@ -546,41 +546,41 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
          
        // Check if both are selected shouldn't happen with radio buttons, but validate anyway
     if (hasEmissionFactor && hasNoEmissionFactor) {
-        errors.push('Cannot select both hasSupplierEmissionFactor and dontHaveSupplierEmissionFactor. Please choose only one option.');
+        errors.push('Cannot select both "Do you have the supplier specific emission factor in kgCO₂e/kWh for purchased supplier specific electricity under contractual instrument?" and "I don\'t have supplier specific emission factor". Please choose only one option.');
     }
 
         if (!hasEmissionFactor && !hasNoEmissionFactor) {
-          errors.push('Either hasSupplierEmissionFactor or dontHaveSupplierEmissionFactor must be selected for Supplier Specific');
+          errors.push('Either "Do you have the supplier specific emission factor in kgCO₂e/kWh for purchased supplier specific electricity under contractual instrument?" or "I don\'t have supplier specific emission factor" must be selected for Supplier Specific');
         }
 
         if (hasEmissionFactor && !cleanedRow.supplieremissionfactor) {
-          errors.push('supplierEmissionFactor is required when hasSupplierEmissionFactor is Yes');
+          errors.push('Emission Factor is required when "Do you have the supplier specific emission factor in kgCO₂e/kWh for purchased supplier specific electricity under contractual instrument?" is Yes');
         }
       }
 
       if (hasPPA) {
         if (!cleanedRow.ppaelectricity) {
-          errors.push('ppaElectricity is required when PPA is Yes');
+          errors.push('"How much electricity from total electricity consumption is purchased or covered under power purchase agreement (PPA)? " is required when "Do you purchase electricity under power purchase agreements (PPA)?" is Yes');
         }
         
         const hasEmissionFactor = isYes(cleanedRow.hasppaemissionfactor);
         const hasValidInstruments = isYes(cleanedRow.hasppavalidinstruments);
 
           if (hasEmissionFactor && hasValidInstruments) {
-        errors.push('Cannot select both hasppaemissionfactor and hasppavalidinstruments. Please choose only one option.');
+        errors.push('Cannot select both "Do you have the supplier specific emission factor in kgCO₂e/kWh for purchased electricity under power purchased agreement (PPA)?" and "Or do you have the valid energy instruments or renewable energy attributes (REC, REC-I) etc. under power purchased agreements (PPA)?". Please choose only one option.');
     }
 
         if (!hasEmissionFactor && !hasValidInstruments) {
-          errors.push('Either hasPPAEmissionFactor or hasPPAValidInstruments must be selected for PPA');
+          errors.push('Either "Do you have the supplier specific emission factor in kgCO₂e/kWh for purchased electricity under power purchased agreement (PPA)?" or "Or do you have the valid energy instruments or renewable energy attributes (REC, REC-I) etc. under power purchased agreements (PPA)?" must be selected for PPA');
         }
 
         if (hasEmissionFactor && !cleanedRow.ppaemissionfactor) {
-          errors.push('ppaEmissionFactor is required when hasPPAEmissionFactor is Yes');
+          errors.push('PPA Emission Factor is required when "Do you have the supplier specific emission factor in kgCO₂e/kWh for purchased electricity under power purchased agreement (PPA)?" is Yes');
         }
       }
 
       if (hasRenewableAttributes && !cleanedRow.renewableattributeselectricity) {
-        errors.push('renewableAttributesElectricity is required when Renewable Attributes is Yes');
+        errors.push('"How much of your total electricity consumption (excluding solar generation and PPA-covered electricity) is covered by valid renewable energy attributes or market-based instruments?" is required when "Do you have any other types of renewable energy attributes, market-based instruments or renewable energy certificates (RECs) that are separate from power purchase agreements (PPA) and from those covering on-site renewable electricity generation?" is Yes');
       }
     }
 
@@ -614,7 +614,7 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
         q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
       );
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}". Valid: ${validQC.join(', ')}`);
+        errors.push(`Invalid Quality control "${cleanedRow.qualitycontrol}". Valid: ${validQC.join(', ')}`);
       } else {
         cleanedRow.qualitycontrol = matchedQC;
       }
@@ -624,7 +624,7 @@ const usePurchasedElectricityCSVUpload = (buildings = []) => {
       const isoDate = parseDateToISO(cleanedRow.postingdate);
 
       if (!isoDate) {
-        errors.push(`Invalid date format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 15/01/2024, 2024-01-15)`);
+        errors.push(`Invalid Date format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 15/01/2026,`);
       } else {
         cleanedRow.postingdate = isoDate;
       }
@@ -1023,268 +1023,6 @@ const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
   // Download the Excel file
   XLSX.writeFile(workbook, `purchased_electricity_${selectedMethod}_template.xlsx`);
 }, [buildings]);
-
-
-
-// const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
-//   const exampleBuildings = buildings.slice(0, 1);
-//   const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-4334';
-//   const exampleQC = 'Good';
-//   const exampleUnit = 'kWh';
-//   const exampleGridStation = 'Hyderabad Electric Supply Company (HESCO)';
-
-//   // Use a valid example date in DD/MM/YYYY format (not future date)
-//   const exampleDate = '03/04/2026'; // 3rd April 2026
-
-//   // Helper function to insert line breaks at logical positions
-//   const wrapHeader = (text, maxLength = 45) => {
-//     if (!text || text.length <= maxLength) return text;
-    
-//     // Insert \n after specific phrases for better readability
-//     const breakPoints = [
-//       'Installed At Your Facility',
-//       'Renewable Energy Instruments?',
-//       'Valid RECs Or Any Other',
-//       'To Another Entity?',
-//       'Under Contractual Instrument?',
-//       'For Purchased Supplier Specific Electricity',
-//       'Under Power Purchased Agreement (PPA)?',
-//       'Or Renewable Energy Certificates (RECs)',
-//       'And From Those Covering On-Site',
-//       'Renewable Electricity Generation?',
-//     ];
-    
-//     let result = text;
-//     for (const point of breakPoints) {
-//       result = result.replace(point, point + '\n');
-//     }
-    
-//     // If still too long, add breaks at word boundaries
-//     if (result.length > maxLength + 20 && !result.includes('\n')) {
-//       const words = result.split(' ');
-//       let lines = [];
-//       let currentLine = '';
-      
-//       for (const word of words) {
-//         if ((currentLine + ' ' + word).length > maxLength) {
-//           lines.push(currentLine.trim());
-//           currentLine = word;
-//         } else {
-//           currentLine += (currentLine ? ' ' : '') + word;
-//         }
-//       }
-//       if (currentLine) lines.push(currentLine.trim());
-//       result = lines.join('\n');
-//     }
-    
-//     return result;
-//   };
-
-//   // Pre-wrapped headers for complete control
-//   const getWrappedHeader = (header) => {
-//     const wrappedMap = {
-//       // Solar Panels question
-//       'Do You Have Your Own Solar Panels Or Any Other Renewable Electricity Generation Plant Installed At Your Facility That Is Retained By You Under Valid Renewable Energy Instruments?':
-//         'Do You Have Your Own Solar Panels Or Any Other Renewable Electricity\nGeneration Plant Installed At Your Facility That Is Retained By You\nUnder Valid Renewable Energy Instruments?',
-      
-//       // Onsite Solar Consumption
-//       'What Is The Total Onsite Solar Electricity Consumption?':
-//         'What Is The Total Onsite Solar Electricity Consumption?',
-      
-//       // Solar retained under RECs
-//       'How Much Solar Electricity Is Retained By You Under Valid RECs Or Any Other Energy Attributes?':
-//         'How Much Solar Electricity Is Retained By You Under Valid RECs\nOr Any Other Energy Attributes?',
-      
-//       // Solar consumed but sold
-//       'How Much Solar Electricity Is Consumed By You But Its Renewable Instruments Or Attributes Is Sold By You To Another Entity?':
-//         'How Much Solar Electricity Is Consumed By You But Its Renewable\nInstruments Or Attributes Is Sold By You To Another Entity?',
-      
-//       // Supplier specific electricity question
-//       'How Much Electricity From Total Electricity Consumption Is Purchased From Specific Supplier Under Contractual Instrument?':
-//         'How Much Electricity From Total Electricity Consumption Is Purchased\nFrom Specific Supplier Under Contractual Instrument?',
-      
-//       // Supplier emission factor question
-//       'Do You Have The Supplier Specific Emission Factor In kgCO2e/kWh For Purchased Supplier Specific Electricity Under Contractual Instrument?':
-//         'Do You Have The Supplier Specific Emission Factor In kgCO2e/kWh\nFor Purchased Supplier Specific Electricity Under Contractual Instrument?',
-      
-//       // PPA electricity question
-//       'How Much Electricity From Total Electricity Consumption Is Purchased Or Covered Under Power Purchase Agreement (PPA)?':
-//         'How Much Electricity From Total Electricity Consumption Is Purchased\nOr Covered Under Power Purchase Agreement (PPA)?',
-      
-//       // PPA emission factor question
-//       'Do You Have The Supplier Specific Emission Factor In kgCO2e/kWh For Purchased Electricity Under Power Purchased Agreement (PPA)?':
-//         'Do You Have The Supplier Specific Emission Factor In kgCO2e/kWh\nFor Purchased Electricity Under Power Purchased Agreement (PPA)?',
-      
-//       // Valid energy instruments question
-//       'Or Do You Have The Valid Energy Instruments Or Renewable Energy Attributes (REC / REC-I) Etc. Under Power Purchased Agreements (PPA)?':
-//         'Or Do You Have The Valid Energy Instruments Or Renewable\nEnergy Attributes (REC / REC-I) Etc. Under Power Purchased Agreements (PPA)?',
-      
-//       // Renewable attributes separate from PPA
-//       'Do You Have Any Other Types Of Renewable Energy Attributes Market-Based Instruments Or Renewable Energy Certificates (RECs) That Are Separate From Power Purchase Agreements (PPA) And From Those Covering On-Site Renewable Electricity Generation?':
-//         'Do You Have Any Other Types Of Renewable Energy Attributes\nMarket-Based Instruments Or Renewable Energy Certificates (RECs)\nThat Are Separate From Power Purchase Agreements (PPA)\nAnd From Those Covering On-Site Renewable Electricity Generation?',
-      
-//       // Renewable attributes coverage
-//       'How Much Of Your Total Electricity Consumption (Excluding Solar Generation And PPA-Covered Electricity) Is Covered By Valid Renewable Energy Attributes Or Market-Based Instruments?':
-//         'How Much Of Your Total Electricity Consumption\n(Excluding Solar Generation And PPA-Covered Electricity)\nIs Covered By Valid Renewable Energy Attributes\nOr Market-Based Instruments?',
-//     };
-    
-//     return wrappedMap[header] || wrapHeader(header);
-//   };
-
-//   let headers = [];
-//   let exampleRow = [];
-
-//   if (selectedMethod === 'location_based') {
-//     headers = [
-//       'Building Code',
-//       'Total Electricity Consumption',
-//       'Unit',
-//       'Total Gross Electricity Purchased From Grid Station',
-//       'Grid Station',
-//       'Total Other Supplier Specific Electricity Purchased Or Purchased Under Power Purchased Agreement (PPA)',
-//       'Quality Control',
-//       'Posting Date',
-//       'Remarks'
-//     ];
-    
-//     exampleRow = [
-//       exampleBuildingCode,
-//       '1500',
-//       exampleUnit,
-//       '1000',
-//       exampleGridStation,
-//       '500',
-//       exampleQC,
-//       exampleDate,
-//       'Example location based record'
-//     ];
-//   } else {
-//     const rawHeaders = [
-//       'Building Code',
-//       'Total Purchased Electricity (Grid / Supplier Specific / PPA)',
-//       'Unit',
-//       'Total Gross Electricity Purchased From Grid Station',
-//       'Grid Station',
-//       'Quality Control',
-//       'Posting Date',
-//       'Remarks',
-//       'Do You Have Your Own Solar Panels Or Any Other Renewable Electricity Generation Plant Installed At Your Facility That Is Retained By You Under Valid Renewable Energy Instruments?',
-//       'What Is The Total Onsite Solar Electricity Consumption?',
-//       'How Much Solar Electricity Is Retained By You Under Valid RECs Or Any Other Energy Attributes?',
-//       'How Much Solar Electricity Is Consumed By You But Its Renewable Instruments Or Attributes Is Sold By You To Another Entity?',
-//       'Do You Purchase Supplier Specific Electricity?',
-//       'How Much Electricity From Total Electricity Consumption Is Purchased From Specific Supplier Under Contractual Instrument?',
-//       'Do You Have The Supplier Specific Emission Factor In kgCO2e/kWh For Purchased Supplier Specific Electricity Under Contractual Instrument?',
-//       'Emission Factor',
-//       'I Don\'t Have Supplier Specific Emission Factor',
-//       'Do You Purchase Electricity Under Power Purchase Agreements (PPA)?',
-//       'How Much Electricity From Total Electricity Consumption Is Purchased Or Covered Under Power Purchase Agreement (PPA)?',
-//       'Do You Have The Supplier Specific Emission Factor In kgCO2e/kWh For Purchased Electricity Under Power Purchased Agreement (PPA)?',
-//       'PPA Emission Factor',
-//       'Or Do You Have The Valid Energy Instruments Or Renewable Energy Attributes (REC / REC-I) Etc. Under Power Purchased Agreements (PPA)?',
-//       'Do You Have Any Other Types Of Renewable Energy Attributes Market-Based Instruments Or Renewable Energy Certificates (RECs) That Are Separate From Power Purchase Agreements (PPA) And From Those Covering On-Site Renewable Electricity Generation?',
-//       'How Much Of Your Total Electricity Consumption (Excluding Solar Generation And PPA-Covered Electricity) Is Covered By Valid Renewable Energy Attributes Or Market-Based Instruments?',
-//     ];
-    
-//     // Apply wrapping to headers
-//     headers = rawHeaders.map(header => getWrappedHeader(header));
-    
-//     exampleRow = [
-//       exampleBuildingCode,
-//       '1500',
-//       exampleUnit,
-//       '1000',
-//       exampleGridStation,
-//       exampleQC,
-//       exampleDate,
-//       'Example market based record',
-//       'Yes',
-//       '500',
-//       '400',
-//       '100',
-//       'Yes',
-//       '300',
-//       'Yes',
-//       '0.5',
-//       'No',
-//       'Yes',
-//       '200',
-//       'Yes',
-//       '0.4',
-//       'No',
-//       'Yes',
-//       '150'
-//     ];
-//   }
-
-//   // Create worksheet data with headers and example row
-//   const worksheetData = [
-//     headers,
-//     exampleRow,
-//   ];
-
-//   // Create workbook and worksheet
-//   const workbook = XLSX.utils.book_new();
-//   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-  
-//   // Apply styles to ALL cells
-//   const range = XLSX.utils.decode_range(worksheet['!ref']);
-//   for (let R = range.s.r; R <= range.e.r; R++) {
-//     for (let C = range.s.c; C <= range.e.c; C++) {
-//       const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-//       if (!worksheet[cellAddress]) continue;
-      
-//       worksheet[cellAddress].s = {
-//   font: { bold: true, sz: 11 },
-//   fill: { fgColor: { rgb: "E0E0E0" } },
-//   alignment: {
-//     wrapText: true,        // ✅ this must be here
-//     vertical: 'top',
-//     horizontal: 'center'
-//   }
-// };
-//     }
-//   }
-  
-//   // Set column widths (wider for text-heavy columns)
-//   const colWidths = headers.map((header, index) => {
-//     const textHeavyIndices = [8, 9, 10, 11, 13, 14, 18, 19, 21, 22, 23];
-//     const isTextHeavy = textHeavyIndices.includes(index);
-//     return { wch: isTextHeavy ? 40 : 18 };
-//   });
-//   worksheet['!cols'] = colWidths;
-
-//   // Style header row separately (bold + background)
-//   for (let C = range.s.c; C <= range.e.c; ++C) {
-//     const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-//     if (!worksheet[cellAddress]) continue;
-    
-//     worksheet[cellAddress].s = {
-//       font: { bold: true, sz: 11 },
-//       fill: { fgColor: { rgb: "E0E0E0" } },
-//       alignment: {
-//         wrapText: true,
-//         vertical: 'top',
-//         horizontal: 'center'
-//       }
-//     };
-//   }
-
-//   // Set row heights (auto for all rows)
-//   const rowCount = range.e.r - range.s.r + 1;
-//   // worksheet['!rows'] = Array(rowCount).fill({ hpt: -1 });
-//   worksheet['!rows'] = [
-//   { hpt: 80 },  // Header row - tall enough for wrapped text
-//   { hpt: 30 },  // Data row
-// ];
-
-//   // Add the worksheet to the workbook
-//   XLSX.utils.book_append_sheet(workbook, worksheet, 
-//     selectedMethod === 'location_based' ? 'Location Based Template' : 'Market Based Template');
-
-//   // Download the Excel file
-//   XLSX.writeFile(workbook, `purchased_electricity_${selectedMethod}_template.xlsx`);
-// }, [buildings]);
 
   return {
     csvState,

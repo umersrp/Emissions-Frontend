@@ -665,12 +665,12 @@ const validateDownstreamRow = useCallback((row, index) => {
   // Required fields validation
   if (!cleanedRow.buildingcode) errors.push('Building Code is required');
   if (!cleanedRow.stakeholder) errors.push('Stakeholder is required');
-  if (!cleanedRow.postingdate) errors.push('postingdate is required');
-  if (!cleanedRow.soldproductactivitytype) errors.push('soldproductactivitytype is required');
-  if (!cleanedRow.transportationvehiclecategory) errors.push('transportationvehiclecategory is required');
-  if (!cleanedRow.weightloaded) errors.push('weightloaded is required');
-  if (!cleanedRow.distancetravelled) errors.push('distancetravelled is required');
-  if (!cleanedRow.qualitycontrol) errors.push('qualitycontrol is required');
+  if (!cleanedRow.postingdate) errors.push('Posting Date is required');
+  if (!cleanedRow.soldproductactivitytype) errors.push('Sold Product Activity Type is required');
+  if (!cleanedRow.transportationvehiclecategory) errors.push('Transportation Vehicle Category is required');
+  if (!cleanedRow.weightloaded) errors.push('Weight Loaded is required');
+  if (!cleanedRow.distancetravelled) errors.push('Distance Travelled is required');
+  if (!cleanedRow.qualitycontrol) errors.push('Quality Control is required');
 
   if (errors.length > 0) {
     return errors;
@@ -692,7 +692,7 @@ const validateDownstreamRow = useCallback((row, index) => {
     const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
 
     if (!matchedStakeholder) {
-      errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+      errors.push(`Invalid Stakeholder "${cleanedRow.stakeholder}"`);
     } else {
       cleanedRow.stakeholder = matchedStakeholder;
     }
@@ -704,7 +704,7 @@ const validateDownstreamRow = useCallback((row, index) => {
     const matchedActivity = findFlexibleMatch(cleanedRow.soldproductactivitytype, validActivityTypes);
     
     if (!matchedActivity) {
-      errors.push(`Invalid sold product activity type "${cleanedRow.soldproductactivitytype}"`);
+      errors.push(`Invalid "Sold Product Activity Type": "${cleanedRow.soldproductactivitytype}"`);
     } else {
       cleanedRow.soldproductactivitytype = matchedActivity;
     }
@@ -718,14 +718,14 @@ const validateDownstreamRow = useCallback((row, index) => {
     const matchedGoodsType = findFlexibleMatch(cleanedRow.soldgoodstype, validGoodsValues);
 
     if (!matchedGoodsType && validGoodsValues.length > 0) {
-      errors.push(`Invalid sold goods type "${cleanedRow.soldgoodstype}" for activity type "${cleanedRow.soldproductactivitytype}"`);
+      errors.push(`Invalid "Sold Goods Type": "${cleanedRow.soldgoodstype}" for activity type "${cleanedRow.soldproductactivitytype}"`);
     } else if (matchedGoodsType) {
       cleanedRow.soldgoodstype = matchedGoodsType;
     }
   } else if (cleanedRow.soldproductactivitytype && !cleanedRow.soldgoodstype) {
     const validGoodsTypes = soldGoodsTypeMapping[cleanedRow.soldproductactivitytype] || [];
     if (validGoodsTypes.length > 0) {
-      errors.push('soldgoodstype is required for this activity type');
+      errors.push('"Sold Goods Type" is required for this "Sold Product Activity Type"');
     }
   }
 
@@ -737,7 +737,7 @@ if (cleanedRow.transportationvehiclecategory) {
   const matchedCategory = findFlexibleMatch(cleanedRow.transportationvehiclecategory, validCategories, true);
   
   if (!matchedCategory) {
-    errors.push(`Invalid transportation vehicle category "${cleanedRow.transportationvehiclecategory}"`);
+    errors.push(`Invalid "Transportation Vehicle Category": "${cleanedRow.transportationvehiclecategory}"`);
   } else {
     cleanedRow.transportationvehiclecategory = matchedCategory;
   }
@@ -751,7 +751,7 @@ if (cleanedRow.transportationvehiclecategory) {
     const matchedType = findFlexibleMatch(cleanedRow.transportationvehicletype, validTypeValues);
 
     if (!matchedType && validTypeValues.length > 0) {
-      errors.push(`Invalid transportation vehicle type "${cleanedRow.transportationvehicletype}" for category "${cleanedRow.transportationvehiclecategory}"`);
+      errors.push(`Invalid "Transportation Vehicle Type": "${cleanedRow.transportationvehicletype}" for category "${cleanedRow.transportationvehiclecategory}"`);
     } else if (matchedType) {
       cleanedRow.transportationvehicletype = matchedType;
     }
@@ -760,7 +760,7 @@ if (cleanedRow.transportationvehiclecategory) {
     ['freightFlights', 'seaTanker', 'cargoShip'].includes(cleanedRow.transportationvehiclecategory) &&
     !cleanedRow.transportationvehicletype
   ) {
-    errors.push('transportationvehicletype is required for this vehicle category');
+    errors.push('"Transportation Vehicle Type" is required for this "Transportation Vehicle Category"');
   }
 
   // Weight Loaded validation
@@ -771,9 +771,9 @@ if (cleanedRow.transportationvehiclecategory) {
 
     const num = Number(cleanNum);
     if (isNaN(num) || cleanNum === '') {
-      errors.push(`Weight loaded must be a number, got "${cleanedRow.weightloaded}"`);
+      errors.push(`"Weight Loaded" must be a number, got "${cleanedRow.weightloaded}"`);
     } else if (num <= 0) {
-      errors.push('Weight loaded must be greater than 0');
+      errors.push('"Weight Loaded" must be greater than 0');
     } else {
       cleanedRow.weightloaded = num.toString();
     }
@@ -787,9 +787,9 @@ if (cleanedRow.transportationvehiclecategory) {
 
     const num = Number(cleanNum);
     if (isNaN(num) || cleanNum === '') {
-      errors.push(`Distance travelled must be a number, got "${cleanedRow.distancetravelled}"`);
+      errors.push(`"Distance Travelled" must be a number, got "${cleanedRow.distancetravelled}"`);
     } else if (num <= 0) {
-      errors.push('Distance travelled must be greater than 0');
+      errors.push('"Distance Travelled" must be greater than 0');
     } else {
       cleanedRow.distancetravelled = num.toString();
     }
@@ -801,7 +801,7 @@ if (cleanedRow.transportationvehiclecategory) {
     const matchedQC = findFlexibleMatch(cleanedRow.qualitycontrol, validQC);
     
     if (!matchedQC) {
-      errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+      errors.push(`Invalid Quality Control "${cleanedRow.qualitycontrol}"`);
     } else {
       cleanedRow.qualitycontrol = matchedQC;
     }
@@ -811,7 +811,7 @@ if (cleanedRow.transportationvehiclecategory) {
   if (cleanedRow.postingdate) {
     const isoDate = parseDateToISO(cleanedRow.postingdate);
     if (!isoDate) {
-      errors.push(`Invalid date format: "${cleanedRow.postingdate}"`);
+      errors.push(`Invalid Date Format: "${cleanedRow.postingdate}"`);
     } else {
       cleanedRow.postingdate = isoDate;
     }

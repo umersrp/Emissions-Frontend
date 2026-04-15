@@ -3415,8 +3415,7 @@ const EmployeeCommutingForm = () => {
                 //     errors.taxiCarpoolDateRange = `Date range must be within ${reportingYear}`;
                 // }
             }
-        }
-
+        }  
         // Bus date range validation
         if (formData.commuteByBus) {
             if (!formData.busDateRange || !formData.busDateRange.startDate || !formData.busDateRange.endDate) {

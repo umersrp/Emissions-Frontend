@@ -511,25 +511,13 @@ const useMobileCSVUpload = (buildings = []) => {
         (b._id && b._id.toString() === cleanedRow.buildingcode)
       );
       if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0, 3).map(b => b.buildingCode || b._id).join(', ')}...`);
+        errors.push(`Invalid Building Code "${cleanedRow.buildingcode}".`);
       } else {
         const matched = buildings.find(b => b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase());
         if (matched && matched.buildingCode) cleanedRow.buildingcode = matched.buildingCode;
       }
     }
 
-    // Stakeholder validation
-    // if (cleanedRow.stakeholder) {
-    //   const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
-    //   const matchedStakeholder = validStakeholders.find(s =>
-    //     normalize(s) === normalize(cleanedRow.stakeholder)
-    //   );
-    //   if (!matchedStakeholder) {
-    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-    //   } else {
-    //     cleanedRow.stakeholder = matchedStakeholder;
-    //   }
-    // }
 
     // Stakeholder validation with flexible matching
     if (cleanedRow.stakeholder) {
@@ -537,7 +525,7 @@ const useMobileCSVUpload = (buildings = []) => {
       const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
 
       if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+        errors.push(`Invalid "Stakeholder": "${cleanedRow.stakeholder}"`);
       } else {
         cleanedRow.stakeholder = matchedStakeholder;
       }
@@ -550,31 +538,20 @@ const useMobileCSVUpload = (buildings = []) => {
         normalize(v) === normalize(cleanedRow.vehicleclassification)
       );
       if (!matchedClassification) {
-        errors.push(`Invalid vehicle classification "${cleanedRow.vehicleclassification}"`);
+        errors.push(`Invalid "Vehicle Classification": "${cleanedRow.vehicleclassification}"`);
       } else {
         cleanedRow.vehicleclassification = matchedClassification;
       }
     }
 
-    // Vehicle type validation based on classification
-    // if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
-    //   const validTypes = vehicleTypeOptionsByClassification[cleanedRow.vehicleclassification]?.map(v => v.value) || [];
-    //   const matchedType = validTypes.find(v =>
-    //     normalize(v) === normalize(cleanedRow.vehicletype)
-    //   );
-    //   if (!matchedType) {
-    //     errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for classification "${cleanedRow.vehicleclassification}"`);
-    //   } else {
-    //     cleanedRow.vehicletype = matchedType;
-    //   }
-    // }
+  
     // Vehicle type validation based on classification with flexible matching
     if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
       const validTypes = vehicleTypeOptionsByClassification[cleanedRow.vehicleclassification]?.map(v => v.value) || [];
       const matchedType = findFlexibleMatch(cleanedRow.vehicletype, validTypes);
 
       if (!matchedType) {
-        errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for classification "${cleanedRow.vehicleclassification}"`);
+        errors.push(`Invalid "Vehicle Type": "${cleanedRow.vehicletype}" for "Vehicle Classification": "${cleanedRow.vehicleclassification}"`);
       } else {
         cleanedRow.vehicletype = matchedType;
       }
@@ -587,7 +564,7 @@ const useMobileCSVUpload = (buildings = []) => {
         normalize(f) === normalize(cleanedRow.fuelname)
       );
       if (!matchedFuel) {
-        errors.push(`Invalid fuel name "${cleanedRow.fuelname}" for classification "${cleanedRow.vehicleclassification}"`);
+        errors.push(`Invalid "Fuel Name": "${cleanedRow.fuelname}" for "Vehicle Classification": "${cleanedRow.vehicleclassification}"`);
       } else {
         cleanedRow.fuelname = matchedFuel;
       }
@@ -598,11 +575,9 @@ const useMobileCSVUpload = (buildings = []) => {
       const cleanNum = cleanedRow.distancetravelled.toString().replace(/[^0-9.-]/g, '');
       const num = Number(cleanNum);
       if (isNaN(num)) {
-        errors.push(`Distance traveled must be a number, got "${cleanedRow.distancetravelled}"`);
+        errors.push(`"Distance Travelled" must be a number, got "${cleanedRow.distancetravelled}"`);
       } else if (num < 0) {
-        errors.push('Distance traveled cannot be negative');
-      } else if (num > 10000000) {
-        errors.push('Distance traveled seems too large');
+        errors.push('"Distance Travelled" cannot be negative');
       } else {
         cleanedRow.distancetravelled = num.toString();
       }
@@ -615,7 +590,7 @@ const useMobileCSVUpload = (buildings = []) => {
         normalize(u) === normalize(cleanedRow.distanceunit)
       );
       if (!matchedUnit) {
-        errors.push(`Invalid distance unit "${cleanedRow.distanceunit}"`);
+        errors.push(`Invalid "Distance Unit": "${cleanedRow.distanceunit}"`);
       } else {
         cleanedRow.distanceunit = matchedUnit;
       }
@@ -628,7 +603,7 @@ const useMobileCSVUpload = (buildings = []) => {
         normalize(q) === normalize(cleanedRow.qualitycontrol)
       );
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+        errors.push(`Invalid "Quality Control": "${cleanedRow.qualitycontrol}"`);
       } else {
         cleanedRow.qualitycontrol = matchedQC;
       }
@@ -875,7 +850,7 @@ const useMobileCSVUpload = (buildings = []) => {
 
       const iso = parseToISODatePart(cleanedRow.postingdate);
       if (!iso) {
-        errors.push(`Invalid date. Please use DD/MM/YYYY or YYYY-MM-DD (got "${cleanedRow.postingdate}")`);
+        errors.push(`Invalid Date Format: "${cleanedRow.postingdate}",  Please use DD/MM/YYYY , 15/04/2026.`);
       } else {
         cleanedRow.postingdate = iso;
       }

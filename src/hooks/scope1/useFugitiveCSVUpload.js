@@ -373,48 +373,23 @@ const findFlexibleMatch = (input, validOptions) => {
     if (cleanedRow.buildingcode && buildings.length > 0) {
       const buildingExists = buildings.some(b => b.buildingCode === cleanedRow.buildingcode);
       if (!buildingExists) {
-        errors.push(`Invalid building Code "${cleanedRow.buildingcode}"`);
+        errors.push(`Invalid Building Code "${cleanedRow.buildingcode}"`);
       }
     }
 
     // Stakeholder validation
-    // if (cleanedRow.stakeholder) {
-    //   const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
-    //   const matchedStakeholder = validStakeholders.find(s =>
-    //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-    //   );
-    //   if (!matchedStakeholder) {
-    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-    //   } else {
-    //     cleanedRow.stakeholder = matchedStakeholder;
-    //   }
-    // }
 if (cleanedRow.stakeholder) {
   const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
   const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
   
   if (!matchedStakeholder) {
-    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+    errors.push(`Invalid Stakeholder "${cleanedRow.stakeholder}"`);
   } else {
     cleanedRow.stakeholder = matchedStakeholder;
   }
 }
     // Equipment type validation with subscript normalization
-    // if (cleanedRow.equipmenttype) {
-    //   const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
-    //   const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
 
-    //   const matchedEquipment = validEquipmentTypes.find(equipment => {
-    //     const normalizedEquipment = normalizeSubscriptNumbers(equipment);
-    //     return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
-    //   });
-
-    //   if (!matchedEquipment) {
-    //     errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-    //   } else {
-    //     cleanedRow.equipmenttype = matchedEquipment;
-    //   }
-    // }
     if (cleanedRow.equipmenttype) {
   const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
   const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
@@ -442,30 +417,19 @@ if (cleanedRow.stakeholder) {
   }
   
   if (!matchedEquipment) {
-    errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+    errors.push(`Invalid Equipment Type "${cleanedRow.equipmenttype}"`);
   } else {
     cleanedRow.equipmenttype = matchedEquipment;
   }
 }
 
     // Material/Refrigerant validation
-    // if (cleanedRow.materialrefrigerant) {
-    //   const validMaterials = materialRefrigerantOptions.map(m => m.value);
-    //   const matchedMaterial = validMaterials.find(m =>
-    //     m.toLowerCase() === cleanedRow.materialrefrigerant.toLowerCase()
-    //   );
-    //   if (!matchedMaterial) {
-    //     errors.push(`Invalid material/refrigerant "${cleanedRow.materialrefrigerant}"`);
-    //   } else {
-    //     cleanedRow.materialrefrigerant = matchedMaterial;
-    //   }
-    // }
     if (cleanedRow.materialrefrigerant) {
   const validMaterials = materialRefrigerantOptions.map(m => m.value);
   const matchedMaterial = findFlexibleMatch(cleanedRow.materialrefrigerant, validMaterials);
   
   if (!matchedMaterial) {
-    errors.push(`Invalid material/refrigerant "${cleanedRow.materialrefrigerant}"`);
+    errors.push(`Invalid "Material / Refrigerant": "${cleanedRow.materialrefrigerant}"`);
   } else {
     cleanedRow.materialrefrigerant = matchedMaterial;
   }
@@ -478,11 +442,9 @@ if (cleanedRow.stakeholder) {
 
       const num = Number(cleanNum);
       if (isNaN(num)) {
-        errors.push(`Leakage value must be a number, got "${cleanedRow.leakagevalue}"`);
+        errors.push(`"Leakage Value / Recharge Value" must be a number, got "${cleanedRow.leakagevalue}"`);
       } else if (num < 0) {
-        errors.push('Leakage value cannot be negative');
-      } else if (num > 1000000) {
-        errors.push('Leakage value seems too large');
+        errors.push('"Leakage Value / Recharge Value" cannot be negative');
       } else {
         cleanedRow.leakagevalue = num.toString();
       }
@@ -495,7 +457,7 @@ if (cleanedRow.stakeholder) {
         u.toLowerCase() === cleanedRow.consumptionunit.toLowerCase()
       );
       if (!matchedUnit) {
-        errors.push(`Invalid consumption unit "${cleanedRow.consumptionunit}"`);
+        errors.push(`Invalid Unit "${cleanedRow.consumptionunit}"`);
       } else {
         cleanedRow.consumptionunit = matchedUnit;
       }
@@ -508,7 +470,7 @@ if (cleanedRow.stakeholder) {
         q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
       );
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+        errors.push(`Invalid Quality Control "${cleanedRow.qualitycontrol}"`);
       } else {
         cleanedRow.qualitycontrol = matchedQC;
       }
@@ -555,7 +517,7 @@ if (cleanedRow.stakeholder) {
             cleanedRow.postingdate = dateStr;
           }
         } else {
-          errors.push(`Date must be DD/MM/YYYY format (e.g., 15/01/2024), got "${cleanedRow.postingdate}"`);
+          errors.push(`Invalid date format "${cleanedRow.postingdate}" , must be DD/MM/YYYY format (e.g., 15/01/2024)`);
         }
       }
     } else {
