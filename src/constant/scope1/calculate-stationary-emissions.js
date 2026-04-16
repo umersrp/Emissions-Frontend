@@ -221,7 +221,7 @@ export const emissionFactors = {
   },
   "Biodiesel HVO": {
     "litres": 0.03558,
-    "kwh": 0.00373,
+    "kwh": 0.00373234,
     "tonnes": 45.62,
   },
   "Biopropane": {

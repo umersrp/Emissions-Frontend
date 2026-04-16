@@ -516,20 +516,40 @@ const handleDelete = async (id) => {
         Cell: ({ value }) => formatUnitDisplay(value)
       },
       { Header: "Quality Control", accessor: "qualityControl" },
+      // {
+      //   Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",
+      //   Cell: ({ cell }) => {
+      //     const rawValue = cell.value;
+      //     if (rawValue === null || rawValue === undefined || rawValue === "") {
+      //       return "N/A";
+      //     }
+      //     const numValue = Number(rawValue);
+      //     if (isNaN(numValue)) {
+      //       return "N/A";
+      //     }
+      //     return numValue.toFixed(2);
+      //   }
+      // },
       {
-        Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",
-        Cell: ({ cell }) => {
-          const rawValue = cell.value;
-          if (rawValue === null || rawValue === undefined || rawValue === "") {
-            return "N/A";
-          }
-          const numValue = Number(rawValue);
-          if (isNaN(numValue)) {
-            return "N/A";
-          }
-          return numValue.toFixed(2);
-        }
-      },
+        Header: "Calculated Emissions (kgCO₂e)",
+        accessor: "calculatedEmissionKgCo2e",
+        Cell: ({ cell }) => {
+          const rawValue = cell.value;
+          if (rawValue === null || rawValue === undefined || rawValue === "") {
+            return "N/A";
+          }
+          const numValue = Number(rawValue);
+          if (isNaN(numValue)) {
+            return "N/A";
+          }
+          // :white_check_mark: Show exponential for small numbers
+          if (Math.abs(numValue) < 0.01) {
+            return numValue.toExponential(2); // e.g. 3.39e-3
+          }
+          // otherwise normal format
+          return numValue.toFixed(2);
+        }
+      },
       {
         Header: "Calculated Emissions (tCO₂e)",
         accessor: "calculatedEmissionTCo2e",
