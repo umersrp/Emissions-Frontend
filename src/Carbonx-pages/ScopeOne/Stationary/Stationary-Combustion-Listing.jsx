@@ -115,57 +115,57 @@ const StationaryCombustionListing = () => {
   //   }
   // };
   // Delete multiple records - FIXED
-const handleDeleteMultiple = async () => {
-  const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
+  const handleDeleteMultiple = async () => {
+    const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
 
-  if (selectedIds.length === 0) {
-    toast.warning("Please select records to delete");
-    setDeleteModalOpen(false);
-    return;
-  }
+    if (selectedIds.length === 0) {
+      toast.warning("Please select records to delete");
+      setDeleteModalOpen(false);
+      return;
+    }
 
-  setDeleteModalOpen(false); //
-  setIsDeletingMultiple(true);
+    setDeleteModalOpen(false); //
+    setIsDeletingMultiple(true);
 
-  try {
-    await Promise.all(
-      selectedIds.map(id =>
-        axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        })
-      )
-    );
+    try {
+      await Promise.all(
+        selectedIds.map(id =>
+          axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          })
+        )
+      );
 
-    toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);
-    setSelectedRows({});
-    setSelectedBuildingId(null);
-    await fetchStationaryRecords(pagination.currentPage, globalFilterValue);
+      toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);
+      setSelectedRows({});
+      setSelectedBuildingId(null);
+      await fetchStationaryRecords(pagination.currentPage, globalFilterValue);
 
-  } catch (err) {
-    toast.error("Delete failed");
-  } finally {
-    setIsDeletingMultiple(false);
-  }
-};
+    } catch (err) {
+      toast.error("Delete failed");
+    } finally {
+      setIsDeletingMultiple(false);
+    }
+  };
 
   // Single delete - FIXED
-const handleDelete = async (id) => {
-  setDeleteModalOpen(false); 
+  const handleDelete = async (id) => {
+    setDeleteModalOpen(false);
 
-  try {
-    await axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
+    try {
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/stationary/Delete/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
 
-    toast.success("Deleted");
-    setSelectedBuildingId(null);
+      toast.success("Deleted");
+      setSelectedBuildingId(null);
 
-    await fetchStationaryRecords(pagination.currentPage, globalFilterValue);
+      await fetchStationaryRecords(pagination.currentPage, globalFilterValue);
 
-  } catch (err) {
-    toast.error("Delete failed");
-  }
-};
+    } catch (err) {
+      toast.error("Delete failed");
+    }
+  };
 
   // Fetch all records for export
   const fetchAllStationaryRecords = async () => {
@@ -516,17 +516,41 @@ const handleDelete = async (id) => {
         Cell: ({ value }) => formatUnitDisplay(value)
       },
       { Header: "Quality Control", accessor: "qualityControl" },
+      // {
+      //   Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",
+      //   Cell: ({ cell }) => {
+      //     const rawValue = cell.value;
+      //     if (rawValue === null || rawValue === undefined || rawValue === "") {
+      //       return "N/A";
+      //     }
+      //     const numValue = Number(rawValue);
+      //     if (isNaN(numValue)) {
+      //       return "N/A";
+      //     }
+      //     return numValue.toFixed(2);
+      //   }
+      // },
       {
-        Header: "Calculated Emissions (kgCO₂e)", accessor: "calculatedEmissionKgCo2e",
+        Header: "Calculated Emissions (kgCO₂e)",
+        accessor: "calculatedEmissionKgCo2e",
         Cell: ({ cell }) => {
           const rawValue = cell.value;
+
           if (rawValue === null || rawValue === undefined || rawValue === "") {
             return "N/A";
           }
+
           const numValue = Number(rawValue);
           if (isNaN(numValue)) {
             return "N/A";
           }
+
+          // ✅ Show exponential for small numbers
+          if (Math.abs(numValue) < 0.01) {
+            return numValue.toExponential(2); // e.g. 3.39e-3
+          }
+
+          // otherwise normal format
           return numValue.toFixed(2);
         }
       },
@@ -603,7 +627,7 @@ const handleDelete = async (id) => {
               <button
                 className="action-btn"
                 onClick={() => {
-                    setSelectedRows({}); // clear multi selection
+                  setSelectedRows({}); // clear multi selection
                   setSelectedBuildingId(cell.value);
                   setDeleteModalOpen(true);
                 }}
@@ -696,7 +720,7 @@ const handleDelete = async (id) => {
 
           <div className="md:flex 2xl:space-x-3 space-x-1 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
-            
+
             {selectedCount > 0 && (
               <Tippy content={`Delete ${selectedCount} selected record`}>
                 <Button
