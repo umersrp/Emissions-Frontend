@@ -824,6 +824,14 @@ if (cleanedRow.fueltype && cleanedRow.fuelname) {
     const exampleUnit = 'kg';
     const exampleQC = 'Good';
 
+      const getCurrentDate = () => {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
     // Create worksheet data with headers
     const worksheetData = [
       [
@@ -848,7 +856,7 @@ if (cleanedRow.fueltype && cleanedRow.fuelname) {
         exampleUnit,
         exampleQC,
         'Example record',
-        'dd/mm/yyyy'
+        getCurrentDate()
       ],
     ];
 
