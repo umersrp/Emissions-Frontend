@@ -1002,6 +1002,13 @@ const useMobileCSVUpload = (buildings = []) => {
 
   const downloadMobileTemplate = useCallback(() => {
     const exampleBuildingCode = buildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
+      const getCurrentDate = () => {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
     // Create worksheet data with headers
     const worksheetData = [
@@ -1029,7 +1036,7 @@ const useMobileCSVUpload = (buildings = []) => {
         'Highly Uncertain',
         '',
         'Example record',
-        'dd/mm/yyyy'
+         getCurrentDate()
       ],
     ];
 

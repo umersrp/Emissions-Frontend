@@ -903,8 +903,13 @@ const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
   const exampleGridStation = 'Hyderabad Electric Supply Company (HESCO)';
 
   // Use a valid example date in DD/MM/YYYY format (not future date)
-  const exampleDate = '03/04/2026'; // 3rd April 2026
-
+  const getCurrentDate = () => {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
   let headers = [];
   let exampleRow = [];
 
@@ -930,7 +935,7 @@ const downloadPurchasedElectricityTemplate = useCallback((selectedMethod) => {
       '500',
       exampleQC,
       'Example location based record',
-      exampleDate // Using fixed valid date
+      getCurrentDate() 
       
     ];
   } else {
