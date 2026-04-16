@@ -934,6 +934,7 @@ const EmployeeCommutingForm = () => {
     const [companyUsers, setCompanyUsers] = useState([]);
     const [companyUsersLoading, setCompanyUsersLoading] = useState(false);
     const [token, setToken] = useState('');
+    const [datePickerResetKey, setDatePickerResetKey] = useState(0);
 
     // Add this function to reset all date ranges when changing year
     const resetAllDateRanges = () => {
@@ -963,7 +964,8 @@ const EmployeeCommutingForm = () => {
             carCarpool: null,
             workFromHome: null
         });
-console.log("reset date ranges ", selectedDateRanges)
+        console.log("reset date ranges ", selectedDateRanges)
+        setDatePickerResetKey((prev) => prev + 1); // ✅ this triggers remount
 
         // Clear any date-related errors
         setErrors(prev => {
@@ -1639,7 +1641,7 @@ console.log("reset date ranges ", selectedDateRanges)
             }, 300);
         };
 
-        if(checkingSubmission){
+        if (checkingSubmission) {
             checkForPreviousSubmission();
         }
     }, [checkingSubmission]);
@@ -2771,7 +2773,7 @@ console.log("reset date ranges ", selectedDateRanges)
                                 </button>
                             </div>
                         </div>,
-                        { autoClose: false, closeButton: true }
+                        { autoClose: 5000, closeButton: true }
                     );
                     return;
                 }
@@ -2814,10 +2816,10 @@ console.log("reset date ranges ", selectedDateRanges)
                         <div className="font-semibold mb-1">Date Range Conflict!</div>
                         <div className="text-sm mb-2">
                             Your selected date range overlaps with {overlappingTransportType} commute
-                            in month(s): {monthNames}. Please select a different date range.
+                            in month: {monthNames}. Please select a different date range.
                         </div>
                     </div>,
-                    { autoClose: false, closeButton: true }
+                    { autoClose: 3000, closeButton: true }
                 );
                 return;
             }
@@ -2845,21 +2847,12 @@ console.log("reset date ranges ", selectedDateRanges)
             const remainingMonthsAfterChange = 12 - overallCoverageAfterChange.totalCovered;
 
             if (!overallCoverageAfterChange.isComplete && remainingMonthsAfterChange > 0) {
-                const message = `Total coverage across all commute methods: ${overallCoverageAfterChange.totalCovered} month${overallCoverageAfterChange.totalCovered !== 1 ? 's' : ''} covered. ${remainingMonthsAfterChange} month${remainingMonthsAfterChange !== 1 ? 's' : ''} remaining. Select date ranges for other methods to cover the full year.`;
+                const message = `${overallCoverageAfterChange.totalCovered} month${overallCoverageAfterChange.totalCovered !== 1 ? 's' : ''} covered. ${remainingMonthsAfterChange} month${remainingMonthsAfterChange !== 1 ? 's' : ''} remaining. Select date ranges for other methods to cover the full year.`;
                 toast.warning(
                     <div>
-                        <div className="font-semibold mb-1">Incomplete Year Coverage</div>
+        
                         <div className="text-sm mb-2">{message}</div>
-                        <div className="text-xs text-gray-600 mt-1">
-                            Currently using: {[
-                                formData.commuteByMotorbike && 'Motorbike',
-                                formData.commuteByTaxi && 'Taxi',
-                                formData.commuteByBus && 'Bus',
-                                formData.commuteByTrain && 'Train',
-                                formData.commuteByCar && 'Car',
-                                formData.workFromHome && 'Work From Home'
-                            ].filter(Boolean).join(', ') || 'None'}
-                        </div>
+                   
                         <div className="flex gap-2 mt-3">
                             <button
                                 onClick={() => {
@@ -3091,6 +3084,7 @@ console.log("reset date ranges ", selectedDateRanges)
 
                 <div className="space-y-4">
                     <Datepicker
+                        key={`${transportType}-${datePickerResetKey}`}  // ✅ was just transportType
                         value={formData[`${transportType}DateRange`] || null}
                         onChange={(value) => handleDateRangeChange(transportType, value)}
                         showShortcuts={true}
@@ -3098,80 +3092,80 @@ console.log("reset date ranges ", selectedDateRanges)
                         primaryColor="blue"
                         minDate={calendarMinDate}
                         maxDate={calendarMaxDate}
-                        configs={{
-                            shortcuts: {
-                                today: {
-                                    text: "Today",
-                                    period: {
-                                        start: new Date(),
-                                        end: new Date()
-                                    }
-                                },
-                                yesterday: {
-                                    text: "Yesterday",
-                                    period: {
-                                        start: new Date(new Date().setDate(new Date().getDate() - 1)),
-                                        end: new Date(new Date().setDate(new Date().getDate() - 1))
-                                    }
-                                },
-                                thisWeek: {
-                                    text: "This Week",
-                                    period: {
-                                        start: new Date(new Date().setDate(new Date().getDate() - new Date().getDay())),
-                                        end: new Date(new Date().setDate(new Date().getDate() + (6 - new Date().getDay())))
-                                    }
-                                },
-                                thisMonth: {
-                                    text: "This Month",
-                                    period: {
-                                        start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-                                        end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
-                                    }
-                                },
-                                lastMonth: {
-                                    text: "Last Month",
-                                    period: {
-                                        start: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
-                                        end: new Date(new Date().getFullYear(), new Date().getMonth(), 0)
-                                    }
-                                },
-                                firstQuarter: {
-                                    text: "Q1",
-                                    period: {
-                                        start: new Date(`${reportingYear}-01-01`),
-                                        end: new Date(`${reportingYear}-03-31`)
-                                    }
-                                },
-                                secondQuarter: {
-                                    text: "Q2",
-                                    period: {
-                                        start: new Date(`${reportingYear}-04-01`),
-                                        end: new Date(`${reportingYear}-06-30`)
-                                    }
-                                },
-                                thirdQuarter: {
-                                    text: "Q3",
-                                    period: {
-                                        start: new Date(`${reportingYear}-07-01`),
-                                        end: new Date(`${reportingYear}-09-30`)
-                                    }
-                                },
-                                fourthQuarter: {
-                                    text: "Q4",
-                                    period: {
-                                        start: new Date(`${reportingYear}-10-01`),
-                                        end: new Date(`${reportingYear}-12-31`)
-                                    }
-                                },
-                                fullWindow: {
-                                    text: "Full Window ✓",
-                                    period: {
-                                        start: calendarMinDate,
-                                        end: calendarMaxDate
-                                    }
-                                }
-                            }
-                        }}
+                        // configs={{
+                        //     shortcuts: {
+                        //         today: {
+                        //             text: "Today",
+                        //             period: {
+                        //                 start: new Date(),
+                        //                 end: new Date()
+                        //             }
+                        //         },
+                        //         yesterday: {
+                        //             text: "Yesterday",
+                        //             period: {
+                        //                 start: new Date(new Date().setDate(new Date().getDate() - 1)),
+                        //                 end: new Date(new Date().setDate(new Date().getDate() - 1))
+                        //             }
+                        //         },
+                        //         thisWeek: {
+                        //             text: "This Week",
+                        //             period: {
+                        //                 start: new Date(new Date().setDate(new Date().getDate() - new Date().getDay())),
+                        //                 end: new Date(new Date().setDate(new Date().getDate() + (6 - new Date().getDay())))
+                        //             }
+                        //         },
+                        //         thisMonth: {
+                        //             text: "This Month",
+                        //             period: {
+                        //                 start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+                        //                 end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+                        //             }
+                        //         },
+                        //         lastMonth: {
+                        //             text: "Last Month",
+                        //             period: {
+                        //                 start: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+                        //                 end: new Date(new Date().getFullYear(), new Date().getMonth(), 0)
+                        //             }
+                        //         },
+                        //         firstQuarter: {
+                        //             text: "Q1",
+                        //             period: {
+                        //                 start: new Date(`${reportingYear}-01-01`),
+                        //                 end: new Date(`${reportingYear}-03-31`)
+                        //             }
+                        //         },
+                        //         secondQuarter: {
+                        //             text: "Q2",
+                        //             period: {
+                        //                 start: new Date(`${reportingYear}-04-01`),
+                        //                 end: new Date(`${reportingYear}-06-30`)
+                        //             }
+                        //         },
+                        //         thirdQuarter: {
+                        //             text: "Q3",
+                        //             period: {
+                        //                 start: new Date(`${reportingYear}-07-01`),
+                        //                 end: new Date(`${reportingYear}-09-30`)
+                        //             }
+                        //         },
+                        //         fourthQuarter: {
+                        //             text: "Q4",
+                        //             period: {
+                        //                 start: new Date(`${reportingYear}-10-01`),
+                        //                 end: new Date(`${reportingYear}-12-31`)
+                        //             }
+                        //         },
+                        //         fullWindow: {
+                        //             text: "Full Window ✓",
+                        //             period: {
+                        //                 start: calendarMinDate,
+                        //                 end: calendarMaxDate
+                        //             }
+                        //         }
+                        //     }
+                        // }}
                         displayFormat="DD MMM YYYY"
                         startFrom={new Date(reportingYear, 0, 1)}
                         popoverDirection="down"
@@ -4420,9 +4414,10 @@ console.log("reset date ranges ", selectedDateRanges)
         }
     };
 
-        console.log("Form access status:", 
-        {formAccessStatus, checkingSubmission
-    });  
+    console.log("Form access status:",
+        {
+            formAccessStatus, checkingSubmission
+        });
 
 
     if (!token && !urlToken && !getToken()) {
@@ -4945,6 +4940,7 @@ console.log("reset date ranges ", selectedDateRanges)
                                                             )}
                                                             <div id="motorbikeCarpoolDateRange" className="space-y-4">
                                                                 <Datepicker
+                                                                 key={`motorbikeCarpool-${datePickerResetKey}`} 
                                                                     value={formData.motorbikeCarpoolDateRange || null}
                                                                     onChange={(value) => handleDateRangeChange('motorbikeCarpool', value)}
                                                                     showShortcuts={true}
@@ -5195,6 +5191,7 @@ console.log("reset date ranges ", selectedDateRanges)
                                                         )}
                                                         <div id="taxiCarpoolDateRange" className="space-y-4">
                                                             <Datepicker
+                                                            key={`taxiCarpool-${datePickerResetKey}`} 
                                                                 value={formData.taxiCarpoolDateRange || null}
                                                                 onChange={(value) => handleDateRangeChange('taxiCarpool', value)}
                                                                 showShortcuts={true}
@@ -5570,6 +5567,7 @@ console.log("reset date ranges ", selectedDateRanges)
                                                             )}
                                                             <div id="carCarpoolDateRange" className="space-y-4">
                                                                 <Datepicker
+                                                                 key={`carCarpool-${datePickerResetKey}`} 
                                                                     value={formData.carCarpoolDateRange || null}
                                                                     onChange={(value) => handleDateRangeChange('carCarpool', value)}
                                                                     showShortcuts={true}
