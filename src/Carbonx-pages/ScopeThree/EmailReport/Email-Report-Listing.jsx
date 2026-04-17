@@ -789,13 +789,29 @@ const EmailReportListing = () => {
   };
 
   // Helper function to format date with time
+// const formatDateTime = (dateString) => {
+//   if (!dateString) return "N/A";
+//   try {
+//     const date = new Date(dateString);
+//     return date.toLocaleDateString('en-GB', { timeZone: 'UTC' }) + ' ' + 
+//            date.toLocaleTimeString('en-GB', {
+//              timeZone: 'UTC',
+//              hour: '2-digit',
+//              minute: '2-digit',
+//              hour12: true
+//            });
+//   } catch {
+//     return "Invalid Date";
+//   }
+// };
+
 const formatDateTime = (dateString) => {
   if (!dateString) return "N/A";
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', { timeZone: 'UTC' }) + ' ' + 
+    return date.toLocaleDateString('en-GB', { timeZone: 'Asia/Karachi' }) + ' ' + 
            date.toLocaleTimeString('en-GB', {
-             timeZone: 'UTC',
+             timeZone: 'Asia/Karachi',
              hour: '2-digit',
              minute: '2-digit',
              hour12: true
@@ -804,7 +820,6 @@ const formatDateTime = (dateString) => {
     return "Invalid Date";
   }
 };
-
   // Helper function to get filled status config
   const getFilledStatusConfig = (status) => {
     switch (status) {
@@ -952,7 +967,7 @@ const formatDateTime = (dateString) => {
         },
       },
       {
-        Header: "Start Date & Time",
+        Header: "Start  Date & Time",
         accessor: "startDateTime",
         Cell: ({ cell }) => formatDateTime(cell.value),
       },
@@ -1003,11 +1018,11 @@ const formatDateTime = (dateString) => {
           );
         },
       },
-      {
-        Header: "Sent By",
-        accessor: "sentBy.name",
-        Cell: ({ cell }) => cell.value || "N/A",
-      },
+      // {
+      //   Header: "Sent By",
+      //   accessor: "submittedByEmail",
+      //   Cell: ({ cell }) => cell.value || "N/A",
+      // },
       {
         Header: "Created At",
         accessor: "createdAt",
@@ -1298,7 +1313,7 @@ const formatDateTime = (dateString) => {
               onChange={(e) => setPageSize(Number(e.target.value))}
               className="form-select py-2"
             >
-              {[10, 20, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>

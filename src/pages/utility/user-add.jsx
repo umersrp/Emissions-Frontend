@@ -155,21 +155,7 @@ const UserAddPage = () => {
         <div className="space-y-6">
           {/* Row 1: Username and Email */}
           <div className="grid lg:grid-cols-3 grid-cols-2 gap-5">
-            {/* <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Username<span className="text-red-500">*</span>
-              </label>
-              <Textinput
-                type="text"
-                placeholder="Enter Username"
-                value={formData.username}
-                onChange={(e) => handleInputChange('username', e.target.value)}
-                className={errors.username ? "border-red-500" : ""}
-                id="username-input" 
-              />
-              {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
-            </div> */}
-
+           
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Employee Email<span className="text-red-500">*</span>

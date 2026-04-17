@@ -612,32 +612,32 @@ const CommutingTable = () => {
 
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
                                             <th className="table-th text-white whitespace-nowrap">Motor Bike Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Car Pool</th>
                                             <th className="table-th text-white whitespace-nowrap">Date Range</th>
                                             <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
 
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
                                             <th className="table-th text-white whitespace-nowrap">Taxi Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Car Pool</th>
                                             <th className="table-th text-white whitespace-nowrap">Date Range</th>
                                             <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
 
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
                                             <th className="table-th text-white whitespace-nowrap">Bus Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Date Range</th>
 
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
                                             <th className="table-th text-white whitespace-nowrap">Train Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Date Range</th>
 
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
                                             <th className="table-th text-white whitespace-nowrap">Car Type</th>
                                             <th className="table-th text-white whitespace-nowrap">Car Fuel Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Car Pool</th>
                                             <th className="table-th text-white whitespace-nowrap">Date Range</th>
                                             <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
@@ -669,51 +669,51 @@ const CommutingTable = () => {
                                             {/* Motorbike Section */}
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
                                             <th className="table-th text-white whitespace-nowrap">Motor Bike Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Car Pool</th>
                                             <th className="table-th text-white whitespace-nowrap">Date Range</th>
                                             <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
                                             {/* NEW: Motorbike Both Columns */}
                                             <th className="table-th text-white whitespace-nowrap">Both (Individual + Carpool)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Individual Distance (k.m)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Carpool Distance (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Individual Distance (km)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Carpool Distance (km)</th>
 
                                             {/* Taxi Section */}
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
                                             <th className="table-th text-white whitespace-nowrap">Taxi Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Car Pool</th>
                                             <th className="table-th text-white whitespace-nowrap">Date Range</th>
                                             <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
                                             {/* NEW: Taxi Both Columns */}
                                             <th className="table-th text-white whitespace-nowrap">Both (Individual + Carpool)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Individual Distance (k.m)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Carpool Distance (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Individual Distance (km)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Carpool Distance (km)</th>
 
                                             {/* Bus Section */}
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
                                             <th className="table-th text-white whitespace-nowrap">Bus Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Date Range</th>
 
                                             {/* Train Section */}
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
                                             <th className="table-th text-white whitespace-nowrap">Train Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Date Range</th>
 
                                             {/* Car Section */}
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
                                             <th className="table-th text-white whitespace-nowrap">Car Type</th>
                                             <th className="table-th text-white whitespace-nowrap">Car Fuel Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Car Pool</th>
                                             <th className="table-th text-white whitespace-nowrap">Date Range</th>
                                             <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
                                             {/* NEW: Car Both Columns */}
                                             <th className="table-th text-white whitespace-nowrap">Both (Individual + Carpool)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Individual Distance (k.m)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Carpool Distance (k.m)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Individual Distance (km)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Carpool Distance (km)</th>
 
                                             {/* Work From Home Section */}
                                             <th className="table-th text-white whitespace-nowrap">Work from Home</th>
