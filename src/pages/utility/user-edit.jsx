@@ -1,6 +1,9 @@
+
 import React, { useState, useEffect } from "react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import Textinput from "@/components/ui/Textinput";
+import CustomSelect from "@/components/ui/Select";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
@@ -11,20 +14,50 @@ const UserEditPage = () => {
   const { id: userId } = useParams();
   const user = useSelector((state) => state.auth.user);
 
+  const [buildingOptions, setBuildingOptions] = useState([]);
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
-    username: "",
     email: "",
-    phone: "",
+    employeeID: "",
     companyId: "",
     companyName: "",
-    type: "",
+    buildingId: "",
     isActive: false,
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [uploadingData, setUploadingData] = useState(false);
 
+  // Fetch buildings list
+  useEffect(() => {
+    const fetchBuildings = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        const formatted = res.data?.data?.buildings?.map((b) => ({
+          value: b._id,
+          label: b.buildingName,
+        })) || [];
+
+        setBuildingOptions(formatted);
+      } catch (error) {
+        console.error("Error fetching buildings", error);
+        toast.error("Failed to load buildings");
+      }
+    };
+
+    fetchBuildings();
+  }, []);
+
+  // Fetch user data
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -37,16 +70,23 @@ const UserEditPage = () => {
           }
         );
 
-        const data = response.data.data || response.data;
+        const data = response.data.data;
+
+        // Set selected building if building exists
+        if (data.buildingId?._id) {
+          setSelectedBuilding({
+            value: data.buildingId._id,
+            label: data.buildingId.buildingName || "Building"
+          });
+        }
 
         setFormData({
           name: data.name || "",
-          username: data.username || "",
           email: data.email || "",
-          phone: data.phone || "",
+          employeeID: data.employeeID || "",
           companyId: data.companyId?._id || "",
           companyName: data.companyId?.companyName || "",
-          type: data.type || "",
+          buildingId: data.buildingId?._id || "",
           isActive: data.isActive || false,
         });
       } catch (err) {
@@ -63,12 +103,31 @@ const UserEditPage = () => {
   const validate = () => {
     const errors = {};
     if (!formData.name) errors.name = "Name is required";
-    if (!formData.username) errors.username = "Username is required";
     if (!formData.email) errors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = "Email address is invalid";
-    // if (!formData.phone) errors.phone = "Phone number is required";
-    // else if (!/^\d{11}$/.test(formData.phone)) errors.phone = "Phone number is invalid";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      errors.email = "Email address is invalid";
+    if (!formData.companyId) errors.companyId = "Company ID is required";
+    if (!selectedBuilding) {
+      errors.buildingId = "Building is required";
+    }
     return errors;
+  };
+
+  // Clear error for specific field when user starts typing
+  const handleInputChange = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+    // Clear the error for this field
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  // Clear building error when building is selected
+  const handleBuildingChange = (option) => {
+    setSelectedBuilding(option);
+    if (errors.buildingId) {
+      setErrors(prev => ({ ...prev, buildingId: "" }));
+    }
   };
 
   const handleSubmit = async () => {
@@ -85,11 +144,11 @@ const UserEditPage = () => {
         `${process.env.REACT_APP_BASE_URL}/auth/UpdateUser/${userId}`,
         {
           name: formData.name,
-          username: formData.username,
-          email: formData.email,
-          phone: formData.phone,
+          email: formData.email.toLowerCase(),
+          employeeID: formData.employeeID,
           companyId: formData.companyId,
-          type: formData.type,
+          buildingId: selectedBuilding?.value,
+          type: "user",
           isActive: formData.isActive,
         },
         {
@@ -111,87 +170,131 @@ const UserEditPage = () => {
 
   const handleCancel = () => navigate("/Employee");
 
+  if (isLoading) {
+    return (
+      <Card title="Edit Employee">
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading employee data...</p>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <div>
-      <Card title="Edit User">
-        {isLoading ? (
-          <p>Loading...</p>
-        ) : (
-          <div className="grid lg:grid-cols-1 grid-cols-1 gap-5 mb-5">
-            <div className="grid lg:grid-cols-2 grid-cols-1 gap-5">
-              <div>
-                <label className="form-label">Name</label>
-                <input
-                  type="text"
-                  className="border-[3px] h-10 w-full mb-3 p-2"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
-                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+      <Card title="Edit Employee">
+        <div className="space-y-6">
+          {/* Row 1: Name and Email */}
+          <div className="grid lg:grid-cols-3 grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Employee Email<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-gray-50"
 
-                <label className="form-label">Username</label>
-                <input
-                  type="text"
-                  className="border-[3px] h-10 w-full mb-3 p-2"
-                  value={formData.username}
-                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                />
-                {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value.toLowerCase())}
+              />
+              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+            </div>
 
-                {/* <label className="form-label">Phone</label>
-                <input
-                  type="number"
-                  className="border-[3px] h-10 w-full mb-3 p-2"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                /> */}
-                {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Name<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-gray-50"
 
-                <label className="form-label">Active</label>
-                <input
-                  type="checkbox"
-                  checked={formData.isActive}
-                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                />
-              </div>
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+              />
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+            </div>
 
-              <div>
-                <label className="form-label">Email</label>
-                <input
-                  type="email"
-                  className="border-[3px] h-10 w-full mb-3 p-2"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Employee ID
+              </label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-gray-50"
 
-                <label className="form-label">Company</label>
-                <input
-                  type="text"
-                  className="border-[3px] h-10 w-full mb-3 p-2"
-                  value={formData.companyName}
-                  disabled
-                />
-
-                <label className="form-label">Type</label>
-                <input
-                  type="text"
-                  className="border-[3px] h-10 w-full mb-3 p-2"
-                  value={formData.type}
-                  disabled
-                />
-              </div>
+                value={formData.employeeID}
+                onChange={(e) => handleInputChange('employeeID', e.target.value)}
+              />
             </div>
           </div>
-        )}
 
-        <div className="ltr:text-right rtl:text-left space-x-3 rtl:space-x-reverse">
-          <button className="btn btn-light" onClick={handleCancel} type="button">
+          {/* Row 2: Company and Building */}
+          <div className="grid lg:grid-cols-3 grid-cols-2 gap-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Company<span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-gray-50"
+                value={formData.companyName}
+                disabled
+              />
+              {errors.companyId && (
+                <p className="text-red-500 text-sm mt-1">{errors.companyId}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Building<span className="text-red-500">*</span>
+              </label>
+              <CustomSelect
+                options={buildingOptions}
+                value={selectedBuilding}
+                onChange={handleBuildingChange}
+                placeholder="Select Building"
+                className={errors.buildingId ? "border-red-500" : ""}
+                visibleOptions={3}
+                menuPlacement="auto"
+              />
+              {errors.buildingId && (
+                <p className="text-red-500 text-sm mt-1">{errors.buildingId}</p>
+              )}
+            </div>
+
+            {/* <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Status
+              </label>
+              <div className="flex items-center mt-2">
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={formData.isActive}
+                  onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isActive" className="ml-2 block text-sm text-gray-700">
+                  Active
+                </label>
+              </div>
+            </div> */}
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-3 mt-8 pt-6 border-t">
+          <button
+            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+            onClick={handleCancel}
+            type="button"
+          >
             Cancel
           </button>
           <Button
-            text="Save"
-            className="btn-dark"
+            text={uploadingData ? "Updating..." : "Update Employee"}
+            className="btn-primary"
             onClick={handleSubmit}
             isLoading={uploadingData}
           />
@@ -202,3 +305,4 @@ const UserEditPage = () => {
 };
 
 export default UserEditPage;
+

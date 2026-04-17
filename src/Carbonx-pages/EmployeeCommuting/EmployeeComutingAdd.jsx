@@ -242,50 +242,53 @@ const calculateEmissions = (data) => {
     console.log('=== STARTING EMISSION CALCULATION FOR ALL MODES ===');
 
     // Calculate Motorbike emissions
-    if (data.commuteByMotorbike) {
-        let individualDistance = Number(data.motorbikeDistance) || 0;
-        let carpoolDistance = 0;
-        let passengers = 1;
-        const motorbikeType = data.motorbikeType || "Average";
-        let factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
+    // if (data.commuteByMotorbike) {
+    //     let individualDistance = Number(data.motorbikeDistance) || 0;
+    //     let carpoolDistance = 0;
+    //     let passengers = 1;
+    //     const motorbikeType = data.motorbikeType || "Average";
+    //     let factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
 
-        let individualEmissions = individualDistance * factor;
-        let totalMotorbikeEmissions = individualEmissions;
-        let motorbikeTotalDistance = individualDistance;
+    //     let individualEmissions = individualDistance * factor;
+    //     let totalMotorbikeEmissions = individualEmissions;
+    //     let motorbikeTotalDistance = individualDistance;
 
-        console.log('=== EMISSION CALCULATION - MOTORBIKE ===');
-        console.log('Motorbike Type:', motorbikeType);
-        console.log('Emission Factor:', factor, 'kg CO2e/km');
-        console.log('Individual Distance:', individualDistance, 'km');
-        console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
+    //     console.log('=== EMISSION CALCULATION - MOTORBIKE ===');
+    //     console.log('Motorbike Type:', motorbikeType);
+    //     console.log('Emission Factor:', factor, 'kg CO2e/km');
+    //     console.log('Individual Distance:', individualDistance, 'km');
+    //     console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
 
-        // Check if mode is 'both' and carpool distance exists
-        if (data.motorbikeMode === 'both' && data.motorbikeDistanceCarpool) {
-            carpoolDistance = Number(data.motorbikeDistanceCarpool) || 0;
-            let carpoolEmissions = carpoolDistance * factor;
-            totalMotorbikeEmissions += carpoolEmissions;
-            motorbikeTotalDistance += carpoolDistance;
+    //     // Check if mode is 'both' and carpool distance exists
+    //     if (data.motorbikeMode === 'both' && data.motorbikeDistanceCarpool) {
+    //         carpoolDistance = Number(data.motorbikeDistanceCarpool) || 0;
+    //         let carpoolEmissions = carpoolDistance * factor;
+    //         totalMotorbikeEmissions += carpoolEmissions;
+    //         motorbikeTotalDistance += carpoolDistance;
 
-            console.log('Carpool Distance:', carpoolDistance, 'km');
-            console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
-            console.log('Total Motorbike Emissions (Individual + Carpool):', totalMotorbikeEmissions, 'kg CO2e');
-        }
+    //         console.log('Carpool Distance:', carpoolDistance, 'km');
+    //         console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
+    //         console.log('Total Motorbike Emissions (Individual + Carpool):', totalMotorbikeEmissions, 'kg CO2e');
+    //     }
 
-        console.log('Total Motorbike Distance:', motorbikeTotalDistance, 'km');
+    //     console.log('Total Motorbike Distance:', motorbikeTotalDistance, 'km');
 
-        totalEmissionsKg += totalMotorbikeEmissions;
-        totalDistance += motorbikeTotalDistance;
-        totalPassengers += passengers;
-        emissionDetails.push({
-            mode: 'Motorbike',
-            modeType: data.motorbikeMode === 'both' ? 'Individual + Carpool' : 'Individual',
-            individualDistance,
-            carpoolDistance,
-            totalDistance: motorbikeTotalDistance,
-            factor,
-            emissions: totalMotorbikeEmissions
-        });
-    }
+    //     totalEmissionsKg += totalMotorbikeEmissions;
+    //     totalDistance += motorbikeTotalDistance;
+    //     totalPassengers += passengers;
+    //     emissionDetails.push({
+    //         mode: 'Motorbike',
+    //         modeType: data.motorbikeMode === 'both' ? 'Individual + Carpool' : 'Individual',
+    //         individualDistance,
+    //         carpoolDistance,
+    //         totalDistance: motorbikeTotalDistance,
+    //         factor,
+    //         emissions: totalMotorbikeEmissions
+    //     });
+    // }
+
+      // Calculate Motorbike emissions
+     
 
     // Calculate Car emissions
     if (data.commuteByCar) {
@@ -341,51 +344,131 @@ const calculateEmissions = (data) => {
     }
 
     // Calculate Taxi emissions
-    if (data.commuteByTaxi) {
-        let individualDistance = Number(data.taxiDistance) || 0;
-        let carpoolDistance = 0;
-        let passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : 1;
+    // if (data.commuteByTaxi) {
+    //     let individualDistance = Number(data.taxiDistance) || 0;
+    //     let carpoolDistance = 0;
+    //     let passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : 1;
+    //     const taxiType = data.taxiType;
+    //     let baseFactor = EMISSION_FACTORS.taxis[taxiType];
+    //     let factor = baseFactor;
+
+    //     let individualEmissions = individualDistance * factor;
+    //     let totalTaxiEmissions = individualEmissions;
+    //     let taxiTotalDistance = individualDistance;
+
+    //     console.log('=== EMISSION CALCULATION - TAXI ===');
+    //     console.log('Taxi Type:', taxiType);
+    //     console.log('Emission Factor:', factor, 'kg CO2e/km');
+    //     console.log('Traveling With Others:', data.travelWithOthersTaxi);
+    //     console.log('Persons Traveling With:', data.personsTravelWithTaxi || 0);
+    //     console.log('Total Passengers (including self):', passengers);
+    //     console.log('Individual Distance:', individualDistance, 'km');
+    //     console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
+
+    //     // Check if mode is 'both' and carpool distance exists
+    //     if (data.taxiMode === 'both' && data.taxiDistanceCarpool) {
+    //         carpoolDistance = Number(data.taxiDistanceCarpool) || 0;
+    //         let carpoolEmissions = carpoolDistance * factor;
+    //         totalTaxiEmissions += carpoolEmissions;
+    //         taxiTotalDistance += carpoolDistance;
+
+    //         console.log('Carpool Distance:', carpoolDistance, 'km');
+    //         console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
+    //         console.log('Total Taxi Emissions (Individual + Carpool):', totalTaxiEmissions, 'kg CO2e');
+    //     }
+
+    //     console.log('Total Taxi Distance:', taxiTotalDistance, 'km');
+
+    //     totalEmissionsKg += totalTaxiEmissions;
+    //     totalDistance += taxiTotalDistance;
+    //     totalPassengers += passengers;
+    //     emissionDetails.push({
+    //         mode: 'Taxi',
+    //         modeType: data.taxiMode === 'both' ? 'Individual + Carpool' : 'Individual',
+    //         individualDistance,
+    //         carpoolDistance,
+    //         totalDistance: taxiTotalDistance,
+    //         passengers,
+    //         factor,
+    //         emissions: totalTaxiEmissions
+    //     });
+    // }
+     if (data.commuteByTaxi) {
         const taxiType = data.taxiType;
         let baseFactor = EMISSION_FACTORS.taxis[taxiType];
         let factor = baseFactor;
-
-        let individualEmissions = individualDistance * factor;
-        let totalTaxiEmissions = individualEmissions;
-        let taxiTotalDistance = individualDistance;
+        
+        let individualDistance = Number(data.taxiDistance) || 0;
+        let carpoolDistance = 0;
+        let individualEmissions = 0;
+        let carpoolEmissions = 0;
+        let totalTaxiEmissions = 0;
+        let taxiTotalDistance = 0;
 
         console.log('=== EMISSION CALCULATION - TAXI ===');
         console.log('Taxi Type:', taxiType);
         console.log('Emission Factor:', factor, 'kg CO2e/km');
-        console.log('Traveling With Others:', data.travelWithOthersTaxi);
-        console.log('Persons Traveling With:', data.personsTravelWithTaxi || 0);
-        console.log('Total Passengers (including self):', passengers);
-        console.log('Individual Distance:', individualDistance, 'km');
-        console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
 
-        // Check if mode is 'both' and carpool distance exists
-        if (data.taxiMode === 'both' && data.taxiDistanceCarpool) {
-            carpoolDistance = Number(data.taxiDistanceCarpool) || 0;
-            let carpoolEmissions = carpoolDistance * factor;
-            totalTaxiEmissions += carpoolEmissions;
-            taxiTotalDistance += carpoolDistance;
-
+        // Handle based on mode
+        if (data.taxiMode === 'individual') {
+            // Individual mode: distance * EF
+            individualEmissions = individualDistance * factor;
+            totalTaxiEmissions = individualEmissions;
+            taxiTotalDistance = individualDistance;
+            
+            console.log('Mode: Individual');
+            console.log('Individual Distance:', individualDistance, 'km');
+            console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
+            
+        } else if (data.taxiMode === 'carpool') {
+            // Carpool mode: passengers * distance * EF
+            let passengers = data.travelWithOthersTaxi ? (Number(data.personsTravelWithTaxi || 0) + 1) : 1;
+            carpoolDistance = individualDistance; // In carpool mode, the distance field is the carpool distance
+            carpoolEmissions = passengers * carpoolDistance * factor;
+            totalTaxiEmissions = carpoolEmissions;
+            taxiTotalDistance = carpoolDistance;
+            
+            console.log('Mode: Carpool');
             console.log('Carpool Distance:', carpoolDistance, 'km');
-            console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
-            console.log('Total Taxi Emissions (Individual + Carpool):', totalTaxiEmissions, 'kg CO2e');
+            console.log('Passengers (including self):', passengers);
+            console.log('Carpool Emissions (passengers × distance × EF):', carpoolEmissions, 'kg CO2e');
+            
+        } else if (data.taxiMode === 'both') {
+            // Both mode: individual part + carpool part
+            let passengers = data.travelWithOthersTaxi ? (Number(data.personsTravelWithTaxi || 0) + 1) : 1;
+            carpoolDistance = Number(data.taxiDistanceCarpool) || 0;
+            
+            // Individual part: individualDistance * EF
+            individualEmissions = individualDistance * factor;
+            // Carpool part: passengers * carpoolDistance * EF
+            carpoolEmissions = passengers * carpoolDistance * factor;
+            
+            totalTaxiEmissions = individualEmissions + carpoolEmissions;
+            taxiTotalDistance = individualDistance + carpoolDistance;
+            
+            console.log('Mode: Both');
+            console.log('Individual Distance:', individualDistance, 'km');
+            console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
+            console.log('Carpool Distance:', carpoolDistance, 'km');
+            console.log('Passengers (including self):', passengers);
+            console.log('Carpool Emissions (passengers × distance × EF):', carpoolEmissions, 'kg CO2e');
+            console.log('Total Taxi Emissions:', totalTaxiEmissions, 'kg CO2e');
         }
 
         console.log('Total Taxi Distance:', taxiTotalDistance, 'km');
 
         totalEmissionsKg += totalTaxiEmissions;
         totalDistance += taxiTotalDistance;
-        totalPassengers += passengers;
+        totalPassengers += 1; // The person filling the form counts as 1 passenger
+        
         emissionDetails.push({
             mode: 'Taxi',
-            modeType: data.taxiMode === 'both' ? 'Individual + Carpool' : 'Individual',
+            modeType: data.taxiMode === 'both' ? 'Individual + Carpool' : data.taxiMode === 'carpool' ? 'Carpool' : 'Individual',
             individualDistance,
             carpoolDistance,
             totalDistance: taxiTotalDistance,
-            passengers,
+            passengers: data.taxiMode === 'carpool' || data.taxiMode === 'both' ? 
+                (data.travelWithOthersTaxi ? (Number(data.personsTravelWithTaxi || 0) + 1) : 1) : 1,
             factor,
             emissions: totalTaxiEmissions
         });
@@ -4352,8 +4435,8 @@ const EmployeeCommutingForm = () => {
                     workFromHomeDates: workFromHomeDates.map(date => date.toISOString()),
                     workFromHomeDateRange: formData.workFromHomeDateRange,
                 }),
-                qualityControlRemarks: String(formData.qualityControlRemarks || ''),
-                qualityControl: String(formData.qualityControl || ''),
+                qualityControlRemarks: formData.qualityControlRemarks,
+                qualityControl: formData.qualityControl?.value || '',
                 submittedAt: new Date().toISOString(),
             };
 
