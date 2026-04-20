@@ -348,7 +348,7 @@ const CapitalGoodsListing = () => {
       { Header: "Stakeholder", accessor: "stakeholder" },
       { Header: "Purchase Category", accessor: "purchaseCategory" },
       { Header: "Purchased Activity Type", accessor: "purchasedActivityType", Cell: ({ value }) => capitalizeLabel(value) },
-      { Header: "Purchased Goods / Services Type", accessor: "purchasedGoodsServicesType", Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Purchased Goods (Capital Goods)", accessor: "purchasedGoodsServicesType", Cell: ({ value }) => capitalizeLabel(value) },
       { Header: "Amount Spent", accessor: "amountSpent" },
       { Header: "Unit", accessor: "unit", Cell: ({ value }) => (value === "USD" ? "$" : value) },
       {

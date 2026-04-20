@@ -173,8 +173,8 @@ const GroupRow = ({ subject, recordCount, isExpanded, onToggle, groupTotals, dis
 //         </tr>
 //     );
 // };
-
-const RecordRow = ({ record, index, onDelete }) => {
+// Record Row Component
+const RecordRow = ({ record, index, selected, onSelect, onDelete }) => {
     const toTitleCase = (str) => {
         if (!str) return "N/A";
         return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -243,6 +243,14 @@ const RecordRow = ({ record, index, onDelete }) => {
 
     return (
         <tr className="even:bg-gray-50 hover:bg-gray-100">
+            <td className="px-6 py-4 whitespace-nowrap">
+                <input
+                    type="checkbox"
+                    checked={selected}
+                    onChange={() => onSelect(record._id)}
+                    className="form-checkbox h-4 w-4 text-[#3AB89D] border-gray-300 rounded"
+                />
+            </td>
             <td className="px-6 py-4 whitespace-nowrap">{index}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.emailDoc?.subject || "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.building?.buildingCode || "N/A"}</td>
@@ -350,7 +358,8 @@ const CommutingTable = () => {
     const [loading, setLoading] = useState(false);
     const [globalFilterValue, setGlobalFilterValue] = useState("");
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [selectedRecordId, setSelectedRecordId] = useState(null);
+    const [deleteTargetIds, setDeleteTargetIds] = useState([]);
+    const [selectedRecordIds, setSelectedRecordIds] = useState([]);
 
     // Manual pagination states - each page shows max 10 TOTAL rows (group headers + record rows)
     const [currentPage, setCurrentPage] = useState(1);
@@ -533,16 +542,23 @@ const CommutingTable = () => {
         return () => clearTimeout(delay);
     }, [globalFilterValue]);
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (ids) => {
+        const targetIds = Array.isArray(ids) ? ids : [ids];
+        if (targetIds.length === 0) return;
+
         try {
-            await axios.delete(`${process.env.REACT_APP_BASE_URL}/employee-commute/${id}`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-            });
-            toast.success("Record deleted successfully");
+            await Promise.all(targetIds.map(id =>
+                axios.delete(`${process.env.REACT_APP_BASE_URL}/employee-commute/Delete/${id}`, {
+                    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+                })
+            ));
+            toast.success(targetIds.length === 1 ? "Record deleted successfully" : "Selected records deleted successfully");
+            setSelectedRecordIds(prev => prev.filter(id => !targetIds.includes(id)));
+            setDeleteTargetIds([]);
             fetchCommutingData();
         } catch (err) {
             console.error("Error deleting record:", err);
-            toast.error("Failed to delete record");
+            toast.error("Failed to delete record(s)");
         }
     };
 
@@ -580,6 +596,17 @@ const CommutingTable = () => {
                             className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90 h-9"
                             iconClass="text-lg"
                             onClick={() => navigate("/EmailSent")}
+                        />
+                        <Button
+                            text={selectedRecordIds.length > 0 ? `Delete Selected (${selectedRecordIds.length})` : "Delete Selected"}
+                            className="btn font-normal btn-sm btn-danger text-white border-0 hover:opacity-90 h-9"
+                            disabled={selectedRecordIds.length === 0}
+                            onClick={() => {
+                                if (selectedRecordIds.length > 0) {
+                                    setDeleteTargetIds(selectedRecordIds);
+                                    setDeleteModalOpen(true);
+                                }
+                            }}
                         />
                     </div>
                 </div>
@@ -660,6 +687,24 @@ const CommutingTable = () => {
                                     </thead> */}
                                     <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
                                         <tr>
+                                            <th className="table-th text-white whitespace-nowrap">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={currentRows.filter(row => row.type === 'record').every(row => selectedRecordIds.includes(row.record._id)) && currentRows.some(row => row.type === 'record')}
+                                                    onChange={() => {
+                                                        const currentPageRecordIds = currentRows
+                                                            .filter(row => row.type === 'record')
+                                                            .map(row => row.record._id);
+                                                        const allSelected = currentPageRecordIds.every(id => selectedRecordIds.includes(id));
+                                                        if (allSelected) {
+                                                            setSelectedRecordIds(prev => prev.filter(id => !currentPageRecordIds.includes(id)));
+                                                        } else {
+                                                            setSelectedRecordIds(prev => Array.from(new Set([...prev, ...currentPageRecordIds])));
+                                                        }
+                                                    }}
+                                                    className="form-checkbox h-4 w-4 text-white border-white rounded"
+                                                />
+                                            </th>
                                             <th className="table-th text-white whitespace-nowrap">Sr.No</th>
                                             <th className="table-th text-white whitespace-nowrap">Email Subject</th>
                                             <th className="table-th text-white whitespace-nowrap">Building Code</th>
@@ -756,8 +801,16 @@ const CommutingTable = () => {
                                                         key={`record-${row.record._id}`}
                                                         record={row.record}
                                                         index={row.recordIndex}
+                                                        selected={selectedRecordIds.includes(row.record._id)}
+                                                        onSelect={(id) => {
+                                                            setSelectedRecordIds(prev =>
+                                                                prev.includes(id)
+                                                                    ? prev.filter(item => item !== id)
+                                                                    : [...prev, id]
+                                                            );
+                                                        }}
                                                         onDelete={(id) => {
-                                                            setSelectedRecordId(id);
+                                                            setDeleteTargetIds([id]);
                                                             setDeleteModalOpen(true);
                                                         }}
                                                     />
@@ -898,14 +951,17 @@ const CommutingTable = () => {
                     <>
                         <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
                         <Button text="Delete" className="btn-danger" onClick={async () => {
-                            await handleDelete(selectedRecordId);
+                            await handleDelete(deleteTargetIds);
                             setDeleteModalOpen(false);
                         }} />
                     </>
                 }
             >
                 <p className="text-gray-700 text-center">
-                    Are you sure you want to delete this commuting record? This action cannot be undone.
+                    {deleteTargetIds.length > 1
+                        ? `Are you sure you want to delete these ${deleteTargetIds.length} commuting records? This action cannot be undone.`
+                        : "Are you sure you want to delete this commuting record? This action cannot be undone."
+                    }
                 </p>
             </Modal>
         </>
