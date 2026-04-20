@@ -280,124 +280,138 @@ const useStationaryCSVUpload = (buildings = []) => {
   }, [cleanCSVValue]);
 
   // Excel Parser (NEW)
-const parseExcel = useCallback((file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const data = new Uint8Array(event.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+  const parseExcel = useCallback((file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = new Uint8Array(event.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
 
-        if (!jsonData || jsonData.length === 0) {
-          reject(new Error('Excel file is empty'));
-          return;
-        }
+          if (!jsonData || jsonData.length === 0) {
+            reject(new Error('Excel file is empty'));
+            return;
+          }
 
-        // Find header row
-        let headerRowIndex = -1;
-        for (let i = 0; i < jsonData.length; i++) {
-          const row = jsonData[i];
-          if (row && row.length > 0) {
-            const rowText = row.map(cell =>
-              cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
-            ).join('');
+          // Find header row
+          let headerRowIndex = -1;
+          for (let i = 0; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (row && row.length > 0) {
+              const rowText = row.map(cell =>
+                cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
+              ).join('');
 
-            if (rowText.includes('buildingcode') && rowText.includes('stakeholder')) {
-              headerRowIndex = i;
-              break;
+              if (rowText.includes('buildingcode') && rowText.includes('stakeholder')) {
+                headerRowIndex = i;
+                break;
+              }
             }
           }
-        }
 
-        if (headerRowIndex === -1) {
-          reject(new Error('Excel must contain header row with: buildingCode, stakeholder, equipmentType, fuelType, fuelName, fuelConsumption, consumptionUnit, qualityControl, remarks, postingDate'));
-          return;
-        }
-
-        // Get raw header values from Excel
-        const rawHeaders = jsonData[headerRowIndex];
-        
-        // Create header mapping using friendly headers
-        const headerMapping = {};
-        const requiredFields = [
-          'buildingcode', 'stakeholder', 'equipmenttype', 'fueltype',
-          'fuelname', 'fuelconsumption', 'consumptionunit', 'qualitycontrol', 'postingdate'
-        ];
-
-        const missingHeaders = [];
-
-        requiredFields.forEach(field => {
-          const foundHeader = rawHeaders.find(header => {
-            if (!header) return false;
-            const normalizedHeader = normalizeHeader(header);
-            return findMatchingField(normalizedHeader) === field;
-          });
-          
-          if (foundHeader) {
-            headerMapping[foundHeader] = field;
-          } else {
-            missingHeaders.push(field);
+          if (headerRowIndex === -1) {
+            reject(new Error('Excel must contain header row with: buildingCode, stakeholder, equipmentType, fuelType, fuelName, fuelConsumption, consumptionUnit, qualityControl, remarks, postingDate'));
+            return;
           }
-        });
 
-        if (missingHeaders.length > 0) {
-          reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
-          return;
-        }
+          // Get raw header values from Excel
+          const rawHeaders = jsonData[headerRowIndex];
 
-        // Parse data rows
-        const parsedData = [];
-        for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
-          const row = jsonData[i];
-          if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+          // Create header mapping using friendly headers
+          const headerMapping = {};
+          const requiredFields = [
+            'buildingcode', 'stakeholder', 'equipmenttype', 'fueltype',
+            'fuelname', 'fuelconsumption', 'consumptionunit', 'qualitycontrol', 'postingdate'
+          ];
+          const optionalFields = ['remarks'];
+          optionalFields.forEach(field => {
+            const foundHeader = rawHeaders.find(header => {
+              if (!header) return false;
+              const normalizedHeader = normalizeHeader(header);
+              return findMatchingField(normalizedHeader) === field;
+            });
+            if (foundHeader) {
+              headerMapping[foundHeader] = field; // add to mapping even though optional
+            }
+          });
 
-          const rowData = {};
-          
-          // Use headerMapping to create row data with correct field names
-          Object.entries(headerMapping).forEach(([originalHeader, mappedKey]) => {
-            const headerIndex = rawHeaders.findIndex(h => h === originalHeader);
-            const value = headerIndex < row.length ? row[headerIndex] : '';
-            
-            // Handle date conversion for postingdate field
-            if (mappedKey === 'postingdate' && typeof value === 'number') {
-              try {
-                let iso = null;
-                if (XLSX && XLSX.SSF && typeof XLSX.SSF.parse_date_code === 'function') {
-                  const d = XLSX.SSF.parse_date_code(value);
-                  if (d && d.y) {
-                    iso = new Date(Date.UTC(d.y, d.m - 1, d.d, 0, 0, 0, 0)).toISOString();
+          const missingHeaders = [];
+
+          requiredFields.forEach(field => {
+            const foundHeader = rawHeaders.find(header => {
+              if (!header) return false;
+              const normalizedHeader = normalizeHeader(header);
+              return findMatchingField(normalizedHeader) === field;
+            });
+
+            if (foundHeader) {
+              headerMapping[foundHeader] = field;
+            } else {
+              missingHeaders.push(field);
+            }
+          });
+
+          if (missingHeaders.length > 0) {
+            reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+            return;
+          }
+
+          console.log('Raw headers:', rawHeaders);
+          console.log('Header mapping result:', headerMapping);
+
+          // Parse data rows
+          const parsedData = [];
+          for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+
+            const rowData = {};
+
+            // Use headerMapping to create row data with correct field names
+            Object.entries(headerMapping).forEach(([originalHeader, mappedKey]) => {
+              const headerIndex = rawHeaders.findIndex(h => h === originalHeader);
+              const value = headerIndex < row.length ? row[headerIndex] : '';
+
+              // Handle date conversion for postingdate field
+              if (mappedKey === 'postingdate' && typeof value === 'number') {
+                try {
+                  let iso = null;
+                  if (XLSX && XLSX.SSF && typeof XLSX.SSF.parse_date_code === 'function') {
+                    const d = XLSX.SSF.parse_date_code(value);
+                    if (d && d.y) {
+                      iso = new Date(Date.UTC(d.y, d.m - 1, d.d, 0, 0, 0, 0)).toISOString();
+                    }
                   }
+                  if (!iso) {
+                    const excelEpoch = Date.UTC(1899, 11, 30);
+                    const msPerDay = 24 * 60 * 60 * 1000;
+                    const jsDate = new Date(excelEpoch + (value * msPerDay));
+                    iso = new Date(Date.UTC(jsDate.getUTCFullYear(), jsDate.getUTCMonth(), jsDate.getUTCDate(), 0, 0, 0, 0)).toISOString();
+                  }
+                  rowData[mappedKey] = iso;
+                } catch (e) {
+                  rowData[mappedKey] = value ? cleanCSVValue(value) : '';
                 }
-                if (!iso) {
-                  const excelEpoch = Date.UTC(1899, 11, 30);
-                  const msPerDay = 24 * 60 * 60 * 1000;
-                  const jsDate = new Date(excelEpoch + (value * msPerDay));
-                  iso = new Date(Date.UTC(jsDate.getUTCFullYear(), jsDate.getUTCMonth(), jsDate.getUTCDate(), 0, 0, 0, 0)).toISOString();
-                }
-                rowData[mappedKey] = iso;
-              } catch (e) {
+              } else {
                 rowData[mappedKey] = value ? cleanCSVValue(value) : '';
               }
-            } else {
-              rowData[mappedKey] = value ? cleanCSVValue(value) : '';
-            }
-          });
+            });
 
-          parsedData.push(rowData);
+            parsedData.push(rowData);
+          }
+
+          console.log('Parsed Excel data:', JSON.stringify(parsedData, null, 2));
+          resolve(parsedData);
+        } catch (error) {
+          reject(new Error(`Error parsing Excel file: ${error.message}`));
         }
-
-        console.log('Parsed Excel data:', JSON.stringify(parsedData, null, 2));
-        resolve(parsedData);
-      } catch (error) {
-        reject(new Error(`Error parsing Excel file: ${error.message}`));
-      }
-    };
-    reader.onerror = () => reject(new Error('Failed to read file'));
-    reader.readAsArrayBuffer(file);
-  });
-}, [cleanCSVValue]);
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsArrayBuffer(file);
+    });
+  }, [cleanCSVValue]);
   // Helper function for normalization (handles spaces around slashes)
   const normalizeWithSlash = (str) => {
     if (!str) return '';
@@ -463,7 +477,7 @@ const parseExcel = useCallback((file) => {
       }
     }
 
- 
+
     if (cleanedRow.stakeholder) {
       const validStakeholders = stakeholderOptions.map(s => s.value);
       const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
@@ -515,33 +529,33 @@ const parseExcel = useCallback((file) => {
         cleanedRow.equipmenttype = matchedEquipment;
       }
     }
-  
-    // Fuel type validation - FIXED with flexible matching
-if (cleanedRow.fueltype) {
-  const validFuelTypes = fuelTypeOptions.map(f => f.value);
-  const matchedFuelType = findFlexibleMatch(cleanedRow.fueltype, validFuelTypes);
-  
-  if (!matchedFuelType) {
-    errors.push(`Invalid "Fuel Type": "${cleanedRow.fueltype}".`);
-  } else {
-    cleanedRow.fueltype = matchedFuelType;
-  }
-}
 
- 
+    // Fuel type validation - FIXED with flexible matching
+    if (cleanedRow.fueltype) {
+      const validFuelTypes = fuelTypeOptions.map(f => f.value);
+      const matchedFuelType = findFlexibleMatch(cleanedRow.fueltype, validFuelTypes);
+
+      if (!matchedFuelType) {
+        errors.push(`Invalid "Fuel Type": "${cleanedRow.fueltype}".`);
+      } else {
+        cleanedRow.fueltype = matchedFuelType;
+      }
+    }
+
+
     // Fuel name validation - FIXED with flexible matching
-if (cleanedRow.fueltype && cleanedRow.fuelname) {
-  const validFuelNames = fuelNameOptionsByType[cleanedRow.fueltype]?.map(f => f.value) || [];
-  
-  // Use flexible matching instead of exact match
-  const matchedFuelName = findFlexibleMatch(cleanedRow.fuelname, validFuelNames);
-  
-  if (!matchedFuelName) {
-    errors.push(`Invalid "Fuel Name": "${cleanedRow.fuelname}" for type "${cleanedRow.fueltype}".`);
-  } else {
-    cleanedRow.fuelname = matchedFuelName;
-  }
-}
+    if (cleanedRow.fueltype && cleanedRow.fuelname) {
+      const validFuelNames = fuelNameOptionsByType[cleanedRow.fueltype]?.map(f => f.value) || [];
+
+      // Use flexible matching instead of exact match
+      const matchedFuelName = findFlexibleMatch(cleanedRow.fuelname, validFuelNames);
+
+      if (!matchedFuelName) {
+        errors.push(`Invalid "Fuel Name": "${cleanedRow.fuelname}" for type "${cleanedRow.fueltype}".`);
+      } else {
+        cleanedRow.fuelname = matchedFuelName;
+      }
+    }
 
     // Fuel consumption validation
     if (cleanedRow.fuelconsumption) {
@@ -824,13 +838,13 @@ if (cleanedRow.fueltype && cleanedRow.fuelname) {
     const exampleUnit = 'kg';
     const exampleQC = 'Good';
 
-      const getCurrentDate = () => {
-    const today = new Date();
-    const day = String(today.getDate()).padStart(2, '0');
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const year = today.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
+    const getCurrentDate = () => {
+      const today = new Date();
+      const day = String(today.getDate()).padStart(2, '0');
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const year = today.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
 
     // Create worksheet data with headers
     const worksheetData = [
