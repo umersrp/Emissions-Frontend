@@ -942,7 +942,7 @@ const EmailReportListing = () => {
   };
   const handleUpdate = async () => {
     try {
-      await axios.patch(
+      await axios.put(
         `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${selectedId}`,
         {
           startDate,
@@ -1711,6 +1711,7 @@ const EmailReportListing = () => {
                               Start Date
                             </label>
                             <input
+                              disabled={true}
                               type="date"
                               className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm 
               focus:border-[#3AB89D] focus:outline-none focus:ring-2 focus:ring-[#3AB89D]/20
@@ -1814,21 +1815,7 @@ const EmailReportListing = () => {
                         </div>
                       </div>
 
-                      {/* Quick Actions */}
-                      {selectedRecipients.length > 0 && (
-                        <div className="flex justify-end">
-                          <button
-                            onClick={() => {
-                              const emails = selectedRecipients.map(r => r.email).join(', ');
-                              navigator.clipboard.writeText(emails);
-                            }}
-                            className="text-sm text-[#3AB89D] hover:text-[#3A90B8] transition-colors duration-200 flex items-center gap-1"
-                          >
-                            <Icon icon="heroicons:clipboard-document" className="w-4 h-4" />
-                            Copy all emails
-                          </button>
-                        </div>
-                      )}
+                      
                     </div>
                   </div>
 

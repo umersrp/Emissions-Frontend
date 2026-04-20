@@ -303,278 +303,558 @@ const BuildingTable = () => {
 
 
 
-  const handleExportBeforeDelete = async (buildingId, buildingName, type) => {
-    try {
-      const headers = {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+  // const handleExportBeforeDelete = async (buildingId, buildingName, type) => {
+  //   try {
+  //     const headers = {
+  //       Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //     };
+
+  //     let res;
+  //     let data = [];
+
+  //     if (type === "stationary-combustion") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/stationary/Get-All`,
+  //         {
+  //           headers,
+  //           params: { buildingId, limit: 1000000 }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+
+
+  //     if (type === "mobile-combustion") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All`,
+  //         {
+  //           headers,
+  //           params: { buildingId, limit: 1000000 }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+
+
+
+  //     if (type === "fugitive-emissions") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/Fugitive/get-All`,
+  //         {
+  //           headers,
+  //           params: { buildingId, limit: 1000000 }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+
+
+  //     if (type === "process-emissions") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/Process-Emissions/Get-All`,
+  //         {
+  //           headers,
+  //           params: { buildingId, limit: 1000000 }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+  //     if (type === "purchased-electricity") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get-All`,
+  //         {
+  //           headers,
+  //           params: { buildingId, limit: 1000000 }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+  //     if (type === "purchased-goods") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
+  //         {
+  //           headers,
+  //           params: { buildingId, limit: 1000000 }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+  //     if (type === "capital-goods-services") {
+  //       try {
+  //         const res = await axios.get(
+  //           `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All-isCaptialGoods`,
+  //           {
+  //             headers,
+  //             params: {
+  //               buildingId: buildingId || undefined,
+  //               limit: 1000000,
+  //             },
+  //           }
+  //         );
+
+  //         data = res.data?.data || [];
+
+  //         console.log("Capital Goods Export Data:", data);
+
+  //         if (!data.length) {
+  //           console.warn("No capital goods data found");
+  //         }
+  //       } catch (error) {
+  //         console.error("Capital Goods API Error:", error);
+  //         data = [];
+  //       }
+  //     }
+
+  //     if (type === "fuelandenergy") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/get-All`,
+  //         {
+  //           headers,
+  //           params: { buildingId, limit: 1000000 }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+  //     if (type === "waste-generate") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/Waste-Generate/List`,
+  //         {
+  //           headers,
+  //           params: { buildingId, limit: 1000000 }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+  //     if (type === "business-travel") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/Business-Travel/List`,
+  //         {
+  //           headers,
+  //           params: { buildingId, limit: 1000000 }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+
+  //     if (type === "employee-commute") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/employee-commute/List`,
+  //         {
+  //           headers,
+  //           params: { buildingId, limit: 1000000 }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+  //     if (type === "upstream") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/upstream/Get-All`,
+  //         {
+  //           headers,
+  //           params: { buildingId, limit: 1000000 }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+
+  //     if (type === "downstream") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/downstream/Get-All`,
+  //         {
+  //           headers,
+  //           params: { buildingId, limit: 1000000 }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+  //     if (type === "location_based" || type === "market_based") {
+  //       res = await axios.get(
+  //         `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get-All`,
+  //         {
+  //           headers,
+  //           params: {
+  //             buildingId,
+  //             page: 1,
+  //             limit: 1000000,
+  //             method: type
+  //           }
+  //         }
+  //       );
+  //       data = res.data.data || [];
+  //     }
+
+  //     const formattedData = data.map((item, index) => {
+  //       const {
+  //         _id,
+  //         isDeleted,
+  //         createdBy,
+  //         updatedBy,
+  //         createdAt,
+  //         updatedAt,
+  //         siteBuildingName,
+  //         __v,
+  //         building,
+  //         buildingId,
+  //         ...rest
+  //       } = item;
+
+  //       // ✅ Pick whichever exists
+  //       const buildingObj =
+  //         (typeof building === "object" && building) ||
+  //         (typeof buildingId === "object" && buildingId) ||
+  //         {};
+
+  //       return {
+  //         "Sr.No": index + 1,
+
+  //         "Building Code": buildingObj?.buildingCode || "N/A",
+  //         "Building Name": buildingObj?.buildingName || "N/A",
+
+  //         ...rest,
+  //       };
+  //     });
+  //     console.log("EXPORTED DATA:", data);
+
+  //     // ✅ DIRECT EXPORT (NO FILTER)
+  //     exportToExcel(formattedData, `${type}_${buildingName}`);
+
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast.error("Export failed");
+  //   }
+  // };
+
+
+  const handleExportBeforeDelete = async (data, type, buildingName) => {
+
+    console.log(data);
+
+    // try {
+    //   const headers = {
+    //     Authorization: `Bearer ${localStorage.getItem("token")}`,
+    //   };
+
+    //   let res;
+    //   let data = [];
+
+    //   // Stationary Combustion
+    //   if (type === "stationary") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/stationary/Get-All`,
+    //       {
+    //         headers,
+    //         params: { buildingId, limit: 1000000 }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // Mobile Combustion
+    //   else if (type === "mobile-combustion") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All`,
+    //       {
+    //         headers,
+    //         params: { buildingId, limit: 1000000 }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // Fugitive Emissions
+    //   else if (type === "fugitive") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/Fugitive/get-All`,
+    //       {
+    //         headers,
+    //         params: { buildingId, limit: 1000000 }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // Process Emissions
+    //   else if (type === "process-emission") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/Process-Emissions/Get-All`,
+    //       {
+    //         headers,
+    //         params: { buildingId, limit: 1000000 }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // Purchased Electricity
+    //   else if (type === "purchased-electricity") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get-All`,
+    //       {
+    //         headers,
+    //         params: { buildingId, limit: 1000000 }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // Purchased Goods and Services
+    //   else if (type === "purchased-goods") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
+    //       {
+    //         headers,
+    //         params: { buildingId, limit: 1000000 }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // Capital Goods
+    //   else if (type === "capital-goods-services") {
+    //     try {
+    //       res = await axios.get(
+    //         `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All-isCaptialGoods`,
+    //         {
+    //           headers,
+    //           params: {
+    //             buildingId: buildingId || undefined,
+    //             limit: 1000000,
+    //           },
+    //         }
+    //       );
+    //       data = res.data?.data || [];
+    //       console.log("Capital Goods Export Data:", data);
+
+    //       if (!data.length) {
+    //         console.warn("No capital goods data found");
+    //       }
+    //     } catch (error) {
+    //       console.error("Capital Goods API Error:", error);
+    //       data = [];
+    //     }
+    //   }
+
+    //   // Fuel & Energy Related Activities
+    //   else if (type === "fuelandenergy") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/get-All`,
+    //       {
+    //         headers,
+    //         params: { buildingId, limit: 1000000 }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // Waste Generated in Operations
+    //   else if (type === "waste-generate") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/Waste-Generate/List`,
+    //       {
+    //         headers,
+    //         params: { buildingId, limit: 1000000 }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // Business Travel
+    //   else if (type === "business-travel") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/Business-Travel/List`,
+    //       {
+    //         headers,
+    //         params: { buildingId, limit: 1000000 }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // Employee Commuting
+    //   else if (type === "employee-commute") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/employee-commute/List`,
+    //       {
+    //         headers,
+    //         params: { buildingId, limit: 1000000 }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // Upstream Transportation
+    //   else if (type === "upstreamTransportations") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/upstream/Get-All`,
+    //       {
+    //         headers,
+    //         params: { buildingId, limit: 1000000 }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // Downstream Transportation
+    //   else if (type === "downstream") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/downstream/Get-All`,
+    //       {
+    //         headers,
+    //         params: { buildingId, limit: 1000000 }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // Location Based & Market Based
+    //   else if (type === "location_based" || type === "market_based") {
+    //     res = await axios.get(
+    //       `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get-All`,
+    //       {
+    //         headers,
+    //         params: {
+    //           buildingId,
+    //           page: 1,
+    //           limit: 1000000,
+    //           method: type
+    //         }
+    //       }
+    //     );
+    //     data = res.data.data || [];
+    //   }
+
+    //   // If no data found
+    //   if (!data || data.length === 0) {
+    //     toast.warning(`No data found for ${type}`);
+    //     return;
+    //   }
+
+    //   // Format data for export
+    //   const formattedData = data.map((item, index) => {
+    //     const {
+    //       _id,
+    //       isDeleted,
+    //       createdBy,
+    //       updatedBy,
+    //       createdAt,
+    //       updatedAt,
+    //       siteBuildingName,
+    //       __v,
+    //       building,
+    //       buildingId: itemBuildingId,
+    //       ...rest
+    //     } = item;
+
+    //     // Pick whichever exists
+    //     const buildingObj =
+    //       (typeof building === "object" && building) ||
+    //       (typeof itemBuildingId === "object" && itemBuildingId) ||
+    //       {};
+
+    //     return {
+    //       "Sr.No": index + 1,
+    //       "Building Code": buildingObj?.buildingCode || "N/A",
+    //       "Building Name": buildingObj?.buildingName || "N/A",
+    //       ...rest,
+    //     };
+    //   });
+
+    //   console.log("EXPORTED DATA:", formattedData);
+
+    //   // Export to Excel
+    //   exportToExcel(formattedData, `${type}_${buildingName}`);
+
+    // } catch (err) {
+    //   console.error("Export error:", err);
+    //   toast.error("Export failed");
+    // }
+    const formattedData = data.map((item, index) => {
+      const {
+        _id,
+        isDeleted,
+        createdBy,
+        updatedBy,
+        createdAt,
+        updatedAt,
+        siteBuildingName,
+        __v,
+        building,
+        buildingId: itemBuildingId,
+        ...rest
+      } = item;
+
+      // Pick whichever exists
+      const buildingObj =
+        (typeof building === "object" && building) ||
+        (typeof itemBuildingId === "object" && itemBuildingId) ||
+        {};
+
+      return {
+        "Sr.No": index + 1,
+        "Building Code": buildingObj?.buildingCode || "N/A",
+        "Building Name": buildingObj?.buildingName || "N/A",
+        ...rest,
       };
+    });
 
-      let res;
-      let data = [];
+    console.log("EXPORTED DATA:", formattedData);
 
-      if (type === "stationary") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/stationary/Get-All`,
-          {
-            headers,
-            params: { buildingId, limit: 1000000 }
-          }
-        );
-        data = res.data.data || [];
-      }
+    // Export to Excel
+    exportToExcel(formattedData, `${type}_${buildingName}`);
 
-
-
-      if (type === "mobile-combustion") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/AutoMobile/Get-All`,
-          {
-            headers,
-            params: { buildingId, limit: 1000000 }
-          }
-        );
-        data = res.data.data || [];
-      }
-
-
-
-
-      if (type === "fugitive") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/Fugitive/get-All`,
-          {
-            headers,
-            params: { buildingId, limit: 1000000 }
-          }
-        );
-        data = res.data.data || [];
-      }
-
-
-
-      if (type === "process-emission") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/Process-Emissions/Get-All`,
-          {
-            headers,
-            params: { buildingId, limit: 1000000 }
-          }
-        );
-        data = res.data.data || [];
-      }
-
-      if (type === "purchased-electricity") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get-All`,
-          {
-            headers,
-            params: { buildingId, limit: 1000000 }
-          }
-        );
-        data = res.data.data || [];
-      }
-
-      if (type === "purchased-goods") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All`,
-          {
-            headers,
-            params: { buildingId, limit: 1000000 }
-          }
-        );
-        data = res.data.data || [];
-      }
-
-      if (type === "capital-goods-services") {
-        try {
-          const res = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/get-All-isCaptialGoods`,
-            {
-              headers,
-              params: {
-                buildingId: buildingId || undefined,
-                limit: 1000000,
-              },
-            }
-          );
-
-          data = res.data?.data || [];
-
-          console.log("Capital Goods Export Data:", data);
-
-          if (!data.length) {
-            console.warn("No capital goods data found");
-          }
-        } catch (error) {
-          console.error("Capital Goods API Error:", error);
-          data = [];
-        }
-      }
-
-      if (type === "fuelandenergy") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/Fuel-And-Energy/get-All`,
-          {
-            headers,
-            params: { buildingId, limit: 1000000 }
-          }
-        );
-        data = res.data.data || [];
-      }
-
-      if (type === "waste-generate") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/Waste-Generate/List`,
-          {
-            headers,
-            params: { buildingId, limit: 1000000 }
-          }
-        );
-        data = res.data.data || [];
-      }
-
-      if (type === "business-travel") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/Business-Travel/List`,
-          {
-            headers,
-            params: { buildingId, limit: 1000000 }
-          }
-        );
-        data = res.data.data || [];
-      }
-
-
-      if (type === "employee-commute") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/employee-commute/List`,
-          {
-            headers,
-            params: { buildingId, limit: 1000000 }
-          }
-        );
-        data = res.data.data || [];
-      }
-
-      if (type === "upstream") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/upstream/Get-All`,
-          {
-            headers,
-            params: { buildingId, limit: 1000000 }
-          }
-        );
-        data = res.data.data || [];
-      }
-
-
-      if (type === "downstream") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/downstream/Get-All`,
-          {
-            headers,
-            params: { buildingId, limit: 1000000 }
-          }
-        );
-        data = res.data.data || [];
-      }
-
-      if (type === "location_based" || type === "market_based") {
-        res = await axios.get(
-          `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/get-All`,
-          {
-            headers,
-            params: {
-              buildingId,
-              page: 1,
-              limit: 1000000,
-              method: type
-            }
-          }
-        );
-        data = res.data.data || [];
-      }
-
-      const formattedData = data.map((item, index) => {
-        const {
-          _id,
-          isDeleted,
-          createdBy,
-          updatedBy,
-          createdAt,
-          updatedAt,
-          siteBuildingName,
-          __v,
-          building,
-          buildingId,
-          ...rest
-        } = item;
-
-        // ✅ Pick whichever exists
-        const buildingObj =
-          (typeof building === "object" && building) ||
-          (typeof buildingId === "object" && buildingId) ||
-          {};
-
-        return {
-          "Sr.No": index + 1,
-
-          "Building Code": buildingObj?.buildingCode || "N/A",
-          "Building Name": buildingObj?.buildingName || "N/A",
-
-          ...rest,
-        };
-      });
-      console.log("EXPORTED DATA:", data);
-
-      // ✅ DIRECT EXPORT (NO FILTER)
-      exportToExcel(formattedData, `${type}_${buildingName}`);
-
-    } catch (err) {
-      console.error(err);
-      toast.error("Export failed");
-    }
   };
 
   const exportItems = [
     // { label: "Electricity", type: "purchased-electricity" },
-    { label: "Stationary", type: "stationary" },
-    { label: "Mobile", type: "mobile-combustion" },
-    { label: "Fugitive", type: "fugitive" },
-    { label: "Process Emission", type: "process-emission" },
+    { label: "Stationary Combustion", type: "stationary" },
+    { label: "Mobile Combustion", type: "mobile-combustion" },
+    { label: "Fugitive Emissions", type: "fugitive" },
+    { label: "Process Emissions", type: "process-emission" },
     { label: "Market Based", type: "market_based" },
     { label: "Location Based", type: "location_based" },
-    { label: "Purchased Goods", type: "purchased-goods" },
+    { label: "Purchased Goods and Services", type: "purchased-goods" },
     { label: "Capital Goods", type: "capital-goods-services" },
-    { label: "Fuel & Energy", type: "fuelandenergy" },
-    { label: "Waste", type: "waste-generate" },
+    { label: "Fuel & Energy Related Activities", type: "fuelandenergy" },
+    { label: "Waste Generated in Operations", type: "waste-generate" },
     { label: "Business Travel", type: "business-travel" },
-    { label: "Upstream", type: "upstream" },
-    { label: "Downstream", type: "downstream" },
-    { label: "Employee", type: "employee-commute" },
+    { label: "Upstream Transportation and Distribution", type: "upstreamTransportations" },
+    { label: "Downstream Transportation and Distribution", type: "downstream" },
+    { label: "Employee Commuting", type: "employee-commute" },
   ];
 
   const typeKeyMap = {
-    stationary: "stationaryCombustions",
-    "mobile-combustion": "autoMobiles",
-    fugitive: "fugitives",
-    "process-emission": "emissionActivities",
-    market_based: "purchasedElectricities",
-    location_based: "purchasedElectricities",
+    "stationary": "stationaryCombustions",
+    "mobile-combustion": "autoMobiles", // or whatever the correct key is
+    "fugitive": "fugitives",
+    "process-emission": "emissionActivities", // adjust as needed
+    "market_based": "purchasedElectricities",
+    "location_based": "purchasedElectricities",
     "purchased-goods": "purchasedGoodsAndServices",
-    "capital-goods-services": "purchasedGoodsAndServices",
-    fuelandenergy: "fuelAndEnergies",
+    "capital-goods-services": "capitalGoodsServices", // check your actual key
+    "fuelandenergy": "fuelAndEnergies",
     "waste-generate": "wasteGenerates",
     "business-travel": "businessTravels",
-    upstream: "upstreamTransportations",
-    downstream: "soldGoodsTransports",
-    "employee-commute": "employeeCommuted",
+    "upstreamTransportations": "upstreamTransportations",
+    "downstream": "soldGoodsTransports",
+    "employee-commute": "employeeCommuted"
   };
 
   const fetchData = async () => {
     setLoading2(true);
     try {
-      const results = await axios.get(`https://rjj3twnh-5000.asse.devtunnels.ms/api/building/Get-All-Buildings-With-Emissions`, {
+      const results = await axios.get(`${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings-With-Emissions`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -842,7 +1122,7 @@ const BuildingTable = () => {
           </div> */}
 
           {/* Export Cards */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             {loading2 ? (
               <div className="flex justify-center items-center py-8 w-full col-span-4">
                 <div className="relative w-52 h-32 overflow-hidden rounded-md">
@@ -858,25 +1138,46 @@ const BuildingTable = () => {
               exportItems.map((item, index) => {
                 const key = typeKeyMap[item.type];
                 const data = excelResults[key];
-                if (data?.length > 0) {
+
+                // Special handling for market_based and location_based
+                const locationBase = item.type === "location_based" ? excelResults["purchasedElectricities"]?.filter(e => e.method === "location_based") : [];
+                const marketBase = item.type === "market_based" ? excelResults["purchasedElectricities"]?.filter(e => e.method === "market_based") : [];
+
+                // Check if data exists
+                const hasData = item.type === "location_based"
+                  ? locationBase?.length > 0
+                  : item.type === "market_based"
+                    ? marketBase?.length > 0
+                    : data?.length > 0;
+
+                if (hasData) {
                   return (
                     <div
                       key={index}
                       className="rounded-xl border border-gray-200 bg-gradient-to-br from-white to-gray-50/50 shadow-sm hover:shadow-md hover:border-green-200 transition-all duration-200 group"
                     >
                       <div className="p-3">
-                        <div className="text-xs font-semibold text-gray-700 mb-1 truncate text-center">
+                        <div className="text-xs font-semibold text-gray-700 mb-1 text-center">
                           {item.label}
+                          {item.type === "location_based" && locationBase.length > 0 && (
+                            <span className="ml-1 text-xs text-green-600">
+                              ({locationBase.length})
+                            </span>
+                          )}
+                          {item.type === "market_based" && marketBase.length > 0 && (
+                            <span className="ml-1 text-xs text-green-600">
+                              ({marketBase.length})
+                            </span>
+                          )}
+                          {item.type !== "location_based" && item.type !== "market_based" && data?.length > 0 && (
+                            <span className="ml-1 text-xs text-green-600">
+                              ({data.length})
+                            </span>
+                          )}
                         </div>
 
                         <button
-                          onClick={() =>
-                            handleExportBeforeDelete(
-                              selectedBuildingId,
-                              selectedBuildingName,
-                              item.type
-                            )
-                          }
+                          onClick={() => handleExportBeforeDelete(data, item.type, selectedBuildingName)}
                           className="w-full flex items-center justify-center py-2.5 rounded-lg bg-gray-50 hover:bg-green-50 transition-all duration-200 group/btn"
                         >
                           <Icon
@@ -887,18 +1188,8 @@ const BuildingTable = () => {
                       </div>
                     </div>
                   );
-                } else {
-                  return (
-                    <div
-                      key={index}
-                      className="rounded-xl border border-gray-200 bg-gray-100/50 shadow-sm flex items-center justify-center p-3"
-                    >
-                      <div className="text-xs font-medium text-gray-500 text-center">
-                        {item.label} <br /> No Data
-                      </div>
-                    </div>
-                  );
                 }
+                return null;
               })}
           </div>
 
