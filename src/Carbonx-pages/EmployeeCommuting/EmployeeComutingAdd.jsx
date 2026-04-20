@@ -341,51 +341,131 @@ const calculateEmissions = (data) => {
     }
 
     // Calculate Taxi emissions
+    // if (data.commuteByTaxi) {
+    //     let individualDistance = Number(data.taxiDistance) || 0;
+    //     let carpoolDistance = 0;
+    //     let passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : 1;
+    //     const taxiType = data.taxiType;
+    //     let baseFactor = EMISSION_FACTORS.taxis[taxiType];
+    //     let factor = baseFactor;
+
+    //     let individualEmissions = individualDistance * factor;
+    //     let totalTaxiEmissions = individualEmissions;
+    //     let taxiTotalDistance = individualDistance;
+
+    //     console.log('=== EMISSION CALCULATION - TAXI ===');
+    //     console.log('Taxi Type:', taxiType);
+    //     console.log('Emission Factor:', factor, 'kg CO2e/km');
+    //     console.log('Traveling With Others:', data.travelWithOthersTaxi);
+    //     console.log('Persons Traveling With:', data.personsTravelWithTaxi || 0);
+    //     console.log('Total Passengers (including self):', passengers);
+    //     console.log('Individual Distance:', individualDistance, 'km');
+    //     console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
+
+    //     // Check if mode is 'both' and carpool distance exists
+    //     if (data.taxiMode === 'both' && data.taxiDistanceCarpool) {
+    //         carpoolDistance = Number(data.taxiDistanceCarpool) || 0;
+    //         let carpoolEmissions = carpoolDistance * factor;
+    //         totalTaxiEmissions += carpoolEmissions;
+    //         taxiTotalDistance += carpoolDistance;
+
+    //         console.log('Carpool Distance:', carpoolDistance, 'km');
+    //         console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
+    //         console.log('Total Taxi Emissions (Individual + Carpool):', totalTaxiEmissions, 'kg CO2e');
+    //     }
+
+    //     console.log('Total Taxi Distance:', taxiTotalDistance, 'km');
+
+    //     totalEmissionsKg += totalTaxiEmissions;
+    //     totalDistance += taxiTotalDistance;
+    //     totalPassengers += passengers;
+    //     emissionDetails.push({
+    //         mode: 'Taxi',
+    //         modeType: data.taxiMode === 'both' ? 'Individual + Carpool' : 'Individual',
+    //         individualDistance,
+    //         carpoolDistance,
+    //         totalDistance: taxiTotalDistance,
+    //         passengers,
+    //         factor,
+    //         emissions: totalTaxiEmissions
+    //     });
+    // }
     if (data.commuteByTaxi) {
-        let individualDistance = Number(data.taxiDistance) || 0;
-        let carpoolDistance = 0;
-        let passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : 1;
         const taxiType = data.taxiType;
         let baseFactor = EMISSION_FACTORS.taxis[taxiType];
         let factor = baseFactor;
 
-        let individualEmissions = individualDistance * factor;
-        let totalTaxiEmissions = individualEmissions;
-        let taxiTotalDistance = individualDistance;
+        let individualDistance = Number(data.taxiDistance) || 0;
+        let carpoolDistance = 0;
+        let individualEmissions = 0;
+        let carpoolEmissions = 0;
+        let totalTaxiEmissions = 0;
+        let taxiTotalDistance = 0;
 
         console.log('=== EMISSION CALCULATION - TAXI ===');
         console.log('Taxi Type:', taxiType);
         console.log('Emission Factor:', factor, 'kg CO2e/km');
-        console.log('Traveling With Others:', data.travelWithOthersTaxi);
-        console.log('Persons Traveling With:', data.personsTravelWithTaxi || 0);
-        console.log('Total Passengers (including self):', passengers);
-        console.log('Individual Distance:', individualDistance, 'km');
-        console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
 
-        // Check if mode is 'both' and carpool distance exists
-        if (data.taxiMode === 'both' && data.taxiDistanceCarpool) {
-            carpoolDistance = Number(data.taxiDistanceCarpool) || 0;
-            let carpoolEmissions = carpoolDistance * factor;
-            totalTaxiEmissions += carpoolEmissions;
-            taxiTotalDistance += carpoolDistance;
+        // Handle based on mode
+        if (data.taxiMode === 'individual') {
+            // Individual mode: distance * EF
+            individualEmissions = individualDistance * factor;
+            totalTaxiEmissions = individualEmissions;
+            taxiTotalDistance = individualDistance;
 
+            console.log('Mode: Individual');
+            console.log('Individual Distance:', individualDistance, 'km');
+            console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
+
+        } else if (data.taxiMode === 'carpool') {
+            // Carpool mode: passengers * distance * EF
+            let passengers = data.travelWithOthersTaxi ? (Number(data.personsTravelWithTaxi || 0) + 1) : 1;
+            carpoolDistance = individualDistance; // In carpool mode, the distance field is the carpool distance
+            carpoolEmissions = passengers * carpoolDistance * factor;
+            totalTaxiEmissions = carpoolEmissions;
+            taxiTotalDistance = carpoolDistance;
+
+            console.log('Mode: Carpool');
             console.log('Carpool Distance:', carpoolDistance, 'km');
-            console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
-            console.log('Total Taxi Emissions (Individual + Carpool):', totalTaxiEmissions, 'kg CO2e');
+            console.log('Passengers (including self):', passengers);
+            console.log('Carpool Emissions (passengers × distance × EF):', carpoolEmissions, 'kg CO2e');
+
+        } else if (data.taxiMode === 'both') {
+            // Both mode: individual part + carpool part
+            let passengers = data.travelWithOthersTaxi ? (Number(data.personsTravelWithTaxi || 0) + 1) : 1;
+            carpoolDistance = Number(data.taxiDistanceCarpool) || 0;
+
+            // Individual part: individualDistance * EF
+            individualEmissions = individualDistance * factor;
+            // Carpool part: passengers * carpoolDistance * EF
+            carpoolEmissions = passengers * carpoolDistance * factor;
+
+            totalTaxiEmissions = individualEmissions + carpoolEmissions;
+            taxiTotalDistance = individualDistance + carpoolDistance;
+
+            console.log('Mode: Both');
+            console.log('Individual Distance:', individualDistance, 'km');
+            console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
+            console.log('Carpool Distance:', carpoolDistance, 'km');
+            console.log('Passengers (including self):', passengers);
+            console.log('Carpool Emissions (passengers × distance × EF):', carpoolEmissions, 'kg CO2e');
+            console.log('Total Taxi Emissions:', totalTaxiEmissions, 'kg CO2e');
         }
 
         console.log('Total Taxi Distance:', taxiTotalDistance, 'km');
 
         totalEmissionsKg += totalTaxiEmissions;
         totalDistance += taxiTotalDistance;
-        totalPassengers += passengers;
+        totalPassengers += 1; // The person filling the form counts as 1 passenger
+
         emissionDetails.push({
             mode: 'Taxi',
-            modeType: data.taxiMode === 'both' ? 'Individual + Carpool' : 'Individual',
+            modeType: data.taxiMode === 'both' ? 'Individual + Carpool' : data.taxiMode === 'carpool' ? 'Carpool' : 'Individual',
             individualDistance,
             carpoolDistance,
             totalDistance: taxiTotalDistance,
-            passengers,
+            passengers: data.taxiMode === 'carpool' || data.taxiMode === 'both' ?
+                (data.travelWithOthersTaxi ? (Number(data.personsTravelWithTaxi || 0) + 1) : 1) : 1,
             factor,
             emissions: totalTaxiEmissions
         });
@@ -815,6 +895,8 @@ const EmployeeCommutingForm = () => {
     const [pendingYear, setPendingYear] = useState(null);
     const [pendingDateRange, setPendingDateRange] = useState(null);
     const [pendingTransportType, setPendingTransportType] = useState(null);
+    const [previouslyCoveredMonths, setPreviouslyCoveredMonths] = useState(new Set());
+    const [previousRecordsLoading, setPreviousRecordsLoading] = useState(false);
     const [formAccessStatus, setFormAccessStatus] = useState({
         checking: true,
         canAccess: false,
@@ -934,6 +1016,7 @@ const EmployeeCommutingForm = () => {
     const [companyUsers, setCompanyUsers] = useState([]);
     const [companyUsersLoading, setCompanyUsersLoading] = useState(false);
     const [token, setToken] = useState('');
+    const [datePickerResetKey, setDatePickerResetKey] = useState(0);
 
     // Add this function to reset all date ranges when changing year
     const resetAllDateRanges = () => {
@@ -963,7 +1046,8 @@ const EmployeeCommutingForm = () => {
             carCarpool: null,
             workFromHome: null
         });
-console.log("reset date ranges ", selectedDateRanges)
+        console.log("reset date ranges ", selectedDateRanges)
+        setDatePickerResetKey((prev) => prev + 1); // ✅ this triggers remount
 
         // Clear any date-related errors
         setErrors(prev => {
@@ -986,7 +1070,117 @@ console.log("reset date ranges ", selectedDateRanges)
         // { value: currentYear + 1, label: `${currentYear + 1}` }
     ];
 
+    // const fetchPreviousCommutedMonths = async (authToken, userId) => {
+    //     if (!userId || !authToken) return;
+
+    //     try {
+    //         setPreviousRecordsLoading(true);
+    //         const response = await axios.get(
+    //             `${process.env.REACT_APP_BASE_URL}/employee-commute/List?page=1&limit=10000&userId=${userId}`,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${authToken}`,
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //             }
+    //         );
+
+    //         if (response.data?.data) {
+    //             const coveredMonths = new Set();
+
+    //             const addMonths = (dateRange) => {
+    //                 if (!dateRange?.startDate || !dateRange?.endDate) return;
+    //                 const start = new Date(dateRange.startDate);
+    //                 const end = new Date(dateRange.endDate);
+    //                 const cur = new Date(start.getFullYear(), start.getMonth(), 1);
+    //                 const endM = new Date(end.getFullYear(), end.getMonth(), 1);
+    //                 while (cur <= endM) {
+    //                     coveredMonths.add(cur.getMonth() + 1); // ← just 1-12
+    //                     cur.setMonth(cur.getMonth() + 1);
+    //                 }
+    //             };
+
+    //             const transportTypes = [
+    //                 { flag: 'commuteByMotorbike', carpoolDateRange: 'motorbikeCarpoolDateRange', mode: 'motorbikeMode' },
+    //                 { flag: 'commuteByCar',  carpoolDateRange: 'carCarpoolDateRange', mode: 'carMode' },
+    //                 { flag: 'commuteByTaxi',  carpoolDateRange: 'taxiCarpoolDateRange', mode: 'taxiMode' },
+    //             ];
+
+    //             response.data.data.forEach(record => {
+    //                 transportTypes.forEach(({ flag, dateRange, carpoolDateRange, mode }) => {
+    //                     if (!record[flag]) return;
+    //                     addMonths(record[dateRange]);
+    //                     if (record[mode] === 'both' && record[carpoolDateRange]) {
+    //                         addMonths(record[carpoolDateRange]);
+    //                     }
+    //                 });
+    //             });
+
+    //             setPreviouslyCoveredMonths(coveredMonths); // Set of {1,2,3...12}
+    //         }
+    //     } catch (error) {
+    //         console.error('Failed to fetch previous commute records:', error);
+    //     } finally {
+    //         setPreviousRecordsLoading(false);
+    //     }
+    // };
+
     // Helper function to convert date range to individual dates
+   const fetchPreviousCommutedMonths = async (authToken, userId) => {
+    if (!userId || !authToken) return;
+
+    try {
+        setPreviousRecordsLoading(true);
+        const response = await axios.get(
+            `${process.env.REACT_APP_BASE_URL}/employee-commute/List?page=1&limit=10000&userId=${userId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        if (response.data?.data) {
+            const coveredMonths = new Set();
+
+            const addMonths = (dateRange) => {
+                if (!dateRange?.startDate || !dateRange?.endDate) return;
+                const start = new Date(dateRange.startDate);
+                const end = new Date(dateRange.endDate);
+                const cur = new Date(start.getFullYear(), start.getMonth(), 1);
+                const endM = new Date(end.getFullYear(), end.getMonth(), 1);
+                while (cur <= endM) {
+                    coveredMonths.add(cur.getMonth() + 1); // just 1-12
+                    cur.setMonth(cur.getMonth() + 1);
+                }
+            };
+
+            const transportTypes = [
+                { flag: 'commuteByMotorbike', carpoolDateRange: 'motorbikeCarpoolDateRange', mode: 'motorbikeMode' },
+                { flag: 'commuteByCar', carpoolDateRange: 'carCarpoolDateRange', mode: 'carMode' },
+                { flag: 'commuteByTaxi', carpoolDateRange: 'taxiCarpoolDateRange', mode: 'taxiMode' },
+            ];
+
+            response.data.data.forEach(record => {
+                transportTypes.forEach(({ flag, carpoolDateRange, mode }) => {
+                    if (!record[flag]) return;
+                    // Check the carpool date range
+                    if (record[carpoolDateRange] && record[carpoolDateRange].startDate) {
+                        addMonths(record[carpoolDateRange]);
+                    }
+                });
+            });
+
+            setPreviouslyCoveredMonths(coveredMonths); // Set of {1,2,3...12}
+        }
+    } catch (error) {
+        console.error('Failed to fetch previous commute records:', error);
+    } finally {
+        setPreviousRecordsLoading(false);
+    }
+};
+   
     const dateRangeToDates = (dateRange) => {
         if (!dateRange || !dateRange.startDate || !dateRange.endDate) return [];
         const startDate = new Date(dateRange.startDate);
@@ -1593,6 +1787,8 @@ console.log("reset date ranges ", selectedDateRanges)
         if (currentToken) {
             setToken(currentToken);
 
+            const targetUserId = urlUserId || getUserIdFromToken(currentToken);
+
             // Fetch user data (both company and target)
             fetchUserData(currentToken).then(() => {
                 // After user data is loaded, fetch buildings
@@ -1606,6 +1802,10 @@ console.log("reset date ranges ", selectedDateRanges)
 
             // Fetch company users (for passenger selection)
             fetchCompanyUsers(currentToken);
+
+            if (targetUserId) {
+                fetchPreviousCommutedMonths(currentToken, targetUserId);
+            }
         } else {
             toast.error('No authentication token found. Please access this page with a valid token.');
             setBuildingsLoading(false);
@@ -1639,7 +1839,7 @@ console.log("reset date ranges ", selectedDateRanges)
             }, 300);
         };
 
-        if(checkingSubmission){
+        if (checkingSubmission) {
             checkForPreviousSubmission();
         }
     }, [checkingSubmission]);
@@ -2715,20 +2915,7 @@ console.log("reset date ranges ", selectedDateRanges)
                 return;
             }
 
-            // Now validate against the current reporting year
-            // if (startYear !== reportingYear || endYear !== reportingYear) {
-            //     toast.error(
-            //         <div>
-            //             <div className="font-semibold mb-1">Invalid Date Range</div>
-            //             <div className="text-sm">
-            //                 All dates must be within the reporting year ({reportingYear}).<br />
-            //                 Selected: {startYear} - {endYear}
-            //             </div>
-            //         </div>,
-            //         { autoClose: 5000, closeButton: true }
-            //     );
-            //     return;
-            // }
+
             // Now validate against the current reporting year
             if (startYear !== reportingYear || endYear !== reportingYear) {
                 // If it's the first selection, offer to change the reporting year
@@ -2771,7 +2958,7 @@ console.log("reset date ranges ", selectedDateRanges)
                                 </button>
                             </div>
                         </div>,
-                        { autoClose: false, closeButton: true }
+                        { autoClose: 5000, closeButton: true }
                     );
                     return;
                 }
@@ -2783,6 +2970,62 @@ console.log("reset date ranges ", selectedDateRanges)
                 return;
             }
 
+            // Block selecting months already covered in previous submissions
+            // if (previouslyCoveredMonths.size > 0) {
+            //     const startDate = new Date(value.startDate);
+            //     const endDate = new Date(value.endDate);
+            //     const cur = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+            //     const endM = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+            //     const conflictingMonths = [];
+
+            //     while (cur <= endM) {
+            //         const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}`;
+            //         if (previouslyCoveredMonths.has(key)) {
+            //             conflictingMonths.push(new Date(cur).toLocaleString('en', { month: 'long', year: 'numeric' }));
+            //         }
+            //         cur.setMonth(cur.getMonth() + 1);
+            //     }
+
+            //     if (conflictingMonths.length > 0) {
+            //         toast.error(
+            //             <div>
+            //                 <div className="font-semibold mb-1">Already Submitted!</div>
+            //                 <div className="text-sm">
+            //                     You have already submitted commute data for: <strong>{conflictingMonths.join(', ')}</strong>.
+            //                     Please select different months.
+            //                 </div>
+            //             </div>,
+            //             { autoClose: 6000, closeButton: true }
+            //         );
+            //         return; // block the selection
+            //     }
+            // }
+            if (previouslyCoveredMonths.size > 0) {
+                const cur = new Date(new Date(value.startDate).getFullYear(), new Date(value.startDate).getMonth(), 1);
+                const endM = new Date(new Date(value.endDate).getFullYear(), new Date(value.endDate).getMonth(), 1);
+                const conflictingMonths = [];
+
+                while (cur <= endM) {
+                    const monthNum = cur.getMonth() + 1;
+                    if (previouslyCoveredMonths.has(monthNum)) { // ← month number only
+                        conflictingMonths.push(cur.toLocaleString('en', { month: 'long' }));
+                    }
+                    cur.setMonth(cur.getMonth() + 1);
+                }
+
+                if (conflictingMonths.length > 0) {
+                    toast.error(
+                        <div>
+                            <div className="font-semibold mb-1">Already Submitted!</div>
+                            <div className="text-sm">
+                                You already submitted data for: <strong>{conflictingMonths.join(', ')}</strong>.
+                            </div>
+                        </div>,
+                        { autoClose: 6000, closeButton: true }
+                    );
+                    return;
+                }
+            }
             // Check for overlaps with other selected date ranges
             const otherRanges = { ...selectedDateRanges };
             delete otherRanges[transportType];
@@ -2814,10 +3057,10 @@ console.log("reset date ranges ", selectedDateRanges)
                         <div className="font-semibold mb-1">Date Range Conflict!</div>
                         <div className="text-sm mb-2">
                             Your selected date range overlaps with {overlappingTransportType} commute
-                            in month(s): {monthNames}. Please select a different date range.
+                            in month: {monthNames}. Please select a different date range.
                         </div>
                     </div>,
-                    { autoClose: false, closeButton: true }
+                    { autoClose: 3000, closeButton: true }
                 );
                 return;
             }
@@ -2845,21 +3088,12 @@ console.log("reset date ranges ", selectedDateRanges)
             const remainingMonthsAfterChange = 12 - overallCoverageAfterChange.totalCovered;
 
             if (!overallCoverageAfterChange.isComplete && remainingMonthsAfterChange > 0) {
-                const message = `Total coverage across all commute methods: ${overallCoverageAfterChange.totalCovered} month${overallCoverageAfterChange.totalCovered !== 1 ? 's' : ''} covered. ${remainingMonthsAfterChange} month${remainingMonthsAfterChange !== 1 ? 's' : ''} remaining. Select date ranges for other methods to cover the full year.`;
+                const message = `${overallCoverageAfterChange.totalCovered} month${overallCoverageAfterChange.totalCovered !== 1 ? 's' : ''} covered. ${remainingMonthsAfterChange} month${remainingMonthsAfterChange !== 1 ? 's' : ''} remaining. Select date ranges for other methods to cover the full year.`;
                 toast.warning(
                     <div>
-                        <div className="font-semibold mb-1">Incomplete Year Coverage</div>
+
                         <div className="text-sm mb-2">{message}</div>
-                        <div className="text-xs text-gray-600 mt-1">
-                            Currently using: {[
-                                formData.commuteByMotorbike && 'Motorbike',
-                                formData.commuteByTaxi && 'Taxi',
-                                formData.commuteByBus && 'Bus',
-                                formData.commuteByTrain && 'Train',
-                                formData.commuteByCar && 'Car',
-                                formData.workFromHome && 'Work From Home'
-                            ].filter(Boolean).join(', ') || 'None'}
-                        </div>
+
                         <div className="flex gap-2 mt-3">
                             <button
                                 onClick={() => {
@@ -3091,6 +3325,7 @@ console.log("reset date ranges ", selectedDateRanges)
 
                 <div className="space-y-4">
                     <Datepicker
+                        key={`${transportType}-${datePickerResetKey}`}  // ✅ was just transportType
                         value={formData[`${transportType}DateRange`] || null}
                         onChange={(value) => handleDateRangeChange(transportType, value)}
                         showShortcuts={true}
@@ -3098,80 +3333,80 @@ console.log("reset date ranges ", selectedDateRanges)
                         primaryColor="blue"
                         minDate={calendarMinDate}
                         maxDate={calendarMaxDate}
-                        configs={{
-                            shortcuts: {
-                                today: {
-                                    text: "Today",
-                                    period: {
-                                        start: new Date(),
-                                        end: new Date()
-                                    }
-                                },
-                                yesterday: {
-                                    text: "Yesterday",
-                                    period: {
-                                        start: new Date(new Date().setDate(new Date().getDate() - 1)),
-                                        end: new Date(new Date().setDate(new Date().getDate() - 1))
-                                    }
-                                },
-                                thisWeek: {
-                                    text: "This Week",
-                                    period: {
-                                        start: new Date(new Date().setDate(new Date().getDate() - new Date().getDay())),
-                                        end: new Date(new Date().setDate(new Date().getDate() + (6 - new Date().getDay())))
-                                    }
-                                },
-                                thisMonth: {
-                                    text: "This Month",
-                                    period: {
-                                        start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-                                        end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
-                                    }
-                                },
-                                lastMonth: {
-                                    text: "Last Month",
-                                    period: {
-                                        start: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
-                                        end: new Date(new Date().getFullYear(), new Date().getMonth(), 0)
-                                    }
-                                },
-                                firstQuarter: {
-                                    text: "Q1",
-                                    period: {
-                                        start: new Date(`${reportingYear}-01-01`),
-                                        end: new Date(`${reportingYear}-03-31`)
-                                    }
-                                },
-                                secondQuarter: {
-                                    text: "Q2",
-                                    period: {
-                                        start: new Date(`${reportingYear}-04-01`),
-                                        end: new Date(`${reportingYear}-06-30`)
-                                    }
-                                },
-                                thirdQuarter: {
-                                    text: "Q3",
-                                    period: {
-                                        start: new Date(`${reportingYear}-07-01`),
-                                        end: new Date(`${reportingYear}-09-30`)
-                                    }
-                                },
-                                fourthQuarter: {
-                                    text: "Q4",
-                                    period: {
-                                        start: new Date(`${reportingYear}-10-01`),
-                                        end: new Date(`${reportingYear}-12-31`)
-                                    }
-                                },
-                                fullWindow: {
-                                    text: "Full Window ✓",
-                                    period: {
-                                        start: calendarMinDate,
-                                        end: calendarMaxDate
-                                    }
-                                }
-                            }
-                        }}
+                        // configs={{
+                        //     shortcuts: {
+                        //         today: {
+                        //             text: "Today",
+                        //             period: {
+                        //                 start: new Date(),
+                        //                 end: new Date()
+                        //             }
+                        //         },
+                        //         yesterday: {
+                        //             text: "Yesterday",
+                        //             period: {
+                        //                 start: new Date(new Date().setDate(new Date().getDate() - 1)),
+                        //                 end: new Date(new Date().setDate(new Date().getDate() - 1))
+                        //             }
+                        //         },
+                        //         thisWeek: {
+                        //             text: "This Week",
+                        //             period: {
+                        //                 start: new Date(new Date().setDate(new Date().getDate() - new Date().getDay())),
+                        //                 end: new Date(new Date().setDate(new Date().getDate() + (6 - new Date().getDay())))
+                        //             }
+                        //         },
+                        //         thisMonth: {
+                        //             text: "This Month",
+                        //             period: {
+                        //                 start: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+                        //                 end: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)
+                        //             }
+                        //         },
+                        //         lastMonth: {
+                        //             text: "Last Month",
+                        //             period: {
+                        //                 start: new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1),
+                        //                 end: new Date(new Date().getFullYear(), new Date().getMonth(), 0)
+                        //             }
+                        //         },
+                        //         firstQuarter: {
+                        //             text: "Q1",
+                        //             period: {
+                        //                 start: new Date(`${reportingYear}-01-01`),
+                        //                 end: new Date(`${reportingYear}-03-31`)
+                        //             }
+                        //         },
+                        //         secondQuarter: {
+                        //             text: "Q2",
+                        //             period: {
+                        //                 start: new Date(`${reportingYear}-04-01`),
+                        //                 end: new Date(`${reportingYear}-06-30`)
+                        //             }
+                        //         },
+                        //         thirdQuarter: {
+                        //             text: "Q3",
+                        //             period: {
+                        //                 start: new Date(`${reportingYear}-07-01`),
+                        //                 end: new Date(`${reportingYear}-09-30`)
+                        //             }
+                        //         },
+                        //         fourthQuarter: {
+                        //             text: "Q4",
+                        //             period: {
+                        //                 start: new Date(`${reportingYear}-10-01`),
+                        //                 end: new Date(`${reportingYear}-12-31`)
+                        //             }
+                        //         },
+                        //         fullWindow: {
+                        //             text: "Full Window ✓",
+                        //             period: {
+                        //                 start: calendarMinDate,
+                        //                 end: calendarMaxDate
+                        //             }
+                        //         }
+                        //     }
+                        // }}
                         displayFormat="DD MMM YYYY"
                         startFrom={new Date(reportingYear, 0, 1)}
                         popoverDirection="down"
@@ -3470,14 +3705,12 @@ console.log("reset date ranges ", selectedDateRanges)
 
     // Function to validate 12-month coverage across all selected commute methods
     // const validateMonthCoverage = () => {
-    //     // Create a set to track all covered months across all transport methods
     //     const coveredMonths = new Set();
-    //     // Helper function to add months from a date range
+
     //     const addMonthsFromRange = (dateRange) => {
     //         if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
     //         const startDate = new Date(dateRange.startDate);
     //         const endDate = new Date(dateRange.endDate);
-    //         // Reset to first day of month for consistent month tracking
     //         const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
     //         const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
 
@@ -3488,46 +3721,40 @@ console.log("reset date ranges ", selectedDateRanges)
     //         }
     //     };
 
-    //     // Add months from all selected commute methods
-    //     if (formData.commuteByMotorbike && formData.motorbikeDateRange) { addMonthsFromRange(formData.motorbikeDateRange); }
-    //     if (formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.motorbikeCarpoolDateRange) { addMonthsFromRange(formData.motorbikeCarpoolDateRange); }
-    //     if (formData.commuteByTaxi && formData.taxiDateRange) { addMonthsFromRange(formData.taxiDateRange); }
-    //     if (formData.commuteByTaxi && formData.taxiMode === 'both' && formData.taxiCarpoolDateRange) { addMonthsFromRange(formData.taxiCarpoolDateRange); }
-    //     if (formData.commuteByBus && formData.busDateRange) { addMonthsFromRange(formData.busDateRange); }
-    //     if (formData.commuteByTrain && formData.trainDateRange) { addMonthsFromRange(formData.trainDateRange); }
-    //     if (formData.commuteByCar && formData.carDateRange) { addMonthsFromRange(formData.carDateRange); }
-    //     if (formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange) { addMonthsFromRange(formData.carCarpoolDateRange); }
-    //     if (formData.workFromHome && formData.workFromHomeDateRange) { addMonthsFromRange(formData.workFromHomeDateRange); }
+    //     // Add months from ALL selected commute methods
+    //     if (formData.commuteByMotorbike && formData.motorbikeDateRange) addMonthsFromRange(formData.motorbikeDateRange);
+    //     if (formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.motorbikeCarpoolDateRange) addMonthsFromRange(formData.motorbikeCarpoolDateRange);
+    //     if (formData.commuteByTaxi && formData.taxiDateRange) addMonthsFromRange(formData.taxiDateRange);
+    //     if (formData.commuteByTaxi && formData.taxiMode === 'both' && formData.taxiCarpoolDateRange) addMonthsFromRange(formData.taxiCarpoolDateRange);
+    //     if (formData.commuteByBus && formData.busDateRange) addMonthsFromRange(formData.busDateRange);
+    //     if (formData.commuteByTrain && formData.trainDateRange) addMonthsFromRange(formData.trainDateRange);
+    //     if (formData.commuteByCar && formData.carDateRange) addMonthsFromRange(formData.carDateRange);
+    //     if (formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange) addMonthsFromRange(formData.carCarpoolDateRange);
+    //     if (formData.workFromHome && formData.workFromHomeDateRange) addMonthsFromRange(formData.workFromHomeDateRange);
 
-    //     // Check which months are covered
-    //     const allMonths = Array.from({ length: 12 }, (_, i) =>
-    //         `${reportingYear}-${String(i + 1).padStart(2, '0')}`
-    //     );
-
-    //     const uncoveredMonths = allMonths.filter(month => !coveredMonths.has(month));
+    //     const totalCovered = coveredMonths.size;
+    //     const remainingMonths = 12 - totalCovered;
 
     //     return {
-    //         totalCovered: coveredMonths.size,
+    //         totalCovered,
     //         totalRequired: 12,
+    //         remainingMonths,
     //         coveredMonths: Array.from(coveredMonths).sort(),
-    //         uncoveredMonths,
-    //         isComplete: coveredMonths.size === 12
+    //         isComplete: totalCovered === 12
     //     };
     // };
     // const validateMonthCoverage = () => {
-    //     const coveredMonths = new Set();
+    //     const coveredMonths = new Set([...previouslyCoveredMonths]); // seed with previous
 
     //     const addMonthsFromRange = (dateRange) => {
-    //         if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
+    //         if (!dateRange?.startDate || !dateRange?.endDate) return;
     //         const startDate = new Date(dateRange.startDate);
     //         const endDate = new Date(dateRange.endDate);
-    //         const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-    //         const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
-
-    //         while (currentDate <= endDateMonth) {
-    //             const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-    //             coveredMonths.add(monthKey);
-    //             currentDate.setMonth(currentDate.getMonth() + 1);
+    //         const cur = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+    //         const endM = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+    //         while (cur <= endM) {
+    //             coveredMonths.add(`${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}`);
+    //             cur.setMonth(cur.getMonth() + 1);
     //         }
     //     };
 
@@ -3541,57 +3768,48 @@ console.log("reset date ranges ", selectedDateRanges)
     //     if (formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange) addMonthsFromRange(formData.carCarpoolDateRange);
     //     if (formData.workFromHome && formData.workFromHomeDateRange) addMonthsFromRange(formData.workFromHomeDateRange);
 
-    //     // ✅ FIX: Don't restrict to reportingYear — use all covered months
-    //     // Check any contiguous 12-month span within covered months
-    //     const sortedMonths = Array.from(coveredMonths).sort();
-
     //     return {
     //         totalCovered: coveredMonths.size,
     //         totalRequired: 12,
-    //         coveredMonths: sortedMonths,
-    //         uncoveredMonths: [], // Not restricting to a single year anymore
-    //         isComplete: coveredMonths.size >= 12
+    //         remainingMonths: 12 - coveredMonths.size,
+    //         coveredMonths: Array.from(coveredMonths).sort(),
+    //         isComplete: coveredMonths.size >= 12,
     //     };
     // };
-    const validateMonthCoverage = () => {
-        const coveredMonths = new Set();
+const validateMonthCoverage = () => {
+    const coveredMonths = new Set([...previouslyCoveredMonths]); // seed with previous (month numbers 1-12)
 
-        const addMonthsFromRange = (dateRange) => {
-            if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
-            const startDate = new Date(dateRange.startDate);
-            const endDate = new Date(dateRange.endDate);
-            const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-            const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
-
-            while (currentDate <= endDateMonth) {
-                const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
-                coveredMonths.add(monthKey);
-                currentDate.setMonth(currentDate.getMonth() + 1);
-            }
-        };
-
-        // Add months from ALL selected commute methods
-        if (formData.commuteByMotorbike && formData.motorbikeDateRange) addMonthsFromRange(formData.motorbikeDateRange);
-        if (formData.commuteByMotorbike && formData.motorbikeMode === 'both' && formData.motorbikeCarpoolDateRange) addMonthsFromRange(formData.motorbikeCarpoolDateRange);
-        if (formData.commuteByTaxi && formData.taxiDateRange) addMonthsFromRange(formData.taxiDateRange);
-        if (formData.commuteByTaxi && formData.taxiMode === 'both' && formData.taxiCarpoolDateRange) addMonthsFromRange(formData.taxiCarpoolDateRange);
-        if (formData.commuteByBus && formData.busDateRange) addMonthsFromRange(formData.busDateRange);
-        if (formData.commuteByTrain && formData.trainDateRange) addMonthsFromRange(formData.trainDateRange);
-        if (formData.commuteByCar && formData.carDateRange) addMonthsFromRange(formData.carDateRange);
-        if (formData.commuteByCar && formData.carMode === 'both' && formData.carCarpoolDateRange) addMonthsFromRange(formData.carCarpoolDateRange);
-        if (formData.workFromHome && formData.workFromHomeDateRange) addMonthsFromRange(formData.workFromHomeDateRange);
-
-        const totalCovered = coveredMonths.size;
-        const remainingMonths = 12 - totalCovered;
-
-        return {
-            totalCovered,
-            totalRequired: 12,
-            remainingMonths,
-            coveredMonths: Array.from(coveredMonths).sort(),
-            isComplete: totalCovered === 12
-        };
+    const addMonthsFromRange = (dateRange) => {
+        if (!dateRange?.startDate || !dateRange?.endDate) return;
+        const startDate = new Date(dateRange.startDate);
+        const endDate = new Date(dateRange.endDate);
+        const cur = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+        const endM = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+        while (cur <= endM) {
+            coveredMonths.add(`${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}`);
+            cur.setMonth(cur.getMonth() + 1);
+        }
     };
+
+    // ← include ALL date ranges for coverage display
+    if (formData.commuteByMotorbike && formData.motorbikeDateRange) addMonthsFromRange(formData.motorbikeDateRange);
+    if (formData.commuteByMotorbike && formData.motorbikeCarpoolDateRange) addMonthsFromRange(formData.motorbikeCarpoolDateRange);
+    if (formData.commuteByTaxi && formData.taxiDateRange) addMonthsFromRange(formData.taxiDateRange);
+    if (formData.commuteByTaxi && formData.taxiCarpoolDateRange) addMonthsFromRange(formData.taxiCarpoolDateRange);
+    if (formData.commuteByCar && formData.carDateRange) addMonthsFromRange(formData.carDateRange);
+    if (formData.commuteByCar && formData.carCarpoolDateRange) addMonthsFromRange(formData.carCarpoolDateRange);
+    if (formData.commuteByBus && formData.busDateRange) addMonthsFromRange(formData.busDateRange);
+    if (formData.commuteByTrain && formData.trainDateRange) addMonthsFromRange(formData.trainDateRange);
+    if (formData.workFromHome && formData.workFromHomeDateRange) addMonthsFromRange(formData.workFromHomeDateRange);
+
+    return {
+        totalCovered: coveredMonths.size,
+        totalRequired: 12,
+        remainingMonths: 12 - coveredMonths.size,
+        coveredMonths: Array.from(coveredMonths).sort(),
+        isComplete: coveredMonths.size >= 12,
+    };
+};
 
     // Function to check for date range overlaps
     const checkAllDateRangeOverlaps = () => {
@@ -4358,8 +4576,8 @@ console.log("reset date ranges ", selectedDateRanges)
                     workFromHomeDates: workFromHomeDates.map(date => date.toISOString()),
                     workFromHomeDateRange: formData.workFromHomeDateRange,
                 }),
-                qualityControlRemarks: String(formData.qualityControlRemarks || ''),
-                qualityControl: String(formData.qualityControl || ''),
+               qualityControlRemarks: formData.qualityControlRemarks,
+               qualityControl: formData.qualityControl?.value || '',
                 submittedAt: new Date().toISOString(),
             };
 
@@ -4420,9 +4638,10 @@ console.log("reset date ranges ", selectedDateRanges)
         }
     };
 
-        console.log("Form access status:", 
-        {formAccessStatus, checkingSubmission
-    });  
+    console.log("Form access status:",
+        {
+            formAccessStatus, checkingSubmission
+        });
 
 
     if (!token && !urlToken && !getToken()) {
@@ -4664,7 +4883,7 @@ console.log("reset date ranges ", selectedDateRanges)
                                     <p className="text-sm font-medium text-gray-700 mb-2">Month-by-Month Breakdown:</p>
                                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
 
-                                        {(() => {
+                                        {/* {(() => {
                                             const coverage = validateMonthCoverage();
                                             // Build the 12-month window to display based on actual selections, 
                                             // or fall back to reportingYear
@@ -4692,7 +4911,54 @@ console.log("reset date ranges ", selectedDateRanges)
                                                     </div>
                                                 );
                                             });
+                                        })()} */}
+
+                                        {(() => {
+                                            const coverage = validateMonthCoverage();
+                                            // const startYear = coverage.coveredMonths.length > 0
+                                            //     ? parseInt(coverage.coveredMonths[0].split('-')[0])
+                                            //     : reportingYear;
+
+                                            return Array.from({ length: 12 }, (_, i) => {
+                                                // const date = new Date(startYear, i, 1);
+                                                // const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                                                // const monthName = date.toLocaleString('en', { month: 'short' });
+                                                // const year = date.getFullYear();
+
+                                                // const isPrevious = previouslyCoveredMonths.has(monthKey);
+                                                // const isCurrent = !isPrevious && coverage.coveredMonths.includes(monthKey);
+                                                const monthNum = i + 1;
+                                                const monthKey = `${reportingYear}-${String(monthNum).padStart(2, '0')}`;
+                                                const monthName = new Date(reportingYear, i, 1).toLocaleString('en', { month: 'short' }); // ← add this
+                                                const isPrevious = previouslyCoveredMonths.has(monthNum);
+                                                const isCurrent = !isPrevious && coverage.coveredMonths.includes(monthKey);
+
+                                                return (
+                                                    <div
+                                                        key={monthKey}
+                                                        title={isPrevious ? 'Already submitted in a previous form' : isCurrent ? 'Covered in this form' : 'Not yet covered'}
+                                                        className={`p-2 rounded border text-center ${isPrevious ? 'bg-blue-50 border-blue-300' :
+                                                            isCurrent ? 'bg-green-50 border-green-200' :
+                                                                'bg-red-50 border-red-200'
+                                                            }`}
+                                                    >
+                                                        <div className="text-xs font-medium">{monthName}</div>
+                                                        {/* <div className="text-xs">{year}</div> */}
+                                                        <div className={`text-xs font-bold ${isPrevious ? 'text-blue-600' :
+                                                            isCurrent ? 'text-green-600' :
+                                                                'text-red-600'
+                                                            }`}>
+                                                            {isPrevious ? '●' : isCurrent ? '✓' : '✗'}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            });
                                         })()}
+                                        <div className="flex gap-4 mt-2 text-xs text-gray-600">
+                                            <span className="flex items-center gap-1"><span className="text-blue-600 font-bold">●</span> Previously submitted</span>
+                                            <span className="flex items-center gap-1"><span className="text-green-600 font-bold">✓</span> Covered in this form</span>
+                                            <span className="flex items-center gap-1"><span className="text-red-600 font-bold">✗</span> Not covered</span>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -4945,6 +5211,7 @@ console.log("reset date ranges ", selectedDateRanges)
                                                             )}
                                                             <div id="motorbikeCarpoolDateRange" className="space-y-4">
                                                                 <Datepicker
+                                                                    key={`motorbikeCarpool-${datePickerResetKey}`}
                                                                     value={formData.motorbikeCarpoolDateRange || null}
                                                                     onChange={(value) => handleDateRangeChange('motorbikeCarpool', value)}
                                                                     showShortcuts={true}
@@ -5195,6 +5462,7 @@ console.log("reset date ranges ", selectedDateRanges)
                                                         )}
                                                         <div id="taxiCarpoolDateRange" className="space-y-4">
                                                             <Datepicker
+                                                                key={`taxiCarpool-${datePickerResetKey}`}
                                                                 value={formData.taxiCarpoolDateRange || null}
                                                                 onChange={(value) => handleDateRangeChange('taxiCarpool', value)}
                                                                 showShortcuts={true}
@@ -5570,6 +5838,7 @@ console.log("reset date ranges ", selectedDateRanges)
                                                             )}
                                                             <div id="carCarpoolDateRange" className="space-y-4">
                                                                 <Datepicker
+                                                                    key={`carCarpool-${datePickerResetKey}`}
                                                                     value={formData.carCarpoolDateRange || null}
                                                                     onChange={(value) => handleDateRangeChange('carCarpool', value)}
                                                                     showShortcuts={true}

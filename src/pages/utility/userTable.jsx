@@ -1263,8 +1263,8 @@ const UserPage = () => {
 
       <Card noborder>
         <div className="md:flex pb-6 items-center">
-          <h6 className="flex-1 md:mb-0">Employee</h6>
-          <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse flex-wrap gap-y-2">
+          <h6 className="flex-1 md:mb-0">Employees</h6>
+          <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <Button
               text="Employee Email Record"
               className="btn-dark font-normal btn-sm h-9"

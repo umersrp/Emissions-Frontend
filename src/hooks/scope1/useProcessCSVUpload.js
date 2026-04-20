@@ -19,7 +19,7 @@ import { processEmissionFactors } from '@/constant/scope1/calculate-process-emis
 const USER_FRIENDLY_COLUMNS = {
   'buildingcode': 'Building Code',
   'stakeholderdepartment': 'Stakeholder Department',
-  'activitytype': 'Type Of Activity / Process',
+  'activitytype': 'Type of Activity / Process',
   'processactivitydata': 'Process Activity Data',
   'amountofemissions': 'Amount',
   'qualitycontrol': 'Quality Control',
@@ -32,7 +32,7 @@ const COLUMN_MAPPING = {
   'stakeholderdepartment': ['stakeholderdepartment', 'Stakeholder Department', 'stakeholder department', 'stakeholder-department', 'stakeholder_department'],
   'processactivitydata': ['processactivitydata', 'Activity Data', 'activity data', 'process-activity-data', 'process_activity_data'],
   'amountofemissions': ['amountofemissions', 'Amount'],
-  'activitytype': ['typeofactivityprocess', 'Type Of Activity / Process', 'type of activity / process', 'activitytype', 'activity type', 'type-of-activity-process'],
+  'activitytype': ['typeofactivityprocess', 'Type of Activity / Process', 'type of activity / process', 'activitytype', 'activity type', 'type-of-activity-process'],
   'qualitycontrol': ['qualitycontrol', 'Quality Control', 'quality control', 'quality-control', 'quality_control'],
   'remarks': ['remarks', 'Remarks', 'remark', 'comments', 'notes'],
   'postingdate': ['postingdate', 'Posting Date', 'posting date', 'date', 'posting-date', 'posting_date']
@@ -456,7 +456,7 @@ const findFlexibleMatch = (input, validOptions) => {
     const requiredFields = [
       { field: 'buildingcode', friendlyName: 'Building Code' },
       { field: 'stakeholderdepartment', friendlyName: 'Stakeholder Department' },
-      { field: 'activitytype', friendlyName: 'Type Of Activity / Process' },
+      { field: 'activitytype', friendlyName: 'Type of Activity / Process' },
       { field: 'processactivitydata', friendlyName: 'Process Activity Data' },
       { field: 'amountofemissions', friendlyName: 'Amount' },
       { field: 'qualitycontrol', friendlyName: 'Quality Control' }
@@ -860,7 +860,7 @@ const downloadProcessTemplate = useCallback(() => {
       [
         'Building Code',
         'Stakeholder / Department',
-        'Type Of Activity / Process',
+        'Type of Activity / Process',
         'Process Activity Data',
         'Amount',
         'Quality Control',
@@ -887,7 +887,7 @@ const downloadProcessTemplate = useCallback(() => {
       worksheetData.push([
         '',  // Building Code - leave empty
         '',  // Stakeholder Department - leave empty
-        activity.value,  // Type Of Activity / Process
+        activity.value,  // Type of Activity / Process
         activity.label,  // Activity Data
         '',  // Process Activity Data - leave empty
         '',  // Quality Control - leave empty
@@ -904,7 +904,7 @@ const downloadProcessTemplate = useCallback(() => {
     worksheet['!cols'] = [
       { wch: 20 }, // Building Code
       { wch: 25 }, // Stakeholder Department
-      { wch: 45 }, // Type Of Activity / Process
+      { wch: 45 }, // Type of Activity / Process
       { wch: 45 }, // Activity Data
       { wch: 25 }, // Process Activity Data (Amount)
       { wch: 20 }, // Quality Control
