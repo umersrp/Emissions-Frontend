@@ -36,7 +36,9 @@ const BuildingTable = () => {
   const [controlledPageIndex, setControlledPageIndex] = useState(0);
   const [controlledPageSize, setControlledPageSize] = useState(10);
   const [isPaginationLoading, setIsPaginationLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const [selectedBuildingName, setSelectedBuildingName] = useState("");
+  const [excelResults, setExcelResults] = useState([]);
 
   // **Reusable fetch function**
   const fetchBuildings = async () => {
@@ -271,7 +273,7 @@ const BuildingTable = () => {
       if (key === 'method') {
         return 'Method';
       }
-      
+
       // Convert camelCase/snake_case to words
       return key
         .replace(/([A-Z])/g, ' $1')  // Add space before capital letters
@@ -535,13 +537,13 @@ const BuildingTable = () => {
   };
 
   const exportItems = [
+    // { label: "Electricity", type: "purchased-electricity" },
     { label: "Stationary", type: "stationary" },
     { label: "Mobile", type: "mobile-combustion" },
     { label: "Fugitive", type: "fugitive" },
     { label: "Process Emission", type: "process-emission" },
     { label: "Market Based", type: "market_based" },
     { label: "Location Based", type: "location_based" },
-    // { label: "Electricity", type: "purchased-electricity" },
     { label: "Purchased Goods", type: "purchased-goods" },
     { label: "Capital Goods", type: "capital-goods-services" },
     { label: "Fuel & Energy", type: "fuelandenergy" },
@@ -551,6 +553,52 @@ const BuildingTable = () => {
     { label: "Downstream", type: "downstream" },
     { label: "Employee", type: "employee-commute" },
   ];
+
+  const typeKeyMap = {
+    stationary: "stationaryCombustions",
+    "mobile-combustion": "autoMobiles",
+    fugitive: "fugitives",
+    "process-emission": "emissionActivities",
+    market_based: "purchasedElectricities",
+    location_based: "purchasedElectricities",
+    "purchased-goods": "purchasedGoodsAndServices",
+    "capital-goods-services": "purchasedGoodsAndServices",
+    fuelandenergy: "fuelAndEnergies",
+    "waste-generate": "wasteGenerates",
+    "business-travel": "businessTravels",
+    upstream: "upstreamTransportations",
+    downstream: "soldGoodsTransports",
+    "employee-commute": "employeeCommuted",
+  };
+
+  const fetchData = async () => {
+    setLoading2(true);
+    try {
+      const results = await axios.get(`https://rjj3twnh-5000.asse.devtunnels.ms/api/building/Get-All-Buildings-With-Emissions`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        params: {
+          buildingId: selectedBuildingId,
+          page: 1,
+          limit: 1000000,
+        }
+      });
+      setExcelResults(results.data.data || []);
+      setLoading2(false);
+    }
+    catch (error) {
+      setLoading2(false);
+    }
+  };
+
+  useEffect(() => {
+    if (deleteModalOpen) {
+      fetchData();
+    }
+  }, [deleteModalOpen])
+
+  console.log(excelResults);
 
   return (
     <>
@@ -795,28 +843,63 @@ const BuildingTable = () => {
 
           {/* Export Cards */}
           <div className="grid grid-cols-4 gap-4">
-            {exportItems.map((item, index) => (
-              <div
-                key={index}
-                className="rounded-xl border border-gray-200 bg-gradient-to-br from-white to-gray-50/50 shadow-sm hover:shadow-md hover:border-green-200 transition-all duration-200 group"
-              >
-                <div className="p-3">
-                  <div className="text-xs font-semibold text-gray-700 mb-1 truncate text-center">
-                    {item.label}
-                  </div>
-
-                  <button
-                    onClick={() => handleExportBeforeDelete(selectedBuildingId, selectedBuildingName, item.type)}
-                    className="w-full flex items-center justify-center py-2.5 rounded-lg bg-gray-50 hover:bg-green-50 transition-all duration-200 group/btn"
-                  >
-                    <Icon
-                      icon="vscode-icons:file-type-excel"
-                      className="w-7 h-7 transition-transform duration-200 group-hover/btn:scale-110"
-                    />
-                  </button>
+            {loading2 ? (
+              <div className="flex justify-center items-center py-8 w-full col-span-4">
+                <div className="relative w-52 h-32 overflow-hidden rounded-md">
+                  <img
+                    src={Logo}
+                    alt="Loading..."
+                    className="w-full h-full object-contain opacity-70"
+                  />
+                  <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/40 to-transparent"></div>
                 </div>
               </div>
-            ))}
+            ) :
+              exportItems.map((item, index) => {
+                const key = typeKeyMap[item.type];
+                const data = excelResults[key];
+                if (data?.length > 0) {
+                  return (
+                    <div
+                      key={index}
+                      className="rounded-xl border border-gray-200 bg-gradient-to-br from-white to-gray-50/50 shadow-sm hover:shadow-md hover:border-green-200 transition-all duration-200 group"
+                    >
+                      <div className="p-3">
+                        <div className="text-xs font-semibold text-gray-700 mb-1 truncate text-center">
+                          {item.label}
+                        </div>
+
+                        <button
+                          onClick={() =>
+                            handleExportBeforeDelete(
+                              selectedBuildingId,
+                              selectedBuildingName,
+                              item.type
+                            )
+                          }
+                          className="w-full flex items-center justify-center py-2.5 rounded-lg bg-gray-50 hover:bg-green-50 transition-all duration-200 group/btn"
+                        >
+                          <Icon
+                            icon="vscode-icons:file-type-excel"
+                            className="w-7 h-7 transition-transform duration-200 group-hover/btn:scale-110"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div
+                      key={index}
+                      className="rounded-xl border border-gray-200 bg-gray-100/50 shadow-sm flex items-center justify-center p-3"
+                    >
+                      <div className="text-xs font-medium text-gray-500 text-center">
+                        {item.label} <br /> No Data
+                      </div>
+                    </div>
+                  );
+                }
+              })}
           </div>
 
         </div>

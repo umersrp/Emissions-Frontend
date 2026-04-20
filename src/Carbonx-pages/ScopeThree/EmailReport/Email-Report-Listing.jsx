@@ -204,7 +204,7 @@
 //   Cell: ({ cell }) => {
 //     const recipients = cell.value;
 //     if (!recipients || recipients.length === 0) return "N/A";
-    
+
 //     const getEmailStatusConfig = (status) => {
 //       switch (status) {
 //         case "SENT":
@@ -233,7 +233,7 @@
 //           };
 //       }
 //     };
-    
+
 //     return (
 //       <div className="flex flex-col space-y-1">
 //         {recipients.map((recipient, index) => {
@@ -288,7 +288,7 @@
 //   Cell: ({ cell }) => {
 //     const recipients = cell.value;
 //     if (!recipients || recipients.length === 0) return "N/A";
-    
+
 //     const getFilledStatusConfig = (status) => {
 //       switch (status) {
 //         case "FILLED":
@@ -308,7 +308,7 @@
 //           };
 //       }
 //     };
-    
+
 //     return (
 //       <div className="flex flex-col space-y-1">
 //         {recipients.map((recipient, index) => {
@@ -686,7 +686,7 @@
 // export default EmailReportListing;
 
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, Fragment } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Icon from "@/components/ui/Icon";
@@ -702,6 +702,7 @@ import {
 import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
 import Logo from "@/assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
+import { Dialog, Transition } from "@headlessui/react";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -736,8 +737,11 @@ const EmailReportListing = () => {
 
   // New states for recipients modal
   const [recipientsModalOpen, setRecipientsModalOpen] = useState(false);
+  const [editRecipientsModalOpen, setEditRecipientsModalOpen] = useState(false);
   const [selectedRecipients, setSelectedRecipients] = useState([]);
   const [selectedEmailSubject, setSelectedEmailSubject] = useState("");
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   // Helper function to format recipients emails
   const formatRecipients = (recipients) => {
@@ -789,37 +793,37 @@ const EmailReportListing = () => {
   };
 
   // Helper function to format date with time
-// const formatDateTime = (dateString) => {
-//   if (!dateString) return "N/A";
-//   try {
-//     const date = new Date(dateString);
-//     return date.toLocaleDateString('en-GB', { timeZone: 'UTC' }) + ' ' + 
-//            date.toLocaleTimeString('en-GB', {
-//              timeZone: 'UTC',
-//              hour: '2-digit',
-//              minute: '2-digit',
-//              hour12: true
-//            });
-//   } catch {
-//     return "Invalid Date";
-//   }
-// };
+  // const formatDateTime = (dateString) => {
+  //   if (!dateString) return "N/A";
+  //   try {
+  //     const date = new Date(dateString);
+  //     return date.toLocaleDateString('en-GB', { timeZone: 'UTC' }) + ' ' + 
+  //            date.toLocaleTimeString('en-GB', {
+  //              timeZone: 'UTC',
+  //              hour: '2-digit',
+  //              minute: '2-digit',
+  //              hour12: true
+  //            });
+  //   } catch {
+  //     return "Invalid Date";
+  //   }
+  // };
 
-const formatDateTime = (dateString) => {
-  if (!dateString) return "N/A";
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', { timeZone: 'Asia/Karachi' }) + ' ' + 
-           date.toLocaleTimeString('en-GB', {
-             timeZone: 'Asia/Karachi',
-             hour: '2-digit',
-             minute: '2-digit',
-             hour12: true
-           });
-  } catch {
-    return "Invalid Date";
-  }
-};
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-GB', { timeZone: 'Asia/Karachi' }) + ' ' +
+        date.toLocaleTimeString('en-GB', {
+          timeZone: 'Asia/Karachi',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+    } catch {
+      return "Invalid Date";
+    }
+  };
   // Helper function to get filled status config
   const getFilledStatusConfig = (status) => {
     switch (status) {
@@ -849,6 +853,12 @@ const formatDateTime = (dateString) => {
     setSelectedRecipients(recipients || []);
     setSelectedEmailSubject(subject || "Recipients");
     setRecipientsModalOpen(true);
+  };
+
+  const openEditRecipientsModal = (recipients, subject) => {
+    setSelectedRecipients(recipients || []);
+    setSelectedEmailSubject(subject || "Recipients");
+    setEditRecipientsModalOpen(true);
   };
 
   // Debounce search
@@ -907,6 +917,32 @@ const formatDateTime = (dateString) => {
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete email record");
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      await axios.patch(
+        `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${selectedId}`,
+        {
+          startDate,
+          endDate,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      setEditRecipientsModalOpen(false)
+      toast.success("Recipients updated successfully");
+      setStartDate(null);
+      setEndDate(null);
+      fetchData();
+    }
+    catch (err) {
+      console.error(err);
+      toast.error("Failed to update recipients");
     }
   };
 
@@ -1030,7 +1066,6 @@ const formatDateTime = (dateString) => {
         Cell: ({ cell, row }) => {
           const recipients = row.original.recipients || [];
           const subject = row.original.subject || "Recipients";
-          
           return (
             <div className="flex space-x-3 rtl:space-x-reverse">
               {/* View Recipients Button */}
@@ -1041,6 +1076,18 @@ const formatDateTime = (dateString) => {
                   disabled={!recipients || recipients.length === 0}
                 >
                   <Icon icon="heroicons:user-group" className="text-purple-600" />
+                </button>
+              </Tippy>
+              <Tippy content="Edit">
+                <button
+                  className="action-btn"
+                  onClick={() => {
+                    openEditRecipientsModal(recipients, subject)
+                    setSelectedId(cell.value);
+                  }}
+                  disabled={!recipients || recipients.length === 0}
+                >
+                  <Icon icon="heroicons:pencil" className="text-purple-600" />
                 </button>
               </Tippy>
             </div>
@@ -1350,10 +1397,10 @@ const formatDateTime = (dateString) => {
         centered
         size="lg"
         footerContent={
-          <Button 
-            text="Close" 
-            className="btn-dark" 
-            onClick={() => setRecipientsModalOpen(false)} 
+          <Button
+            text="Close"
+            className="btn-dark"
+            onClick={() => setRecipientsModalOpen(false)}
           />
         }
       >
@@ -1407,7 +1454,7 @@ const formatDateTime = (dateString) => {
                 ) : (
                   selectedRecipients.map((recipient, index) => {
                     const filledConfig = getFilledStatusConfig(recipient.filledstatus);
-                    
+
                     return (
                       <tr key={index} className="hover:bg-gray-50">
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
@@ -1417,7 +1464,7 @@ const formatDateTime = (dateString) => {
                           {recipient.email || "N/A"}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
-                          <span 
+                          <span
                             className={`px-3 py-1.5 rounded text-xs font-medium inline-flex items-center gap-2 ${filledConfig.color}`}
                           >
                             <Icon icon={filledConfig.icon} className="w-4 h-4" />
@@ -1445,6 +1492,229 @@ const formatDateTime = (dateString) => {
           )}
         </div>
       </Modal>
+
+      {/* <Modal
+        activeModal={editRecipientsModalOpen}
+        onClose={() => setEditRecipientsModalOpen(false)}
+        title={`Recipients - ${selectedEmailSubject}`}
+        themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+        centered
+        size="lg"
+        footerContent={
+          <div className="flex justify-end gap-3">
+            <Button
+              text="Cancel"
+              className="btn-outline"
+              onClick={() => setEditRecipientsModalOpen(false)}
+            />
+            <Button
+              text="Apply Changes"
+              className="btn-primary bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] hover:opacity-90"
+              onClick={handleUpdate}
+            />
+          </div>
+        }
+      >
+
+      </Modal> */}
+
+      <Transition appear show={editRecipientsModalOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-[99999]"
+          onClose={() => setEditRecipientsModalOpen(false)}
+        >
+
+          {/*  Modal Content */}
+          <div className="fixed inset-0 overflow-y-auto">
+            <div
+              className={`flex min-h-full justify-center items-center text-center p-4`}
+            >
+              <Transition.Child
+                as={Fragment}
+                enter={"duration-300 ease-out"}
+                enterFrom={"opacity-0 scale-95"}
+                enterTo={"opacity-100 scale-100"}
+                leave={"duration-200 ease-in"}
+                leaveFrom={"opacity-100 scale-100"}
+                leaveTo={"opacity-0 scale-95"}
+              >
+                <Dialog.Panel
+                  className={`w-full transform overflow-hidden rounded-xl bg-white dark:bg-slate-800 text-left align-middle shadow-2xl transition-all max-w-[42rem]`}
+                >
+                  {/*  Header */}
+                  <div
+                    className={`relative py-3 px-4 text-white flex justify-between bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]`}
+                  >
+                    <h2 className="capitalize leading-6 tracking-wider font-medium text-base text-white">
+                      Recipients - {selectedEmailSubject}
+                    </h2>
+                    <button onClick={() => setEditRecipientsModalOpen(false)} className="text-[22px]">
+                      <Icon icon="heroicons-outline:x" />
+                    </button>
+                  </div>
+
+                  {/*  Body */}
+                  <div
+                    className={`px-6 py-6 flex flex-col items-center text-center`}
+                  >
+                    <div className="space-y-6 w-full">
+
+                      {/* Date Range Section */}
+                      <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Icon icon="heroicons:calendar-days" className="w-5 h-5 text-gray-600" />
+                          <p className="font-semibold text-gray-900">Update Date Range</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Start Date
+                            </label>
+                            <input
+                              type="date"
+                              className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm 
+              focus:border-[#3AB89D] focus:outline-none focus:ring-2 focus:ring-[#3AB89D]/20
+              hover:border-gray-300 transition-all duration-200
+              disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                              value={startDate}
+                              onChange={(e) => setStartDate(e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              End Date
+                            </label>
+                            <input
+                              type="date"
+                              className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm 
+              focus:border-[#3AB89D] focus:outline-none focus:ring-2 focus:ring-[#3AB89D]/20
+              hover:border-gray-300 transition-all duration-200
+              disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                              value={endDate}
+                              onChange={(e) => setEndDate(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Recipients Table */}
+                      <div className="border border-gray-200 rounded-xl overflow-hidden">
+                        <div className="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Icon icon="heroicons:users" className="w-4 h-4 text-gray-500" />
+                              <span className="text-sm font-medium text-gray-700">Recipients List</span>
+                            </div>
+                            <span className="text-xs text-gray-500">
+                              {selectedRecipients.length} total
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="overflow-x-auto max-h-96">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50 sticky top-0 z-10">
+                              <tr>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                  #
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                  Email Address
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                  Response Status
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-100">
+                              {selectedRecipients.length === 0 ? (
+                                <tr>
+                                  <td colSpan="3" className="px-6 py-12 text-center">
+                                    <div className="flex flex-col items-center gap-2">
+                                      <Icon icon="heroicons:inbox" className="w-12 h-12 text-gray-300" />
+                                      <p className="text-gray-500 font-medium">No recipients available</p>
+                                      <p className="text-sm text-gray-400">Add recipients to get started</p>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ) : (
+                                selectedRecipients.map((recipient, index) => {
+                                  const filledConfig = getFilledStatusConfig(recipient.filledstatus);
+
+                                  return (
+                                    <tr
+                                      key={index}
+                                      className="hover:bg-gray-50 transition-colors duration-150 group"
+                                    >
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 group-hover:text-gray-700">
+                                        {String(index + 1).padStart(2, '0')}
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap">
+                                        <div className="flex items-center gap-2">
+                                          <Icon icon="heroicons:envelope" className="w-4 h-4 text-gray-400" />
+                                          <span className="text-sm font-medium text-gray-900">
+                                            {recipient.email || "N/A"}
+                                          </span>
+                                        </div>
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium ${filledConfig.color}`}
+                                        >
+                                          <Icon icon={filledConfig.icon} className="w-3.5 h-3.5" />
+                                          {filledConfig.label}
+                                        </span>
+                                      </td>
+                                    </tr>
+                                  );
+                                })
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* Quick Actions */}
+                      {selectedRecipients.length > 0 && (
+                        <div className="flex justify-end">
+                          <button
+                            onClick={() => {
+                              const emails = selectedRecipients.map(r => r.email).join(', ');
+                              navigator.clipboard.writeText(emails);
+                            }}
+                            className="text-sm text-[#3AB89D] hover:text-[#3A90B8] transition-colors duration-200 flex items-center gap-1"
+                          >
+                            <Icon icon="heroicons:clipboard-document" className="w-4 h-4" />
+                            Copy all emails
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/*  Footer */}
+                  <div className="px-4 py-2 flex justify-between items-center border-t border-slate-100 dark:border-slate-700">
+                    <div className="flex justify-end gap-3">
+                      <Button
+                        text="Cancel"
+                        className="btn-outline"
+                        onClick={() => setEditRecipientsModalOpen(false)}
+                      />
+                      <Button
+                        text="Apply Changes"
+                        className="btn-primary bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] hover:opacity-90"
+                        onClick={handleUpdate}
+                      />
+                    </div>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+
     </>
   );
 };
