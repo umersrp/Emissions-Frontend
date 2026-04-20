@@ -909,7 +909,7 @@ const EmailReportListing = () => {
   // Delete Record
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/email/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Email record deleted successfully");
@@ -946,6 +946,24 @@ const EmailReportListing = () => {
     }
   };
 
+// Handle delete email record
+const handleDeleteEmail = async (id) => {
+  try {
+    await axios.delete(
+      `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    toast.success("Email record deleted successfully");
+    fetchData();
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to delete email record");
+  }
+};
   // Columns
   const COLUMNS = useMemo(
     () => [
@@ -1088,6 +1106,17 @@ const EmailReportListing = () => {
                   disabled={!recipients || recipients.length === 0}
                 >
                   <Icon icon="heroicons:pencil" className="text-purple-600" />
+                </button>
+              </Tippy>
+              <Tippy content="Delete">
+                <button
+                  className="action-btn"
+                  onClick={() => {
+                    setSelectedId(cell.value);
+                    setDeleteModalOpen(true);
+                  }}
+                >
+                  <Icon icon="heroicons:trash" className="text-red-600" />
                 </button>
               </Tippy>
             </div>
