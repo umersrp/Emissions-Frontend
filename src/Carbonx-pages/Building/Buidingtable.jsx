@@ -538,20 +538,20 @@ const BuildingTable = () => {
 
   const exportItems = [
     // { label: "Electricity", type: "purchased-electricity" },
-    { label: "Stationary", type: "stationary" },
-    { label: "Mobile", type: "mobile-combustion" },
-    { label: "Fugitive", type: "fugitive" },
-    { label: "Process Emission", type: "process-emission" },
+    { label: "Stationary Combustion", type: "stationary" },
+    { label: "Mobile Combustion", type: "mobile-combustion" },
+    { label: "Fugitive Emissions", type: "fugitive" },
+    { label: "Process Emissions", type: "process-emission" },
     { label: "Market Based", type: "market_based" },
     { label: "Location Based", type: "location_based" },
-    { label: "Purchased Goods", type: "purchased-goods" },
+    { label: "Purchased Goods and Services", type: "purchased-goods" },
     { label: "Capital Goods", type: "capital-goods-services" },
-    { label: "Fuel & Energy", type: "fuelandenergy" },
-    { label: "Waste", type: "waste-generate" },
+    { label: "Fuel & Energy Related Activities", type: "fuelandenergy" },
+    { label: "Waste Generated in Operations", type: "waste-generate" },
     { label: "Business Travel", type: "business-travel" },
-    { label: "Upstream", type: "upstream" },
-    { label: "Downstream", type: "downstream" },
-    { label: "Employee", type: "employee-commute" },
+    { label: "Upstream Transportation and Distribution", type: "upstream" },
+    { label: "Downstream Transportation and Distribution", type: "downstream" },
+    { label: "Employee Commuting", type: "employee-commute" },
   ];
 
   const typeKeyMap = {
@@ -574,7 +574,7 @@ const BuildingTable = () => {
   const fetchData = async () => {
     setLoading2(true);
     try {
-      const results = await axios.get(`https://rjj3twnh-5000.asse.devtunnels.ms/api/building/Get-All-Buildings-With-Emissions`, {
+      const results = await axios.get(`${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings-With-Emissions`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -858,7 +858,21 @@ const BuildingTable = () => {
               exportItems.map((item, index) => {
                 const key = typeKeyMap[item.type];
                 const data = excelResults[key];
-                if (data?.length > 0) {
+                const locationBase = item.type === "location_based"
+                  ? excelResults["purchasedElectricities"]?.filter(e => e.method === "location_based")
+                  : [];
+                const marketBase = item.type === "market_based"
+                  ? excelResults["purchasedElectricities"]?.filter(e => e.method === "market_based")
+                  : [];
+
+                // Use locationBase/marketBase in your data check or display logic
+                const hasData = item.type === "location_based"
+                  ? locationBase?.length > 0
+                  : item.type === "market_based"
+                    ? marketBase?.length > 0
+                    : data?.length > 0;
+
+                if (hasData) {
                   return (
                     <div
                       key={index}
@@ -867,6 +881,17 @@ const BuildingTable = () => {
                       <div className="p-3">
                         <div className="text-xs font-semibold text-gray-700 mb-1 truncate text-center">
                           {item.label}
+                          {/* Optional: Show count badge */}
+                          {item.type === "location_based" && locationBase.length > 0 && (
+                            <span className="ml-1 text-xs text-green-600">
+                              ({locationBase.length})
+                            </span>
+                          )}
+                          {item.type === "market_based" && marketBase.length > 0 && (
+                            <span className="ml-1 text-xs text-green-600">
+                              ({marketBase.length})
+                            </span>
+                          )}
                         </div>
 
                         <button
@@ -874,7 +899,11 @@ const BuildingTable = () => {
                             handleExportBeforeDelete(
                               selectedBuildingId,
                               selectedBuildingName,
-                              item.type
+                              item.type,
+                              // Pass the filtered data if needed
+                              item.type === "location_based" ? locationBase :
+                                item.type === "market_based" ? marketBase :
+                                  data
                             )
                           }
                           className="w-full flex items-center justify-center py-2.5 rounded-lg bg-gray-50 hover:bg-green-50 transition-all duration-200 group/btn"
@@ -887,18 +916,8 @@ const BuildingTable = () => {
                       </div>
                     </div>
                   );
-                } else {
-                  return (
-                    <div
-                      key={index}
-                      className="rounded-xl border border-gray-200 bg-gray-100/50 shadow-sm flex items-center justify-center p-3"
-                    >
-                      <div className="text-xs font-medium text-gray-500 text-center">
-                        {item.label} <br /> No Data
-                      </div>
-                    </div>
-                  );
                 }
+                return null;
               })}
           </div>
 
