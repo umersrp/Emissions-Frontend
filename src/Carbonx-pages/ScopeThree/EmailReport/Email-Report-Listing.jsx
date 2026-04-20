@@ -987,15 +987,6 @@ const formatDateTime = (dateString) => {
         Cell: ({ cell }) => cell.value || "N/A",
       },
       {
-        Header: "Status",
-        accessor: "status",
-        Cell: ({ cell }) => (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(cell.value)}`}>
-            {cell.value || "N/A"}
-          </span>
-        ),
-      },
-      {
         Header: "Response Status",
         id: "responseStatus",
         accessor: "recipients",

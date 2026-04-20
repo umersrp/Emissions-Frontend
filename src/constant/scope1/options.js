@@ -749,9 +749,9 @@ export const activityTypeOptions = [
   { value: "Ethylene Oxide / Ethylene Glycol Production", label: "Ethylene Oxide / Ethylene Glycol Production" },
   { value: "Urea Production (kg)", label: "Urea Production (kg)" },
   { value: "Methanol Synthesis", label: "Methanol Synthesis" },
-  { value: "other GHG Emission Process Activities", label: "other GHG Emission Process Activities" },
+  { value: "Other GHG Emission Process Activities", label: "Other GHG Emission Process Activities" },
   { value: "Non Kyoto protocol / Other Non GHG Emissions", label: "Non Kyoto protocol / Other Non GHG Emissions" },
-  { value: "other Biogenic GHG Emission Process Activities", label: "other Biogenic GHG Emission Process Activities" },
+  { value: "Other Biogenic GHG Emission Process Activities", label: "Other Biogenic GHG Emission Process Activities" },
 ];
 
 
@@ -854,9 +854,9 @@ export const activityMetadata = {
   "Urea Production (kg)": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of urea are produced?" },
   "Methanol Synthesis": { gasEmitted: "CO₂ emissions", amountLabel: "How many kilograms of methanol are synthesized?" },
 
-  "other GHG Emission Process Activities": { gasEmitted: "GHG Gases", amountLabel: "Please write the total process emissions in KgCO2e." },
+  "Other GHG Emission Process Activities": { gasEmitted: "GHG Gases", amountLabel: "Please write the total process emissions in KgCO2e." },
   "Non Kyoto protocol / Other Non GHG Emissions": { gasEmitted: "Non GHG Gases", amountLabel: "Please write the total process emissions in Kg." },
-  "other Biogenic GHG Emission Process Activities": { gasEmitted: "Biogenic Gases", amountLabel: "Please write the total process emissions in KgCO2e." },
+  "Other Biogenic GHG Emission Process Activities": { gasEmitted: "Biogenic Gases", amountLabel: "Please write the total process emissions in KgCO2e." },
 
   "Vinyl chloride monomer (VCM) production": { gasEmitted: "CO₂ emissions", amountLabel: "How many tonnes of VCM are produced?" },
   
