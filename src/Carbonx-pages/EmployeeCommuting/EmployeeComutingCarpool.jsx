@@ -1086,11 +1086,13 @@ const EmployeeCommutingFormCarpool = () => {
     };
 
     // Initialize form with data from original form
+
     // const initializeFormWithOriginalData = (originalData) => {
     //     if (!originalData) return;
 
     //     console.log('Initializing form with data:', originalData);
     //     console.log('User passenger details:', userPassengerDetails);
+    //     console.log('Participant building info:', userInfo?.buildingId);
 
     //     // Parse all date ranges first
     //     const motorbikeDateRange = parseDateRange(originalData.motorbikeDateRange);
@@ -1103,14 +1105,35 @@ const EmployeeCommutingFormCarpool = () => {
     //     const trainDateRange = parseDateRange(originalData.trainDateRange);
     //     const workFromHomeDateRange = parseDateRange(originalData.workFromHomeDateRange);
 
+    //     // Get participant's building from userInfo
+    //     let participantBuilding = null;
+    //     if (userInfo?.buildingId) {
+    //         // If buildingId is an object with _id and buildingName
+    //         if (typeof userInfo.buildingId === 'object' && userInfo.buildingId._id) {
+    //             participantBuilding = {
+    //                 value: userInfo.buildingId._id,
+    //                 label: userInfo.buildingId.buildingName || 'Building',
+    //                 buildingData: userInfo.buildingId
+    //             };
+    //         }
+    //         // If buildingId is just a string ID
+    //         else if (typeof userInfo.buildingId === 'string') {
+    //             // Find the building from the buildings list
+    //             const building = buildings.find(b => b.value === userInfo.buildingId);
+    //             if (building) {
+    //                 participantBuilding = building;
+    //             }
+    //         }
+    //     }
+
     //     const newFormData = {
     //         ...formData,
-    //         employeeName: originalData.employeeName || '',
-    //         employeeID: originalData.employeeID || '',
-    //         siteBuildingName: originalData.siteBuildingName ? {
-    //             value: originalData.siteBuildingName,
-    //             label: originalData.siteBuildingName
-    //         } : null,
+    //         employeeName: originalData.employeeName || userInfo?.name || '',
+    //         employeeID: originalData.employeeID || userInfo?.employeeID || '',
+
+    //         // ✅ USE PARTICIPANT'S BUILDING INSTEAD OF ORIGINAL FORM'S BUILDING
+    //         siteBuildingName: participantBuilding || formData.siteBuildingName,
+
     //         stakeholderDepartment: originalData.stakeholderDepartment ? {
     //             value: originalData.stakeholderDepartment,
     //             label: originalData.stakeholderDepartment
@@ -1238,7 +1261,7 @@ const EmployeeCommutingFormCarpool = () => {
     //         }
     //     }
 
-    //     console.log('Setting new form data:', newFormData);
+    //     console.log('Setting new form data with participant building:', newFormData.siteBuildingName);
     //     setFormData(newFormData);
 
     //     // Update selected date ranges state
@@ -1254,196 +1277,183 @@ const EmployeeCommutingFormCarpool = () => {
     //         workFromHome: workFromHomeDateRange
     //     });
     // };
-    const initializeFormWithOriginalData = (originalData) => {
-        if (!originalData) return;
 
-        console.log('Initializing form with data:', originalData);
-        console.log('User passenger details:', userPassengerDetails);
-        console.log('Participant building info:', userInfo?.buildingId);
+const initializeFormWithOriginalData = (originalData) => {
+    if (!originalData) return;
 
-        // Parse all date ranges first
-        const motorbikeDateRange = parseDateRange(originalData.motorbikeDateRange);
-        const motorbikeCarpoolDateRange = parseDateRange(originalData.motorbikeCarpoolDateRange);
-        const carDateRange = parseDateRange(originalData.carDateRange);
-        const carCarpoolDateRange = parseDateRange(originalData.carCarpoolDateRange);
-        const taxiDateRange = parseDateRange(originalData.taxiDateRange);
-        const taxiCarpoolDateRange = parseDateRange(originalData.taxiCarpoolDateRange);
-        const busDateRange = parseDateRange(originalData.busDateRange);
-        const trainDateRange = parseDateRange(originalData.trainDateRange);
-        const workFromHomeDateRange = parseDateRange(originalData.workFromHomeDateRange);
+    console.log('Initializing form with data:', originalData);
+    console.log('User passenger details:', userPassengerDetails);
 
-        // Get participant's building from userInfo
-        let participantBuilding = null;
-        if (userInfo?.buildingId) {
-            // If buildingId is an object with _id and buildingName
-            if (typeof userInfo.buildingId === 'object' && userInfo.buildingId._id) {
-                participantBuilding = {
-                    value: userInfo.buildingId._id,
-                    label: userInfo.buildingId.buildingName || 'Building',
-                    buildingData: userInfo.buildingId
+    // Parse all date ranges first - USE CARPOOL DATE RANGES FOR PASSENGERS
+    const motorbikeDateRange = parseDateRange(originalData.motorbikeCarpoolDateRange) || parseDateRange(originalData.motorbikeDateRange);
+    const carDateRange = parseDateRange(originalData.carCarpoolDateRange) || parseDateRange(originalData.carDateRange);
+    const taxiDateRange = parseDateRange(originalData.taxiCarpoolDateRange) || parseDateRange(originalData.taxiDateRange);
+    const busDateRange = parseDateRange(originalData.busDateRange);
+    const trainDateRange = parseDateRange(originalData.trainDateRange);
+    const workFromHomeDateRange = parseDateRange(originalData.workFromHomeDateRange);
+
+    // Get participant's building from userInfo
+    let participantBuilding = null;
+    if (userInfo?.buildingId) {
+        if (typeof userInfo.buildingId === 'object' && userInfo.buildingId._id) {
+            participantBuilding = {
+                value: userInfo.buildingId._id,
+                label: userInfo.buildingId.buildingName || 'Building',
+                buildingData: userInfo.buildingId
+            };
+        }
+        else if (typeof userInfo.buildingId === 'string') {
+            const building = buildings.find(b => b.value === userInfo.buildingId);
+            if (building) {
+                participantBuilding = building;
+            }
+        }
+    }
+
+    const newFormData = {
+        ...formData,
+        employeeName: originalData.employeeName || userInfo?.name || '',
+        employeeID: originalData.employeeID || userInfo?.employeeID || '',
+        siteBuildingName: participantBuilding || formData.siteBuildingName,
+        stakeholderDepartment: originalData.stakeholderDepartment ? {
+            value: originalData.stakeholderDepartment,
+            label: originalData.stakeholderDepartment
+        } : null,
+
+        // Set all parsed date ranges (using carpool ranges for passenger modes)
+        motorbikeDateRange: motorbikeDateRange,
+        carDateRange: carDateRange,
+        taxiDateRange: taxiDateRange,
+        busDateRange: busDateRange,
+        trainDateRange: trainDateRange,
+        workFromHomeDateRange: workFromHomeDateRange,
+    };
+
+    // Enable all commute types where user is a passenger
+    if (userPassengerDetails.transportTypes && userPassengerDetails.transportTypes.length > 0) {
+
+        // Enable motorbike if user is passenger
+        if (userPassengerDetails.transportTypes.includes('motorbike')) {
+            const motorbikeDetails = userPassengerDetails.details.motorbike;
+            newFormData.commuteByMotorbike = true;
+            newFormData.motorbikeMode = motorbikeDetails.mode;
+
+            if (originalData.motorbikeType) {
+                newFormData.motorbikeType = {
+                    value: originalData.motorbikeType,
+                    label: originalData.motorbikeType
                 };
             }
-            // If buildingId is just a string ID
-            else if (typeof userInfo.buildingId === 'string') {
-                // Find the building from the buildings list
-                const building = buildings.find(b => b.value === userInfo.buildingId);
-                if (building) {
-                    participantBuilding = building;
-                }
-            }
-        }
 
-        const newFormData = {
-            ...formData,
-            employeeName: originalData.employeeName || userInfo?.name || '',
-            employeeID: originalData.employeeID || userInfo?.employeeID || '',
-
-            // ✅ USE PARTICIPANT'S BUILDING INSTEAD OF ORIGINAL FORM'S BUILDING
-            siteBuildingName: participantBuilding || formData.siteBuildingName,
-
-            stakeholderDepartment: originalData.stakeholderDepartment ? {
-                value: originalData.stakeholderDepartment,
-                label: originalData.stakeholderDepartment
-            } : null,
-
-            // Set all parsed date ranges
-            motorbikeDateRange: motorbikeDateRange,
-            motorbikeCarpoolDateRange: motorbikeCarpoolDateRange,
-            carDateRange: carDateRange,
-            carCarpoolDateRange: carCarpoolDateRange,
-            taxiDateRange: taxiDateRange,
-            taxiCarpoolDateRange: taxiCarpoolDateRange,
-            busDateRange: busDateRange,
-            trainDateRange: trainDateRange,
-            workFromHomeDateRange: workFromHomeDateRange,
-        };
-
-        // Enable all commute types where user is a passenger
-        if (userPassengerDetails.transportTypes && userPassengerDetails.transportTypes.length > 0) {
-
-            // Enable motorbike if user is passenger
-            if (userPassengerDetails.transportTypes.includes('motorbike')) {
-                const motorbikeDetails = userPassengerDetails.details.motorbike;
-                newFormData.commuteByMotorbike = true;
-                newFormData.motorbikeMode = motorbikeDetails.mode;
-
-                // Copy motorbike type from original
-                if (originalData.motorbikeType) {
-                    newFormData.motorbikeType = {
-                        value: originalData.motorbikeType,
-                        label: originalData.motorbikeType
+            if (motorbikeDetails.isDriverCarrying) {
+                newFormData.carryOthersMotorbike = true;
+                if (originalData.personsCarriedMotorbike) {
+                    newFormData.personsCarriedMotorbike = {
+                        value: originalData.personsCarriedMotorbike.toString(),
+                        label: originalData.personsCarriedMotorbike.toString()
                     };
                 }
-
-                // Set the appropriate passenger fields based on whether user is in carry or travel
-                if (motorbikeDetails.isDriverCarrying) {
-                    newFormData.carryOthersMotorbike = true;
-                    if (originalData.personsCarriedMotorbike) {
-                        newFormData.personsCarriedMotorbike = {
-                            value: originalData.personsCarriedMotorbike.toString(),
-                            label: originalData.personsCarriedMotorbike.toString()
-                        };
-                    }
-                } else if (motorbikeDetails.isTravelWith) {
-                    newFormData.travelWithOthersMotorbike = true;
-                    if (originalData.personsTravelWithMotorbike) {
-                        newFormData.personsTravelWithMotorbike = {
-                            value: originalData.personsTravelWithMotorbike.toString(),
-                            label: originalData.personsTravelWithMotorbike.toString()
-                        };
-                    }
-                }
-            }
-
-            // Enable car if user is passenger
-            if (userPassengerDetails.transportTypes.includes('car')) {
-                const carDetails = userPassengerDetails.details.car;
-                newFormData.commuteByCar = true;
-                newFormData.carMode = carDetails.mode;
-
-                // Copy car type and fuel type from original
-                if (originalData.carType) {
-                    newFormData.carType = {
-                        value: originalData.carType,
-                        label: originalData.carType
-                    };
-                }
-
-                if (originalData.carFuelType) {
-                    newFormData.carFuelType = {
-                        value: originalData.carFuelType,
-                        label: originalData.carFuelType
-                    };
-                }
-
-                // Set the appropriate passenger fields
-                if (carDetails.isDriverCarrying) {
-                    newFormData.carryOthersCar = true;
-                    if (originalData.personsCarriedCar) {
-                        newFormData.personsCarriedCar = {
-                            value: originalData.personsCarriedCar.toString(),
-                            label: originalData.personsCarriedCar.toString()
-                        };
-                    }
-                } else if (carDetails.isTravelWith) {
-                    newFormData.travelWithOthersCar = true;
-                    if (originalData.personsTravelWithCar) {
-                        newFormData.personsTravelWithCar = {
-                            value: originalData.personsTravelWithCar.toString(),
-                            label: originalData.personsTravelWithCar.toString()
-                        };
-                    }
-                }
-            }
-
-            // Enable taxi if user is passenger
-            if (userPassengerDetails.transportTypes.includes('taxi')) {
-                const taxiDetails = userPassengerDetails.details.taxi;
-                newFormData.commuteByTaxi = true;
-                newFormData.taxiMode = taxiDetails.mode;
-
-                // Copy taxi type from original
-                if (originalData.taxiType) {
-                    newFormData.taxiType = {
-                        value: originalData.taxiType,
-                        label: originalData.taxiType
-                    };
-                }
-
-                if (originalData.taxiPassengers) {
-                    newFormData.taxiPassengers = {
-                        value: originalData.taxiPassengers.toString(),
-                        label: originalData.taxiPassengers.toString()
-                    };
-                }
-
-                // Set passenger fields
-                newFormData.travelWithOthersTaxi = true;
-                if (originalData.personsTravelWithTaxi) {
-                    newFormData.personsTravelWithTaxi = {
-                        value: originalData.personsTravelWithTaxi.toString(),
-                        label: originalData.personsTravelWithTaxi.toString()
+            } else if (motorbikeDetails.isTravelWith) {
+                newFormData.travelWithOthersMotorbike = true;
+                if (originalData.personsTravelWithMotorbike) {
+                    newFormData.personsTravelWithMotorbike = {
+                        value: originalData.personsTravelWithMotorbike.toString(),
+                        label: originalData.personsTravelWithMotorbike.toString()
                     };
                 }
             }
         }
 
-        console.log('Setting new form data with participant building:', newFormData.siteBuildingName);
-        setFormData(newFormData);
+        // Enable car if user is passenger
+        if (userPassengerDetails.transportTypes.includes('car')) {
+            const carDetails = userPassengerDetails.details.car;
+            newFormData.commuteByCar = true;
+            newFormData.carMode = carDetails.mode;
 
-        // Update selected date ranges state
-        setSelectedDateRanges({
-            motorbike: motorbikeDateRange,
-            motorbikeCarpool: motorbikeCarpoolDateRange,
-            taxi: taxiDateRange,
-            taxiCarpool: taxiCarpoolDateRange,
-            bus: busDateRange,
-            train: trainDateRange,
-            car: carDateRange,
-            carCarpool: carCarpoolDateRange,
-            workFromHome: workFromHomeDateRange
-        });
-    };
+            if (originalData.carType) {
+                newFormData.carType = {
+                    value: originalData.carType,
+                    label: originalData.carType
+                };
+            }
+
+            if (originalData.carFuelType) {
+                newFormData.carFuelType = {
+                    value: originalData.carFuelType,
+                    label: originalData.carFuelType
+                };
+            }
+
+            if (carDetails.isDriverCarrying) {
+                newFormData.carryOthersCar = true;
+                if (originalData.personsCarriedCar) {
+                    newFormData.personsCarriedCar = {
+                        value: originalData.personsCarriedCar.toString(),
+                        label: originalData.personsCarriedCar.toString()
+                    };
+                }
+            } else if (carDetails.isTravelWith) {
+                newFormData.travelWithOthersCar = true;
+                if (originalData.personsTravelWithCar) {
+                    newFormData.personsTravelWithCar = {
+                        value: originalData.personsTravelWithCar.toString(),
+                        label: originalData.personsTravelWithCar.toString()
+                    };
+                }
+            }
+        }
+
+        // Enable taxi if user is passenger
+        if (userPassengerDetails.transportTypes.includes('taxi')) {
+            const taxiDetails = userPassengerDetails.details.taxi;
+            newFormData.commuteByTaxi = true;
+            newFormData.taxiMode = taxiDetails.mode;
+
+            if (originalData.taxiType) {
+                newFormData.taxiType = {
+                    value: originalData.taxiType,
+                    label: originalData.taxiType
+                };
+            }
+
+            if (originalData.taxiPassengers) {
+                newFormData.taxiPassengers = {
+                    value: originalData.taxiPassengers.toString(),
+                    label: originalData.taxiPassengers.toString()
+                };
+            }
+
+            newFormData.travelWithOthersTaxi = true;
+            if (originalData.personsTravelWithTaxi) {
+                newFormData.personsTravelWithTaxi = {
+                    value: originalData.personsTravelWithTaxi.toString(),
+                    label: originalData.personsTravelWithTaxi.toString()
+                };
+            }
+        }
+    }
+
+    console.log('Setting new form data with participant building:', newFormData.siteBuildingName);
+    console.log('Using date ranges:', {
+        motorbike: motorbikeDateRange,
+        car: carDateRange,
+        taxi: taxiDateRange
+    });
+    setFormData(newFormData);
+
+    // Update selected date ranges state
+    setSelectedDateRanges({
+        motorbike: motorbikeDateRange,
+        motorbikeCarpool: motorbikeDateRange,
+        taxi: taxiDateRange,
+        taxiCarpool: taxiDateRange,
+        bus: busDateRange,
+        train: trainDateRange,
+        car: carDateRange,
+        carCarpool: carDateRange,
+        workFromHome: workFromHomeDateRange
+    });
+};
 
     // Fetch buildings from API
     const fetchBuildings = async (authToken) => {
@@ -1623,119 +1633,29 @@ const EmployeeCommutingFormCarpool = () => {
         }
     }, [passengerDetailsLoaded, originalFormData]);
 
-   const checkFormAccess = async () => {
-    const currentToken = getToken();
-    const currentUserId = urlParticipantId;
-    
-    // IMPORTANT: Get emailDocId from the fetched form data, not from URL
-    const currentEmailDocId = originalFormData?.emailDocId || formData.emailDocId;
-    
-    // If we don't have emailDocId yet, wait for it
-    if (!currentEmailDocId) {
-        console.log('Waiting for emailDocId to be loaded from form data...');
-        setFormAccessStatus({
-            checking: true,
-            canAccess: false,
-            message: '',
-            status: null,
-            startDate: null,
-            endDate: null
-        });
-        return;
-    }
+    const checkFormAccess = async () => {
+        const currentToken = getToken();
+        const currentUserId = urlParticipantId;
 
-    if (!currentToken || !currentUserId) {
-        console.log('Missing required parameters for form access check');
-        setFormAccessStatus({
-            checking: false,
-            canAccess: true,
-            message: '',
-            status: null,
-            startDate: null,
-            endDate: null
-        });
-        return;
-    }
+        // IMPORTANT: Get emailDocId from the fetched form data, not from URL
+        const currentEmailDocId = originalFormData?.emailDocId || formData.emailDocId;
 
-    try {
-        console.log('Checking form access for carpool:', {
-            userId: currentUserId,
-            emailDocId: currentEmailDocId,
-            formId: urlFormId
-        });
+        // If we don't have emailDocId yet, wait for it
+        if (!currentEmailDocId) {
+            console.log('Waiting for emailDocId to be loaded from form data...');
+            setFormAccessStatus({
+                checking: true,
+                canAccess: false,
+                message: '',
+                status: null,
+                startDate: null,
+                endDate: null
+            });
+            return;
+        }
 
-        const response = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/check-access`,
-            {
-                params: {
-                    emailDocId: currentEmailDocId,
-                    userId: currentUserId
-                },
-                headers: {
-                    Authorization: `Bearer ${currentToken}`,
-                    'Content-Type': 'application/json',
-                },
-            }
-        );
-
-        setFormAccessStatus({
-            checking: false,
-            canAccess: true,
-            message: '',
-            status: null,
-            startDate: null,
-            endDate: null
-        });
-        console.log('Form access granted - user can submit');
-
-    } catch (error) {
-        console.error('Form access check error:', error);
-
-        if (error.response && error.response.status === 403) {
-            const errorMessage = error.response.data?.message || '';
-            console.log('Error message received:', errorMessage);
-
-            if (errorMessage === "Form not started yet") {
-                setFormAccessStatus({
-                    checking: false,
-                    canAccess: false,
-                    message: errorMessage,
-                    status: 'not-started',
-                    startDate: error.response.data?.startDate || null,
-                    endDate: error.response.data?.endDate || null
-                });
-            }
-            else if (errorMessage === "Form Expired") {
-                setFormAccessStatus({
-                    checking: false,
-                    canAccess: false,
-                    message: errorMessage,
-                    status: 'expired',
-                    startDate: error.response.data?.startDate || null,
-                    endDate: error.response.data?.endDate || null
-                });
-            }
-            else if (errorMessage === "Form Already Submitted") {
-                setFormAccessStatus({
-                    checking: false,
-                    canAccess: false,
-                    message: errorMessage,
-                    status: 'already-submitted',
-                    startDate: null,
-                    endDate: null
-                });
-            }
-            else {
-                setFormAccessStatus({
-                    checking: false,
-                    canAccess: false,
-                    message: errorMessage || 'Unable to access form',
-                    status: 'expired',
-                    startDate: null,
-                    endDate: null
-                });
-            }
-        } else {
+        if (!currentToken || !currentUserId) {
+            console.log('Missing required parameters for form access check');
             setFormAccessStatus({
                 checking: false,
                 canAccess: true,
@@ -1744,30 +1664,120 @@ const EmployeeCommutingFormCarpool = () => {
                 startDate: null,
                 endDate: null
             });
-        }
-    }
-};
-
- // Check form access when component mounts AND originalFormData is loaded
-useEffect(() => {
-    const performAccessCheck = async () => {
-        const currentToken = getToken();
-        
-        // Don't check until we have originalFormData with emailDocId
-        if (!currentToken || !originalFormData?.emailDocId) {
-            console.log('Waiting for originalFormData or emailDocId...', {
-                hasToken: !!currentToken,
-                hasOriginalFormData: !!originalFormData,
-                emailDocId: originalFormData?.emailDocId
-            });
             return;
         }
 
-        await checkFormAccess();
+        try {
+            console.log('Checking form access for carpool:', {
+                userId: currentUserId,
+                emailDocId: currentEmailDocId,
+                formId: urlFormId
+            });
+
+            const response = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/check-access`,
+                {
+                    params: {
+                        emailDocId: currentEmailDocId,
+                        userId: currentUserId
+                    },
+                    headers: {
+                        Authorization: `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            setFormAccessStatus({
+                checking: false,
+                canAccess: true,
+                message: '',
+                status: null,
+                startDate: null,
+                endDate: null
+            });
+            console.log('Form access granted - user can submit');
+
+        } catch (error) {
+            console.error('Form access check error:', error);
+
+            if (error.response && error.response.status === 403) {
+                const errorMessage = error.response.data?.message || '';
+                console.log('Error message received:', errorMessage);
+
+                if (errorMessage === "Form not started yet") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'not-started',
+                        startDate: error.response.data?.startDate || null,
+                        endDate: error.response.data?.endDate || null
+                    });
+                }
+                else if (errorMessage === "Form Expired") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'expired',
+                        startDate: error.response.data?.startDate || null,
+                        endDate: error.response.data?.endDate || null
+                    });
+                }
+                else if (errorMessage === "Form Already Submitted") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'already-submitted',
+                        startDate: null,
+                        endDate: null
+                    });
+                }
+                else {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage || 'Unable to access form',
+                        status: 'expired',
+                        startDate: null,
+                        endDate: null
+                    });
+                }
+            } else {
+                setFormAccessStatus({
+                    checking: false,
+                    canAccess: true,
+                    message: '',
+                    status: null,
+                    startDate: null,
+                    endDate: null
+                });
+            }
+        }
     };
 
-    performAccessCheck();
-}, [token, urlAdminToken, urlParticipantId, originalFormData]); // Add originalFormData as dependency
+    // Check form access when component mounts AND originalFormData is loaded
+    useEffect(() => {
+        const performAccessCheck = async () => {
+            const currentToken = getToken();
+
+            // Don't check until we have originalFormData with emailDocId
+            if (!currentToken || !originalFormData?.emailDocId) {
+                console.log('Waiting for originalFormData or emailDocId...', {
+                    hasToken: !!currentToken,
+                    hasOriginalFormData: !!originalFormData,
+                    emailDocId: originalFormData?.emailDocId
+                });
+                return;
+            }
+
+            await checkFormAccess();
+        };
+
+        performAccessCheck();
+    }, [token, urlAdminToken, urlParticipantId, originalFormData]); // Add originalFormData as dependency
 
 
     const handleInputChange = (field, value) => {
@@ -1948,13 +1958,16 @@ useEffect(() => {
                 stakeholderDepartment: formData.stakeholderDepartment?.value || '',
                 submittedByEmail: formData.submittedByEmail || '',
                 reportingYear: reportingYear,
-               qualityControlRemarks: formData.qualityControlRemarks,
+                qualityControlRemarks: formData.qualityControlRemarks,
                 qualityControl: formData.qualityControl?.value || '',
                 submittedAt: new Date().toISOString(),
                 entryStatus: formData.entryStatus || 'Carpool',
                 commuteTypes: userPassengerDetails.transportTypes
 
             };
+            delete passengerSubmissionData.motorbikeDateRange;
+            delete passengerSubmissionData.carDateRange;
+            delete passengerSubmissionData.taxiDateRange;
 
             // Add passenger's distance data
             if (userPassengerDetails.transportTypes.includes('motorbike')) {
@@ -1966,7 +1979,7 @@ useEffect(() => {
 
                 if (formData.motorbikeDateRange) {
                     passengerSubmissionData.motorbikeDates = dateRangeToDates(formData.motorbikeDateRange).map(date => date.toISOString());
-                    passengerSubmissionData.motorbikeDateRange = formData.motorbikeDateRange;
+                    passengerSubmissionData.motorbikeCarpoolDateRange = formData.motorbikeDateRange;  // ← ADD THIS
                 }
 
                 passengerSubmissionData.motorbikePassengerIndex = motorbikeDetails.passengerIndex;
@@ -1984,7 +1997,7 @@ useEffect(() => {
 
                 if (formData.carDateRange) {
                     passengerSubmissionData.carDates = dateRangeToDates(formData.carDateRange).map(date => date.toISOString());
-                    passengerSubmissionData.carDateRange = formData.carDateRange;
+                    passengerSubmissionData.carCarpoolDateRange = formData.carDateRange;  // ← ADD THIS
                 }
 
                 passengerSubmissionData.carPassengerIndex = carDetails.passengerIndex;
@@ -2001,7 +2014,7 @@ useEffect(() => {
 
                 if (formData.taxiDateRange) {
                     passengerSubmissionData.taxiDates = dateRangeToDates(formData.taxiDateRange).map(date => date.toISOString());
-                    passengerSubmissionData.taxiDateRange = formData.taxiDateRange;
+                    passengerSubmissionData.taxiCarpoolDateRange = formData.taxiDateRange;  // ← ADD THIS
                 }
 
                 passengerSubmissionData.taxiPassengerIndex = taxiDetails.passengerIndex;
@@ -2269,6 +2282,349 @@ useEffect(() => {
         }
     };
 
+    // const renderCommuteSections = () => {
+    //     if (!userPassengerDetails.transportTypes || userPassengerDetails.transportTypes.length === 0) {
+    //         return (
+    //             <div className="p-6 bg-yellow-50 border border-yellow-200 rounded-lg text-center">
+    //                 <p className="text-yellow-700">You are not listed as a passenger in any commute for this form.</p>
+    //             </div>
+    //         );
+    //     }
+
+    //     let commuteCounter = 1;
+
+    //     return (
+    //         <div className="space-y-6">
+    //             {userPassengerDetails.transportTypes.includes('motorbike') && (
+    //                 <div className="border rounded-lg p-6 bg-white shadow-sm">
+    //                     <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+    //                         <span className="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded">
+    //                             Commute {commuteCounter++}
+    //                         </span>
+    //                         Motorbike Commute (You are a passenger)
+    //                     </h3>
+
+    //                     <div className="space-y-6">
+    //                         {/* Distance input */}
+    //                         <div className="max-w-md" id="motorbikeDistance">
+    //                             <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                 Your Distance Travelled*
+    //                             </label>
+    //                             <div className="grid grid-cols-[14fr_1fr]">
+    //                                 <InputGroup
+    //                                     type="number"
+    //                                     step="0.1"
+    //                                     min="0"
+    //                                     placeholder="e.g., 15.5"
+    //                                     value={formData.motorbikeDistance}
+    //                                     onChange={(e) => handleInputChange('motorbikeDistance', e.target.value)}
+    //                                     className="input-field rounded-r-none w-full"
+    //                                 />
+    //                                 <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+    //                                     km
+    //                                 </div>
+    //                             </div>
+    //                             <ErrorMessage message={errors.motorbikeDistance} />
+    //                             <p className="text-xs text-gray-500 mt-1">
+    //                                 Please enter your portion of the commute distance
+    //                             </p>
+    //                         </div>
+
+    //                         {/* Motorbike type (read-only from original) */}
+    //                         {originalFormData?.motorbikeType && (
+    //                             <div className="max-w-md">
+    //                                 <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                     Motorbike Type
+    //                                 </label>
+    //                                 <InputGroup
+    //                                     type="text"
+    //                                     value={originalFormData.motorbikeType}
+    //                                     disabled
+    //                                     className="input-field w-full bg-gray-50"
+    //                                 />
+    //                             </div>
+    //                         )}
+
+    //                         {/* Date range */}
+    //                         <div className="mt-4" id="motorbikeDateRange">
+    //                             {originalFormData?.motorbikeDateRange ? (
+    //                                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+    //                                     <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                         Commute Period
+    //                                     </label>
+    //                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    //                                         <div>
+    //                                             <p className="text-sm text-gray-500">Start Date</p>
+    //                                             <p className="font-medium">
+    //                                                 {new Date(originalFormData.motorbikeDateRange.startDate).toLocaleDateString()}
+    //                                             </p>
+    //                                         </div>
+    //                                         <div>
+    //                                             <p className="text-sm text-gray-500">End Date</p>
+    //                                             <p className="font-medium">
+    //                                                 {new Date(originalFormData.motorbikeDateRange.endDate).toLocaleDateString()}
+    //                                             </p>
+    //                                         </div>
+    //                                     </div>
+    //                                 </div>
+    //                             ) : (
+    //                                 <>
+    //                                     <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                         Select Date Range *
+    //                                     </label>
+    //                                     <Datepicker
+    //                                         value={formData.motorbikeDateRange}
+    //                                         onChange={(value) => handleDateRangeChange('motorbike', value)}
+    //                                         showShortcuts={true}
+    //                                         primaryColor="blue"
+    //                                         minDate={new Date(reportingYear, 0, 1)}
+    //                                         maxDate={new Date(reportingYear, 11, 31)}
+    //                                         configs={{
+    //                                             shortcuts: {
+    //                                                 fullYear: {
+    //                                                     text: "Full Year ✓",
+    //                                                     period: {
+    //                                                         start: new Date(`${reportingYear}-01-01`),
+    //                                                         end: new Date(`${reportingYear}-12-31`)
+    //                                                     }
+    //                                                 }
+    //                                             }
+    //                                         }}
+    //                                     />
+    //                                     <ErrorMessage message={errors.motorbikeDateRange} />
+    //                                 </>
+    //                             )}
+    //                         </div>
+    //                     </div>
+    //                 </div>
+    //             )}
+
+    //             {userPassengerDetails.transportTypes.includes('car') && (
+    //                 <div className="border rounded-lg p-6 bg-white shadow-sm">
+    //                     <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+    //                         <span className="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded">
+    //                             Commute {commuteCounter++}
+    //                         </span>
+    //                         Car Commute (You are a passenger)
+    //                     </h3>
+
+    //                     <div className="space-y-6">
+    //                         {/* Distance input */}
+    //                         <div className="max-w-md" id="carDistance">
+    //                             <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                 Your Distance Travelled*
+    //                             </label>
+    //                             <div className="grid grid-cols-[14fr_1fr]">
+    //                                 <InputGroup
+    //                                     type="number"
+    //                                     step="0.1"
+    //                                     min="0"
+    //                                     placeholder="e.g., 18.5"
+    //                                     value={formData.carDistance}
+    //                                     onChange={(e) => handleInputChange('carDistance', e.target.value)}
+    //                                     className="input-field rounded-r-none w-full"
+    //                                 />
+    //                                 <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+    //                                     km
+    //                                 </div>
+    //                             </div>
+    //                             <ErrorMessage message={errors.carDistance} />
+    //                             <p className="text-xs text-gray-500 mt-1">
+    //                                 Please enter your portion of the commute distance
+    //                             </p>
+    //                         </div>
+
+    //                         {/* Car and fuel type (read-only from original) */}
+    //                         {originalFormData?.carType && (
+    //                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    //                                 <div>
+    //                                     <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                         Car Type
+    //                                     </label>
+    //                                     <InputGroup
+    //                                         type="text"
+    //                                         value={originalFormData.carType}
+    //                                         disabled
+    //                                         className="input-field w-full bg-gray-50"
+    //                                     />
+    //                                 </div>
+    //                                 {originalFormData?.carFuelType && (
+    //                                     <div>
+    //                                         <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                             Fuel Type
+    //                                         </label>
+    //                                         <InputGroup
+    //                                             type="text"
+    //                                             value={originalFormData.carFuelType}
+    //                                             disabled
+    //                                             className="input-field w-full bg-gray-50"
+    //                                         />
+    //                                     </div>
+    //                                 )}
+    //                             </div>
+    //                         )}
+
+    //                         {/* Date range */}
+    //                         <div className="mt-4" id="carDateRange">
+    //                             {originalFormData?.carDateRange ? (
+    //                                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+    //                                     <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                         Commute Period
+    //                                     </label>
+    //                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    //                                         <div>
+    //                                             <p className="text-sm text-gray-500">Start Date</p>
+    //                                             <p className="font-medium">
+    //                                                 {new Date(originalFormData.carDateRange.startDate).toLocaleDateString()}
+    //                                             </p>
+    //                                         </div>
+    //                                         <div>
+    //                                             <p className="text-sm text-gray-500">End Date</p>
+    //                                             <p className="font-medium">
+    //                                                 {new Date(originalFormData.carDateRange.endDate).toLocaleDateString()}
+    //                                             </p>
+    //                                         </div>
+    //                                     </div>
+    //                                 </div>
+    //                             ) : (
+    //                                 <>
+    //                                     <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                         Select Date Range *
+    //                                     </label>
+    //                                     <Datepicker
+    //                                         value={formData.carDateRange}
+    //                                         onChange={(value) => handleDateRangeChange('car', value)}
+    //                                         showShortcuts={true}
+    //                                         primaryColor="blue"
+    //                                         minDate={new Date(reportingYear, 0, 1)}
+    //                                         maxDate={new Date(reportingYear, 11, 31)}
+    //                                         configs={{
+    //                                             shortcuts: {
+    //                                                 fullYear: {
+    //                                                     text: "Full Year ✓",
+    //                                                     period: {
+    //                                                         start: new Date(`${reportingYear}-01-01`),
+    //                                                         end: new Date(`${reportingYear}-12-31`)
+    //                                                     }
+    //                                                 }
+    //                                             }
+    //                                         }}
+    //                                     />
+    //                                     <ErrorMessage message={errors.carDateRange} />
+    //                                 </>
+    //                             )}
+    //                         </div>
+    //                     </div>
+    //                 </div>
+    //             )}
+
+    //             {userPassengerDetails.transportTypes.includes('taxi') && (
+    //                 <div className="border rounded-lg p-6 bg-white shadow-sm">
+    //                     <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+    //                         <span className="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded">
+    //                             Commute {commuteCounter++}
+    //                         </span>
+    //                         Taxi Commute (You are a passenger)
+    //                     </h3>
+
+    //                     <div className="space-y-6">
+    //                         {/* Distance input */}
+    //                         <div className="max-w-md" id="taxiDistance">
+    //                             <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                 Your Distance Travelled*
+    //                             </label>
+    //                             <div className="grid grid-cols-[14fr_1fr]">
+    //                                 <InputGroup
+    //                                     type="number"
+    //                                     step="0.1"
+    //                                     min="0"
+    //                                     placeholder="e.g., 20.0"
+    //                                     value={formData.taxiDistance}
+    //                                     onChange={(e) => handleInputChange('taxiDistance', e.target.value)}
+    //                                     className="input-field rounded-r-none w-full"
+    //                                 />
+    //                                 <div className="flex items-center px-3 border border-l-0 border-gray-300 rounded-r-md bg-gray-100">
+    //                                     km
+    //                                 </div>
+    //                             </div>
+    //                             <ErrorMessage message={errors.taxiDistance} />
+    //                             <p className="text-xs text-gray-500 mt-1">
+    //                                 Please enter your portion of the commute distance
+    //                             </p>
+    //                         </div>
+
+    //                         {/* Taxi type (read-only from original) */}
+    //                         {originalFormData?.taxiType && (
+    //                             <div className="max-w-md">
+    //                                 <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                     Taxi Type
+    //                                 </label>
+    //                                 <InputGroup
+    //                                     type="text"
+    //                                     value={originalFormData.taxiType}
+    //                                     disabled
+    //                                     className="input-field w-full bg-gray-50"
+    //                                 />
+    //                             </div>
+    //                         )}
+
+    //                         {/* Date range */}
+    //                         <div className="mt-4" id="taxiDateRange">
+    //                             {originalFormData?.taxiDateRange ? (
+    //                                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+    //                                     <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                         Commute Period
+    //                                     </label>
+    //                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    //                                         <div>
+    //                                             <p className="text-sm text-gray-500">Start Date</p>
+    //                                             <p className="font-medium">
+    //                                                 {new Date(originalFormData.taxiDateRange.startDate).toLocaleDateString()}
+    //                                             </p>
+    //                                         </div>
+    //                                         <div>
+    //                                             <p className="text-sm text-gray-500">End Date</p>
+    //                                             <p className="font-medium">
+    //                                                 {new Date(originalFormData.taxiDateRange.endDate).toLocaleDateString()}
+    //                                             </p>
+    //                                         </div>
+    //                                     </div>
+    //                                 </div>
+    //                             ) : (
+    //                                 <>
+    //                                     <label className="block text-sm font-medium text-gray-700 mb-2">
+    //                                         Select Date Range *
+    //                                     </label>
+    //                                     <Datepicker
+    //                                         value={formData.taxiDateRange}
+    //                                         onChange={(value) => handleDateRangeChange('taxi', value)}
+    //                                         showShortcuts={true}
+    //                                         primaryColor="blue"
+    //                                         minDate={new Date(reportingYear, 0, 1)}
+    //                                         maxDate={new Date(reportingYear, 11, 31)}
+    //                                         configs={{
+    //                                             shortcuts: {
+    //                                                 fullYear: {
+    //                                                     text: "Full Year ✓",
+    //                                                     period: {
+    //                                                         start: new Date(`${reportingYear}-01-01`),
+    //                                                         end: new Date(`${reportingYear}-12-31`)
+    //                                                     }
+    //                                                 }
+    //                                             }
+    //                                         }}
+    //                                     />
+    //                                     <ErrorMessage message={errors.taxiDateRange} />
+    //                                 </>
+    //                             )}
+    //                         </div>
+    //                     </div>
+    //                 </div>
+    //             )}
+    //         </div>
+    //     );
+    // };
+
     const renderCommuteSections = () => {
         if (!userPassengerDetails.transportTypes || userPassengerDetails.transportTypes.length === 0) {
             return (
@@ -2332,9 +2688,29 @@ useEffect(() => {
                                 </div>
                             )}
 
-                            {/* Date range */}
+                            {/* Date range - USE CARPOOL DATE RANGE */}
                             <div className="mt-4" id="motorbikeDateRange">
-                                {originalFormData?.motorbikeDateRange ? (
+                                {originalFormData?.motorbikeCarpoolDateRange ? (
+                                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Carpool Period
+                                        </label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-sm text-gray-500">Start Date</p>
+                                                <p className="font-medium">
+                                                    {new Date(originalFormData.motorbikeCarpoolDateRange.startDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-gray-500">End Date</p>
+                                                <p className="font-medium">
+                                                    {new Date(originalFormData.motorbikeCarpoolDateRange.endDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : originalFormData?.motorbikeDateRange ? (
                                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Commute Period
@@ -2451,9 +2827,29 @@ useEffect(() => {
                                 </div>
                             )}
 
-                            {/* Date range */}
+                            {/* Date range - USE CARPOOL DATE RANGE */}
                             <div className="mt-4" id="carDateRange">
-                                {originalFormData?.carDateRange ? (
+                                {originalFormData?.carCarpoolDateRange ? (
+                                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Carpool Period
+                                        </label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-sm text-gray-500">Start Date</p>
+                                                <p className="font-medium">
+                                                    {new Date(originalFormData.carCarpoolDateRange.startDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-gray-500">End Date</p>
+                                                <p className="font-medium">
+                                                    {new Date(originalFormData.carCarpoolDateRange.endDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : originalFormData?.carDateRange ? (
                                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Commute Period
@@ -2555,9 +2951,29 @@ useEffect(() => {
                                 </div>
                             )}
 
-                            {/* Date range */}
+                            {/* Date range - USE CARPOOL DATE RANGE */}
                             <div className="mt-4" id="taxiDateRange">
-                                {originalFormData?.taxiDateRange ? (
+                                {originalFormData?.taxiCarpoolDateRange ? (
+                                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Carpool Period
+                                        </label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-sm text-gray-500">Start Date</p>
+                                                <p className="font-medium">
+                                                    {new Date(originalFormData.taxiCarpoolDateRange.startDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-gray-500">End Date</p>
+                                                <p className="font-medium">
+                                                    {new Date(originalFormData.taxiCarpoolDateRange.endDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : originalFormData?.taxiDateRange ? (
                                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Commute Period
@@ -2625,21 +3041,21 @@ useEffect(() => {
     //     );
     // }
     // Update this existing loading check
-   // Show loading while checking form access OR loading form data
-if (loadingForm || formAccessStatus.checking) {
-    return (
-        <div className="max-w-6xl mx-auto p-6">
-            <Card>
-                <div className="text-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                    <p className="text-gray-600">
-                        {loadingForm ? 'Loading form data...' : 'Checking form access...'}
-                    </p>
-                </div>
-            </Card>
-        </div>
-    );
-}
+    // Show loading while checking form access OR loading form data
+    if (loadingForm || formAccessStatus.checking) {
+        return (
+            <div className="max-w-6xl mx-auto p-6">
+                <Card>
+                    <div className="text-center py-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                        <p className="text-gray-600">
+                            {loadingForm ? 'Loading form data...' : 'Checking form access...'}
+                        </p>
+                    </div>
+                </Card>
+            </div>
+        );
+    }
 
     if (!token && !urlAdminToken && !getToken()) {
         return (
