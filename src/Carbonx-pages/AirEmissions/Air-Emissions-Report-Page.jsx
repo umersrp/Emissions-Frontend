@@ -992,7 +992,7 @@ const summaryCards = useMemo(() => {
 
             <p className="text-[13px] font-medium text-gray-600 flex flex-col pl-8">
               {/* <span>{formatNumber(item.kg)} kg CO₂e</span> */}
-              <span>{formatNumber(item.kg)} {item.key === "vocs" ? "Tonnes" : "KgCO₂e"}</span>
+              <span>{formatNumber(item.kg)} {item.key === "vocs" ? "Kg" : "KgCO₂e"}</span>
               <span>{formatNumber(item.t)} {item.key === "vocs" ? "Tonnes" : "tCO₂e"}</span>
             </p>
           </div>
