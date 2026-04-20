@@ -1029,11 +1029,9 @@ const EmailReportListing = () => {
         Cell: ({ cell }) => {
           const recipients = cell.value;
           if (!recipients || recipients.length === 0) return "N/A";
-
           const filledCount = recipients.filter(r => r.filledstatus === "FILLED").length;
           const notFilledCount = recipients.filter(r => r.filledstatus === "NOTFILLED").length;
           const totalCount = recipients.length;
-
           return (
             <div className="flex flex-col space-y-1">
               <span className="text-sm">
@@ -1084,6 +1082,8 @@ const EmailReportListing = () => {
                   onClick={() => {
                     openEditRecipientsModal(recipients, subject)
                     setSelectedId(cell.value);
+                    setStartDate(new Date(row.original.startDateTime).toISOString().split('T')[0]);
+                    setEndDate(new Date(row.original.endDateTime).toISOString().split('T')[0]);
                   }}
                   disabled={!recipients || recipients.length === 0}
                 >
