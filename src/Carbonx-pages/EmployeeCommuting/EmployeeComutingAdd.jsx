@@ -3142,8 +3142,37 @@ const EmployeeCommutingForm = () => {
             }
 
             // Calculate overall coverage AFTER this change
+            // const overallCoverageAfterChange = (() => {
+            //     const allMonths = new Set();
+            //     const addMonthsFromRange = (dateRange) => {
+            //         if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
+            //         const startDate = new Date(dateRange.startDate);
+            //         const endDate = new Date(dateRange.endDate);
+            //         const currentDate = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+            //         const endDateMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+            //         while (currentDate <= endDateMonth) {
+            //             const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+            //             allMonths.add(monthKey);
+            //             currentDate.setMonth(currentDate.getMonth() + 1);
+            //         }
+            //     };
+            //     const tempRanges = { ...selectedDateRanges, [transportType]: value };
+            //     Object.values(tempRanges).forEach(range => addMonthsFromRange(range));
+            //     return { totalCovered: allMonths.size, isComplete: allMonths.size === 12 };
+            // })();
+            // Calculate overall coverage AFTER this change (including previously submitted months)
             const overallCoverageAfterChange = (() => {
+                // Start with previously submitted months for this year
                 const allMonths = new Set();
+
+                // Add previously submitted months from database
+                if (previouslyCoveredMonths.size > 0) {
+                    const prevMonthsThisYear = [...previouslyCoveredMonths].filter(key =>
+                        key.startsWith(`${reportingYear}-`)
+                    );
+                    prevMonthsThisYear.forEach(month => allMonths.add(month));
+                }
+
                 const addMonthsFromRange = (dateRange) => {
                     if (!dateRange || !dateRange.startDate || !dateRange.endDate) return;
                     const startDate = new Date(dateRange.startDate);
@@ -3156,20 +3185,45 @@ const EmployeeCommutingForm = () => {
                         currentDate.setMonth(currentDate.getMonth() + 1);
                     }
                 };
+
                 const tempRanges = { ...selectedDateRanges, [transportType]: value };
                 Object.values(tempRanges).forEach(range => addMonthsFromRange(range));
-                return { totalCovered: allMonths.size, isComplete: allMonths.size === 12 };
+
+                // Calculate remaining months
+                const totalRequired = 12;
+                const remainingMonths = totalRequired - allMonths.size;
+
+                return {
+                    totalCovered: allMonths.size,
+                    totalRequired,
+                    remainingMonths,
+                    isComplete: allMonths.size >= totalRequired
+                };
             })();
 
             const remainingMonthsAfterChange = 12 - overallCoverageAfterChange.totalCovered;
+            if (!overallCoverageAfterChange.isComplete && overallCoverageAfterChange.remainingMonths > 0) {
+                const prevMonthsCount = [...previouslyCoveredMonths].filter(key =>
+                    key.startsWith(`${reportingYear}-`)
+                ).length;
 
-            if (!overallCoverageAfterChange.isComplete && remainingMonthsAfterChange > 0) {
-                const message = `${overallCoverageAfterChange.totalCovered} month${overallCoverageAfterChange.totalCovered !== 1 ? 's' : ''} covered. ${remainingMonthsAfterChange} month${remainingMonthsAfterChange !== 1 ? 's' : ''} remaining. Select date ranges for other methods to cover the full year.`;
-                toast.warning(
+                const currentFormMonths = overallCoverageAfterChange.totalCovered - prevMonthsCount;
+
+                const message = (
                     <div>
-
-                        <div className="text-sm mb-2">{message}</div>
-
+                        <div className="text-sm mb-2">
+                            <strong>{overallCoverageAfterChange.totalCovered} out of 12 months covered</strong>
+                            {prevMonthsCount > 0 && (
+                                <div className="text-xs text-gray-600 mt-1">
+                                    ({prevMonthsCount} month{prevMonthsCount !== 1 ? 's' : ''} from previous submissions,
+                                    {currentFormMonths} month{currentFormMonths !== 1 ? 's' : ''} from current form)
+                                </div>
+                            )}
+                            <div className="mt-2">
+                                {overallCoverageAfterChange.remainingMonths} month{overallCoverageAfterChange.remainingMonths !== 1 ? 's' : ''} remaining.
+                                Select date ranges for other methods to cover the full year.
+                            </div>
+                        </div>
                         <div className="flex gap-2 mt-3">
                             <button
                                 onClick={() => {
@@ -3190,11 +3244,26 @@ const EmployeeCommutingForm = () => {
                                 Keep Selection
                             </button>
                         </div>
-                    </div>,
-                    { autoClose: 8000, closeButton: true }
+                    </div>
                 );
+
+                toast.warning(message, { autoClose: 8000, closeButton: true });
             } else if (overallCoverageAfterChange.isComplete) {
-                toast.success("✓ Complete year coverage achieved across all commute methods!");
+                const prevMonthsCount = [...previouslyCoveredMonths].filter(key =>
+                    key.startsWith(`${reportingYear}-`)
+                ).length;
+
+                toast.success(
+                    <div>
+                        ✓ Complete year coverage achieved across all commute methods!
+                        {prevMonthsCount > 0 && (
+                            <div className="text-xs mt-1">
+                                ({prevMonthsCount} month{prevMonthsCount !== 1 ? 's' : ''} from previous submissions +
+                                {overallCoverageAfterChange.totalCovered - prevMonthsCount} from current form)
+                            </div>
+                        )}
+                    </div>
+                );
             }
 
             // Update the form data with the selected date range
