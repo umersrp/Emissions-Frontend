@@ -945,8 +945,8 @@ const EmailReportListing = () => {
       await axios.put(
         `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${selectedId}`,
         {
-          startDate,
-          endDate,
+          startDateTime: startDate,
+          endDateTime: endDate,
         },
         {
           headers: {
