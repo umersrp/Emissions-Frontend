@@ -1126,61 +1126,132 @@ const EmployeeCommutingForm = () => {
     // };
 
     // Helper function to convert date range to individual dates
-   const fetchPreviousCommutedMonths = async (authToken, userId) => {
-    if (!userId || !authToken) return;
+    //    const fetchPreviousCommutedMonths = async (authToken, userId) => {
+    //     if (!userId || !authToken) return;
 
-    try {
-        setPreviousRecordsLoading(true);
-        const response = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}/employee-commute/List?page=1&limit=10000&userId=${userId}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    'Content-Type': 'application/json',
-                },
-            }
-        );
+    //     try {
+    //         setPreviousRecordsLoading(true);
+    //         const response = await axios.get(
+    //             `${process.env.REACT_APP_BASE_URL}/employee-commute/List?page=1&limit=10000&userId=${userId}`,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${authToken}`,
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //             }
+    //         );
 
-        if (response.data?.data) {
-            const coveredMonths = new Set();
+    //         if (response.data?.data) {
+    //             const coveredMonths = new Set();
 
-            const addMonths = (dateRange) => {
-                if (!dateRange?.startDate || !dateRange?.endDate) return;
-                const start = new Date(dateRange.startDate);
-                const end = new Date(dateRange.endDate);
-                const cur = new Date(start.getFullYear(), start.getMonth(), 1);
-                const endM = new Date(end.getFullYear(), end.getMonth(), 1);
-                while (cur <= endM) {
-                    coveredMonths.add(cur.getMonth() + 1); // just 1-12
-                    cur.setMonth(cur.getMonth() + 1);
-                }
-            };
+    //             const addMonths = (dateRange) => {
+    //                 if (!dateRange?.startDate || !dateRange?.endDate) return;
+    //                 const start = new Date(dateRange.startDate);
+    //                 const end = new Date(dateRange.endDate);
+    //                 const cur = new Date(start.getFullYear(), start.getMonth(), 1);
+    //                 const endM = new Date(end.getFullYear(), end.getMonth(), 1);
+    //                 while (cur <= endM) {
+    //                     coveredMonths.add(cur.getMonth() + 1); // just 1-12
+    //                     cur.setMonth(cur.getMonth() + 1);
+    //                 }
+    //             };
 
-            const transportTypes = [
-                { flag: 'commuteByMotorbike', carpoolDateRange: 'motorbikeCarpoolDateRange', mode: 'motorbikeMode' },
-                { flag: 'commuteByCar', carpoolDateRange: 'carCarpoolDateRange', mode: 'carMode' },
-                { flag: 'commuteByTaxi', carpoolDateRange: 'taxiCarpoolDateRange', mode: 'taxiMode' },
-            ];
+    //             const transportTypes = [
+    //                 { flag: 'commuteByMotorbike', carpoolDateRange: 'motorbikeCarpoolDateRange', mode: 'motorbikeMode' },
+    //                 { flag: 'commuteByCar', carpoolDateRange: 'carCarpoolDateRange', mode: 'carMode' },
+    //                 { flag: 'commuteByTaxi', carpoolDateRange: 'taxiCarpoolDateRange', mode: 'taxiMode' },
+    //             ];
 
-            response.data.data.forEach(record => {
-                transportTypes.forEach(({ flag, carpoolDateRange, mode }) => {
-                    if (!record[flag]) return;
-                    // Check the carpool date range
-                    if (record[carpoolDateRange] && record[carpoolDateRange].startDate) {
-                        addMonths(record[carpoolDateRange]);
+    //             response.data.data.forEach(record => {
+    //                 transportTypes.forEach(({ flag, carpoolDateRange, mode }) => {
+    //                     if (!record[flag]) return;
+    //                     // Check the carpool date range
+    //                     if (record[carpoolDateRange] && record[carpoolDateRange].startDate) {
+    //                         addMonths(record[carpoolDateRange]);
+    //                     }
+    //                 });
+    //             });
+
+    //             setPreviouslyCoveredMonths(coveredMonths); // Set of {1,2,3...12}
+    //         }
+    //     } catch (error) {
+    //         console.error('Failed to fetch previous commute records:', error);
+    //     } finally {
+    //         setPreviousRecordsLoading(false);
+    //     }
+    // };
+
+    const fetchPreviousCommutedMonths = async (authToken, userId) => {
+        if (!userId || !authToken) return;
+        try {
+            setPreviousRecordsLoading(true);
+            const response = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/employee-commute/List?page=1&limit=10000&userId=${userId}`,
+                { headers: { Authorization: `Bearer ${authToken}`, 'Content-Type': 'application/json' } }
+            );
+            if (response.data?.data) {
+                const coveredMonths = new Set();
+                const addMonths = (dateRange) => {
+                    if (!dateRange?.startDate || !dateRange?.endDate) return;
+                    const cur = new Date(new Date(dateRange.startDate).getFullYear(), new Date(dateRange.startDate).getMonth(), 1);
+                    const endM = new Date(new Date(dateRange.endDate).getFullYear(), new Date(dateRange.endDate).getMonth(), 1);
+                    while (cur <= endM) {
+                        coveredMonths.add(`${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}`);
+                        cur.setMonth(cur.getMonth() + 1);
                     }
-                });
-            });
+                };
 
-            setPreviouslyCoveredMonths(coveredMonths); // Set of {1,2,3...12}
+                //  FIXED: Check BOTH regular date ranges AND carpool date ranges
+                const transportTypes = [
+                    {
+                        flag: 'commuteByMotorbike',
+                        dateRange: 'motorbikeDateRange',        // ← ADDED
+                        carpoolDateRange: 'motorbikeCarpoolDateRange'
+                    },
+                    {
+                        flag: 'commuteByCar',
+                        dateRange: 'carDateRange',              // ← ADDED
+                        carpoolDateRange: 'carCarpoolDateRange'
+                    },
+                    {
+                        flag: 'commuteByTaxi',
+                        dateRange: 'taxiDateRange',             // ← ADDED
+                        carpoolDateRange: 'taxiCarpoolDateRange'
+                    },
+                ];
+
+                response.data.data.forEach(record => {
+                    transportTypes.forEach(({ flag, dateRange, carpoolDateRange }) => {
+                        if (!record[flag]) return;
+
+                        //  Check regular date range
+                        if (record[dateRange]?.startDate) {
+                            addMonths(record[dateRange]);
+                        }
+
+                        // Check carpool date range
+                        if (record[carpoolDateRange]?.startDate) {
+                            addMonths(record[carpoolDateRange]);
+                        }
+                    });
+                });
+
+                setPreviouslyCoveredMonths(coveredMonths);
+            }
+        } catch (error) {
+            console.error('Failed to fetch previous commute records:', error);
+        } finally {
+            setPreviousRecordsLoading(false);
         }
-    } catch (error) {
-        console.error('Failed to fetch previous commute records:', error);
-    } finally {
-        setPreviousRecordsLoading(false);
-    }
-};
-   
+    };
+
+    useEffect(() => {
+        const currentToken = getToken();
+        const targetUserId = urlUserId || getUserIdFromToken(currentToken);
+        if (currentToken && targetUserId) {
+            fetchPreviousCommutedMonths(currentToken, targetUserId);
+        }
+    }, [reportingYear]);
     const dateRangeToDates = (dateRange) => {
         if (!dateRange || !dateRange.startDate || !dateRange.endDate) return [];
         const startDate = new Date(dateRange.startDate);
@@ -3000,15 +3071,19 @@ const EmployeeCommutingForm = () => {
             //         return; // block the selection
             //     }
             // }
+            // Block selecting months already covered in previous submissions
             if (previouslyCoveredMonths.size > 0) {
-                const cur = new Date(new Date(value.startDate).getFullYear(), new Date(value.startDate).getMonth(), 1);
-                const endM = new Date(new Date(value.endDate).getFullYear(), new Date(value.endDate).getMonth(), 1);
+                const startDate = new Date(value.startDate);
+                const endDate = new Date(value.endDate);
+                const cur = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+                const endM = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
                 const conflictingMonths = [];
 
                 while (cur <= endM) {
-                    const monthNum = cur.getMonth() + 1;
-                    if (previouslyCoveredMonths.has(monthNum)) { // ← month number only
-                        conflictingMonths.push(cur.toLocaleString('en', { month: 'long' }));
+                    //  FIXED: Check year-month combination
+                    const yearMonth = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}`;
+                    if (previouslyCoveredMonths.has(yearMonth)) {
+                        conflictingMonths.push(cur.toLocaleString('en', { month: 'long', year: 'numeric' }));
                     }
                     cur.setMonth(cur.getMonth() + 1);
                 }
@@ -3018,12 +3093,13 @@ const EmployeeCommutingForm = () => {
                         <div>
                             <div className="font-semibold mb-1">Already Submitted!</div>
                             <div className="text-sm">
-                                You already submitted data for: <strong>{conflictingMonths.join(', ')}</strong>.
+                                You have already submitted commute data for: <strong>{conflictingMonths.join(', ')}</strong>.<br />
+                                Please select different months or contact your administrator if you need to update previous submissions.
                             </div>
                         </div>,
                         { autoClose: 6000, closeButton: true }
                     );
-                    return;
+                    return; // block the selection
                 }
             }
             // Check for overlaps with other selected date ranges
@@ -3776,40 +3852,43 @@ const EmployeeCommutingForm = () => {
     //         isComplete: coveredMonths.size >= 12,
     //     };
     // };
-const validateMonthCoverage = () => {
-    const coveredMonths = new Set([...previouslyCoveredMonths]); // seed with previous (month numbers 1-12)
+    const validateMonthCoverage = () => {
+        const prevMonthsThisYear = new Set(
+            [...previouslyCoveredMonths].filter(key => key.startsWith(`${reportingYear}-`))
+        );
+        const coveredMonths = new Set([...prevMonthsThisYear]); // seed with previous (month numbers 1-12)
 
-    const addMonthsFromRange = (dateRange) => {
-        if (!dateRange?.startDate || !dateRange?.endDate) return;
-        const startDate = new Date(dateRange.startDate);
-        const endDate = new Date(dateRange.endDate);
-        const cur = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
-        const endM = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
-        while (cur <= endM) {
-            coveredMonths.add(`${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}`);
-            cur.setMonth(cur.getMonth() + 1);
-        }
+        const addMonthsFromRange = (dateRange) => {
+            if (!dateRange?.startDate || !dateRange?.endDate) return;
+            const startDate = new Date(dateRange.startDate);
+            const endDate = new Date(dateRange.endDate);
+            const cur = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+            const endM = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+            while (cur <= endM) {
+                coveredMonths.add(`${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}`);
+                cur.setMonth(cur.getMonth() + 1);
+            }
+        };
+
+        // ← include ALL date ranges for coverage display
+        if (formData.commuteByMotorbike && formData.motorbikeDateRange) addMonthsFromRange(formData.motorbikeDateRange);
+        if (formData.commuteByMotorbike && formData.motorbikeCarpoolDateRange) addMonthsFromRange(formData.motorbikeCarpoolDateRange);
+        if (formData.commuteByTaxi && formData.taxiDateRange) addMonthsFromRange(formData.taxiDateRange);
+        if (formData.commuteByTaxi && formData.taxiCarpoolDateRange) addMonthsFromRange(formData.taxiCarpoolDateRange);
+        if (formData.commuteByCar && formData.carDateRange) addMonthsFromRange(formData.carDateRange);
+        if (formData.commuteByCar && formData.carCarpoolDateRange) addMonthsFromRange(formData.carCarpoolDateRange);
+        if (formData.commuteByBus && formData.busDateRange) addMonthsFromRange(formData.busDateRange);
+        if (formData.commuteByTrain && formData.trainDateRange) addMonthsFromRange(formData.trainDateRange);
+        if (formData.workFromHome && formData.workFromHomeDateRange) addMonthsFromRange(formData.workFromHomeDateRange);
+
+        return {
+            totalCovered: coveredMonths.size,
+            totalRequired: 12,
+            remainingMonths: 12 - coveredMonths.size,
+            coveredMonths: Array.from(coveredMonths).sort(),
+            isComplete: coveredMonths.size >= 12,
+        };
     };
-
-    // ← include ALL date ranges for coverage display
-    if (formData.commuteByMotorbike && formData.motorbikeDateRange) addMonthsFromRange(formData.motorbikeDateRange);
-    if (formData.commuteByMotorbike && formData.motorbikeCarpoolDateRange) addMonthsFromRange(formData.motorbikeCarpoolDateRange);
-    if (formData.commuteByTaxi && formData.taxiDateRange) addMonthsFromRange(formData.taxiDateRange);
-    if (formData.commuteByTaxi && formData.taxiCarpoolDateRange) addMonthsFromRange(formData.taxiCarpoolDateRange);
-    if (formData.commuteByCar && formData.carDateRange) addMonthsFromRange(formData.carDateRange);
-    if (formData.commuteByCar && formData.carCarpoolDateRange) addMonthsFromRange(formData.carCarpoolDateRange);
-    if (formData.commuteByBus && formData.busDateRange) addMonthsFromRange(formData.busDateRange);
-    if (formData.commuteByTrain && formData.trainDateRange) addMonthsFromRange(formData.trainDateRange);
-    if (formData.workFromHome && formData.workFromHomeDateRange) addMonthsFromRange(formData.workFromHomeDateRange);
-
-    return {
-        totalCovered: coveredMonths.size,
-        totalRequired: 12,
-        remainingMonths: 12 - coveredMonths.size,
-        coveredMonths: Array.from(coveredMonths).sort(),
-        isComplete: coveredMonths.size >= 12,
-    };
-};
 
     // Function to check for date range overlaps
     const checkAllDateRangeOverlaps = () => {
@@ -4576,8 +4655,8 @@ const validateMonthCoverage = () => {
                     workFromHomeDates: workFromHomeDates.map(date => date.toISOString()),
                     workFromHomeDateRange: formData.workFromHomeDateRange,
                 }),
-               qualityControlRemarks: formData.qualityControlRemarks,
-               qualityControl: formData.qualityControl?.value || '',
+                qualityControlRemarks: formData.qualityControlRemarks,
+                qualityControl: formData.qualityControl?.value || '',
                 submittedAt: new Date().toISOString(),
             };
 
@@ -4929,8 +5008,8 @@ const validateMonthCoverage = () => {
                                                 // const isCurrent = !isPrevious && coverage.coveredMonths.includes(monthKey);
                                                 const monthNum = i + 1;
                                                 const monthKey = `${reportingYear}-${String(monthNum).padStart(2, '0')}`;
-                                                const monthName = new Date(reportingYear, i, 1).toLocaleString('en', { month: 'short' }); // ← add this
-                                                const isPrevious = previouslyCoveredMonths.has(monthNum);
+                                                const monthName = new Date(reportingYear, i, 1).toLocaleString('en', { month: 'short' });
+                                                const isPrevious = previouslyCoveredMonths.has(monthKey); // ← now checks "2026-01" not just 1
                                                 const isCurrent = !isPrevious && coverage.coveredMonths.includes(monthKey);
 
                                                 return (
@@ -4943,7 +5022,7 @@ const validateMonthCoverage = () => {
                                                             }`}
                                                     >
                                                         <div className="text-xs font-medium">{monthName}</div>
-                                                        {/* <div className="text-xs">{year}</div> */}
+                                                        <div className="text-xs">{reportingYear}</div>
                                                         <div className={`text-xs font-bold ${isPrevious ? 'text-blue-600' :
                                                             isCurrent ? 'text-green-600' :
                                                                 'text-red-600'
@@ -4954,7 +5033,7 @@ const validateMonthCoverage = () => {
                                                 );
                                             });
                                         })()}
-                                        <div className="flex gap-4 mt-2 text-xs text-gray-600">
+                                        <div className="flex gap-6 mt-6 text-xs text-gray-600">
                                             <span className="flex items-center gap-1"><span className="text-blue-600 font-bold">●</span> Previously submitted</span>
                                             <span className="flex items-center gap-1"><span className="text-green-600 font-bold">✓</span> Covered in this form</span>
                                             <span className="flex items-center gap-1"><span className="text-red-600 font-bold">✗</span> Not covered</span>
