@@ -825,6 +825,18 @@ const EmailReportListing = () => {
       return "Invalid Date";
     }
   };
+
+  const convertToPakistanTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { timeZone: 'Asia/Karachi' }) + ' ' +
+      date.toLocaleTimeString('en-GB', {
+        timeZone: 'Asia/Karachi',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+  };
+
   // Helper function to get filled status config
   const getFilledStatusConfig = (status) => {
     switch (status) {
@@ -942,12 +954,16 @@ const EmailReportListing = () => {
     }
   };
   const handleUpdate = async () => {
+    const convertToISOFormat = (datetimeLocal) => {
+      const date = new Date(datetimeLocal);
+      return date.toISOString();
+    };
     try {
       await axios.put(
         `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${selectedId}`,
         {
-          startDateTime: startDate,
-          endDateTime: endDate,
+          startDateTime: convertToISOFormat(startDate),
+          endDateTime: convertToISOFormat(endDate),
         },
         {
           headers: {
@@ -1160,8 +1176,18 @@ const EmailReportListing = () => {
                   onClick={() => {
                     openEditRecipientsModal(recipients, subject)
                     setSelectedId(cell.value);
-                    setStartDate(new Date(row.original.startDateTime).toISOString().split('T')[0]);
-                    setEndDate(new Date(row.original.endDateTime).toISOString().split('T')[0]);
+                    const convertToDatetimeLocal = (dateString) => {
+                      const [day, month, year, time, period] = dateString.split(/[/ ]/);
+                      let [hour, minute] = time.split(':');
+                      if (period === 'pm' && hour !== '12') hour = parseInt(hour) + 12;
+                      if (period === 'am' && hour === '12') hour = '00';
+                      hour = hour.toString().padStart(2, '0');
+                      return `${year}-${month}-${day}T${hour}:${minute}`;
+                    };
+                    const startFormatted = convertToDatetimeLocal(convertToPakistanTime(row.original.startDateTime));
+                    const endFormatted = convertToDatetimeLocal(convertToPakistanTime(row.original.endDateTime));
+                    setStartDate(startFormatted);
+                    setEndDate(endFormatted);
                   }}
                   disabled={!recipients || recipients.length === 0}
                 >
@@ -1228,6 +1254,12 @@ const EmailReportListing = () => {
 
   const handlePrevPage = () => handleGoToPage(pageIndex - 1);
   const handleNextPage = () => handleGoToPage(pageIndex + 1);
+
+  console.log({
+    startDate,
+    endDate
+  });
+
 
   return (
     <>
@@ -1713,7 +1745,7 @@ const EmailReportListing = () => {
                             </label>
                             <input
                               disabled={true}
-                              type="date"
+                              type="datetime-local"
                               className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm 
               focus:border-[#3AB89D] focus:outline-none focus:ring-2 focus:ring-[#3AB89D]/20
               hover:border-gray-300 transition-all duration-200
@@ -1727,7 +1759,7 @@ const EmailReportListing = () => {
                               End Date
                             </label>
                             <input
-                              type="date"
+                              type="datetime-local"
                               className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm 
               focus:border-[#3AB89D] focus:outline-none focus:ring-2 focus:ring-[#3AB89D]/20
               hover:border-gray-300 transition-all duration-200
@@ -1816,7 +1848,7 @@ const EmailReportListing = () => {
                         </div>
                       </div>
 
-                      
+
                     </div>
                   </div>
 
