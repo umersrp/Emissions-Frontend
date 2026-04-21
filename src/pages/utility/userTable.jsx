@@ -575,7 +575,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
         Email: "john.doe@example.com",
         Password: "SecurePass123",
         EmployeeID: "EMP001",
-        CompanyId: "COMPANY_MONGO_ID",
         BuildingCode: "BLD-001",
       },
       {
@@ -583,7 +582,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
         Email: "jane.smith@example.com",
         Password: "SecurePass456",
         EmployeeID: "EMP002",
-        CompanyId: "COMPANY_MONGO_ID",
         BuildingCode: "BLD-002",
       },
     ];
@@ -595,13 +593,13 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
       fill: { fgColor: { rgb: "3AB89D" } },
       alignment: { horizontal: "center" },
     };
-    ["A1", "B1", "C1", "D1", "E1", "F1"].forEach((cell) => {
+    ["A1", "B1", "C1", "D1", "E1"].forEach((cell) => {
       if (ws[cell]) ws[cell].s = headerStyle;
     });
 
     ws["!cols"] = [
       { wch: 20 }, { wch: 30 }, { wch: 20 },
-      { wch: 15 }, { wch: 30 }, { wch: 15 },
+      { wch: 15 }, { wch: 15 },
     ];
 
     const wb = XLSX.utils.book_new();
@@ -636,13 +634,12 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
           return;
         }
 
-        // Map capitalized headers to lowercase field names
+        // Map capitalized headers to lowercase field names (without companyId)
         const headerMap = {
           "Name": "name",
           "Email": "email",
           "Password": "password",
           "EmployeeID": "employeeID",
-          "CompanyId": "companyId",
           "BuildingCode": "buildingCode",
         };
 
@@ -656,8 +653,10 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
           return newRow;
         });
 
+        // Update REQUIRED_COLUMNS filter
+        const requiredCols = ["name", "email", "password", "employeeID", "buildingCode"];
         const fileColumns = Object.keys(normalized[0] || {});
-        const missing = REQUIRED_COLUMNS.filter(
+        const missing = requiredCols.filter(
           (col) => !fileColumns.includes(col)
         );
         if (missing.length > 0) {
@@ -693,7 +692,7 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
             name: row.name,
             email: String(row.email).toLowerCase().trim(),
             password: encryptedPassword,
-            companyId: companyId,
+            companyId: companyId, // From localStorage, not from file
             buildingCode: row.buildingCode,
             employeeID: row.employeeID,
             type: "user",
