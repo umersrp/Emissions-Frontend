@@ -449,7 +449,7 @@
 //             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
 //               {loading ? (
 //                 <div className="flex justify-center items-center py-8">
-//                   <img src={Logo} alt="Loading..." className="w-52 h-24" />
+//                   <img src={Logo} alt="Loading..." className="w-52 h-52" />
 //                 </div>
 //               ) : (
 //                 <table
@@ -703,6 +703,7 @@ import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
 import Logo from "@/assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
 import { Dialog, Transition } from "@headlessui/react";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -1128,12 +1129,12 @@ const EmailReportListing = () => {
       {
         Header: "Created At",
         accessor: "createdAt",
-        Cell: ({ cell }) => formatDate(cell.value),
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Updated At",
         accessor: "updatedAt",
-        Cell: ({ cell }) => formatDate(cell.value),
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Actions",
@@ -1268,7 +1269,7 @@ const EmailReportListing = () => {
             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                  <img src={Logo} alt="Loading..." className="w-52 h-52" />
                 </div>
               ) : (
 

@@ -386,7 +386,7 @@
 //                             {/* <div className="overflow-hidden"> */}
 //                             {loading ? (
 //                                 <div className="flex justify-center items-center py-8">
-//                                     <img src={Logo} alt="Loading..." className="w-52 h-24" />
+//                                     <img src={Logo} alt="Loading..." className="w-52 h-52" />
 //                                 </div>
 //                             ) : (
 //                                 <table
@@ -656,6 +656,7 @@ import Modal from "@/components/ui/Modal";
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import ExcelExportButton from "@/components/ui/ExcelExportButton";
 import useBusinessTravelCSVUpload from "@/hooks/scope3/useBusinessTravelCSVUpload";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
     const defaultRef = React.useRef();
@@ -1110,20 +1111,12 @@ const BusinessTravel = () => {
             {
                 Header: "Posting Date",
                 accessor: "postingDate",
-                Cell: ({ cell }) => {
-                    if (!cell.value) return "N/A";
-                    try {
-                        return new Date(cell.value).toLocaleDateString('en-GB');
-                    } catch {
-                        return "Invalid Date";
-                    }
-                }
+                 Cell: ({ cell }) => formatDateDMY(cell.value),
             },
             {
                 Header: "Created At",
                 accessor: "createdAt",
-                Cell: ({ value }) =>
-                    value ? new Date(value).toLocaleDateString() : "-",
+                 Cell: ({ cell }) => formatDateDMY(cell.value),
             },
 
             {
@@ -1393,7 +1386,7 @@ const BusinessTravel = () => {
                         <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
                             {loading ? (
                                 <div className="flex justify-center items-center py-8">
-                                    <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                                    <img src={Logo} alt="Loading..." className="w-52 h-52" />
                                 </div>
                             ) : (
                                 <table
