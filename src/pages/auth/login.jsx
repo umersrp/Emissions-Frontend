@@ -20,16 +20,16 @@ const Login = () => {
       <div className="absolute inset-0 bg-black bg-opacity-50"></div>
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-md bg-white/70 dark:bg-slate-900/90 rounded-2xl shadow-lg pb-8 pt-0 px-8 sm:p-10">
+      <div className="relative z-10 w-full max-w-md bg-white/70 dark:bg-slate-900/90 rounded-2xl shadow-lg pb-4 pt-2 px-8 sm:p-10">
         <div className="text-center mb-6">
-          <Link to="/">
+          {/* <Link to="/"> */}
             <img
               src={isDark ? LogoWhite : Logo}
               alt="Logo"
               className="mx-auto"
-              style={{ width: "200px"}}
+              style={{ width: "200px", height: '140px', objectFit:"cover"}}
             />
-          </Link>
+          {/* </Link> */}
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
             Welcome to <span className="font-black tracking-tight bg-gradient-to-r from-green-500 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">SUSTIVIOUS</span>
           </h2>
@@ -41,8 +41,8 @@ const Login = () => {
         {/* Login Form */}
         <LoginForm />
 
-        <footer className="mt-8 text-xs text-center text-slate-600 dark:text-green-700">
-          &copy; 2025 SrpTechnologies. All rights reserved.
+        <footer className="mt-3 text-xs text-center text-slate-600 dark:text-green-700">
+          &copy; 2026 SrpTechnologies. All rights reserved.
         </footer>
       </div>
     </div>
