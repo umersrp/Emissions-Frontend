@@ -180,10 +180,26 @@ const RecordRow = ({ record, index, selected, onSelect, onDelete }) => {
         return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     };
 
+    // const formatDateRange = (dateRange) => {
+    //     if (!dateRange?.startDate && !dateRange?.endDate) return "N/A";
+    //     const start = dateRange?.startDate ? new Date(dateRange.startDate).toLocaleDateString() : "";
+    //     const end = dateRange?.endDate ? new Date(dateRange.endDate).toLocaleDateString() : "";
+    //     return start && end ? `${start} - ${end}` : start || end || "N/A";
+    // };
     const formatDateRange = (dateRange) => {
         if (!dateRange?.startDate && !dateRange?.endDate) return "N/A";
-        const start = dateRange?.startDate ? new Date(dateRange.startDate).toLocaleDateString() : "";
-        const end = dateRange?.endDate ? new Date(dateRange.endDate).toLocaleDateString() : "";
+
+        const formatDateDMY = (dateValue) => {
+            if (!dateValue) return "";
+            const date = new Date(dateValue);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        };
+
+        const start = dateRange?.startDate ? formatDateDMY(dateRange.startDate) : "";
+        const end = dateRange?.endDate ? formatDateDMY(dateRange.endDate) : "";
         return start && end ? `${start} - ${end}` : start || end || "N/A";
     };
 

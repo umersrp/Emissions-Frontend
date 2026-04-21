@@ -43,12 +43,454 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChan
   );
 });
 
+// const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
+//   const [file, setFile] = useState(null);
+//   const [preview, setPreview] = useState([]);
+//   const [importing, setImporting] = useState(false);
+//   const [progress, setProgress] = useState({ done: 0, total: 0, errors: [] });
+//   const [step, setStep] = useState("upload"); // upload | preview | result
+//   const fileInputRef = useRef(null);
+//   const user = JSON.parse(localStorage.getItem("user"));
+//   const companyId = user?.companyId;
+
+//   const REQUIRED_COLUMNS = ["name", "email", "password", "employeeID", "companyId", "buildingCode"];
+
+//   const resetModal = () => {
+//     setFile(null);
+//     setPreview([]);
+//     setProgress({ done: 0, total: 0, errors: [] });
+//     setStep("upload");
+//     if (fileInputRef.current) fileInputRef.current.value = "";
+//   };
+
+//   const handleClose = () => {
+//     resetModal();
+//     onClose();
+//   };
+
+//   // Download sample template
+//   const downloadTemplate = () => {
+//     const sampleData = [
+//       {
+//         Name: "John Doe",
+//         Email: "john.doe@example.com",
+//         Password: "SecurePass123",
+//         EmployeeID: "EMP001",
+//         BuildingCode: "BLD-001",
+//       },
+//       {
+//         Name: "Jane Smith",
+//         Email: "jane.smith@example.com",
+//         Password: "SecurePass456",
+//         EmployeeID: "EMP002",
+//         BuildingCode: "BLD-002",
+//       },
+//     ];
+
+//     const ws = XLSX.utils.json_to_sheet(sampleData);
+
+//     const headerStyle = {
+//       font: { bold: true, color: { rgb: "FFFFFF" } },
+//       fill: { fgColor: { rgb: "3AB89D" } },
+//       alignment: { horizontal: "center" },
+//     };
+//     ["A1", "B1", "C1", "D1", "E1"].forEach((cell) => {
+//       if (ws[cell]) ws[cell].s = headerStyle;
+//     });
+
+//     ws["!cols"] = [
+//       { wch: 20 }, { wch: 30 }, { wch: 20 },
+//       { wch: 15 }, { wch: 15 },
+//     ];
+
+//     const wb = XLSX.utils.book_new();
+//     XLSX.utils.book_append_sheet(wb, ws, "Employees");
+//     XLSX.writeFile(wb, "Employee_Import_Template.xlsx");
+//     toast.success("Template downloaded!");
+//   };
+
+//   const handleFileChange = (e) => {
+//     const selectedFile = e.target.files[0];
+//     if (!selectedFile) return;
+
+//     const ext = selectedFile.name.split(".").pop().toLowerCase();
+//     if (!["xlsx", "xls", "csv"].includes(ext)) {
+//       toast.error("Please upload a valid Excel (.xlsx, .xls) or CSV file");
+//       return;
+//     }
+
+//     setFile(selectedFile);
+//     const reader = new FileReader();
+
+//     reader.onload = (evt) => {
+//       try {
+//         const data = new Uint8Array(evt.target.result);
+//         const workbook = XLSX.read(data, { type: "array" });
+//         const sheetName = workbook.SheetNames[0];
+//         const worksheet = workbook.Sheets[sheetName];
+//         const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+//         if (jsonData.length === 0) {
+//           toast.error("The file is empty or has no data rows.");
+//           return;
+//         }
+
+//         // Map capitalized headers to lowercase field names (without companyId)
+//         const headerMap = {
+//           "Name": "name",
+//           "Email": "email",
+//           "Password": "password",
+//           "EmployeeID": "employeeID",
+//           "BuildingCode": "buildingCode",
+//         };
+
+//         const normalized = jsonData.map((row) => {
+//           const newRow = {};
+//           Object.keys(row).forEach((key) => {
+//             const trimmedKey = key.trim();
+//             const fieldName = headerMap[trimmedKey] || trimmedKey.toLowerCase();
+//             newRow[fieldName] = row[key];
+//           });
+//           return newRow;
+//         });
+
+//         // Update REQUIRED_COLUMNS filter
+//         const requiredCols = ["name", "email", "password", "employeeID", "buildingCode"];
+//         const fileColumns = Object.keys(normalized[0] || {});
+//         const missing = requiredCols.filter(
+//           (col) => !fileColumns.includes(col)
+//         );
+//         if (missing.length > 0) {
+//           toast.error(`Missing required columns: ${missing.join(", ")}`);
+//           return;
+//         }
+
+//         setPreview(normalized);
+//         setStep("preview");
+//       } catch (err) {
+//         console.error(err);
+//         toast.error("Failed to parse file. Please use the provided template.");
+//       }
+//     };
+
+//     reader.readAsArrayBuffer(selectedFile);
+//   };
+
+//   const handleImport = async () => {
+//     setImporting(true);
+//     const errors = [];
+//     let done = 0;
+//     const total = preview.length;
+//     setProgress({ done: 0, total, errors: [] });
+
+//     for (const row of preview) {
+//       try {
+//         const encryptedPassword = btoa(String(row.password));
+
+//         await axios.post(
+//           `${process.env.REACT_APP_BASE_URL}/auth/register`,
+//           {
+//             name: row.name,
+//             email: String(row.email).toLowerCase().trim(),
+//             password: encryptedPassword,
+//             companyId: companyId, // From localStorage, not from file
+//             buildingCode: row.buildingCode,
+//             employeeID: row.employeeID,
+//             type: "user",
+//           },
+//           {
+//             headers: {
+//               Authorization: `Bearer ${localStorage.getItem("token")}`,
+//             },
+//           }
+//         );
+//         done++;
+//       } catch (err) {
+//         const msg =
+//           err?.response?.data?.message ||
+//           err?.response?.data?.error ||
+//           "Unknown error";
+//         errors.push({ row: row.email || row.employeeID, error: msg });
+//         done++;
+//       }
+//       setProgress({ done, total, errors: [...errors] });
+//     }
+
+//     setImporting(false);
+//     setStep("result");
+//     const successCount = total - errors.length;
+//     if (successCount > 0) {
+//       toast.success(`${successCount} employee(s) imported successfully!`);
+//       onImportComplete();
+//     }
+//     if (errors.length > 0) {
+//       toast.error(`${errors.length} row(s) failed. Check the report below.`);
+//     }
+//   };
+
+//   const downloadErrorReport = () => {
+//     const ws = XLSX.utils.json_to_sheet(
+//       progress.errors.map((e) => ({ Employee: e.row, Error: e.error }))
+//     );
+//     ws["!cols"] = [{ wch: 30 }, { wch: 60 }];
+//     const wb = XLSX.utils.book_new();
+//     XLSX.utils.book_append_sheet(wb, ws, "Errors");
+//     XLSX.writeFile(wb, "Import_Errors.xlsx");
+//   };
+
+//   if (!isOpen) return null;
+
+//   const successCount = progress.total - progress.errors.length;
+
+//   return (
+//     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+//       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden pl-4 pr-4 ">
+//         {/* Header */}
+//         <div className="flex items-center justify-between mt-3 ">
+//           <div className="flex items-center ">
+//             <h3 className="text-black font-semibold text-lg">Bulk Import Employees</h3>
+//           </div>
+//           <button onClick={handleClose} className="text-white/80 hover:text-white transition-colors">
+//             <Icon icon="heroicons:x-mark" className="text-2xl" />
+//           </button>
+//         </div>
+
+//         {/* Body */}
+//         <div className="flex-1 overflow-y-auto pl-4 pr-4">
+//           {/* ── Step 1: Upload ── */}
+//           {step === "upload" && (
+//             <div className="space-y-6">
+//               {/* Required columns info */}
+//               <div className="text-slate-700 leading-relaxed mb-3 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 mt-2  justify-center">
+//                 <div className="flex items-center justify-center mb-2">
+//                   <div className="flex items-start">
+//                     <Icon icon="heroicons:information-circle" className="w-5 h-5 sm:w-6 sm:h-6 text-black-500 flex-shrink-0 mr-2" />
+//                     <div className="flex-1 min-w-0">
+//                       <h4 className="font-semibold text-sm sm:text-base text-black-800 mb-0.5 sm:mb-1">
+//                         How to upload:
+//                       </h4>
+//                       <div className="text-xs sm:text-sm ">
+//                         <ol className="text-sm text-black-700 space-y-1 list-decimal pl-4">
+//                           <li>Download the template below</li>
+//                           <li>Fill in your data (keep column headers as is)</li>
+//                           <li>Save as xlsx file</li>
+//                           <li>Upload using the form below</li>
+//                           <li>Review validation results and submit</li>
+//                         </ol>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </div>
+
+//               <div className="flex items-center justify-center">
+//                 <Button
+//                   text="Download Sample Template (.xlsx)"
+//                   className="btn-dark w-full sm:w-auto text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2"
+//                   iconClass="text-lg"
+//                   icon="heroicons:document-arrow-down"
+//                   onClick={downloadTemplate}
+//                 />
+//               </div>
+
+//               {/* Drop zone */}
+//               <div
+//                 className="relative border-2 border-dashed border-slate-300 rounded-xl text-center hover:border-[#a1d9c3] hover:bg-slate-50 transition-all cursor-pointer pb-3 p-3"
+//                 onClick={() => fileInputRef.current?.click()}
+//                 onDragOver={(e) => e.preventDefault()}
+//                 onDrop={(e) => {
+//                   e.preventDefault();
+//                   const dt = e.dataTransfer.files[0];
+//                   if (dt) {
+//                     fileInputRef.current.files = e.dataTransfer.files;
+//                     handleFileChange({ target: { files: [dt] } });
+//                   }
+//                 }}
+//               >
+//                 <input
+//                   type="file"
+//                   ref={fileInputRef}
+//                   className="hidden"
+//                   accept=".xlsx,.xls,.csv"
+//                   onChange={handleFileChange}
+//                 />
+//                 <Icon icon="heroicons:cloud-arrow-up" className="text-5xl text-slate-400 mx-auto mb-1" />
+//                 <p className="text-slate-600 font-medium mb-2">Choose file or drag & drop</p>
+//                 <p className="text-slate-400 text-xs mb-2">xlsx, xls, and csv files only (max 10MB)</p>
+//                 <Button
+//                   text="Browse Files"
+//                   className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+//                   onClick={handleFileChange}
+//                   size="sm"
+//                 />
+//               </div>
+//             </div>
+//           )}
+
+//         {/* ── Step 2: Preview ── */}
+//         {step === "preview" && (
+//           <div className="space-y-4">
+//             <div className="flex items-center justify-between">
+//               <p className="text-slate-700 font-semibold">
+//                 Preview — {preview.length} row(s) found
+//               </p>
+//               <button
+//                 onClick={() => { setStep("upload"); setPreview([]); setFile(null); }}
+//                 className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1"
+//               >
+//                 <Icon icon="heroicons:arrow-left" /> Change file
+//               </button>
+//             </div>
+
+//             <div className="overflow-x-auto rounded-xl border border-slate-200">
+//               <table className="min-w-full text-sm">
+//                 <thead className="bg-slate-100">
+//                   <tr>
+//                     <th className="px-3 py-2 text-left text-slate-600 font-medium">#</th>
+//                     {REQUIRED_COLUMNS.map((col) => (
+//                       <th key={col} className="px-3 py-2 text-left text-slate-600 font-medium capitalize">
+//                         {col}
+//                       </th>
+//                     ))}
+//                   </tr>
+//                 </thead>
+//                 <tbody className="divide-y divide-slate-100">
+//                   {preview.slice(0, 10).map((row, i) => (
+//                     <tr key={i} className="hover:bg-slate-50">
+//                       <td className="px-3 py-2 text-slate-400">{i + 1}</td>
+//                       {REQUIRED_COLUMNS.map((col) => (
+//                         <td key={col} className="px-3 py-2 text-slate-700 max-w-[150px] truncate">
+//                           {col === "password" ? "••••••••" : (row[col] || "-")}
+//                         </td>
+//                       ))}
+//                     </tr>
+//                   ))}
+//                 </tbody>
+//               </table>
+//               {preview.length > 10 && (
+//                 <p className="text-center text-slate-400 text-xs py-2 border-t border-slate-100">
+//                   ... and {preview.length - 10} more row(s)
+//                 </p>
+//               )}
+//             </div>
+
+//             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2 text-amber-700 text-sm">
+//               <Icon icon="heroicons:exclamation-triangle" className="text-lg flex-shrink-0 mt-0.5" />
+//               <span>
+//                 Review the data carefully before importing. This action will create {preview.length} new employee account(s).
+//               </span>
+//             </div>
+//           </div>
+//         )}
+
+//         {/* ── Step 3: Importing / Result ── */}
+//         {step === "result" && (
+//           <div className="space-y-6">
+//             {importing && (
+//               <div className="text-center py-6">
+//                 <div className="inline-block w-12 h-12 border-4 border-[#3AB89D] border-t-transparent rounded-full animate-spin mb-4" />
+//                 <p className="text-slate-600 font-medium">
+//                   Importing {progress.done} / {progress.total}...
+//                 </p>
+//                 <div className="mt-3 w-full bg-slate-100 rounded-full h-2.5">
+//                   <div
+//                     className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] h-2.5 rounded-full transition-all duration-300"
+//                     style={{ width: `${(progress.done / progress.total) * 100}%` }}
+//                   />
+//                 </div>
+//               </div>
+//             )}
+
+//             {!importing && (
+//               <>
+//                 {/* Summary cards */}
+//                 <div className="grid grid-cols-2 gap-4">
+//                   <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+//                     <p className="text-3xl font-bold text-green-600">{successCount}</p>
+//                     <p className="text-green-700 text-sm mt-1">Imported Successfully</p>
+//                   </div>
+//                   <div className={`border rounded-xl p-4 text-center ${progress.errors.length > 0 ? "bg-red-50 border-red-200" : "bg-slate-50 border-slate-200"}`}>
+//                     <p className={`text-3xl font-bold ${progress.errors.length > 0 ? "text-red-500" : "text-slate-400"}`}>
+//                       {progress.errors.length}
+//                     </p>
+//                     <p className={`text-sm mt-1 ${progress.errors.length > 0 ? "text-red-600" : "text-slate-500"}`}>Failed</p>
+//                   </div>
+//                 </div>
+
+//                 {/* Error list */}
+//                 {progress.errors.length > 0 && (
+//                   <div>
+//                     <div className="flex items-center justify-between mb-2">
+//                       <p className="text-slate-700 font-medium text-sm">Failed Rows</p>
+//                       <button
+//                         onClick={downloadErrorReport}
+//                         className="text-xs text-[#3AB89D] hover:underline flex items-center gap-1"
+//                       >
+//                         <Icon icon="heroicons:arrow-down-tray" /> Download Error Report
+//                       </button>
+//                     </div>
+//                     <div className="rounded-xl border border-red-200 overflow-hidden max-h-52 overflow-y-auto">
+//                       {progress.errors.map((e, i) => (
+//                         <div key={i} className="flex gap-3 px-4 py-2.5 border-b border-red-100 last:border-0 bg-red-50/40 text-sm">
+//                           <span className="text-slate-600 font-medium min-w-[140px] truncate">{e.row}</span>
+//                           <span className="text-red-600">{e.error}</span>
+//                         </div>
+//                       ))}
+//                     </div>
+//                   </div>
+//                 )}
+//               </>
+//             )}
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Footer */}
+//       <div className="px-3 py-2 mb-2 border-t border-slate-100 flex items-center justify-end bg-slate-50">
+//         <button
+//           onClick={handleClose}
+//           className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 font-medium btn-danger bg-slate-200 hover:bg-slate-300 transition-colors rounded-sm"
+//         >
+//           {step === "result" ? "Close" : "Cancel"}
+//         </button>
+
+//         <div className="flex gap-3">
+//           {step === "preview" && (
+//             <button
+//               onClick={handleImport}
+//               disabled={importing}
+//               className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60"
+//             >
+//               <Icon icon="heroicons:arrow-up-tray" />
+//               Import {preview.length} Employee(s)
+//             </button>
+//           )}
+
+//           {step === "result" && progress.errors.length > 0 && successCount === 0 && (
+//             <button
+//               onClick={resetModal}
+//               className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
+//             >
+//               <Icon icon="heroicons:arrow-path" />
+//               Try Again
+//             </button>
+//           )}
+//         </div>
+//       </div>
+      
+//     </div>
+//     </div >
+//   );
+// };
+
+// ─── Main UserPage ────────────────────────────────────────────────────────────
+
 const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState([]);
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState({ done: 0, total: 0, errors: [] });
-  const [step, setStep] = useState("upload"); // upload | preview | result
+  const [step, setStep] = useState("upload");
   const fileInputRef = useRef(null);
   const user = JSON.parse(localStorage.getItem("user"));
   const companyId = user?.companyId;
@@ -68,7 +510,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
     onClose();
   };
 
-  // Download sample template
   const downloadTemplate = () => {
     const sampleData = [
       {
@@ -88,7 +529,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
     ];
 
     const ws = XLSX.utils.json_to_sheet(sampleData);
-
     const headerStyle = {
       font: { bold: true, color: { rgb: "FFFFFF" } },
       fill: { fgColor: { rgb: "3AB89D" } },
@@ -97,12 +537,10 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
     ["A1", "B1", "C1", "D1", "E1"].forEach((cell) => {
       if (ws[cell]) ws[cell].s = headerStyle;
     });
-
     ws["!cols"] = [
       { wch: 20 }, { wch: 30 }, { wch: 20 },
       { wch: 15 }, { wch: 15 },
     ];
-
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Employees");
     XLSX.writeFile(wb, "Employee_Import_Template.xlsx");
@@ -135,7 +573,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
           return;
         }
 
-        // Map capitalized headers to lowercase field names (without companyId)
         const headerMap = {
           "Name": "name",
           "Email": "email",
@@ -154,19 +591,16 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
           return newRow;
         });
 
-        // Update REQUIRED_COLUMNS filter
         const requiredCols = ["name", "email", "password", "employeeID", "buildingCode"];
         const fileColumns = Object.keys(normalized[0] || {});
-        const missing = requiredCols.filter(
-          (col) => !fileColumns.includes(col)
-        );
+        const missing = requiredCols.filter((col) => !fileColumns.includes(col));
         if (missing.length > 0) {
           toast.error(`Missing required columns: ${missing.join(", ")}`);
           return;
         }
 
         setPreview(normalized);
-        setStep("preview");
+        // ── NO setStep("preview") here ──
       } catch (err) {
         console.error(err);
         toast.error("Failed to parse file. Please use the provided template.");
@@ -182,18 +616,18 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
     let done = 0;
     const total = preview.length;
     setProgress({ done: 0, total, errors: [] });
+    setStep("result");
 
     for (const row of preview) {
       try {
         const encryptedPassword = btoa(String(row.password));
-
         await axios.post(
           `${process.env.REACT_APP_BASE_URL}/auth/register`,
           {
             name: row.name,
             email: String(row.email).toLowerCase().trim(),
             password: encryptedPassword,
-            companyId: companyId, // From localStorage, not from file
+            companyId: companyId,
             buildingCode: row.buildingCode,
             employeeID: row.employeeID,
             type: "user",
@@ -217,7 +651,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
     }
 
     setImporting(false);
-    setStep("result");
     const successCount = total - errors.length;
     if (successCount > 0) {
       toast.success(`${successCount} employee(s) imported successfully!`);
@@ -243,56 +676,46 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
   const successCount = progress.total - progress.errors.length;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden pl-4 pr-4">
+
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py- ">
-          <div className="flex items-center space-x-3">
-            <Icon icon="heroicons:arrow-up-tray" className="text-white text-2xl" />
-            <div>
-              <h3 className="text-black font-semibold text-lg">Bulk Import Employees</h3>
-              <p className="text-gray-600 text-xs">Upload Excel or CSV to add multiple employees at once</p>
-            </div>
-          </div>
-          <button onClick={handleClose} className="text-white/80 hover:text-white transition-colors">
+        <div className="flex items-center justify-between mt-3">
+          <h3 className="text-black font-semibold text-lg">Bulk Import Employees</h3>
+          <button onClick={handleClose} className="text-slate-400 hover:text-slate-600 transition-colors">
             <Icon icon="heroicons:x-mark" className="text-2xl" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto pl-4 pr-4">
+
           {/* ── Step 1: Upload ── */}
           {step === "upload" && (
             <div className="space-y-6">
-              {/* Required columns info */}
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <p className="text-blue-800 font-medium text-sm mb-2 flex items-center gap-2">
-                  <Icon icon="heroicons:information-circle" className="text-lg" />
-                  Required Columns
-                </p>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {REQUIRED_COLUMNS.map((col) => (
-                    <span
-                      key={col}
-                      className="bg-blue-100 text-blue-700 text-xs font-mono px-2 py-1 rounded-md"
-                    >
-                      {col}
-                    </span>
-                  ))}
+
+              {/* Instructions */}
+              <div className="text-slate-700 leading-relaxed mb-3 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 mt-2 justify-center">
+                <div className="flex items-center justify-center mb-2">
+                  <div className="flex items-start">
+                    <Icon icon="heroicons:information-circle" className="w-5 h-5 sm:w-6 sm:h-6 text-black-500 flex-shrink-0 mr-2" />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-sm sm:text-base text-black-800 mb-0.5 sm:mb-1">
+                        How to upload:
+                      </h4>
+                      <ol className="text-sm text-black-700 space-y-1 list-decimal pl-4">
+                        <li>Download the template below</li>
+                        <li>Fill in your data (keep column headers as is)</li>
+                        <li>Save as xlsx file</li>
+                        <li>Upload using the form below</li>
+                        <li>Review validation results and submit</li>
+                      </ol>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-blue-600 text-xs mt-2">
-                  <strong>buildingCode</strong> — use your building's unique code (e.g. BLD-001). The system will resolve it to the correct building automatically.
-                </p>
               </div>
 
-              {/* Download template */}
-              {/* <button
-                onClick={downloadTemplate}
-                className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#3AB89D] rounded-xl py-3 text-[#3AB89D] font-medium hover:bg-[#3AB89D]/5 transition-colors"
-              >
-                <Icon icon="heroicons:arrow-down-tray" className="text-lg" />
-                Download Sample Template (.xlsx)
-              </button> */}
+              {/* Download Template */}
               <div className="flex items-center justify-center">
                 <Button
                   text="Download Sample Template (.xlsx)"
@@ -303,12 +726,10 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
                 />
               </div>
 
-
-
               {/* Drop zone */}
               <div
-                className="relative border-2 border-dashed border-slate-300 rounded-xl p-10 text-center hover:border-[#3AB89D] hover:bg-slate-50 transition-all cursor-pointer"
-                onClick={() => fileInputRef.current?.click()}
+                className={`relative border-2 border-dashed rounded-xl text-center transition-all pb-3 p-3  border-slate-300 hover:border-[#a1d9c3] hover:bg-slate-50 cursor-pointer`}
+                onClick={() => !file && fileInputRef.current?.click()}
                 onDragOver={(e) => e.preventDefault()}
                 onDrop={(e) => {
                   e.preventDefault();
@@ -326,73 +747,49 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
                   accept=".xlsx,.xls,.csv"
                   onChange={handleFileChange}
                 />
-                <Icon icon="heroicons:cloud-arrow-up" className="text-5xl text-slate-400 mx-auto mb-3" />
-                <p className="text-slate-600 font-medium">Drag & drop your file here</p>
-                <p className="text-slate-400 text-sm mt-1">or click to browse</p>
-                <p className="text-slate-400 text-xs mt-3">.xlsx, .xls, .csv supported</p>
-              </div>
-            </div>
-          )}
 
-          {/* ── Step 2: Preview ── */}
-          {step === "preview" && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-slate-700 font-semibold">
-                  Preview — {preview.length} row(s) found
-                </p>
-                <button
-                  onClick={() => { setStep("upload"); setPreview([]); setFile(null); }}
-                  className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1"
-                >
-                  <Icon icon="heroicons:arrow-left" /> Change file
-                </button>
-              </div>
-
-              <div className="overflow-x-auto rounded-xl border border-slate-200">
-                <table className="min-w-full text-sm">
-                  <thead className="bg-slate-100">
-                    <tr>
-                      <th className="px-3 py-2 text-left text-slate-600 font-medium">#</th>
-                      {REQUIRED_COLUMNS.map((col) => (
-                        <th key={col} className="px-3 py-2 text-left text-slate-600 font-medium capitalize">
-                          {col}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {preview.slice(0, 10).map((row, i) => (
-                      <tr key={i} className="hover:bg-slate-50">
-                        <td className="px-3 py-2 text-slate-400">{i + 1}</td>
-                        {REQUIRED_COLUMNS.map((col) => (
-                          <td key={col} className="px-3 py-2 text-slate-700 max-w-[150px] truncate">
-                            {col === "password" ? "••••••••" : (row[col] || "-")}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {preview.length > 10 && (
-                  <p className="text-center text-slate-400 text-xs py-2 border-t border-slate-100">
-                    ... and {preview.length - 10} more row(s)
-                  </p>
+                {file ? (
+                  <>
+                    <Icon icon="heroicons:check-circle" className="text-5xl text-green-500 mx-auto mb-1" />
+                    <p className="text-green-700 font-medium text-sm truncate px-4">{file.name}</p>
+                    <p className="text-slate-400 text-xs mb-3">File ready to import</p>
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                        className="text-xs px-4 py-2 rounded border border-slate-300 hover:bg-slate-100 text-slate-600 transition-colors"
+                      >
+                        Change File
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); resetModal(); }}
+                        className="text-xs px-4 py-2 rounded border border-red-200 hover:bg-red-50 text-red-600 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Icon icon="heroicons:cloud-arrow-up" className="text-5xl text-slate-400 mx-auto mb-1" />
+                    <p className="text-slate-600 font-medium mb-2">Choose file or drag & drop</p>
+                    <p className="text-slate-400 text-xs mb-2">xlsx, xls, and csv files only (max 10MB)</p>
+                    <Button
+                      text="Browse Files"
+                      className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+                      onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                      size="sm"
+                    />
+                  </>
                 )}
               </div>
-
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2 text-amber-700 text-sm">
-                <Icon icon="heroicons:exclamation-triangle" className="text-lg flex-shrink-0 mt-0.5" />
-                <span>
-                  Review the data carefully before importing. This action will create {preview.length} new employee account(s).
-                </span>
-              </div>
             </div>
           )}
 
-          {/* ── Step 3: Importing / Result ── */}
+          {/* ── Step 2: Result ── */}
           {step === "result" && (
-            <div className="space-y-6">
+            <div className="space-y-6 py-4">
+
+              {/* Importing in progress */}
               {importing && (
                 <div className="text-center py-6">
                   <div className="inline-block w-12 h-12 border-4 border-[#3AB89D] border-t-transparent rounded-full animate-spin mb-4" />
@@ -402,29 +799,15 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
                   <div className="mt-3 w-full bg-slate-100 rounded-full h-2.5">
                     <div
                       className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] h-2.5 rounded-full transition-all duration-300"
-                      style={{ width: `${(progress.done / progress.total) * 100}%` }}
+                      style={{ width: `${progress.total > 0 ? (progress.done / progress.total) * 100 : 0}%` }}
                     />
                   </div>
                 </div>
               )}
 
+              {/* Done */}
               {!importing && (
                 <>
-                  {/* Summary cards */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-                      <p className="text-3xl font-bold text-green-600">{successCount}</p>
-                      <p className="text-green-700 text-sm mt-1">Imported Successfully</p>
-                    </div>
-                    <div className={`border rounded-xl p-4 text-center ${progress.errors.length > 0 ? "bg-red-50 border-red-200" : "bg-slate-50 border-slate-200"}`}>
-                      <p className={`text-3xl font-bold ${progress.errors.length > 0 ? "text-red-500" : "text-slate-400"}`}>
-                        {progress.errors.length}
-                      </p>
-                      <p className={`text-sm mt-1 ${progress.errors.length > 0 ? "text-red-600" : "text-slate-500"}`}>Failed</p>
-                    </div>
-                  </div>
-
-                  {/* Error list */}
                   {progress.errors.length > 0 && (
                     <div>
                       <div className="flex items-center justify-between mb-2">
@@ -448,32 +831,35 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
                   )}
                 </>
               )}
+
             </div>
           )}
+
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50">
+        <div className="px-3 py-2 mb-2 border-t border-slate-100 flex items-center justify-end bg-slate-50">
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 font-medium btn-danger bg-slate-200 hover:bg-slate-300 transition-colors rounded-lg"
+            className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 font-medium bg-slate-200 hover:bg-slate-300 transition-colors rounded-sm"
           >
             {step === "result" ? "Close" : "Cancel"}
           </button>
 
-          <div className="flex gap-3">
-            {step === "preview" && (
+          <div className="flex gap-3 pl-4">
+            {/* Import button on upload step once file is ready */}
+            {step === "upload" && file && preview.length > 0 && (
               <button
                 onClick={handleImport}
                 disabled={importing}
-                className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60"
+                className="flex items-center px-3 py-2 bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white text-sm font-semibold rounded-sm hover:opacity-90 transition-opacity disabled:opacity-60"
               >
-                <Icon icon="heroicons:arrow-up-tray" />
-                Import {preview.length} Employee(s)
+                Upload
               </button>
             )}
 
-            {step === "result" && progress.errors.length > 0 && successCount === 0 && (
+            {/* Try Again if all failed */}
+            {step === "result" && !importing && progress.errors.length > 0 && successCount === 0 && (
               <button
                 onClick={resetModal}
                 className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
@@ -484,12 +870,11 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
             )}
           </div>
         </div>
+
       </div>
     </div>
   );
 };
-
-// ─── Main UserPage ────────────────────────────────────────────────────────────
 const UserPage = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState([]);
@@ -606,14 +991,7 @@ const UserPage = () => {
   useEffect(() => {
     setSelectedRows({});
   }, [pageIndex, pageSize]);
-  // function formatDateDMY(dateValue) {
-  //   if (!dateValue) return "N/A";
-  //   const date = new Date(dateValue);
-  //   const day = date.getDate().toString().padStart(2, '0');
-  //   const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  //   const year = date.getFullYear();
-  //   return `${day}/${month}/${year}`;
-  // }
+
 
   const COLUMNS = [
     {
@@ -652,20 +1030,7 @@ const UserPage = () => {
         </span>
       ),
     },
-    // {
-    //   Header: "Email Verified",
-    //   accessor: "isEmailValid",
-    //   Cell: (row) => (
-    //     <span
-    //       className={`inline-block px-3 py-1 rounded-[999px] text-center ${row?.cell?.value
-    //         ? "bg-success-500 text-white"
-    //         : "bg-warning-500 text-white"
-    //         }`}
-    //     >
-    //       {row?.cell?.value ? "Verified" : "Not Verified"}
-    //     </span>
-    //   ),
-    // },
+
     {
       Header: "Company",
       accessor: "companyId.companyName",
@@ -813,9 +1178,9 @@ const UserPage = () => {
   useEffect(() => {
     if (currentPageSize !== pageSize) setPageSize(currentPageSize);
   }, [currentPageSize]);
-useEffect(() => {
-  selectedRowsRef.current = selectedRows;
-}, [selectedRows]);
+  useEffect(() => {
+    selectedRowsRef.current = selectedRows;
+  }, [selectedRows]);
   const handlePageChange = (newPage) => {
     gotoPage(newPage);
     setPageIndex(newPage);
@@ -868,30 +1233,30 @@ useEffect(() => {
         title="Confirm Delete"
         themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
         centered
-       footerContent={
-  <>
-    <Button
-      text="Cancel"
-      className="btn-light"
-      onClick={() => {
-        setDeleteModalOpen(false);
-        setSelectedBuildingId(null);
-      }}
-    />
-    <Button
-      text={isDeletingMultiple ? "Deleting..." : "Delete"}
-      className="btn-danger"
-      onClick={async () => {
-        if (selectedCount > 0 && !selectedBuildingId) {
-          await handleDeleteMultiple();
-        } else if (selectedBuildingId) {
-          await handleDelete(selectedBuildingId);
+        footerContent={
+          <>
+            <Button
+              text="Cancel"
+              className="btn-light"
+              onClick={() => {
+                setDeleteModalOpen(false);
+                setSelectedBuildingId(null);
+              }}
+            />
+            <Button
+              text={isDeletingMultiple ? "Deleting..." : "Delete"}
+              className="btn-danger"
+              onClick={async () => {
+                if (selectedCount > 0 && !selectedBuildingId) {
+                  await handleDeleteMultiple();
+                } else if (selectedBuildingId) {
+                  await handleDelete(selectedBuildingId);
+                }
+              }}
+              disabled={isDeletingMultiple}
+            />
+          </>
         }
-      }}
-      disabled={isDeletingMultiple}
-    />
-  </>
-}
       >
         <p className="text-gray-700 text-center">
           {selectedCount > 1
@@ -916,18 +1281,18 @@ useEffect(() => {
           <h6 className="flex-1 md:mb-0">Employees</h6>
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
 
-           {selectedCount > 0 && (
-    <Tippy content={`Delete ${selectedCount} selected record`}>
-      <Button
-        icon="heroicons:trash"
-        text={`Delete Selected (${selectedCount})`}
-        className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
-        iconClass="text-lg"
-        onClick={() => setDeleteModalOpen(true)}
-        disabled={isDeletingMultiple}
-      />
-    </Tippy>
-  )}
+            {selectedCount > 0 && (
+              <Tippy content={`Delete ${selectedCount} selected record`}>
+                <Button
+                  icon="heroicons:trash"
+                  text={`Delete Selected (${selectedCount})`}
+                  className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
+                  iconClass="text-lg"
+                  onClick={() => setDeleteModalOpen(true)}
+                  disabled={isDeletingMultiple}
+                />
+              </Tippy>
+            )}
 
             <Button
               text="Employee Email Record"
@@ -946,7 +1311,7 @@ useEffect(() => {
             />
 
             <Button
-              icon="heroicons:arrow-up-tray"
+              icon={"heroicons:document-arrow-down"}
               text="Import"
               className="bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90 btn-sm"
               iconClass="text-lg"
