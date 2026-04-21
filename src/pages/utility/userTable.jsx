@@ -571,39 +571,35 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
   const downloadTemplate = () => {
     const sampleData = [
       {
-        name: "John Doe",
-        email: "john.doe@example.com",
-        password: "SecurePass123",
-        employeeID: "EMP001",
-        // companyId: "COMPANY_MONGO_ID",
-        buildingCode: "BLD-001",
+        Name: "John Doe",
+        Email: "john.doe@example.com",
+        Password: "SecurePass123",
+        EmployeeID: "EMP001",
+        BuildingCode: "BLD-001",
       },
       {
-        name: "Jane Smith",
-        email: "jane.smith@example.com",
-        password: "SecurePass456",
-        employeeID: "EMP002",
-        // companyId: "COMPANY_MONGO_ID",
-        buildingCode: "BLD-002",
+        Name: "Jane Smith",
+        Email: "jane.smith@example.com",
+        Password: "SecurePass456",
+        EmployeeID: "EMP002",
+        BuildingCode: "BLD-002",
       },
     ];
 
     const ws = XLSX.utils.json_to_sheet(sampleData);
 
-    // Style the header row
     const headerStyle = {
       font: { bold: true, color: { rgb: "FFFFFF" } },
       fill: { fgColor: { rgb: "3AB89D" } },
       alignment: { horizontal: "center" },
     };
-    ["A1", "B1", "C1", "D1", "E1", "F1"].forEach((cell) => {
+    ["A1", "B1", "C1", "D1", "E1"].forEach((cell) => {
       if (ws[cell]) ws[cell].s = headerStyle;
     });
 
-    // Column widths
     ws["!cols"] = [
       { wch: 20 }, { wch: 30 }, { wch: 20 },
-      { wch: 15 }, { wch: 30 }, { wch: 15 },
+      { wch: 15 }, { wch: 15 },
     ];
 
     const wb = XLSX.utils.book_new();
@@ -612,16 +608,10 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
     toast.success("Template downloaded!");
   };
 
-  // Parse uploaded file
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
 
-    const validTypes = [
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "application/vnd.ms-excel",
-      "text/csv",
-    ];
     const ext = selectedFile.name.split(".").pop().toLowerCase();
     if (!["xlsx", "xls", "csv"].includes(ext)) {
       toast.error("Please upload a valid Excel (.xlsx, .xls) or CSV file");
@@ -644,24 +634,35 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
           return;
         }
 
-        // Validate columns
-        const fileColumns = Object.keys(jsonData[0]).map((c) => c.trim().toLowerCase());
-        const missing = REQUIRED_COLUMNS.filter(
-          (col) => !fileColumns.includes(col.toLowerCase())
+        // Map capitalized headers to lowercase field names (without companyId)
+        const headerMap = {
+          "Name": "name",
+          "Email": "email",
+          "Password": "password",
+          "EmployeeID": "employeeID",
+          "BuildingCode": "buildingCode",
+        };
+
+        const normalized = jsonData.map((row) => {
+          const newRow = {};
+          Object.keys(row).forEach((key) => {
+            const trimmedKey = key.trim();
+            const fieldName = headerMap[trimmedKey] || trimmedKey.toLowerCase();
+            newRow[fieldName] = row[key];
+          });
+          return newRow;
+        });
+
+        // Update REQUIRED_COLUMNS filter
+        const requiredCols = ["name", "email", "password", "employeeID", "buildingCode"];
+        const fileColumns = Object.keys(normalized[0] || {});
+        const missing = requiredCols.filter(
+          (col) => !fileColumns.includes(col)
         );
         if (missing.length > 0) {
           toast.error(`Missing required columns: ${missing.join(", ")}`);
           return;
         }
-
-        // Normalize keys
-        const normalized = jsonData.map((row) => {
-          const newRow = {};
-          Object.keys(row).forEach((key) => {
-            newRow[key.trim()] = row[key];
-          });
-          return newRow;
-        });
 
         setPreview(normalized);
         setStep("preview");
@@ -674,7 +675,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
     reader.readAsArrayBuffer(selectedFile);
   };
 
-  // Import rows one-by-one
   const handleImport = async () => {
     setImporting(true);
     const errors = [];
@@ -684,7 +684,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
 
     for (const row of preview) {
       try {
-        // Encrypt password (simple base64 — replace with your actual encryption)
         const encryptedPassword = btoa(String(row.password));
 
         await axios.post(
@@ -693,8 +692,8 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
             name: row.name,
             email: String(row.email).toLowerCase().trim(),
             password: encryptedPassword,
-            companyId: companyId,
-            buildingCode: row.buildingCode, // send building code; backend resolves to buildingId
+            companyId: companyId, // From localStorage, not from file
+            buildingCode: row.buildingCode,
             employeeID: row.employeeID,
             type: "user",
           },
@@ -728,7 +727,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
     }
   };
 
-  // Export error report
   const downloadErrorReport = () => {
     const ws = XLSX.utils.json_to_sheet(
       progress.errors.map((e) => ({ Employee: e.row, Error: e.error }))
@@ -745,14 +743,14 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]">
+        <div className="flex items-center justify-between px-6 py- ">
           <div className="flex items-center space-x-3">
             <Icon icon="heroicons:arrow-up-tray" className="text-white text-2xl" />
             <div>
-              <h3 className="text-white font-semibold text-lg">Bulk Import Employees</h3>
-              <p className="text-white/80 text-xs">Upload Excel or CSV to add multiple employees at once</p>
+              <h3 className="text-black font-semibold text-lg">Bulk Import Employees</h3>
+              <p className="text-gray-600 text-xs">Upload Excel or CSV to add multiple employees at once</p>
             </div>
           </div>
           <button onClick={handleClose} className="text-white/80 hover:text-white transition-colors">
@@ -787,13 +785,24 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
               </div>
 
               {/* Download template */}
-              <button
+              {/* <button
                 onClick={downloadTemplate}
                 className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-[#3AB89D] rounded-xl py-3 text-[#3AB89D] font-medium hover:bg-[#3AB89D]/5 transition-colors"
               >
                 <Icon icon="heroicons:arrow-down-tray" className="text-lg" />
                 Download Sample Template (.xlsx)
-              </button>
+              </button> */}
+              <div className="flex items-center justify-center">
+                <Button
+                  text="Download Sample Template (.xlsx)"
+                  className="btn-dark w-full sm:w-auto text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2"
+                  iconClass="text-lg"
+                  icon="heroicons:document-arrow-down"
+                  onClick={downloadTemplate}
+                />
+              </div>
+
+
 
               {/* Drop zone */}
               <div
@@ -946,7 +955,7 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
         <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50">
           <button
             onClick={handleClose}
-            className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 font-medium"
+            className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 font-medium btn-danger bg-slate-200 hover:bg-slate-300 transition-colors rounded-lg"
           >
             {step === "result" ? "Close" : "Cancel"}
           </button>
