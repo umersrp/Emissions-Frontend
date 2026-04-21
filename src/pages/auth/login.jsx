@@ -20,17 +20,18 @@ const Login = () => {
       <div className="absolute inset-0 bg-black bg-opacity-50"></div>
 
       {/* Content */}
-      <div className="relative z-10 w-full max-w-md bg-white/70 dark:bg-slate-900/90 rounded-2xl shadow-lg p-8 sm:p-10">
+      <div className="relative z-10 w-full max-w-md bg-white/70 dark:bg-slate-900/90 rounded-2xl shadow-lg pb-8 pt-0 px-8 sm:p-10">
         <div className="text-center mb-6">
           <Link to="/">
             <img
               src={isDark ? LogoWhite : Logo}
               alt="Logo"
-              className="mx-auto h-24"
+              className="mx-auto"
+              style={{ width: "200px"}}
             />
           </Link>
-          <h2 className="mt-4 text-2xl font-bold text-slate-800 dark:text-white">
-            Welcome to <span className="bg-gradient-to-r from-[#94ffed] to-[#1e816e] text-transparent bg-clip-text">CarbonX</span>
+          <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+            Welcome to <span className="font-black tracking-tight bg-gradient-to-r from-green-500 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">SUSTIVIOUS</span>
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Sign in to manage your company’s carbon footprint

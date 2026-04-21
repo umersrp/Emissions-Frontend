@@ -201,7 +201,7 @@ const Sidebar = () => {
 
         {/* Shadow on scroll */}
         <div
-          className={`h-[60px] absolute top-[80px] nav-shadow z-[1] w-full transition-all duration-200 pointer-events-none ${
+          className={`h-[60px] absolute top-[160px] nav-shadow z-[1] mb-10 w-full transition-all duration-200 pointer-events-none ${
             scroll ? "opacity-100" : "opacity-0"
           }`}
         />

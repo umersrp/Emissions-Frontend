@@ -449,7 +449,7 @@
 //             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
 //               {loading ? (
 //                 <div className="flex justify-center items-center py-8">
-//                   <img src={Logo} alt="Loading..." className="w-52 h-24" />
+//                   <img src={Logo} alt="Loading..." className="w-52 h-52" />
 //                 </div>
 //               ) : (
 //                 <table
@@ -703,6 +703,7 @@ import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
 import Logo from "@/assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
 import { Dialog, Transition } from "@headlessui/react";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -909,7 +910,7 @@ const EmailReportListing = () => {
   // Delete Record
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BASE_URL}/email/${id}`, {
+      await axios.delete(`${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       toast.success("Email record deleted successfully");
@@ -919,14 +920,34 @@ const EmailReportListing = () => {
       toast.error("Failed to delete email record");
     }
   };
+  const handleDeleteMultiple = async (ids) => {
+    try {
+      for (const id of ids) {
+        await axios.delete(
+          `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+      }
 
+      toast.success("Email records deleted successfully");
+      setSelectedRows([]);
+      fetchData();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete some email records");
+    }
+  };
   const handleUpdate = async () => {
     try {
       await axios.put(
         `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${selectedId}`,
         {
-          startDate,
-          endDate,
+          startDateTime: startDate,
+          endDateTime: endDate,
         },
         {
           headers: {
@@ -946,7 +967,64 @@ const EmailReportListing = () => {
     }
   };
 
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+
+  // Handle delete email record
+
   // Columns
+  // const COLUMNS = useMemo(
+  //   () => [
+  //     // ... existing columns ...
+  //     {
+  //       Header: "Actions",
+  //       accessor: "_id",
+  //       Cell: ({ cell, row }) => {
+  //         const recipients = row.original.recipients || [];
+  //         const subject = row.original.subject || "Recipients";
+  //         return (
+  //           <div className="flex space-x-3 rtl:space-x-reverse">
+  //             <Tippy content="View Recipients">
+  //               <button
+  //                 className="action-btn"
+  //                 onClick={() => openRecipientsModal(recipients, subject)}
+  //                 disabled={!recipients || recipients.length === 0}
+  //               >
+  //                 <Icon icon="heroicons:user-group" className="text-purple-600" />
+  //               </button>
+  //             </Tippy>
+  //             <Tippy content="Edit">
+  //               <button
+  //                 className="action-btn"
+  //                 onClick={() => {
+  //                   openEditRecipientsModal(recipients, subject)
+  //                   setSelectedId(cell.value);
+  //                   setStartDate(new Date(row.original.startDateTime).toISOString().split('T')[0]);
+  //                   setEndDate(new Date(row.original.endDateTime).toISOString().split('T')[0]);
+  //                 }}
+  //                 disabled={!recipients || recipients.length === 0}
+  //               >
+  //                 <Icon icon="heroicons:pencil" className="text-purple-600" />
+  //               </button>
+  //             </Tippy>
+  //             <Tippy content="Delete">
+  //               <button
+  //                 className="action-btn"
+  //                 onClick={() => {
+  //                   setSelectedId(cell.value);
+  //                   setDeleteModalOpen(true);
+  //                 }}
+  //               >
+  //                 <Icon icon="heroicons:trash" className="text-red-600" />
+  //               </button>
+  //             </Tippy>
+  //           </div>
+  //         );
+  //       },
+  //     },
+  //   ],
+  //   [pageIndex, pageSize, navigate]
+  // );
   const COLUMNS = useMemo(
     () => [
       {
@@ -1051,12 +1129,12 @@ const EmailReportListing = () => {
       {
         Header: "Created At",
         accessor: "createdAt",
-        Cell: ({ cell }) => formatDate(cell.value),
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Updated At",
         accessor: "updatedAt",
-        Cell: ({ cell }) => formatDate(cell.value),
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Actions",
@@ -1090,6 +1168,17 @@ const EmailReportListing = () => {
                   <Icon icon="heroicons:pencil" className="text-purple-600" />
                 </button>
               </Tippy>
+              <Tippy content="Delete">
+                <button
+                  className="action-btn"
+                  onClick={() => {
+                    setSelectedId(cell.value);
+                    setDeleteModalOpen(true);
+                  }}
+                >
+                  <Icon icon="heroicons:trash" className="text-red-600" />
+                </button>
+              </Tippy>
             </div>
           );
         },
@@ -1097,7 +1186,6 @@ const EmailReportListing = () => {
     ],
     [pageIndex, pageSize, navigate]
   );
-
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
   const data = useMemo(() => records, [records]);
 
@@ -1122,6 +1210,12 @@ const EmailReportListing = () => {
     }
   );
 
+  // Update selected rows whenever selection changes
+  useEffect(() => {
+    const selectedIds = tableInstance.selectedFlatRows.map(row => row.original._id);
+    setSelectedRows(selectedIds);
+  }, [tableInstance.selectedFlatRows]);
+
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     tableInstance;
 
@@ -1142,6 +1236,18 @@ const EmailReportListing = () => {
           <h6 className="flex-1 md:mb-0 ">Email Records</h6>
 
           <div className="md:flex md:space-x-3 items-center">
+            {selectedRows.length > 0 && (
+              <Tippy content="Delete Selected">
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={() => setBulkDeleteModalOpen(true)}
+                >
+                  Delete Selected ({selectedRows.length})
+                  {/* <Icon icon="heroicons:trash" className="text-white" /> */}
+                </button>
+              </Tippy>
+            )}
+
             {/* <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} /> */}
             {/* <Button
               icon="heroicons-outline:paper-airplane"
@@ -1149,6 +1255,12 @@ const EmailReportListing = () => {
               className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
               onClick={() => navigate("/send-email")}
             /> */}
+
+
+
+
+
+
           </div>
         </div>
 
@@ -1157,9 +1269,10 @@ const EmailReportListing = () => {
             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                  <img src={Logo} alt="Loading..." className="w-52 h-52" />
                 </div>
               ) : (
+
                 <table
                   className="min-w-full divide-y divide-slate-100 table-fixed"
                   {...getTableProps()}
@@ -1385,6 +1498,33 @@ const EmailReportListing = () => {
       >
         <p className="text-gray-700 text-center">
           Are you sure you want to delete this email record? This action cannot be undone.
+        </p>
+      </Modal>
+
+      {/* BULK DELETE MODAL */}
+      <Modal
+        activeModal={bulkDeleteModalOpen}
+        onClose={() => setBulkDeleteModalOpen(false)}
+        title="Confirm Delete Multiple Records"
+        themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+        centered
+        footerContent={
+          <>
+            <Button text="Cancel" className="btn-light" onClick={() => setBulkDeleteModalOpen(false)} />
+            <Button
+              text="Delete All"
+              className="btn-danger"
+              onClick={async () => {
+                await handleDeleteMultiple(selectedRows);
+                setBulkDeleteModalOpen(false);
+                setSelectedRows([]);
+              }}
+            />
+          </>
+        }
+      >
+        <p className="text-gray-700 text-center">
+          Are you sure you want to delete {selectedRows.length} email record(s)? This action cannot be undone.
         </p>
       </Modal>
 

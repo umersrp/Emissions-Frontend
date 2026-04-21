@@ -390,7 +390,7 @@ const Dashboard = () => {
             <img
               src={Logo}
               alt="Loading..."
-              className="w-52 h-24 mx-auto animate-pulse"
+              className="w-52 h-52 mx-auto animate-pulse"
             />
             {/* <p className="mt-4 text-gray-600 font-medium">Loading dashboard data...</p> */}
           </div>
