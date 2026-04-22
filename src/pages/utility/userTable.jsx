@@ -485,8 +485,8 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChan
 
 // ─── Main UserPage ────────────────────────────────────────────────────────────
 
-const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings }) => {
-  
+const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings, userData }) => {
+
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState([]);
   const [importing, setImporting] = useState(false);
@@ -495,8 +495,20 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings }) => {
   const fileInputRef = useRef(null);
   const user = JSON.parse(localStorage.getItem("user"));
   const companyId = user?.companyId;
+  const errorSectionRef = useRef(null); // Add this ref for the error section
 
   const REQUIRED_COLUMNS = ["name", "email", "password", "employeeID", "companyId", "buildingCode"];
+
+  useEffect(() => {
+    if (progress.errors.length > 0) {
+      setTimeout(() => {
+        errorSectionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "end"
+        });
+      }, 100);
+    }
+  }, [progress.errors])
 
   const resetModal = () => {
     setFile(null);
@@ -794,7 +806,7 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings }) => {
         const validationErrorsList = [];
         normalized.forEach((row, index) => {
           const rowNumber = index + 2; // +2 because index 0 is row 2 (accounting for header)
-
+          const emailExist = userData.some((user) => user.email.toLowerCase() === row.email.toLowerCase());
           // Check required fields
           if (!row.name || row.name.trim() === '') {
             validationErrorsList.push({
@@ -813,6 +825,11 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings }) => {
               row: `Row ${rowNumber}`,
               error: `Invalid email format: ${row.email}`
             });
+          } else if (emailExist) {
+            validationErrorsList.push({
+              row: `Row ${rowNumber}`,
+              error: `${row.email} already exists.`
+            });
           }
 
           if (!row.password || row.password.trim() === '') {
@@ -820,19 +837,21 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings }) => {
               row: `Row ${rowNumber}`,
               error: `Password is required`
             });
-          } else if (row.password.length < 6) {
-            validationErrorsList.push({
-              row: `Row ${rowNumber}`,
-              error: `Password must be at least 6 characters`
-            });
           }
 
-          if (!row.employeeID || row.employeeID.trim() === '') {
-            validationErrorsList.push({
-              row: `Row ${rowNumber}`,
-              error: `Employee ID is required`
-            });
-          }
+          // else if (row.password.length < 6) {
+          //   validationErrorsList.push({
+          //     row: `Row ${rowNumber}`,
+          //     error: `Password must be at least 6 characters`
+          //   });
+          // }
+
+          // if (!row.employeeID || row.employeeID.trim() === '') {
+          //   validationErrorsList.push({
+          //     row: `Row ${rowNumber}`,
+          //     error: `Employee ID is required`
+          //   });
+          // }
 
           if (!row.buildingCode || row.buildingCode.trim() === '') {
             validationErrorsList.push({
@@ -1124,7 +1143,7 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings }) => {
             {/* Download Template */}
             <div className="flex items-center justify-center">
               <Button
-                text="Download Sample Template (.xlsx)"
+                text="Download Template with Example Data"
                 className="btn-dark w-full sm:w-auto text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2"
                 iconClass="text-lg"
                 icon="heroicons:document-arrow-down"
@@ -1207,61 +1226,63 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings }) => {
                 )}
               </div>}
 
-              {progress.errors.length > 0 && !importing ? (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                    <h4 className="font-semibold text-xs sm:text-sm text-yellow-800 flex items-center">
-                      <Icon icon="heroicons:exclamation-triangle" className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 flex-shrink-0" />
-                      <span>Validation Errors ({progress.errors.length})</span>
-                    </h4>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      {/* Expand/Collapse button */}
-                      {progress.errors.length > 10 && (
-                        <button
-                          onClick={() => setShowAllErrors(!showAllErrors)}
-                          className="text-xs text-yellow-700 hover:text-yellow-900 font-medium flex items-center gap-1 px-2 py-1 rounded border border-yellow-300 hover:bg-yellow-100 transition-colors"
-                        >
-                          <Icon icon={showAllErrors ? "heroicons:chevron-up" : "heroicons:chevron-down"} className="w-3 h-3" />
-                          {showAllErrors ? "Collapse" : `Show All (${progress.errors.length})`}
-                        </button>
-                      )}
+              <div ref={errorSectionRef}>
+                {progress.errors.length > 0 && !importing ? (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                      <h4 className="font-semibold text-xs sm:text-sm text-yellow-800 flex items-center">
+                        <Icon icon="heroicons:exclamation-triangle" className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 flex-shrink-0" />
+                        <span>Validation Errors ({progress.errors.length})</span>
+                      </h4>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        {/* Expand/Collapse button */}
+                        {progress.errors.length > 10 && (
+                          <button
+                            onClick={() => setShowAllErrors(!showAllErrors)}
+                            className="text-xs text-yellow-700 hover:text-yellow-900 font-medium flex items-center gap-1 px-2 py-1 rounded border border-yellow-300 hover:bg-yellow-100 transition-colors"
+                          >
+                            <Icon icon={showAllErrors ? "heroicons:chevron-up" : "heroicons:chevron-down"} className="w-3 h-3" />
+                            {showAllErrors ? "Collapse" : `Show All (${progress.errors.length})`}
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  {/* Error list */}
-                  <div className={`overflow-y-auto text-xs sm:text-sm transition-all duration-300 ${showAllErrors ? 'max-h-96' : 'max-h-32 sm:max-h-40'}`}>
-                    {progress.errors.map((error, index) => (
-                      <div key={index} className="flex gap-3 px-2 py-2 border-b border-yellow-100 last:border-0 bg-yellow-50/40 text-sm hover:bg-yellow-100 transition-colors">
-                        <div>
-                          <span className="font-mono text-xs text-yellow-600 min-w-[30px] inline-block">#{index + 1}</span>
-                          <span className="text-yellow-700 font-medium min-w-[140px] truncate">{error.row}: </span>
-                          <span className="text-yellow-700 flex-1">{error.error}</span>
+                    {/* Error list */}
+                    <div className={`overflow-y-auto text-xs sm:text-sm transition-all duration-300 ${showAllErrors ? 'max-h-96' : 'max-h-32 sm:max-h-40'}`}>
+                      {progress.errors.map((error, index) => (
+                        <div key={index} className="flex gap-3 px-2 py-2 border-b border-yellow-100 last:border-0 bg-yellow-50/40 text-sm hover:bg-yellow-100 transition-colors">
+                          <div>
+                            <span className="font-mono text-xs text-yellow-600 min-w-[30px] inline-block">#{index + 1}</span>
+                            <span className="text-yellow-700 font-medium min-w-[140px] truncate">{error.row}: </span>
+                            <span className="text-yellow-700 flex-1">{error.error}</span>
+                          </div>
                         </div>
+                      ))}
+                    </div>
+                    {/* Show more button for collapsed view */}
+                    {!showAllErrors && progress.errors.length > 10 && (
+                      <div className="mt-3 text-center pt-2 border-t border-yellow-200">
+                        <button
+                          onClick={() => setShowAllErrors(true)}
+                          className="text-xs text-yellow-600 hover:text-yellow-800 font-medium flex items-center justify-center gap-1 w-full"
+                        >
+                          <Icon icon="heroicons:chevron-down" className="w-3 h-3" />
+                          Show {progress.errors.length - 10} more errors
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-red-200 overflow-hidden max-h-52 overflow-y-auto">
+                    {progress.errors.map((e, i) => (
+                      <div key={i} className="flex gap-3 px-4 py-2.5 border-b border-red-100 last:border-0 bg-red-50/40 text-sm">
+                        <span className="text-slate-600 font-medium min-w-[140px] truncate">{e.row}</span>
+                        <span className="text-red-600">{e.error}</span>
                       </div>
                     ))}
                   </div>
-                  {/* Show more button for collapsed view */}
-                  {!showAllErrors && progress.errors.length > 10 && (
-                    <div className="mt-3 text-center pt-2 border-t border-yellow-200">
-                      <button
-                        onClick={() => setShowAllErrors(true)}
-                        className="text-xs text-yellow-600 hover:text-yellow-800 font-medium flex items-center justify-center gap-1 w-full"
-                      >
-                        <Icon icon="heroicons:chevron-down" className="w-3 h-3" />
-                        Show {progress.errors.length - 10} more errors
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="rounded-xl border border-red-200 overflow-hidden max-h-52 overflow-y-auto">
-                  {progress.errors.map((e, i) => (
-                    <div key={i} className="flex gap-3 px-4 py-2.5 border-b border-red-100 last:border-0 bg-red-50/40 text-sm">
-                      <span className="text-slate-600 font-medium min-w-[140px] truncate">{e.row}</span>
-                      <span className="text-red-600">{e.error}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+                )}
+              </div>
 
             </div>
           </div>
@@ -1716,6 +1737,7 @@ const UserPage = () => {
 
       {/* Bulk Import Modal */}
       <BulkImportModal
+        userData={userData}
         buildings={buildings}
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
