@@ -943,6 +943,7 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings, userDat
     const successCount = total - errors.length;
     if (successCount > 0) {
       toast.success(`${successCount} employee(s) imported successfully!`);
+      onClose();
       onImportComplete();
     }
     if (errors.length > 0) {
