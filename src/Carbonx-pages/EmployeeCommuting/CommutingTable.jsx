@@ -343,7 +343,7 @@ const RecordRow = ({ record, index, selected, onSelect, onDelete }) => {
             <td className="px-6 py-4 whitespace-nowrap">{formatDateRange(record.workFromHomeDateRange)}</td>
 
             {/* Quality Control & Remarks */}
-            <td className="px-6 py-4 whitespace-nowrap">{record.qualityControlRemarks ? "Good" : "N/A"}</td>
+            <td className="px-6 py-4 whitespace-nowrap">{record.qualityControl || "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.qualityControlRemarks || "N/A"}</td>
 
             {/* Emissions */}
@@ -598,6 +598,8 @@ const CommutingTable = () => {
         return recordCount + 1;
     };
 
+    console.log(currentRows);
+
     return (
         <>
             <Card noborder>
@@ -606,23 +608,24 @@ const CommutingTable = () => {
                         <h6 className="mb-2">Employee Commuting</h6>
                     </div>
                     <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
+                        {selectedRecordIds.length > 0 && (
+                            <Button
+                                text={selectedRecordIds.length > 0 ? `Delete Selected (${selectedRecordIds.length})` : "Delete Selected"}
+                                className="btn font-normal btn-sm btn-danger text-white border-0 hover:opacity-90 h-9"
+                                onClick={() => {
+                                    if (selectedRecordIds.length > 0) {
+                                        setDeleteTargetIds(selectedRecordIds);
+                                        setDeleteModalOpen(true);
+                                    }
+                                }}
+                            />
+                        )}
                         <Button
                             icon="heroicons-outline:plus-sm"
                             text="Send Email"
                             className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90 h-9"
                             iconClass="text-lg"
                             onClick={() => navigate("/EmailSent")}
-                        />
-                        <Button
-                            text={selectedRecordIds.length > 0 ? `Delete Selected (${selectedRecordIds.length})` : "Delete Selected"}
-                            className="btn font-normal btn-sm btn-danger text-white border-0 hover:opacity-90 h-9"
-                            disabled={selectedRecordIds.length === 0}
-                            onClick={() => {
-                                if (selectedRecordIds.length > 0) {
-                                    setDeleteTargetIds(selectedRecordIds);
-                                    setDeleteModalOpen(true);
-                                }
-                            }}
                         />
                     </div>
                 </div>

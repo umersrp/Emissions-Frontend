@@ -477,7 +477,7 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChan
 //           )}
 //         </div>
 //       </div>
-      
+
 //     </div>
 //     </div >
 //   );
@@ -485,7 +485,8 @@ const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChan
 
 // ─── Main UserPage ────────────────────────────────────────────────────────────
 
-const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
+const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings }) => {
+  
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState([]);
   const [importing, setImporting] = useState(false);
@@ -547,6 +548,196 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
     toast.success("Template downloaded!");
   };
 
+  // const handleFileChange = (e) => {
+  //   const selectedFile = e.target.files[0];
+  //   if (!selectedFile) return;
+
+  //   const ext = selectedFile.name.split(".").pop().toLowerCase();
+  //   if (!["xlsx", "xls", "csv"].includes(ext)) {
+  //     toast.error("Please upload a valid Excel (.xlsx, .xls) or CSV file");
+  //     return;
+  //   }
+
+  //   setFile(selectedFile);
+  //   const reader = new FileReader();
+
+  //   reader.onload = (evt) => {
+  //     try {
+  //       const data = new Uint8Array(evt.target.result);
+  //       const workbook = XLSX.read(data, { type: "array" });
+  //       const sheetName = workbook.SheetNames[0];
+  //       const worksheet = workbook.Sheets[sheetName];
+  //       const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+  //       if (jsonData.length === 0) {
+  //         toast.error("The file is empty or has no data rows.");
+  //         return;
+  //       }
+
+  //       const headerMap = {
+  //         "Name": "name",
+  //         "Email": "email",
+  //         "Password": "password",
+  //         "EmployeeID": "employeeID",
+  //         "BuildingCode": "buildingCode",
+  //       };
+
+  //       const normalized = jsonData.map((row) => {
+  //         const newRow = {};
+  //         Object.keys(row).forEach((key) => {
+  //           const trimmedKey = key.trim();
+  //           const fieldName = headerMap[trimmedKey] || trimmedKey.toLowerCase();
+  //           newRow[fieldName] = row[key];
+  //         });
+  //         return newRow;
+  //       });
+
+  //       const requiredCols = ["name", "email", "password", "employeeID", "buildingCode"];
+  //       const fileColumns = Object.keys(normalized[0] || {});
+  //       const missing = requiredCols.filter((col) => !fileColumns.includes(col));
+  //       if (missing.length > 0) {
+  //         toast.error(`Missing required columns: ${missing.join(", ")}`);
+  //         return;
+  //       }
+
+  //       setPreview(normalized);
+  //       // ── NO setStep("preview") here ──
+  //     } catch (err) {
+  //       console.error(err);
+  //       toast.error("Failed to parse file. Please use the provided template.");
+  //     }
+  //   };
+
+  //   reader.readAsArrayBuffer(selectedFile);
+  // };
+
+  // const handleFileChange = (e) => {
+  //   const selectedFile = e.target.files[0];
+  //   if (!selectedFile) return;
+  //   const ext = selectedFile.name.split(".").pop().toLowerCase();
+  //   if (!["xlsx", "xls", "csv"].includes(ext)) {
+  //     toast.error("Please upload a valid Excel (.xlsx, .xls) or CSV file");
+  //     return;
+  //   }
+  //   setFile(selectedFile);
+  //   const reader = new FileReader();
+  //   reader.onload = (evt) => {
+  //     try {
+  //       const data = new Uint8Array(evt.target.result);
+  //       const workbook = XLSX.read(data, { type: "array" });
+  //       const sheetName = workbook.SheetNames[0];
+  //       const worksheet = workbook.Sheets[sheetName];
+  //       const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+  //       if (jsonData.length === 0) {
+  //         toast.error("The file is empty or has no data rows.");
+  //         return;
+  //       }
+
+  //       const headerMap = {
+  //         "Name": "name",
+  //         "Email": "email",
+  //         "Password": "password",
+  //         "EmployeeID": "employeeID",
+  //         "BuildingCode": "buildingCode",
+  //       };
+
+  //       const normalized = jsonData.map((row) => {
+  //         const newRow = {};
+  //         Object.keys(row).forEach((key) => {
+  //           const trimmedKey = key.trim();
+  //           const fieldName = headerMap[trimmedKey] || trimmedKey.toLowerCase();
+  //           newRow[fieldName] = row[key];
+  //         });
+  //         return newRow;
+  //       });
+
+  //       const requiredCols = ["name", "email", "password", "employeeID", "buildingCode"];
+  //       const fileColumns = Object.keys(normalized[0] || {});
+  //       const missing = requiredCols.filter((col) => !fileColumns.includes(col));
+  //       if (missing.length > 0) {
+  //         toast.error(`Missing required columns: ${missing.join(", ")}`);
+  //         return;
+  //       }
+
+  //       // Validate each row and collect errors
+  //       const validationErrorsList = [];
+  //       normalized.forEach((row, index) => {
+  //         const rowNumber = index + 2; // +2 because index 0 is row 2 (accounting for header)
+
+  //         // Check required fields
+  //         if (!row.name || row.name.trim() === '') {
+  //           validationErrorsList.push({
+  //             row: `Row ${rowNumber}`,
+  //             error: `Name is required`
+  //           });
+  //         }
+
+  //         if (!row.email || row.email.trim() === '') {
+  //           validationErrorsList.push({
+  //             row: `Row ${rowNumber}`,
+  //             error: `Email is required`
+  //           });
+  //         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) {
+  //           validationErrorsList.push({
+  //             row: `Row ${rowNumber}`,
+  //             error: `Invalid email format: ${row.email}`
+  //           });
+  //         }
+
+  //         if (!row.password || row.password.trim() === '') {
+  //           validationErrorsList.push({
+  //             row: `Row ${rowNumber}`,
+  //             error: `Password is required`
+  //           });
+  //         } else if (row.password.length < 6) {
+  //           validationErrorsList.push({
+  //             row: `Row ${rowNumber}`,
+  //             error: `Password must be at least 6 characters`
+  //           });
+  //         }
+
+  //         if (!row.employeeID || row.employeeID.trim() === '') {
+  //           validationErrorsList.push({
+  //             row: `Row ${rowNumber}`,
+  //             error: `Employee ID is required`
+  //           });
+  //         }
+
+  //         if (!row.buildingCode || row.buildingCode.trim() === '') {
+  //           validationErrorsList.push({
+  //             row: `Row ${rowNumber}`,
+  //             error: `Building code is required`
+  //           });
+  //         }
+  //       });
+
+  //       // If there are validation errors, show them and don't proceed to preview
+  //       if (validationErrorsList.length > 0) {
+  //         setProgress({
+  //           done: 0,
+  //           total: normalized.length,
+  //           errors: validationErrorsList
+  //         });
+  //         setStep("result");
+  //         toast.warning(`Found ${validationErrorsList.length} validation error(s). Please fix them before uploading.`);
+  //         return;
+  //       }
+
+  //       // If no validation errors, set preview and continue
+  //       setPreview(normalized);
+  //       setProgress({ done: 0, total: normalized.length, errors: [] });
+  //       setStep("preview");
+  //       toast.success(`File validated successfully! ${normalized.length} row(s) ready to import.`);
+
+  //     } catch (err) {
+  //       console.error(err);
+  //       toast.error("Failed to parse file. Please use the provided template.");
+  //     }
+  //   };
+  //   reader.readAsArrayBuffer(selectedFile);
+  // };
+
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
@@ -599,8 +790,87 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
           return;
         }
 
+        // Validate each row and collect errors
+        const validationErrorsList = [];
+        normalized.forEach((row, index) => {
+          const rowNumber = index + 2; // +2 because index 0 is row 2 (accounting for header)
+
+          // Check required fields
+          if (!row.name || row.name.trim() === '') {
+            validationErrorsList.push({
+              row: `Row ${rowNumber}`,
+              error: `Name is required`
+            });
+          }
+
+          if (!row.email || row.email.trim() === '') {
+            validationErrorsList.push({
+              row: `Row ${rowNumber}`,
+              error: `Email is required`
+            });
+          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) {
+            validationErrorsList.push({
+              row: `Row ${rowNumber}`,
+              error: `Invalid email format: ${row.email}`
+            });
+          }
+
+          if (!row.password || row.password.trim() === '') {
+            validationErrorsList.push({
+              row: `Row ${rowNumber}`,
+              error: `Password is required`
+            });
+          } else if (row.password.length < 6) {
+            validationErrorsList.push({
+              row: `Row ${rowNumber}`,
+              error: `Password must be at least 6 characters`
+            });
+          }
+
+          if (!row.employeeID || row.employeeID.trim() === '') {
+            validationErrorsList.push({
+              row: `Row ${rowNumber}`,
+              error: `Employee ID is required`
+            });
+          }
+
+          if (!row.buildingCode || row.buildingCode.trim() === '') {
+            validationErrorsList.push({
+              row: `Row ${rowNumber}`,
+              error: `Building code is required`
+            });
+          } else {
+            // Validate building exists
+            const buildingExists = buildings.some(b =>
+              b.buildingCode && b.buildingCode.toLowerCase() === row.buildingCode.toLowerCase()
+            );
+            if (!buildingExists) {
+              validationErrorsList.push({
+                row: `Row ${rowNumber}`,
+                error: `Invalid Building code "${row.buildingCode}".`
+              });
+            }
+          }
+        });
+
+        // If there are validation errors, show them and don't proceed to preview
+        if (validationErrorsList.length > 0) {
+          setProgress({
+            done: 0,
+            total: normalized.length,
+            errors: validationErrorsList
+          });
+          setStep("result");
+          toast.warning(`Found ${validationErrorsList.length} validation error(s). Please fix and re-upload.`);
+          return;
+        }
+
+        // If no validation errors, set preview and continue
         setPreview(normalized);
-        // ── NO setStep("preview") here ──
+        setProgress({ done: 0, total: normalized.length, errors: [] });
+        setStep("preview");
+        toast.success(`File validated successfully! ${normalized.length} row(s) ready to import.`);
+
       } catch (err) {
         console.error(err);
         toast.error("Failed to parse file. Please use the provided template.");
@@ -671,6 +941,8 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
     XLSX.writeFile(wb, "Import_Errors.xlsx");
   };
 
+  const [showAllErrors, setShowAllErrors] = useState(false);
+
   if (!isOpen) return null;
 
   const successCount = progress.total - progress.errors.length;
@@ -690,11 +962,8 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
         {/* Body */}
         <div className="flex-1 overflow-y-auto pl-4 pr-4">
 
-          {/* ── Step 1: Upload ── */}
-          {step === "upload" && (
+          {/* {step === "upload" && (
             <div className="space-y-6">
-
-              {/* Instructions */}
               <div className="text-slate-700 leading-relaxed mb-3 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 mt-2 justify-center">
                 <div className="flex items-center justify-center mb-2">
                   <div className="flex items-start">
@@ -715,7 +984,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
                 </div>
               </div>
 
-              {/* Download Template */}
               <div className="flex items-center justify-center">
                 <Button
                   text="Download Sample Template (.xlsx)"
@@ -726,7 +994,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
                 />
               </div>
 
-              {/* Drop zone */}
               <div
                 className={`relative border-2 border-dashed rounded-xl text-center transition-all pb-3 p-3  border-slate-300 hover:border-[#a1d9c3] hover:bg-slate-50 cursor-pointer`}
                 onClick={() => !file && fileInputRef.current?.click()}
@@ -784,12 +1051,9 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
               </div>
             </div>
           )}
-
-          {/* ── Step 2: Result ── */}
           {step === "result" && (
             <div className="space-y-6 py-4">
 
-              {/* Importing in progress */}
               {importing && (
                 <div className="text-center py-6">
                   <div className="inline-block w-12 h-12 border-4 border-[#3AB89D] border-t-transparent rounded-full animate-spin mb-4" />
@@ -805,7 +1069,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
                 </div>
               )}
 
-              {/* Done */}
               {!importing && (
                 <>
                   {progress.errors.length > 0 && (
@@ -833,12 +1096,179 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
               )}
 
             </div>
-          )}
+          )} */}
+
+          <div className="space-y-6">
+
+            {/* Instructions */}
+            <div className="text-slate-700 leading-relaxed mb-3 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 mt-2 justify-center">
+              <div className="flex items-center justify-center mb-2">
+                <div className="flex items-start">
+                  <Icon icon="heroicons:information-circle" className="w-5 h-5 sm:w-6 sm:h-6 text-black-500 flex-shrink-0 mr-2" />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-sm sm:text-base text-black-800 mb-0.5 sm:mb-1">
+                      How to upload:
+                    </h4>
+                    <ol className="text-sm text-black-700 space-y-1 list-decimal pl-4">
+                      <li>Download the template below</li>
+                      <li>Fill in your data (keep column headers as is)</li>
+                      <li>Save as xlsx file</li>
+                      <li>Upload using the form below</li>
+                      <li>Review validation results and submit</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Download Template */}
+            <div className="flex items-center justify-center">
+              <Button
+                text="Download Sample Template (.xlsx)"
+                className="btn-dark w-full sm:w-auto text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2"
+                iconClass="text-lg"
+                icon="heroicons:document-arrow-down"
+                onClick={downloadTemplate}
+              />
+            </div>
+
+            {/* Drop zone */}
+
+            {/* ── Step 2: Result ── */}
+            <div className="space-y-6 py-0">
+              {importing && (
+                <div className="text-center py-6">
+                  <div className="inline-block w-12 h-12 border-4 border-[#3AB89D] border-t-transparent rounded-full animate-spin mb-4" />
+                  <p className="text-slate-600 font-medium">
+                    Importing {progress.done} / {progress.total}...
+                  </p>
+                  <div className="mt-3 w-full bg-slate-100 rounded-full h-2.5">
+                    <div
+                      className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] h-2.5 rounded-full transition-all duration-300"
+                      style={{ width: `${progress.total > 0 ? (progress.done / progress.total) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {!importing && <div
+                className={`relative border-2 border-dashed rounded-xl text-center transition-all pb-3 p-3  border-slate-300 hover:border-[#a1d9c3] hover:bg-slate-50 cursor-pointer`}
+                onClick={() => !file && fileInputRef.current?.click()}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const dt = e.dataTransfer.files[0];
+                  if (dt) {
+                    fileInputRef.current.files = e.dataTransfer.files;
+                    handleFileChange({ target: { files: [dt] } });
+                  }
+                }}
+              >
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept=".xlsx,.xls,.csv"
+                  onChange={handleFileChange}
+                />
+
+                {file ? (
+                  <>
+                    <Icon icon="heroicons:check-circle" className="text-5xl text-green-500 mx-auto mb-1" />
+                    <p className="text-green-700 font-medium text-sm truncate px-4">{file.name}</p>
+                    <p className="text-slate-400 text-xs mb-3">File ready to import</p>
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                        className="text-xs px-4 py-2 rounded border border-slate-300 hover:bg-slate-100 text-slate-600 transition-colors"
+                      >
+                        Change File
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); resetModal(); }}
+                        className="text-xs px-4 py-2 rounded border border-red-200 hover:bg-red-50 text-red-600 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Icon icon="heroicons:cloud-arrow-up" className="text-5xl text-slate-400 mx-auto mb-1" />
+                    <p className="text-slate-600 font-medium mb-2">Choose file or drag & drop</p>
+                    <p className="text-slate-400 text-xs mb-2">xlsx, xls, and csv files only (max 10MB)</p>
+                    <Button
+                      text="Browse Files"
+                      className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+                      onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
+                      size="sm"
+                    />
+                  </>
+                )}
+              </div>}
+
+              {progress.errors.length > 0 && !importing ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 sm:p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                    <h4 className="font-semibold text-xs sm:text-sm text-yellow-800 flex items-center">
+                      <Icon icon="heroicons:exclamation-triangle" className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2 flex-shrink-0" />
+                      <span>Validation Errors ({progress.errors.length})</span>
+                    </h4>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      {/* Expand/Collapse button */}
+                      {progress.errors.length > 10 && (
+                        <button
+                          onClick={() => setShowAllErrors(!showAllErrors)}
+                          className="text-xs text-yellow-700 hover:text-yellow-900 font-medium flex items-center gap-1 px-2 py-1 rounded border border-yellow-300 hover:bg-yellow-100 transition-colors"
+                        >
+                          <Icon icon={showAllErrors ? "heroicons:chevron-up" : "heroicons:chevron-down"} className="w-3 h-3" />
+                          {showAllErrors ? "Collapse" : `Show All (${progress.errors.length})`}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {/* Error list */}
+                  <div className={`overflow-y-auto text-xs sm:text-sm transition-all duration-300 ${showAllErrors ? 'max-h-96' : 'max-h-32 sm:max-h-40'}`}>
+                    {progress.errors.map((error, index) => (
+                      <div key={index} className="flex gap-3 px-2 py-2 border-b border-yellow-100 last:border-0 bg-yellow-50/40 text-sm hover:bg-yellow-100 transition-colors">
+                        <div>
+                          <span className="font-mono text-xs text-yellow-600 min-w-[30px] inline-block">#{index + 1}</span>
+                          <span className="text-yellow-700 font-medium min-w-[140px] truncate">{error.row}: </span>
+                          <span className="text-yellow-700 flex-1">{error.error}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Show more button for collapsed view */}
+                  {!showAllErrors && progress.errors.length > 10 && (
+                    <div className="mt-3 text-center pt-2 border-t border-yellow-200">
+                      <button
+                        onClick={() => setShowAllErrors(true)}
+                        className="text-xs text-yellow-600 hover:text-yellow-800 font-medium flex items-center justify-center gap-1 w-full"
+                      >
+                        <Icon icon="heroicons:chevron-down" className="w-3 h-3" />
+                        Show {progress.errors.length - 10} more errors
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-red-200 overflow-hidden max-h-52 overflow-y-auto">
+                  {progress.errors.map((e, i) => (
+                    <div key={i} className="flex gap-3 px-4 py-2.5 border-b border-red-100 last:border-0 bg-red-50/40 text-sm">
+                      <span className="text-slate-600 font-medium min-w-[140px] truncate">{e.row}</span>
+                      <span className="text-red-600">{e.error}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+            </div>
+          </div>
 
         </div>
 
-        {/* Footer */}
-        <div className="px-3 py-2 mb-2 border-t border-slate-100 flex items-center justify-end bg-slate-50">
+        <div className="py-2 mb-2 flex items-center justify-end">
           <button
             onClick={handleClose}
             className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 font-medium bg-slate-200 hover:bg-slate-300 transition-colors rounded-sm"
@@ -847,8 +1277,7 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
           </button>
 
           <div className="flex gap-3 pl-4">
-            {/* Import button on upload step once file is ready */}
-            {step === "upload" && file && preview.length > 0 && (
+            {progress.errors.length === 0 && file && preview.length > 0 && (
               <button
                 onClick={handleImport}
                 disabled={importing}
@@ -858,8 +1287,7 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
               </button>
             )}
 
-            {/* Try Again if all failed */}
-            {step === "result" && !importing && progress.errors.length > 0 && successCount === 0 && (
+            {/* {step === "result" && !importing && progress.errors.length > 0 && successCount === 0 && (
               <button
                 onClick={resetModal}
                 className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
@@ -867,7 +1295,7 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
                 <Icon icon="heroicons:arrow-path" />
                 Try Again
               </button>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -875,6 +1303,7 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete }) => {
     </div>
   );
 };
+
 const UserPage = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState([]);
@@ -892,6 +1321,7 @@ const UserPage = () => {
   const [selectedRows, setSelectedRows] = useState({});
   const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [buildings, setBuildings] = useState([]);
   const selectedRowsRef = useRef(selectedRows);
 
   // Fetch data from server
@@ -931,6 +1361,24 @@ const UserPage = () => {
       setLoading(false);
     }
   };
+
+  const fetchBuildings = async () => {
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/building/Get-All-Buildings?limit=1000`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        }
+      );
+      setBuildings(res.data?.data?.buildings || []);
+    } catch {
+      console.error("Failed to load buildings");
+    }
+  };
+
+  useEffect(() => {
+    fetchBuildings();
+  }, []);
 
   useEffect(() => {
     fetchData(pageIndex, pageSize);
@@ -1268,6 +1716,7 @@ const UserPage = () => {
 
       {/* Bulk Import Modal */}
       <BulkImportModal
+        buildings={buildings}
         isOpen={showImportModal}
         onClose={() => setShowImportModal(false)}
         onImportComplete={() => {
@@ -1546,6 +1995,4 @@ const UserPage = () => {
   );
 };
 
-
 export default UserPage;
-
