@@ -27,6 +27,22 @@ const ErrorMessage = ({ message }) => {
     );
 };
 
+const getCurrentTimePlusMinutes = (minutes = 50) => {
+    const now = new Date();
+    // Add minutes to local time
+    now.setMinutes(now.getMinutes() + minutes);
+    
+    // Get local hours and minutes (not UTC)
+    const hours = now.getHours().toString().padStart(2, '0');
+    const mins = now.getMinutes().toString().padStart(2, '0');
+    
+    return `${hours}:${mins}`;
+};
+
+// Example: If current Pakistan time is 4:16 PM (16:16)
+// getCurrentTimePlusMinutes(10) will return "16:26"
+console.log("Current time plus 10 minutes:", getCurrentTimePlusMinutes());
+
 const EmailSent = () => {
     const [formData, setFormData] = useState({
         userName: "",
@@ -252,34 +268,62 @@ const EmailSent = () => {
                 }
             }, 0);
         }
+        // else if (field === 'startDateTime') {
+        //     setFormData(prev => ({
+        //         ...prev,
+        //         [field]: value
+        //     }));
+
+        //     // Validate start date/time is not in the past
+        //     if (value) {
+        //         const now = new Date();
+        //         const startDate = new Date(value);
+        //         now.setMilliseconds(0);
+        //         startDate.setMilliseconds(0);
+
+        //         if (startDate < now) {
+        //             setErrors(prev => ({
+        //                 ...prev,
+        //                 startDateTime: "Start date and time cannot be in the past"
+        //             }));
+        //         } else {
+        //             // Clear error if date becomes valid
+        //             setErrors(prev => {
+        //                 const newErrors = { ...prev };
+        //                 delete newErrors.startDateTime;
+        //                 return newErrors;
+        //             });
+        //         }
+        //     }
+        // }
         else if (field === 'startDateTime') {
-    setFormData(prev => ({
-        ...prev,
-        [field]: value
-    }));
-    
-    // Validate start date/time is not in the past
-    if (value) {
-        const now = new Date();
-        const startDate = new Date(value);
-        now.setMilliseconds(0);
-        startDate.setMilliseconds(0);
-        
-        if (startDate < now) {
-            setErrors(prev => ({
+            setFormData(prev => ({
                 ...prev,
-                startDateTime: "Start date and time cannot be in the past"
+                [field]: value
             }));
-        } else {
-            // Clear error if date becomes valid
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors.startDateTime;
-                return newErrors;
-            });
+
+            // Validate start date/time is not in the past
+            if (value) {
+                const now = new Date();
+                const startDate = new Date(value);
+                now.setMilliseconds(0);
+                startDate.setMilliseconds(0);
+
+                if (startDate < now) {
+                    setErrors(prev => ({
+                        ...prev,
+                        startDateTime: "Start date and time cannot be in the past"
+                    }));
+                } else {
+                    // Clear error if date becomes valid
+                    setErrors(prev => {
+                        const newErrors = { ...prev };
+                        delete newErrors.startDateTime;
+                        return newErrors;
+                    });
+                }
+            }
         }
-    }
-}
 
 
         else {
@@ -403,17 +447,36 @@ const EmailSent = () => {
         }
 
         // Validate start date/time is not in the past
-        if (formData.startDateTime) {
+        // if (formData.startDateTime) {
+        //     const now = new Date();
+        //     const startDate = new Date(formData.startDateTime);
+
+        //     // Set both dates to have same precision (milliseconds)
+        //     now.setMilliseconds(0);
+        //     startDate.setMilliseconds(0);
+
+        //     if (startDate < now) {
+        //         newErrors.startDateTime = "Start date and time cannot be in the past. Please select a future date/time.";
+        //     }
+        // }
+        // Validate startDateTime is not empty and not in past
+        if (!formData.startDate || !formData.startTime) {
+            newErrors.startDateTime = "Please select both start date and time";
+        } else if (formData.startDateTime) {
             const now = new Date();
             const startDate = new Date(formData.startDateTime);
-
-            // Set both dates to have same precision (milliseconds)
             now.setMilliseconds(0);
             startDate.setMilliseconds(0);
 
             if (startDate < now) {
                 newErrors.startDateTime = "Start date and time cannot be in the past. Please select a future date/time.";
             }
+        }
+        // Validate endDateTime
+        if (!formData.endDate || !formData.endTime) {
+            newErrors.endDateTime = "Please select both end date and time";
+        } else if (formData.startDateTime && formData.endDateTime && new Date(formData.endDateTime) <= new Date(formData.startDateTime)) {
+            newErrors.endDateTime = "End date must be after start date";
         }
 
         // Form Link
@@ -865,16 +928,50 @@ const EmailSent = () => {
                                     <InputGroup
                                         type="date"
                                         value={formData.startDate || ""}
+                                        // onChange={(e) => {
+                                        //     const date = e.target.value;
+                                        //     const time = formData.startTime || "00:00";
+
+                                        //     handleInputChange("startDate", date);
+
+                                        //     //  Update startDateTime when date changes
+                                        //     if (date && time) {
+                                        //         const local = new Date(`${date}T${time}:00`);
+                                        //         handleInputChange("startDateTime", local.toISOString());
+                                        //     }
+
+                                        //     if (errors.startDate) {
+                                        //         setErrors(prev => ({ ...prev, startDate: undefined }));
+                                        //     }
+                                        // }}
                                         onChange={(e) => {
                                             const date = e.target.value;
-                                            const time = formData.startTime || "00:00";
+                                            const time = formData.startTime || getCurrentTimePlusMinutes(10); // Default to current time if not set
 
                                             handleInputChange("startDate", date);
 
-                                            //  Update startDateTime when date changes
+                                            // Update startDateTime when date changes
                                             if (date && time) {
                                                 const local = new Date(`${date}T${time}:00`);
                                                 handleInputChange("startDateTime", local.toISOString());
+
+                                                // Validate after combining
+                                                const now = new Date();
+                                                now.setMilliseconds(0);
+                                                local.setMilliseconds(0);
+
+                                                if (local < now) {
+                                                    setErrors(prev => ({
+                                                        ...prev,
+                                                        startDateTime: "Start date and time cannot be in the past"
+                                                    }));
+                                                } else {
+                                                    setErrors(prev => {
+                                                        const newErrors = { ...prev };
+                                                        delete newErrors.startDateTime;
+                                                        return newErrors;
+                                                    });
+                                                }
                                             }
 
                                             if (errors.startDate) {
@@ -890,16 +987,50 @@ const EmailSent = () => {
                                     <InputGroup
                                         type="time"
                                         value={formData.startTime || ""}
+                                        // onChange={(e) => {
+                                        //     const time = e.target.value;
+                                        //     const date = formData.startDate;
+
+                                        //     handleInputChange("startTime", time);
+
+                                        //     //  Update startDateTime when time changes
+                                        //     if (date && time) {
+                                        //         const local = new Date(`${date}T${time}:00`);
+                                        //         handleInputChange("startDateTime", local.toISOString());
+                                        //     }
+
+                                        //     if (errors.startDateTime) {
+                                        //         setErrors(prev => ({ ...prev, startDateTime: undefined }));
+                                        //     }
+                                        // }}
                                         onChange={(e) => {
                                             const time = e.target.value;
                                             const date = formData.startDate;
 
                                             handleInputChange("startTime", time);
 
-                                            //  Update startDateTime when time changes
+                                            // Update startDateTime when time changes
                                             if (date && time) {
                                                 const local = new Date(`${date}T${time}:00`);
                                                 handleInputChange("startDateTime", local.toISOString());
+
+                                                // Validate after combining
+                                                const now = new Date();
+                                                now.setMilliseconds(0);
+                                                local.setMilliseconds(0);
+
+                                                if (local < now) {
+                                                    setErrors(prev => ({
+                                                        ...prev,
+                                                        startDateTime: "Start date and time cannot be in the past"
+                                                    }));
+                                                } else {
+                                                    setErrors(prev => {
+                                                        const newErrors = { ...prev };
+                                                        delete newErrors.startDateTime;
+                                                        return newErrors;
+                                                    });
+                                                }
                                             }
 
                                             if (errors.startDateTime) {
