@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -897,6 +897,8 @@ const EmployeeCommutingForm = () => {
     const [pendingTransportType, setPendingTransportType] = useState(null);
     const [previouslyCoveredMonths, setPreviouslyCoveredMonths] = useState(new Set());
     const [previousRecordsLoading, setPreviousRecordsLoading] = useState(false);
+    const [emailDocData, setEmailDocData] = useState(null);
+    const [emailDocLoading, setEmailDocLoading] = useState(true);
     const [formAccessStatus, setFormAccessStatus] = useState({
         checking: true,
         canAccess: false,
@@ -909,15 +911,22 @@ const EmployeeCommutingForm = () => {
     console.log('URL UserId:', urlUserId);
 
     // Current year for reporting
-    const currentYear = 2026;
-    const yearEnd = 2024;
-    const [reportingYearEnd, setReportingYearEnd] = useState(yearEnd);
-    const [reportingYear, setReportingYear] = useState(currentYear);
-    const [detectedYear, setDetectedYear] = useState(reportingYear);
+    // const currentYear = new Date().getFullYear();
+    // const yearEnd = new Date(currentYear, 11, 31); // December 31st of current year
+    // const [reportingYearEnd, setReportingYearEnd] = useState(yearEnd);
+    // const [reportingYear, setReportingYear] = useState(currentYear);
+    // const [detectedYear, setDetectedYear] = useState(reportingYear);
 
-    // Calendar window for datepickers (allow selection from 2024-01-01 through 2026-12-31)
-    const calendarMinDate = new Date('2023-12-31');
-    const calendarMaxDate = new Date('2050-12-31');
+    const currentYear = new Date().getFullYear();
+    const [reportingYear, setReportingYear] = useState(currentYear);
+    const [reportingYearEnd, setReportingYearEnd] = useState(currentYear);
+    const [detectedYear, setDetectedYear] = useState(currentYear);
+
+    // Calendar window for datepickers - restrict to reporting year only
+    const calendarMinDate = useMemo(() => new Date(reportingYear, 0, 1), [reportingYear]);
+    // const calendarMaxDate = useMemo(() => new Date(reportingYear, 11, 31), [reportingYear]);
+    const calendarMaxDate = useMemo(() => new Date(reportingYear, 11, 31, 23, 59, 59), [reportingYear]);
+
     const [errors, setErrors] = useState({});
 
     // Track all selected date ranges for validation
@@ -1245,6 +1254,58 @@ const EmployeeCommutingForm = () => {
         }
     };
 
+    // Fetch email document by ID
+    const fetchEmailDocument = async (authToken, emailDocId) => {
+        if (!authToken || !emailDocId) return;
+
+        try {
+            setEmailDocLoading(true);
+            const response = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/email/emailGetByid/${emailDocId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (response.data && response.data.data) {
+                const emailData = response.data.data;
+                setEmailDocData(emailData);
+
+                // Set reporting year from email document
+                if (emailData.reportingYear) {
+                    setReportingYear(emailData.reportingYear);
+                    console.log('Reporting year set from email document:', emailData.reportingYear);
+                }
+
+                // Optionally set start and end dates if needed
+                if (emailData.startDateTime) {
+                    setFormData(prev => ({
+                        ...prev,
+                        startDateTime: emailData.startDateTime,
+                        startDate: new Date(emailData.startDateTime).toISOString().split('T')[0],
+                        startTime: new Date(emailData.startDateTime).toTimeString().slice(0, 5)
+                    }));
+                }
+
+                if (emailData.endDateTime) {
+                    setFormData(prev => ({
+                        ...prev,
+                        endDateTime: emailData.endDateTime,
+                        endDate: new Date(emailData.endDateTime).toISOString().split('T')[0],
+                        endTime: new Date(emailData.endDateTime).toTimeString().slice(0, 5)
+                    }));
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch email document:', error);
+            // Don't show error toast - just log it
+        } finally {
+            setEmailDocLoading(false);
+        }
+    };
     useEffect(() => {
         const currentToken = getToken();
         const targetUserId = urlUserId || getUserIdFromToken(currentToken);
@@ -1857,6 +1918,15 @@ const EmployeeCommutingForm = () => {
         const currentToken = getToken();
         if (currentToken) {
             setToken(currentToken);
+
+            // Get emailDocId from URL
+            const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
+
+            // ADD THIS - Fetch email document first to get reporting year
+            if (currentEmailDocId) {
+                fetchEmailDocument(currentToken, currentEmailDocId);
+            }
+
 
             const targetUserId = urlUserId || getUserIdFromToken(currentToken);
 
@@ -3036,7 +3106,18 @@ const EmployeeCommutingForm = () => {
             }
 
             // Ensure selected dates fall within the allowed calendar window
-            if (startDate < calendarMinDate || endDate > calendarMaxDate) {
+            // if (startDate < calendarMinDate || endDate > calendarMaxDate) {
+            //     toast.warning(`Selected date range must be between ${calendarMinDate.toLocaleDateString('en-US')} and ${calendarMaxDate.toLocaleDateString('en-US')}.`);
+            //     return;
+            // }
+            // Ensure selected dates fall within the allowed calendar window
+            // Convert to date strings for comparison to avoid time issues
+            const minDateStr = calendarMinDate.toISOString().split('T')[0];
+            const maxDateStr = calendarMaxDate.toISOString().split('T')[0];
+            const startDateStr = startDate.toISOString().split('T')[0];
+            const endDateStr = endDate.toISOString().split('T')[0];
+
+            if (startDateStr < minDateStr || endDateStr > maxDateStr) {
                 toast.warning(`Selected date range must be between ${calendarMinDate.toLocaleDateString('en-US')} and ${calendarMaxDate.toLocaleDateString('en-US')}.`);
                 return;
             }

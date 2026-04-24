@@ -79,6 +79,10 @@ const ScopeThreeReport = () => {
           }),
         ]);
 
+           const filteredEmployeeCommute = (employeeCommuteRes.data.data || []).filter(
+        record => record.entryStatus !== 'Carpool'
+      );
+
         setData({
           goodsAndServices: goodsAndServicesRes.data.data || [],
           capitalGoods: capitalGoodsRes.data.data || [],
@@ -87,7 +91,8 @@ const ScopeThreeReport = () => {
           Business: businessRes.data.data || [],
           upstreamTransportation: upstreamTransportationRes.data.data || [],
           downstreamTransportation: downstreamTransportationRes.data.data || [],
-          employeeCommute: employeeCommuteRes.data.data || [],
+          // employeeCommute: employeeCommuteRes.data.data || [],
+          employeeCommute: filteredEmployeeCommute, 
         });
       } catch (err) {
         console.error(err);

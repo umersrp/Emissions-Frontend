@@ -449,7 +449,7 @@
 //             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
 //               {loading ? (
 //                 <div className="flex justify-center items-center py-8">
-//                   <img src={Logo} alt="Loading..." className="w-52 h-24" />
+//                   <img src={Logo} alt="Loading..." className="w-52 h-52" />
 //                 </div>
 //               ) : (
 //                 <table
@@ -703,6 +703,7 @@ import GlobalFilter from "@/pages/table/react-tables/GlobalFilter";
 import Logo from "@/assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
 import { Dialog, Transition } from "@headlessui/react";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -824,6 +825,18 @@ const EmailReportListing = () => {
       return "Invalid Date";
     }
   };
+
+  const convertToPakistanTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { timeZone: 'Asia/Karachi' }) + ' ' +
+      date.toLocaleTimeString('en-GB', {
+        timeZone: 'Asia/Karachi',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+  };
+
   // Helper function to get filled status config
   const getFilledStatusConfig = (status) => {
     switch (status) {
@@ -941,12 +954,16 @@ const EmailReportListing = () => {
     }
   };
   const handleUpdate = async () => {
+    const convertToISOFormat = (datetimeLocal) => {
+      const date = new Date(datetimeLocal);
+      return date.toISOString();
+    };
     try {
       await axios.put(
         `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/${selectedId}`,
         {
-          startDateTime: startDate,
-          endDateTime: endDate,
+          startDateTime: convertToISOFormat(startDate),
+          endDateTime: convertToISOFormat(endDate),
         },
         {
           headers: {
@@ -969,61 +986,14 @@ const EmailReportListing = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
 
-  // Handle delete email record
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const userEmail = userData?.email || localStorage.getItem("email");
 
-  // Columns
-  // const COLUMNS = useMemo(
-  //   () => [
-  //     // ... existing columns ...
-  //     {
-  //       Header: "Actions",
-  //       accessor: "_id",
-  //       Cell: ({ cell, row }) => {
-  //         const recipients = row.original.recipients || [];
-  //         const subject = row.original.subject || "Recipients";
-  //         return (
-  //           <div className="flex space-x-3 rtl:space-x-reverse">
-  //             <Tippy content="View Recipients">
-  //               <button
-  //                 className="action-btn"
-  //                 onClick={() => openRecipientsModal(recipients, subject)}
-  //                 disabled={!recipients || recipients.length === 0}
-  //               >
-  //                 <Icon icon="heroicons:user-group" className="text-purple-600" />
-  //               </button>
-  //             </Tippy>
-  //             <Tippy content="Edit">
-  //               <button
-  //                 className="action-btn"
-  //                 onClick={() => {
-  //                   openEditRecipientsModal(recipients, subject)
-  //                   setSelectedId(cell.value);
-  //                   setStartDate(new Date(row.original.startDateTime).toISOString().split('T')[0]);
-  //                   setEndDate(new Date(row.original.endDateTime).toISOString().split('T')[0]);
-  //                 }}
-  //                 disabled={!recipients || recipients.length === 0}
-  //               >
-  //                 <Icon icon="heroicons:pencil" className="text-purple-600" />
-  //               </button>
-  //             </Tippy>
-  //             <Tippy content="Delete">
-  //               <button
-  //                 className="action-btn"
-  //                 onClick={() => {
-  //                   setSelectedId(cell.value);
-  //                   setDeleteModalOpen(true);
-  //                 }}
-  //               >
-  //                 <Icon icon="heroicons:trash" className="text-red-600" />
-  //               </button>
-  //             </Tippy>
-  //           </div>
-  //         );
-  //       },
-  //     },
-  //   ],
-  //   [pageIndex, pageSize, navigate]
-  // );
+
+  const storedEmail = localStorage.getItem("email") ||
+    JSON.parse(localStorage.getItem("user") || "{}")?.email ||
+    "N/A";
+
   const COLUMNS = useMemo(
     () => [
       {
@@ -1120,20 +1090,21 @@ const EmailReportListing = () => {
           );
         },
       },
-      // {
-      //   Header: "Sent By",
-      //   accessor: "submittedByEmail",
-      //   Cell: ({ cell }) => cell.value || "N/A",
-      // },
+      {
+        Header: "Sent By",
+        id: "sentBy",
+        accessor: (row) => row.sentBy?.name || storedEmail, // closure captures it
+        Cell: ({ value }) => <span>{value}</span>,
+      },
       {
         Header: "Created At",
         accessor: "createdAt",
-        Cell: ({ cell }) => formatDate(cell.value),
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Updated At",
         accessor: "updatedAt",
-        Cell: ({ cell }) => formatDate(cell.value),
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Actions",
@@ -1159,8 +1130,18 @@ const EmailReportListing = () => {
                   onClick={() => {
                     openEditRecipientsModal(recipients, subject)
                     setSelectedId(cell.value);
-                    setStartDate(new Date(row.original.startDateTime).toISOString().split('T')[0]);
-                    setEndDate(new Date(row.original.endDateTime).toISOString().split('T')[0]);
+                    const convertToDatetimeLocal = (dateString) => {
+                      const [day, month, year, time, period] = dateString.split(/[/ ]/);
+                      let [hour, minute] = time.split(':');
+                      if (period === 'pm' && hour !== '12') hour = parseInt(hour) + 12;
+                      if (period === 'am' && hour === '12') hour = '00';
+                      hour = hour.toString().padStart(2, '0');
+                      return `${year}-${month}-${day}T${hour}:${minute}`;
+                    };
+                    const startFormatted = convertToDatetimeLocal(convertToPakistanTime(row.original.startDateTime));
+                    const endFormatted = convertToDatetimeLocal(convertToPakistanTime(row.original.endDateTime));
+                    setStartDate(startFormatted);
+                    setEndDate(endFormatted);
                   }}
                   disabled={!recipients || recipients.length === 0}
                 >
@@ -1228,6 +1209,12 @@ const EmailReportListing = () => {
   const handlePrevPage = () => handleGoToPage(pageIndex - 1);
   const handleNextPage = () => handleGoToPage(pageIndex + 1);
 
+  console.log({
+    startDate,
+    endDate
+  });
+
+
   return (
     <>
       <Card noborder>
@@ -1268,7 +1255,7 @@ const EmailReportListing = () => {
             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                  <img src={Logo} alt="Loading..." className="w-52 h-52" />
                 </div>
               ) : (
 
@@ -1712,7 +1699,7 @@ const EmailReportListing = () => {
                             </label>
                             <input
                               disabled={true}
-                              type="date"
+                              type="datetime-local"
                               className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm 
               focus:border-[#3AB89D] focus:outline-none focus:ring-2 focus:ring-[#3AB89D]/20
               hover:border-gray-300 transition-all duration-200
@@ -1726,7 +1713,7 @@ const EmailReportListing = () => {
                               End Date
                             </label>
                             <input
-                              type="date"
+                              type="datetime-local"
                               className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm 
               focus:border-[#3AB89D] focus:outline-none focus:ring-2 focus:ring-[#3AB89D]/20
               hover:border-gray-300 transition-all duration-200
@@ -1814,8 +1801,6 @@ const EmailReportListing = () => {
                           </table>
                         </div>
                       </div>
-
-                      
                     </div>
                   </div>
 

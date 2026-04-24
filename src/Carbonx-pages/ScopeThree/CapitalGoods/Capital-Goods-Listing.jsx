@@ -17,6 +17,7 @@ import Modal from "@/components/ui/Modal";
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import ExcelExportButton from "@/components/ui/ExcelExportButton";
 import usePurchasedGoodsCSVUpload from "@/hooks/scope3/usePurchasedGoodsCSVUpload";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -399,20 +400,12 @@ const CapitalGoodsListing = () => {
       {
         Header: "Posting Date",
         accessor: "postingDate",
-        Cell: ({ cell }) => {
-          if (!cell.value) return "N/A";
-          try {
-            return new Date(cell.value).toLocaleDateString('en-GB');
-          } catch {
-            return "Invalid Date";
-          }
-        }
+         Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Created At",
         accessor: "createdAt",
-        Cell: ({ cell }) =>
-          cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Actions",
@@ -634,7 +627,7 @@ const CapitalGoodsListing = () => {
             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                  <img src={Logo} alt="Loading..." className="w-52 h-52" />
                 </div>
               ) : (
                 <table

@@ -12,7 +12,7 @@ import Modal from "@/components/ui/Modal";
 
 // Group Row Component for Email Subject
 const GroupRow = ({ subject, recordCount, isExpanded, onToggle, groupTotals, displayIndex }) => {
-    const totalColumns = 51; // Total number of columns in the table
+    const totalColumns = 55; // Total number of columns in the table
 
     return (
         <tr className="bg-gray-100 cursor-pointer hover:bg-gray-200" onClick={onToggle}>
@@ -30,150 +30,13 @@ const GroupRow = ({ subject, recordCount, isExpanded, onToggle, groupTotals, dis
                             ({recordCount} record{recordCount !== 1 ? 's' : ''})
                         </span>
                     </div>
-                    {/* <div className="flex space-x-6">
-                        <span className="text-sm">Total Distance: {groupTotals.totalDistance} km</span>
-                        <span className="text-sm">Total Emissions: {groupTotals.totalEmissionsKg} kgCO₂e</span>
-                        <span className="text-sm">Total: {groupTotals.totalEmissionsTonnes} tCO₂e</span>
-                    </div> */}
+
                 </div>
             </td>
         </tr>
     );
 };
 
-// const RecordRow = ({ record, index, onDelete }) => {
-//     const toTitleCase = (str) => {
-//         if (!str) return "N/A";
-//         return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-//     };
-
-//     const formatDateRange = (dateRange) => {
-//         if (!dateRange?.startDate && !dateRange?.endDate) return "N/A";
-//         const start = dateRange?.startDate ? new Date(dateRange.startDate).toLocaleDateString() : "";
-//         const end = dateRange?.endDate ? new Date(dateRange.endDate).toLocaleDateString() : "";
-//         return start && end ? `${start} - ${end}` : start || end || "N/A";
-//     };
-
-//     // Helper function to get year from any available date range
-//     const getReportingYear = (record) => {
-//         // Check each commute mode's date range in priority order
-//         const dateRanges = [
-//             record.motorbikeDateRange,
-//             record.taxiDateRange,
-//             record.busDateRange,
-//             record.trainDateRange,
-//             record.carDateRange,
-//             record.workFromHomeDateRange
-//         ];
-
-//         // Find the first date range that has a startDate
-//         for (const dateRange of dateRanges) {
-//             if (dateRange?.startDate) {
-//                 return new Date(dateRange.startDate).getFullYear();
-//             }
-//         }
-
-//         // Fallback to createdAt if no date range found
-//         return record.createdAt ? new Date(record.createdAt).getFullYear() : "N/A";
-//     };
-
-//     // Helper function to format passenger emails
-//     const formatPassengerEmails = (emails) => {
-//         if (!emails || emails.length === 0) return "N/A";
-//         return emails.join(", ");
-//     };
-
-//     return (
-//         <tr className="even:bg-gray-50 hover:bg-gray-100">
-//             <td className="px-6 py-4 whitespace-nowrap">{index}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.emailDoc?.subject || "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.building?.buildingCode || "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.building?.buildingName || "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{getReportingYear(record)}</td>
-
-//             {/* Motorbike Section */}
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? "Motorbike" : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? toTitleCase(record.motorbikeType) : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? Number(record.motorbikeDistance || 0).toFixed(2) : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike && record.motorbikeMode === "carpool" ? "Yes" : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? formatDateRange(record.motorbikeDateRange) : "N/A"}</td>
-//             {/* New: Motorbike Carpool Partners */}
-//             <td className="px-6 py-4 whitespace-nowrap">
-//                 {record.commuteByMotorbike && (record.motorbikeMode === "carpool" || record.motorbikeMode === "both")
-//                     ? formatPassengerEmails(record.motorbikePassengerEmails)
-//                     : "N/A"}
-//             </td>
-
-//             {/* Taxi Section */}
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? "Taxi" : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? toTitleCase(record.taxiType) : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? Number(record.taxiDistance || 0).toFixed(2) : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi && record.taxiMode === "carpool" ? "Yes" : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? formatDateRange(record.taxiDateRange) : "N/A"}</td>
-//             {/* New: Taxi Carpool Partners */}
-//             <td className="px-6 py-4 whitespace-nowrap">
-//                 {record.commuteByTaxi && (record.taxiMode === "carpool" || record.taxiMode === "both")
-//                     ? formatPassengerEmails(record.taxiPassengerEmails)
-//                     : "N/A"}
-//             </td>
-
-//             {/* Bus Section */}
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByBus ? "Bus" : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByBus ? toTitleCase(record.busType) : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByBus ? Number(record.busDistance || 0).toFixed(2) : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{formatDateRange(record.busDateRange)}</td>
-
-//             {/* Train Section */}
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTrain ? "Train" : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTrain ? toTitleCase(record.trainType) : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTrain ? Number(record.trainDistance || 0).toFixed(2) : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{formatDateRange(record.trainDateRange)}</td>
-
-//             {/* Car Section */}
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? "Car" : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? toTitleCase(record.carType) : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? (record.carFuelType || "N/A") : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? Number(record.carDistance || 0).toFixed(2) : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar && record.carMode === "carpool" ? "Yes" : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? formatDateRange(record.carDateRange) : "N/A"}</td>
-//             {/* New: Car Carpool Partners */}
-//             <td className="px-6 py-4 whitespace-nowrap">
-//                 {record.commuteByCar && (record.carMode === "carpool" || record.carMode === "both")
-//                     ? formatPassengerEmails(record.carPassengerEmails)
-//                     : "N/A"}
-//             </td>
-
-//             {/* Work From Home Section */}
-//             <td className="px-6 py-4 whitespace-nowrap">{record.workFromHome ? "Yes" : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.fteWorkingHours || "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{formatDateRange(record.workFromHomeDateRange)}</td>
-
-//             {/* Quality Control & Remarks */}
-//             <td className="px-6 py-4 whitespace-nowrap">{record.qualityControlRemarks ? "Good" : "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.qualityControlRemarks || "N/A"}</td>
-
-//             {/* Emissions */}
-//             <td className="px-6 py-4 whitespace-nowrap">{record.calculatedEmissionKgCo2e?.toFixed(2) || "0"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.calculatedEmissionTCo2e?.toFixed(6) || "0"}</td>
-
-//             {/* Submitted By & Department */}
-//             <td className="px-6 py-4 whitespace-nowrap">{record.submittedByEmail || "N/A"}</td>
-//             <td className="px-6 py-4 whitespace-nowrap">{record.stakeholderDepartment || "N/A"}</td>
-
-//             {/* Actions */}
-//             <td className="px-6 py-4 whitespace-nowrap">
-//                 <div className="flex space-x-3 rtl:space-x-reverse">
-//                     <Tippy content="Delete">
-//                         <button className="action-btn" onClick={() => onDelete(record._id)}>
-//                             <Icon icon="heroicons:trash" className="text-red-600" />
-//                         </button>
-//                     </Tippy>
-//                 </div>
-//             </td>
-//         </tr>
-//     );
-// };
-// Record Row Component
 const RecordRow = ({ record, index, selected, onSelect, onDelete }) => {
     const toTitleCase = (str) => {
         if (!str) return "N/A";
@@ -182,8 +45,18 @@ const RecordRow = ({ record, index, selected, onSelect, onDelete }) => {
 
     const formatDateRange = (dateRange) => {
         if (!dateRange?.startDate && !dateRange?.endDate) return "N/A";
-        const start = dateRange?.startDate ? new Date(dateRange.startDate).toLocaleDateString() : "";
-        const end = dateRange?.endDate ? new Date(dateRange.endDate).toLocaleDateString() : "";
+
+        const formatDateDMY = (dateValue) => {
+            if (!dateValue) return "";
+            const date = new Date(dateValue);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        };
+
+        const start = dateRange?.startDate ? formatDateDMY(dateRange.startDate) : "";
+        const end = dateRange?.endDate ? formatDateDMY(dateRange.endDate) : "";
         return start && end ? `${start} - ${end}` : start || end || "N/A";
     };
 
@@ -273,6 +146,9 @@ const RecordRow = ({ record, index, selected, onSelect, onDelete }) => {
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? getBothIndicator(record.motorbikeMode) : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? getIndividualDistance(record, record.motorbikeMode) : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? getCarpoolDistance(record, record.motorbikeMode, "motorbike") : "N/A"}</td>
+            <td className="px-6 py-4 whitespace-nowrap">{record.commuteByMotorbike ? formatDateRange(record.motorbikeCarpoolDateRange) : "N/A"}</td>
+
+
 
             {/* Taxi Section */}
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? "Taxi" : "N/A"}</td>
@@ -290,7 +166,7 @@ const RecordRow = ({ record, index, selected, onSelect, onDelete }) => {
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? getBothIndicator(record.taxiMode) : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? getIndividualDistance(record, record.taxiMode) : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? getCarpoolDistance(record, record.taxiMode, "taxi") : "N/A"}</td>
-
+            <td className="px-6 py-4 whitespace-nowrap">{record.commuteByTaxi ? formatDateRange(record.taxiCarpoolDateRange) : "N/A"}</td>
             {/* Bus Section */}
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByBus ? "Bus" : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByBus ? toTitleCase(record.busType) : "N/A"}</td>
@@ -320,6 +196,8 @@ const RecordRow = ({ record, index, selected, onSelect, onDelete }) => {
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? getBothIndicator(record.carMode) : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? getIndividualDistance(record, record.carMode) : "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? getCarpoolDistance(record, record.carMode, "car") : "N/A"}</td>
+            <td className="px-6 py-4 whitespace-nowrap">{record.commuteByCar ? formatDateRange(record.carCarpoolDateRange) : "N/A"}</td>
+
 
             {/* Work From Home Section */}
             <td className="px-6 py-4 whitespace-nowrap">{record.workFromHome ? "Yes" : "N/A"}</td>
@@ -327,7 +205,7 @@ const RecordRow = ({ record, index, selected, onSelect, onDelete }) => {
             <td className="px-6 py-4 whitespace-nowrap">{formatDateRange(record.workFromHomeDateRange)}</td>
 
             {/* Quality Control & Remarks */}
-            <td className="px-6 py-4 whitespace-nowrap">{record.qualityControlRemarks ? "Good" : "N/A"}</td>
+            <td className="px-6 py-4 whitespace-nowrap">{record.qualityControl || "N/A"}</td>
             <td className="px-6 py-4 whitespace-nowrap">{record.qualityControlRemarks || "N/A"}</td>
 
             {/* Emissions */}
@@ -582,6 +460,8 @@ const CommutingTable = () => {
         return recordCount + 1;
     };
 
+    console.log(currentRows);
+
     return (
         <>
             <Card noborder>
@@ -590,23 +470,24 @@ const CommutingTable = () => {
                         <h6 className="mb-2">Employee Commuting</h6>
                     </div>
                     <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
+                        {selectedRecordIds.length > 0 && (
+                            <Button
+                                text={selectedRecordIds.length > 0 ? `Delete Selected (${selectedRecordIds.length})` : "Delete Selected"}
+                                className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
+                                onClick={() => {
+                                    if (selectedRecordIds.length > 0) {
+                                        setDeleteTargetIds(selectedRecordIds);
+                                        setDeleteModalOpen(true);
+                                    }
+                                }}
+                            />
+                        )}
                         <Button
                             icon="heroicons-outline:plus-sm"
                             text="Send Email"
                             className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90 h-9"
                             iconClass="text-lg"
                             onClick={() => navigate("/EmailSent")}
-                        />
-                        <Button
-                            text={selectedRecordIds.length > 0 ? `Delete Selected (${selectedRecordIds.length})` : "Delete Selected"}
-                            className="btn font-normal btn-sm btn-danger text-white border-0 hover:opacity-90 h-9"
-                            disabled={selectedRecordIds.length === 0}
-                            onClick={() => {
-                                if (selectedRecordIds.length > 0) {
-                                    setDeleteTargetIds(selectedRecordIds);
-                                    setDeleteModalOpen(true);
-                                }
-                            }}
                         />
                     </div>
                 </div>
@@ -616,7 +497,7 @@ const CommutingTable = () => {
                         <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
                             {loading ? (
                                 <div className="flex justify-center items-center py-8">
-                                    <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                                    <img src={Logo} alt="Loading..." className="w-52 h-52" />
                                 </div>
                             ) : currentRows.length === 0 ? (
                                 <div className="flex justify-center items-center py-16">
@@ -629,62 +510,7 @@ const CommutingTable = () => {
                                 </div>
                             ) : (
                                 <table className="min-w-full divide-y divide-slate-100">
-                                    {/* <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
-                                        <tr>
-                                            <th className="table-th text-white whitespace-nowrap">Sr.No</th>
-                                            <th className="table-th text-white whitespace-nowrap">Email Subject</th>
-                                            <th className="table-th text-white whitespace-nowrap">Building Code</th>
-                                            <th className="table-th text-white whitespace-nowrap">Building</th>
-                                            <th className="table-th text-white whitespace-nowrap">Reporting Year</th>
 
-                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-                                            <th className="table-th text-white whitespace-nowrap">Motor Bike Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Car Pool</th>
-                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
-                                            <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
-
-                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-                                            <th className="table-th text-white whitespace-nowrap">Taxi Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Car Pool</th>
-                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
-                                            <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
-
-                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-                                            <th className="table-th text-white whitespace-nowrap">Bus Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
-
-                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-                                            <th className="table-th text-white whitespace-nowrap">Train Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
-
-                                            <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
-                                            <th className="table-th text-white whitespace-nowrap">Car Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Car Fuel Type</th>
-                                            <th className="table-th text-white whitespace-nowrap">Distance Travelled (km)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Car Pool</th>
-                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
-                                            <th className="table-th text-white whitespace-nowrap">Carpool Partners</th>
-
-                                            <th className="table-th text-white whitespace-nowrap">Work from Home</th>
-                                            <th className="table-th text-white whitespace-nowrap">FTE Working Hours</th>
-                                            <th className="table-th text-white whitespace-nowrap">Date Range</th>
-
-                                            <th className="table-th text-white whitespace-nowrap">Quality Control</th>
-                                            <th className="table-th text-white whitespace-nowrap">Remarks</th>
-
-                                            <th className="table-th text-white whitespace-nowrap">Calculate Emission (kgCO₂e)</th>
-                                            <th className="table-th text-white whitespace-nowrap">Calculate Emissions (tCO₂e)</th>
-
-                                            <th className="table-th text-white whitespace-nowrap">Submitted By</th>
-                                            <th className="table-th text-white whitespace-nowrap">Department</th>
-
-                                            <th className="table-th text-white whitespace-nowrap">Actions</th>
-                                        </tr>
-                                    </thead> */}
                                     <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
                                         <tr>
                                             <th className="table-th text-white whitespace-nowrap">
@@ -722,6 +548,7 @@ const CommutingTable = () => {
                                             <th className="table-th text-white whitespace-nowrap">Both (Individual + Carpool)</th>
                                             <th className="table-th text-white whitespace-nowrap">Individual Distance (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Carpool Distance (km)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Carpool Date Range</th>
 
                                             {/* Taxi Section */}
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
@@ -734,6 +561,7 @@ const CommutingTable = () => {
                                             <th className="table-th text-white whitespace-nowrap">Both (Individual + Carpool)</th>
                                             <th className="table-th text-white whitespace-nowrap">Individual Distance (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Carpool Distance (km)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Carpool Date Range</th>
 
                                             {/* Bus Section */}
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
@@ -759,6 +587,7 @@ const CommutingTable = () => {
                                             <th className="table-th text-white whitespace-nowrap">Both (Individual + Carpool)</th>
                                             <th className="table-th text-white whitespace-nowrap">Individual Distance (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Carpool Distance (km)</th>
+                                            <th className="table-th text-white whitespace-nowrap">Carpool Date Range</th>
 
                                             {/* Work From Home Section */}
                                             <th className="table-th text-white whitespace-nowrap">Work from Home</th>
