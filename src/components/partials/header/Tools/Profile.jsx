@@ -13,26 +13,37 @@ const profileLabel = () => {
   const userType = user?.type || "User";
 
   return (
-    <div className="flex items-center">
-      <div className="flex-1 ltr:mr-[10px] rtl:ml-[10px]">
-        <div className="lg:h-8 lg:w-8 h-7 w-7 rounded-full">
+    <div className="flex items-center gap-3 p-1 rounded-full bg-white shadow-sm border border-slate-200 dark:bg-slate-800 dark:border-slate-700 hover:shadow-md transition-all duration-200">
+      {/* Avatar Section */}
+      <div className="flex-shrink-0">
+        <div className="lg:h-9 lg:w-9 h-8 w-8 rounded-full ring-2 ring-primary-100 dark:ring-primary-900/30 ring-offset-2 ring-offset-white dark:ring-offset-slate-800">
           <img
             src={UserAvatar}
-            alt=""
+            alt="User avatar"
             className="block w-full h-full object-cover rounded-full"
           />
         </div>
       </div>
-      <div className="flex-none bg-primary-50 p-1 rounded-full text-slate-600 dark:text-white text-sm font-normal items-center lg:flex hidden overflow-hidden text-ellipsis whitespace-nowrap">
-        <span className="inline-block px-3 min-w-[90px] text-center mx-auto py-1 rounded-[999px] bg-primary-700 text-white bg-opacity-25">
-          <span className="overflow-hidden text-ellipsis whitespace-nowrap w-[85px] inline-block align-middle">
-            {userType}
-          </span>
-        </span>
 
-        <span className="text-base inline-block ltr:ml-[10px] rtl:mr-[10px] pr-1">
-          <Icon icon="heroicons-outline:chevron-down" color="white"></Icon>
-        </span>
+      {/* User Type & Dropdown Section */}
+      <div className="flex items-center gap-2 pr-2">
+        <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-full shadow-sm hover:shadow-md transition-all duration-200">
+          <span className="inline-flex items-center px-4 py-1.5 rounded-full text-white text-sm font-semibold tracking-wide">
+            <span className="max-w-[120px] truncate">
+              {userType}
+            </span>
+          </span>
+        </div>
+
+        <button
+          className="flex items-center justify-center w-6 h-6 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 transition-all duration-200 cursor-pointer"
+          aria-label="Toggle dropdown"
+        >
+          <Icon
+            icon="heroicons-outline:chevron-down"
+            className="w-4 h-4 transition-transform duration-200 group-hover:rotate-180"
+          />
+        </button>
       </div>
     </div>
   );
@@ -178,8 +189,8 @@ const Profile = () => {
             <div
               onClick={() => item.action()}
               className={`${active
-                  ? "bg-slate-100 text-slate-900 dark:bg-slate-600 dark:text-slate-300 dark:bg-opacity-50"
-                  : "text-slate-600 dark:text-slate-300"
+                ? "bg-slate-100 text-slate-900 dark:bg-slate-600 dark:text-slate-300 dark:bg-opacity-50"
+                : "text-slate-600 dark:text-slate-300"
                 } block     ${item.hasDivider
                   ? "border-t border-slate-100 dark:border-slate-700"
                   : ""

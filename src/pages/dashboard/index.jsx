@@ -410,17 +410,23 @@ const Dashboard = () => {
     : [];
 
   // Format numbers helper
-  const formatNumber = (num) => {
-    if (num === null || num === undefined) return "0";
+  // const formatNumber = (num) => {
+  //   if (num === null || num === undefined) return "0";
 
-    return num.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  };
+  //   return num.toLocaleString(undefined, {
+  //     minimumFractionDigits: 2,
+  //     maximumFractionDigits: 2,
+  //   });
+  // };
+  const formatNumber = (num) => {
+  if (num === null || num === undefined) return "0";
+  // Truncate decimals (no rounding)
+  const truncated = Math.trunc(Number(num));
+  return truncated.toLocaleString();
+};
 
   return (
-    <div className="flex bg-gray-100">
+    <div className="flex">
       {loading && (
         <div className="fixed inset-0 bg-white/10 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="text-center">
@@ -436,151 +442,320 @@ const Dashboard = () => {
 
       {/* Sidebar: Building filter */}
       {/* Main content */}
-      <main className={`flex-1 p-6 overflow-auto scrollbar-hide  ${loading ? 'opacity-100' : ''}`}>
-        <div className="flex flex-wrap gap-4 mb-6 items-end bg-white p-4 rounded-xl shadow-lg">
-          {/* Building filter */}
-          <div>
-            <label className="block font-semibold text-gray-700 mb-1">Building</label>
-            <Select
-              value={selectedBuilding ? {
-                value: selectedBuilding,
-                label: buildingMap[selectedBuilding]
-              } : null}
-              onChange={(option) => {
-                const buildingId = option ? option.value : null;
-                setSelectedBuilding(buildingId); // Only update temporary selection
-              }}
-              options={buildings.map((b) => ({
-                value: b._id,
-                label: b.buildingName || b.name,
-              }))}
-              isClearable
-              placeholder="Select a Building"
-              className="w-48"
-            />
+      <main className={`flex-1 overflow-auto scrollbar-hide  ${loading ? 'opacity-100' : ''}`}>
+        <div className="bg-white rounded-2xl shadow-lg mb-8">
+          {/* Header */}
+          <div className="px-6 py-4 border-b rounded-t-2xl bg-gradient-to-r from-gray-50 to-white">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-md bg-blue-100 flex items-center justify-center">
+                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Filters</h3>
+                <p className="text-sm text-gray-500">Refine your data view</p>
+              </div>
+            </div>
           </div>
 
-          {/* Department filter */}
-          <div>
-            <label className="block font-semibold text-gray-700 mb-1">
-              Departments
-            </label>
-            <Select
-              options={stakeholderOptions}
-              placeholder="Select Department"
-              className="w-48 text-sm"
-              isClearable
-              value={
-                stakeholderOptions.find(
-                  opt => opt.value === selectedDepartments
-                ) || null
-              }
-              onChange={(option) => {
-                setSelectedDepartments(option ? option.value : null);
-              }}
-            />
-          </div>
+          {/* Filter Controls */}
+          <div className="p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Building filter */}
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                  Building
+                </label>
+                <Select
+                  value={selectedBuilding ? {
+                    value: selectedBuilding,
+                    label: buildingMap[selectedBuilding]
+                  } : null}
+                  onChange={(option) => {
+                    const buildingId = option ? option.value : null;
+                    setSelectedBuilding(buildingId);
+                  }}
+                  options={buildings.map((b) => ({
+                    value: b._id,
+                    label: b.buildingName || b.name,
+                  }))}
+                  isClearable
+                  placeholder="Select a Building"
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  styles={{
+                    control: (base) => ({
+                      ...base,
+                      borderRadius: '0.75rem',
+                      borderColor: '#e5e7eb',
+                      boxShadow: 'none',
+                      '&:hover': {
+                        borderColor: '#3b82f6',
+                      },
+                    }),
+                  }}
+                />
+              </div>
 
-          {/* Date range filter */}
-          <div>
-            <label className="block font-semibold text-gray-700 mb-1">From Date</label>
-            <input
-              type="date"
-              className="w-full border-2 border-gray-300 rounded-lg px-4 text-sm 
-              focus:border-black focus:outline-none focus:ring-0
-              hover:border-black transition-colors duration-200
-              disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
-              h-[40px]"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-            />
-          </div>
+              {/* Department filter */}
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Department
+                </label>
+                <Select
+                  options={stakeholderOptions}
+                  placeholder="Select Department"
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                  isClearable
+                  value={
+                    stakeholderOptions.find(
+                      opt => opt.value === selectedDepartments
+                    ) || null
+                  }
+                  onChange={(option) => {
+                    setSelectedDepartments(option ? option.value : null);
+                  }}
+                  styles={{
+                    control: (base) => ({
+                      ...base,
+                      borderRadius: '0.75rem',
+                      borderColor: '#e5e7eb',
+                      boxShadow: 'none',
+                      '&:hover': {
+                        borderColor: '#3b82f6',
+                      },
+                    }),
+                  }}
+                />
+              </div>
 
-          <div>
-            <label className="block font-semibold text-gray-700 mb-1">To Date</label>
-            <input
-              type="date"
-              className="w-full border-2 border-gray-300 rounded-lg px-4  text-sm 
-              focus:border-black focus:outline-none focus:ring-0
-              hover:border-black transition-colors duration-200
-              disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
-              h-[40px]"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-            />
-          </div>
-          {/* Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={applyFilters}
-              className="btn-dark py-2 px-4 rounded-lg font-semibold"
-            >
-              Apply Filters
-            </button>
-            <button
-              onClick={clearFilters}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg font-semibold"
-            >
-              Clear Filters
-            </button>
+              {/* From Date filter */}
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  From Date
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm 
+            focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
+            hover:border-blue-400 transition-all duration-200
+            disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+            bg-white"
+                    value={fromDate}
+                    onChange={(e) => setFromDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* To Date filter */}
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  To Date
+                </label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    className="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 text-sm 
+            focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
+            hover:border-blue-400 transition-all duration-200
+            disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
+            bg-white"
+                    value={toDate}
+                    onChange={(e) => setToDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+            </div>
+
+            {/* Active Filters Display */}
+            {(selectedBuilding || selectedDepartments || fromDate || toDate) && (
+              <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-medium text-gray-500">Active filters:</span>
+                  {selectedBuilding && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                      Building: {buildingMap[selectedBuilding]}
+                    </span>
+                  )}
+                  {selectedDepartments && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      Department: {stakeholderOptions.find(opt => opt.value === selectedDepartments)?.label}
+                    </span>
+                  )}
+                  {fromDate && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-lg text-xs">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      From: {new Date(fromDate).toLocaleDateString()}
+                    </span>
+                  )}
+                  {toDate && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-lg text-xs">
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      To: {new Date(toDate).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+                {/* Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={applyFilters}
+                    className="w-auto btn-dark py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    Apply Filters
+                  </button>
+                  <button
+                    onClick={clearFilters}
+                    className="w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Clear
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
+
         {/* Summary cards */}
-        <div className="grid grid-cols-5 gap-4 mb-6 ">
-          {/* Total GHG Emissions */}
-          <div className="col-span-2 bg-white rounded-xl shadow-lg md:h-[200px]  h-[180px]   p-3">
-            <h3 className="text-xl lg:text-2xl font-semibold mt-2">Total GHG Emissions</h3>
-            <p className="text-[12px]  xl:text-[16px] text-red-500 font-bold flex flex-col mt-2">
-              {formatNumber(totalEmission)}
-              <span>tCO₂e</span>
-            </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Total GHG Emissions - Featured Card */}
+          <div className="lg:col-span-1 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-lg border border-slate-700 p-6 transition-all hover:shadow-xl hover:scale-[1.02]">
+            <div>
+              <div className="flex justify-between items-center gap-2">
+                <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider">Total GHG Emissions</h3>
+                <div className="p-2 bg-emerald-500/10 rounded-lg">
+                  <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+              </div>
+              <p className="text-3xl font-bold text-white mt-3">
+                {formatNumber(totalEmission)}
+                <span className="text-sm font-normal text-slate-400 ml-1">tCO₂e</span>
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-700">
+              <p className="text-xs text-slate-400">All scopes combined</p>
+            </div>
           </div>
 
           {/* Scope 1 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[175px] h-[155px]  mt-2.5 p-3">
-            <h3 className="text-[10px] xl:text-[14px] font-semibold -mt-2">Scope 1 Emissions</h3>
-            <p className="text-[12px]  xl:text-[16px] text-purple-500 font-bold break-words -mt-2">
-              {formatNumber(scope1Emission)}
-              <span className="block">tCO₂e</span>
-            </p>
-            <p className="text-[12px] text-gray-600">Direct Emissions</p>
+          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 transition-all hover:shadow-lg hover:border-purple-200">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 7-3 1-3-1-1-7z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-sm font-semibold text-gray-700">Scope 1 Emissions</h3>
+                </div>
+                <p className="text-2xl font-bold text-purple-600">
+                  {formatNumber(scope1Emission)}
+                  <span className="text-sm font-normal text-gray-500 ml-1">tCO₂e</span>
+                </p>
+                <p className="text-xs text-gray-500 mt-2">Direct Emissions</p>
+              </div>
+            </div>
+            
           </div>
 
           {/* Scope 2 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[175px] h-[155px] mt-2.5 p-3">
-            <h3 className="text-[10px] xl:text-[14px] font-semibold -mt-2">Scope 2 Emissions</h3>
-
-            {/* Breakdown (smaller, subtle) */}
-            <div className="space-y-1 -mt-2">
-              <p className="text-[12px] text-black-500 flex flex-col">
-                Location Based
-                <span className="text-[12px]  xl:text-[16px] font-bold text-orange-500">
-                  {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)} tCO₂e
-                </span>
-              </p>
-              <p className="text-[12px] text-black-500 flex flex-col">
-                Market Based
-                <span className="text-[12px]  xl:text-[16px]  font-bold text-orange-500">
-                  {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)} tCO₂e
-                </span>
-              </p>
+          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 transition-all hover:shadow-lg hover:border-orange-200">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-sm font-semibold text-gray-700">Scope 2 Emissions</h3>
+              </div>
             </div>
-            <p className="text-[12px] text-gray-600">
-              Indirect Emissions
-            </p>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="text-xs font-medium text-gray-600">Location Based</p>
+                </div>
+                <p className="text-lg font-bold text-orange-600">
+                  {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)}
+                  <span className="text-xs font-normal text-gray-500"> tCO₂e</span>
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="text-xs font-medium text-gray-600">Market Based</p>
+                </div>
+                <p className="text-lg font-bold text-orange-600">
+                  {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)}
+                  <span className="text-xs font-normal text-gray-500"> tCO₂e</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-3 pt-2">
+              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-orange-50 text-orange-700">
+                Indirect Emissions
+              </span>
+            </div>
           </div>
 
           {/* Scope 3 Emissions */}
-          <div className="flex-1 bg-white rounded-xl shadow-lg md:h-[175px] h-[155px]  mt-2.5 p-3">
-            <h3 className="text-[10px] xl:text-[14px] font-semibold -mt-2">Scope 3 Emissions</h3>
-            <p className="text-[12px]  xl:text-[16px] text-purple-500 font-bold break-words -mt-2">
-              {formatNumber(scope3Emission)}
-              <span className="block">tCO₂e</span>
-            </p>
-            <p className="text-[12px] text-gray-600">Other Indirect Emissions</p>
+          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 transition-all hover:shadow-lg hover:border-teal-200">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-sm font-semibold text-gray-700">Scope 3 Emissions</h3>
+                </div>
+                <p className="text-2xl font-bold text-teal-600">
+                  {formatNumber(scope3Emission)}
+                  <span className="text-sm font-normal text-gray-500 ml-1">tCO₂e</span>
+                </p>
+                <p className="text-xs text-gray-500 mt-2">Other Indirect Emissions</p>
+              </div>
+            </div>
+            
           </div>
         </div>
-
 
         {/* Charts */}
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 mb-5">
@@ -640,18 +815,21 @@ const Dashboard = () => {
             <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>
+
         {/* scope 2 */}
         <div className="mb-5">
           <Card className="flex-1  min-w-[320px]" title="Scope 2 Emissions by Category">
             <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>
+
         {/* scope 3 */}
         <div>
           <Card className="flex-1  min-w-[320px]" title="Scope 3 Emissions by Category">
             <Scope3EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>
+
       </main>
     </div>
   );

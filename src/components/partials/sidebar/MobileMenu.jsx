@@ -45,9 +45,9 @@ const MobileMenu = ({ className = "custom-class" }) => {
      
             <div>
               {!isDark && !isSemiDark ? (
-                <img src={SrpLogo} alt="SRP Logo" className="w-[140px]" />
+                <img src={SrpLogo} alt="SRP Logo" className="w-[50px]" />
               ) : (
-                <img src={MobileLogoWhite} alt="SRP Logo" className="w-[140px]" />
+                <img src={MobileLogoWhite} alt="SRP Logo" className="w-[50px]" />
               )}
             </div>
           </div>

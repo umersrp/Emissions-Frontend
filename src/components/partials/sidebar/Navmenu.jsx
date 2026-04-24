@@ -179,13 +179,13 @@ import { useDispatch, useSelector } from "react-redux";
 import useMobileMenu from "@/hooks/useMobileMenu";
 import Submenu from "./Submenu";
 
-const Navmenu = ({ menus }) => {
+const Navmenu = ({ menus, collapsed }) => {
   const [activeSubmenu, setActiveSubmenu] = useState(null);
   const [activeMultiMenu, setMultiMenu] = useState(null);
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const location = useLocation();
-  const locationName = location.pathname.replace(/^\//, ""); 
+  const locationName = location.pathname.replace(/^\//, "");
   const [mobileMenu, setMobileMenu] = useMobileMenu();
   const navigate = useNavigate();
 
@@ -212,13 +212,13 @@ const Navmenu = ({ menus }) => {
   // Check if current location is a child route of the target
   const isChildRoute = (targetLocation) => {
     if (!targetLocation || targetLocation.trim() === "") return false;
-    
+
     const current = normalizePath(locationName);
     const target = normalizePath(targetLocation);
-    
+
     // Ensure we're doing a proper path segment match, not substring match
     if (current === target) return false; // This is exact match, not child
-    
+
     // Check if current starts with target/ (with slash separator)
     return current.startsWith(target + "/");
   };
@@ -305,7 +305,7 @@ const Navmenu = ({ menus }) => {
             submenuIndex = i;
             matchFound = true;
           }
-        } 
+        }
         // For parent items WITHOUT children: exact or child route match
         else {
           if (isExactMatch(item.link) || isChildRoute(item.link)) {
@@ -332,71 +332,145 @@ const Navmenu = ({ menus }) => {
   };
 
   return (
-    <ul>
+    <ul className="space-y-1">
       {filteredMenus.map((item, i) => (
         <li
           key={i}
-          className={`single-sidebar-menu 
-            ${item.child ? "item-has-children" : ""} 
-            ${activeSubmenu === i ? "open" : ""} 
-            ${locationName === item.link ? "menu-item-active" : ""}`}
+          className={`
+        sidebar-menu-item 
+        ${item.child ? "has-children" : ""} 
+        ${activeSubmenu === i ? "expanded" : ""} 
+        ${locationName === item.link ? "active" : ""}
+        ${item.isHeadr ? "menu-header" : ""}
+      `}
         >
-          {/* Single menu no child */}
+          {/* Menu Label/Header - Hide when collapsed */}
+          {item.isHeadr && !item.child && (
+            <div className={`px-4 py-2 mt-2 mb-1 transition-all duration-200 ${collapsed ? "opacity-0 invisible" : "opacity-100 visible"}`}>
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                {item.title}
+              </span>
+            </div>
+          )}
+
+          {/* Single menu - no child */}
           {!item.child && !item.isHeadr && (
             <NavLink
-              className="menu-link"
+              className={({ isActive }) => `
+            menu-link group relative flex items-center gap-3 px-4 py-2.5 rounded-xl
+            transition-all duration-200 ease-in-out
+            ${collapsed ? "justify-center mx-1" : "mx-2"}
+            ${isActive || locationName === item.link
+                  ? "btn-dark shadow-sm"
+                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }
+          `}
               to={item.link}
               onClick={() => setActiveSubmenu(null)}
             >
-              <span className="menu-icon flex-grow-0">
-                <Icon icon={item.icon} />
-              </span>
-              <div className="text-box flex-grow">{item.title}</div>
-              {item.badge && <span className="menu-badge">{item.badge}</span>}
-            </NavLink>
-          )}
+              {/* Active Indicator - Adjust for collapsed mode */}
+              {(locationName === item.link) && (
+                <div className={`absolute left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-white rounded-r-full transition-all duration-200 ${collapsed ? "left-0" : ""}`}></div>
+              )}
 
-          {/* Menu Label */}
-          {item.isHeadr && !item.child && (
-            <div className="menulabel">{item.title}</div>
+              {/* Icon - Centered when collapsed */}
+              <span className={`
+            menu-icon flex-shrink-0 transition-all duration-200
+            ${collapsed ? "mx-auto" : ""}
+            ${locationName === item.link ? "text-white" : "text-gray-400 group-hover:text-gray-600"}
+          `}>
+                <Icon icon={item.icon} width="20" height="20" />
+              </span>
+
+              {/* Title - Hide when collapsed */}
+              <span className={`
+            text-box flex-1 text-sm font-medium transition-all duration-200
+            ${collapsed ? "hidden w-0" : "block"}
+          `}>
+                {item.title}
+              </span>
+
+              {/* Badge - Adjust for collapsed mode */}
+              {item.badge && (
+                <span className={`
+              menu-badge px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-600
+              transition-all duration-200
+              ${collapsed ? "absolute -top-1 -right-1 scale-75" : ""}
+            `}>
+                  {item.badge}
+                </span>
+              )}
+            </NavLink>
           )}
 
           {/* Parent with submenu */}
           {item.child && (
-            <div
-              className={`menu-link cursor-pointer ${
-                activeSubmenu === i ? "parent_active not-collapsed" : "collapsed"
-              }`}
-            >
+            <div className="relative">
               <div
-                className="flex-1 flex items-start"
-                onClick={() => handleParentClick(i, item.link)}
+                className={`
+              menu-link group relative flex items-center justify-between
+              px-4 py-2.5 rounded-xl transition-all duration-200 ease-in-out cursor-pointer
+              ${collapsed ? "justify-center mx-1" : "mx-2"}
+              ${activeSubmenu === i
+                    ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  }
+            `}
               >
-                <span className="menu-icon">
-                  <Icon icon={item.icon} />
-                </span>
-                <div className="text-box">{item.title}</div>
+                {/* Main content area */}
+                <div
+                  className={`
+                flex items-center gap-3
+                ${collapsed ? "justify-center w-full" : "flex-1"}
+              `}
+                  onClick={() => handleParentClick(i, item.link)}
+                >
+                  {/* Icon - Centered when collapsed */}
+                  <span className={`
+                menu-icon flex-shrink-0 transition-colors duration-200
+                ${collapsed ? "mx-auto" : ""}
+                ${activeSubmenu === i ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600"}
+              `}>
+                    <Icon icon={item.icon} width="20" height="20" />
+                  </span>
+
+                  {/* Title - Hide when collapsed */}
+                  <span className={`
+                text-box text-sm font-medium transition-all duration-200
+                ${collapsed ? "hidden w-0" : "flex-1"}
+              `}>
+                    {item.title}
+                  </span>
+                </div>
+
+                {/* Arrow - Hide when collapsed */}
+                {!collapsed && (
+                  <div
+                    className="menu-arrow flex-shrink-0 ml-2 p-1 rounded-md hover:bg-gray-100 transition-colors"
+                    onClick={() => toggleSubmenu(i)}
+                  >
+                    <div
+                      className={`transform transition-all duration-300 ease-in-out ${activeSubmenu === i ? "rotate-90" : ""
+                        }`}
+                    >
+                      <Icon icon="heroicons-outline:chevron-right" width="16" height="16" />
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="flex-0 menu-arrow" onClick={() => toggleSubmenu(i)}>
-                <div
-                  className={`transform transition-all duration-300 ${
-                    activeSubmenu === i ? "rotate-90" : ""
-                  }`}
-                >
-                  <Icon icon="heroicons-outline:chevron-right" />
-                </div>
-              </div>
+              {/* Submenu - Hide when collapsed */}
+              {!collapsed && (
+                <Submenu
+                  activeSubmenu={activeSubmenu}
+                  item={item}
+                  i={i}
+                  toggleMultiMenu={toggleMultiMenu}
+                  activeMultiMenu={activeMultiMenu}
+                />
+              )}
             </div>
           )}
-
-          <Submenu
-            activeSubmenu={activeSubmenu}
-            item={item}
-            i={i}
-            toggleMultiMenu={toggleMultiMenu}
-            activeMultiMenu={activeMultiMenu}
-          />
         </li>
       ))}
     </ul>
