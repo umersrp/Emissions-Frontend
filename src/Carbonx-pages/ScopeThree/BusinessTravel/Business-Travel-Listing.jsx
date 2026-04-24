@@ -386,7 +386,7 @@
 //                             {/* <div className="overflow-hidden"> */}
 //                             {loading ? (
 //                                 <div className="flex justify-center items-center py-8">
-//                                     <img src={Logo} alt="Loading..." className="w-52 h-24" />
+//                                     <img src={Logo} alt="Loading..." className="w-52 h-52" />
 //                                 </div>
 //                             ) : (
 //                                 <table
@@ -656,6 +656,7 @@ import Modal from "@/components/ui/Modal";
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import ExcelExportButton from "@/components/ui/ExcelExportButton";
 import useBusinessTravelCSVUpload from "@/hooks/scope3/useBusinessTravelCSVUpload";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
     const defaultRef = React.useRef();
@@ -733,7 +734,7 @@ const BusinessTravel = () => {
     useEffect(() => {
         setSelectedRows({});
     }, [pageIndex, pageSize, globalFilterValue]);
-    
+
     const renderNA = (value) => {
         return value === null || value === undefined || value === "" ? "N/A" : value;
     };
@@ -916,6 +917,7 @@ const BusinessTravel = () => {
 
     // Delete Record
     const handleDelete = async (id) => {
+                    setDeleteModalOpen(false);
         try {
             await axios.delete(`${process.env.REACT_APP_BASE_URL}/Business-Travel/Delete/${id}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -935,6 +937,7 @@ const BusinessTravel = () => {
             toast.warning("Please select records to delete");
             return;
         }
+                    setDeleteModalOpen(false);
         setIsDeletingMultiple(true);
         try {
             await Promise.all(
@@ -944,15 +947,13 @@ const BusinessTravel = () => {
                     })
                 )
             );
-            toast.success(`${selectedIds.length} record(s) deleted successfully`);
-            setSelectedRows({});
+  toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);            setSelectedRows({});
             fetchData();
         } catch (err) {
             console.error("Error deleting records:", err);
             toast.error("Failed to delete some records");
         } finally {
             setIsDeletingMultiple(false);
-            setDeleteModalOpen(false);
         }
     };
     const selectedCount = Object.values(selectedRows).filter(Boolean).length;
@@ -1110,20 +1111,12 @@ const BusinessTravel = () => {
             {
                 Header: "Posting Date",
                 accessor: "postingDate",
-                Cell: ({ cell }) => {
-                    if (!cell.value) return "N/A";
-                    try {
-                        return new Date(cell.value).toLocaleDateString('en-GB');
-                    } catch {
-                        return "Invalid Date";
-                    }
-                }
+                 Cell: ({ cell }) => formatDateDMY(cell.value),
             },
             {
                 Header: "Created At",
                 accessor: "createdAt",
-                Cell: ({ value }) =>
-                    value ? new Date(value).toLocaleDateString() : "-",
+                 Cell: ({ cell }) => formatDateDMY(cell.value),
             },
 
             {
@@ -1254,7 +1247,6 @@ const BusinessTravel = () => {
                     <div className="md:flex md:space-x-3 items-center">
                         <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
                         {selectedCount > 0 && (
-                            <Tippy content={`Delete ${selectedCount} selected record(s)`}>
                                 <Button
                                     icon="heroicons:trash"
                                     text={`Delete Selected (${selectedCount})`}
@@ -1263,7 +1255,6 @@ const BusinessTravel = () => {
                                     onClick={() => setDeleteModalOpen(true)}
                                     disabled={isDeletingMultiple}
                                 />
-                            </Tippy>
                         )}
                         {/* Export Current Page Button */}
                         {records.length > 0 && (
@@ -1395,7 +1386,7 @@ const BusinessTravel = () => {
                         <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
                             {loading ? (
                                 <div className="flex justify-center items-center py-8">
-                                    <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                                    <img src={Logo} alt="Loading..." className="w-52 h-52" />
                                 </div>
                             ) : (
                                 <table
@@ -1582,7 +1573,7 @@ const BusinessTravel = () => {
                             onChange={(e) => setPageSize(Number(e.target.value))}
                             className="form-select py-2"
                         >
-                            {[10, 20, 50].map((size) => (
+                            {[10, 20, 50, 100].map((size) => (
                                 <option key={size} value={size}>
                                     {size}
                                 </option>
@@ -1600,29 +1591,28 @@ const BusinessTravel = () => {
                 themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
                 centered
                 footerContent={
-    <>
-        <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
-        <Button
-            text="Delete"
-            className="btn-danger"
-            onClick={async () => {
-                if (selectedCount > 1) {
-                    await handleDeleteMultiple();
-                } else if (selectedId) {
-                    await handleDelete(selectedId);
-                    setDeleteModalOpen(false);
+                    <>
+                        <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
+                        <Button
+                            text="Delete"
+                            className="btn-danger"
+                            onClick={async () => {
+                                if (selectedCount >= 1) {
+                                    await handleDeleteMultiple();
+                                } else if (selectedId) {
+                                    await handleDelete(selectedId);
+                                }
+                            }}
+                        />
+                    </>
                 }
-            }}
-        />
-    </>
-}
             >
-               <p className="text-gray-700 text-center">
-    {selectedCount > 1
-        ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
-        : "Are you sure you want to delete this Record? This action cannot be undone."
-    }
-</p>
+                <p className="text-gray-700 text-center">
+                    {selectedCount > 1
+                        ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
+                        : "Are you sure you want to delete this Record? This action cannot be undone."
+                    }
+                </p>
             </Modal>
 
             {/* CSV UPLOAD MODAL */}

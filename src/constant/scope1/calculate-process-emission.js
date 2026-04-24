@@ -82,9 +82,9 @@ export const processEmissionFactors = {
   "Ethylene Oxide / Ethylene Glycol Production": 0.7,
   "Urea Production (kg)": 0.733,
   "Methanol Synthesis": 0.5,
-  "other GHG Emission Process Activities": 1,
+  "Other GHG Emission Process Activities": 1,
   "Non Kyoto protocol / Other Non GHG Emissions": 1,
-  "other Biogenic GHG Emission Process Activities": 1
+  "Other Biogenic GHG Emission Process Activities": 1
 };
 
 // All Kyoto/standard GHG processes (everything except Non-Kyoto, VOs, Biogenic)
@@ -162,7 +162,7 @@ export const GHG_ACTIVITIES = [
   "Ethylene Oxide / Ethylene Glycol Production",
   "Urea Production",
   "Methanol Synthesis",
-  "other GHG Emission Process Activities",
+  "Other GHG Emission Process Activities",
 ];
 
 // Non-Kyoto activities
@@ -223,8 +223,8 @@ export const FOR_UNIT_THOUSAND_KWH ="geothermal fluid degassing (natural release
 
 //kgco2e
 export const FOR_UNIT_THOUSAND_KGCO2E =[
-  "other GHG Emission Process Activities",
-  "other Biogenic GHG Emission Process Activities"
+  "Other GHG Emission Process Activities",
+  "Other Biogenic GHG Emission Process Activities"
 ];
 
 export const PROCESS_ACTIVITY_DATA = [
@@ -311,8 +311,8 @@ export const PROCESS_ACTIVITY_DATA = [
   { value: "Ethylene Oxide / Ethylene Glycol Production", label: "How many kilograms of ethylene oxide are produced?" },
   { value: "Urea Production (kg)", label: "How many kilograms of urea are produced?" },
   { value: "Methanol Synthesis", label: "How many kilograms of methanol are synthesized?" },
-  { value: "other GHG Emission Process Activities", label: "Please write the total process emissions in KgCO2e." },
+  { value: "Other GHG Emission Process Activities", label: "Please write the total process emissions in KgCO2e." },
   { value: "Non Kyoto protocol / Other Non GHG Emissions", label: "Please write the total process emissions in Kg." },
-  { value: "other Biogenic GHG Emission Process Activities", label: "Please write the total process emissions in KgCO2e." }
+  { value: "Other Biogenic GHG Emission Process Activities", label: "Please write the total process emissions in KgCO2e." }
  
 ];

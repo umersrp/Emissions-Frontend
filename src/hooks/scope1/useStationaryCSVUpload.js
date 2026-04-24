@@ -13,6 +13,23 @@ import {
 import { normalizeSubscriptNumbers } from '@/utils/normalizeText';
 import * as XLSX from "xlsx";
 
+
+const HEADER_MAPPING = {
+  'buildingcode': ['buildingcode', 'building code', 'building-code', 'building_code', 'building'],
+  'stakeholder': ['stakeholder', 'stakeholderdepartment', 'stake-holder', 'stakeholder department', 'department'],
+  'equipmenttype': ['equipmenttype', 'equipment type', 'equipment', 'equipment-type', 'equipment_type'],
+  'fueltype': ['fueltype', 'fuel type', 'fuel-type', 'fuel_type'],
+  'fuelname': ['fuelname', 'fuel name', 'fuel-name', 'fuel_name', 'fuel'],
+  'fuelconsumption': ['fuelconsumption', 'fuelconsumptionvalue', 'fuel-consumption', 'fuel_consumption', 'consumption', 'quantity'],
+  'consumptionunit': ['consumptionunit', 'consumption unit', 'consumption-unit', 'consumption_unit', 'unit'],
+  'qualitycontrol': ['qualitycontrol', 'quality control', 'quality-control', 'quality_control', 'quality'],
+  'remarks': ['remarks', 'remark', 'comments', 'notes'],
+  'postingdate': ['postingdate', 'posting date', 'date', 'posting-date', 'posting_date', 'record date']
+};
+
+const normalizeHeader = (header) => {
+  return header.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+};
 const useStationaryCSVUpload = (buildings = []) => {
   const [csvState, setCsvState] = useState({
     file: null,
@@ -51,7 +68,16 @@ const useStationaryCSVUpload = (buildings = []) => {
     return cleaned;
   }, []);
 
-const parseDateToISO = useCallback((dateString) => {
+  const findMatchingField = (normalizedHeader) => {
+    for (const [field, possibleNames] of Object.entries(HEADER_MAPPING)) {
+      const normalizedPossibleNames = possibleNames.map(name => normalizeHeader(name));
+      if (normalizedPossibleNames.includes(normalizedHeader)) {
+        return field;
+      }
+    }
+    return null;
+  };
+  const parseDateToISO = useCallback((dateString) => {
     if (!dateString) return null;
 
     let cleanedDate = dateString.toString().trim();
@@ -193,17 +219,33 @@ const parseDateToISO = useCallback((dateString) => {
           );
 
           // Expected headers
-          const expectedHeaders = [
+          // Create header mapping
+          const headerMapping = {};
+          const requiredFields = [
             'buildingcode', 'stakeholder', 'equipmenttype', 'fueltype',
-            'fuelname', 'fuelconsumption', 'consumptionunit', 'qualitycontrol', 'remarks', 'postingdate'
+            'fuelname', 'fuelconsumption', 'consumptionunit', 'qualitycontrol', 'postingdate'
           ];
 
-          // Check for missing headers
-          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+          const missingHeaders = [];
+
+          requiredFields.forEach(field => {
+            const foundHeader = headerValues.find(header => {
+              const normalizedHeader = normalizeHeader(header);
+              return findMatchingField(normalizedHeader) === field;
+            });
+
+            if (foundHeader) {
+              headerMapping[foundHeader] = field;
+            } else {
+              missingHeaders.push(field);
+            }
+          });
+
           if (missingHeaders.length > 0) {
             reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
             return;
           }
+
 
           // Parse data rows
           const data = [];
@@ -215,8 +257,9 @@ const parseDateToISO = useCallback((dateString) => {
 
             // Map values to headers
             const row = {};
-            headers.forEach((header, index) => {
-              row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
+            Object.keys(headerMapping).forEach((originalHeader, idx) => {
+              const mappedKey = headerMapping[originalHeader];
+              row[mappedKey] = idx < values.length ? cleanCSVValue(values[idx]) : '';
             });
 
             // Only add row if it has data
@@ -273,23 +316,50 @@ const parseDateToISO = useCallback((dateString) => {
             return;
           }
 
-          // Get headers
-          const headers = jsonData[headerRowIndex].map(header =>
-            cleanCSVValue(header).toLowerCase().replace(/[^a-z0-9]/g, '')
-          );
+          // Get raw header values from Excel
+          const rawHeaders = jsonData[headerRowIndex];
 
-          // Expected headers
-          const expectedHeaders = [
+          // Create header mapping using friendly headers
+          const headerMapping = {};
+          const requiredFields = [
             'buildingcode', 'stakeholder', 'equipmenttype', 'fueltype',
-            'fuelname', 'fuelconsumption', 'consumptionunit', 'qualitycontrol', 'remarks', 'postingdate'
+            'fuelname', 'fuelconsumption', 'consumptionunit', 'qualitycontrol', 'postingdate'
           ];
+          const optionalFields = ['remarks'];
+          optionalFields.forEach(field => {
+            const foundHeader = rawHeaders.find(header => {
+              if (!header) return false;
+              const normalizedHeader = normalizeHeader(header);
+              return findMatchingField(normalizedHeader) === field;
+            });
+            if (foundHeader) {
+              headerMapping[foundHeader] = field; // add to mapping even though optional
+            }
+          });
 
-          // Check for missing headers
-          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+          const missingHeaders = [];
+
+          requiredFields.forEach(field => {
+            const foundHeader = rawHeaders.find(header => {
+              if (!header) return false;
+              const normalizedHeader = normalizeHeader(header);
+              return findMatchingField(normalizedHeader) === field;
+            });
+
+            if (foundHeader) {
+              headerMapping[foundHeader] = field;
+            } else {
+              missingHeaders.push(field);
+            }
+          });
+
           if (missingHeaders.length > 0) {
             reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
             return;
           }
+
+          console.log('Raw headers:', rawHeaders);
+          console.log('Header mapping result:', headerMapping);
 
           // Parse data rows
           const parsedData = [];
@@ -298,37 +368,34 @@ const parseDateToISO = useCallback((dateString) => {
             if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
 
             const rowData = {};
-            headers.forEach((header, index) => {
-              const value = index < row.length ? row[index] : '';
 
-              const normalizedHeader = header ? header.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+            // Use headerMapping to create row data with correct field names
+            Object.entries(headerMapping).forEach(([originalHeader, mappedKey]) => {
+              const headerIndex = rawHeaders.findIndex(h => h === originalHeader);
+              const value = headerIndex < row.length ? row[headerIndex] : '';
 
-              // Convert Excel numeric date serials to ISO when header indicates a date (e.g., postingdate)
-              if (typeof value === 'number' && (normalizedHeader.includes('date') || normalizedHeader.includes('postingdate'))) {
+              // Handle date conversion for postingdate field
+              if (mappedKey === 'postingdate' && typeof value === 'number') {
                 try {
                   let iso = null;
-
                   if (XLSX && XLSX.SSF && typeof XLSX.SSF.parse_date_code === 'function') {
                     const d = XLSX.SSF.parse_date_code(value);
                     if (d && d.y) {
                       iso = new Date(Date.UTC(d.y, d.m - 1, d.d, 0, 0, 0, 0)).toISOString();
                     }
                   }
-
                   if (!iso) {
-                    // Fallback conversion from Excel serial (assuming 1900-based epoch)
-                    const excelEpoch = Date.UTC(1899, 11, 30); // Excel epoch
+                    const excelEpoch = Date.UTC(1899, 11, 30);
                     const msPerDay = 24 * 60 * 60 * 1000;
                     const jsDate = new Date(excelEpoch + (value * msPerDay));
                     iso = new Date(Date.UTC(jsDate.getUTCFullYear(), jsDate.getUTCMonth(), jsDate.getUTCDate(), 0, 0, 0, 0)).toISOString();
                   }
-
-                  rowData[header] = iso;
+                  rowData[mappedKey] = iso;
                 } catch (e) {
-                  rowData[header] = cleanCSVValue(value);
+                  rowData[mappedKey] = value ? cleanCSVValue(value) : '';
                 }
               } else {
-                rowData[header] = value ? cleanCSVValue(value) : '';
+                rowData[mappedKey] = value ? cleanCSVValue(value) : '';
               }
             });
 
@@ -345,40 +412,39 @@ const parseDateToISO = useCallback((dateString) => {
       reader.readAsArrayBuffer(file);
     });
   }, [cleanCSVValue]);
-
   // Helper function for normalization (handles spaces around slashes)
-const normalizeWithSlash = (str) => {
-  if (!str) return '';
-  return str
-    .toLowerCase()
-    .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
-    .replace(/\s+/g, ' ')        // Normalize multiple spaces
-    .trim();
-};
+  const normalizeWithSlash = (str) => {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
+      .replace(/\s+/g, ' ')        // Normalize multiple spaces
+      .trim();
+  };
 
-// Flexible matching function
-const findFlexibleMatch = (input, validOptions) => {
-  if (!input || !validOptions.length) return null;
-  
-  const normalizedInput = normalizeWithSlash(input);
-  
-  // Try direct match with normalization
-  let match = validOptions.find(option => 
-    normalizeWithSlash(option) === normalizedInput
-  );
-  
-  if (match) return match;
-  
-  // Try with spaces around slashes (for cases like "A/B" vs "A / B")
-  const spacedInput = normalizedInput.replace(/\//g, ' / ');
-  match = validOptions.find(option => {
-    const normalizedOption = normalizeWithSlash(option);
-    const spacedOption = normalizedOption.replace(/\//g, ' / ');
-    return spacedOption === spacedInput;
-  });
-  
-  return match;
-};
+  // Flexible matching function
+  const findFlexibleMatch = (input, validOptions) => {
+    if (!input || !validOptions.length) return null;
+
+    const normalizedInput = normalizeWithSlash(input);
+
+    // Try direct match with normalization
+    let match = validOptions.find(option =>
+      normalizeWithSlash(option) === normalizedInput
+    );
+
+    if (match) return match;
+
+    // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+    const spacedInput = normalizedInput.replace(/\//g, ' / ');
+    match = validOptions.find(option => {
+      const normalizedOption = normalizeWithSlash(option);
+      const spacedOption = normalizedOption.replace(/\//g, ' / ');
+      return spacedOption === spacedInput;
+    });
+
+    return match;
+  };
 
   const validateStationaryRow = useCallback((row, index) => {
     const errors = [];
@@ -407,164 +473,85 @@ const findFlexibleMatch = (input, validOptions) => {
         b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
       );
       if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0, 3).map(b => b.buildingCode).join(', ')}...`);
+        errors.push(`Invalid Building code "${cleanedRow.buildingcode}".`);
       }
     }
 
-    // Stakeholder validation
-    // if (cleanedRow.stakeholder) {
-    //   const validStakeholders = stakeholderOptions.map(s => s.value);
-    //   const matchedStakeholder = validStakeholders.find(s =>
-    //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-    //   );
-    //   if (!matchedStakeholder) {
-    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
-    //   } else {
-    //     cleanedRow.stakeholder = matchedStakeholder;
-    //   }
-    // }
+
     if (cleanedRow.stakeholder) {
-  const validStakeholders = stakeholderOptions.map(s => s.value);
-  const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
-  
-  if (!matchedStakeholder) {
-    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
-  } else {
-    cleanedRow.stakeholder = matchedStakeholder;
-  }
-}
+      const validStakeholders = stakeholderOptions.map(s => s.value);
+      const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
 
-
-    // Equipment type validation
-    // if (cleanedRow.equipmenttype) {
-    //   const validEquipment = equipmentTypeOptions.map(e => e.value);
-    //   const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
-
-    //   const matchedEquipment = validEquipment.find(equipment => {
-    //     const normalizedEquipment = normalizeSubscriptNumbers(equipment);
-    //     console.log('fron xlsx:', normalizedInput)
-    //     return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
-
-    //   });console.log('Matched equipment:', matchedEquipment);
-
-    //   if (!matchedEquipment) {
-    //     const sampleEquipment = normalizedInput.replace(/\s*\/\s*/g, '/');
-    //     console.log('Sample normalized input for equipment type:', sampleEquipment);
-    //     const normalizedValidEquipment = normalizeSubscriptNumbers(cleanedRow.sampleEquipment);
-
-    //     const matchedEquipmentagain = normalizedValidEquipment.find(equipment => {
-    //       const normalizedValidEquipment = normalizeSubscriptNumbers(equipment);
-
-    //       return normalizedValidEquipment.toLowerCase() === normalizedInput.toLowerCase();
-    //     });
-    //     if (!matchedEquipmentagain) {
-    //       const originalEquipment = validEquipment[normalizedValidEquipment.indexOf(matchedEquipmentagain)];
-    //       cleanedRow.equipmenttype = originalEquipment;
-    //     }
-
-    //     errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-    //   } else {
-    //     cleanedRow.equipmenttype = matchedEquipment;
-    //   }
-    // }
-
-    // my logic to handle subscript numbers and spaces around slashes in equipment type
-//     if (cleanedRow.equipmenttype) {
-//   const validEquipment = equipmentTypeOptions.map(e => e.value);
-//   const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
-
-//   const matchedEquipment = validEquipment.find(equipment => {
-//     const normalizedEquipment = normalizeSubscriptNumbers(equipment);
-//     console.log('from xlsx:', normalizedInput);
-//     return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
-//   });
-  
-//   console.log('Matched equipment:', matchedEquipment);
-
-//   if (!matchedEquipment) {
-//     // Try matching again after removing spaces around slashes
-//     const cleanedInput = normalizedInput.replace(/\s*\/\s*/g, '/');
-//     console.log('Cleaned input (spaces removed around slashes):', cleanedInput);
-    
-//     const matchedEquipmentAgain = validEquipment.find(equipment => {
-//       const cleanedEquipment = normalizeSubscriptNumbers(equipment).replace(/\s*\/\s*/g, '/');
-//       return cleanedEquipment.toLowerCase() === cleanedInput.toLowerCase();
-//     });
-    
-//     if (matchedEquipmentAgain) {
-//       // Found match after cleaning slashes
-//       cleanedRow.equipmenttype = matchedEquipmentAgain;
-//       console.log('Matched after removing slash spaces:', matchedEquipmentAgain);
-//     } else {
-//       // Still no match, add error
-//       errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-//     }
-//   } else {
-//     cleanedRow.equipmenttype = matchedEquipment;
-//   }
-// }
-
-// Equipment type validation with subscript normalization and flexible matching
-if (cleanedRow.equipmenttype) {
-  const validEquipment = equipmentTypeOptions.map(e => e.value);
-  const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
-
-  // First try with subscript normalization
-  let matchedEquipment = validEquipment.find(equipment => {
-    const normalizedEquipment = normalizeSubscriptNumbers(equipment);
-    console.log('from xlsx:', normalizedInput);
-    return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
-  });
-  
-  console.log('Matched equipment (first attempt):', matchedEquipment);
-
-  // If no match, try flexible matching (handles spaces around slashes)
-  if (!matchedEquipment) {
-    // Prepare valid options with subscript normalization applied
-    const normalizedValidEquipment = validEquipment.map(equipment => 
-      normalizeSubscriptNumbers(equipment)
-    );
-    
-    // Try flexible match
-    const flexibleMatch = findFlexibleMatch(normalizedInput, normalizedValidEquipment);
-    
-    if (flexibleMatch) {
-      // Find the original equipment value
-      const originalIndex = normalizedValidEquipment.findIndex(equip => 
-        normalizeWithSlash(equip) === normalizeWithSlash(flexibleMatch)
-      );
-      matchedEquipment = validEquipment[originalIndex];
-      console.log('Matched after flexible matching:', matchedEquipment);
+      if (!matchedStakeholder) {
+        errors.push(`Invalid Stakeholder "${cleanedRow.stakeholder}".`);
+      } else {
+        cleanedRow.stakeholder = matchedStakeholder;
+      }
     }
-  }
-  
-  if (!matchedEquipment) {
-    errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-  } else {
-    cleanedRow.equipmenttype = matchedEquipment;
-  }
-}
-    // Fuel type validation
+
+    // Equipment type validation with subscript normalization and flexible matching
+    if (cleanedRow.equipmenttype) {
+      const validEquipment = equipmentTypeOptions.map(e => e.value);
+      const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
+
+      // First try with subscript normalization
+      let matchedEquipment = validEquipment.find(equipment => {
+        const normalizedEquipment = normalizeSubscriptNumbers(equipment);
+        console.log('from xlsx:', normalizedInput);
+        return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
+      });
+
+      console.log('Matched equipment (first attempt):', matchedEquipment);
+
+      // If no match, try flexible matching (handles spaces around slashes)
+      if (!matchedEquipment) {
+        // Prepare valid options with subscript normalization applied
+        const normalizedValidEquipment = validEquipment.map(equipment =>
+          normalizeSubscriptNumbers(equipment)
+        );
+
+        // Try flexible match
+        const flexibleMatch = findFlexibleMatch(normalizedInput, normalizedValidEquipment);
+
+        if (flexibleMatch) {
+          // Find the original equipment value
+          const originalIndex = normalizedValidEquipment.findIndex(equip =>
+            normalizeWithSlash(equip) === normalizeWithSlash(flexibleMatch)
+          );
+          matchedEquipment = validEquipment[originalIndex];
+          console.log('Matched after flexible matching:', matchedEquipment);
+        }
+      }
+
+      if (!matchedEquipment) {
+        errors.push(`Invalid "Equipment Type" "${cleanedRow.equipmenttype}"`);
+      } else {
+        cleanedRow.equipmenttype = matchedEquipment;
+      }
+    }
+
+    // Fuel type validation - FIXED with flexible matching
     if (cleanedRow.fueltype) {
       const validFuelTypes = fuelTypeOptions.map(f => f.value);
-      const matchedFuelType = validFuelTypes.find(f =>
-        f.toLowerCase() === cleanedRow.fueltype.toLowerCase()
-      );
+      const matchedFuelType = findFlexibleMatch(cleanedRow.fueltype, validFuelTypes);
+
       if (!matchedFuelType) {
-        errors.push(`Invalid fuel type "${cleanedRow.fueltype}". Valid: ${validFuelTypes.join(', ')}`);
+        errors.push(`Invalid "Fuel Type": "${cleanedRow.fueltype}".`);
       } else {
         cleanedRow.fueltype = matchedFuelType;
       }
     }
 
-    // Fuel name validation
+
+    // Fuel name validation - FIXED with flexible matching
     if (cleanedRow.fueltype && cleanedRow.fuelname) {
       const validFuelNames = fuelNameOptionsByType[cleanedRow.fueltype]?.map(f => f.value) || [];
-      const matchedFuelName = validFuelNames.find(f =>
-        f.toLowerCase() === cleanedRow.fuelname.toLowerCase()
-      );
+
+      // Use flexible matching instead of exact match
+      const matchedFuelName = findFlexibleMatch(cleanedRow.fuelname, validFuelNames);
+
       if (!matchedFuelName) {
-        errors.push(`Invalid fuel name "${cleanedRow.fuelname}" for type "${cleanedRow.fueltype}"`);
+        errors.push(`Invalid "Fuel Name": "${cleanedRow.fuelname}" for type "${cleanedRow.fueltype}".`);
       } else {
         cleanedRow.fuelname = matchedFuelName;
       }
@@ -599,7 +586,7 @@ if (cleanedRow.equipmenttype) {
       const matchedUnit = allUnits.find(u => u.toLowerCase() === cleanUnit);
 
       if (!matchedUnit) {
-        errors.push(`Invalid consumption unit "${cleanedRow.consumptionunit}". Valid options include: ${allUnits.slice(0, 5).join(', ')}...`);
+        errors.push(`Invalid "Consumption Unit": "${cleanedRow.consumptionunit}".`);
       } else {
         cleanedRow.consumptionunit = matchedUnit;
       }
@@ -612,7 +599,7 @@ if (cleanedRow.equipmenttype) {
         q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
       );
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}". Valid: ${validQC.join(', ')}`);
+        errors.push(`Invalid "Quality Control": "${cleanedRow.qualitycontrol}".`);
       } else {
         cleanedRow.qualitycontrol = matchedQC;
       }
@@ -623,7 +610,7 @@ if (cleanedRow.equipmenttype) {
       const isoDate = parseDateToISO(cleanedRow.postingdate);
 
       if (!isoDate) {
-        errors.push(`Invalid date format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 2024-01-15, 01/15/2024, 15-01-2024)`);
+        errors.push(`Invalid Date Format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 01/15/2026)`);
       } else {
         cleanedRow.postingdate = isoDate;
       }
@@ -851,19 +838,27 @@ if (cleanedRow.equipmenttype) {
     const exampleUnit = 'kg';
     const exampleQC = 'Good';
 
+    const getCurrentDate = () => {
+      const today = new Date();
+      const day = String(today.getDate()).padStart(2, '0');
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const year = today.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+
     // Create worksheet data with headers
     const worksheetData = [
       [
-        'building code',
-        'stakeholder',
-        'equipment type',
-        'fuel type',
-        'fuel name',
-        'fuel consumption',
-        'consumption unit',
-        'quality control',
-        'remarks',
-        'posting date'
+        'Building Code',
+        'Stakeholder / Department',
+        'Equipment Type',
+        'Fuel Type',
+        'Fuel Name',
+        'Fuel Consumption Value',
+        'Consumption Unit',
+        'Quality Control',
+        'Remarks',
+        'Posting Date'
       ],
       [
         exampleBuildingCode,
@@ -875,7 +870,7 @@ if (cleanedRow.equipmenttype) {
         exampleUnit,
         exampleQC,
         'Example record',
-        'dd/mm/yyyy'
+        getCurrentDate()
       ],
     ];
 
@@ -886,7 +881,7 @@ if (cleanedRow.equipmenttype) {
     // Auto-size columns for better readability
     worksheet['!cols'] = [
       { wch: 20 }, // building code
-      { wch: 15 }, // stakeholder
+      { wch: 25 }, // stakeholder
       { wch: 18 }, // equipment type
       { wch: 15 }, // fuel type
       { wch: 15 }, // fuel name

@@ -1,6 +1,5 @@
 import {
   unitConversion,
-  emissionFactors,
 } from "@/constant/scope3/options";
 import { unitsEmissionFactors,airTravelEmissionFactors, taxiEmissionFactors, busEmissionFactors, trainEmissionFactors } from "@/constant/scope3/fuelAndEnergy";
 

@@ -321,11 +321,11 @@ const ScopeTwoReport = () => {
                   <>
                     <span className="text-md font-semibold mb-1 text-gray-700">Location Based</span>
                     <span>
-                      {formatNumber(item.locationKg)} KgCO₂e, {formatNumber(item.locationT)} tCO₂e
+                      {formatNumber(item.locationKg)} KgCO₂e | {formatNumber(item.locationT)} tCO₂e
                     </span>
                     <span className="text-md font-semibold mb-1 text-gray-700">Market Based</span>
                     <span>
-                      {formatNumber(item.marketKg)} KgCO₂e, {formatNumber(item.marketT)} tCO₂e
+                      {formatNumber(item.marketKg)} KgCO₂e | {formatNumber(item.marketT)} tCO₂e
                     </span>
                   </>
                 ) : (
@@ -517,7 +517,7 @@ const ScopeTwoReport = () => {
               }
               className="form-select py-2"
             >
-              {[5, 10, 20, 50].map((size) => (
+              {[10, 20, 50].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>

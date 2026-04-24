@@ -13,6 +13,7 @@ import Modal from "@/components/ui/Modal";
 import CSVUploadModal from "@/components/ui/CSVUploadModal"; // Use your existing component
 import useFugitiveCSVUpload from "@/hooks/scope1/useFugitiveCSVUpload"; // This hook remains the same
 import ExcelExportButton from "@/components/ui/ExcelExportButton";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -272,10 +273,12 @@ const FugitiveCombustionListing = () => {
 
   //  Delete Record
   const handleDelete = async (id) => {
+    setDeleteModalOpen(false);
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/Fugitive/delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
+      
       toast.success("Record deleted successfully");
       fetchFugitiveRecords(pageIndex, pageSize);
     } catch (err) {
@@ -306,6 +309,7 @@ const FugitiveCombustionListing = () => {
       toast.warning("Please select records to delete");
       return;
     }
+    setDeleteModalOpen(false);
     setIsDeletingMultiple(true);
     try {
       await Promise.all(
@@ -315,15 +319,17 @@ const FugitiveCombustionListing = () => {
           })
         )
       );
-      toast.success(`${selectedIds.length} record(s) deleted successfully`);
+      
+      toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);
       setSelectedRows({});
-      fetchRecords(pageIndex, pageSize, globalFilterValue);
+       setSelectedBuildingId(null);
+     fetchFugitiveRecords(pageIndex, pageSize, globalFilterValue);
     } catch (err) {
       console.error("Error deleting records:", err);
       toast.error("Failed to delete some records");
     } finally {
       setIsDeletingMultiple(false);
-      setDeleteModalOpen(false);
+      
     }
   };
   // Template instructions for fugitive
@@ -394,16 +400,9 @@ const FugitiveCombustionListing = () => {
       },
       {
         Header: "Posting Date", accessor: "postingDate",
-        Cell: ({ cell }) => {
-          if (!cell.value) return "N/A";
-          try {
-            return new Date(cell.value).toLocaleDateString('en-GB');
-          } catch {
-            return "Invalid Date";
-          }
-        }
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
-      { Header: "Created At", accessor: "createdAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "N/A") },
+      { Header: "Created At", accessor: "createdAt", Cell: ({ cell }) => formatDateDMY(cell.value), },
       {
         Header: "Actions",
         accessor: "_id",
@@ -538,7 +537,6 @@ const FugitiveCombustionListing = () => {
           <div className="md:flex md:space-x-3 items-center flex-none rtl:space-x-reverse">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             {selectedCount > 0 && (
-              <Tippy content={`Delete ${selectedCount} selected record(s)`}>
                 <Button
                   icon="heroicons:trash"
                   text={`Delete Selected (${selectedCount})`}
@@ -547,7 +545,6 @@ const FugitiveCombustionListing = () => {
                   onClick={() => setDeleteModalOpen(true)}
                   disabled={isDeletingMultiple}
                 />
-              </Tippy>
             )}
 
            
@@ -632,7 +629,7 @@ const FugitiveCombustionListing = () => {
             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                  <img src={Logo} alt="Loading..." className="w-52 h-52" />
                 </div>
               ) : (
                 <table
@@ -836,7 +833,7 @@ const FugitiveCombustionListing = () => {
               onChange={(e) => setPageSize(Number(e.target.value))}
               className="form-select py-2"
             >
-              {[10, 20, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
@@ -878,11 +875,10 @@ const FugitiveCombustionListing = () => {
               text="Delete"
               className="btn-danger"
               onClick={async () => {
-                if (selectedCount > 1) {
+                if (selectedCount >= 1) {
                   await handleDeleteMultiple();
                 } else if (selectedBuildingId) {
                   await handleDelete(selectedBuildingId);
-                  setDeleteModalOpen(false);
                 }
               }}
             />

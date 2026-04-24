@@ -75,31 +75,31 @@ const calculateEmissions = (data) => {
         let passengers = 1;
         const motorbikeType = data.motorbikeType || "Average";
         let factor = EMISSION_FACTORS.motorbikes[motorbikeType] || EMISSION_FACTORS.motorbikes["Average"];
-        
+
         let individualEmissions = individualDistance * factor;
         let totalMotorbikeEmissions = individualEmissions;
         let motorbikeTotalDistance = individualDistance;
-        
+
         console.log('=== EMISSION CALCULATION - MOTORBIKE ===');
         console.log('Motorbike Type:', motorbikeType);
         console.log('Emission Factor:', factor, 'kg CO2e/km');
         console.log('Individual Distance:', individualDistance, 'km');
         console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
-        
+
         // Check if mode is 'both' and carpool distance exists
         if (data.motorbikeMode === 'both' && data.motorbikeDistanceCarpool) {
             carpoolDistance = Number(data.motorbikeDistanceCarpool) || 0;
             let carpoolEmissions = carpoolDistance * factor;
             totalMotorbikeEmissions += carpoolEmissions;
             motorbikeTotalDistance += carpoolDistance;
-            
+
             console.log('Carpool Distance:', carpoolDistance, 'km');
             console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
             console.log('Total Motorbike Emissions (Individual + Carpool):', totalMotorbikeEmissions, 'kg CO2e');
         }
-        
+
         console.log('Total Motorbike Distance:', motorbikeTotalDistance, 'km');
-        
+
         totalEmissionsKg += totalMotorbikeEmissions;
         totalDistance += motorbikeTotalDistance;
         totalPassengers += passengers;
@@ -123,11 +123,11 @@ const calculateEmissions = (data) => {
         const fuelType = data.carFuelType || "Unknown";
         let baseFactor = EMISSION_FACTORS.cars[carType]?.[fuelType];
         let factor = baseFactor;
-        
+
         let individualEmissions = individualDistance * factor;
         let totalCarEmissions = individualEmissions;
         let carTotalDistance = individualDistance;
-        
+
         console.log('=== EMISSION CALCULATION - CAR ===');
         console.log('Car Type:', carType);
         console.log('Fuel Type:', fuelType);
@@ -137,21 +137,21 @@ const calculateEmissions = (data) => {
         console.log('Total Passengers (including driver):', passengers);
         console.log('Individual Distance:', individualDistance, 'km');
         console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
-        
+
         // Check if mode is 'both' and carpool distance exists
         if (data.carMode === 'both' && data.carDistanceCarpool) {
             carpoolDistance = Number(data.carDistanceCarpool) || 0;
             let carpoolEmissions = carpoolDistance * factor;
             totalCarEmissions += carpoolEmissions;
             carTotalDistance += carpoolDistance;
-            
+
             console.log('Carpool Distance:', carpoolDistance, 'km');
             console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
             console.log('Total Car Emissions (Individual + Carpool):', totalCarEmissions, 'kg CO2e');
         }
-        
+
         console.log('Total Car Distance:', carTotalDistance, 'km');
-        
+
         totalEmissionsKg += totalCarEmissions;
         totalDistance += carTotalDistance;
         totalPassengers += passengers;
@@ -168,51 +168,131 @@ const calculateEmissions = (data) => {
     }
 
     // Calculate Taxi emissions
+    // if (data.commuteByTaxi) {
+    //     let individualDistance = Number(data.taxiDistance) || 0;
+    //     let carpoolDistance = 0;
+    //     let passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : 1;
+    //     const taxiType = data.taxiType;
+    //     let baseFactor = EMISSION_FACTORS.taxis[taxiType];
+    //     let factor = baseFactor;
+
+    //     let individualEmissions = individualDistance * factor;
+    //     let totalTaxiEmissions = individualEmissions;
+    //     let taxiTotalDistance = individualDistance;
+
+    //     console.log('=== EMISSION CALCULATION - TAXI ===');
+    //     console.log('Taxi Type:', taxiType);
+    //     console.log('Emission Factor:', factor, 'kg CO2e/km');
+    //     console.log('Traveling With Others:', data.travelWithOthersTaxi);
+    //     console.log('Persons Traveling With:', data.personsTravelWithTaxi || 0);
+    //     console.log('Total Passengers (including self):', passengers);
+    //     console.log('Individual Distance:', individualDistance, 'km');
+    //     console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
+
+    //     // Check if mode is 'both' and carpool distance exists
+    //     if (data.taxiMode === 'both' && data.taxiDistanceCarpool) {
+    //         carpoolDistance = Number(data.taxiDistanceCarpool) || 0;
+    //         let carpoolEmissions = carpoolDistance * factor;
+    //         totalTaxiEmissions += carpoolEmissions;
+    //         taxiTotalDistance += carpoolDistance;
+
+    //         console.log('Carpool Distance:', carpoolDistance, 'km');
+    //         console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
+    //         console.log('Total Taxi Emissions (Individual + Carpool):', totalTaxiEmissions, 'kg CO2e');
+    //     }
+
+    //     console.log('Total Taxi Distance:', taxiTotalDistance, 'km');
+
+    //     totalEmissionsKg += totalTaxiEmissions;
+    //     totalDistance += taxiTotalDistance;
+    //     totalPassengers += passengers;
+    //     emissionDetails.push({
+    //         mode: 'Taxi',
+    //         modeType: data.taxiMode === 'both' ? 'Individual + Carpool' : 'Individual',
+    //         individualDistance,
+    //         carpoolDistance,
+    //         totalDistance: taxiTotalDistance,
+    //         passengers,
+    //         factor,
+    //         emissions: totalTaxiEmissions
+    //     });
+    // }
     if (data.commuteByTaxi) {
-        let individualDistance = Number(data.taxiDistance) || 0;
-        let carpoolDistance = 0;
-        let passengers = data.travelWithOthersTaxi ? Number(data.personsTravelWithTaxi || 1) : 1;
         const taxiType = data.taxiType;
         let baseFactor = EMISSION_FACTORS.taxis[taxiType];
         let factor = baseFactor;
-        
-        let individualEmissions = individualDistance * factor;
-        let totalTaxiEmissions = individualEmissions;
-        let taxiTotalDistance = individualDistance;
-        
+
+        let individualDistance = Number(data.taxiDistance) || 0;
+        let carpoolDistance = 0;
+        let individualEmissions = 0;
+        let carpoolEmissions = 0;
+        let totalTaxiEmissions = 0;
+        let taxiTotalDistance = 0;
+
         console.log('=== EMISSION CALCULATION - TAXI ===');
         console.log('Taxi Type:', taxiType);
         console.log('Emission Factor:', factor, 'kg CO2e/km');
-        console.log('Traveling With Others:', data.travelWithOthersTaxi);
-        console.log('Persons Traveling With:', data.personsTravelWithTaxi || 0);
-        console.log('Total Passengers (including self):', passengers);
-        console.log('Individual Distance:', individualDistance, 'km');
-        console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
-        
-        // Check if mode is 'both' and carpool distance exists
-        if (data.taxiMode === 'both' && data.taxiDistanceCarpool) {
-            carpoolDistance = Number(data.taxiDistanceCarpool) || 0;
-            let carpoolEmissions = carpoolDistance * factor;
-            totalTaxiEmissions += carpoolEmissions;
-            taxiTotalDistance += carpoolDistance;
-            
+
+        // Handle based on mode
+        if (data.taxiMode === 'individual') {
+            // Individual mode: distance * EF
+            individualEmissions = individualDistance * factor;
+            totalTaxiEmissions = individualEmissions;
+            taxiTotalDistance = individualDistance;
+
+            console.log('Mode: Individual');
+            console.log('Individual Distance:', individualDistance, 'km');
+            console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
+
+        } else if (data.taxiMode === 'carpool') {
+            // Carpool mode: passengers * distance * EF
+            let passengers = data.travelWithOthersTaxi ? (Number(data.personsTravelWithTaxi || 0) + 1) : 1;
+            carpoolDistance = individualDistance; // In carpool mode, the distance field is the carpool distance
+            carpoolEmissions = passengers * carpoolDistance * factor;
+            totalTaxiEmissions = carpoolEmissions;
+            taxiTotalDistance = carpoolDistance;
+
+            console.log('Mode: Carpool');
             console.log('Carpool Distance:', carpoolDistance, 'km');
-            console.log('Carpool Emissions:', carpoolEmissions, 'kg CO2e');
-            console.log('Total Taxi Emissions (Individual + Carpool):', totalTaxiEmissions, 'kg CO2e');
+            console.log('Passengers (including self):', passengers);
+            console.log('Carpool Emissions (passengers × distance × EF):', carpoolEmissions, 'kg CO2e');
+
+        } else if (data.taxiMode === 'both') {
+            // Both mode: individual part + carpool part
+            let passengers = data.travelWithOthersTaxi ? (Number(data.personsTravelWithTaxi || 0) + 1) : 1;
+            carpoolDistance = Number(data.taxiDistanceCarpool) || 0;
+
+            // Individual part: individualDistance * EF
+            individualEmissions = individualDistance * factor;
+            // Carpool part: passengers * carpoolDistance * EF
+            carpoolEmissions = passengers * carpoolDistance * factor;
+
+            totalTaxiEmissions = individualEmissions + carpoolEmissions;
+            taxiTotalDistance = individualDistance + carpoolDistance;
+
+            console.log('Mode: Both');
+            console.log('Individual Distance:', individualDistance, 'km');
+            console.log('Individual Emissions:', individualEmissions, 'kg CO2e');
+            console.log('Carpool Distance:', carpoolDistance, 'km');
+            console.log('Passengers (including self):', passengers);
+            console.log('Carpool Emissions (passengers × distance × EF):', carpoolEmissions, 'kg CO2e');
+            console.log('Total Taxi Emissions:', totalTaxiEmissions, 'kg CO2e');
         }
-        
+
         console.log('Total Taxi Distance:', taxiTotalDistance, 'km');
-        
+
         totalEmissionsKg += totalTaxiEmissions;
         totalDistance += taxiTotalDistance;
-        totalPassengers += passengers;
+        totalPassengers += 1; // The person filling the form counts as 1 passenger
+
         emissionDetails.push({
             mode: 'Taxi',
-            modeType: data.taxiMode === 'both' ? 'Individual + Carpool' : 'Individual',
+            modeType: data.taxiMode === 'both' ? 'Individual + Carpool' : data.taxiMode === 'carpool' ? 'Carpool' : 'Individual',
             individualDistance,
             carpoolDistance,
             totalDistance: taxiTotalDistance,
-            passengers,
+            passengers: data.taxiMode === 'carpool' || data.taxiMode === 'both' ?
+                (data.travelWithOthersTaxi ? (Number(data.personsTravelWithTaxi || 0) + 1) : 1) : 1,
             factor,
             emissions: totalTaxiEmissions
         });
@@ -225,14 +305,14 @@ const calculateEmissions = (data) => {
         const busType = data.busType;
         let factor = EMISSION_FACTORS.buses[busType];
         let emissions = distance * factor;
-        
+
         console.log('=== EMISSION CALCULATION - BUS ===');
         console.log('Bus Type:', busType);
         console.log('Distance:', distance, 'km');
         console.log('Passengers:', passengers);
         console.log('Emission Factor:', factor, 'kg CO2e/km');
         console.log('Emissions:', emissions, 'kg CO2e');
-        
+
         totalEmissionsKg += emissions;
         totalDistance += distance;
         totalPassengers += passengers;
@@ -253,14 +333,14 @@ const calculateEmissions = (data) => {
         const trainType = data.trainType;
         let factor = EMISSION_FACTORS.trains[trainType];
         let emissions = distance * factor;
-        
+
         console.log('=== EMISSION CALCULATION - TRAIN ===');
         console.log('Train Type:', trainType);
         console.log('Distance:', distance, 'km');
         console.log('Passengers:', passengers);
         console.log('Emission Factor:', factor, 'kg CO2e/km');
         console.log('Emissions:', emissions, 'kg CO2e');
-        
+
         totalEmissionsKg += emissions;
         totalDistance += distance;
         totalPassengers += passengers;
@@ -278,15 +358,15 @@ const calculateEmissions = (data) => {
     if (data.workFromHome) {
         let fteWorkingHours = Number(data.fteWorkingHours) || 0;
         let factor = WFH_EMISSION_FACTOR;
-        
+
         // Calculate emissions: FTE hours * emission factor
         let emissions = fteWorkingHours * factor;
-        
+
         console.log('=== EMISSION CALCULATION - WORK FROM HOME ===');
         console.log('FTE Working Hours:', fteWorkingHours, 'hours');
         console.log('Emission Factor:', factor, 'kg CO2e per FTE hour');
         console.log('Emissions:', emissions, 'kg CO2e');
-        
+
         totalEmissionsKg += emissions;
         // No distance added for Work From Home
         // No passengers added for Work From Home
@@ -300,7 +380,7 @@ const calculateEmissions = (data) => {
     }
 
     const totalEmissionsTonnes = totalEmissionsKg / 1000;
-    
+
     console.log('=== FINAL EMISSION CALCULATION SUMMARY ===');
     console.log('All Modes Calculated:', emissionDetails.map(d => `${d.mode} (${d.modeType})`).join(', '));
     console.log('Emissions Breakdown:');
@@ -316,14 +396,14 @@ const calculateEmissions = (data) => {
     console.log('Total Emissions:', totalEmissionsKg.toFixed(4), 'kg CO2e');
     console.log('Total Emissions:', totalEmissionsTonnes.toFixed(6), 'tonnes CO2e');
     console.log('===================================\n');
-    
-    return { 
-        distance: totalDistance, 
-        passengers: totalPassengers, 
-        factor: totalEmissionsKg / (totalDistance || 1), 
-        totalEmissionsKg, 
+
+    return {
+        distance: totalDistance,
+        passengers: totalPassengers,
+        factor: totalEmissionsKg / (totalDistance || 1),
+        totalEmissionsKg,
         totalEmissionsTonnes,
-        emissionDetails 
+        emissionDetails
     };
 };
 const ErrorMessage = ({ message }) => {
@@ -336,6 +416,300 @@ const ErrorMessage = ({ message }) => {
     );
 };
 
+
+const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate }) => {
+    const navigate = useNavigate();
+
+    if (!isOpen) return null;
+
+    // Format dates nicely
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+
+    // Determine the configuration based on status
+    const getConfig = () => {
+        if (status === 'not-started') {
+            return {
+                title: "Form Not Yet Available",
+                icon: (
+                    <svg className="h-10 w-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                ),
+                bgColor: "bg-yellow-100",
+                iconBgColor: "bg-yellow-100",
+                buttonClass: "bg-yellow-600 hover:bg-yellow-700",
+                defaultMessage: "This form has not started yet."
+            };
+        } else if (status === 'expired') {
+            return {
+                title: "Form Expired",
+                icon: (
+                    <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                ),
+                bgColor: "bg-red-100",
+                iconBgColor: "bg-red-100",
+                buttonClass: "bg-red-600 hover:bg-red-700",
+                defaultMessage: "This form has expired and can no longer be submitted."
+            };
+        } else if (status === 'already-submitted') {
+            return {
+                title: "Form Already Submitted",
+                icon: (
+                    <svg className="h-10 w-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                ),
+                bgColor: "bg-green-100",
+                iconBgColor: "bg-green-100",
+                buttonClass: "bg-green-600 hover:bg-green-700",
+                defaultMessage: "You have already submitted this form. Thank you for your response!"
+            };
+        } else {
+            // Fallback for unknown status - check message text
+            const msg = message || '';
+            if (msg.toLowerCase().includes('not started')) {
+                return {
+                    title: "Form Not Yet Available",
+                    icon: (
+                        <svg className="h-10 w-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    ),
+                    bgColor: "bg-yellow-100",
+                    iconBgColor: "bg-yellow-100",
+                    buttonClass: "bg-yellow-600 hover:bg-yellow-700",
+                    defaultMessage: msg
+                };
+            } else if (msg.toLowerCase().includes('expired')) {
+                return {
+                    title: "Form Expired",
+                    icon: (
+                        <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    ),
+                    bgColor: "bg-red-100",
+                    iconBgColor: "bg-red-100",
+                    buttonClass: "bg-red-600 hover:bg-red-700",
+                    defaultMessage: msg
+                };
+            } else {
+                return {
+                    title: "Form Already Submitted",
+                    icon: (
+                        <svg className="h-10 w-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    ),
+                    bgColor: "bg-blue-100",
+                    iconBgColor: "bg-blue-100",
+                    buttonClass: "bg-blue-600 hover:bg-blue-700",
+                    defaultMessage: msg || "This form has already been submitted."
+                };
+            }
+        }
+    };
+
+    const config = getConfig();
+
+    // Get detailed message based on status
+    const getDetailedMessage = () => {
+        if (status === 'not-started') {
+            return (
+                <div className="space-y-3">
+                    <p className="text-gray-700 text-center">
+                        {message || config.defaultMessage}
+                    </p>
+                    {startDate && (
+                        <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <p className="text-sm font-medium text-yellow-800 mb-1">
+                                📅 Submission Opens:
+                            </p>
+                            <p className="text-sm text-yellow-700">
+                                {formatDate(startDate)}
+                            </p>
+                            <p className="text-xs text-yellow-600 mt-2">
+                                Please check back on this date to submit your commuting data.
+                            </p>
+                        </div>
+                    )}
+                    <div className="mt-2 text-center text-sm text-gray-500">
+                        You'll be able to submit your employee commuting information once the form becomes available.
+                    </div>
+                </div>
+            );
+        } else if (status === 'expired') {
+            return (
+                <div className="space-y-3">
+                    <p className="text-gray-700 text-center">
+                        {message || config.defaultMessage}
+                    </p>
+                    {endDate && (
+                        <div className="mt-3 p-3 bg-red-50 rounded-lg border border-red-200">
+                            <p className="text-sm font-medium text-red-800 mb-1">
+                                ⏰ Deadline Passed:
+                            </p>
+                            <p className="text-sm text-red-700">
+                                {formatDate(endDate)}
+                            </p>
+                            <p className="text-xs text-red-600 mt-2">
+                                Late submissions are not accepted for this reporting period.
+                            </p>
+                        </div>
+                    )}
+                    <div className="mt-2 text-center text-sm text-gray-500">
+                        Please contact your administrator if you need assistance.
+                    </div>
+                </div>
+            );
+        } else {
+            return (
+                <div className="space-y-3">
+                    <p className="text-gray-700 text-center">
+                        {message || config.defaultMessage}
+                    </p>
+                    <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                        <p className="text-sm font-medium text-green-800 mb-1">
+                            ✓ Submission Confirmed
+                        </p>
+                        <p className="text-sm text-green-700">
+                            Thank you for completing the employee commuting data collection form.
+                        </p>
+                        <p className="text-xs text-green-600 mt-2">
+                            Your response has been recorded and will be included in the emissions calculation.
+                        </p>
+                    </div>
+                    <div className="mt-2 text-center text-sm text-gray-500">
+                        If you need to update your submission, please contact your administrator.
+                    </div>
+                </div>
+            );
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div className="p-6">
+                    <div className="flex items-center justify-center mb-4">
+                        <div className={`${config.iconBgColor} rounded-full p-3`}>
+                            {config.icon}
+                        </div>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 text-center mb-3">
+                        {config.title}
+                    </h3>
+
+                    {getDetailedMessage()}
+
+                    <div className="flex justify-center space-x-3 mt-6">
+                        {status === 'already-submitted' && (
+                            <button
+                                onClick={() => {
+                                    if (onClose) onClose();
+                                    navigate('/my-submissions');
+                                }}
+                                className={`px-4 py-2 text-white rounded-md transition-colors ${config.buttonClass}`}
+                            >
+                                View My Submission
+                            </button>
+                        )}
+                        <button
+                            onClick={() => {
+                                if (onClose) onClose();
+                                window.location.reload();
+                            }}
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                        >
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const PartialSubmitModal = ({ isOpen, onClose, onConfirm, missingDistances }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div className="p-6">
+                    <div className="flex items-center justify-center mb-4">
+                        <div className="bg-yellow-100 rounded-full p-3">
+                            <svg className="h-10 w-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-gray-900 text-center mb-3">
+                        Partial Submission Warning
+                    </h3>
+
+                    <div className="space-y-3">
+                        <p className="text-gray-700 text-center">
+                            You are about to submit without filling all commute distances.
+                        </p>
+
+                        <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <p className="text-sm font-medium text-yellow-800 mb-2">
+                                ⚠ Missing Distances:
+                            </p>
+                            <ul className="list-disc pl-5 text-sm text-yellow-700">
+                                {missingDistances && missingDistances.map((item, index) => (
+                                    <li key={index}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <p className="text-sm font-medium text-blue-800 mb-1">
+                                What will happen:
+                            </p>
+                            <ul className="text-sm text-blue-700 list-disc pl-4 space-y-1">
+                                <li>Only filled distances will be submitted</li>
+                                <li>Missing commutes will be skipped</li>
+                                <li>The months from skipped commutes will remain available for future submissions</li>
+                                <li>You can submit additional data for missing commutes later</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-between  mt-6">
+                      
+                        <button
+                            onClick={onClose}
+                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                          <button
+                            onClick={onConfirm}
+                            className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
+                        >
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const EmployeeCommutingFormCarpool = () => {
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
@@ -343,7 +717,17 @@ const EmployeeCommutingFormCarpool = () => {
     const urlParticipantId = queryParams.get('participantId');
     const urlAdminToken = queryParams.get('adminToken');
     const [checkingSubmission, setCheckingSubmission] = useState(true);
+    const [showPartialSubmitModal, setShowPartialSubmitModal] = useState(false);
+    const [missingDistancesList, setMissingDistancesList] = useState([]);
     const navigate = useNavigate();
+    const [formAccessStatus, setFormAccessStatus] = useState({
+        checking: true,
+        canAccess: false,
+        message: '',
+        status: null, // 'not-started', 'expired', 'already-submitted'
+        startDate: null,
+        endDate: null
+    });
 
     // Current year for reporting
     const currentYear = new Date().getFullYear();
@@ -381,7 +765,7 @@ const EmployeeCommutingFormCarpool = () => {
         employeeName: '',
         employeeID: '',
         emailDocId: '',
-        parentId:'',
+        parentId: '',
         // Basic Information
         siteBuildingName: null,
         stakeholderDepartment: null,
@@ -505,7 +889,7 @@ const EmployeeCommutingFormCarpool = () => {
     // Helper function to parse date range from various formats
     const parseDateRange = (dateRangeData) => {
         if (!dateRangeData) return null;
-        
+
         // If it's already in the correct format with startDate and endDate
         if (dateRangeData.startDate && dateRangeData.endDate) {
             return {
@@ -513,7 +897,7 @@ const EmployeeCommutingFormCarpool = () => {
                 endDate: new Date(dateRangeData.endDate)
             };
         }
-        
+
         // If it's a string or other format, try to parse it
         try {
             // Check if it's a string representation of dates
@@ -531,7 +915,7 @@ const EmployeeCommutingFormCarpool = () => {
                     // Not JSON, continue to next check
                 }
             }
-            
+
             // If it's an array of dates
             if (Array.isArray(dateRangeData) && dateRangeData.length >= 2) {
                 return {
@@ -539,7 +923,7 @@ const EmployeeCommutingFormCarpool = () => {
                     endDate: new Date(dateRangeData[dateRangeData.length - 1])
                 };
             }
-            
+
             // If it's a single date object with from/to
             if (dateRangeData.from && dateRangeData.to) {
                 return {
@@ -547,7 +931,7 @@ const EmployeeCommutingFormCarpool = () => {
                     endDate: new Date(dateRangeData.to)
                 };
             }
-            
+
             // If it's a string in format "YYYY-MM-DD to YYYY-MM-DD"
             if (typeof dateRangeData === 'string' && dateRangeData.includes('to')) {
                 const parts = dateRangeData.split('to');
@@ -561,7 +945,7 @@ const EmployeeCommutingFormCarpool = () => {
         } catch (error) {
             console.error('Error parsing date range:', error);
         }
-        
+
         return null;
     };
 
@@ -576,68 +960,68 @@ const EmployeeCommutingFormCarpool = () => {
         }
     };
 
-   // Fetch the original form data by ID
-const fetchOriginalFormData = async (authToken) => {
-    try {
-        setLoadingForm(true);
-        
-        if (!urlFormId) {
-            toast.error('Form ID is missing from URL');
-            return;
-        }
+    // Fetch the original form data by ID
+    const fetchOriginalFormData = async (authToken) => {
+        try {
+            setLoadingForm(true);
 
-        const response = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}/employee-commute/Detail/${urlFormId}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    'Content-Type': 'application/json',
-                },
+            if (!urlFormId) {
+                toast.error('Form ID is missing from URL');
+                return;
             }
-        );
-        
-        console.log('Original form data:', response.data);
-        console.log('Motorbike date range:', response.data.data?.motorbikeDateRange);
-        console.log('Car date range:', response.data.data?.carDateRange);
-        console.log('Taxi date range:', response.data.data?.taxiDateRange);
-        console.log('Motorbike passenger IDs:', response.data.data?.motorbikePassengerUserIds);
-        console.log('Car passenger IDs:', response.data.data?.carPassengerUserIds);
-        console.log('Taxi passenger IDs:', response.data.data?.taxiPassengerUserIds);
 
-        if (response.data && response.data.data) {
-            const formDataFromApi = response.data.data;
-            setOriginalFormData(formDataFromApi);
-            
-            // ✅ SET emailDocId FROM API RESPONSE
-            if (formDataFromApi.emailDocId) {
-                setFormData(prev => ({
-                    ...prev,
-                    emailDocId: formDataFromApi.emailDocId
-                }));
-                console.log('Email Doc ID set from API:', formDataFromApi.emailDocId);
+            const response = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/employee-commute/Detail/${urlFormId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            console.log('Original form data:', response.data);
+            console.log('Motorbike date range:', response.data.data?.motorbikeDateRange);
+            console.log('Car date range:', response.data.data?.carDateRange);
+            console.log('Taxi date range:', response.data.data?.taxiDateRange);
+            console.log('Motorbike passenger IDs:', response.data.data?.motorbikePassengerUserIds);
+            console.log('Car passenger IDs:', response.data.data?.carPassengerUserIds);
+            console.log('Taxi passenger IDs:', response.data.data?.taxiPassengerUserIds);
+
+            if (response.data && response.data.data) {
+                const formDataFromApi = response.data.data;
+                setOriginalFormData(formDataFromApi);
+
+                // ✅ SET emailDocId FROM API RESPONSE
+                if (formDataFromApi.emailDocId) {
+                    setFormData(prev => ({
+                        ...prev,
+                        emailDocId: formDataFromApi.emailDocId
+                    }));
+                    console.log('Email Doc ID set from API:', formDataFromApi.emailDocId);
+                }
+
+                // Find which commute types the participant is a passenger in
+                findUserAsPassenger(formDataFromApi, urlParticipantId);
+
+                // Set reporting year from form data
+                if (formDataFromApi.reportingYear) {
+                    setReportingYear(formDataFromApi.reportingYear);
+                }
+
+                return formDataFromApi;
+            } else {
+                toast.error('No form data received from server');
+                return null;
             }
-            
-            // Find which commute types the participant is a passenger in
-            findUserAsPassenger(formDataFromApi, urlParticipantId);
-            
-            // Set reporting year from form data
-            if (formDataFromApi.reportingYear) {
-                setReportingYear(formDataFromApi.reportingYear);
-            }
-            
-            return formDataFromApi;
-        } else {
-            toast.error('No form data received from server');
+        } catch (error) {
+            console.error('Error fetching form data:', error);
+            toast.error('Failed to load form data. Please try again later.');
             return null;
+        } finally {
+            setLoadingForm(false);
         }
-    } catch (error) {
-        console.error('Error fetching form data:', error);
-        toast.error('Failed to load form data. Please try again later.');
-        return null;
-    } finally {
-        setLoadingForm(false);
-    }
-};
+    };
 
     // Function to find where the participant is a passenger
     const findUserAsPassenger = (formData, participantId) => {
@@ -647,13 +1031,13 @@ const fetchOriginalFormData = async (authToken) => {
         const details = {};
 
         // Check in motorbike carpool (carryOthers)
-        if (formData.commuteByMotorbike && 
-            (formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && 
+        if (formData.commuteByMotorbike &&
+            (formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') &&
             formData.carryOthersMotorbike) {
-            
+
             const passengerIds = formData.motorbikePassengerUserIds || [];
             const passengerIndex = passengerIds.findIndex(id => id === participantId);
-            
+
             if (passengerIndex !== -1) {
                 transportTypes.push('motorbike');
                 details.motorbike = {
@@ -669,13 +1053,13 @@ const fetchOriginalFormData = async (authToken) => {
         }
 
         // Check in motorbike travel (travelWithOthers)
-        if (formData.commuteByMotorbike && 
-            (formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') && 
+        if (formData.commuteByMotorbike &&
+            (formData.motorbikeMode === 'carpool' || formData.motorbikeMode === 'both') &&
             formData.travelWithOthersMotorbike) {
-            
+
             const passengerIds = formData.motorbikeTravelPassengerUserIds || [];
             const passengerIndex = passengerIds.findIndex(id => id === participantId);
-            
+
             if (passengerIndex !== -1 && !transportTypes.includes('motorbike')) {
                 transportTypes.push('motorbike');
                 details.motorbike = {
@@ -691,13 +1075,13 @@ const fetchOriginalFormData = async (authToken) => {
         }
 
         // Check in car carpool (carryOthers)
-        if (formData.commuteByCar && 
-            (formData.carMode === 'carpool' || formData.carMode === 'both') && 
+        if (formData.commuteByCar &&
+            (formData.carMode === 'carpool' || formData.carMode === 'both') &&
             formData.carryOthersCar) {
-            
+
             const passengerIds = formData.carPassengerUserIds || [];
             const passengerIndex = passengerIds.findIndex(id => id === participantId);
-            
+
             if (passengerIndex !== -1) {
                 transportTypes.push('car');
                 details.car = {
@@ -713,13 +1097,13 @@ const fetchOriginalFormData = async (authToken) => {
         }
 
         // Check in car travel (travelWithOthers)
-        if (formData.commuteByCar && 
-            (formData.carMode === 'carpool' || formData.carMode === 'both') && 
+        if (formData.commuteByCar &&
+            (formData.carMode === 'carpool' || formData.carMode === 'both') &&
             formData.travelWithOthersCar) {
-            
+
             const passengerIds = formData.carTravelPassengerUserIds || [];
             const passengerIndex = passengerIds.findIndex(id => id === participantId);
-            
+
             if (passengerIndex !== -1 && !transportTypes.includes('car')) {
                 transportTypes.push('car');
                 details.car = {
@@ -735,13 +1119,13 @@ const fetchOriginalFormData = async (authToken) => {
         }
 
         // Check in taxi carpool
-        if (formData.commuteByTaxi && 
-            (formData.taxiMode === 'carpool' || formData.taxiMode === 'both') && 
+        if (formData.commuteByTaxi &&
+            (formData.taxiMode === 'carpool' || formData.taxiMode === 'both') &&
             formData.travelWithOthersTaxi) {
-            
+
             const passengerIds = formData.taxiPassengerUserIds || [];
             const passengerIndex = passengerIds.findIndex(id => id === participantId);
-            
+
             if (passengerIndex !== -1) {
                 transportTypes.push('taxi');
                 details.taxi = {
@@ -772,11 +1156,13 @@ const fetchOriginalFormData = async (authToken) => {
     };
 
     // Initialize form with data from original form
+
     // const initializeFormWithOriginalData = (originalData) => {
     //     if (!originalData) return;
 
     //     console.log('Initializing form with data:', originalData);
     //     console.log('User passenger details:', userPassengerDetails);
+    //     console.log('Participant building info:', userInfo?.buildingId);
 
     //     // Parse all date ranges first
     //     const motorbikeDateRange = parseDateRange(originalData.motorbikeDateRange);
@@ -789,19 +1175,40 @@ const fetchOriginalFormData = async (authToken) => {
     //     const trainDateRange = parseDateRange(originalData.trainDateRange);
     //     const workFromHomeDateRange = parseDateRange(originalData.workFromHomeDateRange);
 
+    //     // Get participant's building from userInfo
+    //     let participantBuilding = null;
+    //     if (userInfo?.buildingId) {
+    //         // If buildingId is an object with _id and buildingName
+    //         if (typeof userInfo.buildingId === 'object' && userInfo.buildingId._id) {
+    //             participantBuilding = {
+    //                 value: userInfo.buildingId._id,
+    //                 label: userInfo.buildingId.buildingName || 'Building',
+    //                 buildingData: userInfo.buildingId
+    //             };
+    //         }
+    //         // If buildingId is just a string ID
+    //         else if (typeof userInfo.buildingId === 'string') {
+    //             // Find the building from the buildings list
+    //             const building = buildings.find(b => b.value === userInfo.buildingId);
+    //             if (building) {
+    //                 participantBuilding = building;
+    //             }
+    //         }
+    //     }
+
     //     const newFormData = {
     //         ...formData,
-    //         employeeName: originalData.employeeName || '',
-    //         employeeID: originalData.employeeID || '',
-    //         siteBuildingName: originalData.siteBuildingName ? {
-    //             value: originalData.siteBuildingName,
-    //             label: originalData.siteBuildingName
-    //         } : null,
+    //         employeeName: originalData.employeeName || userInfo?.name || '',
+    //         employeeID: originalData.employeeID || userInfo?.employeeID || '',
+
+    //         // ✅ USE PARTICIPANT'S BUILDING INSTEAD OF ORIGINAL FORM'S BUILDING
+    //         siteBuildingName: participantBuilding || formData.siteBuildingName,
+
     //         stakeholderDepartment: originalData.stakeholderDepartment ? {
     //             value: originalData.stakeholderDepartment,
     //             label: originalData.stakeholderDepartment
     //         } : null,
-            
+
     //         // Set all parsed date ranges
     //         motorbikeDateRange: motorbikeDateRange,
     //         motorbikeCarpoolDateRange: motorbikeCarpoolDateRange,
@@ -816,13 +1223,13 @@ const fetchOriginalFormData = async (authToken) => {
 
     //     // Enable all commute types where user is a passenger
     //     if (userPassengerDetails.transportTypes && userPassengerDetails.transportTypes.length > 0) {
-            
+
     //         // Enable motorbike if user is passenger
     //         if (userPassengerDetails.transportTypes.includes('motorbike')) {
     //             const motorbikeDetails = userPassengerDetails.details.motorbike;
     //             newFormData.commuteByMotorbike = true;
     //             newFormData.motorbikeMode = motorbikeDetails.mode;
-                
+
     //             // Copy motorbike type from original
     //             if (originalData.motorbikeType) {
     //                 newFormData.motorbikeType = {
@@ -850,13 +1257,13 @@ const fetchOriginalFormData = async (authToken) => {
     //                 }
     //             }
     //         }
-            
+
     //         // Enable car if user is passenger
     //         if (userPassengerDetails.transportTypes.includes('car')) {
     //             const carDetails = userPassengerDetails.details.car;
     //             newFormData.commuteByCar = true;
     //             newFormData.carMode = carDetails.mode;
-                
+
     //             // Copy car type and fuel type from original
     //             if (originalData.carType) {
     //                 newFormData.carType = {
@@ -864,7 +1271,7 @@ const fetchOriginalFormData = async (authToken) => {
     //                     label: originalData.carType
     //                 };
     //             }
-                
+
     //             if (originalData.carFuelType) {
     //                 newFormData.carFuelType = {
     //                     value: originalData.carFuelType,
@@ -891,13 +1298,13 @@ const fetchOriginalFormData = async (authToken) => {
     //                 }
     //             }
     //         }
-            
+
     //         // Enable taxi if user is passenger
     //         if (userPassengerDetails.transportTypes.includes('taxi')) {
     //             const taxiDetails = userPassengerDetails.details.taxi;
     //             newFormData.commuteByTaxi = true;
     //             newFormData.taxiMode = taxiDetails.mode;
-                
+
     //             // Copy taxi type from original
     //             if (originalData.taxiType) {
     //                 newFormData.taxiType = {
@@ -924,9 +1331,9 @@ const fetchOriginalFormData = async (authToken) => {
     //         }
     //     }
 
-    //     console.log('Setting new form data:', newFormData);
+    //     console.log('Setting new form data with participant building:', newFormData.siteBuildingName);
     //     setFormData(newFormData);
-        
+
     //     // Update selected date ranges state
     //     setSelectedDateRanges({
     //         motorbike: motorbikeDateRange,
@@ -940,196 +1347,201 @@ const fetchOriginalFormData = async (authToken) => {
     //         workFromHome: workFromHomeDateRange
     //     });
     // };
+
     const initializeFormWithOriginalData = (originalData) => {
-    if (!originalData) return;
+        if (!originalData) return;
 
-    console.log('Initializing form with data:', originalData);
-    console.log('User passenger details:', userPassengerDetails);
-    console.log('Participant building info:', userInfo?.buildingId);
+        console.log('Initializing form with data:', originalData);
+        console.log('User passenger details:', userPassengerDetails);
 
-    // Parse all date ranges first
-    const motorbikeDateRange = parseDateRange(originalData.motorbikeDateRange);
-    const motorbikeCarpoolDateRange = parseDateRange(originalData.motorbikeCarpoolDateRange);
-    const carDateRange = parseDateRange(originalData.carDateRange);
-    const carCarpoolDateRange = parseDateRange(originalData.carCarpoolDateRange);
-    const taxiDateRange = parseDateRange(originalData.taxiDateRange);
-    const taxiCarpoolDateRange = parseDateRange(originalData.taxiCarpoolDateRange);
-    const busDateRange = parseDateRange(originalData.busDateRange);
-    const trainDateRange = parseDateRange(originalData.trainDateRange);
-    const workFromHomeDateRange = parseDateRange(originalData.workFromHomeDateRange);
+        // Parse all date ranges first - USE CARPOOL DATE RANGES FOR PASSENGERS
+        // Parse date ranges based on mode - REPLACE this section
+        let motorbikeDateRange = null;
+        if (originalData.motorbikeMode === 'both') {
+            motorbikeDateRange = parseDateRange(originalData.motorbikeCarpoolDateRange);
+        } else {
+            motorbikeDateRange = parseDateRange(originalData.motorbikeDateRange);
+        }
 
-    // Get participant's building from userInfo
-    let participantBuilding = null;
-    if (userInfo?.buildingId) {
-        // If buildingId is an object with _id and buildingName
-        if (typeof userInfo.buildingId === 'object' && userInfo.buildingId._id) {
-            participantBuilding = {
-                value: userInfo.buildingId._id,
-                label: userInfo.buildingId.buildingName || 'Building',
-                buildingData: userInfo.buildingId
-            };
-        } 
-        // If buildingId is just a string ID
-        else if (typeof userInfo.buildingId === 'string') {
-            // Find the building from the buildings list
-            const building = buildings.find(b => b.value === userInfo.buildingId);
-            if (building) {
-                participantBuilding = building;
+        let carDateRange = null;
+        if (originalData.carMode === 'both') {
+            carDateRange = parseDateRange(originalData.carCarpoolDateRange);
+        } else {
+            carDateRange = parseDateRange(originalData.carDateRange);
+        }
+
+        let taxiDateRange = null;
+        if (originalData.taxiMode === 'both') {
+            taxiDateRange = parseDateRange(originalData.taxiCarpoolDateRange);
+        } else {
+            taxiDateRange = parseDateRange(originalData.taxiDateRange);
+        };
+
+        const busDateRange = parseDateRange(originalData.busDateRange);
+        const trainDateRange = parseDateRange(originalData.trainDateRange);
+        const workFromHomeDateRange = parseDateRange(originalData.workFromHomeDateRange);
+        // Get participant's building from userInfo
+        let participantBuilding = null;
+        if (userInfo?.buildingId) {
+            if (typeof userInfo.buildingId === 'object' && userInfo.buildingId._id) {
+                participantBuilding = {
+                    value: userInfo.buildingId._id,
+                    label: userInfo.buildingId.buildingName || 'Building',
+                    buildingData: userInfo.buildingId
+                };
+            }
+            else if (typeof userInfo.buildingId === 'string') {
+                const building = buildings.find(b => b.value === userInfo.buildingId);
+                if (building) {
+                    participantBuilding = building;
+                }
             }
         }
-    }
 
-    const newFormData = {
-        ...formData,
-        employeeName: originalData.employeeName || userInfo?.name || '',
-        employeeID: originalData.employeeID || userInfo?.employeeID || '',
-        
-        // ✅ USE PARTICIPANT'S BUILDING INSTEAD OF ORIGINAL FORM'S BUILDING
-        siteBuildingName: participantBuilding || formData.siteBuildingName,
-        
-        stakeholderDepartment: originalData.stakeholderDepartment ? {
-            value: originalData.stakeholderDepartment,
-            label: originalData.stakeholderDepartment
-        } : null,
-        
-        // Set all parsed date ranges
-        motorbikeDateRange: motorbikeDateRange,
-        motorbikeCarpoolDateRange: motorbikeCarpoolDateRange,
-        carDateRange: carDateRange,
-        carCarpoolDateRange: carCarpoolDateRange,
-        taxiDateRange: taxiDateRange,
-        taxiCarpoolDateRange: taxiCarpoolDateRange,
-        busDateRange: busDateRange,
-        trainDateRange: trainDateRange,
-        workFromHomeDateRange: workFromHomeDateRange,
+        const newFormData = {
+            ...formData,
+            employeeName: originalData.employeeName || userInfo?.name || '',
+            employeeID: originalData.employeeID || userInfo?.employeeID || '',
+            siteBuildingName: participantBuilding || formData.siteBuildingName,
+            stakeholderDepartment: originalData.stakeholderDepartment ? {
+                value: originalData.stakeholderDepartment,
+                label: originalData.stakeholderDepartment
+            } : null,
+
+            // Set all parsed date ranges (using carpool ranges for passenger modes)
+            motorbikeDateRange: motorbikeDateRange,
+            carDateRange: carDateRange,
+            taxiDateRange: taxiDateRange,
+            busDateRange: busDateRange,
+            trainDateRange: trainDateRange,
+            workFromHomeDateRange: workFromHomeDateRange,
+        };
+
+        // Enable all commute types where user is a passenger
+        if (userPassengerDetails.transportTypes && userPassengerDetails.transportTypes.length > 0) {
+
+            // Enable motorbike if user is passenger
+            if (userPassengerDetails.transportTypes.includes('motorbike')) {
+                const motorbikeDetails = userPassengerDetails.details.motorbike;
+                newFormData.commuteByMotorbike = true;
+                newFormData.motorbikeMode = motorbikeDetails.mode;
+
+                if (originalData.motorbikeType) {
+                    newFormData.motorbikeType = {
+                        value: originalData.motorbikeType,
+                        label: originalData.motorbikeType
+                    };
+                }
+
+                if (motorbikeDetails.isDriverCarrying) {
+                    newFormData.carryOthersMotorbike = true;
+                    if (originalData.personsCarriedMotorbike) {
+                        newFormData.personsCarriedMotorbike = {
+                            value: originalData.personsCarriedMotorbike.toString(),
+                            label: originalData.personsCarriedMotorbike.toString()
+                        };
+                    }
+                } else if (motorbikeDetails.isTravelWith) {
+                    newFormData.travelWithOthersMotorbike = true;
+                    if (originalData.personsTravelWithMotorbike) {
+                        newFormData.personsTravelWithMotorbike = {
+                            value: originalData.personsTravelWithMotorbike.toString(),
+                            label: originalData.personsTravelWithMotorbike.toString()
+                        };
+                    }
+                }
+            }
+
+            // Enable car if user is passenger
+            if (userPassengerDetails.transportTypes.includes('car')) {
+                const carDetails = userPassengerDetails.details.car;
+                newFormData.commuteByCar = true;
+                newFormData.carMode = carDetails.mode;
+
+                if (originalData.carType) {
+                    newFormData.carType = {
+                        value: originalData.carType,
+                        label: originalData.carType
+                    };
+                }
+
+                if (originalData.carFuelType) {
+                    newFormData.carFuelType = {
+                        value: originalData.carFuelType,
+                        label: originalData.carFuelType
+                    };
+                }
+
+                if (carDetails.isDriverCarrying) {
+                    newFormData.carryOthersCar = true;
+                    if (originalData.personsCarriedCar) {
+                        newFormData.personsCarriedCar = {
+                            value: originalData.personsCarriedCar.toString(),
+                            label: originalData.personsCarriedCar.toString()
+                        };
+                    }
+                } else if (carDetails.isTravelWith) {
+                    newFormData.travelWithOthersCar = true;
+                    if (originalData.personsTravelWithCar) {
+                        newFormData.personsTravelWithCar = {
+                            value: originalData.personsTravelWithCar.toString(),
+                            label: originalData.personsTravelWithCar.toString()
+                        };
+                    }
+                }
+            }
+
+            // Enable taxi if user is passenger
+            if (userPassengerDetails.transportTypes.includes('taxi')) {
+                const taxiDetails = userPassengerDetails.details.taxi;
+                newFormData.commuteByTaxi = true;
+                newFormData.taxiMode = taxiDetails.mode;
+
+                if (originalData.taxiType) {
+                    newFormData.taxiType = {
+                        value: originalData.taxiType,
+                        label: originalData.taxiType
+                    };
+                }
+
+                if (originalData.taxiPassengers) {
+                    newFormData.taxiPassengers = {
+                        value: originalData.taxiPassengers.toString(),
+                        label: originalData.taxiPassengers.toString()
+                    };
+                }
+
+                newFormData.travelWithOthersTaxi = true;
+                if (originalData.personsTravelWithTaxi) {
+                    newFormData.personsTravelWithTaxi = {
+                        value: originalData.personsTravelWithTaxi.toString(),
+                        label: originalData.personsTravelWithTaxi.toString()
+                    };
+                }
+            }
+        }
+
+        console.log('Setting new form data with participant building:', newFormData.siteBuildingName);
+        console.log('Using date ranges:', {
+            motorbike: motorbikeDateRange,
+            car: carDateRange,
+            taxi: taxiDateRange
+        });
+        setFormData(newFormData);
+
+        // Update selected date ranges state
+        setSelectedDateRanges({
+            motorbike: motorbikeDateRange,
+            motorbikeCarpool: motorbikeDateRange,
+            taxi: taxiDateRange,
+            taxiCarpool: taxiDateRange,
+            bus: busDateRange,
+            train: trainDateRange,
+            car: carDateRange,
+            carCarpool: carDateRange,
+            workFromHome: workFromHomeDateRange
+        });
     };
-
-    // Enable all commute types where user is a passenger
-    if (userPassengerDetails.transportTypes && userPassengerDetails.transportTypes.length > 0) {
-        
-        // Enable motorbike if user is passenger
-        if (userPassengerDetails.transportTypes.includes('motorbike')) {
-            const motorbikeDetails = userPassengerDetails.details.motorbike;
-            newFormData.commuteByMotorbike = true;
-            newFormData.motorbikeMode = motorbikeDetails.mode;
-            
-            // Copy motorbike type from original
-            if (originalData.motorbikeType) {
-                newFormData.motorbikeType = {
-                    value: originalData.motorbikeType,
-                    label: originalData.motorbikeType
-                };
-            }
-
-            // Set the appropriate passenger fields based on whether user is in carry or travel
-            if (motorbikeDetails.isDriverCarrying) {
-                newFormData.carryOthersMotorbike = true;
-                if (originalData.personsCarriedMotorbike) {
-                    newFormData.personsCarriedMotorbike = {
-                        value: originalData.personsCarriedMotorbike.toString(),
-                        label: originalData.personsCarriedMotorbike.toString()
-                    };
-                }
-            } else if (motorbikeDetails.isTravelWith) {
-                newFormData.travelWithOthersMotorbike = true;
-                if (originalData.personsTravelWithMotorbike) {
-                    newFormData.personsTravelWithMotorbike = {
-                        value: originalData.personsTravelWithMotorbike.toString(),
-                        label: originalData.personsTravelWithMotorbike.toString()
-                    };
-                }
-            }
-        }
-        
-        // Enable car if user is passenger
-        if (userPassengerDetails.transportTypes.includes('car')) {
-            const carDetails = userPassengerDetails.details.car;
-            newFormData.commuteByCar = true;
-            newFormData.carMode = carDetails.mode;
-            
-            // Copy car type and fuel type from original
-            if (originalData.carType) {
-                newFormData.carType = {
-                    value: originalData.carType,
-                    label: originalData.carType
-                };
-            }
-            
-            if (originalData.carFuelType) {
-                newFormData.carFuelType = {
-                    value: originalData.carFuelType,
-                    label: originalData.carFuelType
-                };
-            }
-
-            // Set the appropriate passenger fields
-            if (carDetails.isDriverCarrying) {
-                newFormData.carryOthersCar = true;
-                if (originalData.personsCarriedCar) {
-                    newFormData.personsCarriedCar = {
-                        value: originalData.personsCarriedCar.toString(),
-                        label: originalData.personsCarriedCar.toString()
-                    };
-                }
-            } else if (carDetails.isTravelWith) {
-                newFormData.travelWithOthersCar = true;
-                if (originalData.personsTravelWithCar) {
-                    newFormData.personsTravelWithCar = {
-                        value: originalData.personsTravelWithCar.toString(),
-                        label: originalData.personsTravelWithCar.toString()
-                    };
-                }
-            }
-        }
-        
-        // Enable taxi if user is passenger
-        if (userPassengerDetails.transportTypes.includes('taxi')) {
-            const taxiDetails = userPassengerDetails.details.taxi;
-            newFormData.commuteByTaxi = true;
-            newFormData.taxiMode = taxiDetails.mode;
-            
-            // Copy taxi type from original
-            if (originalData.taxiType) {
-                newFormData.taxiType = {
-                    value: originalData.taxiType,
-                    label: originalData.taxiType
-                };
-            }
-
-            if (originalData.taxiPassengers) {
-                newFormData.taxiPassengers = {
-                    value: originalData.taxiPassengers.toString(),
-                    label: originalData.taxiPassengers.toString()
-                };
-            }
-
-            // Set passenger fields
-            newFormData.travelWithOthersTaxi = true;
-            if (originalData.personsTravelWithTaxi) {
-                newFormData.personsTravelWithTaxi = {
-                    value: originalData.personsTravelWithTaxi.toString(),
-                    label: originalData.personsTravelWithTaxi.toString()
-                };
-            }
-        }
-    }
-
-    console.log('Setting new form data with participant building:', newFormData.siteBuildingName);
-    setFormData(newFormData);
-    
-    // Update selected date ranges state
-    setSelectedDateRanges({
-        motorbike: motorbikeDateRange,
-        motorbikeCarpool: motorbikeCarpoolDateRange,
-        taxi: taxiDateRange,
-        taxiCarpool: taxiCarpoolDateRange,
-        bus: busDateRange,
-        train: trainDateRange,
-        car: carDateRange,
-        carCarpool: carCarpoolDateRange,
-        workFromHome: workFromHomeDateRange
-    });
-};
 
     // Fetch buildings from API
     const fetchBuildings = async (authToken) => {
@@ -1178,7 +1590,7 @@ const fetchOriginalFormData = async (authToken) => {
     const fetchUserData = async (authToken) => {
         try {
             setUserLoading(true);
-            
+
             // Use urlParticipantId directly from the URL params
             if (!urlParticipantId) {
                 toast.error('Participant ID is missing from URL');
@@ -1208,7 +1620,7 @@ const fetchOriginalFormData = async (authToken) => {
                         submittedByEmail: userData.email
                     }));
                 }
-                
+
                 // Auto-fill department field
                 if (userData.department) {
                     const userDept = departmentOptions.find(
@@ -1276,7 +1688,7 @@ const fetchOriginalFormData = async (authToken) => {
         const currentToken = getToken();
         if (currentToken) {
             setToken(currentToken);
-            
+
             // First fetch the original form data
             fetchOriginalFormData(currentToken).then((originalData) => {
                 if (originalData) {
@@ -1286,10 +1698,10 @@ const fetchOriginalFormData = async (authToken) => {
 
             // Fetch user data
             fetchUserData(currentToken);
-            
+
             // Fetch buildings
             fetchBuildings(currentToken);
-            
+
             // Fetch company users
             fetchCompanyUsers(currentToken);
         } else {
@@ -1309,6 +1721,153 @@ const fetchOriginalFormData = async (authToken) => {
         }
     }, [passengerDetailsLoaded, originalFormData]);
 
+    const checkFormAccess = async () => {
+        const currentToken = getToken();
+        const currentUserId = urlParticipantId;
+
+        // IMPORTANT: Get emailDocId from the fetched form data, not from URL
+        const currentEmailDocId = originalFormData?.emailDocId || formData.emailDocId;
+
+        // If we don't have emailDocId yet, wait for it
+        if (!currentEmailDocId) {
+            console.log('Waiting for emailDocId to be loaded from form data...');
+            setFormAccessStatus({
+                checking: true,
+                canAccess: false,
+                message: '',
+                status: null,
+                startDate: null,
+                endDate: null
+            });
+            return;
+        }
+
+        if (!currentToken || !currentUserId) {
+            console.log('Missing required parameters for form access check');
+            setFormAccessStatus({
+                checking: false,
+                canAccess: true,
+                message: '',
+                status: null,
+                startDate: null,
+                endDate: null
+            });
+            return;
+        }
+
+        try {
+            console.log('Checking form access for carpool:', {
+                userId: currentUserId,
+                emailDocId: currentEmailDocId,
+                formId: urlFormId
+            });
+
+            const response = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/check-access`,
+                {
+                    params: {
+                        emailDocId: currentEmailDocId,
+                        userId: currentUserId
+                    },
+                    headers: {
+                        Authorization: `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            setFormAccessStatus({
+                checking: false,
+                canAccess: true,
+                message: '',
+                status: null,
+                startDate: null,
+                endDate: null
+            });
+            console.log('Form access granted - user can submit');
+
+        } catch (error) {
+            console.error('Form access check error:', error);
+
+            if (error.response && error.response.status === 403) {
+                const errorMessage = error.response.data?.message || '';
+                console.log('Error message received:', errorMessage);
+
+                if (errorMessage === "Form not started yet") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'not-started',
+                        startDate: error.response.data?.startDate || null,
+                        endDate: error.response.data?.endDate || null
+                    });
+                }
+                else if (errorMessage === "Form Expired") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'expired',
+                        startDate: error.response.data?.startDate || null,
+                        endDate: error.response.data?.endDate || null
+                    });
+                }
+                else if (errorMessage === "Form Already Submitted") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'already-submitted',
+                        startDate: null,
+                        endDate: null
+                    });
+                }
+                else {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage || 'Unable to access form',
+                        status: 'expired',
+                        startDate: null,
+                        endDate: null
+                    });
+                }
+            } else {
+                setFormAccessStatus({
+                    checking: false,
+                    canAccess: true,
+                    message: '',
+                    status: null,
+                    startDate: null,
+                    endDate: null
+                });
+            }
+        }
+    };
+
+    // Check form access when component mounts AND originalFormData is loaded
+    useEffect(() => {
+        const performAccessCheck = async () => {
+            const currentToken = getToken();
+
+            // Don't check until we have originalFormData with emailDocId
+            if (!currentToken || !originalFormData?.emailDocId) {
+                console.log('Waiting for originalFormData or emailDocId...', {
+                    hasToken: !!currentToken,
+                    hasOriginalFormData: !!originalFormData,
+                    emailDocId: originalFormData?.emailDocId
+                });
+                return;
+            }
+
+            await checkFormAccess();
+        };
+
+        performAccessCheck();
+    }, [token, urlAdminToken, urlParticipantId, originalFormData]); // Add originalFormData as dependency
+
+
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
 
@@ -1320,6 +1879,8 @@ const fetchOriginalFormData = async (authToken) => {
             });
         }
     };
+
+
 
     const handleSelectChange = (field, selectedOption) => {
         if (selectedOption && selectedOption.target) {
@@ -1358,12 +1919,137 @@ const fetchOriginalFormData = async (authToken) => {
         }));
     };
 
+    // const validateForm = () => {
+    //     const errors = {};
+    //     // Check if the user is a passenger in any commute
+    //     if (!userPassengerDetails.transportTypes || userPassengerDetails.transportTypes.length === 0) {
+    //         errors.noCommuteFound = 'No commute found where you are listed as a passenger';
+    //         return errors;
+    //     }
+
+    //     // Validate each commute where user is a passenger
+    //     if (userPassengerDetails.transportTypes.includes('motorbike')) {
+    //         if (!formData.motorbikeDistance || formData.motorbikeDistance.trim() === '') {
+    //             errors.motorbikeDistance = 'Your motorbike distance is required';
+    //         }
+    //         if (!formData.motorbikeDateRange || !formData.motorbikeDateRange.startDate || !formData.motorbikeDateRange.endDate) {
+    //             errors.motorbikeDateRange = 'Please confirm the date range for motorbike commute';
+    //         }
+    //     }
+
+    //     if (userPassengerDetails.transportTypes.includes('car')) {
+    //         if (!formData.carDistance || formData.carDistance.trim() === '') {
+    //             errors.carDistance = 'Your car distance is required';
+    //         }
+    //         if (!formData.carDateRange || !formData.carDateRange.startDate || !formData.carDateRange.endDate) {
+    //             errors.carDateRange = 'Please confirm the date range for car commute';
+    //         }
+    //     }
+
+    //     if (userPassengerDetails.transportTypes.includes('taxi')) {
+    //         if (!formData.taxiDistance || formData.taxiDistance.trim() === '') {
+    //             errors.taxiDistance = 'Your taxi distance is required';
+    //         }
+    //         if (!formData.taxiDateRange || !formData.taxiDateRange.startDate || !formData.taxiDateRange.endDate) {
+    //             errors.taxiDateRange = 'Please confirm the date range for taxi commute';
+    //         }
+    //     }
+
+    //     // Validate submitted by email
+    //     if (!formData.submittedByEmail.trim()) {
+    //         errors.submittedByEmail = 'Your email address is required';
+    //     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.submittedByEmail)) {
+    //         errors.submittedByEmail = 'Please enter a valid email address';
+    //     }
+
+    //     return errors;
+    // };
+
+    // const validateForm = () => {
+    //     const errors = {};
+
+    //     // Check if the user is a passenger in any commute
+    //     if (!userPassengerDetails.transportTypes || userPassengerDetails.transportTypes.length === 0) {
+    //         errors.noCommuteFound = 'No commute found where you are listed as a passenger';
+    //         return errors;
+    //     }
+
+    //     let hasAtLeastOneDistance = false;
+    //     const missingDistances = [];
+
+    //     // Validate each commute where user is a passenger - ONLY if distance is filled
+    //     if (userPassengerDetails.transportTypes.includes('motorbike')) {
+    //         const hasDistance = formData.motorbikeDistance && formData.motorbikeDistance.trim() !== '';
+    //         if (hasDistance) {
+    //             hasAtLeastOneDistance = true;
+    //             // Only validate date range if distance is provided
+    //             if (!formData.motorbikeDateRange || !formData.motorbikeDateRange.startDate || !formData.motorbikeDateRange.endDate) {
+    //                 errors.motorbikeDateRange = 'Please confirm the date range for motorbike commute';
+    //             }
+    //         } else {
+    //             missingDistances.push('Motorbike');
+    //         }
+    //     }
+
+    //     if (userPassengerDetails.transportTypes.includes('car')) {
+    //         const hasDistance = formData.carDistance && formData.carDistance.trim() !== '';
+    //         if (hasDistance) {
+    //             hasAtLeastOneDistance = true;
+    //             if (!formData.carDateRange || !formData.carDateRange.startDate || !formData.carDateRange.endDate) {
+    //                 errors.carDateRange = 'Please confirm the date range for car commute';
+    //             }
+    //         } else {
+    //             missingDistances.push('Car');
+    //         }
+    //     }
+
+    //     if (userPassengerDetails.transportTypes.includes('taxi')) {
+    //         const hasDistance = formData.taxiDistance && formData.taxiDistance.trim() !== '';
+    //         if (hasDistance) {
+    //             hasAtLeastOneDistance = true;
+    //             if (!formData.taxiDateRange || !formData.taxiDateRange.startDate || !formData.taxiDateRange.endDate) {
+    //                 errors.taxiDateRange = 'Please confirm the date range for taxi commute';
+    //             }
+    //         } else {
+    //             missingDistances.push('Taxi');
+    //         }
+    //     }
+
+    //     // At least one distance must be filled
+    //     if (!hasAtLeastOneDistance) {
+    //         errors.noDistanceFilled = 'Please fill at least one commute distance';
+    //     }
+
+    //     // Show warning for missing distances (non-blocking)
+    //     if (missingDistances.length > 0 && missingDistances.length < userPassengerDetails.transportTypes.length) {
+    //         toast.warning(
+    //             <div>
+    //                 <div className="font-semibold mb-1">⚠ Partial Submission</div>
+    //                 <div className="text-sm mb-2">
+    //                     You haven't entered distances for: <strong>{missingDistances.join(', ')}</strong>.
+    //                     These commutes will be skipped. The months from these commutes will remain available for future submissions.
+    //                 </div>
+    //             </div>,
+    //             { autoClose: 5000 }
+    //         );
+    //     }
+
+    //     // Validate submitted by email
+    //     if (!formData.submittedByEmail.trim()) {
+    //         errors.submittedByEmail = 'Your email address is required';
+    //     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.submittedByEmail)) {
+    //         errors.submittedByEmail = 'Please enter a valid email address';
+    //     }
+
+    //     return errors;
+    // };
     const validateForm = () => {
         const errors = {};
 
-        // Basic Information validation
-        // if (!formData.stakeholderDepartment) errors.stakeholderDepartment = 'Stakeholder / Department is required';
-        // if (!formData.qualityControl) errors.qualityControl = 'Quality Control is required';
+         if (!formData.qualityControl || !formData.qualityControl.value) {
+        errors.qualityControl = 'Quality Control is required';
+        return errors; // Return immediately, don't proceed to other validations
+    }
 
         // Check if the user is a passenger in any commute
         if (!userPassengerDetails.transportTypes || userPassengerDetails.transportTypes.length === 0) {
@@ -1371,32 +2057,63 @@ const fetchOriginalFormData = async (authToken) => {
             return errors;
         }
 
-        // Validate each commute where user is a passenger
+        let hasAtLeastOneDistance = false;
+        const missingDistances = [];
+
+        // Validate each commute where user is a passenger - ONLY if distance is filled
         if (userPassengerDetails.transportTypes.includes('motorbike')) {
-            if (!formData.motorbikeDistance || formData.motorbikeDistance.trim() === '') {
-                errors.motorbikeDistance = 'Your motorbike distance is required';
-            }
-            if (!formData.motorbikeDateRange || !formData.motorbikeDateRange.startDate || !formData.motorbikeDateRange.endDate) {
-                errors.motorbikeDateRange = 'Please confirm the date range for motorbike commute';
+            const hasDistance = formData.motorbikeDistance && formData.motorbikeDistance.trim() !== '';
+            if (hasDistance) {
+                hasAtLeastOneDistance = true;
+                // Only validate date range if distance is provided
+                if (!formData.motorbikeDateRange || !formData.motorbikeDateRange.startDate || !formData.motorbikeDateRange.endDate) {
+                    errors.motorbikeDateRange = 'Please confirm the date range for motorbike commute';
+                }
+            } else {
+                missingDistances.push('Motorbike');
             }
         }
 
         if (userPassengerDetails.transportTypes.includes('car')) {
-            if (!formData.carDistance || formData.carDistance.trim() === '') {
-                errors.carDistance = 'Your car distance is required';
-            }
-            if (!formData.carDateRange || !formData.carDateRange.startDate || !formData.carDateRange.endDate) {
-                errors.carDateRange = 'Please confirm the date range for car commute';
+            const hasDistance = formData.carDistance && formData.carDistance.trim() !== '';
+            if (hasDistance) {
+                hasAtLeastOneDistance = true;
+                if (!formData.carDateRange || !formData.carDateRange.startDate || !formData.carDateRange.endDate) {
+                    errors.carDateRange = 'Please confirm the date range for car commute';
+                }
+            } else {
+                missingDistances.push('Car');
             }
         }
 
         if (userPassengerDetails.transportTypes.includes('taxi')) {
-            if (!formData.taxiDistance || formData.taxiDistance.trim() === '') {
-                errors.taxiDistance = 'Your taxi distance is required';
+            const hasDistance = formData.taxiDistance && formData.taxiDistance.trim() !== '';
+            if (hasDistance) {
+                hasAtLeastOneDistance = true;
+                if (!formData.taxiDateRange || !formData.taxiDateRange.startDate || !formData.taxiDateRange.endDate) {
+                    errors.taxiDateRange = 'Please confirm the date range for taxi commute';
+                }
+            } else {
+                missingDistances.push('Taxi');
             }
-            if (!formData.taxiDateRange || !formData.taxiDateRange.startDate || !formData.taxiDateRange.endDate) {
-                errors.taxiDateRange = 'Please confirm the date range for taxi commute';
-            }
+        }
+
+        // At least one distance must be filled
+        if (!hasAtLeastOneDistance) {
+            errors.noDistanceFilled = 'Please fill at least one commute distance';
+            return errors;
+        }
+
+            // If Quality Control is missing, return errors without showing partial modal
+    if (errors.qualityControl) {
+        return errors;
+    }
+
+        // If there are missing distances, store them and show modal
+        if (missingDistances.length > 0 && missingDistances.length < userPassengerDetails.transportTypes.length) {
+            setMissingDistancesList(missingDistances);
+            setShowPartialSubmitModal(true);
+            return { partialSubmit: true, missingDistances }; // Return special flag
         }
 
         // Validate submitted by email
@@ -1408,9 +2125,9 @@ const fetchOriginalFormData = async (authToken) => {
 
         return errors;
     };
-
     const scrollToFirstError = (validationErrors) => {
         const errorKeyToSelector = {
+             qualityControl: '#qualityControl',
             stakeholderDepartment: '#stakeholderDepartment',
             qualityControl: '#qualityControl',
             motorbikeDistance: '#motorbikeDistance',
@@ -1449,362 +2166,450 @@ const fetchOriginalFormData = async (authToken) => {
         }
     };
 
-const handleSubmit = async (e) => {
-    e.preventDefault();
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
 
-    const validationErrors = validateForm();
+    //     const validationErrors = validateForm();
 
-    if (Object.keys(validationErrors).length > 0) {
-        setErrors(validationErrors);
-        toast.error('Please fill all required fields');
-        setTimeout(() => scrollToFirstError(validationErrors), 100);
+    //     if (Object.keys(validationErrors).length > 0) {
+    //         setErrors(validationErrors);
+    //         toast.error('Please fill all required fields');
+    //         setTimeout(() => scrollToFirstError(validationErrors), 100);
+    //         return;
+    //     }
+
+    //     setLoading(true);
+
+    //     try {
+    //         const currentToken = getToken();
+    //         if (!currentToken) {
+    //             toast.error('Authentication token is missing. Please refresh the page.');
+    //             setLoading(false);
+    //             return;
+    //         }
+
+    //         // ============ STEP 1: CREATE PASSENGER SUBMISSION ============
+    //         const passengerSubmissionData = {
+    //             originalFormId: urlFormId,
+    //             emailDocId: formData.emailDocId || originalFormData?.emailDocId || null,
+    //             parentId: urlFormId,
+    //             participantId: urlParticipantId,
+    //             employeeName: formData.employeeName || userInfo?.name || '',
+    //             employeeID: formData.employeeID || userInfo?.employeeId || '',
+    //             usersubmittedId: userInfo?._id || null,
+    //             // siteBuildingName: formData.siteBuildingName?.value || '',
+    //             siteBuildingName: userInfo?.buildingId?._id || userInfo?.buildingId || formData.siteBuildingName?.value || '',
+    //             stakeholderDepartment: formData.stakeholderDepartment?.value || '',
+    //             submittedByEmail: formData.submittedByEmail || '',
+    //             reportingYear: reportingYear,
+    //             qualityControlRemarks: formData.qualityControlRemarks,
+    //             qualityControl: formData.qualityControl?.value || '',
+    //             submittedAt: new Date().toISOString(),
+    //             entryStatus: formData.entryStatus || 'Carpool',
+    //             commuteTypes: userPassengerDetails.transportTypes
+
+    //         };
+    //         delete passengerSubmissionData.motorbikeDateRange;
+    //         delete passengerSubmissionData.carDateRange;
+    //         delete passengerSubmissionData.taxiDateRange;
+
+    //         // Add passenger's distance data
+    //         // if (userPassengerDetails.transportTypes.includes('motorbike')) {
+    //         //     const motorbikeDetails = userPassengerDetails.details.motorbike;
+    //         //     passengerSubmissionData.commuteByMotorbike = true;
+    //         //     passengerSubmissionData.motorbikeMode = formData.motorbikeMode || 'carpool';
+    //         //     passengerSubmissionData.motorbikeDistance = Number(formData.motorbikeDistance) || 0;
+    //         //     passengerSubmissionData.motorbikeType = formData.motorbikeType?.value || originalFormData?.motorbikeType || '';
+
+    //         //     if (formData.motorbikeDateRange) {
+    //         //         passengerSubmissionData.motorbikeDates = dateRangeToDates(formData.motorbikeDateRange).map(date => date.toISOString());
+    //         //         passengerSubmissionData.motorbikeCarpoolDateRange = formData.motorbikeDateRange;  // ← ADD THIS
+    //         //     }
+
+    //         //     passengerSubmissionData.motorbikePassengerIndex = motorbikeDetails.passengerIndex;
+    //         //     passengerSubmissionData.motorbikeIsDriverCarrying = motorbikeDetails.isDriverCarrying;
+    //         //     passengerSubmissionData.motorbikeIsTravelWith = motorbikeDetails.isTravelWith;
+    //         // }
+
+    //         // if (userPassengerDetails.transportTypes.includes('car')) {
+    //         //     const carDetails = userPassengerDetails.details.car;
+    //         //     passengerSubmissionData.commuteByCar = true;
+    //         //     passengerSubmissionData.carMode = formData.carMode || 'carpool';
+    //         //     passengerSubmissionData.carDistance = Number(formData.carDistance) || 0;
+    //         //     passengerSubmissionData.carType = formData.carType?.value || originalFormData?.carType || '';
+    //         //     passengerSubmissionData.carFuelType = formData.carFuelType?.value || originalFormData?.carFuelType || '';
+
+    //         //     if (formData.carDateRange) {
+    //         //         passengerSubmissionData.carDates = dateRangeToDates(formData.carDateRange).map(date => date.toISOString());
+    //         //         passengerSubmissionData.carCarpoolDateRange = formData.carDateRange;  // ← ADD THIS
+    //         //     }
+
+    //         //     passengerSubmissionData.carPassengerIndex = carDetails.passengerIndex;
+    //         //     passengerSubmissionData.carIsDriverCarrying = carDetails.isDriverCarrying;
+    //         //     passengerSubmissionData.carIsTravelWith = carDetails.isTravelWith;
+    //         // }
+
+    //         // if (userPassengerDetails.transportTypes.includes('taxi')) {
+    //         //     const taxiDetails = userPassengerDetails.details.taxi;
+    //         //     passengerSubmissionData.commuteByTaxi = true;
+    //         //     passengerSubmissionData.taxiMode = formData.taxiMode || 'carpool';
+    //         //     passengerSubmissionData.taxiDistance = Number(formData.taxiDistance) || 0;
+    //         //     passengerSubmissionData.taxiType = formData.taxiType?.value || originalFormData?.taxiType || '';
+
+    //         //     if (formData.taxiDateRange) {
+    //         //         passengerSubmissionData.taxiDates = dateRangeToDates(formData.taxiDateRange).map(date => date.toISOString());
+    //         //         passengerSubmissionData.taxiCarpoolDateRange = formData.taxiDateRange;  // ← ADD THIS
+    //         //     }
+
+    //         //     passengerSubmissionData.taxiPassengerIndex = taxiDetails.passengerIndex;
+    //         // }
+
+    //         // Add passenger's distance data - ONLY if distance is filled
+    //         if (userPassengerDetails.transportTypes.includes('motorbike') && formData.motorbikeDistance && formData.motorbikeDistance.trim() !== '') {
+    //             const motorbikeDetails = userPassengerDetails.details.motorbike;
+    //             passengerSubmissionData.commuteByMotorbike = true;
+    //             passengerSubmissionData.motorbikeMode = formData.motorbikeMode || 'carpool';
+    //             passengerSubmissionData.motorbikeDistance = Number(formData.motorbikeDistance) || 0;
+    //             passengerSubmissionData.motorbikeType = formData.motorbikeType?.value || originalFormData?.motorbikeType || '';
+
+    //             if (formData.motorbikeDateRange) {
+    //                 passengerSubmissionData.motorbikeDates = dateRangeToDates(formData.motorbikeDateRange).map(date => date.toISOString());
+    //                 passengerSubmissionData.motorbikeCarpoolDateRange = formData.motorbikeDateRange;
+    //             }
+
+    //             passengerSubmissionData.motorbikePassengerIndex = motorbikeDetails.passengerIndex;
+    //             passengerSubmissionData.motorbikeIsDriverCarrying = motorbikeDetails.isDriverCarrying;
+    //             passengerSubmissionData.motorbikeIsTravelWith = motorbikeDetails.isTravelWith;
+    //         }
+
+    //         if (userPassengerDetails.transportTypes.includes('car') && formData.carDistance && formData.carDistance.trim() !== '') {
+    //             const carDetails = userPassengerDetails.details.car;
+    //             passengerSubmissionData.commuteByCar = true;
+    //             passengerSubmissionData.carMode = formData.carMode || 'carpool';
+    //             passengerSubmissionData.carDistance = Number(formData.carDistance) || 0;
+    //             passengerSubmissionData.carType = formData.carType?.value || originalFormData?.carType || '';
+    //             passengerSubmissionData.carFuelType = formData.carFuelType?.value || originalFormData?.carFuelType || '';
+
+    //             if (formData.carDateRange) {
+    //                 passengerSubmissionData.carDates = dateRangeToDates(formData.carDateRange).map(date => date.toISOString());
+    //                 passengerSubmissionData.carCarpoolDateRange = formData.carDateRange;
+    //             }
+
+    //             passengerSubmissionData.carPassengerIndex = carDetails.passengerIndex;
+    //             passengerSubmissionData.carIsDriverCarrying = carDetails.isDriverCarrying;
+    //             passengerSubmissionData.carIsTravelWith = carDetails.isTravelWith;
+    //         }
+
+    //         if (userPassengerDetails.transportTypes.includes('taxi') && formData.taxiDistance && formData.taxiDistance.trim() !== '') {
+    //             const taxiDetails = userPassengerDetails.details.taxi;
+    //             passengerSubmissionData.commuteByTaxi = true;
+    //             passengerSubmissionData.taxiMode = formData.taxiMode || 'carpool';
+    //             passengerSubmissionData.taxiDistance = Number(formData.taxiDistance) || 0;
+    //             passengerSubmissionData.taxiType = formData.taxiType?.value || originalFormData?.taxiType || '';
+
+    //             if (formData.taxiDateRange) {
+    //                 passengerSubmissionData.taxiDates = dateRangeToDates(formData.taxiDateRange).map(date => date.toISOString());
+    //                 passengerSubmissionData.taxiCarpoolDateRange = formData.taxiDateRange;
+    //             }
+
+    //             passengerSubmissionData.taxiPassengerIndex = taxiDetails.passengerIndex;
+    //         }
+
+    //         // Calculate emissions for passenger submission
+    //         // const passengerEmissions = calculateEmissions(passengerSubmissionData);
+    //         // passengerSubmissionData.calculatedEmissionKgCo2e = passengerEmissions.totalEmissionsKg;
+    //         // passengerSubmissionData.calculatedEmissionTCo2e = passengerEmissions.totalEmissionsTonnes;
+
+    //         console.log('=== STEP 1: Creating passenger submission ===');
+    //         console.log('Passenger submission data:', passengerSubmissionData);
+
+    //         const passengerResponse = await axios.post(
+    //             `${process.env.REACT_APP_BASE_URL}/employee-commute/Create`,
+    //             passengerSubmissionData,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${currentToken}`,
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //             }
+    //         );
+
+    //         if (passengerResponse.status !== 200 && passengerResponse.status !== 201) {
+    //             throw new Error('Failed to create passenger submission');
+    //         }
+
+    //         console.log('Passenger submission created successfully:', passengerResponse.data);
+
+    //         // ============ STEP 2: UPDATE ORIGINAL DRIVER FORM ============
+
+    //         // Get the current driver form data
+    //         const driverFormResponse = await axios.get(
+    //             `${process.env.REACT_APP_BASE_URL}/employee-commute/Detail/${urlFormId}`,
+    //             {
+    //                 headers: {
+    //                     Authorization: `Bearer ${currentToken}`,
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //             }
+    //         );
+
+    //         const currentDriverData = driverFormResponse.data.data;
+    //         console.log('Current driver data:', currentDriverData);
+    //         console.log('Passenger entered distances:', {
+    //             motorbikeDistance: Number(formData.motorbikeDistance) || 0,
+    //             carDistance: Number(formData.carDistance) || 0,
+    //             taxiDistance: Number(formData.taxiDistance) || 0
+    //         });
+
+    //         // Prepare update payload - handle both individual and carpool distances
+    //         const updatePayload = {};
+    //         const distancesToUpdate = [];
+
+    //         const getNumericValue = (value) => Number(value) || 0;
+
+    //         // ============ HANDLE MOTORBIKE ============
+    //         if (userPassengerDetails.transportTypes.includes('motorbike')) {
+    //             const passengerMotorbikeDistance = getNumericValue(formData.motorbikeDistance);
+    //             const driverMotorbikeDistance = getNumericValue(currentDriverData.motorbikeDistance);
+    //             const driverMotorbikeCarpoolDistance = getNumericValue(currentDriverData.motorbikeDistanceCarpool);
+
+    //             // Check what mode the driver originally selected
+    //             const driverMotorbikeMode = currentDriverData.motorbikeMode || 'individual';
+
+    //             if (driverMotorbikeMode === 'both') {
+    //                 // Driver is in "both" mode - compare with carpool distance
+    //                 if (passengerMotorbikeDistance > driverMotorbikeCarpoolDistance) {
+    //                     updatePayload.motorbikeDistanceCarpool = passengerMotorbikeDistance;
+    //                     distancesToUpdate.push('Motorbike Carpool');
+    //                     console.log(`✓ Motorbike carpool distance will be updated: ${driverMotorbikeCarpoolDistance} → ${passengerMotorbikeDistance}`);
+    //                 } else {
+    //                     console.log(`✗ Motorbike carpool distance NOT updated: ${passengerMotorbikeDistance} is not higher than ${driverMotorbikeCarpoolDistance}`);
+    //                 }
+    //             } else {
+    //                 // Driver is in "carpool" or "individual" mode - compare with regular distance
+    //                 if (passengerMotorbikeDistance > driverMotorbikeDistance) {
+    //                     updatePayload.motorbikeDistance = passengerMotorbikeDistance;
+    //                     distancesToUpdate.push('Motorbike');
+    //                     console.log(`✓ Motorbike distance will be updated: ${driverMotorbikeDistance} → ${passengerMotorbikeDistance}`);
+    //                 } else {
+    //                     console.log(`✗ Motorbike distance NOT updated: ${passengerMotorbikeDistance} is not higher than ${driverMotorbikeDistance}`);
+    //                 }
+    //             }
+    //         }
+
+    //         // ============ HANDLE CAR ============
+    //         if (userPassengerDetails.transportTypes.includes('car')) {
+    //             const passengerCarDistance = getNumericValue(formData.carDistance);
+    //             const driverCarDistance = getNumericValue(currentDriverData.carDistance);
+    //             const driverCarCarpoolDistance = getNumericValue(currentDriverData.carDistanceCarpool);
+
+    //             // Check what mode the driver originally selected
+    //             const driverCarMode = currentDriverData.carMode || 'individual';
+
+    //             if (driverCarMode === 'both') {
+    //                 // Driver is in "both" mode - compare with carpool distance
+    //                 if (passengerCarDistance > driverCarCarpoolDistance) {
+    //                     updatePayload.carDistanceCarpool = passengerCarDistance;
+    //                     distancesToUpdate.push('Car Carpool');
+    //                     console.log(`✓ Car carpool distance will be updated: ${driverCarCarpoolDistance} → ${passengerCarDistance}`);
+    //                 } else {
+    //                     console.log(`✗ Car carpool distance NOT updated: ${passengerCarDistance} is not higher than ${driverCarCarpoolDistance}`);
+    //                 }
+    //             } else {
+    //                 // Driver is in "carpool" or "individual" mode - compare with regular distance
+    //                 if (passengerCarDistance > driverCarDistance) {
+    //                     updatePayload.carDistance = passengerCarDistance;
+    //                     distancesToUpdate.push('Car');
+    //                     console.log(`✓ Car distance will be updated: ${driverCarDistance} → ${passengerCarDistance}`);
+    //                 } else {
+    //                     console.log(`✗ Car distance NOT updated: ${passengerCarDistance} is not higher than ${driverCarDistance}`);
+    //                 }
+    //             }
+    //         }
+
+    //         // ============ HANDLE TAXI ============
+    //         if (userPassengerDetails.transportTypes.includes('taxi')) {
+    //             const passengerTaxiDistance = getNumericValue(formData.taxiDistance);
+    //             const driverTaxiDistance = getNumericValue(currentDriverData.taxiDistance);
+    //             const driverTaxiCarpoolDistance = getNumericValue(currentDriverData.taxiDistanceCarpool);
+
+    //             // Check what mode the driver originally selected
+    //             const driverTaxiMode = currentDriverData.taxiMode || 'individual';
+
+    //             if (driverTaxiMode === 'both') {
+    //                 // Driver is in "both" mode - compare with carpool distance
+    //                 if (passengerTaxiDistance > driverTaxiCarpoolDistance) {
+    //                     updatePayload.taxiDistanceCarpool = passengerTaxiDistance;
+    //                     distancesToUpdate.push('Taxi Carpool');
+    //                     console.log(`✓ Taxi carpool distance will be updated: ${driverTaxiCarpoolDistance} → ${passengerTaxiDistance}`);
+    //                 } else {
+    //                     console.log(`✗ Taxi carpool distance NOT updated: ${passengerTaxiDistance} is not higher than ${driverTaxiCarpoolDistance}`);
+    //                 }
+    //             } else {
+    //                 // Driver is in "carpool" or "individual" mode - compare with regular distance
+    //                 if (passengerTaxiDistance > driverTaxiDistance) {
+    //                     updatePayload.taxiDistance = passengerTaxiDistance;
+    //                     distancesToUpdate.push('Taxi');
+    //                     console.log(`✓ Taxi distance will be updated: ${driverTaxiDistance} → ${passengerTaxiDistance}`);
+    //                 } else {
+    //                     console.log(`✗ Taxi distance NOT updated: ${passengerTaxiDistance} is not higher than ${driverTaxiDistance}`);
+    //                 }
+    //             }
+    //         }
+
+    //         // If no distances were updated, skip update
+    //         if (Object.keys(updatePayload).length === 0) {
+    //             console.log('No distances were higher than current driver distances. Skipping driver form update.');
+    //             // toast.info('No distances were updated as all entered distances are lower than or equal to current values.');
+    //         } else {
+    //             console.log('Distances to update:', updatePayload);
+    //             console.log('Updating:', distancesToUpdate.join(', '));
+
+    //             // Calculate final distances for emission recalculation
+    //             // For each mode, use updated value if available, otherwise keep current
+    //             const finalMotorbikeDistance = updatePayload.motorbikeDistance !== undefined
+    //                 ? updatePayload.motorbikeDistance
+    //                 : getNumericValue(currentDriverData.motorbikeDistance);
+
+    //             const finalMotorbikeCarpoolDistance = updatePayload.motorbikeDistanceCarpool !== undefined
+    //                 ? updatePayload.motorbikeDistanceCarpool
+    //                 : getNumericValue(currentDriverData.motorbikeDistanceCarpool);
+
+    //             const finalCarDistance = updatePayload.carDistance !== undefined
+    //                 ? updatePayload.carDistance
+    //                 : getNumericValue(currentDriverData.carDistance);
+
+    //             const finalCarCarpoolDistance = updatePayload.carDistanceCarpool !== undefined
+    //                 ? updatePayload.carDistanceCarpool
+    //                 : getNumericValue(currentDriverData.carDistanceCarpool);
+
+    //             const finalTaxiDistance = updatePayload.taxiDistance !== undefined
+    //                 ? updatePayload.taxiDistance
+    //                 : getNumericValue(currentDriverData.taxiDistance);
+
+    //             const finalTaxiCarpoolDistance = updatePayload.taxiDistanceCarpool !== undefined
+    //                 ? updatePayload.taxiDistanceCarpool
+    //                 : getNumericValue(currentDriverData.taxiDistanceCarpool);
+
+    //             console.log('Final distances for emission calculation:', {
+    //                 motorbikeDistance: finalMotorbikeDistance,
+    //                 motorbikeDistanceCarpool: finalMotorbikeCarpoolDistance,
+    //                 carDistance: finalCarDistance,
+    //                 carDistanceCarpool: finalCarCarpoolDistance,
+    //                 taxiDistance: finalTaxiDistance,
+    //                 taxiDistanceCarpool: finalTaxiCarpoolDistance
+    //             });
+
+    //             // Create merged data object for emission calculation
+    //             const emissionCalculationData = {
+    //                 ...currentDriverData,
+    //                 motorbikeDistance: finalMotorbikeDistance,
+    //                 motorbikeDistanceCarpool: finalMotorbikeCarpoolDistance,
+    //                 carDistance: finalCarDistance,
+    //                 carDistanceCarpool: finalCarCarpoolDistance,
+    //                 taxiDistance: finalTaxiDistance,
+    //                 taxiDistanceCarpool: finalTaxiCarpoolDistance,
+    //                 carryOthersCar: currentDriverData.carryOthersCar,
+    //                 personsCarriedCar: currentDriverData.personsCarriedCar,
+    //                 travelWithOthersTaxi: currentDriverData.travelWithOthersTaxi,
+    //                 personsTravelWithTaxi: currentDriverData.personsTravelWithTaxi,
+    //             };
+
+    //             console.log('=== RECALCULATING EMISSIONS FOR DRIVER ===');
+
+    //             // Recalculate emissions with final distances
+    //             const recalculatedEmissions = calculateEmissions(emissionCalculationData);
+
+    //             // Add recalculated emissions to update payload
+    //             updatePayload.calculatedEmissionKgCo2e = recalculatedEmissions.totalEmissionsKg;
+    //             updatePayload.calculatedEmissionTCo2e = recalculatedEmissions.totalEmissionsTonnes;
+
+    //             console.log('=== UPDATE SUMMARY ===');
+    //             console.log('Updated distances:', distancesToUpdate.join(', '));
+    //             console.log('Old Emissions (kg):', currentDriverData.calculatedEmissionKgCo2e);
+    //             console.log('New Emissions (kg):', recalculatedEmissions.totalEmissionsKg);
+    //             console.log('=====================');
+
+    //             // Update driver form
+    //             try {
+    //                 const updateResponse = await axios.put(
+    //                     `${process.env.REACT_APP_BASE_URL}/employee-commute/Update/${urlFormId}`,
+    //                     updatePayload,
+    //                     {
+    //                         headers: {
+    //                             Authorization: `Bearer ${currentToken}`,
+    //                             'Content-Type': 'application/json',
+    //                         },
+    //                         timeout: 30000,
+    //                     }
+    //                 );
+    //                 console.log('Driver form updated successfully:', updateResponse.data);
+    //                 // toast.success(`Updated ${distancesToUpdate.join(', ')} distance(s) (higher values) and recalculated emissions!`);
+    //             } catch (updateError) {
+    //                 console.warn('Driver form update failed:', updateError.message);
+    //                 toast.warning('Carpool submission created, but Parent form update failed');
+    //             }
+    //         }
+
+    //         setSubmitted(true);
+    //         toast.success('Your commute distances submitted successfully!');
+
+    //         navigate('/formSubmittedSuccessfully', {
+    //             state: {
+    //                 formType: 'employee-commuting-carpool',
+    //                 reportingYear: reportingYear,
+    //                 userInfo: userInfo,
+    //                 submissionTime: new Date().toISOString()
+    //             }
+    //         });
+
+    //     } catch (error) {
+    //         console.error('Submission error:', error);
+    //         if (error.response) {
+    //             toast.error(`Server error: ${error.response.data?.message || error.response.status}`);
+    //         } else if (error.request) {
+    //             toast.error('Network error. Please check your connection.');
+    //         } else {
+    //             toast.error(`Error: ${error.message}`);
+    //         }
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+            // First, check if Quality Control is selected
+    if (!formData.qualityControl || !formData.qualityControl.value) {
+        setErrors({ qualityControl: 'Quality Control is required' });
+        toast.error('Please select Quality Control first');
+        // Scroll to quality control field
+        const qualityControlElement = document.querySelector('#qualityControl');
+        if (qualityControlElement) {
+            qualityControlElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
         return;
     }
 
-    setLoading(true);
 
-    try {
-        const currentToken = getToken();
-        if (!currentToken) {
-            toast.error('Authentication token is missing. Please refresh the page.');
-            setLoading(false);
+        const validationErrors = validateForm();
+
+        // Check if validation returned partial submit flag
+        if (validationErrors.partialSubmit) {
+            // Modal is already shown, don't proceed with submission
             return;
         }
 
-        // ============ STEP 1: CREATE PASSENGER SUBMISSION ============
-        const passengerSubmissionData = {
-            originalFormId: urlFormId,
-            emailDocId: formData.emailDocId || originalFormData?.emailDocId || null,
-            parentId: urlFormId, 
-            participantId: urlParticipantId,
-            employeeName: formData.employeeName || userInfo?.name || '',
-            employeeID: formData.employeeID || userInfo?.employeeId || '',
-            usersubmittedId: userInfo?._id || null,
-            // siteBuildingName: formData.siteBuildingName?.value || '',
-               siteBuildingName: userInfo?.buildingId?._id || userInfo?.buildingId || formData.siteBuildingName?.value || '',
-            stakeholderDepartment: formData.stakeholderDepartment?.value || '',
-            submittedByEmail: formData.submittedByEmail || '',
-            reportingYear: reportingYear,
-            qualityControlRemarks: formData.qualityControlRemarks || '',
-            qualityControl: formData.qualityControl || '',
-            submittedAt: new Date().toISOString(),
-            entryStatus: formData.entryStatus || 'Carpool', 
-            commuteTypes: userPassengerDetails.transportTypes
-            
-        };
-
-        // Add passenger's distance data
-        if (userPassengerDetails.transportTypes.includes('motorbike')) {
-            const motorbikeDetails = userPassengerDetails.details.motorbike;
-            passengerSubmissionData.commuteByMotorbike = true;
-            passengerSubmissionData.motorbikeMode = formData.motorbikeMode || 'carpool';
-            passengerSubmissionData.motorbikeDistance = Number(formData.motorbikeDistance) || 0;
-            passengerSubmissionData.motorbikeType = formData.motorbikeType?.value || originalFormData?.motorbikeType || '';
-            
-            if (formData.motorbikeDateRange) {
-                passengerSubmissionData.motorbikeDates = dateRangeToDates(formData.motorbikeDateRange).map(date => date.toISOString());
-                passengerSubmissionData.motorbikeDateRange = formData.motorbikeDateRange;
-            }
-
-            passengerSubmissionData.motorbikePassengerIndex = motorbikeDetails.passengerIndex;
-            passengerSubmissionData.motorbikeIsDriverCarrying = motorbikeDetails.isDriverCarrying;
-            passengerSubmissionData.motorbikeIsTravelWith = motorbikeDetails.isTravelWith;
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            toast.error('Please fill all required fields');
+            setTimeout(() => scrollToFirstError(validationErrors), 100);
+            return;
         }
 
-        if (userPassengerDetails.transportTypes.includes('car')) {
-            const carDetails = userPassengerDetails.details.car;
-            passengerSubmissionData.commuteByCar = true;
-            passengerSubmissionData.carMode = formData.carMode || 'carpool';
-            passengerSubmissionData.carDistance = Number(formData.carDistance) || 0;
-            passengerSubmissionData.carType = formData.carType?.value || originalFormData?.carType || '';
-            passengerSubmissionData.carFuelType = formData.carFuelType?.value || originalFormData?.carFuelType || '';
-            
-            if (formData.carDateRange) {
-                passengerSubmissionData.carDates = dateRangeToDates(formData.carDateRange).map(date => date.toISOString());
-                passengerSubmissionData.carDateRange = formData.carDateRange;
-            }
-
-            passengerSubmissionData.carPassengerIndex = carDetails.passengerIndex;
-            passengerSubmissionData.carIsDriverCarrying = carDetails.isDriverCarrying;
-            passengerSubmissionData.carIsTravelWith = carDetails.isTravelWith;
-        }
-
-        if (userPassengerDetails.transportTypes.includes('taxi')) {
-            const taxiDetails = userPassengerDetails.details.taxi;
-            passengerSubmissionData.commuteByTaxi = true;
-            passengerSubmissionData.taxiMode = formData.taxiMode || 'carpool';
-            passengerSubmissionData.taxiDistance = Number(formData.taxiDistance) || 0;
-            passengerSubmissionData.taxiType = formData.taxiType?.value || originalFormData?.taxiType || '';
-            
-            if (formData.taxiDateRange) {
-                passengerSubmissionData.taxiDates = dateRangeToDates(formData.taxiDateRange).map(date => date.toISOString());
-                passengerSubmissionData.taxiDateRange = formData.taxiDateRange;
-            }
-
-            passengerSubmissionData.taxiPassengerIndex = taxiDetails.passengerIndex;
-        }
-
-        // Calculate emissions for passenger submission
-        const passengerEmissions = calculateEmissions(passengerSubmissionData);
-        passengerSubmissionData.calculatedEmissionKgCo2e = passengerEmissions.totalEmissionsKg;
-        passengerSubmissionData.calculatedEmissionTCo2e = passengerEmissions.totalEmissionsTonnes;
-
-        console.log('=== STEP 1: Creating passenger submission ===');
-        console.log('Passenger submission data:', passengerSubmissionData);
-
-        const passengerResponse = await axios.post(
-            `${process.env.REACT_APP_BASE_URL}/employee-commute/Create`,
-            passengerSubmissionData,
-            {
-                headers: {
-                    Authorization: `Bearer ${currentToken}`,
-                    'Content-Type': 'application/json',
-                },
-            }
-        );
-
-        if (passengerResponse.status !== 200 && passengerResponse.status !== 201) {
-            throw new Error('Failed to create passenger submission');
-        }
-
-        console.log('Passenger submission created successfully:', passengerResponse.data);
-
-        // ============ STEP 2: UPDATE ORIGINAL DRIVER FORM ============
-        
-        // Get the current driver form data
-        const driverFormResponse = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}/employee-commute/Detail/${urlFormId}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${currentToken}`,
-                    'Content-Type': 'application/json',
-                },
-            }
-        );
-
-        const currentDriverData = driverFormResponse.data.data;
-        console.log('Current driver data:', currentDriverData);
-        console.log('Passenger entered distances:', {
-            motorbikeDistance: Number(formData.motorbikeDistance) || 0,
-            carDistance: Number(formData.carDistance) || 0,
-            taxiDistance: Number(formData.taxiDistance) || 0
-        });
-
-        // Prepare update payload - handle both individual and carpool distances
-        const updatePayload = {};
-        const distancesToUpdate = [];
-
-        const getNumericValue = (value) => Number(value) || 0;
-
-        // ============ HANDLE MOTORBIKE ============
-        if (userPassengerDetails.transportTypes.includes('motorbike')) {
-            const passengerMotorbikeDistance = getNumericValue(formData.motorbikeDistance);
-            const driverMotorbikeDistance = getNumericValue(currentDriverData.motorbikeDistance);
-            const driverMotorbikeCarpoolDistance = getNumericValue(currentDriverData.motorbikeDistanceCarpool);
-            
-            // Check what mode the driver originally selected
-            const driverMotorbikeMode = currentDriverData.motorbikeMode || 'individual';
-            
-            if (driverMotorbikeMode === 'both') {
-                // Driver is in "both" mode - compare with carpool distance
-                if (passengerMotorbikeDistance > driverMotorbikeCarpoolDistance) {
-                    updatePayload.motorbikeDistanceCarpool = passengerMotorbikeDistance;
-                    distancesToUpdate.push('Motorbike Carpool');
-                    console.log(`✓ Motorbike carpool distance will be updated: ${driverMotorbikeCarpoolDistance} → ${passengerMotorbikeDistance}`);
-                } else {
-                    console.log(`✗ Motorbike carpool distance NOT updated: ${passengerMotorbikeDistance} is not higher than ${driverMotorbikeCarpoolDistance}`);
-                }
-            } else {
-                // Driver is in "carpool" or "individual" mode - compare with regular distance
-                if (passengerMotorbikeDistance > driverMotorbikeDistance) {
-                    updatePayload.motorbikeDistance = passengerMotorbikeDistance;
-                    distancesToUpdate.push('Motorbike');
-                    console.log(`✓ Motorbike distance will be updated: ${driverMotorbikeDistance} → ${passengerMotorbikeDistance}`);
-                } else {
-                    console.log(`✗ Motorbike distance NOT updated: ${passengerMotorbikeDistance} is not higher than ${driverMotorbikeDistance}`);
-                }
-            }
-        }
-
-        // ============ HANDLE CAR ============
-        if (userPassengerDetails.transportTypes.includes('car')) {
-            const passengerCarDistance = getNumericValue(formData.carDistance);
-            const driverCarDistance = getNumericValue(currentDriverData.carDistance);
-            const driverCarCarpoolDistance = getNumericValue(currentDriverData.carDistanceCarpool);
-            
-            // Check what mode the driver originally selected
-            const driverCarMode = currentDriverData.carMode || 'individual';
-            
-            if (driverCarMode === 'both') {
-                // Driver is in "both" mode - compare with carpool distance
-                if (passengerCarDistance > driverCarCarpoolDistance) {
-                    updatePayload.carDistanceCarpool = passengerCarDistance;
-                    distancesToUpdate.push('Car Carpool');
-                    console.log(`✓ Car carpool distance will be updated: ${driverCarCarpoolDistance} → ${passengerCarDistance}`);
-                } else {
-                    console.log(`✗ Car carpool distance NOT updated: ${passengerCarDistance} is not higher than ${driverCarCarpoolDistance}`);
-                }
-            } else {
-                // Driver is in "carpool" or "individual" mode - compare with regular distance
-                if (passengerCarDistance > driverCarDistance) {
-                    updatePayload.carDistance = passengerCarDistance;
-                    distancesToUpdate.push('Car');
-                    console.log(`✓ Car distance will be updated: ${driverCarDistance} → ${passengerCarDistance}`);
-                } else {
-                    console.log(`✗ Car distance NOT updated: ${passengerCarDistance} is not higher than ${driverCarDistance}`);
-                }
-            }
-        }
-
-        // ============ HANDLE TAXI ============
-        if (userPassengerDetails.transportTypes.includes('taxi')) {
-            const passengerTaxiDistance = getNumericValue(formData.taxiDistance);
-            const driverTaxiDistance = getNumericValue(currentDriverData.taxiDistance);
-            const driverTaxiCarpoolDistance = getNumericValue(currentDriverData.taxiDistanceCarpool);
-            
-            // Check what mode the driver originally selected
-            const driverTaxiMode = currentDriverData.taxiMode || 'individual';
-            
-            if (driverTaxiMode === 'both') {
-                // Driver is in "both" mode - compare with carpool distance
-                if (passengerTaxiDistance > driverTaxiCarpoolDistance) {
-                    updatePayload.taxiDistanceCarpool = passengerTaxiDistance;
-                    distancesToUpdate.push('Taxi Carpool');
-                    console.log(`✓ Taxi carpool distance will be updated: ${driverTaxiCarpoolDistance} → ${passengerTaxiDistance}`);
-                } else {
-                    console.log(`✗ Taxi carpool distance NOT updated: ${passengerTaxiDistance} is not higher than ${driverTaxiCarpoolDistance}`);
-                }
-            } else {
-                // Driver is in "carpool" or "individual" mode - compare with regular distance
-                if (passengerTaxiDistance > driverTaxiDistance) {
-                    updatePayload.taxiDistance = passengerTaxiDistance;
-                    distancesToUpdate.push('Taxi');
-                    console.log(`✓ Taxi distance will be updated: ${driverTaxiDistance} → ${passengerTaxiDistance}`);
-                } else {
-                    console.log(`✗ Taxi distance NOT updated: ${passengerTaxiDistance} is not higher than ${driverTaxiDistance}`);
-                }
-            }
-        }
-
-        // If no distances were updated, skip update
-        if (Object.keys(updatePayload).length === 0) {
-            console.log('No distances were higher than current driver distances. Skipping driver form update.');
-            // toast.info('No distances were updated as all entered distances are lower than or equal to current values.');
-        } else {
-            console.log('Distances to update:', updatePayload);
-            console.log('Updating:', distancesToUpdate.join(', '));
-            
-            // Calculate final distances for emission recalculation
-            // For each mode, use updated value if available, otherwise keep current
-            const finalMotorbikeDistance = updatePayload.motorbikeDistance !== undefined 
-                ? updatePayload.motorbikeDistance 
-                : getNumericValue(currentDriverData.motorbikeDistance);
-            
-            const finalMotorbikeCarpoolDistance = updatePayload.motorbikeDistanceCarpool !== undefined 
-                ? updatePayload.motorbikeDistanceCarpool 
-                : getNumericValue(currentDriverData.motorbikeDistanceCarpool);
-            
-            const finalCarDistance = updatePayload.carDistance !== undefined 
-                ? updatePayload.carDistance 
-                : getNumericValue(currentDriverData.carDistance);
-            
-            const finalCarCarpoolDistance = updatePayload.carDistanceCarpool !== undefined 
-                ? updatePayload.carDistanceCarpool 
-                : getNumericValue(currentDriverData.carDistanceCarpool);
-            
-            const finalTaxiDistance = updatePayload.taxiDistance !== undefined 
-                ? updatePayload.taxiDistance 
-                : getNumericValue(currentDriverData.taxiDistance);
-            
-            const finalTaxiCarpoolDistance = updatePayload.taxiDistanceCarpool !== undefined 
-                ? updatePayload.taxiDistanceCarpool 
-                : getNumericValue(currentDriverData.taxiDistanceCarpool);
-            
-            console.log('Final distances for emission calculation:', {
-                motorbikeDistance: finalMotorbikeDistance,
-                motorbikeDistanceCarpool: finalMotorbikeCarpoolDistance,
-                carDistance: finalCarDistance,
-                carDistanceCarpool: finalCarCarpoolDistance,
-                taxiDistance: finalTaxiDistance,
-                taxiDistanceCarpool: finalTaxiCarpoolDistance
-            });
-            
-            // Create merged data object for emission calculation
-            const emissionCalculationData = {
-                ...currentDriverData,
-                motorbikeDistance: finalMotorbikeDistance,
-                motorbikeDistanceCarpool: finalMotorbikeCarpoolDistance,
-                carDistance: finalCarDistance,
-                carDistanceCarpool: finalCarCarpoolDistance,
-                taxiDistance: finalTaxiDistance,
-                taxiDistanceCarpool: finalTaxiCarpoolDistance,
-                carryOthersCar: currentDriverData.carryOthersCar,
-                personsCarriedCar: currentDriverData.personsCarriedCar,
-                travelWithOthersTaxi: currentDriverData.travelWithOthersTaxi,
-                personsTravelWithTaxi: currentDriverData.personsTravelWithTaxi,
-            };
-            
-            console.log('=== RECALCULATING EMISSIONS FOR DRIVER ===');
-            
-            // Recalculate emissions with final distances
-            const recalculatedEmissions = calculateEmissions(emissionCalculationData);
-            
-            // Add recalculated emissions to update payload
-            updatePayload.calculatedEmissionKgCo2e = recalculatedEmissions.totalEmissionsKg;
-            updatePayload.calculatedEmissionTCo2e = recalculatedEmissions.totalEmissionsTonnes;
-            
-            console.log('=== UPDATE SUMMARY ===');
-            console.log('Updated distances:', distancesToUpdate.join(', '));
-            console.log('Old Emissions (kg):', currentDriverData.calculatedEmissionKgCo2e);
-            console.log('New Emissions (kg):', recalculatedEmissions.totalEmissionsKg);
-            console.log('=====================');
-            
-            // Update driver form
-            try {
-                const updateResponse = await axios.put(
-                    `${process.env.REACT_APP_BASE_URL}/employee-commute/Update/${urlFormId}`,
-                    updatePayload,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${currentToken}`,
-                            'Content-Type': 'application/json',
-                        },
-                        timeout: 30000,
-                    }
-                );
-                console.log('Driver form updated successfully:', updateResponse.data);
-                // toast.success(`Updated ${distancesToUpdate.join(', ')} distance(s) (higher values) and recalculated emissions!`);
-            } catch (updateError) {
-                console.warn('Driver form update failed:', updateError.message);
-                toast.warning('Carpool submission created, but Parent form update failed');
-            }
-        }
-
-        setSubmitted(true);
-        toast.success('Your commute distances submitted successfully!');
-
-        navigate('/formSubmittedSuccessfully', {
-            state: {
-                formType: 'employee-commuting-carpool',
-                reportingYear: reportingYear,
-                userInfo: userInfo,
-                submissionTime: new Date().toISOString()
-            }
-        });
-
-    } catch (error) {
-        console.error('Submission error:', error);
-        if (error.response) {
-            toast.error(`Server error: ${error.response.data?.message || error.response.status}`);
-        } else if (error.request) {
-            toast.error('Network error. Please check your connection.');
-        } else {
-            toast.error(`Error: ${error.message}`);
-        }
-    } finally {
-        setLoading(false);
-    }
-};
+        // Proceed with actual submission
+        await submitFormData();
+    };
 
     const renderCommuteSections = () => {
         if (!userPassengerDetails.transportTypes || userPassengerDetails.transportTypes.length === 0) {
@@ -1819,6 +2624,7 @@ const handleSubmit = async (e) => {
 
         return (
             <div className="space-y-6">
+
                 {userPassengerDetails.transportTypes.includes('motorbike') && (
                     <div className="border rounded-lg p-6 bg-white shadow-sm">
                         <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -1827,7 +2633,7 @@ const handleSubmit = async (e) => {
                             </span>
                             Motorbike Commute (You are a passenger)
                         </h3>
-                        
+
                         <div className="space-y-6">
                             {/* Distance input */}
                             <div className="max-w-md" id="motorbikeDistance">
@@ -1869,12 +2675,32 @@ const handleSubmit = async (e) => {
                                 </div>
                             )}
 
-                            {/* Date range */}
+                            {/* Date range - USE CARPOOL DATE RANGE */}
                             <div className="mt-4" id="motorbikeDateRange">
-                                {originalFormData?.motorbikeDateRange ? (
+                                {originalFormData?.motorbikeMode === 'both' && originalFormData?.motorbikeCarpoolDateRange ? (
                                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                                            Commute Period
+                                            Carpool Period
+                                        </label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-sm text-gray-500">Start Date</p>
+                                                <p className="font-medium">
+                                                    {new Date(originalFormData.motorbikeCarpoolDateRange.startDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-gray-500">End Date</p>
+                                                <p className="font-medium">
+                                                    {new Date(originalFormData.motorbikeCarpoolDateRange.endDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : originalFormData?.motorbikeDateRange ? (
+                                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Carpooled Period
                                         </label>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
@@ -1931,7 +2757,7 @@ const handleSubmit = async (e) => {
                             </span>
                             Car Commute (You are a passenger)
                         </h3>
-                        
+
                         <div className="space-y-6">
                             {/* Distance input */}
                             <div className="max-w-md" id="carDistance">
@@ -1988,9 +2814,29 @@ const handleSubmit = async (e) => {
                                 </div>
                             )}
 
-                            {/* Date range */}
+                            {/* Date range - USE CARPOOL DATE RANGE */}
                             <div className="mt-4" id="carDateRange">
-                                {originalFormData?.carDateRange ? (
+                                {originalFormData?.carMode === 'both' && originalFormData?.carCarpoolDateRange ? (
+                                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Carpooled Period
+                                        </label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-sm text-gray-500">Start Date</p>
+                                                <p className="font-medium">
+                                                    {new Date(originalFormData.carCarpoolDateRange.startDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-gray-500">End Date</p>
+                                                <p className="font-medium">
+                                                    {new Date(originalFormData.carCarpoolDateRange.endDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : originalFormData?.carDateRange ? (
                                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Commute Period
@@ -2050,7 +2896,7 @@ const handleSubmit = async (e) => {
                             </span>
                             Taxi Commute (You are a passenger)
                         </h3>
-                        
+
                         <div className="space-y-6">
                             {/* Distance input */}
                             <div className="max-w-md" id="taxiDistance">
@@ -2092,9 +2938,29 @@ const handleSubmit = async (e) => {
                                 </div>
                             )}
 
-                            {/* Date range */}
+                            {/* Date range - USE CARPOOL DATE RANGE */}
                             <div className="mt-4" id="taxiDateRange">
-                                {originalFormData?.taxiDateRange ? (
+                                {originalFormData?.taxiMode === 'both' && originalFormData?.taxiCarpoolDateRange ? (
+                                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                            Carpooled Period
+                                        </label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-sm text-gray-500">Start Date</p>
+                                                <p className="font-medium">
+                                                    {new Date(originalFormData.taxiCarpoolDateRange.startDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-gray-500">End Date</p>
+                                                <p className="font-medium">
+                                                    {new Date(originalFormData.taxiCarpoolDateRange.endDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : originalFormData?.taxiDateRange ? (
                                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             Commute Period
@@ -2148,14 +3014,292 @@ const handleSubmit = async (e) => {
             </div>
         );
     };
+    // Add this function before renderCommuteSections
+    const submitFormData = async () => {
+        setLoading(true);
 
-    if (loadingForm) {
+        try {
+            const currentToken = getToken();
+            if (!currentToken) {
+                toast.error('Authentication token is missing. Please refresh the page.');
+                setLoading(false);
+                return;
+            }
+
+            // ============ STEP 1: CREATE PASSENGER SUBMISSION ============
+            const passengerSubmissionData = {
+                originalFormId: urlFormId,
+                emailDocId: formData.emailDocId || originalFormData?.emailDocId || null,
+                parentId: urlFormId,
+                participantId: urlParticipantId,
+                employeeName: formData.employeeName || userInfo?.name || '',
+                employeeID: formData.employeeID || userInfo?.employeeId || '',
+                usersubmittedId: userInfo?._id || null,
+                siteBuildingName: userInfo?.buildingId?._id || userInfo?.buildingId || formData.siteBuildingName?.value || '',
+                stakeholderDepartment: formData.stakeholderDepartment?.value || '',
+                submittedByEmail: formData.submittedByEmail || '',
+                reportingYear: reportingYear,
+                qualityControlRemarks: formData.qualityControlRemarks,
+                qualityControl: formData.qualityControl?.value || '',
+                submittedAt: new Date().toISOString(),
+                entryStatus: formData.entryStatus || 'Carpool',
+                commuteTypes: userPassengerDetails.transportTypes,
+                formStatus: 'FILLED',
+                hasSubmitted: true,
+            };
+
+            delete passengerSubmissionData.motorbikeDateRange;
+            delete passengerSubmissionData.carDateRange;
+            delete passengerSubmissionData.taxiDateRange;
+
+            const submittedDistances = [];
+
+            // Add passenger's distance data - ONLY if distance is filled
+            if (userPassengerDetails.transportTypes.includes('motorbike') && formData.motorbikeDistance && formData.motorbikeDistance.trim() !== '') {
+                const motorbikeDetails = userPassengerDetails.details.motorbike;
+                passengerSubmissionData.commuteByMotorbike = true;
+                passengerSubmissionData.motorbikeMode = formData.motorbikeMode || 'carpool';
+                passengerSubmissionData.motorbikeDistance = Number(formData.motorbikeDistance) || 0;
+                passengerSubmissionData.motorbikeType = formData.motorbikeType?.value || originalFormData?.motorbikeType || '';
+
+                if (formData.motorbikeDateRange) {
+                    passengerSubmissionData.motorbikeDates = dateRangeToDates(formData.motorbikeDateRange).map(date => date.toISOString());
+                    passengerSubmissionData.motorbikeCarpoolDateRange = formData.motorbikeDateRange;
+                }
+
+                passengerSubmissionData.motorbikePassengerIndex = motorbikeDetails.passengerIndex;
+                passengerSubmissionData.motorbikeIsDriverCarrying = motorbikeDetails.isDriverCarrying;
+                passengerSubmissionData.motorbikeIsTravelWith = motorbikeDetails.isTravelWith;
+                submittedDistances.push('Motorbike');
+            }
+
+            if (userPassengerDetails.transportTypes.includes('car') && formData.carDistance && formData.carDistance.trim() !== '') {
+                const carDetails = userPassengerDetails.details.car;
+                passengerSubmissionData.commuteByCar = true;
+                passengerSubmissionData.carMode = formData.carMode || 'carpool';
+                passengerSubmissionData.carDistance = Number(formData.carDistance) || 0;
+                passengerSubmissionData.carType = formData.carType?.value || originalFormData?.carType || '';
+                passengerSubmissionData.carFuelType = formData.carFuelType?.value || originalFormData?.carFuelType || '';
+
+                if (formData.carDateRange) {
+                    passengerSubmissionData.carDates = dateRangeToDates(formData.carDateRange).map(date => date.toISOString());
+                    passengerSubmissionData.carCarpoolDateRange = formData.carDateRange;
+                }
+
+                passengerSubmissionData.carPassengerIndex = carDetails.passengerIndex;
+                passengerSubmissionData.carIsDriverCarrying = carDetails.isDriverCarrying;
+                passengerSubmissionData.carIsTravelWith = carDetails.isTravelWith;
+                submittedDistances.push('Car');
+            }
+
+            if (userPassengerDetails.transportTypes.includes('taxi') && formData.taxiDistance && formData.taxiDistance.trim() !== '') {
+                const taxiDetails = userPassengerDetails.details.taxi;
+                passengerSubmissionData.commuteByTaxi = true;
+                passengerSubmissionData.taxiMode = formData.taxiMode || 'carpool';
+                passengerSubmissionData.taxiDistance = Number(formData.taxiDistance) || 0;
+                passengerSubmissionData.taxiType = formData.taxiType?.value || originalFormData?.taxiType || '';
+
+                if (formData.taxiDateRange) {
+                    passengerSubmissionData.taxiDates = dateRangeToDates(formData.taxiDateRange).map(date => date.toISOString());
+                    passengerSubmissionData.taxiCarpoolDateRange = formData.taxiDateRange;
+                }
+
+                passengerSubmissionData.taxiPassengerIndex = taxiDetails.passengerIndex;
+                submittedDistances.push('Taxi');
+            }
+
+            console.log('=== STEP 1: Creating passenger submission ===');
+            console.log('Passenger submission data:', passengerSubmissionData);
+
+            const passengerResponse = await axios.post(
+                `${process.env.REACT_APP_BASE_URL}/employee-commute/Create`,
+                passengerSubmissionData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            if (passengerResponse.status !== 200 && passengerResponse.status !== 201) {
+                throw new Error('Failed to create passenger submission');
+            }
+
+            console.log('Passenger submission created successfully:', passengerResponse.data);
+
+            // ============ STEP 2: UPDATE ORIGINAL DRIVER FORM ============
+            const driverFormResponse = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/employee-commute/Detail/${urlFormId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            const currentDriverData = driverFormResponse.data.data;
+            const updatePayload = {};
+            const distancesToUpdate = [];
+            const getNumericValue = (value) => Number(value) || 0;
+
+            // Handle motorbike update - ONLY if distance was filled
+            if (userPassengerDetails.transportTypes.includes('motorbike') && formData.motorbikeDistance && formData.motorbikeDistance.trim() !== '') {
+                const passengerMotorbikeDistance = getNumericValue(formData.motorbikeDistance);
+                const driverMotorbikeDistance = getNumericValue(currentDriverData.motorbikeDistance);
+                const driverMotorbikeCarpoolDistance = getNumericValue(currentDriverData.motorbikeDistanceCarpool);
+                const driverMotorbikeMode = currentDriverData.motorbikeMode || 'individual';
+
+                if (driverMotorbikeMode === 'both') {
+                    if (passengerMotorbikeDistance > driverMotorbikeCarpoolDistance) {
+                        updatePayload.motorbikeDistanceCarpool = passengerMotorbikeDistance;
+                        distancesToUpdate.push('Motorbike Carpool');
+                    }
+                } else {
+                    if (passengerMotorbikeDistance > driverMotorbikeDistance) {
+                        updatePayload.motorbikeDistance = passengerMotorbikeDistance;
+                        distancesToUpdate.push('Motorbike');
+                    }
+                }
+            }
+
+            // Handle car update - ONLY if distance was filled
+            if (userPassengerDetails.transportTypes.includes('car') && formData.carDistance && formData.carDistance.trim() !== '') {
+                const passengerCarDistance = getNumericValue(formData.carDistance);
+                const driverCarDistance = getNumericValue(currentDriverData.carDistance);
+                const driverCarCarpoolDistance = getNumericValue(currentDriverData.carDistanceCarpool);
+                const driverCarMode = currentDriverData.carMode || 'individual';
+
+                if (driverCarMode === 'both') {
+                    if (passengerCarDistance > driverCarCarpoolDistance) {
+                        updatePayload.carDistanceCarpool = passengerCarDistance;
+                        distancesToUpdate.push('Car Carpool');
+                    }
+                } else {
+                    if (passengerCarDistance > driverCarDistance) {
+                        updatePayload.carDistance = passengerCarDistance;
+                        distancesToUpdate.push('Car');
+                    }
+                }
+            }
+
+            // Handle taxi update - ONLY if distance was filled
+            if (userPassengerDetails.transportTypes.includes('taxi') && formData.taxiDistance && formData.taxiDistance.trim() !== '') {
+                const passengerTaxiDistance = getNumericValue(formData.taxiDistance);
+                const driverTaxiDistance = getNumericValue(currentDriverData.taxiDistance);
+                const driverTaxiCarpoolDistance = getNumericValue(currentDriverData.taxiDistanceCarpool);
+                const driverTaxiMode = currentDriverData.taxiMode || 'individual';
+
+                if (driverTaxiMode === 'both') {
+                    if (passengerTaxiDistance > driverTaxiCarpoolDistance) {
+                        updatePayload.taxiDistanceCarpool = passengerTaxiDistance;
+                        distancesToUpdate.push('Taxi Carpool');
+                    }
+                } else {
+                    if (passengerTaxiDistance > driverTaxiDistance) {
+                        updatePayload.taxiDistance = passengerTaxiDistance;
+                        distancesToUpdate.push('Taxi');
+                    }
+                }
+            }
+
+            // Update driver form with recalculated emissions if any updates
+            if (Object.keys(updatePayload).length > 0) {
+                const finalMotorbikeDistance = updatePayload.motorbikeDistance !== undefined
+                    ? updatePayload.motorbikeDistance
+                    : getNumericValue(currentDriverData.motorbikeDistance);
+
+                const finalMotorbikeCarpoolDistance = updatePayload.motorbikeDistanceCarpool !== undefined
+                    ? updatePayload.motorbikeDistanceCarpool
+                    : getNumericValue(currentDriverData.motorbikeDistanceCarpool);
+
+                const finalCarDistance = updatePayload.carDistance !== undefined
+                    ? updatePayload.carDistance
+                    : getNumericValue(currentDriverData.carDistance);
+
+                const finalCarCarpoolDistance = updatePayload.carDistanceCarpool !== undefined
+                    ? updatePayload.carDistanceCarpool
+                    : getNumericValue(currentDriverData.carDistanceCarpool);
+
+                const finalTaxiDistance = updatePayload.taxiDistance !== undefined
+                    ? updatePayload.taxiDistance
+                    : getNumericValue(currentDriverData.taxiDistance);
+
+                const finalTaxiCarpoolDistance = updatePayload.taxiDistanceCarpool !== undefined
+                    ? updatePayload.taxiDistanceCarpool
+                    : getNumericValue(currentDriverData.taxiDistanceCarpool);
+
+                const emissionCalculationData = {
+                    ...currentDriverData,
+                    motorbikeDistance: finalMotorbikeDistance,
+                    motorbikeDistanceCarpool: finalMotorbikeCarpoolDistance,
+                    carDistance: finalCarDistance,
+                    carDistanceCarpool: finalCarCarpoolDistance,
+                    taxiDistance: finalTaxiDistance,
+                    taxiDistanceCarpool: finalTaxiCarpoolDistance,
+                    carryOthersCar: currentDriverData.carryOthersCar,
+                    personsCarriedCar: currentDriverData.personsCarriedCar,
+                    travelWithOthersTaxi: currentDriverData.travelWithOthersTaxi,
+                    personsTravelWithTaxi: currentDriverData.personsTravelWithTaxi,
+                };
+
+                const recalculatedEmissions = calculateEmissions(emissionCalculationData);
+                updatePayload.calculatedEmissionKgCo2e = recalculatedEmissions.totalEmissionsKg;
+                updatePayload.calculatedEmissionTCo2e = recalculatedEmissions.totalEmissionsTonnes;
+
+                await axios.put(
+                    `${process.env.REACT_APP_BASE_URL}/employee-commute/Update/${urlFormId}`,
+                    updatePayload,
+                    {
+                        headers: { Authorization: `Bearer ${currentToken}`, 'Content-Type': 'application/json' },
+                        timeout: 30000,
+                    }
+                );
+            }
+
+            setSubmitted(true);
+            toast.success(`Your commute distances submitted successfully! Submitted: ${submittedDistances.join(', ')}`);
+
+            navigate('/formSubmittedSuccessfully', {
+                state: {
+                    formType: 'employee-commuting-carpool',
+                    reportingYear: reportingYear,
+                    userInfo: userInfo,
+                    submissionTime: new Date().toISOString()
+                }
+            });
+
+        } catch (error) {
+            console.error('Submission error:', error);
+            if (error.response) {
+                toast.error(`Server error: ${error.response.data?.message || error.response.status}`);
+            } else if (error.request) {
+                toast.error('Network error. Please check your connection.');
+            } else {
+                toast.error(`Error: ${error.message}`);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Add this function for modal confirmation
+    const handleConfirmPartialSubmit = () => {
+        setShowPartialSubmitModal(false);
+        submitFormData();
+    };
+
+    // Show loading while checking form access OR loading form data
+    if (loadingForm || formAccessStatus.checking) {
         return (
             <div className="max-w-6xl mx-auto p-6">
                 <Card>
                     <div className="text-center py-12">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                        <p className="text-gray-600">Loading form data...</p>
+                        <p className="text-gray-600">
+                            {loadingForm ? 'Loading form data...' : 'Checking form access...'}
+                        </p>
                     </div>
                 </Card>
             </div>
@@ -2185,19 +3329,65 @@ const handleSubmit = async (e) => {
         );
     }
 
+    // Show loading while checking form access
+    if (formAccessStatus.checking) {
+        return (
+            <div className="max-w-6xl mx-auto p-6">
+                <Card>
+                    <div className="text-center py-12">
+                        <div className="flex justify-center mb-4">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                        </div>
+                        <p className="text-gray-600">Checking form access...</p>
+                    </div>
+                </Card>
+            </div>
+        );
+    }
+
+    // Show modal if form is not accessible (not started, expired, or already submitted)
+    if (!formAccessStatus.canAccess && formAccessStatus.message) {
+        return (
+            <FormStatusModal
+                isOpen={true}
+                status={formAccessStatus.status}
+                message={formAccessStatus.message}
+                startDate={formAccessStatus.startDate}
+                endDate={formAccessStatus.endDate}
+                onClose={() => { }}
+            />
+        );
+    }
+
     return (
         <div className="max-w-6xl mx-auto p-6">
             <Card title={"Carpool Partner Commute Distance Form"}>
                 <div className="mb-8">
-                    <div className="text-slate-700 leading-relaxed mb-4 bg-blue-50 rounded-lg border-l-4 border-blue-400 p-4">
+                    {/* <div className="text-slate-700 leading-relaxed mb-4 bg-blue-50 rounded-lg border-l-4 border-blue-400 p-4">
                         <p className="text-gray-700">
-                            You have been invited to provide your commute distance as part of a carpool arrangement. 
+                            You have been invited to provide your commute distance as part of a carpool arrangement.
                             Please confirm your portion of the commute distance for each period indicated below.
                         </p>
                         {userPassengerDetails.transportTypes && userPassengerDetails.transportTypes.length > 0 && (
                             <p className="text-sm text-blue-600 mt-2 font-semibold">
-                                You are a passenger in {userPassengerDetails.transportTypes.length} commute type(s): {userPassengerDetails.transportTypes.join(', ')}.
+                                You are a passenger in {userPassengerDetails.transportTypes.length} commute types: {userPassengerDetails.transportTypes.join(', ')}.
                                 Please fill in your distance for each.
+                            </p>
+                        )}
+                    </div> */}
+                    <div className="text-slate-700 leading-relaxed mb-4 bg-blue-50 rounded-lg border-l-4 border-blue-400 p-4">
+                        <p className="text-gray-700">
+                            You have been invited to provide your commute distance as part of a carpool arrangement.
+                            Please confirm your portion of the commute distance for each period indicated below.
+                        </p>
+                        <p className="text-sm text-amber-600 mt-2 font-semibold">
+                            ⚠ Note: You only need to fill distances for commutes you actually participated in.
+                            Leave empty for commutes you didn't use.
+                        </p>
+                        {userPassengerDetails.transportTypes && userPassengerDetails.transportTypes.length > 0 && (
+                            <p className="text-sm text-blue-600 mt-2 font-semibold">
+                                You are a passenger in {userPassengerDetails.transportTypes.length} commute types: {userPassengerDetails.transportTypes.join(', ')}.
+                                Please fill in your distance for each you participated in.
                             </p>
                         )}
                     </div>
@@ -2268,6 +3458,13 @@ const handleSubmit = async (e) => {
                         disabled={loading || !userPassengerDetails.transportTypes || userPassengerDetails.transportTypes.length === 0}
                     />
                 </div>
+                {/* Add this before the closing Card tag */}
+                <PartialSubmitModal
+                    isOpen={showPartialSubmitModal}
+                    onClose={() => setShowPartialSubmitModal(false)}
+                    onConfirm={handleConfirmPartialSubmit}
+                    missingDistances={missingDistancesList}
+                />
             </Card>
         </div>
     );

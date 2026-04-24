@@ -27,7 +27,7 @@ module.exports = {
     },
     extend: {
       colors: {
-       primary: {
+        primary: {
           50: "#83cedfac",
           100: "#7dbdccff",
           200: "#4098ab",
@@ -140,6 +140,10 @@ module.exports = {
         todo: "rgba(235 233 241, 0.6) 0px 3px 10px 0px",
       },
       keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
         zoom: {
           "0%, 100%": { transform: "scale(0.5)" },
           "50%": { transform: "scale(1)" },
@@ -157,11 +161,18 @@ module.exports = {
           },
           "100%": { transform: "scale3d(1, 1, 1)" },
         },
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
       },
       animation: {
         "spin-slow": "spin 3s linear infinite",
         zoom: "zoom 1s ease-in-out infinite",
         tada: "tada 1.5s ease-in-out infinite",
+        float: 'float 1s ease-in-out infinite',
+        shimmer: 'shimmer 1.5s infinite',
+
       },
     },
   },

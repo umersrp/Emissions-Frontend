@@ -113,36 +113,63 @@ const useFugitiveCSVUpload = (buildings = []) => {
             cleanValue(h).toLowerCase().replace(/[^a-z0-9]/g, '')
           );
 
-          // Expected headers
-          const expectedHeaders = [
-            'buildingcode', 'stakeholder', 'equipmenttype', 'materialrefrigerant',
-            'leakagevalue', 'unit', 'qualitycontrol', 'remarks', 'postingdate'
-          ];
+         const expectedHeaders = [
+  { key: 'buildingcode', possible: ['buildingcode', 'building code', 'building'] },
+  { key: 'stakeholder', possible: ['stakeholder', 'stakeholderdepartment'] },
+  { key: 'equipmenttype', possible: ['equipmenttype', 'equipment type', 'equipment'] },
+  { key: 'materialrefrigerant', possible: ['materialrefrigerant', 'material refrigerant', 'refrigerant', 'material'] },
+  { key: 'leakagevalue', possible: ['leakagevalue', 'leakagevaluerechargevaluekg', 'leakagevaluekg', 'leakage value (kg)'] },
+  { key: 'qualitycontrol', possible: ['qualitycontrol', 'quality control', 'quality'] },
+  { key: 'remarks', possible: ['remarks', 'remark', 'notes'] },
+  { key: 'postingdate', possible: ['postingdate', 'posting date', 'date'] }
+];
+// Create a mapping from actual header to expected key
+const headerMapping = {};
+const missingHeaders = [];
+
+expectedHeaders.forEach(expected => {
+  const foundHeader = headerValues.find(h => {
+    const normalizedH = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return expected.possible.some(possible => 
+      possible.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedH
+    );
+  });
+  
+  if (foundHeader) {
+    headerMapping[foundHeader] = expected.key;
+  } else {
+    missingHeaders.push(expected.key);
+  }
+});
+
+if (missingHeaders.length > 0) {
+  reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+  return;
+}
 
           // Check for missing headers
-          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
-          if (missingHeaders.length > 0) {
-            reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
-            return;
-          }
+        
 
           // Parse data rows
-          const data = [];
-          for (let i = headerRowIndex + 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
+         // Replace the data parsing section in parseCSV (around line 100-115):
+const data = [];
+for (let i = headerRowIndex + 1; i < lines.length; i++) {
+  const line = lines[i].trim();
+  if (!line) continue;
 
-            const values = parseCSVLine(line);
+  const values = parseCSVLine(line);
+  const row = {};
 
-            const row = {};
-            headers.forEach((header, index) => {
-              row[header] = index < values.length ? cleanValue(values[index]) : '';
-            });
+  // Use the header mapping
+  Object.keys(headerMapping).forEach((originalHeader, idx) => {
+    const mappedKey = headerMapping[originalHeader];
+    row[mappedKey] = idx < values.length ? cleanValue(values[idx]) : '';
+  });
 
-            if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
-              data.push(row);
-            }
-          }
+  if (Object.values(row).some(val => val && val.toString().trim() !== '')) {
+    data.push(row);
+  }
+}
 
           console.log('Parsed CSV data:', JSON.stringify(data, null, 2));
           resolve(data);
@@ -209,32 +236,56 @@ const useFugitiveCSVUpload = (buildings = []) => {
           );
 
           // Expected headers
-          const expectedHeaders = [
-            'buildingcode', 'stakeholder', 'equipmenttype', 'materialrefrigerant',
-            'leakagevalue', 'unit', 'qualitycontrol', 'remarks', 'postingdate'
-          ];
+         // WITH THIS:
+const expectedHeaders = [
+  { key: 'buildingcode', possible: ['buildingcode', 'building code', 'building'] },
+  { key: 'stakeholder', possible: ['stakeholder', 'stakeholderdepartment'] },
+  { key: 'equipmenttype', possible: ['equipmenttype', 'equipment type', 'equipment'] },
+  { key: 'materialrefrigerant', possible: ['materialrefrigerant', 'material refrigerant', 'refrigerant', 'material'] },
+  { key: 'leakagevalue', possible: ['leakagevalue', 'leakagevaluerechargevaluekg', 'leakagevaluekg', 'leakage value (kg)'] },
+  { key: 'qualitycontrol', possible: ['qualitycontrol', 'quality control', 'quality'] },
+  { key: 'remarks', possible: ['remarks', 'remark', 'notes'] },
+  { key: 'postingdate', possible: ['postingdate', 'posting date', 'date'] }
+];
 
-          // Check for missing headers
-          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
-          if (missingHeaders.length > 0) {
-            reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
-            return;
-          }
+       const headerMapping = {};
+const missingHeaders = [];
 
-          // Parse data rows
-          const parsedData = [];
-          for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
-            const row = jsonData[i];
-            if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+expectedHeaders.forEach(expected => {
+  const foundHeader = headers.find((h, idx) => {
+    const normalizedH = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return expected.possible.some(possible => 
+      possible.toLowerCase().replace(/[^a-z0-9]/g, '') === normalizedH
+    );
+  });
+  
+  if (foundHeader) {
+    const foundIndex = headers.findIndex(h => h === foundHeader);
+    headerMapping[foundHeader] = { key: expected.key, index: foundIndex };
+  } else {
+    missingHeaders.push(expected.key);
+  }
+});
 
-            const rowData = {};
-            headers.forEach((header, index) => {
-              const value = index < row.length ? row[index] : '';
-              rowData[header] = value ? cleanValue(value) : '';
-            });
+if (missingHeaders.length > 0) {
+  reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+  return;
+}
 
-            parsedData.push(rowData);
-          }
+// Then in the data parsing:
+const parsedData = [];
+for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+  const row = jsonData[i];
+  if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+
+  const rowData = {};
+  Object.values(headerMapping).forEach(({ key, index }) => {
+    const value = index < row.length ? row[index] : '';
+    rowData[key] = value ? cleanValue(value) : '';
+  });
+
+  parsedData.push(rowData);
+}
 
           console.log('Parsed Excel data:', JSON.stringify(parsedData, null, 2));
           resolve(parsedData);
@@ -285,11 +336,13 @@ const findFlexibleMatch = (input, validOptions) => {
 
     // Comprehensive header mapping
     const headerMapping = {
-      'unit': 'consumptionunit',
       'buildingcode': 'buildingcode',
       'refrigerant': 'materialrefrigerant',
+      'materialrefrigerant': 'materialrefrigerant',
       'equipment': 'equipmenttype',
       'leakagevalue': 'leakagevalue',
+      'leakagevaluekg': 'leakagevalue',
+      'leakagevaluerechargevaluekg': 'leakagevalue',
       'postingdate': 'postingdate',
       'quality': 'qualitycontrol',
     };
@@ -306,7 +359,7 @@ const findFlexibleMatch = (input, validOptions) => {
     // Required fields validation
     const requiredFields = [
       'buildingcode', 'stakeholder', 'equipmenttype',
-      'materialrefrigerant', 'leakagevalue', 'consumptionunit',
+      'materialrefrigerant', 'leakagevalue',
       'qualitycontrol', 'postingdate'
     ];
 
@@ -320,48 +373,23 @@ const findFlexibleMatch = (input, validOptions) => {
     if (cleanedRow.buildingcode && buildings.length > 0) {
       const buildingExists = buildings.some(b => b.buildingCode === cleanedRow.buildingcode);
       if (!buildingExists) {
-        errors.push(`Invalid building Code "${cleanedRow.buildingcode}"`);
+        errors.push(`Invalid Building Code "${cleanedRow.buildingcode}"`);
       }
     }
 
     // Stakeholder validation
-    // if (cleanedRow.stakeholder) {
-    //   const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
-    //   const matchedStakeholder = validStakeholders.find(s =>
-    //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-    //   );
-    //   if (!matchedStakeholder) {
-    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-    //   } else {
-    //     cleanedRow.stakeholder = matchedStakeholder;
-    //   }
-    // }
 if (cleanedRow.stakeholder) {
   const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
   const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
   
   if (!matchedStakeholder) {
-    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+    errors.push(`Invalid Stakeholder "${cleanedRow.stakeholder}"`);
   } else {
     cleanedRow.stakeholder = matchedStakeholder;
   }
 }
     // Equipment type validation with subscript normalization
-    // if (cleanedRow.equipmenttype) {
-    //   const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
-    //   const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
 
-    //   const matchedEquipment = validEquipmentTypes.find(equipment => {
-    //     const normalizedEquipment = normalizeSubscriptNumbers(equipment);
-    //     return normalizedEquipment.toLowerCase() === normalizedInput.toLowerCase();
-    //   });
-
-    //   if (!matchedEquipment) {
-    //     errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
-    //   } else {
-    //     cleanedRow.equipmenttype = matchedEquipment;
-    //   }
-    // }
     if (cleanedRow.equipmenttype) {
   const validEquipmentTypes = FugitiveEquipmentTypeOptions.map(e => e.value);
   const normalizedInput = normalizeSubscriptNumbers(cleanedRow.equipmenttype);
@@ -389,30 +417,19 @@ if (cleanedRow.stakeholder) {
   }
   
   if (!matchedEquipment) {
-    errors.push(`Invalid equipment type "${cleanedRow.equipmenttype}"`);
+    errors.push(`Invalid Equipment Type "${cleanedRow.equipmenttype}"`);
   } else {
     cleanedRow.equipmenttype = matchedEquipment;
   }
 }
 
     // Material/Refrigerant validation
-    // if (cleanedRow.materialrefrigerant) {
-    //   const validMaterials = materialRefrigerantOptions.map(m => m.value);
-    //   const matchedMaterial = validMaterials.find(m =>
-    //     m.toLowerCase() === cleanedRow.materialrefrigerant.toLowerCase()
-    //   );
-    //   if (!matchedMaterial) {
-    //     errors.push(`Invalid material/refrigerant "${cleanedRow.materialrefrigerant}"`);
-    //   } else {
-    //     cleanedRow.materialrefrigerant = matchedMaterial;
-    //   }
-    // }
     if (cleanedRow.materialrefrigerant) {
   const validMaterials = materialRefrigerantOptions.map(m => m.value);
   const matchedMaterial = findFlexibleMatch(cleanedRow.materialrefrigerant, validMaterials);
   
   if (!matchedMaterial) {
-    errors.push(`Invalid material/refrigerant "${cleanedRow.materialrefrigerant}"`);
+    errors.push(`Invalid "Material / Refrigerant": "${cleanedRow.materialrefrigerant}"`);
   } else {
     cleanedRow.materialrefrigerant = matchedMaterial;
   }
@@ -425,11 +442,9 @@ if (cleanedRow.stakeholder) {
 
       const num = Number(cleanNum);
       if (isNaN(num)) {
-        errors.push(`Leakage value must be a number, got "${cleanedRow.leakagevalue}"`);
+        errors.push(`"Leakage Value / Recharge Value" must be a number, got "${cleanedRow.leakagevalue}"`);
       } else if (num < 0) {
-        errors.push('Leakage value cannot be negative');
-      } else if (num > 1000000) {
-        errors.push('Leakage value seems too large');
+        errors.push('"Leakage Value / Recharge Value" cannot be negative');
       } else {
         cleanedRow.leakagevalue = num.toString();
       }
@@ -442,7 +457,7 @@ if (cleanedRow.stakeholder) {
         u.toLowerCase() === cleanedRow.consumptionunit.toLowerCase()
       );
       if (!matchedUnit) {
-        errors.push(`Invalid consumption unit "${cleanedRow.consumptionunit}"`);
+        errors.push(`Invalid Unit "${cleanedRow.consumptionunit}"`);
       } else {
         cleanedRow.consumptionunit = matchedUnit;
       }
@@ -455,7 +470,7 @@ if (cleanedRow.stakeholder) {
         q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
       );
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+        errors.push(`Invalid Quality Control "${cleanedRow.qualitycontrol}"`);
       } else {
         cleanedRow.qualitycontrol = matchedQC;
       }
@@ -502,7 +517,7 @@ if (cleanedRow.stakeholder) {
             cleanedRow.postingdate = dateStr;
           }
         } else {
-          errors.push(`Date must be DD/MM/YYYY format (e.g., 15/01/2024), got "${cleanedRow.postingdate}"`);
+          errors.push(`Invalid date format "${cleanedRow.postingdate}" , must be DD/MM/YYYY format (e.g., 15/01/2024)`);
         }
       }
     } else {
@@ -551,7 +566,7 @@ if (cleanedRow.stakeholder) {
       equipmentType: row.equipmenttype,
       materialRefrigerant: row.materialrefrigerant,
       leakageValue: cleanNumberValue(row.leakagevalue, 'Leakage value'),
-      consumptionUnit: cleanStringValue(row.consumptionunit),
+      consumptionUnit: 'kg',
       qualityControl: row.qualitycontrol,
       calculatedEmissionKgCo2e: kgEmission || 0,
       calculatedEmissionTCo2e: tEmission || 0,
@@ -752,11 +767,10 @@ if (cleanedRow.stakeholder) {
     const worksheetData = [
       [
         'Building Code',
-        'Stakeholder',
+        'Stakeholder / Department',
         'Equipment Type',
-        'Material Refrigerant',
-        'Leakage Value',
-        'Unit',
+        'Material / Refrigerant',
+        'Leakage Value / Recharge Value (kg)',
         'Quality Control',
         'Remarks',
         'Posting Date'
@@ -767,7 +781,6 @@ if (cleanedRow.stakeholder) {
         exampleEquipmentType,
         exampleMaterial,
         '10',
-        exampleUnit,
         exampleQC,
         'AC maintenance - Unit 1',
         formattedDate
@@ -782,7 +795,7 @@ if (cleanedRow.stakeholder) {
     // Auto-size columns for better readability
     worksheet['!cols'] = [
       { wch: 20 }, // building code
-      { wch: 15 }, // stakeholder
+      { wch: 25 }, // stakeholder
       { wch: 35 }, // equipment type
       { wch: 25 }, // material refrigerant
       { wch: 18 }, // leakage value

@@ -7,7 +7,6 @@ import { toast } from "react-toastify";
 import InputGroup from "@/components/ui/InputGroup";
 import CustomSelect from "@/components/ui/Select";
 import ToggleButton from "@/components/ui/ToggleButton";
-
 // Helper function to get ordinal suffix
 const getOrdinalSuffix = (num) => {
     if (num > 3 && num < 21) return 'th';
@@ -27,6 +26,22 @@ const ErrorMessage = ({ message }) => {
         </p>
     );
 };
+
+const getCurrentTimePlusMinutes = (minutes = 50) => {
+    const now = new Date();
+    // Add minutes to local time
+    now.setMinutes(now.getMinutes() + minutes);
+    
+    // Get local hours and minutes (not UTC)
+    const hours = now.getHours().toString().padStart(2, '0');
+    const mins = now.getMinutes().toString().padStart(2, '0');
+    
+    return `${hours}:${mins}`;
+};
+
+// Example: If current Pakistan time is 4:16 PM (16:16)
+// getCurrentTimePlusMinutes(10) will return "16:26"
+console.log("Current time plus 10 minutes:", getCurrentTimePlusMinutes());
 
 const EmailSent = () => {
     const [formData, setFormData] = useState({
@@ -48,6 +63,7 @@ const EmailSent = () => {
         reminderMessageBody: "",
         intervalType: "hours", // "hours" or "days"
         intervalValue: "", // number value
+        reportingYear: "",
         // reminderMessageBody:
         //     "This is a kind reminder to please complete the Employee Commuting Data Form if you have not yet submitted your response. Your participation is important for our sustainability reporting.",
     });
@@ -58,6 +74,9 @@ const EmailSent = () => {
     const [showReminderDates, setShowReminderDates] = useState(false);
     const [displayText, setDisplayText] = useState("");
     const [errors, setErrors] = useState({});
+    const [tableFilter, setTableFilter] = useState("");
+    const [pagination, setPagination] = useState({ currentPage: 1, ...{} });
+
 
 
 
@@ -249,6 +268,63 @@ const EmailSent = () => {
                 }
             }, 0);
         }
+        // else if (field === 'startDateTime') {
+        //     setFormData(prev => ({
+        //         ...prev,
+        //         [field]: value
+        //     }));
+
+        //     // Validate start date/time is not in the past
+        //     if (value) {
+        //         const now = new Date();
+        //         const startDate = new Date(value);
+        //         now.setMilliseconds(0);
+        //         startDate.setMilliseconds(0);
+
+        //         if (startDate < now) {
+        //             setErrors(prev => ({
+        //                 ...prev,
+        //                 startDateTime: "Start date and time cannot be in the past"
+        //             }));
+        //         } else {
+        //             // Clear error if date becomes valid
+        //             setErrors(prev => {
+        //                 const newErrors = { ...prev };
+        //                 delete newErrors.startDateTime;
+        //                 return newErrors;
+        //             });
+        //         }
+        //     }
+        // }
+        else if (field === 'startDateTime') {
+            setFormData(prev => ({
+                ...prev,
+                [field]: value
+            }));
+
+            // Validate start date/time is not in the past
+            if (value) {
+                const now = new Date();
+                const startDate = new Date(value);
+                now.setMilliseconds(0);
+                startDate.setMilliseconds(0);
+
+                if (startDate < now) {
+                    setErrors(prev => ({
+                        ...prev,
+                        startDateTime: "Start date and time cannot be in the past"
+                    }));
+                } else {
+                    // Clear error if date becomes valid
+                    setErrors(prev => {
+                        const newErrors = { ...prev };
+                        delete newErrors.startDateTime;
+                        return newErrors;
+                    });
+                }
+            }
+        }
+
 
         else {
             setFormData(prev => ({
@@ -313,7 +389,17 @@ const EmailSent = () => {
             toast.success(`✓ Exceeded minimum requirement by ${emailCount - Number(formData.minEmployeesRequired)} employees!`);
         }
     }, [emailCount, formData.minEmployeesRequired]);
-
+    useEffect(() => {
+        // Clear date validation errors when reporting year changes
+        if (errors.startDateTime?.includes('must be in') || errors.endDateTime?.includes('must be in')) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors.startDateTime;
+                delete newErrors.endDateTime;
+                return newErrors;
+            });
+        }
+    }, [formData.reportingYear]);
 
     const validateForm = () => {
         const newErrors = {};
@@ -360,10 +446,56 @@ const EmailSent = () => {
             newErrors.endDateTime = "End date must be after start date";
         }
 
+        // Validate start date/time is not in the past
+        // if (formData.startDateTime) {
+        //     const now = new Date();
+        //     const startDate = new Date(formData.startDateTime);
+
+        //     // Set both dates to have same precision (milliseconds)
+        //     now.setMilliseconds(0);
+        //     startDate.setMilliseconds(0);
+
+        //     if (startDate < now) {
+        //         newErrors.startDateTime = "Start date and time cannot be in the past. Please select a future date/time.";
+        //     }
+        // }
+        // Validate startDateTime is not empty and not in past
+        if (!formData.startDate || !formData.startTime) {
+            newErrors.startDateTime = "Please select both start date and time";
+        } else if (formData.startDateTime) {
+            const now = new Date();
+            const startDate = new Date(formData.startDateTime);
+            now.setMilliseconds(0);
+            startDate.setMilliseconds(0);
+
+            if (startDate < now) {
+                newErrors.startDateTime = "Start date and time cannot be in the past. Please select a future date/time.";
+            }
+        }
+        // Validate endDateTime
+        if (!formData.endDate || !formData.endTime) {
+            newErrors.endDateTime = "Please select both end date and time";
+        } else if (formData.startDateTime && formData.endDateTime && new Date(formData.endDateTime) <= new Date(formData.startDateTime)) {
+            newErrors.endDateTime = "End date must be after start date";
+        }
+
         // Form Link
         if (!formData.formLink.trim()) newErrors.formLink = "Form link is required";
         else if (!formData.formLink.startsWith('http')) newErrors.formLink = "Please enter a valid URL";
 
+        // Add this with your other validations
+        if (!formData.reportingYear) {
+            newErrors.reportingYear = "Reporting year is required";
+        } else {
+            const yearNum = parseInt(formData.reportingYear);
+            const currentYear = new Date().getFullYear();
+            if (yearNum < 2024) {
+                newErrors.reportingYear = "Year must be 2024 or later";
+            }
+            if (yearNum > currentYear + 5) {
+                newErrors.reportingYear = `Year cannot be later than ${currentYear + 5}`;
+            }
+        }
         // Email Subject
         // if (!formData.subject.trim()) newErrors.subject = "Email subject is required";
         if (!displayText.trim()) {  //  Changed from formData.subject to displayText
@@ -375,75 +507,74 @@ const EmailSent = () => {
             newErrors.subject = "Email message body is required";
         }
 
-        // Total Reminders validation
         const totalReminders = Number(formData.totalReminders);
-        if (isNaN(totalReminders) || totalReminders <= 0) {
-            newErrors.totalReminders = "Total number of reminders must be greater than 0";
-        }
-        // If user specified any reminders, require the "Set Reminder Interval" toggle to be enabled
-        if (!isNaN(totalReminders) && totalReminders > 0 && !showReminderDates) {
-            newErrors.reminderDates = "Please enable 'Set Reminder Interval' to configure reminder intervals";
-        }
-        // NEW: Interval validation when toggle is ON
-        if (showReminderDates && totalReminders > 0) {
-            // Validate that startDateTime exists (since it's now the reminder start)
-            if (!formData.startDateTime) {
-                newErrors.startDateTime = "Data collection start date and time is required for reminders";
-            } else {
-                const reminderStart = new Date(formData.startDateTime);
-                const dataEnd = formData.endDateTime ? new Date(formData.endDateTime) : null;
 
-                // Validate that start is before the data collection end
-                if (dataEnd && reminderStart > dataEnd) {
-                    newErrors.startDateTime = "Reminder start should be before data collection end";
-                }
+        if (totalReminders > 0) {
+            // If user specified any reminders, require the "Set Reminder Interval" toggle to be enabled
+            if (!showReminderDates) {
+                newErrors.reminderDates = "Please enable 'Set Reminder Interval' to configure reminder intervals";
             }
 
-            if (!formData.intervalType) {
-                newErrors.intervalType = "Please select interval type (hours or days)";
-            }
+            // Interval validation when toggle is ON
+            if (showReminderDates) {
+                // Validate that startDateTime exists (since it's now the reminder start)
+                if (!formData.startDateTime) {
+                    newErrors.startDateTime = "Data collection start date and time is required for reminders";
+                } else {
+                    const reminderStart = new Date(formData.startDateTime);
+                    const dataEnd = formData.endDateTime ? new Date(formData.endDateTime) : null;
 
-            if (!formData.intervalValue || Number(formData.intervalValue) <= 0) {
-                newErrors.intervalValue = `Please enter a valid ${formData.intervalType || ''} interval`;
-            }
-
-            // Validate that individual reminder dates (for all reminders) do not fall after the collection end
-            if (formData.startDateTime && formData.endDateTime && formData.intervalValue && formData.intervalType) {
-                const interval = Number(formData.intervalValue);
-                const startDate = new Date(formData.startDateTime);
-                const endDate = new Date(formData.endDateTime);
-
-                let anyAfterEnd = false;
-                for (let i = 1; i <= totalReminders; i++) {
-                    let reminderDate;
-                    if (formData.intervalType === 'hours') {
-                        reminderDate = new Date(startDate.getTime() + (i * interval * 60 * 60 * 1000));
-                    } else {
-                        reminderDate = new Date(startDate.getTime() + (i * interval * 24 * 60 * 60 * 1000));
-                    }
-
-                    if (reminderDate > endDate) {
-                        anyAfterEnd = true;
-                        break;
+                    // Validate that start is before the data collection end
+                    if (dataEnd && reminderStart > dataEnd) {
+                        newErrors.startDateTime = "Reminder start should be before data collection end";
                     }
                 }
 
-                if (anyAfterEnd) {
-                    newErrors.intervalValue = `One or more reminders fall after the data collection end date/time`;
+                if (!formData.intervalType) {
+                    newErrors.intervalType = "Please select interval type (hours or days)";
+                }
+
+                if (!formData.intervalValue || Number(formData.intervalValue) <= 0) {
+                    newErrors.intervalValue = `Please enter a valid ${formData.intervalType || ''} interval`;
+                }
+
+                // Validate that individual reminder dates do not fall after the collection end
+                if (formData.startDateTime && formData.endDateTime && formData.intervalValue && formData.intervalType) {
+                    const interval = Number(formData.intervalValue);
+                    const startDate = new Date(formData.startDateTime);
+                    const endDate = new Date(formData.endDateTime);
+
+                    let anyAfterEnd = false;
+                    for (let i = 1; i <= totalReminders; i++) {
+                        let reminderDate;
+                        if (formData.intervalType === 'hours') {
+                            reminderDate = new Date(startDate.getTime() + (i * interval * 60 * 60 * 1000));
+                        } else {
+                            reminderDate = new Date(startDate.getTime() + (i * interval * 24 * 60 * 60 * 1000));
+                        }
+
+                        if (reminderDate > endDate) {
+                            anyAfterEnd = true;
+                            break;
+                        }
+                    }
+
+                    if (anyAfterEnd) {
+                        newErrors.intervalValue = `One or more reminders fall after the data collection end date/time`;
+                    }
                 }
             }
-        }
 
-        // Reminder Subject
-        if (!formData.reminderSubject.trim()) {
-            newErrors.reminderSubject = "Reminder subject is required";
-        }
+            // Reminder Subject - only required if totalReminders > 0
+            if (!formData.reminderSubject.trim()) {
+                newErrors.reminderSubject = "Reminder subject is required";
+            }
 
-        // Reminder Message Body
-        if (!formData.reminderMessageBody.trim()) {
-            newErrors.reminderMessageBody = "Reminder message body is required";
+            // Reminder Message Body - only required if totalReminders > 0
+            if (!formData.reminderMessageBody.trim()) {
+                newErrors.reminderMessageBody = "Reminder message body is required";
+            }
         }
-
         return newErrors;
     };
 
@@ -501,10 +632,8 @@ const EmailSent = () => {
 
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
-
             // Show a general error toast
             toast.error("Please fix the errors in the form");
-
             // Scroll to top of the form
             window.scrollTo({
                 top: 0,
@@ -553,6 +682,7 @@ const EmailSent = () => {
                 reminderDates: parseReminderDates(formData.reminderDates),
                 reminderSubject: formData.reminderSubject,
                 reminderMessageBody: formData.reminderMessageBody,
+                reportingYear: formData.reportingYear,
             };
 
             await axios.post(
@@ -765,39 +895,83 @@ const EmailSent = () => {
                         )}
                     </p>
                     <div className="grid grid-rows-1 md:grid-rows-2 gap-4 mb-4">
+
+                        {/* reporting year drop down */}
+                        <div className="w-1/2">
+                            <label className="field-label">Reporting Year <span className="text-red-500">*</span></label>
+                            <CustomSelect
+                                options={(() => {
+                                    const currentYear = new Date().getFullYear();
+                                    const startYear = 2024;
+                                    const years = [];
+                                    for (let year = startYear; year <= currentYear + 5; year++) {
+                                        years.push({ value: year.toString(), label: year.toString() });
+                                    }
+                                    return years;
+                                })()}
+                                value={formData.reportingYear ? { value: formData.reportingYear, label: formData.reportingYear } : null}
+                                onChange={(selected) => {
+                                    handleInputChange("reportingYear", selected?.value || "");
+                                }}
+                                placeholder="Select Year"
+                                disableCapitalize={true}
+                                isMulti={false}
+                                closeMenuOnSelect={true}
+                                visibleOptions="5"
+                            />
+                            <ErrorMessage message={errors.reportingYear} />
+                        </div>
                         <div>
                             <div className="grid grid-cols-2 gap-2">
                                 <div>
                                     <label className="field-label">Data Collection Start Date<span className="text-red-500">*</span></label>
-
-                                    {/* <InputGroup
-                                        type="date"
-                                        value={formData.startDate || ""}
-                                        onChange={(e) => {
-                                            const date = e.target.value;
-                                            const time = formData.startTime || "00:00";
-                                            const dateTime = date && time ? `${date}T${time}` : "";
-                                            if (errors.startDate) {
-                                                setErrors(prev => ({ ...prev, startDate: undefined }));
-                                            }
-                                            handleInputChange("startDate", date);
-                                        }}
-                                        required
-                                    /> */}
-
                                     <InputGroup
                                         type="date"
                                         value={formData.startDate || ""}
+                                        // onChange={(e) => {
+                                        //     const date = e.target.value;
+                                        //     const time = formData.startTime || "00:00";
+
+                                        //     handleInputChange("startDate", date);
+
+                                        //     //  Update startDateTime when date changes
+                                        //     if (date && time) {
+                                        //         const local = new Date(`${date}T${time}:00`);
+                                        //         handleInputChange("startDateTime", local.toISOString());
+                                        //     }
+
+                                        //     if (errors.startDate) {
+                                        //         setErrors(prev => ({ ...prev, startDate: undefined }));
+                                        //     }
+                                        // }}
                                         onChange={(e) => {
                                             const date = e.target.value;
-                                            const time = formData.startTime || "00:00";
+                                            const time = formData.startTime || getCurrentTimePlusMinutes(10); // Default to current time if not set
 
                                             handleInputChange("startDate", date);
 
-                                            // ✅ Update startDateTime when date changes
+                                            // Update startDateTime when date changes
                                             if (date && time) {
                                                 const local = new Date(`${date}T${time}:00`);
                                                 handleInputChange("startDateTime", local.toISOString());
+
+                                                // Validate after combining
+                                                const now = new Date();
+                                                now.setMilliseconds(0);
+                                                local.setMilliseconds(0);
+
+                                                if (local < now) {
+                                                    setErrors(prev => ({
+                                                        ...prev,
+                                                        startDateTime: "Start date and time cannot be in the past"
+                                                    }));
+                                                } else {
+                                                    setErrors(prev => {
+                                                        const newErrors = { ...prev };
+                                                        delete newErrors.startDateTime;
+                                                        return newErrors;
+                                                    });
+                                                }
                                             }
 
                                             if (errors.startDate) {
@@ -810,39 +984,53 @@ const EmailSent = () => {
                                 <div>
                                     <label className="field-label">Data Collection Start Time <span className="text-red-500">*</span></label>
 
-                                    {/* <InputGroup
-                                        type="time"
-                                        value={formData.startTime || ""}
-                                        onChange={(e) => {
-                                            const time = e.target.value;
-                                            const date = formData.startDate;
-
-                                            handleInputChange("startTime", time);
-
-                                            if (date && time) {
-                                                const local = new Date(`${date}T${time}:00`);
-                                                handleInputChange("startDateTime", local.toISOString());
-                                            }
-
-                                            if (errors.startDateTime) {
-                                                setErrors(prev => ({ ...prev, startDateTime: undefined }));
-                                            }
-                                        }}
-                                        required
-                                    /> */}
                                     <InputGroup
                                         type="time"
                                         value={formData.startTime || ""}
+                                        // onChange={(e) => {
+                                        //     const time = e.target.value;
+                                        //     const date = formData.startDate;
+
+                                        //     handleInputChange("startTime", time);
+
+                                        //     //  Update startDateTime when time changes
+                                        //     if (date && time) {
+                                        //         const local = new Date(`${date}T${time}:00`);
+                                        //         handleInputChange("startDateTime", local.toISOString());
+                                        //     }
+
+                                        //     if (errors.startDateTime) {
+                                        //         setErrors(prev => ({ ...prev, startDateTime: undefined }));
+                                        //     }
+                                        // }}
                                         onChange={(e) => {
                                             const time = e.target.value;
                                             const date = formData.startDate;
 
                                             handleInputChange("startTime", time);
 
-                                            // ✅ Update startDateTime when time changes
+                                            // Update startDateTime when time changes
                                             if (date && time) {
                                                 const local = new Date(`${date}T${time}:00`);
                                                 handleInputChange("startDateTime", local.toISOString());
+
+                                                // Validate after combining
+                                                const now = new Date();
+                                                now.setMilliseconds(0);
+                                                local.setMilliseconds(0);
+
+                                                if (local < now) {
+                                                    setErrors(prev => ({
+                                                        ...prev,
+                                                        startDateTime: "Start date and time cannot be in the past"
+                                                    }));
+                                                } else {
+                                                    setErrors(prev => {
+                                                        const newErrors = { ...prev };
+                                                        delete newErrors.startDateTime;
+                                                        return newErrors;
+                                                    });
+                                                }
                                             }
 
                                             if (errors.startDateTime) {
@@ -850,7 +1038,7 @@ const EmailSent = () => {
                                             }
                                         }}
                                     />
-                                    <ErrorMessage message={errors.startDateTime} />
+                                    {/* <ErrorMessage message={errors.startDateTime} /> */}
                                 </div>
                             </div>
                         </div>
@@ -885,7 +1073,7 @@ const EmailSent = () => {
 
                                             handleInputChange("endDate", date);
 
-                                            // ✅ Update endDateTime when date changes
+                                            //  Update endDateTime when date changes
                                             if (date && time) {
                                                 const local = new Date(`${date}T${time}:00`);
                                                 handleInputChange("endDateTime", local.toISOString());
@@ -932,7 +1120,7 @@ const EmailSent = () => {
 
                                             handleInputChange("endTime", time);
 
-                                            // ✅ Update endDateTime when time changes
+                                            //  Update endDateTime when time changes
                                             if (date && time) {
                                                 const local = new Date(`${date}T${time}:00`);
                                                 handleInputChange("endDateTime", local.toISOString());
@@ -943,11 +1131,11 @@ const EmailSent = () => {
                                             }
                                         }}
                                     />
-                                    <ErrorMessage message={errors.endDateTime} />
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
 
                 {/* Email Configuration */}
@@ -1055,6 +1243,8 @@ const EmailSent = () => {
                     </div>
 
 
+
+
                 </div>
 
                 {/* Reminder Configuration */}
@@ -1093,223 +1283,225 @@ const EmailSent = () => {
                         </div>
                     </div>
                     {/* Dynamic reminder interval fields when toggle is ON */}
-                    {/* Dynamic reminder interval fields when toggle is ON */}
                     {showReminderDates && (
-                        <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                            <h4 className="text-md font-medium text-gray-700 mb-3">Reminder Interval Configuration</h4>
+                        <div>
+                            <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                                <h4 className="text-md font-medium text-gray-700 mb-3">Reminder Interval Configuration</h4>
 
-                            {/* Show info about when reminders will start */}
-                            <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
-                                <h5 className="text-sm font-medium text-blue-800 mb-1">Reminder Start Information:</h5>
-                                <p className="text-sm text-blue-600">
-                                    Reminders will start from the <span className="font-semibold">Data Collection Start Date & Time</span>.
-                                </p>
-                                {/* {formData.startDateTime && (
+                                {/* Show info about when reminders will start */}
+                                <div className="mb-4 p-3 bg-blue-50 rounded border border-blue-200">
+                                    <h5 className="text-sm font-medium text-blue-800 mb-1">Reminder Start Information:</h5>
+                                    <p className="text-sm text-blue-600">
+                                        Reminders will start from the <span className="font-semibold">Data Collection Start Date & Time</span>.
+                                    </p>
+                                    {/* {formData.startDateTime && (
                                     <p className="text-sm text-green-600 mt-1">
                                         ✓ Set to: {new Date(formData.startDateTime).toLocaleString()}
                                     </p>
                                 )} */}
-                                {formData.startDateTime && (
-                                    <p className="text-sm text-green-600 mt-1">
-                                        ✓ Set to: {new Date(formData.startDateTime).toLocaleString('en-US', {
-                                            hour12: true,
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric',
-                                            hour: 'numeric',
-                                            minute: '2-digit'
-                                        })}
-                                    </p>
-                                )}
-                                {!formData.startDateTime && (
-                                    <p className="text-sm text-amber-600 mt-1">
-                                        ⚠ Please set the Data Collection Start Date & Time first
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Interval Type Radio Buttons */}
-                            <div className="mb-4">
-                                <label className="field-label mb-2">Interval Type</label>
-                                <div className="flex gap-6">
-                                    <label className="flex items-center">
-                                        <input
-                                            type="radio"
-                                            name="intervalType"
-                                            value="hours"
-                                            checked={formData.intervalType === "hours"}
-                                            onChange={(e) => handleInputChange("intervalType", e.target.value)}
-                                            className="mr-2"
-                                        />
-                                        <span>Hours</span>
-                                    </label>
-                                    <label className="flex items-center">
-                                        <input
-                                            type="radio"
-                                            name="intervalType"
-                                            value="days"
-                                            checked={formData.intervalType === "days"}
-                                            onChange={(e) => handleInputChange("intervalType", e.target.value)}
-                                            className="mr-2"
-                                        />
-                                        <span>Days</span>
-                                    </label>
+                                    {formData.startDateTime && (
+                                        <p className="text-sm text-green-600 mt-1">
+                                            ✓ Set to: {new Date(formData.startDateTime).toLocaleString('en-US', {
+                                                hour12: true,
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                hour: 'numeric',
+                                                minute: '2-digit'
+                                            })}
+                                        </p>
+                                    )}
+                                    {!formData.startDateTime && (
+                                        <p className="text-sm text-amber-600 mt-1">
+                                            ⚠ Please set the Data Collection Start Date & Time first
+                                        </p>
+                                    )}
                                 </div>
-                                <ErrorMessage message={errors.intervalType} />
-                            </div>
 
-                            {/* Interval Value Input */}
-                            <div>
-                                <label className="field-label">
-                                    Interval Between Reminders
-                                    {formData.intervalType === "hours" ? " (in hours)" : " (in days)"}
-                                </label>
-                                <InputGroup
-                                    type="number"
-                                    placeholder={formData.intervalType === "hours" ? "e.g., 2, 4, 6" : "e.g., 1, 2, 3"}
-                                    value={formData.intervalValue || ""}
-                                    onChange={(e) => {
-                                        const value = parseInt(e.target.value);
-                                        if (!isNaN(value) && value > 0) {
-                                            handleInputChange("intervalValue", value);
-                                        } else {
-                                            handleInputChange("intervalValue", "");
-                                        }
-                                    }}
-                                    helperText={`Enter number of ${formData.intervalType === "hours" ? "hours" : "days"} between each reminder`}
-                                    min="1"
-                                />
-                                <ErrorMessage message={errors.intervalValue} />
-                            </div>
+                                {/* Interval Type Radio Buttons */}
+                                <div className="mb-4">
+                                    <label className="field-label mb-2">Interval Type</label>
+                                    <div className="flex gap-6">
+                                        <label className="flex items-center">
+                                            <input
+                                                type="radio"
+                                                name="intervalType"
+                                                value="hours"
+                                                checked={formData.intervalType === "hours"}
+                                                onChange={(e) => handleInputChange("intervalType", e.target.value)}
+                                                className="mr-2"
+                                            />
+                                            <span>Hours</span>
+                                        </label>
+                                        <label className="flex items-center">
+                                            <input
+                                                type="radio"
+                                                name="intervalType"
+                                                value="days"
+                                                checked={formData.intervalType === "days"}
+                                                onChange={(e) => handleInputChange("intervalType", e.target.value)}
+                                                className="mr-2"
+                                            />
+                                            <span>Days</span>
+                                        </label>
+                                    </div>
+                                    <ErrorMessage message={errors.intervalType} />
+                                </div>
 
-                            {/* Preview of reminder schedule - Using startDateTime now */}
-                            {formData.intervalValue && formData.startDateTime && (
-                                <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
-                                    <h5 className="text-sm font-medium text-blue-800 mb-2">Reminder Schedule Preview:</h5>
-                                    {/* <p className="text-xs text-blue-600 mb-2">
+                                {/* Interval Value Input */}
+                                <div>
+                                    <label className="field-label">
+                                        Interval Between Reminders
+                                        {formData.intervalType === "hours" ? " (in hours)" : " (in days)"}
+                                    </label>
+                                    <InputGroup
+                                        type="number"
+                                        placeholder={formData.intervalType === "hours" ? "e.g., 2, 4, 6" : "e.g., 1, 2, 3"}
+                                        value={formData.intervalValue || ""}
+                                        onChange={(e) => {
+                                            const value = parseInt(e.target.value);
+                                            if (!isNaN(value) && value > 0) {
+                                                handleInputChange("intervalValue", value);
+                                            } else {
+                                                handleInputChange("intervalValue", "");
+                                            }
+                                        }}
+                                        helperText={`Enter number of ${formData.intervalType === "hours" ? "hours" : "days"} between each reminder`}
+                                        min="1"
+                                    />
+                                    <ErrorMessage message={errors.intervalValue} />
+                                </div>
+
+                                {/* Preview of reminder schedule - Using startDateTime now */}
+                                {formData.intervalValue && formData.startDateTime && (
+                                    <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
+                                        <h5 className="text-sm font-medium text-blue-800 mb-2">Reminder Schedule Preview:</h5>
+                                        {/* <p className="text-xs text-blue-600 mb-2">
                                         Starting from: {new Date(formData.startDateTime).toLocaleString()}
                                     </p> */}
-                                    <p className="text-xs text-blue-600 mb-2">
-                                        Starting from: {new Date(formData.startDateTime).toLocaleString('en-US', {
-                                            hour12: true,
-                                            year: 'numeric',
-                                            month: 'short',
-                                            day: 'numeric',
-                                            hour: 'numeric',
-                                            minute: '2-digit'
+                                        <p className="text-xs text-blue-600 mb-2">
+                                            Starting from: {new Date(formData.startDateTime).toLocaleString('en-US', {
+                                                hour12: true,
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                hour: 'numeric',
+                                                minute: '2-digit'
+                                            })}
+                                        </p>
+                                        {Array.from({ length: formData.totalReminders }, (_, index) => {
+                                            const reminderNumber = index + 1;
+                                            const interval = parseInt(formData.intervalValue);
+                                            const startDate = new Date(formData.startDateTime); // Use startDateTime
+                                            let reminderDate;
+
+                                            if (formData.intervalType === "hours") {
+                                                reminderDate = new Date(startDate.getTime() + (reminderNumber * interval * 60 * 60 * 1000));
+                                            } else {
+                                                reminderDate = new Date(startDate.getTime() + (reminderNumber * interval * 24 * 60 * 60 * 1000));
+                                            }
+
+                                            // Check if reminder is after end date
+                                            const isAfterEnd = formData.endDateTime && reminderDate > new Date(formData.endDateTime);
+
+                                            return (
+                                                // <div key={index} className={`text-sm ${isAfterEnd ? 'text-red-600' : 'text-blue-700'}`}>
+                                                //     {reminderNumber}{getOrdinalSuffix(reminderNumber)} reminder: {reminderDate.toLocaleString()}
+                                                //     {isAfterEnd && " ⚠ (After data collection end)"}
+                                                // </div>
+                                                <div key={index} className={`text-sm ${isAfterEnd ? 'text-red-600' : 'text-blue-700'}`}>
+                                                    {reminderNumber}{getOrdinalSuffix(reminderNumber)} reminder: {reminderDate.toLocaleString('en-US', {
+                                                        hour12: true,
+                                                        year: 'numeric',
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                        hour: 'numeric',
+                                                        minute: '2-digit'
+                                                    })}
+                                                    {isAfterEnd && " ⚠ (After data collection end)"}
+                                                </div>
+                                            );
                                         })}
-                                    </p>
-                                    {Array.from({ length: formData.totalReminders }, (_, index) => {
-                                        const reminderNumber = index + 1;
-                                        const interval = parseInt(formData.intervalValue);
-                                        const startDate = new Date(formData.startDateTime); // Use startDateTime
-                                        let reminderDate;
+                                    </div>
+                                )}
+                            </div>
 
-                                        if (formData.intervalType === "hours") {
-                                            reminderDate = new Date(startDate.getTime() + (reminderNumber * interval * 60 * 60 * 1000));
-                                        } else {
-                                            reminderDate = new Date(startDate.getTime() + (reminderNumber * interval * 24 * 60 * 60 * 1000));
-                                        }
 
-                                        // Check if reminder is after end date
-                                        const isAfterEnd = formData.endDateTime && reminderDate > new Date(formData.endDateTime);
+                            <h3 className="text-lg font-medium text-gray-700 mb-4">Reminder Email Configuration</h3>
+                            <div className="mb-4">
+                                <label className="field-label">Email Subject Line</label>
+                                <InputGroup
+                                    placeholder="Reminder Employee Commuting Data Form Submission"
+                                    value={formData.reminderSubject}
+                                    onChange={(e) => handleInputChange("reminderSubject", e.target.value)}
 
-                                        return (
-                                            // <div key={index} className={`text-sm ${isAfterEnd ? 'text-red-600' : 'text-blue-700'}`}>
-                                            //     {reminderNumber}{getOrdinalSuffix(reminderNumber)} reminder: {reminderDate.toLocaleString()}
-                                            //     {isAfterEnd && " ⚠ (After data collection end)"}
-                                            // </div>
-                                            <div key={index} className={`text-sm ${isAfterEnd ? 'text-red-600' : 'text-blue-700'}`}>
-                                                {reminderNumber}{getOrdinalSuffix(reminderNumber)} reminder: {reminderDate.toLocaleString('en-US', {
-                                                    hour12: true,
-                                                    year: 'numeric',
-                                                    month: 'short',
+                                />
+                                <ErrorMessage message={errors.reminderSubject} />
+                            </div>
+                            <div className="mt-4">
+                                <label className="field-label">Email Message Body</label>
+
+                                {/* Container with relative positioning for sticky elements */}
+                                <div className="relative border border-gray-300 rounded-lg ">
+                                    {/* Sticky "Dear Employee," at the top */}
+                                    <div className="top-0 border-gray-300 px-3 py-2 text-sm font-small">
+
+                                    </div>
+
+                                    {/* Main textarea */}
+                                    <textarea
+                                        placeholder={
+                                            "Dear Employee,\n\n" +
+                                            "This is a kind reminder to please complete the Employee Commuting Data Form if you have not yet submitted your response.\n" +
+                                            "Your participation is important for our sustainability reporting.\n" +
+                                            "Kindly ensure that you submit the form before the closing date."}
+                                        value={formData.reminderMessageBody}
+                                        onChange={(e) => handleInputChange("reminderMessageBody", e.target.value)}
+                                        onClick={(e) => {
+                                            // Only set initial value if textarea is empty
+                                            if (!formData.reminderMessageBody.trim()) {
+                                                handleInputChange("reminderMessageBody", "Dear Employee,\n\nThis is a kind reminder to please complete the Employee Commuting Data Form if you have not yet submitted your response.\nYour participation is important for our sustainability reporting.\nKindly ensure that you submit the form before the closing date. ");
+
+                                                // Set cursor to end of text after state updates
+                                                setTimeout(() => {
+                                                    e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+                                                }, 0);
+                                            }
+                                        }}
+                                        className="w-full px-3 py-2 text-sm min-h-[120px] resize-none focus:outline-none placeholder:text-gray-400 text-gray-900"
+                                    />
+
+                                    {/* Auto-filled information at the bottom */}
+                                    <div className="bottom-0 border-gray-300 px-3 py-2 text-sm text-gray-900">
+                                        <div className="mb-1 text-sm font-small">
+                                            Data Collection End Date and Time: {formData.endDateTime ?
+                                                new Date(formData.endDateTime).toLocaleDateString('en-US', {
                                                     day: 'numeric',
+                                                    month: 'short',
+                                                    year: 'numeric',
                                                     hour: 'numeric',
-                                                    minute: '2-digit'
-                                                })}
-                                                {isAfterEnd && " ⚠ (After data collection end)"}
-                                            </div>
-                                        );
-                                    })}
+                                                    minute: '2-digit',
+                                                    hour12: true
+                                                }).replace(',', '')
+                                                // +
+                                                // ' ' +
+                                                // new Date(formData.endDateTime).toLocaleTimeString('en-US', {
+                                                //     hour: 'numeric',
+                                                //     minute: '2-digit',
+                                                //     hour12: true
+                                                // }).replace(':', '.').toLowerCase()
+                                                : "Not set"}
+                                        </div>
+                                        <div className="text-sm font-small mb-2">
+                                            Form Link: {formData.formLink || "Not set"}
+                                        </div>
+                                        <span className="sticky bottom-0 border-gray-300 text-sm text-gray-900">Thank you for your cooperation.</span>
+                                    </div>
                                 </div>
-                            )}
+                                <ErrorMessage message={errors.reminderMessageBody} />
+                            </div>
                         </div>
                     )}
-
-                    <h3 className="text-lg font-medium text-gray-700 mb-4">Reminder Email Configuration</h3>
-                    <div className="mb-4">
-                        <label className="field-label">Email Subject Line</label>
-                        <InputGroup
-                            placeholder="Reminder Employee Commuting Data Form Submission"
-                            value={formData.reminderSubject}
-                            onChange={(e) => handleInputChange("reminderSubject", e.target.value)}
-
-                        />
-                        <ErrorMessage message={errors.reminderSubject} />
-                    </div>
-                    <div className="mt-4">
-                        <label className="field-label">Email Message Body</label>
-
-                        {/* Container with relative positioning for sticky elements */}
-                        <div className="relative border border-gray-300 rounded-lg ">
-                            {/* Sticky "Dear Employee," at the top */}
-                            <div className="top-0 border-gray-300 px-3 py-2 text-sm font-small">
-
-                            </div>
-
-                            {/* Main textarea */}
-                            <textarea
-                                placeholder={
-                                    "Dear Employee,\n\n" +
-                                    "This is a kind reminder to please complete the Employee Commuting Data Form if you have not yet submitted your response.\n" +
-                                    "Your participation is important for our sustainability reporting.\n" +
-                                    "Kindly ensure that you submit the form before the closing date."}
-                                value={formData.reminderMessageBody}
-                                onChange={(e) => handleInputChange("reminderMessageBody", e.target.value)}
-                                onClick={(e) => {
-                                    // Only set initial value if textarea is empty
-                                    if (!formData.reminderMessageBody.trim()) {
-                                        handleInputChange("reminderMessageBody", "Dear Employee,\n\nThis is a kind reminder to please complete the Employee Commuting Data Form if you have not yet submitted your response.\nYour participation is important for our sustainability reporting.\nKindly ensure that you submit the form before the closing date. ");
-
-                                        // Set cursor to end of text after state updates
-                                        setTimeout(() => {
-                                            e.target.setSelectionRange(e.target.value.length, e.target.value.length);
-                                        }, 0);
-                                    }
-                                }}
-                                className="w-full px-3 py-2 text-sm min-h-[120px] resize-none focus:outline-none placeholder:text-gray-400 text-gray-900"
-                            />
-
-                            {/* Auto-filled information at the bottom */}
-                            <div className="bottom-0 border-gray-300 px-3 py-2 text-sm text-gray-900">
-                                <div className="mb-1 text-sm font-small">
-                                    Data Collection End Date and Time: {formData.endDateTime ?
-                                        new Date(formData.endDateTime).toLocaleDateString('en-US', {
-                                            day: 'numeric',
-                                            month: 'short',
-                                            year: 'numeric',
-                                            hour: 'numeric',
-                                            minute: '2-digit',
-                                            hour12: true
-                                        }).replace(',', '') +
-                                        ' ' +
-                                        new Date(formData.endDateTime).toLocaleTimeString('en-US', {
-                                            hour: 'numeric',
-                                            minute: '2-digit',
-                                            hour12: true
-                                        }).replace(':', '.').toLowerCase()
-                                        : "Not set"}
-                                </div>
-                                <div className="text-sm font-small mb-2">
-                                    Form Link: {formData.formLink || "Not set"}
-                                </div>
-                                <span className="sticky bottom-0 border-gray-300 text-sm text-gray-900">Thank you for your cooperation.</span>
-                            </div>
-                        </div>
-                        <ErrorMessage message={errors.reminderMessageBody} />
-                    </div>
-
                 </div>
 
                 {/* Action Buttons */}

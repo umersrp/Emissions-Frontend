@@ -17,6 +17,7 @@ import Select from "@/components/ui/Select";
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import ExcelExportButton from "@/components/ui/ExcelExportButton";
 import usePurchasedElectricityCSVUpload from "@/hooks/scope2/usePurchasedElectricityCSVUpload";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -56,7 +57,8 @@ const PurchasedElectricityListing = () => {
   const [selectedId, setSelectedId] = useState(null);
   const [goToValue, setGoToValue] = useState(pageIndex);
   const [buildings, setBuildings] = useState([]);
-
+  const [selectedRows, setSelectedRows] = useState({});
+  const [isDeletingMultiple, setIsDeletingMultiple] = useState(false);
   // CSV Upload using custom hook
   const {
     csvState,
@@ -207,8 +209,8 @@ const PurchasedElectricityListing = () => {
     fetchData();
   }, [pageIndex, pageSize, globalFilterValue, emissionFilter]);
 
-  // Delete Record
   const handleDelete = async (id) => {
+      setDeleteModalOpen(false); 
     try {
       await axios.delete(
         `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${id}`,
@@ -221,35 +223,54 @@ const PurchasedElectricityListing = () => {
       toast.error("Failed to delete record");
     }
   };
+    
+const handleConfirmDelete = async () => {
+  const selectedIds = Object.keys(selectedRows).filter(id => selectedRows[id]);
 
- // Delete multiple selected records
-  const handleDeleteMultiple = async () => {
-    const selectedRecords = selectedFlatRows || [];
-    const ids = selectedRecords.map(r => r.original?._id).filter(Boolean);
-
-    if (ids.length === 0) {
-      toast.warning('No records selected');
-      return;
-    }
-
-    // Confirm before deleting
-    const confirmed = window.confirm(`Delete ${ids.length} selected record(s)? This action cannot be undone.`);
-    if (!confirmed) return;
-
+  if (selectedIds.length > 0) {
+    // Multi delete
+    setDeleteModalOpen(false); // ← CLOSE IMMEDIATELY at the beginning
+    setIsDeletingMultiple(true);
     try {
-      await Promise.all(ids.map(id =>
-        axios.delete(`${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${id}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-        })
-      ));
-
-      toast.success(`${ids.length} record(s) deleted successfully`);
-      fetchData();
+      await Promise.all(
+        selectedIds.map(id =>
+          axios.delete(`${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${id}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          })
+        )
+      );
+      toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);
+      setSelectedRows({});
+      setSelectedId(null);
+      await fetchData();
     } catch (err) {
-      console.error('Failed to delete selected records', err);
-      toast.error('Failed to delete some records');
+      console.error("Error deleting records:", err);
+      toast.error("Failed to delete some records");
+    } finally {
+      setIsDeletingMultiple(false);
+      // NO setDeleteModalOpen(false) here - already closed at the beginning
     }
-  };
+  } else if (selectedId) {
+    // Single delete
+    setDeleteModalOpen(false); // ← CLOSE IMMEDIATELY at the beginning
+    try {
+      await axios.delete(
+        `${process.env.REACT_APP_BASE_URL}/Purchased-Electricity/delete/${selectedId}`,
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      toast.success("Record deleted successfully");
+      setSelectedId(null);
+      await fetchData();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete record");
+    }
+    // NO setDeleteModalOpen(false) here - already closed at the beginning
+  } else {
+    toast.warning("No records selected for deletion");
+    setDeleteModalOpen(false);
+  }
+};
 
 
   // CSV Upload handlers
@@ -309,6 +330,9 @@ const PurchasedElectricityListing = () => {
     </ol>
   );
 
+  useEffect(() => {
+    setSelectedRows({});
+  }, [pageIndex, pageSize, globalFilterValue, emissionFilter]);
   // Common columns that appear in both views
   const COMMON_COLUMNS = [
     {
@@ -444,8 +468,9 @@ const PurchasedElectricityListing = () => {
       Header: "Calculated Location Based Emissions (kgCO₂e)",
       accessor: "calculatedEmissionKgCo2e",
       Cell: ({ value }) => {
+        if (value === null || value === undefined || value === "") return "N/A";
         const numValue = Number(value);
-        if (isNaN(numValue) || numValue === 0) return "N/A";
+        if (isNaN(numValue)) return "N/A";
         return numValue.toFixed(2);
       }
     },
@@ -453,20 +478,22 @@ const PurchasedElectricityListing = () => {
       Header: "Calculated Location Based Emissions (tCO₂e)",
       accessor: "calculatedEmissionTCo2e",
       Cell: ({ value }) => {
+        if (value === null || value === undefined || value === "") return "N/A";
         const numValue = Number(value);
-        if (isNaN(numValue) || numValue === 0) return "N/A";
-        if (Math.abs(numValue) < 0.01 || Math.abs(numValue) >= 1e6) {
+        if (isNaN(numValue)) return "N/A";
+        if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
           return numValue.toExponential(2);
         }
         return numValue.toFixed(2);
       }
     },
-    {
+     {
       Header: "Calculated Market Based Emissions (kgCO₂e)",
       accessor: "calculatedEmissionMarketKgCo2e",
       Cell: ({ value }) => {
+        if (value === null || value === undefined || value === "") return "N/A";
         const numValue = Number(value);
-        if (isNaN(numValue) || numValue === 0) return "N/A";
+        if (isNaN(numValue)) return "N/A";
         return numValue.toFixed(2);
       }
     },
@@ -474,9 +501,10 @@ const PurchasedElectricityListing = () => {
       Header: "Calculated Market Based Emissions (tCO₂e)",
       accessor: "calculatedEmissionMarketTCo2e",
       Cell: ({ value }) => {
+        if (value === null || value === undefined || value === "") return "N/A";
         const numValue = Number(value);
-        if (isNaN(numValue) || numValue === 0) return "N/A";
-        if (Math.abs(numValue) < 0.01 || Math.abs(numValue) >= 1e6) {
+        if (isNaN(numValue)) return "N/A";
+        if ((numValue !== 0 && Math.abs(numValue) < 0.01) || Math.abs(numValue) >= 1e6) {
           return numValue.toExponential(2);
         }
         return numValue.toFixed(2);
@@ -509,14 +537,7 @@ const PurchasedElectricityListing = () => {
     {
       Header: "Posting Date",
       accessor: "postingDate",
-      Cell: ({ value }) => {
-        if (!value) return "N/A";
-        try {
-          return new Date(value).toLocaleDateString('en-GB');
-        } catch {
-          return "Invalid Date";
-        }
-      }
+      Cell: ({ cell }) => formatDateDMY(cell.value),
     },
     {
       Header: "Actions",
@@ -568,7 +589,7 @@ const PurchasedElectricityListing = () => {
     }
 
     return [...COMMON_COLUMNS, ...emissionColumns, ...FINAL_COLUMNS];
-  }, [emissionFilter]);
+  }, [emissionFilter, selectedRows]);
 
   const columns = useMemo(() => COLUMNS, [COLUMNS]);
   const data = useMemo(() => records, [records]);
@@ -585,38 +606,44 @@ const PurchasedElectricityListing = () => {
       hooks.visibleColumns.push((columns) => [
         {
           id: "selection",
+          width: 50,
           Header: ({ rows }) => {
-            const allSelected = rows.length > 0 && rows.every(row => row.isSelected);
-            const someSelected = rows.some(row => row.isSelected);
+            const allSelected = rows.length > 0 && rows.every(row => selectedRows[row.original._id]);
+            const someSelected = rows.some(row => selectedRows[row.original._id]);
             return (
               <IndeterminateCheckbox
-                {...(allSelected ? { checked: true } : {})}
+                checked={allSelected}
                 indeterminate={someSelected && !allSelected}
                 onChange={(e) => {
-                  const { checked } = e.target;
-                  rows.forEach(row => {
-                    if (checked) {
-                      row.toggleRowSelected(true);
-                    } else {
-                      row.toggleRowSelected(false);
-                    }
-                  });
+                  const newSelection = {};
+                  if (e.target.checked) rows.forEach(row => { newSelection[row.original._id] = true; });
+                  setSelectedRows(newSelection);
                 }}
               />
             );
           },
           Cell: ({ row }) => (
-            <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+            <IndeterminateCheckbox
+              checked={selectedRows[row.original._id] || false}
+              indeterminate={false}
+              onChange={(e) => {
+                e.stopPropagation();
+                setSelectedRows(prev => {
+                  const newState = { ...prev };
+                  if (e.target.checked) newState[row.original._id] = true;
+                  else delete newState[row.original._id];
+                  return newState;
+                });
+              }}
+            />
           ),
         },
         ...columns,
       ]);
     }
   );
-
+  const selectedCount = Object.values(selectedRows).filter(Boolean).length;
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = tableInstance;
-  const { selectedFlatRows } = tableInstance;
-
   const handleGoToPage = (page) => {
     if (page < 1) page = 1;
     if (page > totalPages) page = totalPages;
@@ -627,22 +654,18 @@ const PurchasedElectricityListing = () => {
     setGoToValue(pageIndex);
   }, [pageIndex]);
 
- 
+
   return (
     <>
       <Card noborder>
         <div className="flex flex-col pb-6">
           {/* Row 1 - Heading */}
           <h6 className="text-lg font-semibold mb-4">Purchased Electricity Records</h6>
-
           {/* Row 2 - All Controls */}
           <div className="flex flex-col sm:flex-row md:items-center flex-wrap gap-3">
-
             {/* Filter Section */}
             <div className="flex flex-col xs:flex-row gap-3 w-full sm:w-auto sm:flex-1">
-
               {/* Emission Filter Dropdown */}
-
             </div>
 
             {/* Action Buttons Section */}
@@ -678,22 +701,21 @@ const PurchasedElectricityListing = () => {
                   }}
                 />
               </div>
+              {selectedCount > 0 && (
+                <Button
+                  icon="heroicons:trash"
+                  text={`Delete Selected (${selectedCount})`}
+                  className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90 whitespace-nowrap"
+                  iconClass="text-lg"
+                  onClick={() => setDeleteModalOpen(true)}
+                  disabled={isDeletingMultiple}
+                />
+              )}
 
               {/* Global Search */}
               <div className=" xs:w-auto  ">
                 <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
               </div>
-
-              {selectedFlatRows && selectedFlatRows.length > 0 && (
-                <Tippy content={`Delete ${selectedFlatRows.length} selected record(s)`}>
-                  <Button
-                    icon="heroicons:trash"
-                    text={`Delete Selected (${selectedFlatRows.length})`}
-                    className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90 whitespace-nowrap"
-                    onClick={handleDeleteMultiple}
-                  />
-                </Tippy>
-              )}
 
               {/* Export Buttons - Only show when filter is selected AND records exist */}
               {emissionFilter && records.length > 0 && (
@@ -776,9 +798,9 @@ const PurchasedElectricityListing = () => {
                     onClick={() => setBulkUploadModalOpen(true)}
                     disabled={csvState.uploading || !emissionFilter}
                   />
+
                 </>
               )}
-
 
               {/* Add Record Button */}
               <Button
@@ -787,14 +809,6 @@ const PurchasedElectricityListing = () => {
                 className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90 whitespace-nowrap"
                 onClick={() => navigate("/Purchased-Electricity-Form/Add")}
               />
-              {selectedFlatRows && selectedFlatRows.length > 0 && (
-                <Button
-                  icon="heroicons:trash"
-                  text={`Delete Selected (${selectedFlatRows.length})`}
-                  className="btn font-normal btn-sm bg-red-600 text-white border-0 hover:opacity-90 whitespace-nowrap"
-                  onClick={handleDeleteMultiple}
-                />
-              )}
             </div>
           </div>
         </div>
@@ -805,7 +819,7 @@ const PurchasedElectricityListing = () => {
             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                  <img src={Logo} alt="Loading..." className="w-52 h-52" />
                 </div>
               ) : (
                 <table
@@ -1009,7 +1023,7 @@ const PurchasedElectricityListing = () => {
               }}
               className="form-select py-2"
             >
-              {[10, 20, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
@@ -1019,29 +1033,35 @@ const PurchasedElectricityListing = () => {
         </div>
       </Card>
 
-      {/* Delete Modal */}
+      {/* Delete Modal - Single modal for both single and multi delete */}
       <Modal
         activeModal={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSelectedId(null); // Clear single selection
+        }}
         title="Confirm Delete"
         themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
         centered
         footerContent={
           <>
-            <Button text="Cancel" className="btn-light" onClick={() => setDeleteModalOpen(false)} />
+            <Button text="Cancel" className="btn-light" onClick={() => {
+              setDeleteModalOpen(false);
+              setSelectedId(null);
+            }} />
             <Button
               text="Delete"
               className="btn-danger"
-              onClick={async () => {
-                await handleDelete(selectedId);
-                setDeleteModalOpen(false);
-              }}
+              onClick={handleConfirmDelete}
             />
           </>
         }
       >
         <p className="text-gray-700 text-center">
-          Are you sure you want to delete this record? This action cannot be undone.
+          {selectedCount > 1
+            ? `Are you sure you want to delete ${selectedCount} selected records? This action cannot be undone.`
+            : "Are you sure you want to delete this record? This action cannot be undone."
+          }
         </p>
       </Modal>
 
