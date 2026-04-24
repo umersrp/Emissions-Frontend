@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import RevenueBarChart from "@/components/partials/widget/chart/revenue-bar-chart";
 import { Tooltip } from "@mui/material";
-import { FOR_UNIT_KG, FOR_UNIT_NM3, FOR_UNIT_THOUSAND_M3, FOR_UNIT_THOUSAND_KWH, FOR_UNIT_THOUSAND_KGCO2E} from "@/constant/scope1/calculate-process-emission";
+import Icon from '@/components/ui/Icon'; 
+import { FOR_UNIT_KG, FOR_UNIT_NM3, FOR_UNIT_THOUSAND_M3, FOR_UNIT_THOUSAND_KWH, FOR_UNIT_THOUSAND_KGCO2E } from "@/constant/scope1/calculate-process-emission";
 /* -------------------- CATEGORY COLORS -------------------- */
 const categoryColors = {
   Stationary: "bg-blue-100 text-blue-800",
@@ -38,11 +39,11 @@ const getEmissionValue = (fuel, category) => {
     // First try calculatedEmissionTCo2e (most reliable)
     const tco2e = parseNumber(fuel.calculatedEmissionTCo2e);
     if (tco2e > 0) return tco2e;
-    
+
     // Then try totalEmissionTCo2e
     const totalTco2e = parseNumber(fuel.totalEmissionTCo2e);
     if (totalTco2e > 0) return totalTco2e;
-    
+
     // For Process, amountOfEmissions might be in different units
     // So we only use it as last resort
     return parseNumber(fuel.amountOfEmissions || 0);
@@ -53,7 +54,7 @@ const getEmissionValue = (fuel, category) => {
       // For fugitive, always prioritize calculatedEmissionTCo2e
       const fugitiveTco2e = parseNumber(fuel.calculatedEmissionTCo2e);
       if (fugitiveTco2e > 0) return fugitiveTco2e;
-      
+
       // Fallback: convert leakage in kg to tCO2e
       const leakage = parseNumber(fuel.leakageValue);
       return leakage * 0.001;
@@ -92,53 +93,105 @@ const getDisplayName = (fuel, category) => {
     case "Stationary":
     case "Mobile":
       return fuel?.fuelName || fuel?.fuelType || "—";
-    
+
     case "Fugitive":
       return fuel?.materialRefrigerant || fuel?.fuelName || fuel?.fuelType || "—";
-    
+
     case "Process":
       return fuel?.activityType || fuel?.fuelName || fuel?.fuelType || "—";
-    
+
     default:
       return fuel?.fuelName || fuel?.fuelType || fuel?.activityType || "—";
   }
 };
 
 /* -------------------- GET QUANTITY DISPLAY -------------------- */
+// const getQuantityDisplay = (fuel, category) => {
+//   switch (category) {
+//     case "Stationary":
+//       if (fuel?.fuelConsumption !== undefined && fuel?.consumptionUnit) {
+//         return `${fuel.fuelConsumption} ${fuel.consumptionUnit}`;
+//       }
+//       return "—";
+
+//     case "Mobile":
+//       if (fuel?.distanceTraveled !== undefined && fuel?.distanceUnit) {
+//         return `${fuel.distanceTraveled} ${fuel.distanceUnit}`;
+//       }
+//       return "—";
+
+//     case "Fugitive":
+//       if (fuel?.leakageValue !== undefined) {
+//         const unit = fuel?.consumptionUnit || "kg";
+//         return `${fuel.leakageValue} ${unit}`;
+//       }
+//       return "—";
+
+//     // case "Process":
+//     //   // For Process, show amountOfEmissions if available
+//     //   if (fuel?.amountOfEmissions !== undefined) {
+//     //     // Hardcoded unit as "tonnes"
+//     //     return `${fuel.amountOfEmissions} tonnes`;
+//     //   }
+//     case "Process":
+//       // For Process, show amountOfEmissions if available
+//       if (fuel?.amountOfEmissions !== undefined && fuel?.activityType) {
+//         const activityType = fuel.activityType.trim();
+//         const amount = fuel.amountOfEmissions;
+
+//         // Check conditions based on activityType
+//         if (FOR_UNIT_KG.includes(activityType)) {
+//           return `${amount} kg`;
+//         } else if (activityType === FOR_UNIT_NM3) {
+//           return `${amount} Nm³`;
+//         } else if (activityType === FOR_UNIT_THOUSAND_M3) {
+//           return `${amount} m³`;
+//         } else if (activityType === FOR_UNIT_THOUSAND_KWH) {
+//           return `${amount} kWh`;
+//         } else if (FOR_UNIT_THOUSAND_KGCO2E.includes(activityType)) {
+//           return `${amount} kgCO₂e`;
+//         } else {
+//           // Default for all other process activities
+//           return `${amount} tonnes`;
+//         }
+//       }
+//       return "—";
+
+//     default:
+//       return "—";
+//   }
+// };
 const getQuantityDisplay = (fuel, category) => {
+  const truncate = (num) => {
+    if (num === null || num === undefined) return "—";
+    return Math.trunc(Number(num)).toLocaleString();
+  };
+
   switch (category) {
     case "Stationary":
       if (fuel?.fuelConsumption !== undefined && fuel?.consumptionUnit) {
-        return `${fuel.fuelConsumption} ${fuel.consumptionUnit}`;
+        return `${truncate(fuel.fuelConsumption)} ${fuel.consumptionUnit}`;
       }
       return "—";
-    
+
     case "Mobile":
       if (fuel?.distanceTraveled !== undefined && fuel?.distanceUnit) {
-        return `${fuel.distanceTraveled} ${fuel.distanceUnit}`;
+        return `${truncate(fuel.distanceTraveled)} ${fuel.distanceUnit}`;
       }
       return "—";
-    
+
     case "Fugitive":
       if (fuel?.leakageValue !== undefined) {
         const unit = fuel?.consumptionUnit || "kg";
-        return `${fuel.leakageValue} ${unit}`;
+        return `${truncate(fuel.leakageValue)} ${unit}`;
       }
       return "—";
-    
-    // case "Process":
-    //   // For Process, show amountOfEmissions if available
-    //   if (fuel?.amountOfEmissions !== undefined) {
-    //     // Hardcoded unit as "tonnes"
-    //     return `${fuel.amountOfEmissions} tonnes`;
-    //   }
-     case "Process":
-      // For Process, show amountOfEmissions if available
+
+    case "Process":
       if (fuel?.amountOfEmissions !== undefined && fuel?.activityType) {
         const activityType = fuel.activityType.trim();
-        const amount = fuel.amountOfEmissions;
-        
-        // Check conditions based on activityType
+        const amount = truncate(fuel.amountOfEmissions);
+
         if (FOR_UNIT_KG.includes(activityType)) {
           return `${amount} kg`;
         } else if (activityType === FOR_UNIT_NM3) {
@@ -150,23 +203,24 @@ const getQuantityDisplay = (fuel, category) => {
         } else if (FOR_UNIT_THOUSAND_KGCO2E.includes(activityType)) {
           return `${amount} kgCO₂e`;
         } else {
-          // Default for all other process activities
           return `${amount} tonnes`;
         }
       }
       return "—";
-    
+
     default:
       return "—";
   }
 };
-
 /* -------------------- FORMAT EMISSION VALUE -------------------- */
+// const formatEmissionValue = (value) => {
+//   return value.toLocaleString(undefined, {
+//     minimumFractionDigits: 2,
+//     maximumFractionDigits: 2,
+//   });
+// };
 const formatEmissionValue = (value) => {
-  return value.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+  return Math.trunc(value).toLocaleString();
 };
 
 const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRegisterReset }) => {
@@ -192,28 +246,28 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
       name: "Stationary",
       displayName: "Stationary Combustion",
       value: totalEmissionFor(dashboardData.scope1.stationaryListData, "Stationary"),
-      icon: "🔥",
+      icon: "heroicons:fire",
       color: "from-blue-500 to-blue-600"
     },
     {
       name: "Mobile",
       displayName: "Mobile Combustion",
       value: totalEmissionFor(dashboardData.scope1.transportListData, "Mobile"),
-      icon: "🚗",
+      icon: "heroicons:truck",
       color: "from-green-500 to-green-600"
     },
     {
       name: "Fugitive",
       displayName: "Fugitive Emission",
       value: totalEmissionFor(dashboardData.scope1.fugitiveListData, "Fugitive"),
-      icon: "💨",
+      icon: "heroicons:cloud",
       color: "from-orange-500 to-orange-600"
     },
     {
       name: "Process",
       displayName: "Process Emission",
       value: totalEmissionFor(processData, "Process"),
-      icon: "🏭",
+      icon: "heroicons:cog-6-tooth",
       color: "from-purple-500 to-purple-600"
     },
   ], [dashboardData, processData]);
@@ -221,7 +275,7 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
   /* -------------------- TOP ITEMS BY CATEGORY -------------------- */
   const topItemsByCategory = useMemo(() => {
     const limit = rowLimit;
-    
+
     return {
       Stationary: getTopItems(dashboardData.scope1.stationaryListData, "Stationary", limit),
       Mobile: getTopItems(dashboardData.scope1.transportListData, "Mobile", limit),
@@ -337,13 +391,13 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
                     {selectedCategory ? `${barChartData.find(c => c.name === selectedCategory)?.displayName || selectedCategory} Details` : "Top Categories"}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {selectedCategory 
-                      ? "Detailed breakdown of emission sources" 
+                    {selectedCategory
+                      ? "Detailed breakdown of emission sources"
                       : "Overview of top emission sources by category"}
                   </p>
                 </div>
               </div>
-              
+
               {/* Summary Badge */}
               {selectedCategory && (
                 <div className="hidden sm:block">
@@ -361,7 +415,7 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
           <div className="max-h-[580px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             <div className="p-6 space-y-5">
               {Object.entries(topItemsByCategory)
-                .filter(([categoryKey]) => 
+                .filter(([categoryKey]) =>
                   selectedCategory ? categoryKey === selectedCategory : true
                 )
                 .map(([categoryKey, items]) => {
@@ -385,7 +439,10 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
                       {/* Category Header */}
                       <div className={`flex items-center justify-between p-3 rounded-xl ${getCategoryColor(categoryKey)}`}>
                         <div className="flex items-center gap-2">
-                          <span className="text-xl">{categoryInfo?.icon || "📊"}</span>
+                          {/* <span className="text-xl">{categoryInfo?.icon || "📊"}</span> */}
+                          <span className="text-xl">
+                            <Icon icon={categoryInfo?.icon} />
+                          </span>
                           <span className="font-semibold">{categoryDisplayName}</span>
                         </div>
                         <div className="text-right">
@@ -396,11 +453,10 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
 
                       {/* Items Grid */}
                       <div
-                        className={`grid gap-3 ${
-                          selectedCategory
+                        className={`grid gap-3 ${selectedCategory
                             ? "grid-cols-1 sm:grid-cols-2"
                             : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                        }`}
+                          }`}
                       >
                         {items.map((item, idx) => {
                           const emissionValue = getEmissionValue(item, categoryKey);
@@ -415,7 +471,7 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
                                   {getDisplayName(item, categoryKey)}
                                 </p>
                               </div>
-                              
+
                               {/* Emission Value */}
                               <div className="px-3 py-2 border-b border-gray-100">
                                 <div className="flex items-baseline justify-between">
@@ -426,7 +482,7 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
                                 </div>
                                 <span className="text-xs text-gray-400">tCO₂e</span>
                               </div>
-                              
+
                               {/* Quantity */}
                               <div className="px-3 py-2 bg-gray-50">
                                 <div className="flex items-center gap-1">
@@ -452,8 +508,8 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
           <div className="px-6 py-3 bg-gray-50 border-t border-gray-100">
             <div className="flex items-center justify-between text-xs text-gray-500">
               <span>
-                {selectedCategory 
-                  ? `${rowLimit} emission sources displayed` 
+                {selectedCategory
+                  ? `${rowLimit} emission sources displayed`
                   : "Showing top 3 sources per category"}
               </span>
               {!selectedCategory && (
