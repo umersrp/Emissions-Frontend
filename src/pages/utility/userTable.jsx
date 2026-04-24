@@ -820,12 +820,14 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings, userDat
               row: `Row ${rowNumber}`,
               error: `Email is required`
             });
-          } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) {
-            validationErrorsList.push({
-              row: `Row ${rowNumber}`,
-              error: `Invalid email format: ${row.email}`
-            });
-          } else if (emailExist) {
+          } 
+          // else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) {
+          //   validationErrorsList.push({
+          //     row: `Row ${rowNumber}`,
+          //     error: `Invalid email format: ${row.email}`
+          //   });
+          // } 
+          else if (emailExist) {
             validationErrorsList.push({
               row: `Row ${rowNumber}`,
               error: `${row.email} already exists.`
@@ -1112,7 +1114,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings, userDat
                       </div>
                     </div>
                   )}
-                </>
               )}
 
             </div>
