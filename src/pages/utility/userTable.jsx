@@ -183,19 +183,35 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings, userDat
             });
           }
 
+          // if (!row.email || row.email.trim() === '') {
+          //   validationErrorsList.push({
+          //     row: `Row ${rowNumber}`,
+          //     error: `Email is required`
+          //   });
+          // } 
+          // // else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) {
+          // //   validationErrorsList.push({
+          // //     row: `Row ${rowNumber}`,
+          // //     error: `Invalid email format: ${row.email}`
+          // //   });
+          // // } 
+          // else if (emailExist) {
+          //   validationErrorsList.push({
+          //     row: `Row ${rowNumber}`,
+          //     error: `${row.email} already exists.`
+          //   });
+          // }
           if (!row.email || row.email.trim() === '') {
             validationErrorsList.push({
               row: `Row ${rowNumber}`,
               error: `Email is required`
             });
-          } 
-          // else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) {
-          //   validationErrorsList.push({
-          //     row: `Row ${rowNumber}`,
-          //     error: `Invalid email format: ${row.email}`
-          //   });
-          // } 
-          else if (emailExist) {
+          } else if (!/\S+@\S+\.\S+/.test(row.email)) {
+            validationErrorsList.push({
+              row: `Row ${rowNumber}`,
+              error: `Invalid email format: ${row.email}`
+            });
+          } else if (emailExist) {
             validationErrorsList.push({
               row: `Row ${rowNumber}`,
               error: `${row.email} already exists.`
@@ -328,141 +344,6 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings, userDat
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto pl-4 pr-4">
-
-          {/* {step === "upload" && (
-            <div className="space-y-6">
-              <div className="text-slate-700 leading-relaxed mb-3 bg-gray-100 rounded-lg border-l-4 border-primary-400 p-2 pl-4 m-4 mt-2 justify-center">
-                <div className="flex items-center justify-center mb-2">
-                  <div className="flex items-start">
-                    <Icon icon="heroicons:information-circle" className="w-5 h-5 sm:w-6 sm:h-6 text-black-500 flex-shrink-0 mr-2" />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-sm sm:text-base text-black-800 mb-0.5 sm:mb-1">
-                        How to upload:
-                      </h4>
-                      <ol className="text-sm text-black-700 space-y-1 list-decimal pl-4">
-                        <li>Download the template below</li>
-                        <li>Fill in your data (keep column headers as is)</li>
-                        <li>Save as xlsx file</li>
-                        <li>Upload using the form below</li>
-                        <li>Review validation results and submit</li>
-                      </ol>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center">
-                <Button
-                  text="Download Sample Template (.xlsx)"
-                  className="btn-dark w-full sm:w-auto text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2"
-                  iconClass="text-lg"
-                  icon="heroicons:document-arrow-down"
-                  onClick={downloadTemplate}
-                />
-              </div>
-
-              <div
-                className={`relative border-2 border-dashed rounded-xl text-center transition-all pb-3 p-3  border-slate-300 hover:border-[#a1d9c3] hover:bg-slate-50 cursor-pointer`}
-                onClick={() => !file && fileInputRef.current?.click()}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  const dt = e.dataTransfer.files[0];
-                  if (dt) {
-                    fileInputRef.current.files = e.dataTransfer.files;
-                    handleFileChange({ target: { files: [dt] } });
-                  }
-                }}
-              >
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="hidden"
-                  accept=".xlsx,.xls,.csv"
-                  onChange={handleFileChange}
-                />
-
-                {file ? (
-                  <>
-                    <Icon icon="heroicons:check-circle" className="text-5xl text-green-500 mx-auto mb-1" />
-                    <p className="text-green-700 font-medium text-sm truncate px-4">{file.name}</p>
-                    <p className="text-slate-400 text-xs mb-3">File ready to import</p>
-                    <div className="flex justify-center gap-2">
-                      <button
-                        onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                        className="text-xs px-4 py-2 rounded border border-slate-300 hover:bg-slate-100 text-slate-600 transition-colors"
-                      >
-                        Change File
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); resetModal(); }}
-                        className="text-xs px-4 py-2 rounded border border-red-200 hover:bg-red-50 text-red-600 transition-colors"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <Icon icon="heroicons:cloud-arrow-up" className="text-5xl text-slate-400 mx-auto mb-1" />
-                    <p className="text-slate-600 font-medium mb-2">Choose file or drag & drop</p>
-                    <p className="text-slate-400 text-xs mb-2">xlsx, xls, and csv files only (max 10MB)</p>
-                    <Button
-                      text="Browse Files"
-                      className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
-                      onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                      size="sm"
-                    />
-                  </>
-                )}
-              </div>
-            </div>
-          )}
-          {step === "result" && (
-            <div className="space-y-6 py-4">
-
-              {importing && (
-                <div className="text-center py-6">
-                  <div className="inline-block w-12 h-12 border-4 border-[#3AB89D] border-t-transparent rounded-full animate-spin mb-4" />
-                  <p className="text-slate-600 font-medium">
-                    Importing {progress.done} / {progress.total}...
-                  </p>
-                  <div className="mt-3 w-full bg-slate-100 rounded-full h-2.5">
-                    <div
-                      className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] h-2.5 rounded-full transition-all duration-300"
-                      style={{ width: `${progress.total > 0 ? (progress.done / progress.total) * 100 : 0}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {!importing && (
-                <>
-                  {progress.errors.length > 0 && (
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-slate-700 font-medium text-sm">Failed Rows</p>
-                        <button
-                          onClick={downloadErrorReport}
-                          className="text-xs text-[#3AB89D] hover:underline flex items-center gap-1"
-                        >
-                          <Icon icon="heroicons:arrow-down-tray" /> Download Error Report
-                        </button>
-                      </div>
-                      <div className="rounded-xl border border-red-200 overflow-hidden max-h-52 overflow-y-auto">
-                        {progress.errors.map((e, i) => (
-                          <div key={i} className="flex gap-3 px-4 py-2.5 border-b border-red-100 last:border-0 bg-red-50/40 text-sm">
-                            <span className="text-slate-600 font-medium min-w-[140px] truncate">{e.row}</span>
-                            <span className="text-red-600">{e.error}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-              )}
-
-            </div>
-          )} */}
 
           <div className="space-y-6">
 
