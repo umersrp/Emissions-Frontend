@@ -355,7 +355,7 @@ const CompanyTable = () => {
                         <div className="overflow-hidden">
                             {loading ? (
                                 <div className="flex justify-center items-center py-8">
-                                    <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                                    <img src={Logo} alt="Loading..." className="w-52 h-52" />
                                 </div>) : (
                                 <table
                                     className="min-w-full divide-y divide-slate-100 table-fixed dark:divide-slate-700"

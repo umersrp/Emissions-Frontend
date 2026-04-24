@@ -444,31 +444,18 @@ const validateRow = useCallback((row, index) => {
       b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
     );
     if (!buildingExists) {
-      errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
+      errors.push(`Invalid Building Code "${cleanedRow.buildingcode}"`);
     }
   }
 
-  // Stakeholder validation
-  // if (!isNA(cleanedRow.stakeholder)) {
-  //   const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-  //   const matched = validStakeholders.find(s =>
-  //     s.toLowerCase() === cleanedRow.stakeholder.toLowerCase()
-  //   );
-  //   if (!matched) {
-  //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
-  //   } else {
-  //     cleanedRow.stakeholder = matched;
-  //   }
-  // } else {
-  //   errors.push('Stakeholder is required');
-  // }
-  // Stakeholder validation with flexible matching
+
+  // Stakeholder / Department validation with flexible matching
 if (!isNA(cleanedRow.stakeholder)) {
   const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
   const matched = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
   
   if (!matched) {
-    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
+    errors.push(`Invalid Stakeholder "${cleanedRow.stakeholder}".`);
   } else {
     cleanedRow.stakeholder = matched;
   }
@@ -488,12 +475,12 @@ if (!isNA(cleanedRow.stakeholder)) {
     const mappedCategory = categoryMap[lowerCategory];
 
     if (!mappedCategory) {
-      errors.push(`Invalid transportation category "${cleanedRow.transportationcategory}". Expected "Purchased Goods" or "Purchased Third-party Transportation and Distribution Services"`);
+      errors.push(`Invalid "Transportation and Distribution Category": "${cleanedRow.transportationcategory}". Expected "Purchased Goods" or "Purchased Third-party Transportation and Distribution Services"`);
     } else {
       cleanedRow.transportationcategory = mappedCategory;
     }
   } else {
-    errors.push('Transportation category is required');
+    errors.push('"Transportation and Distribution Category" is required');
   }
 
   // Activity Type validation
@@ -504,7 +491,7 @@ if (!isNA(cleanedRow.stakeholder)) {
         a.toLowerCase() === cleanedRow.activitytype.toLowerCase()
       );
       if (!matchedActivity) {
-        errors.push(`Invalid activity type "${cleanedRow.activitytype}" for purchased goods. Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
+        errors.push(`Invalid "Purchased Product Activity Type": "${cleanedRow.activitytype}" for Purchased Goods.`);
       } else {
         cleanedRow.activitytype = matchedActivity;
       }
@@ -514,27 +501,15 @@ if (!isNA(cleanedRow.stakeholder)) {
         a.toLowerCase() === cleanedRow.activitytype.toLowerCase()
       );
       if (!matchedActivity) {
-        errors.push(`Invalid activity type "${cleanedRow.activitytype}" for Purchased Third-party Transportation and Distribution Services. Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
+        errors.push(`Invalid "Purchased Product Activity Type": "${cleanedRow.activitytype}" for "Purchased Third-party Transportation and Distribution Services". Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
       } else {
         cleanedRow.activitytype = matchedActivity;
       }
     }
   } else {
-    errors.push('Activity type is required');
+    errors.push('"Purchased Product Activity Type" is required');
   }
 
-  // Purchased Goods Type validation
-  // if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
-  //   const goodsOptions = purchasedGoodsTypeMapping[cleanedRow.activitytype] || [];
-  //   const matchedGoods = goodsOptions.find(g =>
-  //     g.value.toLowerCase() === cleanedRow.purchasedgoodstype.toLowerCase()
-  //   );
-  //   if (goodsOptions.length > 0 && !matchedGoods) {
-  //     errors.push(`Invalid purchased goods type "${cleanedRow.purchasedgoodstype}" for activity "${cleanedRow.activitytype}"`);
-  //   } else if (matchedGoods) {
-  //     cleanedRow.purchasedgoodstype = matchedGoods.value;
-  //   }
-  // }
 
   // Purchased Goods Type validation with flexible matching
 if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
@@ -544,7 +519,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
   const matchedGoods = findFlexibleMatch(cleanedRow.purchasedgoodstype, validGoodsValues);
   
   if (goodsOptions.length > 0 && !matchedGoods) {
-    errors.push(`Invalid purchased goods type "${cleanedRow.purchasedgoodstype}" for activity "${cleanedRow.activitytype}"`);
+    errors.push(`Invalid "Purchased Goods Type": "${cleanedRow.purchasedgoodstype}" for activity "${cleanedRow.activitytype}"`);
   } else if (matchedGoods) {
     cleanedRow.purchasedgoodstype = matchedGoods;
   }
@@ -553,7 +528,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
   // Vehicle Category validation for purchasedGoods
   if (cleanedRow.transportationcategory === 'purchasedGoods') {
     if (isNA(cleanedRow.vehiclecategory)) {
-      errors.push('Vehicle category is required for purchased goods');
+      errors.push('"Transportation Vehicle Category" is required for Purchased Goods');
     } else {
       const trimmedCategory = cleanedRow.vehiclecategory.toString().trim();
 
@@ -568,7 +543,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
       }
 
       if (!matched) {
-        errors.push(`Invalid vehicle category "${cleanedRow.vehiclecategory}". Valid options: ${vehicleCategoryOptions.map(v => v.label).join(', ')}`);
+        errors.push(`Invalid "Transportation Vehicle Category": "${cleanedRow.vehiclecategory}".`);
       } else {
         cleanedRow.vehiclecategory = matched.value;
       }
@@ -591,7 +566,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
     }
 
     if (validTypes.length > 0 && !matched) {
-      errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for category "${cleanedRow.vehiclecategory}". Valid options: ${validTypes.map(t => t.label || t.value).join(', ')}`);
+      errors.push(`Invalid "Transportation Vehicle Type": "${cleanedRow.vehicletype}" for category "${cleanedRow.vehiclecategory}". Valid options: ${validTypes.map(t => t.label || t.value).join(', ')}`);
     } else if (matched) {
       cleanedRow.vehicletype = matched.value;
     }
@@ -604,7 +579,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
     if (weightLoaded === null && !isNA(cleanedRow.weightloaded)) {
       // Error already pushed by cleanNumber
     } else if (weightLoaded === null && isNA(cleanedRow.weightloaded)) {
-      errors.push('Weight loaded is required for purchased goods');
+      errors.push('"Weight Loaded" is required for Purchased Goods');
     } else {
       cleanedRow.weightloaded = weightLoaded;
     }
@@ -614,7 +589,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
     if (distanceTravelled === null && !isNA(cleanedRow.distancetravelled)) {
       // Error already pushed by cleanNumber
     } else if (distanceTravelled === null && isNA(cleanedRow.distancetravelled)) {
-      errors.push('Distance travelled is required for purchased goods');
+      errors.push('"Distance Travelled" is required for Purchased Goods');
     } else {
       cleanedRow.distancetravelled = distanceTravelled;
     }
@@ -626,7 +601,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
     if (amountSpent === null && !isNA(cleanedRow.amountspent)) {
       // Error already pushed by cleanNumber
     } else if (amountSpent === null && isNA(cleanedRow.amountspent)) {
-      errors.push('Amount spent is required for Purchased Third-party Transportation and Distribution Services');
+      errors.push('"Amount Spent" is required for "Purchased Third-party Transportation and Distribution Services"');
     } else {
       cleanedRow.amountspent = amountSpent;
     }
@@ -639,12 +614,12 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
       q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
     );
     if (!matched) {
-      errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+      errors.push(`Invalid "Quality Control": "${cleanedRow.qualitycontrol}"`);
     } else {
       cleanedRow.qualitycontrol = matched;
     }
   } else {
-    errors.push('Quality control is required');
+    errors.push('Quality Control is required');
   }
 
   // Date validation
@@ -652,7 +627,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
     const isoDate = parseDateToISO(cleanedRow.postingdate);
 
     if (!isoDate) {
-      errors.push(`Invalid date format "${cleanedRow.postingdate}". Please use DD/MM/YYYY format (e.g., 17/02/2026)`);
+      errors.push(`Invalid Date Format "${cleanedRow.postingdate}". Please use DD/MM/YYYY format (e.g., 17/02/2026)`);
     } else {
       const datePart = isoDate.split('T')[0];
       const date = new Date(datePart);
@@ -897,7 +872,7 @@ if (cleanedRow.activitytype && !isNA(cleanedRow.purchasedgoodstype)) {
 
     const headers = [
       'Building Code',
-      'Stakeholder',
+      'Stakeholder / Department',
       'Transportation and Distribution Category',
       'Purchased Product Activity Type',
       'Purchased Goods Type',

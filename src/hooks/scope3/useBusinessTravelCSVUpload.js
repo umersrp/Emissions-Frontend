@@ -29,7 +29,7 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
     parsedData: null,
   });
 
-   const isNA = useCallback((value) => {
+  const isNA = useCallback((value) => {
     if (!value) return true;
     const val = value.toString().toLowerCase().trim();
     return val === 'n/a' || val === 'na' || val === '';
@@ -59,10 +59,10 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
     let cleanedDate = dateString.toString().trim();
     cleanedDate = cleanedDate.replace(/"/g, '');
     if (!cleanedDate || cleanedDate === '') return null;
-    
+
     let date;
     let year, month, day;
-    
+
     if (cleanedDate.includes('T')) {
       date = new Date(cleanedDate.split('T')[0]);
     } else {
@@ -102,13 +102,13 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
         date = new Date(cleanedDate);
       }
     }
-    
+
     if (!date || isNaN(date.getTime())) return null;
-    
+
     const isoDate = new Date(
       Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0)
     ).toISOString();
-    
+
     return isoDate;
   }, []);
 
@@ -163,7 +163,7 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
             { field: 'qualitycontrol', alternatives: ['qualitycontrol', 'quality', 'quality control'] },
           ];
 
-          const normalizedHeaders = headerValues.map(h => 
+          const normalizedHeaders = headerValues.map(h =>
             h.toLowerCase().replace(/[^a-z0-9]/g, '')
           );
 
@@ -192,7 +192,7 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
 
             const values = parseCSVLine(line);
             const row = {};
-            
+
             headerValues.forEach((header, index) => {
               row[header] = index < values.length ? cleanCSVValue(values[index]) : '';
             });
@@ -220,7 +220,7 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
       reader.onload = (event) => {
         try {
           const data = new Uint8Array(event.target.result);
-          const workbook = XLSX.read(data, { 
+          const workbook = XLSX.read(data, {
             type: 'array',
             cellDates: false,
             cellText: true,
@@ -228,13 +228,13 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
             cellHTML: false
           });
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-          
-          const jsonData = XLSX.utils.sheet_to_json(firstSheet, { 
-            header: 1, 
+
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+            header: 1,
             defval: '',
             raw: false
           });
-          
+
           if (!jsonData || jsonData.length === 0) {
             reject(new Error('Excel file is empty'));
             return;
@@ -250,7 +250,7 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
             { field: 'qualitycontrol', alternatives: ['qualitycontrol', 'quality', 'quality control'] },
           ];
 
-          const normalizedHeaders = headerValues.map(h => 
+          const normalizedHeaders = headerValues.map(h =>
             h ? h.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
           );
 
@@ -298,42 +298,42 @@ const useBusinessTravelCSVUpload = (buildings = []) => {
   }, [cleanCSVValue]);
 
   // Helper function for normalization (handles spaces around slashes)
-const normalizeWithSlash = (str) => {
-  if (!str) return '';
-  return str
-    .toLowerCase()
-    .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
-    .replace(/\s+/g, ' ')        // Normalize multiple spaces
-    .trim();
-};
+  const normalizeWithSlash = (str) => {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .replace(/\s*\/\s*/g, '/')  // Remove spaces around slashes
+      .replace(/\s+/g, ' ')        // Normalize multiple spaces
+      .trim();
+  };
 
-// Flexible matching function
-const findFlexibleMatch = (input, validOptions) => {
-  if (!input || !validOptions.length) return null;
-  
-  const normalizedInput = normalizeWithSlash(input);
-  
-  // Try direct match with normalization
-  let match = validOptions.find(option => 
-    normalizeWithSlash(option) === normalizedInput
-  );
-  
-  if (match) return match;
-  
-  // Try with spaces around slashes (for cases like "A/B" vs "A / B")
-  const spacedInput = normalizedInput.replace(/\//g, ' / ');
-  match = validOptions.find(option => {
-    const normalizedOption = normalizeWithSlash(option);
-    const spacedOption = normalizedOption.replace(/\//g, ' / ');
-    return spacedOption === spacedInput;
-  });
-  
-  return match;
-};
+  // Flexible matching function
+  const findFlexibleMatch = (input, validOptions) => {
+    if (!input || !validOptions.length) return null;
+
+    const normalizedInput = normalizeWithSlash(input);
+
+    // Try direct match with normalization
+    let match = validOptions.find(option =>
+      normalizeWithSlash(option) === normalizedInput
+    );
+
+    if (match) return match;
+
+    // Try with spaces around slashes (for cases like "A/B" vs "A / B")
+    const spacedInput = normalizedInput.replace(/\//g, ' / ');
+    match = validOptions.find(option => {
+      const normalizedOption = normalizeWithSlash(option);
+      const spacedOption = normalizedOption.replace(/\//g, ' / ');
+      return spacedOption === spacedInput;
+    });
+
+    return match;
+  };
 
   const validateBusinessTravelRow = useCallback((row, index) => {
     const errors = [];
-    
+
     // COMPLETE HEADER MAPPING for friendly headers
     const headerMapping = {
       'stakeholderdepartment': 'stakeholder',
@@ -345,7 +345,7 @@ const findFlexibleMatch = (input, validOptions) => {
       'didyouhaveanybusinesstravelbytrainduringthereportingperiod': 'travelbytrain',
       'didyouhaveanybusinesstravelbycarduringthereportingperiod': 'travelbycar',
       'didyouhaveanyhotelstaysduringbusinesstravelinthereportingperiod': 'hotelstay',
-      
+
       // Short version toggle headers
       'travelbyair': 'travelbyair',
       'travelbymotorbike': 'travelbymotorbike',
@@ -360,78 +360,78 @@ const findFlexibleMatch = (input, validOptions) => {
       'numberofpassengersair': 'airpassengers',
       'nopassengerair': 'airpassengers',
       'airpassengers': 'airpassengers',
-      
+
       'distancetravelledair': 'airdistancekm',
       'distancetravelledairkm': 'airdistancekm',
       'distanceair': 'airdistancekm',
       'airdistancekm': 'airdistancekm',
-      
+
       'travelclassair': 'airtravelclass',
       'travelclass': 'airtravelclass',
       'airtravelclass': 'airtravelclass',
-      
+
       'flighttype': 'airflighttype',
       'airflighttype': 'airflighttype',
-      
+
       // Motorbike travel fields
       'distancetravelledmotorbike': 'motorbikedistancekm',
       'distancetravelledmotorbikekm': 'motorbikedistancekm',
       'distancemotorbike': 'motorbikedistancekm',
       'motorbikedistancekm': 'motorbikedistancekm',
       'motorbiketype': 'motorbiketype',
-      
+
       // Taxi travel fields
       'numberofpassengerstaxi': 'taxipassengers',
       'nopassengertaxi': 'taxipassengers',
       'taxipassengers': 'taxipassengers',
-      
+
       'distancetravelledtaxi': 'taxidistancekm',
       'distancetravelledtaxikm': 'taxidistancekm',
       'distancetaxi': 'taxidistancekm',
       'taxidistancekm': 'taxidistancekm',
-      
+
       'taxitype': 'taxitype',
-      
+
       // Bus travel fields
       'numberofpassengersbus': 'buspassengers',
       'nopassengerbus': 'buspassengers',
       'buspassengers': 'buspassengers',
-      
+
       'distancetravelledbus': 'busdistancekm',
       'distancetravelledbuskm': 'busdistancekm',
       'distancebus': 'busdistancekm',
       'busdistancekm': 'busdistancekm',
-      
+
       'bustype': 'bustype',
-      
+
       // Train travel fields
       'numberofpassengerstrain': 'trainpassengers',
       'nopassengertrain': 'trainpassengers',
       'trainpassengers': 'trainpassengers',
-      
+
       'distancetravelledtrain': 'traindistancekm',
       'distancetravelledtrainkm': 'traindistancekm',
       'distancetrain': 'traindistancekm',
       'traindistancekm': 'traindistancekm',
-      
+
       'traintype': 'traintype',
-      
+
       // Car travel fields
       'distancetravelledcar': 'cardistancekm',
       'distancetravelledcarkm': 'cardistancekm',
       'distancecar': 'cardistancekm',
       'cardistancekm': 'cardistancekm',
-      
+
       'cartype': 'cartype',
       'fueltypecar': 'carfueltype',
       'carfueltype': 'carfueltype',
-      
+
       // Hotel stay fields
       'numberofrooms': 'hotelrooms',
       'hotelrooms': 'hotelrooms',
       'nightsstayed': 'hotelnights',
       'hotelnights': 'hotelnights',
-      
+
       // Basic fields
       'buildingcode': 'buildingcode',
       'building': 'buildingcode',
@@ -449,7 +449,7 @@ const findFlexibleMatch = (input, validOptions) => {
     };
 
     const cleanedRow = {};
-    
+
     // Apply header mapping with proper normalization
     Object.keys(row).forEach(key => {
       // Normalize the key: remove spaces, special characters, convert to lowercase
@@ -464,7 +464,7 @@ const findFlexibleMatch = (input, validOptions) => {
 
     // Required fields validation
     if (!cleanedRow.buildingcode) errors.push('Building Code is required');
-    if (!cleanedRow.stakeholder) errors.push('Stakeholder / Department is required');
+    if (!cleanedRow.stakeholder) errors.push('Stakeholder is required');
     if (!cleanedRow.qualitycontrol) errors.push('Quality Control is required');
     if (!cleanedRow.postingdate) errors.push('Posting Date is required');
 
@@ -476,7 +476,7 @@ const findFlexibleMatch = (input, validOptions) => {
         b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
       );
       if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
+        errors.push(`Invalid Building code "${cleanedRow.buildingcode}"`);
       }
     }
 
@@ -493,16 +493,16 @@ const findFlexibleMatch = (input, validOptions) => {
     //   }
     // }
     // Stakeholder validation with flexible matching
-if (cleanedRow.stakeholder) {
-  const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-  const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
-  
-  if (!matchedStakeholder) {
-    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-  } else {
-    cleanedRow.stakeholder = matchedStakeholder;
-  }
-}
+    if (cleanedRow.stakeholder) {
+      const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
+      const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
+
+      if (!matchedStakeholder) {
+        errors.push(`Invalid Stakeholder "${cleanedRow.stakeholder}"`);
+      } else {
+        cleanedRow.stakeholder = matchedStakeholder;
+      }
+    }
 
     // Quality Control validation
     if (cleanedRow.qualitycontrol) {
@@ -511,7 +511,7 @@ if (cleanedRow.stakeholder) {
         q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
       );
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+        errors.push(`Invalid Quality Control "${cleanedRow.qualitycontrol}"`);
       } else {
         cleanedRow.qualitycontrol = matchedQC;
       }
@@ -535,11 +535,11 @@ if (cleanedRow.stakeholder) {
     const hotelStay = convertYesNo(cleanedRow.hotelstay);
 
     // Check if at least one travel option is selected
-    const anyTravelSelected = travelByAir || travelByMotorbike || travelByTaxi || 
-                              travelByBus || travelByTrain || travelByCar || hotelStay;
+    const anyTravelSelected = travelByAir || travelByMotorbike || travelByTaxi ||
+      travelByBus || travelByTrain || travelByCar || hotelStay;
 
     if (!anyTravelSelected) {
-      errors.push('At least one travel option must be selected (set to "Yes" for any travel type)');
+      errors.push('At least one Travel Option must be selected (set to "Yes" for any Travel Type)');
     }
 
     // Helper to validate numeric fields
@@ -556,40 +556,40 @@ if (cleanedRow.stakeholder) {
     // AIR TRAVEL VALIDATION
     if (travelByAir) {
       if (!cleanedRow.airpassengers) {
-        errors.push('Number of Passengers (Air) is required when air travel is Yes');
+        errors.push('"Number of Passengers" is required when "Did you have any business travel by air during the reporting period?" is Yes');
       } else {
         validateNumeric(cleanedRow.airpassengers, 'Air passengers');
       }
-      
+
       if (!cleanedRow.airdistancekm) {
-        errors.push('Distance Travelled (Air) is required when air travel is Yes');
+        errors.push('"Distance Travelled" is required when "Did you have any business travel by air during the reporting period?" is Yes');
       } else {
         validateNumeric(cleanedRow.airdistancekm, 'Air distance');
       }
-      
+
       if (!cleanedRow.airtravelclass) {
-        errors.push('Travel Class (Air) is required when air travel is Yes');
+        errors.push('"Travel Class" is required when "Did you have any business travel by air during the reporting period?" is Yes');
       } else {
         const validClasses = travelClassOptions.map(t => t.value);
-        const matchedClass = validClasses.find(c => 
+        const matchedClass = validClasses.find(c =>
           c.toLowerCase() === cleanedRow.airtravelclass.toLowerCase()
         );
         if (!matchedClass) {
-          errors.push(`Invalid air travel class "${cleanedRow.airtravelclass}"`);
+          errors.push(`Invalid "Travel Class": "${cleanedRow.airtravelclass}"`);
         } else {
           cleanedRow.airtravelclass = matchedClass;
         }
       }
-      
+
       if (!cleanedRow.airflighttype) {
-        errors.push('Flight Type is required when air travel is Yes');
+        errors.push('Flight Type is required when "Did you have any business travel by air during the reporting period?" is Yes');
       } else {
         const validFlightTypes = flightTypeOptions.map(f => f.value);
-        const matchedFlightType = validFlightTypes.find(f => 
+        const matchedFlightType = validFlightTypes.find(f =>
           f.toLowerCase() === cleanedRow.airflighttype.toLowerCase()
         );
         if (!matchedFlightType) {
-          errors.push(`Invalid air flight type "${cleanedRow.airflighttype}"`);
+          errors.push(`Invalid "Flight Type": "${cleanedRow.airflighttype}"`);
         } else {
           cleanedRow.airflighttype = matchedFlightType;
         }
@@ -599,16 +599,16 @@ if (cleanedRow.stakeholder) {
     // MOTORBIKE TRAVEL VALIDATION
     if (travelByMotorbike) {
       if (!cleanedRow.motorbikedistancekm) {
-        errors.push('Distance Travelled (Motorbike) is required when motorbike travel is Yes');
+        errors.push('"Distance Travelled" is required when "Did you have any business travel by motorbike during the reporting period?" is Yes');
       } else {
         validateNumeric(cleanedRow.motorbikedistancekm, 'Motorbike distance');
       }
-      
+
       if (!cleanedRow.motorbiketype) {
-        errors.push('Motorbike Type is required when motorbike travel is Yes');
+        errors.push('"Motorbike Type" is required when "Did you have any business travel by motorbike during the reporting period?" is Yes');
       } else {
         const validTypes = motorbikeTypeOptions.map(m => m.value);
-        const matchedType = validTypes.find(t => 
+        const matchedType = validTypes.find(t =>
           t.toLowerCase() === cleanedRow.motorbiketype.toLowerCase()
         );
         if (!matchedType) {
@@ -622,26 +622,26 @@ if (cleanedRow.stakeholder) {
     // TAXI TRAVEL VALIDATION
     if (travelByTaxi) {
       if (!cleanedRow.taxipassengers) {
-        errors.push('Number of Passengers (Taxi) is required when taxi travel is Yes');
+        errors.push('"Number of Passengers" is required when "Did you have any business travel by taxi during the reporting period?" is Yes');
       } else {
         validateNumeric(cleanedRow.taxipassengers, 'Taxi passengers');
       }
-      
+
       if (!cleanedRow.taxidistancekm) {
-        errors.push('Distance Travelled (Taxi) is required when taxi travel is Yes');
+        errors.push('"Distance Travelled" is required when "Did you have any business travel by taxi during the reporting period?" is Yes');
       } else {
         validateNumeric(cleanedRow.taxidistancekm, 'Taxi distance');
       }
-      
+
       if (!cleanedRow.taxitype) {
-        errors.push('Taxi Type is required when taxi travel is Yes');
+        errors.push('"Taxi Type" is required when "Did you have any business travel by taxi during the reporting period?" is Yes');
       } else {
         const validTypes = taxiTypeOptions.map(t => t.value);
-        const matchedType = validTypes.find(t => 
+        const matchedType = validTypes.find(t =>
           t.toLowerCase() === cleanedRow.taxitype.toLowerCase()
         );
         if (!matchedType) {
-          errors.push(`Invalid taxi type "${cleanedRow.taxitype}"`);
+          errors.push(`Invalid "Taxi Type": "${cleanedRow.taxitype}"`);
         } else {
           cleanedRow.taxitype = matchedType;
         }
@@ -651,26 +651,26 @@ if (cleanedRow.stakeholder) {
     // BUS TRAVEL VALIDATION
     if (travelByBus) {
       if (!cleanedRow.buspassengers) {
-        errors.push('Number of Passengers (Bus) is required when bus travel is Yes');
+        errors.push('"Number of Passengers" is required when "Did you have any business travel by bus during the reporting period?" is Yes');
       } else {
         validateNumeric(cleanedRow.buspassengers, 'Bus passengers');
       }
-      
+
       if (!cleanedRow.busdistancekm) {
-        errors.push('Distance Travelled (Bus) is required when bus travel is Yes');
+        errors.push('"Distance Travelled" is required when "Did you have any business travel by bus during the reporting period?" is Yes');
       } else {
         validateNumeric(cleanedRow.busdistancekm, 'Bus distance');
       }
-      
+
       if (!cleanedRow.bustype) {
-        errors.push('Bus Type is required when bus travel is Yes');
+        errors.push('"Bus Type" is required when "Did you have any business travel by bus during the reporting period?" is Yes');
       } else {
         const validTypes = busTypeOptions.map(b => b.value);
-        const matchedType = validTypes.find(t => 
+        const matchedType = validTypes.find(t =>
           t.toLowerCase() === cleanedRow.bustype.toLowerCase()
         );
         if (!matchedType) {
-          errors.push(`Invalid bus type "${cleanedRow.bustype}"`);
+          errors.push(`Invalid "Bus Type": "${cleanedRow.bustype}"`);
         } else {
           cleanedRow.bustype = matchedType;
         }
@@ -680,80 +680,80 @@ if (cleanedRow.stakeholder) {
     // TRAIN TRAVEL VALIDATION
     if (travelByTrain) {
       if (!cleanedRow.trainpassengers) {
-        errors.push('Number of Passengers (Train) is required when train travel is Yes');
+        errors.push('"Number of Passengers" is required when "Did you have any business travel by train during the reporting period?" is Yes');
       } else {
         validateNumeric(cleanedRow.trainpassengers, 'Train passengers');
       }
-      
+
       if (!cleanedRow.traindistancekm) {
-        errors.push('Distance Travelled (Train) is required when train travel is Yes');
+        errors.push('"Distance Travelled" is required when "Did you have any business travel by train during the reporting period?" is Yes');
       } else {
         validateNumeric(cleanedRow.traindistancekm, 'Train distance');
       }
-      
+
       if (!cleanedRow.traintype) {
-        errors.push('Train Type is required when train travel is Yes');
+        errors.push('"Train Type" is required when "Did you have any business travel by train during the reporting period?" is Yes');
       } else {
         const validTypes = trainTypeOptions.map(t => t.value);
-        const matchedType = validTypes.find(t => 
+        const matchedType = validTypes.find(t =>
           t.toLowerCase() === cleanedRow.traintype.toLowerCase()
         );
         if (!matchedType) {
-          errors.push(`Invalid train type "${cleanedRow.traintype}"`);
+          errors.push(`Invalid "Train Type": "${cleanedRow.traintype}"`);
         } else {
           cleanedRow.traintype = matchedType;
         }
       }
     }
 
- 
+
     // CAR TRAVEL VALIDATION with flexible matching
-if (travelByCar) {
-  if (!cleanedRow.cardistancekm) {
-    errors.push('Distance Travelled (Car) is required when car travel is Yes');
-  } else {
-    validateNumeric(cleanedRow.cardistancekm, 'Car distance');
-  }
-  
-  // Car type validation with flexible matching
-  if (!cleanedRow.cartype) {
-    errors.push('Car Type is required when car travel is Yes');
-  } else {
-    const validTypes = carTypeOptions.map(c => c.value);
-    const matchedType = findFlexibleMatch(cleanedRow.cartype, validTypes);
-    
-    if (!matchedType) {
-      errors.push(`Invalid car type "${cleanedRow.cartype}"`);
-    } else {
-      cleanedRow.cartype = matchedType;
+    if (travelByCar) {
+      if (!cleanedRow.cardistancekm) {
+        errors.push('"Distance Travelled" is required when "Did you have any business travel by car during the reporting period?" is Yes');
+      } else {
+        validateNumeric(cleanedRow.cardistancekm, 'Car distance');
+      }
+
+      // Car type validation with flexible matching
+      if (!cleanedRow.cartype) {
+        errors.push('"Car Type" is required when "Did you have any business travel by car during the reporting period?" is Yes');
+      } else {
+        const validTypes = carTypeOptions.map(c => c.value);
+        const matchedType = findFlexibleMatch(cleanedRow.cartype, validTypes);
+
+        if (!matchedType) {
+          errors.push(`Invalid "Car Type": "${cleanedRow.cartype}"`);
+        } else {
+          cleanedRow.cartype = matchedType;
+        }
+      }
+
+      // Car fuel type validation with flexible matching
+      if (!cleanedRow.carfueltype) {
+        errors.push('"Fuel Type" is required when "Did you have any business travel by car during the reporting period?" is Yes');
+      } else if (cleanedRow.cartype) {
+        const validFuelTypes = carFuelTypeOptions[cleanedRow.cartype] || [];
+        const matchedFuelType = findFlexibleMatch(cleanedRow.carfueltype, validFuelTypes);
+
+        if (!matchedFuelType) {
+          errors.push(`Invalid "Fuel Type": "${cleanedRow.carfueltype}" for "Car Type": "${cleanedRow.cartype}"`);
+        } else {
+          cleanedRow.carfueltype = matchedFuelType;
+        }
+      }
     }
-  }
-  
-  // Car fuel type validation with flexible matching
-  if (!cleanedRow.carfueltype) {
-    errors.push('Fuel Type (Car) is required when car travel is Yes');
-  } else if (cleanedRow.cartype) {
-    const validFuelTypes = carFuelTypeOptions[cleanedRow.cartype] || [];
-    const matchedFuelType = findFlexibleMatch(cleanedRow.carfueltype, validFuelTypes);
-    
-    if (!matchedFuelType) {
-      errors.push(`Invalid car fuel type "${cleanedRow.carfueltype}" for car type "${cleanedRow.cartype}"`);
-    } else {
-      cleanedRow.carfueltype = matchedFuelType;
-    }
-  }
-}
 
     // HOTEL STAY VALIDATION
     if (hotelStay) {
       if (!cleanedRow.hotelrooms) {
-        errors.push('Number of Rooms is required when hotel stay is Yes');
+        errors.push('"Number of Rooms" is required when "Did you have any hotel stays during business travel in the reporting period?"is Yes');
       } else {
         validateNumeric(cleanedRow.hotelrooms, 'Hotel rooms');
       }
-      
+
       if (!cleanedRow.hotelnights) {
-        errors.push('Nights Stayed is required when hotel stay is Yes');
+        errors.push('"Nights Stayed" is required when "Did you have any hotel stays during business travel in the reporting period?"is Yes');
       } else {
         validateNumeric(cleanedRow.hotelnights, 'Hotel nights');
       }
@@ -763,7 +763,7 @@ if (travelByCar) {
     if (cleanedRow.postingdate) {
       const isoDate = parseDateToISO(cleanedRow.postingdate);
       if (!isoDate) {
-        errors.push(`Invalid date format: "${cleanedRow.postingdate}"`);
+        errors.push(`Invalid Date Format: "${cleanedRow.postingdate}"`);
       } else {
         cleanedRow.postingdate = isoDate;
       }
@@ -801,31 +801,31 @@ if (travelByCar) {
       travelByTrain: convertYesNo(row.travelbytrain),
       travelByCar: convertYesNo(row.travelbycar),
       hotelStay: convertYesNo(row.hotelstay),
-      
+
       airPassengers: row.airpassengers ? Number(row.airpassengers) : 0,
       airDistanceKm: row.airdistancekm ? Number(row.airdistancekm) : 0,
       airTravelClass: row.airtravelclass || '',
       airFlightType: row.airflighttype || '',
-      
+
       motorbikeDistanceKm: row.motorbikedistancekm ? Number(row.motorbikedistancekm) : 0,
       motorbikeType: row.motorbiketype || '',
-      
+
       taxiPassengers: row.taxipassengers ? Number(row.taxipassengers) : 0,
       taxiDistanceKm: row.taxidistancekm ? Number(row.taxidistancekm) : 0,
       taxiType: row.taxitype || '',
-      
+
       busPassengers: row.buspassengers ? Number(row.buspassengers) : 0,
       busDistanceKm: row.busdistancekm ? Number(row.busdistancekm) : 0,
       busType: row.bustype || '',
-      
+
       trainPassengers: row.trainpassengers ? Number(row.trainpassengers) : 0,
       trainDistanceKm: row.traindistancekm ? Number(row.traindistancekm) : 0,
       trainType: row.traintype || '',
-      
+
       carDistanceKm: row.cardistancekm ? Number(row.cardistancekm) : 0,
       carType: row.cartype || '',
       carFuelType: row.carfueltype || '',
-      
+
       hotelRooms: row.hotelrooms ? Number(row.hotelrooms) : 0,
       hotelNights: row.hotelnights ? Number(row.hotelnights) : 0,
     };
@@ -837,61 +837,61 @@ if (travelByCar) {
       return text.charAt(0).toUpperCase() + text.slice(1);
     };
 
-   return {
-  buildingCode: row.buildingcode,
-  stakeholder: row.stakeholder,
-  qualityControl: row.qualitycontrol,
-  postingDate: row.postingdate,
-  
-  travelByAir: calculationData.travelByAir,
-  travelByMotorbike: calculationData.travelByMotorbike,
-  travelByTaxi: calculationData.travelByTaxi,
-  travelByBus: calculationData.travelByBus,
-  travelByTrain: calculationData.travelByTrain,
-  travelByCar: calculationData.travelByCar,
-  hotelStay: calculationData.hotelStay,
-  
-  airPassengers: cleanNumberValue(row.airpassengers, 'Air passengers'),
-  airDistanceKm: cleanNumberValue(row.airdistancekm, 'Air distance'),
-  airTravelClass: cleanStringValue(row.airtravelclass),
-  airFlightType: cleanStringValue(row.airflighttype),
-  
-  motorbikeDistanceKm: cleanNumberValue(row.motorbikedistancekm, 'Motorbike distance'),
-  motorbikeType: cleanStringValue(row.motorbiketype),
-  
-  taxiPassengers: cleanNumberValue(row.taxipassengers, 'Taxi passengers'),
-  taxiDistanceKm: cleanNumberValue(row.taxidistancekm, 'Taxi distance'),
-  taxiType: cleanStringValue(row.taxitype),
-  
-  busPassengers: cleanNumberValue(row.buspassengers, 'Bus passengers'),
-  busDistanceKm: cleanNumberValue(row.busdistancekm, 'Bus distance'),
-  busType: cleanStringValue(row.bustype),
-  
-  trainPassengers: cleanNumberValue(row.trainpassengers, 'Train passengers'),
-  trainDistanceKm: cleanNumberValue(row.traindistancekm, 'Train distance'),
-  trainType: cleanStringValue(row.traintype),
-  
-  carDistanceKm: cleanNumberValue(row.cardistancekm, 'Car distance'),
-  carType: cleanStringValue(row.cartype),
-  carFuelType: cleanStringValue(row.carfueltype),
-  
-  hotelRooms: cleanNumberValue(row.hotelrooms, 'Hotel rooms'),
-  hotelNights: cleanNumberValue(row.hotelnights, 'Hotel nights'),
-  
-  remarks: capitalizeFirstLetter(cleanStringValue(row.remarks) || ''),
-  
-  calculatedEmissionKgCo2e: emission?.totalEmissions_KgCo2e || 0,
-  calculatedEmissionTCo2e: emission?.totalEmissions_TCo2e || 0,
-  
-  createdBy: userId,
-  updatedBy: userId,
-};
+    return {
+      buildingCode: row.buildingcode,
+      stakeholder: row.stakeholder,
+      qualityControl: row.qualitycontrol,
+      postingDate: row.postingdate,
+
+      travelByAir: calculationData.travelByAir,
+      travelByMotorbike: calculationData.travelByMotorbike,
+      travelByTaxi: calculationData.travelByTaxi,
+      travelByBus: calculationData.travelByBus,
+      travelByTrain: calculationData.travelByTrain,
+      travelByCar: calculationData.travelByCar,
+      hotelStay: calculationData.hotelStay,
+
+      airPassengers: cleanNumberValue(row.airpassengers, 'Air passengers'),
+      airDistanceKm: cleanNumberValue(row.airdistancekm, 'Air distance'),
+      airTravelClass: cleanStringValue(row.airtravelclass),
+      airFlightType: cleanStringValue(row.airflighttype),
+
+      motorbikeDistanceKm: cleanNumberValue(row.motorbikedistancekm, 'Motorbike distance'),
+      motorbikeType: cleanStringValue(row.motorbiketype),
+
+      taxiPassengers: cleanNumberValue(row.taxipassengers, 'Taxi passengers'),
+      taxiDistanceKm: cleanNumberValue(row.taxidistancekm, 'Taxi distance'),
+      taxiType: cleanStringValue(row.taxitype),
+
+      busPassengers: cleanNumberValue(row.buspassengers, 'Bus passengers'),
+      busDistanceKm: cleanNumberValue(row.busdistancekm, 'Bus distance'),
+      busType: cleanStringValue(row.bustype),
+
+      trainPassengers: cleanNumberValue(row.trainpassengers, 'Train passengers'),
+      trainDistanceKm: cleanNumberValue(row.traindistancekm, 'Train distance'),
+      trainType: cleanStringValue(row.traintype),
+
+      carDistanceKm: cleanNumberValue(row.cardistancekm, 'Car distance'),
+      carType: cleanStringValue(row.cartype),
+      carFuelType: cleanStringValue(row.carfueltype),
+
+      hotelRooms: cleanNumberValue(row.hotelrooms, 'Hotel rooms'),
+      hotelNights: cleanNumberValue(row.hotelnights, 'Hotel nights'),
+
+      remarks: capitalizeFirstLetter(cleanStringValue(row.remarks) || ''),
+
+      calculatedEmissionKgCo2e: emission?.totalEmissions_KgCo2e || 0,
+      calculatedEmissionTCo2e: emission?.totalEmissions_TCo2e || 0,
+
+      createdBy: userId,
+      updatedBy: userId,
+    };
   }, []);
 
   const handleFileSelect = async (file) => {
     const fileExtension = file.name.split('.').pop().toLowerCase();
     const isValidFile = ['csv', 'xlsx', 'xls'].includes(fileExtension);
-    
+
     if (!isValidFile) {
       toast.error('Please select a CSV or Excel file');
       console.error('Invalid file type selected:', file.name);
@@ -910,7 +910,7 @@ if (travelByCar) {
       } else {
         data = await parseExcel(file);
       }
-      
+
       if (!data || data.length === 0) {
         toast.error('No data found in file');
         return null;
@@ -1036,7 +1036,7 @@ if (travelByCar) {
       throw error;
     }
   };
-  
+
   const resetUpload = () => {
     setCsvState({
       file: null,
@@ -1051,7 +1051,7 @@ if (travelByCar) {
   const downloadBusinessTravelTemplate = useCallback(() => {
     const exampleBuildings = buildings.slice(0, 1);
     const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
-    
+
     const exampleStakeholder = 'Assembly';
     const exampleQC = 'Good';
     const exampleFlightType = 'Domestic';
@@ -1134,7 +1134,7 @@ if (travelByCar) {
       'No',
       '0',
       '0',
-       exampleQC,
+      exampleQC,
       'Example business travel record',
       formattedDate
     ];
@@ -1146,9 +1146,9 @@ if (travelByCar) {
 
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-    
+
     const colWidths = headers.map(header => ({
-      wch: Math.min(Math.max(header.length, 20), 65)
+      wch: Math.min(Math.max(header.length, 25), 65)
     }));
     worksheet['!cols'] = colWidths;
 
@@ -1163,7 +1163,7 @@ if (travelByCar) {
       };
     }
 
-    
+
     worksheet['!rows'] = [
       { hpt: 25 },
       { hpt: 25 },

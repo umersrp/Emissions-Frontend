@@ -14,22 +14,25 @@ import {
 } from '@/constant/scope1/options';
 
 const HEADER_MAPPING = {
-  'buildingcode': ['buildingcode', 'building code', 'building-code', 'building_code', 'building'],
-  'stakeholder': ['stakeholder', 'stake holder', 'stake-holder', 'stakeholder department', 'department', 'stakeholder / department'],
-  'vehicleclassification': ['vehicleclassification', 'vehicle classification', 'vehicle-classification', 'vehicle_classification', 'classification'],
-  'vehicletype': ['vehicletype', 'vehicle type', 'vehicle-type', 'vehicle_type', 'type'],
-  'fuelname': ['fuelname', 'fuel name', 'fuel-name', 'fuel_name', 'fuel'],
-  'distancetravelled': ['distancetravelled', 'distance travelled', 'distance-travelled', 'distance_travelled', 'distance', 'travelled'],
-  'distanceunit': ['distanceunit', 'distance unit', 'distance-unit', 'distance_unit', 'unit'],
-  'qualitycontrol': ['qualitycontrol', 'quality control', 'quality-control', 'quality_control', 'quality'],
-  'weightloaded': ['weightloaded', 'weight loaded', 'weight-loaded', 'weight_loaded', 'weight'],
-  'remarks': ['remarks', 'remark', 'comments', 'notes'],
-  'postingdate': ['postingdate', 'posting date', 'date', 'posting-date', 'posting_date', 'record date']
+  'stakeholder': ['stakeholder', 'stake holder', 'stake-holder', 'stakeholderdepartment', 'department', 'stakeholder / department'],
 };
 
+// const normalizeHeader = (header) => {
+//   return header.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+// };
+
 const normalizeHeader = (header) => {
-  return header.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+  let normalized = header.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+  // Check for stakeholderdepartment or stakeholder/department variations
+  console.log("Stakeholder normalization test:", normalized);
+  if (normalized === 'stakeholderdepartment' ||
+    (normalized.includes('stakeholder') && normalized.includes('department'))) {
+    return 'stakeholder';
+  }
+  return normalized;
 };
+// Should log "stakeholder"
+
 const useMobileCSVUpload = (buildings = []) => {
   const [csvState, setCsvState] = useState({
     file: null,
@@ -63,6 +66,12 @@ const useMobileCSVUpload = (buildings = []) => {
   }, []);
 
   const findMatchingField = (normalizedHeader) => {
+
+    if (normalizedHeader.includes('stakeholder') ||
+      (normalizedHeader.includes('stake') && normalizedHeader.includes('department'))) {
+      return 'stakeholder';
+    }
+
     for (const [field, possibleNames] of Object.entries(HEADER_MAPPING)) {
       const normalizedPossibleNames = possibleNames.map(name => normalizeHeader(name));
       if (normalizedPossibleNames.includes(normalizedHeader)) {
@@ -122,7 +131,7 @@ const useMobileCSVUpload = (buildings = []) => {
               .toLowerCase()
               .replace(/[^a-z0-9]/g, '');
 
-            if (compactLine.includes('buildingcode') && compactLine.includes('stakeholder')) {
+            if (compactLine.includes('buildingcode') && compactLine.includes('stakeholder') || compactLine.includes('stakeholderdepartment')) {
               headerRowIndex = i;
               break;
             }
@@ -139,7 +148,7 @@ const useMobileCSVUpload = (buildings = []) => {
           // Create header mapping
           const headerMapping = {};
           const requiredFields = [
-            'buildingcode', 'stakeholder', 'vehicleclassification', 'vehicletype',
+            'buildingcode', 'stakeholderdepartment', 'vehicleclassification', 'vehicletype',
             'fuelname', 'distancetravelled', 'distanceunit', 'qualitycontrol', 'postingdate'
           ];
 
@@ -153,8 +162,10 @@ const useMobileCSVUpload = (buildings = []) => {
             });
 
             if (foundHeader) {
+              console.log('found header ===>', field);
               headerMapping[foundHeader] = field;
             } else {
+              console.log('missing header ===>', field);
               missingHeaders.push(field);
             }
           });
@@ -186,6 +197,7 @@ const useMobileCSVUpload = (buildings = []) => {
           console.log('Parsed CSV data:', JSON.stringify(data, null, 2));
           resolve(data);
         } catch (error) {
+          log('CSV parsing error:', error);
           reject(new Error(`Error parsing CSV: ${error.message}`));
         }
       };
@@ -194,7 +206,6 @@ const useMobileCSVUpload = (buildings = []) => {
     });
   }, [cleanValue]);
 
-  // Excel Parser
   // Excel Parser - Updated to preserve number formatting
   // const parseExcel = useCallback((file) => {
   //   return new Promise((resolve, reject) => {
@@ -304,148 +315,117 @@ const useMobileCSVUpload = (buildings = []) => {
   // }, [cleanValue]);
 
   const parseExcel = useCallback((file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const data = new Uint8Array(event.target.result);
-        const workbook = XLSX.read(data, {
-          type: 'array',
-          cellDates: false, // Don't convert dates automatically
-          cellText: true,   // Keep cell text
-          cellNF: true,     // Keep number formats
-          cellHTML: false
-        });
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-
-        // Use raw: false to get formatted values
-        const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
-          header: 1,
-          defval: '',
-          raw: false  // This will return formatted values (e.g., "50%" instead of 0.5)
-        });
-
-        if (!jsonData || jsonData.length === 0) {
-          reject(new Error('Excel file is empty'));
-          return;
-        }
-
-        // Find header row
-        let headerRowIndex = -1;
-        for (let i = 0; i < jsonData.length; i++) {
-          const row = jsonData[i];
-          if (row && row.length > 0) {
-            const rowText = row.map(cell =>
-              cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
-            ).join('');
-
-            if (rowText.includes('buildingcode') && rowText.includes('stakeholder')) {
-              headerRowIndex = i;
-              break;
-            }
-          }
-        }
-
-        if (headerRowIndex === -1) {
-          reject(new Error('Excel must contain header row with: buildingCode, stakeholder, vehicleClassification, vehicleType, fuelName, distanceTravelled, distanceUnit, qualityControl, weightLoaded, remarks, postingDate'));
-          return;
-        }
-
-        // Get raw header values
-        const rawHeaders = jsonData[headerRowIndex];
-
-        // Create header mapping using friendly headers
-        const headerMapping = {};
-        const requiredFields = [
-          'buildingcode', 'stakeholder', 'vehicleclassification', 'vehicletype',
-          'fuelname', 'distancetravelled', 'distanceunit', 'qualitycontrol', 'postingdate'
-        ];
-
-        const missingHeaders = [];
-
-        requiredFields.forEach(field => {
-          const foundHeader = rawHeaders.find(header => {
-            if (!header) return false;
-            const normalizedHeader = normalizeHeader(header);
-            return findMatchingField(normalizedHeader) === field;
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = new Uint8Array(event.target.result);
+          const workbook = XLSX.read(data, {
+            type: 'array',
+            cellDates: false, // Don't convert dates automatically
+            cellText: true,   // Keep cell text
+            cellNF: true,     // Keep number formats
+            cellHTML: false
           });
-          
-          if (foundHeader) {
-            headerMapping[foundHeader] = field;
-          } else {
-            missingHeaders.push(field);
-          }
-        });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
 
-        if (missingHeaders.length > 0) {
-          reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
-          return;
-        }
-
-        // Parse data rows
-        const parsedData = [];
-        for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
-          const row = jsonData[i];
-          if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
-
-          const rowData = {};
-          
-          // Use headerMapping to create row data with correct field names
-          Object.entries(headerMapping).forEach(([originalHeader, mappedKey]) => {
-            const headerIndex = rawHeaders.findIndex(h => h === originalHeader);
-            let value = headerIndex < row.length ? row[headerIndex] : '';
-
-            // Special handling for weight loaded to preserve percentage format
-            if (mappedKey === 'weightloaded' && value) {
-              // If value is a number (like 0.5), convert to percentage string
-              if (typeof value === 'number') {
-                const percentage = value * 100;
-                if (percentage === 0) value = '0%';
-                else if (percentage === 50) value = '50%';
-                else if (percentage === 100) value = '100%';
-                else value = `${percentage}%`;
-              }
-              // If value is already a string, keep as is
-            }
-
-            // Handle date conversion for postingdate field
-            if (mappedKey === 'postingdate' && typeof value === 'number') {
-              try {
-                let iso = null;
-                if (XLSX && XLSX.SSF && typeof XLSX.SSF.parse_date_code === 'function') {
-                  const d = XLSX.SSF.parse_date_code(value);
-                  if (d && d.y) {
-                    iso = new Date(Date.UTC(d.y, d.m - 1, d.d, 0, 0, 0, 0)).toISOString();
-                  }
-                }
-                if (!iso) {
-                  const excelEpoch = Date.UTC(1899, 11, 30);
-                  const msPerDay = 24 * 60 * 60 * 1000;
-                  const jsDate = new Date(excelEpoch + (value * msPerDay));
-                  iso = new Date(Date.UTC(jsDate.getUTCFullYear(), jsDate.getUTCMonth(), jsDate.getUTCDate(), 0, 0, 0, 0)).toISOString();
-                }
-                rowData[mappedKey] = iso;
-              } catch (e) {
-                rowData[mappedKey] = value ? cleanValue(value) : '';
-              }
-            } else {
-              rowData[mappedKey] = value ? cleanValue(value) : '';
-            }
+          // Use raw: false to get formatted values
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet, {
+            header: 1,
+            defval: '',
+            raw: false  // This will return formatted values (e.g., "50%" instead of 0.5)
           });
 
-          parsedData.push(rowData);
-        }
+          if (!jsonData || jsonData.length === 0) {
+            reject(new Error('Excel file is empty'));
+            return;
+          }
 
-        console.log('Parsed Excel data:', JSON.stringify(parsedData, null, 2));
-        resolve(parsedData);
-      } catch (error) {
-        reject(new Error(`Error parsing Excel file: ${error.message}`));
-      }
-    };
-    reader.onerror = () => reject(new Error('Failed to read file'));
-    reader.readAsArrayBuffer(file);
-  });
-}, [cleanValue]);
+          // Find header row
+          let headerRowIndex = -1;
+          for (let i = 0; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (row && row.length > 0) {
+              const rowText = row.map(cell =>
+                cell ? cell.toString().toLowerCase().replace(/[^a-z0-9]/g, '') : ''
+              ).join('');
+
+              if (rowText.includes('buildingcode') && rowText.includes('stakeholder')) {
+                headerRowIndex = i;
+                break;
+              }
+            }
+          }
+
+          if (headerRowIndex === -1) {
+            reject(new Error('Excel must contain header row with: buildingCode, stakeholder, vehicleClassification, vehicleType, fuelName, distanceTravelled, distanceUnit, qualityControl, weightLoaded, remarks, postingDate'));
+            return;
+          }
+
+          // Get headers and convert "Stakeholder / Department" to "stakeholder"
+          const headers = jsonData[headerRowIndex].map(header => {
+            const cleaned = cleanValue(header).toLowerCase().replace(/[^a-z0-9]/g, '');
+            // If header contains both stakeholder and department, change to stakeholder
+            if (cleaned.includes('stakeholder') && cleaned.includes('department')) {
+              return 'stakeholder';
+            }
+            return cleaned;
+          });
+
+          // Expected headers
+          const expectedHeaders = [
+            'buildingcode', 'stakeholder', 'vehicleclassification', 'vehicletype',
+            'fuelname', 'distancetravelled', 'distanceunit', 'qualitycontrol',
+            'weightloaded', 'remarks', 'postingdate'
+          ];
+
+          // Check for missing headers
+          const missingHeaders = expectedHeaders.filter(h => !headers.includes(h));
+          if (missingHeaders.length > 0) {
+            reject(new Error(`Missing required columns: ${missingHeaders.join(', ')}`));
+            return;
+          }
+
+          // Parse data rows
+          const parsedData = [];
+          for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
+            const row = jsonData[i];
+            if (!row || row.every(cell => !cell || cell.toString().trim() === '')) continue;
+
+            const rowData = {};
+            headers.forEach((header, index) => {
+              let value = index < row.length ? row[index] : '';
+
+              // Special handling for weight loaded to preserve percentage format
+              if (header === 'weightloaded' && value) {
+                // If value is a number (like 0.5), convert to percentage string
+                if (typeof value === 'number') {
+                  const percentage = value * 100;
+                  if (percentage === 0) value = '0%';
+                  else if (percentage === 50) value = '50%';
+                  else if (percentage === 100) value = '100%';
+                  else value = `${percentage}%`;
+                }
+                // If value is already a string, keep as is
+              }
+
+              rowData[header] = value ? cleanValue(value) : '';
+            });
+
+            parsedData.push(rowData);
+          }
+
+          console.log('Parsed Excel data:', JSON.stringify(parsedData, null, 2));
+          resolve(parsedData);
+        } catch (error) {
+          reject(new Error(`Error parsing Excel file: ${error.message}`));
+        }
+      };
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsArrayBuffer(file);
+    });
+  }, [cleanValue]);
+
   // Helper function for normalization (handles spaces around slashes)
   const normalizeWithSlash = (str) => {
     if (!str) return '';
@@ -511,25 +491,13 @@ const useMobileCSVUpload = (buildings = []) => {
         (b._id && b._id.toString() === cleanedRow.buildingcode)
       );
       if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}". Available: ${buildings.slice(0, 3).map(b => b.buildingCode || b._id).join(', ')}...`);
+        errors.push(`Invalid Building Code "${cleanedRow.buildingcode}".`);
       } else {
         const matched = buildings.find(b => b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase());
         if (matched && matched.buildingCode) cleanedRow.buildingcode = matched.buildingCode;
       }
     }
 
-    // Stakeholder validation
-    // if (cleanedRow.stakeholder) {
-    //   const validStakeholders = FugitiveAndMobileStakeholderOptions.map(s => s.value);
-    //   const matchedStakeholder = validStakeholders.find(s =>
-    //     normalize(s) === normalize(cleanedRow.stakeholder)
-    //   );
-    //   if (!matchedStakeholder) {
-    //     errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
-    //   } else {
-    //     cleanedRow.stakeholder = matchedStakeholder;
-    //   }
-    // }
 
     // Stakeholder validation with flexible matching
     if (cleanedRow.stakeholder) {
@@ -537,7 +505,7 @@ const useMobileCSVUpload = (buildings = []) => {
       const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
 
       if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+        errors.push(`Invalid "Stakeholder": "${cleanedRow.stakeholder}"`);
       } else {
         cleanedRow.stakeholder = matchedStakeholder;
       }
@@ -550,31 +518,20 @@ const useMobileCSVUpload = (buildings = []) => {
         normalize(v) === normalize(cleanedRow.vehicleclassification)
       );
       if (!matchedClassification) {
-        errors.push(`Invalid vehicle classification "${cleanedRow.vehicleclassification}"`);
+        errors.push(`Invalid "Vehicle Classification": "${cleanedRow.vehicleclassification}"`);
       } else {
         cleanedRow.vehicleclassification = matchedClassification;
       }
     }
 
-    // Vehicle type validation based on classification
-    // if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
-    //   const validTypes = vehicleTypeOptionsByClassification[cleanedRow.vehicleclassification]?.map(v => v.value) || [];
-    //   const matchedType = validTypes.find(v =>
-    //     normalize(v) === normalize(cleanedRow.vehicletype)
-    //   );
-    //   if (!matchedType) {
-    //     errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for classification "${cleanedRow.vehicleclassification}"`);
-    //   } else {
-    //     cleanedRow.vehicletype = matchedType;
-    //   }
-    // }
+
     // Vehicle type validation based on classification with flexible matching
     if (cleanedRow.vehicleclassification && cleanedRow.vehicletype) {
       const validTypes = vehicleTypeOptionsByClassification[cleanedRow.vehicleclassification]?.map(v => v.value) || [];
       const matchedType = findFlexibleMatch(cleanedRow.vehicletype, validTypes);
 
       if (!matchedType) {
-        errors.push(`Invalid vehicle type "${cleanedRow.vehicletype}" for classification "${cleanedRow.vehicleclassification}"`);
+        errors.push(`Invalid "Vehicle Type": "${cleanedRow.vehicletype}" for "Vehicle Classification": "${cleanedRow.vehicleclassification}"`);
       } else {
         cleanedRow.vehicletype = matchedType;
       }
@@ -587,7 +544,7 @@ const useMobileCSVUpload = (buildings = []) => {
         normalize(f) === normalize(cleanedRow.fuelname)
       );
       if (!matchedFuel) {
-        errors.push(`Invalid fuel name "${cleanedRow.fuelname}" for classification "${cleanedRow.vehicleclassification}"`);
+        errors.push(`Invalid "Fuel Name": "${cleanedRow.fuelname}" for "Vehicle Classification": "${cleanedRow.vehicleclassification}"`);
       } else {
         cleanedRow.fuelname = matchedFuel;
       }
@@ -598,11 +555,9 @@ const useMobileCSVUpload = (buildings = []) => {
       const cleanNum = cleanedRow.distancetravelled.toString().replace(/[^0-9.-]/g, '');
       const num = Number(cleanNum);
       if (isNaN(num)) {
-        errors.push(`Distance traveled must be a number, got "${cleanedRow.distancetravelled}"`);
+        errors.push(`"Distance Travelled" must be a number, got "${cleanedRow.distancetravelled}"`);
       } else if (num < 0) {
-        errors.push('Distance traveled cannot be negative');
-      } else if (num > 10000000) {
-        errors.push('Distance traveled seems too large');
+        errors.push('"Distance Travelled" cannot be negative');
       } else {
         cleanedRow.distancetravelled = num.toString();
       }
@@ -615,7 +570,7 @@ const useMobileCSVUpload = (buildings = []) => {
         normalize(u) === normalize(cleanedRow.distanceunit)
       );
       if (!matchedUnit) {
-        errors.push(`Invalid distance unit "${cleanedRow.distanceunit}"`);
+        errors.push(`Invalid "Distance Unit": "${cleanedRow.distanceunit}"`);
       } else {
         cleanedRow.distanceunit = matchedUnit;
       }
@@ -628,7 +583,7 @@ const useMobileCSVUpload = (buildings = []) => {
         normalize(q) === normalize(cleanedRow.qualitycontrol)
       );
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+        errors.push(`Invalid "Quality Control": "${cleanedRow.qualitycontrol}"`);
       } else {
         cleanedRow.qualitycontrol = matchedQC;
       }
@@ -704,100 +659,6 @@ const useMobileCSVUpload = (buildings = []) => {
       }
     }
     // Date validation
-    // Date validation
-    // if (cleanedRow.postingdate) {
-    //   const parseToISODatePart = (input) => {
-    //     if (!input) return null;
-    //     let s = input.toString().trim().replace(/"/g, '');
-    //     if (s.includes('T')) s = s.split('T')[0];
-
-    //     // Remove any extra spaces
-    //     s = s.trim();
-
-    //     // Check for DD/MM/YYYY format
-    //     const ddmmyyyyRegex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/;
-    //     const matchDDMMYYYY = s.match(ddmmyyyyRegex);
-
-    //     if (matchDDMMYYYY) {
-    //       const day = parseInt(matchDDMMYYYY[1], 10);
-    //       const month = parseInt(matchDDMMYYYY[2], 10);
-    //       const year = parseInt(matchDDMMYYYY[3], 10);
-
-    //       // Validate day, month, year ranges
-    //       if (month < 1 || month > 12) return null;
-    //       if (day < 1 || day > 31) return null;
-    //       if (year < 1900 || year > 2100) return null;
-
-    //       const date = new Date(year, month - 1, day);
-
-    //       // Validate the date is real (e.g., not 31/02/2025)
-    //       if (date.getFullYear() !== year || 
-    //           date.getMonth() !== month - 1 || 
-    //           date.getDate() !== day) {
-    //         return null;
-    //       }
-
-    //       // Check if date is in the future
-    //       const today = new Date();
-    //       today.setHours(0, 0, 0, 0);
-    //       if (date > today) return null;
-
-    //       // Return ISO format
-    //       return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    //     }
-
-    //     // Check for YYYY-MM-DD format
-    //     const yyyymmddRegex = /^(\d{4})-(\d{1,2})-(\d{1,2})$/;
-    //     const matchYYYYMMDD = s.match(yyyymmddRegex);
-
-    //     if (matchYYYYMMDD) {
-    //       const year = parseInt(matchYYYYMMDD[1], 10);
-    //       const month = parseInt(matchYYYYMMDD[2], 10);
-    //       const day = parseInt(matchYYYYMMDD[3], 10);
-
-    //       // Validate ranges
-    //       if (month < 1 || month > 12) return null;
-    //       if (day < 1 || day > 31) return null;
-    //       if (year < 1900 || year > 2100) return null;
-
-    //       const date = new Date(year, month - 1, day);
-
-    //       if (date.getFullYear() !== year || 
-    //           date.getMonth() !== month - 1 || 
-    //           date.getDate() !== day) {
-    //         return null;
-    //       }
-
-    //       const today = new Date();
-    //       today.setHours(0, 0, 0, 0);
-    //       if (date > today) return null;
-
-    //       return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    //     }
-
-    //     // Try parsing with Date constructor as fallback
-    //     const parsed = new Date(s);
-    //     if (!isNaN(parsed.getTime())) {
-    //       const today = new Date();
-    //       today.setHours(0, 0, 0, 0);
-    //       if (parsed <= today) {
-    //         return parsed.toISOString().split('T')[0];
-    //       }
-    //     }
-
-    //     return null;
-    //   };
-
-    //   const iso = parseToISODatePart(cleanedRow.postingdate);
-    //   if (!iso) {
-    //     errors.push(`Invalid date. Please use DD/MM/YYYY or YYYY-MM-DD (got "${cleanedRow.postingdate}")`);
-    //   } else {
-    //     cleanedRow.postingdate = iso;
-    //   }
-    // } else {
-    //   // If no date provided, use current date
-    //   cleanedRow.postingdate = new Date().toISOString().split('T')[0];
-    // }
     if (cleanedRow.postingdate) {
       const parseToISODatePart = (input) => {
         if (!input) return null;
@@ -875,7 +736,7 @@ const useMobileCSVUpload = (buildings = []) => {
 
       const iso = parseToISODatePart(cleanedRow.postingdate);
       if (!iso) {
-        errors.push(`Invalid date. Please use DD/MM/YYYY or YYYY-MM-DD (got "${cleanedRow.postingdate}")`);
+        errors.push(`Invalid Date Format: "${cleanedRow.postingdate}",  Please use DD/MM/YYYY , 15/04/2026.`);
       } else {
         cleanedRow.postingdate = iso;
       }
@@ -1141,6 +1002,13 @@ const useMobileCSVUpload = (buildings = []) => {
 
   const downloadMobileTemplate = useCallback(() => {
     const exampleBuildingCode = buildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
+      const getCurrentDate = () => {
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const year = today.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
     // Create worksheet data with headers
     const worksheetData = [
@@ -1168,7 +1036,7 @@ const useMobileCSVUpload = (buildings = []) => {
         'Highly Uncertain',
         '',
         'Example record',
-        'dd/mm/yyyy'
+         getCurrentDate()
       ],
     ];
 
@@ -1179,7 +1047,7 @@ const useMobileCSVUpload = (buildings = []) => {
     // Auto-size columns for better readability
     worksheet['!cols'] = [
       { wch: 20 }, // building code
-      { wch: 15 }, // stakeholder
+      { wch: 25 }, // stakeholder
       { wch: 25 }, // vehicle classification
       { wch: 35 }, // vehicle type
       { wch: 15 }, // fuel name

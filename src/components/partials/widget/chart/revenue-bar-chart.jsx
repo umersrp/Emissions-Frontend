@@ -42,9 +42,24 @@ const RevenueBarChart = ({
   const allData = processData();
 
   // Sort descending by value (zeros will be at the end when showZeroValues is true)
-  const sortedData = [...allData].sort(
-    (a, b) => (Number(b.value) || 0) - (Number(a.value) || 0)
-  );
+  // After building sortedData, re-sort to bring highlighted bar to front
+const sortedData = [...allData]
+  .sort((a, b) => (Number(b.value) || 0) - (Number(a.value) || 0))
+  .sort((a, b) => {
+    const aHighlighted = selectedBuilding
+      ? a.buildingId === selectedBuilding
+      : selectedCategory
+      ? a.name === selectedCategory || a.categoryKey === selectedCategory
+      : false;
+
+    const bHighlighted = selectedBuilding
+      ? b.buildingId === selectedBuilding
+      : selectedCategory
+      ? b.name === selectedCategory || b.categoryKey === selectedCategory
+      : false;
+
+    return bHighlighted - aHighlighted; // highlighted comes first
+  });
 
   // Get the actual values for tooltip
   const actualValues = sortedData.map((item) => Number(item.value) || 0);
@@ -96,18 +111,28 @@ const RevenueBarChart = ({
     return "#4098ab"; // Default color
   });
 
-  const series = [
-    {
-      name: "Emissions",
-      data: displayValues,
-      color: "#4098ab", // Default fallback color
-    },
-    {
-      name: "Emission",
-      data: displayValues.map(v => (v > 0 ? maxDisplayValue - v : 0)),
-      color: "transparent", // Make HoverCap transparent
-    }
-  ];
+const series = [
+  {
+    name: "Emissions",
+    data: displayValues.map((val, i) => ({
+      x: displayNames[i],
+      y: val,
+      fillColor: barColors[i],
+      strokeColor: barColors[i],
+    })),
+  },
+  {
+    name: "Emission",
+    data: displayValues.map((v, i) => ({
+      x: displayNames[i],
+      y: v > 0 ? maxDisplayValue - v : 0,
+      fillColor: "transparent",
+      strokeColor: "transparent",
+    })),
+  }
+];
+
+  const hoverCapColors = barColors.map(() => "transparent");
 
   const options = {
     chart: {
@@ -143,25 +168,19 @@ const RevenueBarChart = ({
         columnWidth: columnWidth,
         borderRadius: 4,
         distributed: false,
-        colors: {
-          // Apply colors to each bar individually
-          ranges: barColors.map((color, index) => ({
-            from: index,
-            to: index,
-            color: color
-          }))
-        }
+        // colors: {
+        //   // Apply colors to each bar individually
+        //   ranges: barColors.map((color, index) => ({
+        //     from: index,
+        //     to: index,
+        //     color: color
+        //   }))
+        // }
       }
     },
-    colors: barColors, // Set colors for the first series
-    fill: {
-      opacity: 1,
-      colors: barColors, // Set fill colors
-    },
-    stroke: {
-      width: [2, 0],
-      colors: barColors, // Set stroke colors for the first series
-    },
+colors: ["#4098ab", "transparent"],  // simple fallbacks only
+    fill: { opacity: 1 },
+stroke: { width: [2, 0] },
     dataLabels: {
       enabled: false
     },

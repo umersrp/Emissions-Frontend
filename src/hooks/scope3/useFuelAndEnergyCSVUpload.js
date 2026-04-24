@@ -756,10 +756,9 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
       'didtravelbybus': 'didtravelbybus',
       'didtravelbytrain': 'didtravelbytrain',
 
-
-
       // Air travel fields
       'noofpassengerair': 'airpassengers',
+      'numberofpassengerair': 'airpassengers',
       'distancetravelledair': 'airdistancekm',
       'distancetravelledairkm': 'airdistancekm',
       'travelclass': 'airtravelclass',
@@ -767,18 +766,21 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
 
       // Taxi travel fields
       'noofpassengertaxi': 'taxipassengers',
+      'numberofpassengertaxi': 'taxipassengers',
       'distancetravelledtaxi': 'taxidistancekm',
       'distancetravelledtaxikm': 'taxidistancekm',
       'taxitype': 'taxitype',
 
       // Bus travel fields
       'noofpassengerbus': 'buspassengers',
+      'numberofpassengerbus': 'buspassengers',
       'distancetravelledbus': 'busdistancekm',
       'distancetravelledbuskm': 'busdistancekm',
       'bustype': 'bustype',
 
       // Train travel fields
       'noofpassengertrain': 'trainpassengers',
+      'numberofpassengertrain': 'trainpassengers',
       'distancetravelledtrain': 'traindistancekm',
       'distancetravelledtrainkm': 'traindistancekm',
       'traintype': 'traintype',
@@ -813,7 +815,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
         b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
       );
       if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
+        errors.push(`Invalid Building Code "${cleanedRow.buildingcode}"`);
       }
     }
 
@@ -823,7 +825,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
       const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
 
       if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+        errors.push(`Invalid Stakeholder "${cleanedRow.stakeholder}"`);
       } else {
         cleanedRow.stakeholder = matchedStakeholder;
       }
@@ -834,7 +836,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
       const validFuelTypes = fuelEnergyTypes.map(f => f.value);
       const matchedFuelType = findFlexibleMatch(cleanedRow.fueltype, validFuelTypes);
       if (!matchedFuelType) {
-        errors.push(`Invalid fuel type "${cleanedRow.fueltype}"`);
+        errors.push(`Invalid Fuel Type "${cleanedRow.fueltype}"`);
       } else {
         cleanedRow.fueltype = matchedFuelType;
       }
@@ -846,7 +848,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
       const matchedFuel = findFlexibleMatch(cleanedRow.fuel, validFuels);
 
       if (!matchedFuel) {
-        errors.push(`Invalid fuel name "${cleanedRow.fuel}" for type "${cleanedRow.fueltype}"`);
+        errors.push(`Invalid "Fuel Name": "${cleanedRow.fuel}" for type "${cleanedRow.fueltype}"`);
       } else {
         cleanedRow.fuel = matchedFuel;
       }
@@ -860,12 +862,10 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
 
       const num = Number(cleanNum);
       if (isNaN(num)) {
-        errors.push(`Fuel consumption must be a number, got "${cleanedRow.totalfuelconsumption}"`);
+        errors.push(`"Total Fuel Consumption" must be a number, got "${cleanedRow.totalfuelconsumption}"`);
       } else if (num < 0) {
-        errors.push('Fuel consumption cannot be negative');
-      } else if (num > 1000000000) {
-        errors.push('Fuel consumption seems too large');
-      } else {
+        errors.push('"Total Fuel Consumption" cannot be negative');
+       } else {
         cleanedRow.totalfuelconsumption = num.toString();
       }
     }
@@ -881,7 +881,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
       const matchedUnit = allUnits.find(u => u.toLowerCase() === cleanUnit);
 
       if (!matchedUnit) {
-        errors.push(`Invalid fuel consumption unit "${cleanedRow.fuelconsumptionunit}"`);
+        errors.push(`Invalid "Fuel Consumption Unit": "${cleanedRow.fuelconsumptionunit}"`);
       } else {
         cleanedRow.fuelconsumptionunit = matchedUnit;
       }
@@ -895,9 +895,9 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
 
       const num = Number(cleanNum);
       if (isNaN(num)) {
-        errors.push(`Electricity must be a number, got "${cleanedRow.totalgrosselectricitypurchased}"`);
+        errors.push(`"Total Purchased Electricity (Grid / Supplier Specific / PPA)" must be a number, got "${cleanedRow.totalgrosselectricitypurchased}"`);
       } else if (num < 0) {
-        errors.push('Electricity cannot be negative');
+        errors.push('"Total Purchased Electricity (Grid / Supplier Specific / PPA)" cannot be negative');
       } else {
         cleanedRow.totalgrosselectricitypurchased = num.toString();
       }
@@ -908,7 +908,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
       const validUnits = electricityUnits.map(u => u.value);
       const matchedUnit = findFlexibleMatch(cleanedRow.unit, validUnits);
       if (!matchedUnit) {
-        errors.push(`Invalid electricity unit "${cleanedRow.unit}"`);
+        errors.push(`Invalid "Unit":"${cleanedRow.unit}"`);
       } else {
         cleanedRow.unit = matchedUnit;
       }
@@ -919,7 +919,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
     const hasElectricity = cleanedRow.totalgrosselectricitypurchased && cleanedRow.totalgrosselectricitypurchased !== '';
 
     if (!hasFuel && !hasElectricity) {
-      errors.push('Either fuel consumption or electricity purchased must be provided');
+      errors.push('Either "Total Fuel Consumption" or "Total Purchased Electricity (Grid / Supplier Specific / PPA)" must be provided');
     }
 
     // Quality Control validation
@@ -927,7 +927,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
       const validQC = qualityControlOptions.map(q => q.value);
       const matchedQC = findFlexibleMatch(cleanedRow.qualitycontrol, validQC);
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+        errors.push(`Invalid Quality Control "${cleanedRow.qualitycontrol}"`);
       } else {
         cleanedRow.qualitycontrol = matchedQC;
       }
@@ -982,37 +982,37 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
       if (isAirTravelSelected) {
         // Check passengers
         if (isNA(cleanedRow.airpassengers) || cleanedRow.airpassengers === '0') {
-          errors.push('Air passengers required when air travel is Yes');
+          errors.push('"Number of Passengers" is required when "Did you have any business travel by air during the reporting period?" is Yes');
         } else {
           const numPassengers = Number(cleanedRow.airpassengers.toString().replace(/[^0-9.-]/g, ''));
           if (isNaN(numPassengers) || numPassengers <= 0) {
-            errors.push('Air passengers must be a positive number');
+            errors.push('"Number of Passengers" must be a positive number');
           }
         }
 
         // Check distance
         if (isNA(cleanedRow.airdistancekm) || cleanedRow.airdistancekm === '0') {
-          errors.push('Air distance required when air travel is Yes');
+          errors.push('"Distance Travelled" required when "Did you have any business travel by air during the reporting period?" is Yes');
         } else {
           const numDistance = Number(cleanedRow.airdistancekm.toString().replace(/[^0-9.-]/g, ''));
           if (isNaN(numDistance) || numDistance <= 0) {
-            errors.push('Air distance must be a positive number');
+            errors.push('"Distance Travelled" must be a positive number');
           }
         }
 
         // Check travel class
         if (isNA(cleanedRow.airtravelclass)) {
-          errors.push('Air travel class required when air travel is Yes');
+          errors.push('"Travel Class " required when "Did you have any business travel by air during the reporting period?" is Yes');
         }
 
         // Check flight type - CRITICAL CHECK
         if (isNA(cleanedRow.airflighttype)) {
-          errors.push('Flight type required when air travel is Yes');
+          errors.push('"Flight type" required when "Did you have any business travel by air during the reporting period?" is Yes');
         } else {
           const validFlightTypes = AIR_FLIGHT_TYPES.map(f => f.value);
           const matchedFlightType = findFlexibleMatch(cleanedRow.airflighttype, validFlightTypes);
           if (!matchedFlightType) {
-            errors.push(`Invalid air flight type "${cleanedRow.airflighttype}"`);
+            errors.push(`Invalid "Flight Type": "${cleanedRow.airflighttype}"`);
           } else {
             cleanedRow.airflighttype = matchedFlightType;
           }
@@ -1023,7 +1023,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
           const validClasses = AIR_TRAVEL_OPTIONS[cleanedRow.airflighttype]?.map(c => c.value) || [];
           const matchedClass = findFlexibleMatch(cleanedRow.airtravelclass, validClasses);
           if (!matchedClass) {
-            errors.push(`Invalid travel class "${cleanedRow.airtravelclass}" for ${cleanedRow.airflighttype}`);
+            errors.push(`Invalid "Travel Class": "${cleanedRow.airtravelclass}" for "${cleanedRow.airflighttype}"`);
           } else {
             cleanedRow.airtravelclass = matchedClass;
           }
@@ -1038,18 +1038,18 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
 
       if (isTaxiTravelSelected) {
         if (!cleanedRow.taxipassengers || cleanedRow.taxipassengers === '' || cleanedRow.taxipassengers === '0') {
-          errors.push('Taxi passengers required when taxi travel is Yes');
+          errors.push('"Number of Passengers" required when "Did you have any business travel by taxi during the reporting period?" is Yes');
         }
         if (!cleanedRow.taxidistancekm || cleanedRow.taxidistancekm === '' || cleanedRow.taxidistancekm === '0') {
-          errors.push('Taxi distance required when taxi travel is Yes');
+          errors.push('"Distance Travelled" required when "Did you have any business travel by taxi during the reporting period?" is Yes');
         }
         if (!cleanedRow.taxitype || cleanedRow.taxitype === '') {
-          errors.push('Taxi type required when taxi travel is Yes');
+          errors.push('"Taxi Type" required when "Did you have any business travel by taxi during the reporting period?" is Yes');
         } else {
           const validTaxiTypes = TAXI_TYPES.map(t => t.value);
           const matchedTaxiType = findFlexibleMatch(cleanedRow.taxitype, validTaxiTypes);
           if (!matchedTaxiType) {
-            errors.push(`Invalid taxi type "${cleanedRow.taxitype}"`);
+            errors.push(`Invalid "Taxi Type": "${cleanedRow.taxitype}"`);
           } else {
             cleanedRow.taxitype = matchedTaxiType;
           }
@@ -1064,18 +1064,18 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
 
       if (isBusTravelSelected) {
         if (!cleanedRow.buspassengers || cleanedRow.buspassengers === '' || cleanedRow.buspassengers === '0') {
-          errors.push('Bus passengers required when bus travel is Yes');
+          errors.push('"Number of Passengers" required when "Did you have any business travel by bus during the reporting period?" is Yes');
         }
         if (!cleanedRow.busdistancekm || cleanedRow.busdistancekm === '' || cleanedRow.busdistancekm === '0') {
-          errors.push('Bus distance required when bus travel is Yes');
+          errors.push('"Distance Travelled" required when "Did you have any business travel by bus during the reporting period?" is Yes');
         }
         if (!cleanedRow.bustype || cleanedRow.bustype === '') {
-          errors.push('Bus type required when bus travel is Yes');
+          errors.push('"Bus Type" required when "Did you have any business travel by bus during the reporting period?" is Yes');
         } else {
           const validBusTypes = BUS_TYPES.map(b => b.value);
           const matchedBusType = findFlexibleMatch(cleanedRow.bustype, validBusTypes);
           if (!matchedBusType) {
-            errors.push(`Invalid bus type "${cleanedRow.bustype}"`);
+            errors.push(`Invalid "Bus Type": "${cleanedRow.bustype}"`);
           } else {
             cleanedRow.bustype = matchedBusType;
           }
@@ -1090,18 +1090,18 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
 
       if (isTrainTravelSelected) {
         if (!cleanedRow.trainpassengers || cleanedRow.trainpassengers === '' || cleanedRow.trainpassengers === '0') {
-          errors.push('Train passengers required when train travel is Yes');
+          errors.push('"Number of Passengers" required when "Did you have any business travel by train during the reporting period?" is Yes');
         }
         if (!cleanedRow.traindistancekm || cleanedRow.traindistancekm === '' || cleanedRow.traindistancekm === '0') {
-          errors.push('Train distance required when train travel is Yes');
+          errors.push('"Distance Travelled" required when "Did you have any business travel by train during the reporting period?" is Yes');
         }
         if (!cleanedRow.traintype || cleanedRow.traintype === '') {
-          errors.push('Train type required when train travel is Yes');
+          errors.push('"Train Type" required when "Did you have any business travel by train during the reporting period?" is Yes');
         } else {
           const validTrainTypes = TRAIN_TYPES.map(t => t.value);
           const matchedTrainType = findFlexibleMatch(cleanedRow.traintype, validTrainTypes);
           if (!matchedTrainType) {
-            errors.push(`Invalid train type "${cleanedRow.traintype}"`);
+            errors.push(`Invalid "Train Type": "${cleanedRow.traintype}"`);
           } else {
             cleanedRow.traintype = matchedTrainType;
           }
@@ -1113,7 +1113,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
     if (cleanedRow.postingdate) {
       const isoDate = parseDateToISO(cleanedRow.postingdate);
       if (!isoDate) {
-        errors.push(`Invalid date format: "${cleanedRow.postingdate}"`);
+        errors.push(`Invalid Date Format: "${cleanedRow.postingdate}"`);
       } else {
         cleanedRow.postingdate = isoDate;
       }
@@ -1446,21 +1446,21 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
       'Fuel Consumption Unit',
       'Total Purchased Electricity (Grid / Supplier Specific / PPA)',
       'Unit',
-      'Did You Have Any Business Travel By Air During The Reporting Period?',
-      'No of Passenger (Air)',
+      'Did you have any business travel by air during the reporting period?',
+      'Number of Passenger (Air)',
       'Distance Travelled (Air) (km)',
       'Travel Class',
       'Flight Type',
-      'Did You Have Any Business Travel By Taxi During The Reporting Period?',
-      'No of Passenger (Taxi)',
+      'Did you have any business travel by taxi during the reporting period?',
+      'Number of Passenger (Taxi)',
       'Distance Travelled (Taxi) (km)',
       'Taxi Type',
-      'Did You Have Any Business Travel By Bus During The Reporting Period?',
-      'No of Passenger (Bus)',
+      'Did you have any business travel by bus during the reporting period?',
+      'Number of Passenger (Bus)',
       'Distance Travelled (Bus) (km)',
       'Bus Type',
-      'Did You Have Any Business Travel By Train During The Reporting Period?',
-      'No of Passenger (Train)',
+      'Did you have any business travel by train during the reporting period?',
+      'Number of Passenger (Train)',
       'Distance Travelled (Train) (km)',
       'Train Type',
       'Quality Control',
@@ -1511,7 +1511,7 @@ const useFuelAndEnergyCSVUpload = (buildings = []) => {
 
     // Auto-size columns for better readability
     const colWidths = headers.map(header => ({
-      wch: Math.min(Math.max(header.length, 15), 45)
+      wch: Math.min(Math.max(header.length, 25), 45)
     }));
     worksheet['!cols'] = colWidths;
 

@@ -387,14 +387,14 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     console.log(`Validating row ${index + 1}:`, cleanedRow);
 
     // Required fields validation
-    if (!cleanedRow.buildingcode) errors.push('buildingcode is required');
-    if (!cleanedRow.stakeholder) errors.push('stakeholder is required');
-    if (!cleanedRow.postingdate) errors.push('postingdate is required');
-    if (!cleanedRow.purchasecategory) errors.push('purchasecategory is required');
-    if (!cleanedRow.purchasedactivitytype) errors.push('purchasedactivitytype is required');
-    if (!cleanedRow.purchasedgoodsservicestype) errors.push('purchasedgoodsservicestype is required');
-    if (!cleanedRow.amountspent) errors.push('amountspent is required');
-    if (!cleanedRow.qualitycontrol) errors.push('qualitycontrol is required');
+    if (!cleanedRow.buildingcode) errors.push('Building Code is required');
+    if (!cleanedRow.stakeholder) errors.push('Stakeholder is required');
+    if (!cleanedRow.postingdate) errors.push('Postingdate is required');
+    if (!cleanedRow.purchasecategory) errors.push('Purchase Category is required');
+    if (!cleanedRow.purchasedactivitytype) errors.push('Purchased Activity Type is required');
+    if (!cleanedRow.purchasedgoodsservicestype) errors.push('Purchased Goods or Services Type is required');
+    if (!cleanedRow.amountspent) errors.push('Amount Spent is required');
+    if (!cleanedRow.qualitycontrol) errors.push('Quality Control is required');
 
     if (errors.length > 0) {
       return errors;
@@ -406,7 +406,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
       );
       if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}"`);
+        errors.push(`Invalid Blding Code "${cleanedRow.buildingcode}"`);
       }
     }
 
@@ -427,7 +427,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
 
       if (!matchedStakeholder) {
-        errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}"`);
+        errors.push(`Invalid Stakeholder "${cleanedRow.stakeholder}"`);
       } else {
         cleanedRow.stakeholder = matchedStakeholder;
       }
@@ -440,7 +440,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         c.toLowerCase() === cleanedRow.purchasecategory.toLowerCase()
       );
       if (!matchedCategory) {
-        errors.push(`Invalid purchase category "${cleanedRow.purchasecategory}"`);
+        errors.push(`Invalid Purchase Category "${cleanedRow.purchasecategory}"`);
       } else {
         cleanedRow.purchasecategory = matchedCategory;
       }
@@ -460,7 +460,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       );
 
       if (!matchedActivity) {
-        errors.push(`Invalid purchased activity type "${cleanedRow.purchasedactivitytype}" for category "${cleanedRow.purchasecategory}"`);
+        errors.push(`Invalid "Purchased Activity Type": "${cleanedRow.purchasedactivitytype}" for category "${cleanedRow.purchasecategory}"`);
       } else {
         cleanedRow.purchasedactivitytype = matchedActivity;
       }
@@ -476,7 +476,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
       );
 
       if (!matchedType && validTypeValues.length > 0) {
-        errors.push(`Invalid purchased goods/services type "${cleanedRow.purchasedgoodsservicestype}" for activity "${cleanedRow.purchasedactivitytype}"`);
+        errors.push(`Invalid "Purchased Goods or Services Type": "${cleanedRow.purchasedgoodsservicestype}" for activity "${cleanedRow.purchasedactivitytype}"`);
       } else if (matchedType) {
         cleanedRow.purchasedgoodsservicestype = matchedType;
       }
@@ -543,7 +543,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
         q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
       );
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}"`);
+        errors.push(`Invalid Quality Control "${cleanedRow.qualitycontrol}"`);
       } else {
         cleanedRow.qualitycontrol = matchedQC;
       }
@@ -553,7 +553,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     if (cleanedRow.postingdate) {
       const isoDate = parseDateToISO(cleanedRow.postingdate);
       if (!isoDate) {
-        errors.push(`Invalid date format: "${cleanedRow.postingdate}"`);
+        errors.push(`Invalid Date Format: "${cleanedRow.postingdate}"`);
       } else {
         cleanedRow.postingdate = isoDate;
       }
@@ -771,118 +771,6 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
     });
   };
 
-  // const downloadPurchasedGoodsTemplate = useCallback((isCapitalGoods = false) => {
-  //   const exampleBuildings = buildings.slice(0, 1);
-  //   const exampleBuildingCode = exampleBuildings[0]?.buildingCode || 'BLD-EXAMPLE-001';
-
-  //   const exampleStakeholder = 'Procurement';
-  //   const examplePurchaseCategory = 'Purchased Goods';
-  //   const exampleActivityType = 'Food & Drinks';
-  //   const exampleGoodsType = 'Bakery and Farinaceous Products';
-  //   const exampleUnit = 'USD';
-  //   const exampleQC = 'Good';
-
-  //   const currentDate = new Date();
-  //   const day = String(currentDate.getDate()).padStart(2, '0');
-  //   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-  //   const year = currentDate.getFullYear();
-  //   const formattedDate = `${day}/${month}/${year}`;
-
-  //   let headers = [];
-  //   let exampleRow = [];
-
-  //   if (isCapitalGoods) {
-  //     headers = [
-  //       'Building Code',
-  //       'Stakeholder',
-  //       'Purchase Category',
-  //       'Purchased Activity Type',
-  //       'Purchased Goods or Services Type',
-  //       'Please specify whether the selected item is a capital good.',
-  //       'Amount Spent',
-  //       'Unit',
-  //       'Quality Control',
-  //       'Posting Date',
-  //       'Remarks'
-  //     ];
-
-  //     exampleRow = [
-  //       exampleBuildingCode,
-  //       exampleStakeholder,
-  //       examplePurchaseCategory,
-  //       exampleActivityType,
-  //       exampleGoodsType,
-  //       '',
-  //       '1000',
-  //       exampleUnit,
-  //       exampleQC,
-  //       formattedDate,
-  //       'Example capital goods record'
-  //     ];
-  //   } else {
-  //     headers = [
-  //       'Building Code',
-  //       'Stakeholder',
-  //       'Purchase Category',
-  //       'Purchased Activity Type',
-  //       'Purchased Goods or Services Type',
-  //       'Amount Spent',
-  //       'Unit',
-  //       'Quality Control',
-  //       'Posting Date',
-  //       'Remarks'
-  //     ];
-
-  //     exampleRow = [
-  //       exampleBuildingCode,
-  //       exampleStakeholder,
-  //       examplePurchaseCategory,
-  //       exampleActivityType,
-  //       exampleGoodsType,
-  //       '1000',
-  //       exampleUnit,
-  //       exampleQC,
-  //       formattedDate,
-  //       'Example purchased goods record'
-  //     ];
-  //   }
-
-  //   // Create worksheet data with headers and example row
-  //   const worksheetData = [
-  //     headers,
-  //     exampleRow,
-
-  //   ];
-
-  //   // Create workbook and worksheet
-  //   const workbook = XLSX.utils.book_new();
-  //   const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-
-  //   // Auto-size columns for better readability
-  //   const colWidths = headers.map(header => ({
-  //     wch: Math.min(Math.max(header.length, 15), 35)
-  //   }));
-  //   worksheet['!cols'] = colWidths;
-
-  //   // Style the header row
-  //   const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
-  //   for (let C = headerRange.s.c; C <= headerRange.e.c; ++C) {
-  //     const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
-  //     if (!worksheet[cellAddress]) continue;
-  //     worksheet[cellAddress].s = {
-  //       font: { bold: true, sz: 12 },
-  //       fill: { fgColor: { rgb: "E0E0E0" } }
-  //     };
-  //   }
-
-
-  //   // Add the worksheet to the workbook
-  //   XLSX.utils.book_append_sheet(workbook, worksheet,
-  //     isCapitalGoods ? 'Capital Goods Template' : 'Purchased Goods Template');
-
-  //   // Download the Excel file
-  //   XLSX.writeFile(workbook, isCapitalGoods ? 'purchased_goods_and_services_capital_template.xlsx' : 'purchased_goods_and_services_template.xlsx');
-  // }, [buildings]);
 
   const downloadPurchasedGoodsTemplate = useCallback((isCapitalGoods = false) => {
     const exampleBuildings = buildings.slice(0, 1);
@@ -968,7 +856,7 @@ const usePurchasedGoodsCSVUpload = (buildings = []) => {
 
     // Auto-size columns for better readability
     const colWidths = headers.map(header => ({
-      wch: Math.min(Math.max(header.length, 15), 35)
+      wch: Math.min(Math.max(header.length, 25), 35)
     }));
     worksheet['!cols'] = colWidths;
 

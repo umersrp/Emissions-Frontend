@@ -17,6 +17,7 @@ import Modal from "@/components/ui/Modal";
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import ExcelExportButton from "@/components/ui/ExcelExportButton";
 import usePurchasedGoodsCSVUpload from "@/hooks/scope3/usePurchasedGoodsCSVUpload";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -242,6 +243,7 @@ const CapitalGoodsListing = () => {
       toast.warning("Please select records to delete");
       return;
     }
+    setDeleteModalOpen(false);
     setIsDeletingMultiple(true);
     try {
       await Promise.all(
@@ -251,20 +253,20 @@ const CapitalGoodsListing = () => {
           })
         )
       );
-      toast.success(`${selectedIds.length} record(s) deleted successfully`);
-      setSelectedRows({});
+  toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);      setSelectedRows({});
       fetchData();
     } catch (err) {
       console.error("Error deleting records:", err);
       toast.error("Failed to delete some records");
     } finally {
       setIsDeletingMultiple(false);
-      setDeleteModalOpen(false);
+      
     }
   };
   const selectedCount = Object.values(selectedRows).filter(Boolean).length;
   // Delete Record
   const handleDelete = async (id) => {
+    setDeleteModalOpen(false);
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/Purchased-Goods-Services/delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -347,7 +349,7 @@ const CapitalGoodsListing = () => {
       { Header: "Stakeholder", accessor: "stakeholder" },
       { Header: "Purchase Category", accessor: "purchaseCategory" },
       { Header: "Purchased Activity Type", accessor: "purchasedActivityType", Cell: ({ value }) => capitalizeLabel(value) },
-      { Header: "Purchased Goods / Services Type", accessor: "purchasedGoodsServicesType", Cell: ({ value }) => capitalizeLabel(value) },
+      { Header: "Purchased Goods (Capital Goods)", accessor: "purchasedGoodsServicesType", Cell: ({ value }) => capitalizeLabel(value) },
       { Header: "Amount Spent", accessor: "amountSpent" },
       { Header: "Unit", accessor: "unit", Cell: ({ value }) => (value === "USD" ? "$" : value) },
       {
@@ -398,20 +400,12 @@ const CapitalGoodsListing = () => {
       {
         Header: "Posting Date",
         accessor: "postingDate",
-        Cell: ({ cell }) => {
-          if (!cell.value) return "N/A";
-          try {
-            return new Date(cell.value).toLocaleDateString('en-GB');
-          } catch {
-            return "Invalid Date";
-          }
-        }
+         Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Created At",
         accessor: "createdAt",
-        Cell: ({ cell }) =>
-          cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Actions",
@@ -541,7 +535,6 @@ const CapitalGoodsListing = () => {
           <div className="md:flex md:space-x-3 items-center">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             {selectedCount > 0 && (
-              <Tippy content={`Delete ${selectedCount} selected record(s)`}>
                 <Button
                   icon="heroicons:trash"
                   text={`Delete Selected (${selectedCount})`}
@@ -550,7 +543,6 @@ const CapitalGoodsListing = () => {
                   onClick={() => setDeleteModalOpen(true)}
                   disabled={isDeletingMultiple}
                 />
-              </Tippy>
             )}
 
             {/* Export Current Page Button */}
@@ -635,7 +627,7 @@ const CapitalGoodsListing = () => {
             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                  <img src={Logo} alt="Loading..." className="w-52 h-52" />
                 </div>
               ) : (
                 <table
@@ -814,7 +806,7 @@ const CapitalGoodsListing = () => {
               onChange={(e) => setPageSize(Number(e.target.value))}
               className="form-select py-2"
             >
-              {[10, 20, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
@@ -838,11 +830,10 @@ const CapitalGoodsListing = () => {
               text="Delete"
               className="btn-danger"
               onClick={async () => {
-                if (selectedCount > 1) {
+                if (selectedCount >= 1) {
                   await handleDeleteMultiple();
                 } else if (selectedId) {
                   await handleDelete(selectedId);
-                  setDeleteModalOpen(false);
                 }
               }}
             />

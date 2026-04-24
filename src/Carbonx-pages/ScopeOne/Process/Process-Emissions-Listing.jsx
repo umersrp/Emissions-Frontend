@@ -499,7 +499,7 @@
 //               {/* <div className="overflow-hidden"> */}
 //               {loading ? (
 //                 <div className="flex justify-center items-center py-8">
-//                   <img src={Logo} alt="Loading..." className="w-52 h-24" />
+//                   <img src={Logo} alt="Loading..." className="w-52 h-52" />
 //                 </div>
 //               ) : (
 //                 <table
@@ -754,6 +754,7 @@ import Modal from "@/components/ui/Modal";
 import ExcelExportButton from "@/components/ui/ExcelExportButton";
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import useProcessCSVUpload from "@/hooks/scope1/useProcessCSVUpload";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -986,6 +987,7 @@ const ProcessEmissionsListing = () => {
       toast.warning("Please select records to delete");
       return;
     }
+    setDeleteModalOpen(false);
     setIsDeletingMultiple(true);
     try {
       await Promise.all(
@@ -995,15 +997,16 @@ const ProcessEmissionsListing = () => {
           })
         )
       );
-      toast.success(`${selectedIds.length} record(s) deleted successfully`);
+      toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);
       setSelectedRows({});
+      setSelectedId(null);
       fetchData();
     } catch (err) {
       console.error("Error deleting records:", err);
       toast.error("Failed to delete some records");
     } finally {
       setIsDeletingMultiple(false);
-      setDeleteModalOpen(false);
+      
     }
   };
   const templateInstructions = (
@@ -1020,6 +1023,7 @@ const ProcessEmissionsListing = () => {
 
   // Delete Record
   const handleDelete = async (id) => {
+    setDeleteModalOpen(false);
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/Process-Emissions/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -1096,20 +1100,12 @@ const ProcessEmissionsListing = () => {
       },
       {
         Header: "Posting Date", accessor: "postingDate",
-        Cell: ({ cell }) => {
-          if (!cell.value) return "N/A";
-          try {
-            return new Date(cell.value).toLocaleDateString('en-GB');
-          } catch {
-            return "Invalid Date";
-          }
-        }
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Created At",
         accessor: "createdAt",
-        Cell: ({ cell }) =>
-          cell.value ? new Date(cell.value).toLocaleDateString() : "-",
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Actions",
@@ -1329,7 +1325,6 @@ const ProcessEmissionsListing = () => {
           <div className="md:flex md:space-x-3 items-center">
             <GlobalFilter filter={globalFilterValue} setFilter={setGlobalFilterValue} />
             {selectedCount > 0 && (
-              <Tippy content={`Delete ${selectedCount} selected record(s)`}>
                 <Button
                   icon="heroicons:trash"
                   text={`Delete Selected (${selectedCount})`}
@@ -1338,7 +1333,6 @@ const ProcessEmissionsListing = () => {
                   onClick={() => setDeleteModalOpen(true)}
                   disabled={isDeletingMultiple}
                 />
-              </Tippy>
             )}
             {records.length > 0 && (
               <ExcelExportButton
@@ -1423,7 +1417,7 @@ const ProcessEmissionsListing = () => {
             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                  <img src={Logo} alt="Loading..." className="w-52 h-52" />
                 </div>
               ) : (
                 <table
@@ -1627,7 +1621,7 @@ const ProcessEmissionsListing = () => {
               onChange={(e) => setPageSize(Number(e.target.value))}
               className="form-select py-2"
             >
-              {[10, 20, 50].map((size) => (
+              {[10, 20, 50, 100].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>
@@ -1651,11 +1645,11 @@ const ProcessEmissionsListing = () => {
               text="Delete"
               className="btn-danger"
               onClick={async () => {
-                if (selectedCount > 1) {
+                if (selectedCount >= 1) {
                   await handleDeleteMultiple();
                 } else if (selectedId) {
                   await handleDelete(selectedId);
-                  setDeleteModalOpen(false);
+                  // setDeleteModalOpen(false);
                 }
               }}
             />

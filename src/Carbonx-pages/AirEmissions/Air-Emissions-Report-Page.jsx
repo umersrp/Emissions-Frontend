@@ -993,7 +993,7 @@ const summaryCards = useMemo(() => {
             <p className="text-[13px] font-medium text-gray-600 flex flex-col pl-8">
               {/* <span>{formatNumber(item.kg)} kg CO₂e</span> */}
               <span>{formatNumber(item.kg)} {item.key === "vocs" ? "Kg" : "KgCO₂e"}</span>
-              <span>{formatNumber(item.t)} tCO₂e</span>
+              <span>{formatNumber(item.t)} {item.key === "vocs" ? "Tonnes" : "tCO₂e"}</span>
             </p>
           </div>
         ))}
@@ -1152,7 +1152,7 @@ const summaryCards = useMemo(() => {
               }
               className="form-select py-2"
             >
-              {[5, 10, 20, 50].map((size) => (
+              {[10, 20, 50].map((size) => (
                 <option key={size} value={size}>
                   {size}
                 </option>

@@ -656,7 +656,7 @@ const findFlexibleMatch = (input, validOptions) => {
         b.buildingCode && b.buildingCode.toLowerCase() === cleanedRow.buildingcode.toLowerCase()
       );
       if (!buildingExists) {
-        errors.push(`Invalid building code "${cleanedRow.buildingcode}". Please check your building codes.`);
+        errors.push(`Invalid Building Code "${cleanedRow.buildingcode}".`);
       }
     }
 
@@ -677,7 +677,7 @@ if (cleanedRow.stakeholder) {
   const matchedStakeholder = findFlexibleMatch(cleanedRow.stakeholder, validStakeholders);
   
   if (!matchedStakeholder) {
-    errors.push(`Invalid stakeholder "${cleanedRow.stakeholder}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
+    errors.push(`Invalid Stakeholder "${cleanedRow.stakeholder}".`);
   } else {
     cleanedRow.stakeholder = matchedStakeholder;
   }
@@ -700,7 +700,7 @@ if (cleanedRow.wastecategory) {
   const matchedCategory = findFlexibleMatch(cleanedRow.wastecategory, validCategories);
   
   if (!matchedCategory) {
-    errors.push(`Invalid waste category "${cleanedRow.wastecategory}". Valid options: ${validCategories.slice(0, 5).join(', ')}...`);
+    errors.push(`Invalid Waste Category "${cleanedRow.wastecategory}".`);
   } else {
     cleanedRow.wastecategory = matchedCategory;
   }
@@ -729,13 +729,13 @@ if (cleanedRow.wastecategory && cleanedRow.wastetype) {
   const validWasteTypes = wasteTypeOptions[cleanedRow.wastecategory] || [];
 
   if (validWasteTypes.length === 0) {
-    errors.push(`No waste types found for category "${cleanedRow.wastecategory}"`);
+    errors.push(`No "Waste Types" found for category "${cleanedRow.wastecategory}"`);
   } else {
     const validWasteTypeValues = validWasteTypes.map(w => w.value);
     const matchedWasteType = findFlexibleMatch(cleanedRow.wastetype, validWasteTypeValues);
 
     if (!matchedWasteType) {
-      errors.push(`Invalid waste type "${cleanedRow.wastetype}" for category "${cleanedRow.wastecategory}". Valid options: ${validWasteTypeValues.slice(0, 5).join(', ')}...`);
+      errors.push(`Invalid Waste Type "${cleanedRow.wastetype}" for category "${cleanedRow.wastecategory}".`);
     } else {
       cleanedRow.wastetype = matchedWasteType;
     }
@@ -750,7 +750,7 @@ if (cleanedRow.wastecategory && cleanedRow.wastetype) {
       }
 
       if (validTreatments.length === 0) {
-        errors.push(`No treatment methods found for waste type "${cleanedRow.wastetype}"`);
+        errors.push(`No "Waste Treatment Method" found for Waste Type "${cleanedRow.wastetype}"`);
       } else {
         const validTreatmentValues = validTreatments.map(t => t.value);
         const matchedTreatment = validTreatmentValues.find(t =>
@@ -758,7 +758,7 @@ if (cleanedRow.wastecategory && cleanedRow.wastetype) {
         );
 
         if (!matchedTreatment) {
-          errors.push(`Invalid treatment method "${cleanedRow.wastetreatmentmethod}" for waste type "${cleanedRow.wastetype}". Valid options: ${validTreatmentValues.slice(0, 5).join(', ')}...`);
+          errors.push(`Invalid "Waste Treatment Method" "${cleanedRow.wastetreatmentmethod}" for Waste Type "${cleanedRow.wastetype}". Valid options: ${validTreatmentValues.slice(0, 5).join(', ')}...`);
         } else {
           cleanedRow.wastetreatmentmethod = matchedTreatment;
         }
@@ -774,11 +774,9 @@ if (cleanedRow.wastecategory && cleanedRow.wastetype) {
 
       const num = Number(cleanNum);
       if (isNaN(num) || cleanNum === '') {
-        errors.push(`Waste quantity must be a number, got "${cleanedRow.totalwasteqty}"`);
+        errors.push(`"Total Waste Quantity" must be a number, got "${cleanedRow.totalwasteqty}"`);
       } else if (num < 0) {
-        errors.push('Waste quantity cannot be negative');
-      } else if (num > 1000000) {
-        errors.push('Waste quantity seems too large (max 1,000,000)');
+        errors.push('"Total Waste Quantity" cannot be negative');
       } else {
         cleanedRow.totalwasteqty = num.toString();
       }
@@ -790,7 +788,7 @@ if (cleanedRow.wastecategory && cleanedRow.wastetype) {
         q.toLowerCase() === cleanedRow.qualitycontrol.toLowerCase()
       );
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${cleanedRow.qualitycontrol}". Valid options: ${validQC.join(', ')}`);
+        errors.push(`Invalid Quality Control "${cleanedRow.qualitycontrol}".`);
       } else {
         cleanedRow.qualitycontrol = matchedQC;
       }
@@ -800,7 +798,7 @@ if (cleanedRow.wastecategory && cleanedRow.wastetype) {
       const isoDate = parseDateToISO(cleanedRow.postingdate);
 
       if (!isoDate) {
-        errors.push(`Invalid date format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 2024-01-15, 01/15/2024, 15-01-2024)`);
+        errors.push(`Invalid Date Format: "${cleanedRow.postingdate}". Please provide a valid date (e.g., 01/15/2026)`);
       } else {
         cleanedRow.postingdate = isoDate;
       }
@@ -1084,7 +1082,7 @@ if (cleanedRow.wastecategory && cleanedRow.wastetype) {
     const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
 
     const colWidths = headers.map(header => ({
-      wch: Math.min(Math.max(header.length, 15), 35)
+      wch: Math.min(Math.max(header.length, 25), 35)
     }));
     worksheet['!cols'] = colWidths;
 

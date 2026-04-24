@@ -19,7 +19,7 @@ import { processEmissionFactors } from '@/constant/scope1/calculate-process-emis
 const USER_FRIENDLY_COLUMNS = {
   'buildingcode': 'Building Code',
   'stakeholderdepartment': 'Stakeholder Department',
-  'activitytype': 'Type Of Activity / Process',
+  'activitytype': 'Type of Activity / Process',
   'processactivitydata': 'Process Activity Data',
   'amountofemissions': 'Amount',
   'qualitycontrol': 'Quality Control',
@@ -32,7 +32,7 @@ const COLUMN_MAPPING = {
   'stakeholderdepartment': ['stakeholderdepartment', 'Stakeholder Department', 'stakeholder department', 'stakeholder-department', 'stakeholder_department'],
   'processactivitydata': ['processactivitydata', 'Activity Data', 'activity data', 'process-activity-data', 'process_activity_data'],
   'amountofemissions': ['amountofemissions', 'Amount'],
-  'activitytype': ['typeofactivityprocess', 'Type Of Activity / Process', 'type of activity / process', 'activitytype', 'activity type', 'type-of-activity-process'],
+  'activitytype': ['typeofactivityprocess', 'Type of Activity / Process', 'type of activity / process', 'activitytype', 'activity type', 'type-of-activity-process'],
   'qualitycontrol': ['qualitycontrol', 'Quality Control', 'quality control', 'quality-control', 'quality_control'],
   'remarks': ['remarks', 'Remarks', 'remark', 'comments', 'notes'],
   'postingdate': ['postingdate', 'Posting Date', 'posting date', 'date', 'posting-date', 'posting_date']
@@ -456,7 +456,7 @@ const findFlexibleMatch = (input, validOptions) => {
     const requiredFields = [
       { field: 'buildingcode', friendlyName: 'Building Code' },
       { field: 'stakeholderdepartment', friendlyName: 'Stakeholder Department' },
-      { field: 'activitytype', friendlyName: 'Type Of Activity / Process' },
+      { field: 'activitytype', friendlyName: 'Type of Activity / Process' },
       { field: 'processactivitydata', friendlyName: 'Process Activity Data' },
       { field: 'amountofemissions', friendlyName: 'Amount' },
       { field: 'qualitycontrol', friendlyName: 'Quality Control' }
@@ -474,83 +474,22 @@ const findFlexibleMatch = (input, validOptions) => {
         b.buildingCode && b.buildingCode.toLowerCase() === row.buildingcode.toLowerCase()
       );
       if (!buildingExists) {
-        errors.push(`Invalid building code "${row.buildingcode}". Available: ${buildings.slice(0, 3).map(b => b.buildingCode).join(', ')}...`);
+        errors.push(`Invalid Building code "${row.buildingcode}".`);
       }
     }
 
-    // Stakeholder validation
-    // if (row.stakeholderdepartment) {
-    //   const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
-    //   const matchedStakeholder = validStakeholders.find(s =>
-    //     s.toLowerCase() === row.stakeholderdepartment.toLowerCase()
-    //   );
-    //   if (!matchedStakeholder) {
-    //     errors.push(`Invalid stakeholder "${row.stakeholderdepartment}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
-    //   } else {
-    //     row.stakeholderdepartment = matchedStakeholder;
-    //   }
-    // }
     // Stakeholder validation with flexible matching
 if (row.stakeholderdepartment) {
   const validStakeholders = stakeholderDepartmentOptions.map(s => s.value);
   const matchedStakeholder = findFlexibleMatch(row.stakeholderdepartment, validStakeholders);
   
   if (!matchedStakeholder) {
-    errors.push(`Invalid stakeholder "${row.stakeholderdepartment}". Valid options: ${validStakeholders.slice(0, 5).join(', ')}...`);
+    errors.push(`Invalid Stakeholder "${row.stakeholderdepartment}".`);
   } else {
     row.stakeholderdepartment = matchedStakeholder;
   }
 }
 
-    // Activity type validation with subscript normalization
-    // if (row.activitytype) {
-    //   const validActivities = activityTypeOptions.map(a => a.value);
-      
-    //   let matchedActivity = null;
-    //   const normalizedInput = normalizeSubscriptNumbers(row.activitytype);
-      
-    //   matchedActivity = validActivities.find(activity => {
-    //     const normalizedActivity = normalizeSubscriptNumbers(activity);
-    //     return normalizedActivity.toLowerCase() === normalizedInput.toLowerCase();
-    //   });
-
-    //   if (!matchedActivity) {
-    //     errors.push(`Invalid activity type "${row.activitytype}". Valid options: ${validActivities.slice(0, 5).join(', ')}...`);
-    //   } else {
-    //     row.activitytype = matchedActivity;
-
-    //     // AUTO-POPULATE gas emitted based on activity type
-    //     if (Array.isArray(activityMetadata)) {
-    //       const activityMeta = activityMetadata.find(a => {
-    //         if (!a.activityType) return false;
-    //         const normalizedActivityType = normalizeSubscriptNumbers(a.activityType);
-    //         const normalizedMatched = normalizeSubscriptNumbers(matchedActivity);
-    //         return normalizedActivityType.toLowerCase() === normalizedMatched.toLowerCase();
-    //       });
-          
-    //       if (activityMeta && activityMeta.gasEmitted) {
-    //         row.gasemitted = activityMeta.gasEmitted;
-    //         console.log(`Auto-populated gas emitted for ${matchedActivity}: ${row.gasemitted}`);
-    //       } else {
-    //         errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
-    //       }
-    //     } else if (activityMetadata && typeof activityMetadata === 'object') {
-    //       const activityKeys = Object.keys(activityMetadata);
-    //       const matchedKey = activityKeys.find(key => {
-    //         const normalizedKey = normalizeSubscriptNumbers(key);
-    //         const normalizedActivity = normalizeSubscriptNumbers(matchedActivity);
-    //         return normalizedKey.toLowerCase() === normalizedActivity.toLowerCase();
-    //       });
-          
-    //       if (matchedKey && activityMetadata[matchedKey] && activityMetadata[matchedKey].gasEmitted) {
-    //         row.gasemitted = activityMetadata[matchedKey].gasEmitted;
-    //         console.log(`Auto-populated gas emitted for ${matchedActivity}: ${row.gasemitted}`);
-    //       } else {
-    //         errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
-    //       }
-    //     }
-    //   }
-    // }
 // Activity type validation with subscript normalization and flexible matching
 if (row.activitytype) {
   const validActivities = activityTypeOptions.map(a => a.value);
@@ -600,7 +539,7 @@ if (row.activitytype) {
         row.gasemitted = activityMeta.gasEmitted;
         console.log(`Auto-populated gas emitted for ${matchedActivity}: ${row.gasemitted}`);
       } else {
-        errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
+        errors.push(`Could not determine Gas Emitted for Activity "${matchedActivity}"`);
       }
     } else if (activityMetadata && typeof activityMetadata === 'object') {
       const activityKeys = Object.keys(activityMetadata);
@@ -614,7 +553,7 @@ if (row.activitytype) {
         row.gasemitted = activityMetadata[matchedKey].gasEmitted;
         console.log(`Auto-populated gas emitted for ${matchedActivity}: ${row.gasemitted}`);
       } else {
-        errors.push(`Could not determine gas emitted for activity "${matchedActivity}"`);
+        errors.push(`Could not determine Gas Emitted for Activity "${matchedActivity}"`);
       }
     }
   }
@@ -628,11 +567,9 @@ if (row.activitytype) {
 
       const num = Number(cleanNum);
       if (isNaN(num)) {
-        errors.push(`Process Activity Data must be a number, got "${row.amountofemissions}"`);
+        errors.push(`"Process Activity Data" must be a number, got "${row.amountofemissions}"`);
       } else if (num < 0) {
-        errors.push('Process Activity Data cannot be negative');
-      } else if (num > 1000000000) {
-        errors.push('Process Activity Data seems too large');
+        errors.push(`"Process Activity Data" cannot be negative`);
       } else {
         row.amountofemissions = num.toString();
       }
@@ -656,7 +593,7 @@ if (row.activitytype) {
         q.toLowerCase() === row.qualitycontrol.toLowerCase()
       );
       if (!matchedQC) {
-        errors.push(`Invalid quality control "${row.qualitycontrol}". Valid: ${validQC.join(', ')}`);
+        errors.push(`Invalid Quality Control "${row.qualitycontrol}".`);
       } else {
         row.qualitycontrol = matchedQC;
       }
@@ -667,7 +604,7 @@ if (row.activitytype) {
       const isoDate = parseDateToISO(row.postingdate);
 
       if (!isoDate) {
-        errors.push(`Invalid date format: "${row.postingdate}". Please provide a valid date (e.g., 2024-01-15, 01/15/2024, 15-01-2024)`);
+        errors.push(`Invalid date format: "${row.postingdate}". Please provide a valid date (e.g.,15/01/2026)`);
       } else {
         row.postingdate = isoDate;
       }
@@ -691,43 +628,7 @@ if (row.activitytype) {
   }, [buildings, parseDateToISO, validateProcessActivityData]);
 
   // Helper function to calculate process emissions
-  // const calculateProcessEmissions = useCallback((gasEmitted, amount) => {
-  //   // GWP (Global Warming Potential) values
-  //   const gwpValues = {
-  //     'CO2': 1,
-  //     'CH4': 28,
-  //     'N2O': 265,
-  //     'HFC-23': 12400,
-  //     'HFC-32': 677,
-  //     'HFC-125': 3170,
-  //     'HFC-134a': 1300,
-  //     'HFC-143a': 4800,
-  //     'HFC-152a': 138,
-  //     'HFC-227ea': 3350,
-  //     'HFC-236fa': 8060,
-  //     'HFC-245fa': 858,
-  //     'HFC-365mfc': 804,
-  //     'HFC-43-10mee': 1650,
-  //     'CF4': 6630,
-  //     'C2F6': 11100,
-  //     'C3F8': 8900,
-  //     'C4F10': 9200,
-  //     'C5F12': 8550,
-  //     'C6F14': 7910,
-  //     'SF6': 23500,
-  //     'NF3': 16100
-  //   };
 
-  //   const gwp = gwpValues[gasEmitted] || 1;
-  //   const amountNum = Number(amount) || 0;
-
-  //   const totalEmissionInScope = amountNum * gwp;
-
-  //   return {
-  //     totalEmissionInScope,
-  //     totalEmissionOutScope: 0
-  //   };
-  // }, []);
   const calculateProcessEmissions = useCallback((activityType, amount) => {
   // Get the emission factor for this activity type
   const emissionFactor = processEmissionFactors[activityType];
@@ -959,7 +860,7 @@ const downloadProcessTemplate = useCallback(() => {
       [
         'Building Code',
         'Stakeholder / Department',
-        'Type Of Activity / Process',
+        'Type of Activity / Process',
         'Process Activity Data',
         'Amount',
         'Quality Control',
@@ -986,7 +887,7 @@ const downloadProcessTemplate = useCallback(() => {
       worksheetData.push([
         '',  // Building Code - leave empty
         '',  // Stakeholder Department - leave empty
-        activity.value,  // Type Of Activity / Process
+        activity.value,  // Type of Activity / Process
         activity.label,  // Activity Data
         '',  // Process Activity Data - leave empty
         '',  // Quality Control - leave empty
@@ -1003,7 +904,7 @@ const downloadProcessTemplate = useCallback(() => {
     worksheet['!cols'] = [
       { wch: 20 }, // Building Code
       { wch: 25 }, // Stakeholder Department
-      { wch: 45 }, // Type Of Activity / Process
+      { wch: 45 }, // Type of Activity / Process
       { wch: 45 }, // Activity Data
       { wch: 25 }, // Process Activity Data (Amount)
       { wch: 20 }, // Quality Control

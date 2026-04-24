@@ -392,7 +392,6 @@ const PurchasedElectricityFormPage = () => {
 
       if (formData.purchasesSupplierSpecific) {
         if (!formData.supplierSpecificElectricity) newErrors.supplierSpecificElectricity = "Required";
-
         // Only validate checkbox selection if the toggle is active
         if (
           !formData.hasSupplierEmissionFactor &&
@@ -689,7 +688,7 @@ const PurchasedElectricityFormPage = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="col-span-3">
-                  <label className="field-label">Total other supplier specific electricity purchased or purchased under Power Purchased Agreement (PPA)</label>
+                  <label className="field-label">Total other Supplier Specific Electricity Purchased or Purchased Under Power Purchased Agreement (PPA)</label>
                   <div className="grid grid-cols-[14fr_1fr]">
                     <InputGroup
                       type="number"
@@ -1086,14 +1085,14 @@ const PurchasedElectricityFormPage = () => {
                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
                   </label>
                   <span className="text-sm font-medium">
-                    Do you purchase electricity under Power Purchase Agreements (PPA)?
+                    Do you purchase electricity under power purchase agreements (PPA)?
                   </span>
                 </div>
 
                 {formData.hasPPA && (
                   <div className="ml-8 mt-4 space-y-4">
                     <div>
-                      <label className="field-label">How much electricity from total electricity consumption is purchased or covered under Power Purchase Agreement (PPA)?   <span className="text-red-500">*</span></label>
+                      <label className="field-label">How much electricity from total electricity consumption is purchased or covered under power purchase agreement (PPA)?   <span className="text-red-500">*</span></label>
                       <div className="grid grid-cols-[14fr_1fr]">
                         <InputGroup
                           type="number"
