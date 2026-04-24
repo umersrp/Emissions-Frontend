@@ -319,7 +319,7 @@ const getTotalEmissions = (dataArray) => {
 
 //   const downstreamTransportTopCategories = processDownstreamTransportData();
 
-  
+
 //   /* ------------------ TABLE DATA ------------------ */
 //   const topScope3Categories = {
 //     "Purchased Goods & Services": purchasedGoodsTopCategories,
@@ -449,6 +449,17 @@ const getTotalEmissions = (dataArray) => {
 //   );
 // };
 
+import buildingIcon from "@/assets/images/icon/building.png";
+import bulletTrainIcon from "@/assets/images/icon/bullet-train.png";
+import cargoShipIcon from "@/assets/images/icon/cargo-ship.png";
+import factoryIcon from "@/assets/images/icon/factory.png";
+import twoTruckIcon from "@/assets/images/icon/tow-truck.png";
+import charcoalIcon from "@/assets/images/icon/charcoal.png";
+import garbageIcon from "@/assets/images/icon/garbage.png";
+import planeIcon from "@/assets/images/icon/plane.png";
+import lightIcon from "@/assets/images/icon/light.png";
+import recycleBinIcon from "@/assets/images/icon/recycle-bin.png";
+
 const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRegisterReset }) => {
   if (!dashboardData?.scope3) return null;
 
@@ -459,68 +470,145 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
   const [rowLimit, setRowLimit] = useState(3);
 
   // Category metadata with icons and color schemes
+  // const categoryMetadata = {
+  //   "Purchased Goods & Services": { 
+  //     icon: "🛒", 
+  //     color: "from-blue-500 to-blue-600", 
+  //     bg: "bg-blue-50", 
+  //     border: "border-blue-200", 
+  //     text: "text-blue-700",
+  //     badge: "bg-blue-100 text-blue-800"
+  //   },
+  //   "Capital Goods": { 
+  //     icon: "🏗️", 
+  //     color: "from-indigo-500 to-indigo-600", 
+  //     bg: "bg-indigo-50", 
+  //     border: "border-indigo-200", 
+  //     text: "text-indigo-700",
+  //     badge: "bg-indigo-100 text-indigo-800"
+  //   },
+  //   "Fuel & Energy Related Activities": { 
+  //     icon: "⛽", 
+  //     color: "from-orange-500 to-orange-600", 
+  //     bg: "bg-orange-50", 
+  //     border: "border-orange-200", 
+  //     text: "text-orange-700",
+  //     badge: "bg-orange-100 text-orange-800"
+  //   },
+  //   "Waste Generated": { 
+  //     icon: "🗑️", 
+  //     color: "from-green-500 to-green-600", 
+  //     bg: "bg-green-50", 
+  //     border: "border-green-200", 
+  //     text: "text-green-700",
+  //     badge: "bg-green-100 text-green-800"
+  //   },
+  //   "Business Travel": { 
+  //     icon: "✈️", 
+  //     color: "from-purple-500 to-purple-600", 
+  //     bg: "bg-purple-50", 
+  //     border: "border-purple-200", 
+  //     text: "text-purple-700",
+  //     badge: "bg-purple-100 text-purple-800"
+  //   },
+  //   "Employee Commuting": { 
+  //     icon: "🚗", 
+  //     color: "from-teal-500 to-teal-600", 
+  //     bg: "bg-teal-50", 
+  //     border: "border-teal-200", 
+  //     text: "text-teal-700",
+  //     badge: "bg-teal-100 text-teal-800"
+  //   },
+  //   "Upstream Transportations": { 
+  //     icon: "📦", 
+  //     color: "from-cyan-500 to-cyan-600", 
+  //     bg: "bg-cyan-50", 
+  //     border: "border-cyan-200", 
+  //     text: "text-cyan-700",
+  //     badge: "bg-cyan-100 text-cyan-800"
+  //   },
+  //   "Downstream Transportations": { 
+  //     icon: "🚚", 
+  //     color: "from-rose-500 to-rose-600", 
+  //     bg: "bg-rose-50", 
+  //     border: "border-rose-200", 
+  //     text: "text-rose-700",
+  //     badge: "bg-rose-100 text-rose-800"
+  //   }
+  // };
+  // Import the PNG icons at the top of your file
+
+  // Replace the categoryMetadata with PNG icons
   const categoryMetadata = {
-    "Purchased Goods & Services": { 
-      icon: "🛒", 
-      color: "from-blue-500 to-blue-600", 
-      bg: "bg-blue-50", 
-      border: "border-blue-200", 
+    "Purchased Goods & Services": {
+      icon: factoryIcon,
+      iconType: "png",
+      color: "from-blue-500 to-blue-600",
+      bg: "bg-blue-50",
+      border: "border-blue-200",
       text: "text-blue-700",
       badge: "bg-blue-100 text-blue-800"
     },
-    "Capital Goods": { 
-      icon: "🏗️", 
-      color: "from-indigo-500 to-indigo-600", 
-      bg: "bg-indigo-50", 
-      border: "border-indigo-200", 
+    "Capital Goods": {
+      icon: twoTruckIcon,
+      iconType: "png",
+      color: "from-indigo-500 to-indigo-600",
+      bg: "bg-indigo-50",
+      border: "border-indigo-200",
       text: "text-indigo-700",
       badge: "bg-indigo-100 text-indigo-800"
     },
-    "Fuel & Energy Related Activities": { 
-      icon: "⛽", 
-      color: "from-orange-500 to-orange-600", 
-      bg: "bg-orange-50", 
-      border: "border-orange-200", 
+    "Fuel & Energy Related Activities": {
+      icon: charcoalIcon,
+      iconType: "png",
+      color: "from-orange-500 to-orange-600",
+      bg: "bg-orange-50",
+      border: "border-orange-200",
       text: "text-orange-700",
       badge: "bg-orange-100 text-orange-800"
     },
-    "Waste Generated": { 
-      icon: "🗑️", 
-      color: "from-green-500 to-green-600", 
-      bg: "bg-green-50", 
-      border: "border-green-200", 
+    "Waste Generated": {
+      icon: garbageIcon,
+      iconType: "png",
+      color: "from-green-500 to-green-600",
+      bg: "bg-green-50",
+      border: "border-green-200",
       text: "text-green-700",
       badge: "bg-green-100 text-green-800"
     },
-    "Business Travel": { 
-      icon: "✈️", 
-      color: "from-purple-500 to-purple-600", 
-      bg: "bg-purple-50", 
-      border: "border-purple-200", 
+    "Business Travel": {
+      icon: planeIcon,
+      iconType: "png",
+      color: "from-purple-500 to-purple-600",
+      bg: "bg-purple-50",
+      border: "border-purple-200",
       text: "text-purple-700",
       badge: "bg-purple-100 text-purple-800"
     },
-    "Employee Commuting": { 
-      icon: "🚗", 
-      color: "from-teal-500 to-teal-600", 
-      bg: "bg-teal-50", 
-      border: "border-teal-200", 
+    "Employee Commuting": {
+      icon: bulletTrainIcon,
+      iconType: "png",
+      color: "from-teal-500 to-teal-600",
+      bg: "bg-teal-50",
+      border: "border-teal-200",
       text: "text-teal-700",
       badge: "bg-teal-100 text-teal-800"
     },
-    "Upstream Transportations": { 
-      icon: "📦", 
-      color: "from-cyan-500 to-cyan-600", 
-      bg: "bg-cyan-50", 
-      border: "border-cyan-200", 
+    "Upstream Transportations": {
+      icon: cargoShipIcon,
+      iconType: "png",
+      color: "from-cyan-500 to-cyan-600",
+      bg: "bg-cyan-50",
+      border: "border-cyan-200",
       text: "text-cyan-700",
       badge: "bg-cyan-100 text-cyan-800"
     },
-    "Downstream Transportations": { 
-      icon: "🚚", 
-      color: "from-rose-500 to-rose-600", 
-      bg: "bg-rose-50", 
-      border: "border-rose-200", 
+    "Downstream Transportations": {
+      icon: cargoShipIcon,
+      iconType: "png",
+      color: "from-rose-500 to-rose-600",
+      bg: "bg-rose-50",
+      border: "border-rose-200",
       text: "text-rose-700",
       badge: "bg-rose-100 text-rose-800"
     }
@@ -698,6 +786,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
       .sort((a, b) => b.totalEmissionTCo2e - a.totalEmissionTCo2e);
   };
 
+
   /* ------------------ TABLE DATA ------------------ */
   const topScope3Categories = {
     "Purchased Goods & Services": processPurchasedGoodsData(),
@@ -730,9 +819,15 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
     setRowLimit(3);
   };
 
+  // const formatNumber = (num) => {
+  //   if (!num) return '0';
+  //   return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // };
   const formatNumber = (num) => {
     if (!num) return '0';
-    return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    // Convert to number, truncate decimals (no rounding)
+    const truncated = Math.trunc(Number(num));
+    return truncated.toLocaleString();
   };
 
   return (
@@ -848,33 +943,44 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
             <div className="max-h-[550px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               <div className="p-6 space-y-5">
                 {Object.entries(topScope3Categories)
-                  .filter(([category]) => (selectedCategory ? category === selectedCategory : true))
-                  .map(([category, items]) => {
-                    const visibleItems = items.slice(0, rowLimit);
-                    const metadata = categoryMetadata[category] || { 
-                      icon: "📊", 
-                      bg: "bg-gray-50", 
-                      border: "border-gray-200", 
+                  .filter(([categoryName, items]) => (selectedCategory ? categoryName === selectedCategory : true))
+                  .map(([categoryName, items]) => {
+
+                    const metadata = categoryMetadata[categoryName] || {
+                      icon: factoryIcon,
+                      iconType: "png",
+                      bg: "bg-gray-50",
+                      border: "border-gray-200",
                       text: "text-gray-700",
                       badge: "bg-gray-100 text-gray-800"
                     };
-                    const categoryTotal = barChartData.find(c => c.name === category)?.value || 0;
+                    const visibleItems = items.slice(0, rowLimit);
+
+                    const categoryTotal = barChartData.find(c => c.name === categoryName)?.value || 0;
 
                     if (!visibleItems.length) {
                       return (
-                        <div key={category} className={`border rounded-xl p-6 text-center ${metadata.bg} ${metadata.border}`}>
-                          <p className={metadata.text}>No data available for {category}</p>
+                        <div key={categoryName} className={`border rounded-xl p-6 text-center ${metadata.bg} ${metadata.border}`}>
+                          <p className={metadata.text}>No data available for {categoryName}</p>
                         </div>
                       );
                     }
 
                     return (
-                      <div key={category} className="space-y-3">
+                      <div key={categoryName} className="space-y-3">
                         {/* Category Header */}
                         <div className={`flex items-center justify-between p-3 rounded-xl ${metadata.bg} border ${metadata.border}`}>
                           <div className="flex items-center gap-2">
-                            <span className="text-xl">{metadata.icon}</span>
-                            <span className={`font-semibold ${metadata.text}`}>{category}</span>
+                            {metadata.iconType === "png" ? (
+                              <img
+                                src={metadata.icon}
+                                alt={categoryName}
+                                className="w-5 h-5 object-contain filter grayscale opacity-60"
+                              />
+                            ) : (
+                              <span className="text-xl">{metadata.icon}</span>
+                            )}
+                            <span className={`font-semibold ${metadata.text}`}>{categoryName}</span>
                           </div>
                           <div className="text-right">
                             <p className={`text-sm font-bold ${metadata.text}`}>{formatNumber(categoryTotal)}</p>
@@ -883,11 +989,10 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
                         </div>
 
                         {/* Grid of items */}
-                        <div className={`grid gap-3 ${
-                          selectedCategory
-                            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                            : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-                        }`}>
+                        <div className={`grid gap-3 ${selectedCategory
+                          ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                          : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+                          }`}>
                           {visibleItems.map((item, idx) => (
                             <div key={item.databaseId || idx} className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-all hover:border-gray-300">
                               {/* Item Name */}
@@ -902,10 +1007,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
                                 <div className="flex items-baseline justify-between">
                                   <span className="text-xs text-gray-500">Emissions:</span>
                                   <span className="text-base font-bold text-teal-600">
-                                    {Number(item.totalEmissionTCo2e || 0).toLocaleString(undefined, {
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    })}
+                                    {Math.trunc(Number(item.totalEmissionTCo2e || 0)).toLocaleString()}
                                   </span>
                                 </div>
                                 <span className="text-xs text-gray-400">tCO₂e</span>
@@ -935,8 +1037,8 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
             <div className="px-6 py-3 bg-gray-50 border-t border-gray-100">
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <span>
-                  {selectedCategory 
-                    ? `Showing top ${rowLimit} emission sources` 
+                  {selectedCategory
+                    ? `Showing top ${rowLimit} emission sources`
                     : "Showing top 3 sources per category"}
                 </span>
                 {!selectedCategory && barChartData.length > 0 && (

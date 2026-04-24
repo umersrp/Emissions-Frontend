@@ -622,6 +622,13 @@ const getTopEntriesByMethod = (list = [], methodType, limit = 3) => {
 //   );
 // };
 
+import Icon from '@/components/ui/Icon'; 
+
+const truncateNumber = (num) => {
+  if (num === null || num === undefined) return "0";
+  return Math.trunc(Number(num)).toLocaleString();
+};
+
 const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRegisterReset }) => {
   if (!dashboardData?.scope2) return null;
 
@@ -643,7 +650,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
         categoryKey: "Market-Based",
         value: Number(scope2.purchasedElectricity.totalMarketTCo2e ?? 0),
         type: "market",
-        icon: "📊",
+        icon: "heroicons:map-pin",
         color: "from-emerald-500 to-emerald-600"
       },
       {
@@ -652,7 +659,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
         categoryKey: "Location-Based",
         value: Number(scope2.purchasedElectricity.totalLocationTCo2e ?? 0),
         type: "location",
-        icon: "📍",
+        icon: "heroicons:chart-bar",
         color: "from-blue-500 to-blue-600"
       }
     ];
@@ -719,14 +726,14 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
         border: "border-blue-200",
         text: "text-blue-700",
         badge: "bg-blue-100 text-blue-800",
-        icon: "📍"
+        icon: "heroicons:map-pin"
       },
       "Market-Based": {
         bg: "bg-emerald-50",
         border: "border-emerald-200",
         text: "text-emerald-700",
         badge: "bg-emerald-100 text-emerald-800",
-        icon: "📊"
+        icon: "heroicons:chart-bar"
       }
     };
     return schemes[categoryKey] || {
@@ -734,7 +741,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
       border: "border-gray-200",
       text: "text-gray-700",
       badge: "bg-gray-100 text-gray-800",
-      icon: "⚡"
+      icon: "heroicons:bolt"
     };
   };
 
@@ -748,7 +755,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
             <div>
               <p className="text-sm font-medium text-gray-400 uppercase tracking-wider">Total Scope 2</p>
               <p className="text-2xl font-bold text-white mt-2">
-                {totalScope2}
+                {truncateNumber(totalScope2)}
                 <span className="text-sm font-normal text-gray-400 ml-1">tCO₂e</span>
               </p>
             </div>
@@ -765,11 +772,13 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">📍</span>
+                <span className="text-lg">
+                  <Icon icon="heroicons:map-pin" />
+                </span>
                 <p className="text-sm font-semibold text-gray-700">Location Based</p>
               </div>
               <p className="text-2xl font-bold text-blue-600">
-                {locationTotal}
+                {truncateNumber(locationTotal)}
                 <span className="text-sm font-normal text-gray-500 ml-1">tCO₂e</span>
               </p>
               <p className="text-xs text-gray-500 mt-2">Grid average method</p>
@@ -785,11 +794,13 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">📊</span>
+                <span className="text-lg">
+                  <Icon icon="heroicons:chart-bar" />
+                </span>
                 <p className="text-sm font-semibold text-gray-700">Market Based</p>
               </div>
               <p className="text-2xl font-bold text-emerald-600">
-                {marketTotal}
+                {truncateNumber(marketTotal)}
                 <span className="text-sm font-normal text-gray-500 ml-1">tCO₂e</span>
               </p>
               <p className="text-xs text-gray-500 mt-2">Contract instruments</p>
@@ -875,8 +886,8 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
                       {selectedCategory ? `${getCategoryDisplayName(selectedCategory)} Details` : "Emission Sources"}
                     </h3>
                     <p className="text-sm text-gray-500">
-                      {selectedCategory 
-                        ? "Detailed breakdown of electricity consumption" 
+                      {selectedCategory
+                        ? "Detailed breakdown of electricity consumption"
                         : "Top emission sources by method"}
                     </p>
                   </div>
@@ -929,22 +940,24 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
                       {/* Category Header */}
                       <div className={`flex items-center justify-between p-3 rounded-xl ${colorScheme.bg} border ${colorScheme.border}`}>
                         <div className="flex items-center gap-2">
-                          <span className="text-xl">{colorScheme.icon}</span>
+                          {/* <span className="text-xl">{colorScheme.icon}</span> */}
+                          <span className="text-xl">
+                            <Icon icon={colorScheme.icon} />
+                          </span>
                           <span className={`font-semibold ${colorScheme.text}`}>{displayName}</span>
                         </div>
                         <div className="text-right">
-                          <p className={`text-sm font-bold ${colorScheme.text}`}>{totalValue}</p>
+                          <p className={`text-sm font-bold ${colorScheme.text}`}>{truncateNumber(totalValue)}</p>
                           <p className="text-xs text-gray-500">tCO₂e total</p>
                         </div>
                       </div>
 
                       {/* Grid of entries */}
                       <div
-                        className={`grid gap-3 ${
-                          selectedCategory === categoryKey
+                        className={`grid gap-3 ${selectedCategory === categoryKey
                             ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                             : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
-                        }`}
+                          }`}
                       >
                         {entries.map((entry) => (
                           <div
@@ -963,10 +976,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
                               <div className="flex items-baseline justify-between">
                                 <span className="text-xs text-gray-500">Emissions:</span>
                                 <span className={`text-base font-bold ${categoryKey === "Location-Based" ? "text-blue-600" : "text-emerald-600"}`}>
-                                  {entry.emissionTCo2e.toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  })}
+                                 {Math.trunc(entry.emissionTCo2e).toLocaleString()}
                                 </span>
                               </div>
                               <span className="text-xs text-gray-400">tCO₂e</span>
@@ -979,10 +989,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                                 <span className="text-xs text-gray-600 truncate">
-                                  {entry.totalElectricityConsumed.toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  })} {entry.unit.toLowerCase().includes('kwh') ? 'kWh' : 'MWh'}
+                                 {Math.trunc(entry.totalElectricityConsumed).toLocaleString()} {entry.unit.toLowerCase().includes('kwh') ? 'kWh' : 'MWh'}
                                 </span>
                               </div>
                             </div>
@@ -999,8 +1006,8 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
             <div className="px-6 py-3 bg-gray-50 border-t border-gray-100">
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <span>
-                  {selectedCategory 
-                    ? `Showing top ${rowLimit} emission sources` 
+                  {selectedCategory
+                    ? `Showing top ${rowLimit} emission sources`
                     : "Showing top 3 sources per method"}
                 </span>
                 {!selectedCategory && (

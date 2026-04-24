@@ -410,14 +410,20 @@ const Dashboard = () => {
     : [];
 
   // Format numbers helper
-  const formatNumber = (num) => {
-    if (num === null || num === undefined) return "0";
+  // const formatNumber = (num) => {
+  //   if (num === null || num === undefined) return "0";
 
-    return num.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-  };
+  //   return num.toLocaleString(undefined, {
+  //     minimumFractionDigits: 2,
+  //     maximumFractionDigits: 2,
+  //   });
+  // };
+  const formatNumber = (num) => {
+  if (num === null || num === undefined) return "0";
+  // Truncate decimals (no rounding)
+  const truncated = Math.trunc(Number(num));
+  return truncated.toLocaleString();
+};
 
   return (
     <div className="flex">
@@ -683,11 +689,7 @@ const Dashboard = () => {
                 <p className="text-xs text-gray-500 mt-2">Direct Emissions</p>
               </div>
             </div>
-            <div className="mt-3 pt-2">
-              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-50 text-purple-700">
-                Stationary & Mobile Combustion
-              </span>
-            </div>
+            
           </div>
 
           {/* Scope 2 Emissions */}
@@ -707,7 +709,6 @@ const Dashboard = () => {
               <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                 <div>
                   <p className="text-xs font-medium text-gray-600">Location Based</p>
-                  <p className="text-xs text-gray-400">Grid average method</p>
                 </div>
                 <p className="text-lg font-bold text-orange-600">
                   {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)}
@@ -718,7 +719,6 @@ const Dashboard = () => {
               <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                 <div>
                   <p className="text-xs font-medium text-gray-600">Market Based</p>
-                  <p className="text-xs text-gray-400">Contract instruments</p>
                 </div>
                 <p className="text-lg font-bold text-orange-600">
                   {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)}
@@ -729,7 +729,7 @@ const Dashboard = () => {
 
             <div className="mt-3 pt-2">
               <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-orange-50 text-orange-700">
-                Indirect from Energy
+                Indirect Emissions
               </span>
             </div>
           </div>
@@ -753,11 +753,7 @@ const Dashboard = () => {
                 <p className="text-xs text-gray-500 mt-2">Other Indirect Emissions</p>
               </div>
             </div>
-            <div className="mt-3 pt-2">
-              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-teal-50 text-teal-700">
-                Supply Chain & Value Chain
-              </span>
-            </div>
+            
           </div>
         </div>
 

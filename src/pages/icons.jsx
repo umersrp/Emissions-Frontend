@@ -139,6 +139,31 @@ const icons = [
   { name: "heroicons:arrow-down-tray", label: "Upstream Transportation & Distribution" },
   { name: "heroicons:arrow-up-tray", label: "Downstream Transportation & Distribution" },
   { name: "heroicons:envelope", label: "Email" },
+  { name: "heroicons:chart-bar", label: "Bar Chart" },
+{ name: "heroicons:chart-pie", label: "Pie Chart" },
+{ name: "heroicons:chart-line", label: "Line Chart" },
+{ name: "heroicons:trending-up", label: "Trending Up" },
+{ name: "heroicons:currency-dollar", label: "Currency Dollar" },
+{ name: "heroicons:banknotes", label: "Banknotes/Money" },
+{ name: "heroicons:scale", label: "Scale/Balance" },
+
+ 
+  { name: "heroicons:map-pin", label: "Location/Marker" },
+{ name: "heroicons:map", label: "Map" },
+{ name: "heroicons:globe-alt", label: "Global/Location" },
+{ name: "heroicons:building-office", label: "Building/Office" },
+{ name: "heroicons:home", label: "Home Location" },
+{ name: "heroicons:building-storefront", label: "Store/Building" },
+{ name: "heroicons:compass", label: "Compass/Direction" },
+
+// Mobile/Travel/Transportation based
+{ name: "heroicons:truck", label: "Truck/Transport" },
+{ name: "heroicons:car", label: "Car" },
+{ name: "heroicons:bicycle", label: "Bicycle" },
+{ name: "heroicons:bus", label: "Bus" },
+{ name: "heroicons:train", label: "Train" },
+{ name: "heroicons:subway", label: "Subway/Metro" },
+
 
   { name: "heroicons:rectangle-stack" },
   { name: "heroicons:rocket-launch" },
