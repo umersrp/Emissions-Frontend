@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef , useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -924,7 +924,9 @@ const EmployeeCommutingForm = () => {
 
     // Calendar window for datepickers - restrict to reporting year only
     const calendarMinDate = useMemo(() => new Date(reportingYear, 0, 1), [reportingYear]);
-    const calendarMaxDate = useMemo(() => new Date(reportingYear, 11, 31), [reportingYear]);
+    // const calendarMaxDate = useMemo(() => new Date(reportingYear, 11, 31), [reportingYear]);
+    const calendarMaxDate = useMemo(() => new Date(reportingYear, 11, 31, 23, 59, 59), [reportingYear]);
+
     const [errors, setErrors] = useState({});
 
     // Track all selected date ranges for validation
@@ -3104,7 +3106,18 @@ const EmployeeCommutingForm = () => {
             }
 
             // Ensure selected dates fall within the allowed calendar window
-            if (startDate < calendarMinDate || endDate > calendarMaxDate) {
+            // if (startDate < calendarMinDate || endDate > calendarMaxDate) {
+            //     toast.warning(`Selected date range must be between ${calendarMinDate.toLocaleDateString('en-US')} and ${calendarMaxDate.toLocaleDateString('en-US')}.`);
+            //     return;
+            // }
+            // Ensure selected dates fall within the allowed calendar window
+            // Convert to date strings for comparison to avoid time issues
+            const minDateStr = calendarMinDate.toISOString().split('T')[0];
+            const maxDateStr = calendarMaxDate.toISOString().split('T')[0];
+            const startDateStr = startDate.toISOString().split('T')[0];
+            const endDateStr = endDate.toISOString().split('T')[0];
+
+            if (startDateStr < minDateStr || endDateStr > maxDateStr) {
                 toast.warning(`Selected date range must be between ${calendarMinDate.toLocaleDateString('en-US')} and ${calendarMaxDate.toLocaleDateString('en-US')}.`);
                 return;
             }
