@@ -2046,6 +2046,11 @@ const EmployeeCommutingFormCarpool = () => {
     const validateForm = () => {
         const errors = {};
 
+         if (!formData.qualityControl || !formData.qualityControl.value) {
+        errors.qualityControl = 'Quality Control is required';
+        return errors; // Return immediately, don't proceed to other validations
+    }
+
         // Check if the user is a passenger in any commute
         if (!userPassengerDetails.transportTypes || userPassengerDetails.transportTypes.length === 0) {
             errors.noCommuteFound = 'No commute found where you are listed as a passenger';
@@ -2099,6 +2104,11 @@ const EmployeeCommutingFormCarpool = () => {
             return errors;
         }
 
+            // If Quality Control is missing, return errors without showing partial modal
+    if (errors.qualityControl) {
+        return errors;
+    }
+
         // If there are missing distances, store them and show modal
         if (missingDistances.length > 0 && missingDistances.length < userPassengerDetails.transportTypes.length) {
             setMissingDistancesList(missingDistances);
@@ -2117,6 +2127,7 @@ const EmployeeCommutingFormCarpool = () => {
     };
     const scrollToFirstError = (validationErrors) => {
         const errorKeyToSelector = {
+             qualityControl: '#qualityControl',
             stakeholderDepartment: '#stakeholderDepartment',
             qualityControl: '#qualityControl',
             motorbikeDistance: '#motorbikeDistance',
@@ -2567,6 +2578,19 @@ const EmployeeCommutingFormCarpool = () => {
     // };
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+            // First, check if Quality Control is selected
+    if (!formData.qualityControl || !formData.qualityControl.value) {
+        setErrors({ qualityControl: 'Quality Control is required' });
+        toast.error('Please select Quality Control first');
+        // Scroll to quality control field
+        const qualityControlElement = document.querySelector('#qualityControl');
+        if (qualityControlElement) {
+            qualityControlElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+    }
+
 
         const validationErrors = validateForm();
 

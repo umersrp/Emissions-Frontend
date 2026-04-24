@@ -30,7 +30,7 @@ const GroupRow = ({ subject, recordCount, isExpanded, onToggle, groupTotals, dis
                             ({recordCount} record{recordCount !== 1 ? 's' : ''})
                         </span>
                     </div>
-                   
+
                 </div>
             </td>
         </tr>
@@ -473,7 +473,7 @@ const CommutingTable = () => {
                         {selectedRecordIds.length > 0 && (
                             <Button
                                 text={selectedRecordIds.length > 0 ? `Delete Selected (${selectedRecordIds.length})` : "Delete Selected"}
-                                className="btn font-normal btn-sm btn-danger text-white border-0 hover:opacity-90 h-9"
+                                className="btn font-normal btn-sm bg-gradient-to-r from-red-500 to-red-700 text-white border-0 hover:opacity-90"
                                 onClick={() => {
                                     if (selectedRecordIds.length > 0) {
                                         setDeleteTargetIds(selectedRecordIds);
@@ -510,7 +510,7 @@ const CommutingTable = () => {
                                 </div>
                             ) : (
                                 <table className="min-w-full divide-y divide-slate-100">
-                                   
+
                                     <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
                                         <tr>
                                             <th className="table-th text-white whitespace-nowrap">
@@ -548,7 +548,7 @@ const CommutingTable = () => {
                                             <th className="table-th text-white whitespace-nowrap">Both (Individual + Carpool)</th>
                                             <th className="table-th text-white whitespace-nowrap">Individual Distance (km)</th>
                                             <th className="table-th text-white whitespace-nowrap">Carpool Distance (km)</th>
-                                             <th className="table-th text-white whitespace-nowrap">Carpool Date Range</th>
+                                            <th className="table-th text-white whitespace-nowrap">Carpool Date Range</th>
 
                                             {/* Taxi Section */}
                                             <th className="table-th text-white whitespace-nowrap">Commute Mode</th>
