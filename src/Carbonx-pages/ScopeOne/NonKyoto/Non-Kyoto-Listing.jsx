@@ -554,7 +554,7 @@ const CapitalGoodsListing = () => {
                   className="min-w-full divide-y divide-slate-100 table-fixed"
                   {...getTableProps()}
                 >
-                  <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
+                  <thead className="bg-gradient-to-r from-[#2d6d74] to-[#094382] sticky top-0 z-10">
                     {headerGroups.map((headerGroup, index) => (
                       <tr {...headerGroup.getHeaderGroupProps()} key={index}>
                         {headerGroup.headers.map((column) => (
@@ -741,7 +741,7 @@ const CapitalGoodsListing = () => {
         activeModal={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         title="Confirm Delete"
-        themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+        themeClass="bg-gradient-to-r from-[#2d6d74] to-[#094382]"
         centered
         footerContent={
           <>

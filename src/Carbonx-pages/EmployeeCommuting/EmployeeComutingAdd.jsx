@@ -722,7 +722,7 @@ const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate 
                     {startDate && (
                         <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                             <p className="text-sm font-medium text-yellow-800 mb-1">
-                                📅 Submission Opens:
+                                 Submission Opens:
                             </p>
                             <p className="text-sm text-yellow-700">
                                 {formatDate(startDate)}
@@ -746,7 +746,7 @@ const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate 
                     {endDate && (
                         <div className="mt-3 p-3 bg-red-50 rounded-lg border border-red-200">
                             <p className="text-sm font-medium text-red-800 mb-1">
-                                ⏰ Deadline Passed:
+                                 Deadline Passed:
                             </p>
                             <p className="text-sm text-red-700">
                                 {formatDate(endDate)}
@@ -762,7 +762,7 @@ const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate 
                 </div>
             );
         } 
-          // ✅ ADD THIS - Deleted form message
+          //  ADD THIS - Deleted form message
     else if (status === 'deleted') {
         return (
             <div className="space-y-3">
@@ -1086,7 +1086,7 @@ const EmployeeCommutingForm = () => {
             workFromHome: null
         });
         console.log("reset date ranges ", selectedDateRanges)
-        setDatePickerResetKey((prev) => prev + 1); // ✅ this triggers remount
+        setDatePickerResetKey((prev) => prev + 1); //  this triggers remount
 
         // Clear any date-related errors
         setErrors(prev => {
@@ -1555,7 +1555,7 @@ const EmployeeCommutingForm = () => {
     } catch (error) {
         console.error('Form access check error:', error);
 
-        // ✅ ADD THIS - Handle 404 Not Found (Email document deleted)
+        //  ADD THIS - Handle 404 Not Found (Email document deleted)
         if (error.response && error.response.status === 404) {
             const errorMessage = error.response.data?.message || '';
             console.log('404 Error - Email document not found:', errorMessage);
@@ -3713,7 +3713,7 @@ const EmployeeCommutingForm = () => {
 
                 <div className="space-y-4">
                     <Datepicker
-                        key={`${transportType}-${datePickerResetKey}`}  // ✅ was just transportType
+                        key={`${transportType}-${datePickerResetKey}`}  //  was just transportType
                         value={formData[`${transportType}DateRange`] || null}
                         onChange={(value) => handleDateRangeChange(transportType, value)}
                         showShortcuts={true}
@@ -4990,7 +4990,6 @@ const EmployeeCommutingForm = () => {
             );
 
             // Check if form submission was successful
-            // In handleSubmit function, after successful submission:
             // In handleSubmit function, after successful submission:
             if (response.status === 200 || response.status === 201) {
                 // Mark user as filled

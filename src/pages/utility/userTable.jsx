@@ -84,25 +84,26 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings, userDat
   };
 
   const downloadTemplate = () => {
-    const sampleData = [
-      {
-        Name: "John Doe",
-        Email: "john.doe@example.com",
-        EmployeeID: "EMP001",
-        BuildingCode: "BLD-001",
-      },
-      {
-        Name: "Jane Smith",
-        Email: "jane.smith@example.com",
-        EmployeeID: "EMP002",
-        BuildingCode: "BLD-002",
-      },
-    ];
+   const sampleData = [
+    {
+      "Building Code": "BLD-001",
+      "Employee Email": "john.doe@example.com",
+      "Name": "John Doe",
+      "Employee ID": "EMP001",
+      
+    },
+    {
+      "Building Code": "BLD-002",
+      "Employee Email": "jane.smith@example.com",
+      "Name": "Jane Smith",
+      "Employee ID": "EMP002",
+    },
+  ];
 
     const ws = XLSX.utils.json_to_sheet(sampleData);
     const headerStyle = {
       font: { bold: true, color: { rgb: "FFFFFF" } },
-      fill: { fgColor: { rgb: "3AB89D" } },
+      fill: { fgColor: { rgb: "2d6d74" } },
       alignment: { horizontal: "center" },
     };
     ["A1", "B1", "C1", "D1"].forEach((cell) => {
@@ -146,10 +147,10 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings, userDat
 
         const headerMap = {
           "Name": "name",
-          "Email": "email",
+          "Employee Email": "email",  // Changed from "Email"
           "Password": "password",
-          "EmployeeID": "employeeID",
-          "BuildingCode": "buildingCode",
+          "Employee ID": "employeeID",
+          "Building Code": "buildingCode",  // Changed from "BuildingCode"
         };
 
         const normalized = jsonData.map((row) => {
@@ -385,13 +386,13 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings, userDat
             <div className="space-y-6 py-0">
               {importing && (
                 <div className="text-center py-6">
-                  <div className="inline-block w-12 h-12 border-4 border-[#3AB89D] border-t-transparent rounded-full animate-spin mb-4" />
+                  <div className="inline-block w-12 h-12 border-4 border-[#2d6d74] border-t-transparent rounded-full animate-spin mb-4" />
                   <p className="text-slate-600 font-medium">
                     Importing {progress.done} / {progress.total}...
                   </p>
                   <div className="mt-3 w-full bg-slate-100 rounded-full h-2.5">
                     <div
-                      className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] h-2.5 rounded-full transition-all duration-300"
+                      className="bg-gradient-to-r from-[#2d6d74] to-[#094382] h-2.5 rounded-full transition-all duration-300"
                       style={{ width: `${progress.total > 0 ? (progress.done / progress.total) * 100 : 0}%` }}
                     />
                   </div>
@@ -530,7 +531,7 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings, userDat
               <button
                 onClick={handleImport}
                 disabled={importing}
-                className="flex items-center px-3 py-2 bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white text-sm font-semibold rounded-sm hover:opacity-90 transition-opacity disabled:opacity-60"
+                className="flex items-center px-3 py-2 bg-gradient-to-r from-[#2d6d74] to-[#094382] text-white text-sm font-semibold rounded-sm hover:opacity-90 transition-opacity disabled:opacity-60"
               >
                 Upload
               </button>
@@ -539,7 +540,7 @@ const BulkImportModal = ({ isOpen, onClose, onImportComplete, buildings, userDat
             {/* {step === "result" && !importing && progress.errors.length > 0 && successCount === 0 && (
               <button
                 onClick={resetModal}
-                className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
+                className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-[#2d6d74] to-[#094382] text-white text-sm font-semibold rounded-lg hover:opacity-90 transition-opacity"
               >
                 <Icon icon="heroicons:arrow-path" />
                 Try Again
@@ -928,7 +929,7 @@ const UserPage = () => {
           setDeleteModalOpen(false);
         }}
         title="Confirm Delete"
-        themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+        themeClass="bg-gradient-to-r from-[#2d6d74] to-[#094382]"
         centered
         footerContent={
           <>
@@ -1028,7 +1029,7 @@ const UserPage = () => {
                 className="min-w-full divide-y divide-slate-100 table-fixed"
                 {...getTableProps()}
               >
-                <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
+                <thead className="bg-gradient-to-r from-[#2d6d74] to-[#094382] sticky top-0 z-10">
                   {headerGroups.map((headerGroup, index) => (
                     <tr {...headerGroup.getHeaderGroupProps()} key={index}>
                       {headerGroup.headers.map((column) => (

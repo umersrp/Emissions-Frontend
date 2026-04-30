@@ -616,7 +616,7 @@ const FugitiveCombustionListing = () => {
             <Button
               icon="heroicons-outline:plus-sm"
               text="Add Record"
-              className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+              className="btn font-normal btn-sm bg-gradient-to-r from-[#2d6d74] to-[#094382] text-white border-0 hover:opacity-90"
               onClick={() => navigate("/Fugitive-Emissions-Form/add")}
             />
           </div>
@@ -636,7 +636,7 @@ const FugitiveCombustionListing = () => {
                   className="min-w-full divide-y divide-slate-100 table-fixed"
                   {...getTableProps()}
                 >
-                  <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
+                  <thead className="bg-gradient-to-r from-[#2d6d74] to-[#094382] sticky top-0 z-10">
                     {headerGroups.map((headerGroup, index) => (
                       <tr {...headerGroup.getHeaderGroupProps()} key={index}>
                         {headerGroup.headers.map((column) => (
@@ -866,7 +866,7 @@ const FugitiveCombustionListing = () => {
         activeModal={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         title="Confirm Delete"
-        themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+        themeClass="bg-gradient-to-r from-[#2d6d74] to-[#094382]"
         centered
         footerContent={
           <>

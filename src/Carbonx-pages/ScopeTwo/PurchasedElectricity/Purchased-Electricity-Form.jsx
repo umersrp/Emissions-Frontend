@@ -551,7 +551,7 @@ const PurchasedElectricityFormPage = () => {
 
                   <div
                     className={`px-4 py-2 rounded w-full text-left ${formData.method?.value === "location_based"
-                      ? "bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white"
+                      ? "bg-gradient-to-r from-[#2d6d74] to-[#094382] text-white"
                       : "bg-gray-200 text-gray-700"
                       }`}
                   >
@@ -579,7 +579,7 @@ const PurchasedElectricityFormPage = () => {
 
                   <div
                     className={`px-4 py-2 rounded w-full text-left ${formData.method?.value === "market_based"
-                      ? "bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white"
+                      ? "bg-gradient-to-r from-[#2d6d74] to-[#094382] text-white"
                       : "bg-gray-200 text-gray-700"
                       }`}
                   >
@@ -897,7 +897,7 @@ const PurchasedElectricityFormPage = () => {
                       className="sr-only peer"
                       disabled={isView}
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-[#2d6d74] to-[#094382]"></div>
                   </label>
                   <span className="text-sm font-medium">
                     Do you have your own solar panels or any other renewable electricity generation plant installed at your facility that is retained by you under valid renewable energy instruments?
@@ -985,7 +985,7 @@ const PurchasedElectricityFormPage = () => {
                       className="sr-only peer"
                       disabled={isView}
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-[#2d6d74] to-[#094382]"></div>
                   </label>
                   <span className="text-sm font-medium">
                     Do you purchase supplier specific electricity?
@@ -1082,7 +1082,7 @@ const PurchasedElectricityFormPage = () => {
                       className="sr-only peer"
                       disabled={isView}
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-[#2d6d74] to-[#094382]"></div>
                   </label>
                   <span className="text-sm font-medium">
                     Do you purchase electricity under power purchase agreements (PPA)?
@@ -1177,7 +1177,7 @@ const PurchasedElectricityFormPage = () => {
                       className="sr-only peer"
                       disabled={isView}
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r from-[#2d6d74] to-[#094382]"></div>
                   </label>
                   <span className="text-sm font-medium">
                     Do you have any other types of renewable energy attributes, market-based instruments or renewable energy certificates (RECs) that are separate from power purchase agreements (PPA) and from those covering on-site renewable electricity generation?

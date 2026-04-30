@@ -844,7 +844,7 @@ const FuelEnergyForm = () => {
                     peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
                     after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
                     after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                    peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                    peer-checked:bg-gradient-to-r from-[#2d6d74] to-[#094382]"></div>
                                     </label>
                                     <span className="text-sm font-medium">
                                         Did you have any business travel by air during the reporting period?
@@ -950,7 +950,7 @@ const FuelEnergyForm = () => {
                     peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
                     after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
                     after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                    peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                    peer-checked:bg-gradient-to-r from-[#2d6d74] to-[#094382]"></div>
                                     </label>
                                     <span className="text-sm font-medium">
                                         Did you have any business travel by taxi during the reporting period?
@@ -1031,7 +1031,7 @@ const FuelEnergyForm = () => {
                     peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
                     after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
                     after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                    peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                    peer-checked:bg-gradient-to-r from-[#2d6d74] to-[#094382]"></div>
                                     </label>
                                     <span className="text-sm font-medium">
                                         Did you have any business travel by bus during the reporting period?
@@ -1112,7 +1112,7 @@ const FuelEnergyForm = () => {
                     peer peer-checked:after:translate-x-[100%] peer-checked:after:border-white
                     after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
                     after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all
-                    peer-checked:bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"></div>
+                    peer-checked:bg-gradient-to-r from-[#2d6d74] to-[#094382]"></div>
                                     </label>
                                     <span className="text-sm font-medium">
                                         Did you have any business travel by train during the reporting period?

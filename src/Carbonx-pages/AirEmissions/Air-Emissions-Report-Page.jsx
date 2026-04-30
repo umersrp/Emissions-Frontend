@@ -334,7 +334,7 @@
 //         {/* Table & Pagination */}
 //         <div className="overflow-x-auto">
 //           <table className="min-w-full divide-y divide-gray-200">
-//             <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]">
+//             <thead className="bg-gradient-to-r from-[#2d6d74] to-[#094382]">
 //               <tr>
 //                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Sr.No</th>
 //                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Building</th>
@@ -961,7 +961,7 @@ const summaryCards = useMemo(() => {
     <Card>
       {/* Total Emission Card */}
       <motion.div
-        className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl p-6 mb-8"
+        className="bg-gradient-to-r from-[#6dacba] to-[#4098ab] shadow-md rounded-2xl p-6 mb-8"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
       >
@@ -1022,7 +1022,7 @@ const summaryCards = useMemo(() => {
         {/* Table & Pagination */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]">
+            <thead className="bg-gradient-to-r from-[#2d6d74] to-[#094382]">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Sr.No</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white  tracking-wider">Building</th>

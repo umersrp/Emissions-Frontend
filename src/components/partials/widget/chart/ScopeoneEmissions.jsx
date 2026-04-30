@@ -1,8 +1,14 @@
 import React, { useState, useMemo, useEffect } from "react";
 import RevenueBarChart from "@/components/partials/widget/chart/revenue-bar-chart";
 import { Tooltip } from "@mui/material";
-import Icon from '@/components/ui/Icon'; 
+import Icon from '@/components/ui/Icon';
 import { FOR_UNIT_KG, FOR_UNIT_NM3, FOR_UNIT_THOUSAND_M3, FOR_UNIT_THOUSAND_KWH, FOR_UNIT_THOUSAND_KGCO2E } from "@/constant/scope1/calculate-process-emission";
+import { NON_KYOTO_GASES } from "@/constant/scope1/calculate-fugitive-emission";
+import {
+  NON_KYOTO_ACTIVITIES,
+  VO_ACTIVITIES,
+  BIOGENIC_ACTIVITIES,
+} from "@/constant/scope1/calculate-process-emission";
 /* -------------------- CATEGORY COLORS -------------------- */
 const categoryColors = {
   Stationary: "bg-blue-100 text-blue-800",
@@ -105,62 +111,6 @@ const getDisplayName = (fuel, category) => {
   }
 };
 
-/* -------------------- GET QUANTITY DISPLAY -------------------- */
-// const getQuantityDisplay = (fuel, category) => {
-//   switch (category) {
-//     case "Stationary":
-//       if (fuel?.fuelConsumption !== undefined && fuel?.consumptionUnit) {
-//         return `${fuel.fuelConsumption} ${fuel.consumptionUnit}`;
-//       }
-//       return "—";
-
-//     case "Mobile":
-//       if (fuel?.distanceTraveled !== undefined && fuel?.distanceUnit) {
-//         return `${fuel.distanceTraveled} ${fuel.distanceUnit}`;
-//       }
-//       return "—";
-
-//     case "Fugitive":
-//       if (fuel?.leakageValue !== undefined) {
-//         const unit = fuel?.consumptionUnit || "kg";
-//         return `${fuel.leakageValue} ${unit}`;
-//       }
-//       return "—";
-
-//     // case "Process":
-//     //   // For Process, show amountOfEmissions if available
-//     //   if (fuel?.amountOfEmissions !== undefined) {
-//     //     // Hardcoded unit as "tonnes"
-//     //     return `${fuel.amountOfEmissions} tonnes`;
-//     //   }
-//     case "Process":
-//       // For Process, show amountOfEmissions if available
-//       if (fuel?.amountOfEmissions !== undefined && fuel?.activityType) {
-//         const activityType = fuel.activityType.trim();
-//         const amount = fuel.amountOfEmissions;
-
-//         // Check conditions based on activityType
-//         if (FOR_UNIT_KG.includes(activityType)) {
-//           return `${amount} kg`;
-//         } else if (activityType === FOR_UNIT_NM3) {
-//           return `${amount} Nm³`;
-//         } else if (activityType === FOR_UNIT_THOUSAND_M3) {
-//           return `${amount} m³`;
-//         } else if (activityType === FOR_UNIT_THOUSAND_KWH) {
-//           return `${amount} kWh`;
-//         } else if (FOR_UNIT_THOUSAND_KGCO2E.includes(activityType)) {
-//           return `${amount} kgCO₂e`;
-//         } else {
-//           // Default for all other process activities
-//           return `${amount} tonnes`;
-//         }
-//       }
-//       return "—";
-
-//     default:
-//       return "—";
-//   }
-// };
 const getQuantityDisplay = (fuel, category) => {
   const truncate = (num) => {
     if (num === null || num === undefined) return "—";
@@ -235,6 +185,53 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
     if (!items || !Array.isArray(items)) return 0;
     return items.reduce((sum, fuel) => sum + getEmissionValue(fuel, category), 0);
   };
+const isNonKyotoMaterial = (materialRefrigerant) => {
+  if (!materialRefrigerant) return false;
+
+  return NON_KYOTO_GASES.some(gas =>
+    materialRefrigerant.toLowerCase().includes(gas.toLowerCase())
+  );
+};
+
+const isExcludedActivity = (activityType) => {
+  if (!activityType) return false;
+
+  const excludedActivities = [
+    ...NON_KYOTO_ACTIVITIES,
+    ...VO_ACTIVITIES,
+    ...BIOGENIC_ACTIVITIES
+  ];
+
+  return excludedActivities.some(activity =>
+    activityType.toLowerCase().includes(activity.toLowerCase())
+  );
+};
+
+  
+const calculateFugitiveEmissions = (fugitiveListData = []) => {
+  return fugitiveListData.reduce((sum, record) => {
+    if (isNonKyotoMaterial(record.materialRefrigerant)) {
+      return sum;
+    }
+
+    const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
+    return sum + emissionValue;
+  }, 0);
+};
+
+const calculateProcessEmissions = (emissionActivityListData = []) => {
+  let includedCount = 0;
+  const result = emissionActivityListData.reduce((sum, record) => {
+    if (isExcludedActivity(record.activityType)) {
+      return sum;
+    }
+    includedCount++;
+    const emissionValue = parseFloat(String(record.calculatedEmissionTCo2e)) || 0;
+    return sum + emissionValue;
+  }, 0);
+  console.log(`PROCESS EMISSIONS: ${includedCount}/${emissionActivityListData.length} records included, Total: ${result} tCO₂e`);
+  return result;
+};
 
   // Get process data
   const processData = useMemo(() => {
@@ -271,6 +268,25 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
       color: "from-purple-500 to-purple-600"
     },
   ], [dashboardData, processData]);
+
+  // const totalScope1 = barChartData.reduce((sum, item) => sum + item.value, 0);
+    const totalScope1 = useMemo(() => {
+      const stationary = dashboardData?.scope1?.stationaryCombustion?.totalEmissionTCo2e || 0;
+      const transport = dashboardData?.scope1?.transport?.totalEmissionTCo2e || 0;
+      const fugitive = calculateFugitiveEmissions(dashboardData?.scope1?.fugitiveListData);
+      const process = calculateProcessEmissions(dashboardData?.scope1?.EmissionActivityListData);
+  
+      console.log("Scope 1 Calculation Debug");
+      console.log("Stationary:", stationary);
+      console.log("Transport:", transport);
+      console.log("Fugitive emissions calculated:", fugitive);
+      console.log("Process emissions calculated:", process);
+      // console.log("Fugitive list data:", dashboardData?.scope1?.fugitiveListData);
+      console.log("Process list data:", dashboardData?.scope1?.EmissionActivityListData);
+      console.log("Total scope1Emission:", stationary + transport + fugitive + process);
+      console.log("=== End Debug ===");
+      return stationary + transport + fugitive + process;
+    }, [dashboardData]);
 
   /* -------------------- TOP ITEMS BY CATEGORY -------------------- */
   const topItemsByCategory = useMemo(() => {
@@ -316,7 +332,29 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
   };
 
   return (
-    <div className="flex flex-col xl:flex-row gap-6">
+   <>
+
+      {/* Total Scope 1 Summary Card */}
+      <div className="bg-gradient-to-r from-[#094382] to-[#037db9] rounded-2xl shadow-lg p-4 border border-blue-700 mb-4">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-sm font-medium text-blue-300 uppercase tracking-wider">Total Scope 1 Emissions</p>
+            <p className="text-3xl font-bold text-white mt-2">
+              {formatEmissionValue(totalScope1)}
+              <span className="text-sm font-normal text-blue-300 ml-1">tCO₂e</span>
+            </p>
+            <p className="text-xs text-blue-300 mt-2">Direct emissions from owned or controlled sources</p>
+          </div>
+          <div className="p-2 bg-blue-700/50 rounded-xl">
+            <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 7-3 1-3-1-1-7z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+       <div className="flex flex-col xl:flex-row gap-6">
+
+
       {/* ==================== BAR CHART SECTION ==================== */}
       <div className="flex-1">
         <div className="h-full bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transition-all hover:shadow-xl">
@@ -324,8 +362,8 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
           <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 7-3 1-3-1-1-7z" />
                   </svg>
                 </div>
@@ -454,8 +492,8 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
                       {/* Items Grid */}
                       <div
                         className={`grid gap-3 ${selectedCategory
-                            ? "grid-cols-1 sm:grid-cols-2"
-                            : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                          ? "grid-cols-1 sm:grid-cols-2"
+                          : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                           }`}
                       >
                         {items.map((item, idx) => {
@@ -520,6 +558,7 @@ const ScopeEmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onReg
         </div>
       </div>
     </div>
+    </>
   );
 };
 

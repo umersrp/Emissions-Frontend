@@ -891,7 +891,7 @@ const BuildingTable = () => {
             <Button
               icon="heroicons-outline:plus-sm"
               text="Add Building"
-              className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+              className="btn font-normal btn-sm bg-gradient-to-r from-[#2d6d74] to-[#094382] text-white border-0 hover:opacity-90"
               iconClass="text-lg"
               onClick={() => navigate("/Building-Form/Add")}
             />
@@ -911,7 +911,7 @@ const BuildingTable = () => {
                   className="min-w-full divide-y divide-slate-100 table-fixed"
                   {...getTableProps()}
                 >
-                  <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
+                  <thead className="bg-gradient-to-r from-[#2d6d74] to-[#094382] sticky top-0 z-10">
                     {headerGroups.map((headerGroup, idx) => (
                       <tr {...headerGroup.getHeaderGroupProps()} key={idx}>
                         {headerGroup.headers.map((column) => (
@@ -1043,7 +1043,7 @@ const BuildingTable = () => {
         activeModal={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         title="Confirm Delete"
-        themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+        themeClass="bg-gradient-to-r from-[#2d6d74] to-[#094382]"
         centered
         footerContent={
           <>
