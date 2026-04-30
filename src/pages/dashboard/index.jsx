@@ -171,42 +171,42 @@ const Dashboard = () => {
   // };
 
   const applyFilters = async () => {
-  setLoading(true);
-  try {
-    const token = localStorage.getItem("token");
-    const params = {};
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const params = {};
 
-    // Set applied building from the current dropdown selection
-    const buildingToApply = selectedBuilding;
-    setAppliedBuilding(buildingToApply);
+      // Set applied building from the current dropdown selection
+      const buildingToApply = selectedBuilding;
+      setAppliedBuilding(buildingToApply);
 
-    if (selectedBuilding) {
-      params.buildingId = selectedBuilding;
-    }
-    if (selectedDepartments && selectedDepartments.length > 0) {
-      params.stakeholder = selectedDepartments;
-    }
-    if (fromDate) {
-      params.fromDate = fromDate;
-    }
-    if (toDate) {
-      params.toDate = toDate;
-    }
-
-    const res = await axios.get(
-      `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        params,
+      if (selectedBuilding) {
+        params.buildingId = selectedBuilding;
       }
-    );
-    setDashboardData(res.data.data);
-  } catch (err) {
-    console.error("Filter error", err);
-  } finally {
-    setLoading(false);
-  }
-};
+      if (selectedDepartments && selectedDepartments.length > 0) {
+        params.stakeholder = selectedDepartments;
+      }
+      if (fromDate) {
+        params.fromDate = fromDate;
+      }
+      if (toDate) {
+        params.toDate = toDate;
+      }
+
+      const res = await axios.get(
+        `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params,
+        }
+      );
+      setDashboardData(res.data.data);
+    } catch (err) {
+      console.error("Filter error", err);
+    } finally {
+      setLoading(false);
+    }
+  };
   const clearFilters = () => {
     setSelectedDepartments([]);
     setFromDate("");
@@ -419,11 +419,11 @@ const Dashboard = () => {
   //   });
   // };
   const formatNumber = (num) => {
-  if (num === null || num === undefined) return "0";
-  // Truncate decimals (no rounding)
-  const truncated = Math.trunc(Number(num));
-  return truncated.toLocaleString();
-};
+    if (num === null || num === undefined) return "0";
+    // Truncate decimals (no rounding)
+    const truncated = Math.trunc(Number(num));
+    return truncated.toLocaleString();
+  };
 
   return (
     <div className="flex">
@@ -655,7 +655,7 @@ const Dashboard = () => {
               <div className="flex justify-between items-center gap-2">
                 <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider">Total GHG Emissions</h3>
                 <div className="p-2 bg-emerald-500/10 rounded-lg">
-                  <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-primary-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
@@ -675,29 +675,32 @@ const Dashboard = () => {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-primary-50/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 7-3 1-3-1-1-7z" />
                     </svg>
                   </div>
                   <h3 className="text-sm font-semibold text-gray-700">Scope 1 Emissions</h3>
                 </div>
-                <p className="text-2xl font-bold text-purple-600">
+                <p className="text-2xl font-bold text-primary-500">
                   {formatNumber(scope1Emission)}
                   <span className="text-sm font-normal text-gray-500 ml-1">tCO₂e</span>
                 </p>
-                <p className="text-xs text-gray-500 mt-2">Direct Emissions</p>
+                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary-50/20 text-primary-500">
+                  Direct Emissions
+                </span>
+
               </div>
             </div>
-            
+
           </div>
 
           {/* Scope 2 Emissions */}
           <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 transition-all hover:shadow-lg hover:border-orange-200">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 bg-primary-50/20 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
@@ -710,7 +713,7 @@ const Dashboard = () => {
                 <div>
                   <p className="text-xs font-medium text-gray-600">Location Based</p>
                 </div>
-                <p className="text-lg font-bold text-orange-600">
+                <p className="text-lg font-bold text-primary-500">
                   {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)}
                   <span className="text-xs font-normal text-gray-500"> tCO₂e</span>
                 </p>
@@ -720,7 +723,7 @@ const Dashboard = () => {
                 <div>
                   <p className="text-xs font-medium text-gray-600">Market Based</p>
                 </div>
-                <p className="text-lg font-bold text-orange-600">
+                <p className="text-lg font-bold text-primary-500">
                   {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)}
                   <span className="text-xs font-normal text-gray-500"> tCO₂e</span>
                 </p>
@@ -728,7 +731,7 @@ const Dashboard = () => {
             </div>
 
             <div className="mt-3 pt-2">
-              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-orange-50 text-orange-700">
+              <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary-50/20 text-primary-500">
                 Indirect Emissions
               </span>
             </div>
@@ -740,20 +743,20 @@ const Dashboard = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   </div>
                   <h3 className="text-sm font-semibold text-gray-700">Scope 3 Emissions</h3>
                 </div>
-                <p className="text-2xl font-bold text-teal-600">
+                <p className="text-2xl font-bold text-primary-500">
                   {formatNumber(scope3Emission)}
                   <span className="text-sm font-normal text-gray-500 ml-1">tCO₂e</span>
                 </p>
                 <p className="text-xs text-gray-500 mt-2">Other Indirect Emissions</p>
               </div>
             </div>
-            
+
           </div>
         </div>
 
@@ -779,7 +782,7 @@ const Dashboard = () => {
             {/* <div className="pr-20 min-w-[300px] overflow-x-auto scrollbar-hide ">  */}
             {/*            <div style={{ minWidth: `${Math.max(barChartData.length * 60, 800)}px` }} > */}
             <RevenueBarChart
-             key={appliedBuilding} 
+              key={appliedBuilding}
               chartData={barChartData}
               showZeroValues={false}
               onBarClick={(building) => {

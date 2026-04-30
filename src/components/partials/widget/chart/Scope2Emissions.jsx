@@ -231,7 +231,7 @@
 //               {selectedCategory && (
 //                 <button
 //                   onClick={resetView}
-//                   className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+//                   className="btn font-normal btn-sm bg-gradient-to-r from-[#2d6d74] to-[#094382] text-white border-0 hover:opacity-90"
 //                 >
 //                   Reset view
 //                 </button>
@@ -545,7 +545,7 @@ const getTopEntriesByMethod = (list = [], methodType, limit = 3) => {
 //               {selectedCategory && (
 //                 <button
 //                   onClick={resetView}
-//                   className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+//                   className="btn font-normal btn-sm bg-gradient-to-r from-[#2d6d74] to-[#094382] text-white border-0 hover:opacity-90"
 //                 >
 //                   Reset view
 //                 </button>
@@ -750,17 +750,17 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
       {/* Summary Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Total Scope 2 Card */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-lg p-4 border border-gray-700">
+        <div className="bg-gradient-to-r from-[#094382] to-[#037db9] rounded-2xl shadow-lg p-4 border border-orange-700">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-400 uppercase tracking-wider">Total Scope 2</p>
+              <p className="text-sm font-medium text-blue-200 uppercase tracking-wider">Total Scope 2</p>
               <p className="text-2xl font-bold text-white mt-2">
                 {truncateNumber(totalScope2)}
-                <span className="text-sm font-normal text-gray-400 ml-1">tCO₂e</span>
+                <span className="text-sm font-normal text-blue-200 ml-1">tCO₂e</span>
               </p>
             </div>
-            <div className="p-2 bg-gray-700/50 rounded-xl">
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 bg-blue-600/50 rounded-xl">
+              <svg className="w-5 h-5 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>

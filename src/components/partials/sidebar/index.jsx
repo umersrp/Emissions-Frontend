@@ -187,7 +187,7 @@ const Sidebar = () => {
   return (
     <div className={isSemiDark ? "dark" : ""}>
       <div
-        className={`sidebar-wrapper bg-white dark:bg-slate-800
+        className={`sidebar-wrapper bg-white dark:bg-slate-800 
           ${collapsed ? "w-[72px] close_sidebar" : "w-[248px]"}
           ${skin === "bordered"
             ? "border-r border-slate-200 dark:border-slate-700"
@@ -206,12 +206,23 @@ const Sidebar = () => {
         />
 
         {/* Menu */}
-        <SimpleBar
-          className={`sidebar-menu ${collapsed ? 'px-0' : 'px-2'} pb-16 h-[calc(100%-80px)]`}
+        {/* <SimpleBar
+          className={`sidebar-menu ${collapsed ? 'px-0' : 'px-2'} pb-16 ${
+          collapsed ? 'h-[calc(100vh-80px)]' : 'h-[calc(100vh-80px)]'}`}
           scrollableNodeProps={{ ref: scrollableNodeRef }}
         >
           <Navmenu menus={menuItems} collapsed={collapsed} />
-        </SimpleBar>
+        </SimpleBar> */}
+        <SimpleBar
+  className={`sidebar-menu ${collapsed ? 'px-0' : 'px-2'} ${
+    collapsed ? 'h-[calc(100vh-80px)]' : 'h-[calc(100vh-80px)]'
+  }`}
+  scrollableNodeProps={{ ref: scrollableNodeRef }}
+>
+  <Navmenu menus={menuItems} collapsed={collapsed} />
+  {/* Add padding at the bottom */}
+  <div className={`${collapsed ? 'h-20' : 'h-32'} mb-4`} />
+</SimpleBar>
       </div>
     </div>
   );

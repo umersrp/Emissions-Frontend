@@ -94,7 +94,7 @@ const sortedData = [...allData]
   const barColors = sortedData.map((item) => {
     if (selectedBuilding) {
       if (item.buildingId === selectedBuilding) {
-        return "#34D399";
+        return "#2d6d74";
       }
       return "#d1d5db";
     }
@@ -103,12 +103,12 @@ const sortedData = [...allData]
     if (selectedCategory) {
       // Handle both cases: if selectedCategory is the categoryKey or the full name
       if (item.name === selectedCategory || item.categoryKey === selectedCategory) {
-        return "#34D399"; // Highlight color
+        return "#2d6d74"; // Highlight color
       }
       return "#d1d5db"; // Dim other bars
     }
 
-    return "#4098ab"; // Default color
+    return "#094382"; // Default color
   });
 
 const series = [
@@ -178,7 +178,7 @@ const series = [
         // }
       }
     },
-colors: ["#4098ab", "transparent"],  // simple fallbacks only
+colors: ["#094382", "transparent"],  // simple fallbacks only
     fill: { opacity: 1 },
 stroke: { width: [2, 0] },
     dataLabels: {
@@ -291,17 +291,17 @@ stroke: { width: [2, 0] },
         });
         
         // Determine the color based on highlighting
-        let tooltipColor = "#4098ab";
+        let tooltipColor = "#094382";
         if (selectedBuilding) {
           if (sortedData[dataPointIndex]?.buildingId === selectedBuilding) {
-            tooltipColor = "#34D399";
+            tooltipColor = "#2d6d74";
           } else {
             tooltipColor = "#d1d5db";
           }
         } else if (selectedCategory) {
           if (sortedData[dataPointIndex]?.name === selectedCategory || 
               sortedData[dataPointIndex]?.categoryKey === selectedCategory) {
-            tooltipColor = "#34D399";
+            tooltipColor = "#2d6d74";
           } else {
             tooltipColor = "#d1d5db";
           }
@@ -474,7 +474,7 @@ export default RevenueBarChart;
     
 //     if (selectedBuilding) {
 //       if (item.buildingId === selectedBuilding) {
-//         return "#34D399";
+//         return "#2d6d74";
 //       }
 //       return "#d1d5db";
 //     }
@@ -483,19 +483,19 @@ export default RevenueBarChart;
 //     if (selectedCategory) {
 //       // Handle both cases: if selectedCategory is the categoryKey or the full name
 //       if (item.name === selectedCategory || item.categoryKey === selectedCategory) {
-//         return "#34D399"; // Highlight color
+//         return "#2d6d74"; // Highlight color
 //       }
 //       return "#d1d5db"; // Dim other bars
 //     }
 
-//     return "#4098ab"; // Default color
+//     return "#094382"; // Default color
 //   });
 
 //   const series = [
 //     {
 //       name: "Emissions",
 //       data: displayValues,
-//       color: "#4098ab", // Default fallback color
+//       color: "#094382", // Default fallback color
 //     },
 //     {
 //       name: "Emission",
@@ -684,17 +684,17 @@ export default RevenueBarChart;
 //         });
         
 //         // Determine the color based on highlighting
-//         let tooltipColor = "#4098ab";
+//         let tooltipColor = "#094382";
 //         if (selectedBuilding) {
 //           if (sortedData[dataPointIndex]?.buildingId === selectedBuilding) {
-//             tooltipColor = "#34D399";
+//             tooltipColor = "#2d6d74";
 //           } else {
 //             tooltipColor = "#d1d5db";
 //           }
 //         } else if (selectedCategory) {
 //           if (sortedData[dataPointIndex]?.name === selectedCategory || 
 //               sortedData[dataPointIndex]?.categoryKey === selectedCategory) {
-//             tooltipColor = "#34D399";
+//             tooltipColor = "#2d6d74";
 //           } else {
 //             tooltipColor = "#d1d5db";
 //           }

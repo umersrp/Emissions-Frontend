@@ -241,7 +241,7 @@
 //                   ...base,
 //                   borderColor: "#ccc",
 //                   boxShadow: "none",
-//                   "&:hover": { borderColor: "#3AB89D" },
+//                   "&:hover": { borderColor: "#2d6d74" },
 //                 }),
 //               }}
 //             />
@@ -250,7 +250,7 @@
 
 //         <div className="overflow-x-auto">
 //           <table className="min-w-full divide-y divide-gray-200">
-//             <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]">
+//             <thead className="bg-gradient-to-r from-[#2d6d74] to-[#094382]">
 //               <tr>
 //                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">
 //                   Sr.No
@@ -786,7 +786,7 @@ console.log("Building Data:", buildingData);
                   ...base,
                   borderColor: "#ccc",
                   boxShadow: "none",
-                  "&:hover": { borderColor: "#3AB89D" },
+                  "&:hover": { borderColor: "#2d6d74" },
                 }),
               }}
             />
@@ -795,7 +795,7 @@ console.log("Building Data:", buildingData);
 
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]">
+            <thead className="bg-gradient-to-r from-[#2d6d74] to-[#094382]">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-white tracking-wider">
                   Sr.No

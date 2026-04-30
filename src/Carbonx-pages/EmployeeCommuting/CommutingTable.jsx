@@ -121,7 +121,7 @@ const RecordRow = ({ record, index, selected, onSelect, onDelete }) => {
                     type="checkbox"
                     checked={selected}
                     onChange={() => onSelect(record._id)}
-                    className="form-checkbox h-4 w-4 text-[#3AB89D] border-gray-300 rounded"
+                    className="form-checkbox h-4 w-4 text-[#2d6d74] border-gray-300 rounded"
                 />
             </td>
             <td className="px-6 py-4 whitespace-nowrap">{index}</td>
@@ -485,7 +485,7 @@ const CommutingTable = () => {
                         <Button
                             icon="heroicons-outline:plus-sm"
                             text="Send Email"
-                            className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90 h-9"
+                            className="btn font-normal btn-sm bg-gradient-to-r from-[#2d6d74] to-[#094382] text-white border-0 hover:opacity-90 h-9"
                             iconClass="text-lg"
                             onClick={() => navigate("/EmailSent")}
                         />
@@ -511,7 +511,7 @@ const CommutingTable = () => {
                             ) : (
                                 <table className="min-w-full divide-y divide-slate-100">
 
-                                    <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
+                                    <thead className="bg-gradient-to-r from-[#2d6d74] to-[#094382] sticky top-0 z-10">
                                         <tr>
                                             <th className="table-th text-white whitespace-nowrap">
                                                 <input
@@ -774,7 +774,7 @@ const CommutingTable = () => {
                 activeModal={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
                 title="Confirm Delete"
-                themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+                themeClass="bg-gradient-to-r from-[#2d6d74] to-[#094382]"
                 centered
                 footerContent={
                     <>

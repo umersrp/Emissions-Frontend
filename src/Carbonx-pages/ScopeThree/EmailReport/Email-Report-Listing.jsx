@@ -438,7 +438,7 @@
 //             <Button
 //               icon="heroicons-outline:paper-airplane"
 //               text="Send New Email"
-//               className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+//               className="btn font-normal btn-sm bg-gradient-to-r from-[#2d6d74] to-[#094382] text-white border-0 hover:opacity-90"
 //               onClick={() => navigate("/send-email")} // Update this path as needed
 //             />
 //           </div>
@@ -456,7 +456,7 @@
 //                   className="min-w-full divide-y divide-slate-100 table-fixed"
 //                   {...getTableProps()}
 //                 >
-//                   <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
+//                   <thead className="bg-gradient-to-r from-[#2d6d74] to-[#094382] sticky top-0 z-10">
 //                     {headerGroups.map((headerGroup, index) => (
 //                       <tr {...headerGroup.getHeaderGroupProps()} key={index}>
 //                         {headerGroup.headers.map((column) => (
@@ -659,7 +659,7 @@
 //         activeModal={deleteModalOpen}
 //         onClose={() => setDeleteModalOpen(false)}
 //         title="Confirm Delete"
-//         themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+//         themeClass="bg-gradient-to-r from-[#2d6d74] to-[#094382]"
 //         centered
 //         footerContent={
 //           <>
@@ -1238,7 +1238,7 @@ const EmailReportListing = () => {
             {/* <Button
               icon="heroicons-outline:paper-airplane"
               text="Send New Email"
-              className="btn font-normal btn-sm bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] text-white border-0 hover:opacity-90"
+              className="btn font-normal btn-sm bg-gradient-to-r from-[#2d6d74] to-[#094382] text-white border-0 hover:opacity-90"
               onClick={() => navigate("/send-email")}
             /> */}
 
@@ -1263,7 +1263,7 @@ const EmailReportListing = () => {
                   className="min-w-full divide-y divide-slate-100 table-fixed"
                   {...getTableProps()}
                 >
-                  <thead className="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] sticky top-0 z-10">
+                  <thead className="bg-gradient-to-r from-[#2d6d74] to-[#094382] sticky top-0 z-10">
                     {headerGroups.map((headerGroup, index) => (
                       <tr {...headerGroup.getHeaderGroupProps()} key={index}>
                         {headerGroup.headers.map((column) => (
@@ -1466,7 +1466,7 @@ const EmailReportListing = () => {
         activeModal={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
         title="Confirm Delete"
-        themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+        themeClass="bg-gradient-to-r from-[#2d6d74] to-[#094382]"
         centered
         footerContent={
           <>
@@ -1492,7 +1492,7 @@ const EmailReportListing = () => {
         activeModal={bulkDeleteModalOpen}
         onClose={() => setBulkDeleteModalOpen(false)}
         title="Confirm Delete Multiple Records"
-        themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+        themeClass="bg-gradient-to-r from-[#2d6d74] to-[#094382]"
         centered
         footerContent={
           <>
@@ -1519,7 +1519,7 @@ const EmailReportListing = () => {
         activeModal={recipientsModalOpen}
         onClose={() => setRecipientsModalOpen(false)}
         title={`Recipients - ${selectedEmailSubject}`}
-        themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+        themeClass="bg-gradient-to-r from-[#2d6d74] to-[#094382]"
         centered
         size="lg"
         footerContent={
@@ -1623,7 +1623,7 @@ const EmailReportListing = () => {
         activeModal={editRecipientsModalOpen}
         onClose={() => setEditRecipientsModalOpen(false)}
         title={`Recipients - ${selectedEmailSubject}`}
-        themeClass="bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]"
+        themeClass="bg-gradient-to-r from-[#2d6d74] to-[#094382]"
         centered
         size="lg"
         footerContent={
@@ -1635,7 +1635,7 @@ const EmailReportListing = () => {
             />
             <Button
               text="Apply Changes"
-              className="btn-primary bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] hover:opacity-90"
+              className="btn-primary bg-gradient-to-r from-[#2d6d74] to-[#094382] hover:opacity-90"
               onClick={handleUpdate}
             />
           </div>
@@ -1670,7 +1670,7 @@ const EmailReportListing = () => {
                 >
                   {/*  Header */}
                   <div
-                    className={`relative py-3 px-4 text-white flex justify-between bg-gradient-to-r from-[#3AB89D] to-[#3A90B8]`}
+                    className={`relative py-3 px-4 text-white flex justify-between bg-gradient-to-r from-[#2d6d74] to-[#094382]`}
                   >
                     <h2 className="capitalize leading-6 tracking-wider font-medium text-base text-white">
                       Recipients - {selectedEmailSubject}
@@ -1701,7 +1701,7 @@ const EmailReportListing = () => {
                               disabled={true}
                               type="datetime-local"
                               className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm 
-              focus:border-[#3AB89D] focus:outline-none focus:ring-2 focus:ring-[#3AB89D]/20
+              focus:border-[#2d6d74] focus:outline-none focus:ring-2 focus:ring-[#2d6d74]/20
               hover:border-gray-300 transition-all duration-200
               disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                               value={startDate}
@@ -1715,7 +1715,7 @@ const EmailReportListing = () => {
                             <input
                               type="datetime-local"
                               className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm 
-              focus:border-[#3AB89D] focus:outline-none focus:ring-2 focus:ring-[#3AB89D]/20
+              focus:border-[#2d6d74] focus:outline-none focus:ring-2 focus:ring-[#2d6d74]/20
               hover:border-gray-300 transition-all duration-200
               disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
                               value={endDate}
@@ -1814,7 +1814,7 @@ const EmailReportListing = () => {
                       />
                       <Button
                         text="Apply Changes"
-                        className="btn-primary bg-gradient-to-r from-[#3AB89D] to-[#3A90B8] hover:opacity-90"
+                        className="btn-primary bg-gradient-to-r from-[#2d6d74] to-[#094382] hover:opacity-90"
                         onClick={handleUpdate}
                       />
                     </div>
