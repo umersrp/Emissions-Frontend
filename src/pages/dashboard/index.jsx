@@ -129,47 +129,6 @@ const Dashboard = () => {
     fetchInitialData();
   }, []); // Empty dependency array - runs once on mount
 
-
-  // const applyFilters = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const params = {};
-
-  //     // Set applied building from the current dropdown selection
-  //     setAppliedBuilding(selectedBuilding);
-
-  //     if (selectedBuilding) {
-  //       params.buildingId = selectedBuilding;
-  //     }
-  //     // if (selectedDepartments.length > 0) {
-  //     //   params.stakeholder = selectedDepartments;
-  //     // }
-  //     if (selectedDepartments && selectedDepartments.length > 0) {
-  //       params.stakeholder = selectedDepartments;
-  //     }
-  //     if (fromDate) {
-  //       params.fromDate = fromDate;
-  //     }
-  //     if (toDate) {
-  //       params.toDate = toDate;
-  //     }
-
-  //     const res = await axios.get(
-  //       `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
-  //       {
-  //         headers: { Authorization: `Bearer ${token}` },
-  //         params,
-  //       }
-  //     );
-  //     setDashboardData(res.data.data);
-  //   } catch (err) {
-  //     console.error("Filter error", err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const applyFilters = async () => {
     setLoading(true);
     try {
@@ -445,27 +404,27 @@ const Dashboard = () => {
       <main className={`flex-1 overflow-auto scrollbar-hide  ${loading ? 'opacity-100' : ''}`}>
         <div className="bg-white rounded-2xl shadow-lg mb-8">
           {/* Header */}
-          <div className="px-6 py-4 border-b rounded-t-2xl bg-gradient-to-r from-gray-50 to-white">
+          <div className="px-3 py-2  xl:px-6 xl:py-4 border-b rounded-t-2xl bg-gradient-to-r from-gray-50 to-white">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-md bg-blue-100 flex items-center justify-center">
-                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-gray-800">Filters</h3>
-                <p className="text-sm text-gray-500">Refine your data view</p>
+                <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800">Filters</h3>
+                <p className="text-xs xl:text-sm text-gray-500 xl:text-blue-700">Refine your data view</p>
               </div>
             </div>
           </div>
 
           {/* Filter Controls */}
-          <div className="p-6">
+          <div className="p-3 sm:p-4 lg:p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Building filter */}
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
-                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <label className="text-[12px] xl:text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                  <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                   Building

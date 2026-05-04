@@ -13,6 +13,8 @@ import CustomSelect from '@/components/ui/Select';
 import ToggleButton from '@/components/ui/ToggleButton';
 import { qualityControlOptions } from '@/constant/scope1/options';
 import { carTypeOptions, STANDARD_CAR_TYPES, PREMIUM_CAR_TYPES, STANDARD_FUEL_TYPES, PREMIUM_FUEL_TYPES } from '@/constant/scope3/employeeCommuting'
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
+
 
 // UK Government GHG Conversion Factors (2025)
 const EMISSION_FACTORS = {
@@ -690,14 +692,14 @@ const PartialSubmitModal = ({ isOpen, onClose, onConfirm, missingDistances }) =>
                     </div>
 
                     <div className="flex justify-between  mt-6">
-                      
+
                         <button
                             onClick={onClose}
                             className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
                         >
                             Cancel
                         </button>
-                          <button
+                        <button
                             onClick={onConfirm}
                             className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
                         >
@@ -2046,10 +2048,10 @@ const EmployeeCommutingFormCarpool = () => {
     const validateForm = () => {
         const errors = {};
 
-         if (!formData.qualityControl || !formData.qualityControl.value) {
-        errors.qualityControl = 'Quality Control is required';
-        return errors; // Return immediately, don't proceed to other validations
-    }
+        if (!formData.qualityControl || !formData.qualityControl.value) {
+            errors.qualityControl = 'Quality Control is required';
+            return errors; // Return immediately, don't proceed to other validations
+        }
 
         // Check if the user is a passenger in any commute
         if (!userPassengerDetails.transportTypes || userPassengerDetails.transportTypes.length === 0) {
@@ -2104,10 +2106,10 @@ const EmployeeCommutingFormCarpool = () => {
             return errors;
         }
 
-            // If Quality Control is missing, return errors without showing partial modal
-    if (errors.qualityControl) {
-        return errors;
-    }
+        // If Quality Control is missing, return errors without showing partial modal
+        if (errors.qualityControl) {
+            return errors;
+        }
 
         // If there are missing distances, store them and show modal
         if (missingDistances.length > 0 && missingDistances.length < userPassengerDetails.transportTypes.length) {
@@ -2127,7 +2129,7 @@ const EmployeeCommutingFormCarpool = () => {
     };
     const scrollToFirstError = (validationErrors) => {
         const errorKeyToSelector = {
-             qualityControl: '#qualityControl',
+            qualityControl: '#qualityControl',
             stakeholderDepartment: '#stakeholderDepartment',
             qualityControl: '#qualityControl',
             motorbikeDistance: '#motorbikeDistance',
@@ -2579,17 +2581,17 @@ const EmployeeCommutingFormCarpool = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-            // First, check if Quality Control is selected
-    if (!formData.qualityControl || !formData.qualityControl.value) {
-        setErrors({ qualityControl: 'Quality Control is required' });
-        toast.error('Please select Quality Control first');
-        // Scroll to quality control field
-        const qualityControlElement = document.querySelector('#qualityControl');
-        if (qualityControlElement) {
-            qualityControlElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // First, check if Quality Control is selected
+        if (!formData.qualityControl || !formData.qualityControl.value) {
+            setErrors({ qualityControl: 'Quality Control is required' });
+            toast.error('Please select Quality Control first');
+            // Scroll to quality control field
+            const qualityControlElement = document.querySelector('#qualityControl');
+            if (qualityControlElement) {
+                qualityControlElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
         }
-        return;
-    }
 
 
         const validationErrors = validateForm();
@@ -2686,13 +2688,13 @@ const EmployeeCommutingFormCarpool = () => {
                                             <div>
                                                 <p className="text-sm text-gray-500">Start Date</p>
                                                 <p className="font-medium">
-                                                    {new Date(originalFormData.motorbikeCarpoolDateRange.startDate).toLocaleDateString()}
+                                                    {formatDateDMY(originalFormData.motorbikeCarpoolDateRange.startDate)}
                                                 </p>
                                             </div>
                                             <div>
                                                 <p className="text-sm text-gray-500">End Date</p>
                                                 <p className="font-medium">
-                                                    {new Date(originalFormData.motorbikeCarpoolDateRange.endDate).toLocaleDateString()}
+                                                    {formatDateDMY(originalFormData.motorbikeCarpoolDateRange.endDate)}
                                                 </p>
                                             </div>
                                         </div>
@@ -2706,13 +2708,13 @@ const EmployeeCommutingFormCarpool = () => {
                                             <div>
                                                 <p className="text-sm text-gray-500">Start Date</p>
                                                 <p className="font-medium">
-                                                    {new Date(originalFormData.motorbikeDateRange.startDate).toLocaleDateString()}
+                                                    {formatDateDMY(originalFormData.motorbikeDateRange.startDate)}
                                                 </p>
                                             </div>
                                             <div>
                                                 <p className="text-sm text-gray-500">End Date</p>
                                                 <p className="font-medium">
-                                                    {new Date(originalFormData.motorbikeDateRange.endDate).toLocaleDateString()}
+                                                    {formatDateDMY(originalFormData.motorbikeDateRange.endDate)}
                                                 </p>
                                             </div>
                                         </div>
@@ -2825,13 +2827,13 @@ const EmployeeCommutingFormCarpool = () => {
                                             <div>
                                                 <p className="text-sm text-gray-500">Start Date</p>
                                                 <p className="font-medium">
-                                                    {new Date(originalFormData.carCarpoolDateRange.startDate).toLocaleDateString()}
+                                                    {formatDateDMY(originalFormData.carCarpoolDateRange.startDate)}
                                                 </p>
                                             </div>
                                             <div>
                                                 <p className="text-sm text-gray-500">End Date</p>
                                                 <p className="font-medium">
-                                                    {new Date(originalFormData.carCarpoolDateRange.endDate).toLocaleDateString()}
+                                                    {formatDateDMY(originalFormData.carCarpoolDateRange.endDate)}
                                                 </p>
                                             </div>
                                         </div>
@@ -2845,13 +2847,13 @@ const EmployeeCommutingFormCarpool = () => {
                                             <div>
                                                 <p className="text-sm text-gray-500">Start Date</p>
                                                 <p className="font-medium">
-                                                    {new Date(originalFormData.carDateRange.startDate).toLocaleDateString()}
+                                                    {formatDateDMY(originalFormData.carDateRange.startDate)}
                                                 </p>
                                             </div>
                                             <div>
                                                 <p className="text-sm text-gray-500">End Date</p>
                                                 <p className="font-medium">
-                                                    {new Date(originalFormData.carDateRange.endDate).toLocaleDateString()}
+                                                    {formatDateDMY(originalFormData.carDateRange.endDate)}
                                                 </p>
                                             </div>
                                         </div>
@@ -2949,13 +2951,13 @@ const EmployeeCommutingFormCarpool = () => {
                                             <div>
                                                 <p className="text-sm text-gray-500">Start Date</p>
                                                 <p className="font-medium">
-                                                    {new Date(originalFormData.taxiCarpoolDateRange.startDate).toLocaleDateString()}
+                                                    {formatDateDMY(originalFormData.taxiCarpoolDateRange.startDate)}
                                                 </p>
                                             </div>
                                             <div>
                                                 <p className="text-sm text-gray-500">End Date</p>
                                                 <p className="font-medium">
-                                                    {new Date(originalFormData.taxiCarpoolDateRange.endDate).toLocaleDateString()}
+                                                    {formatDateDMY(originalFormData.taxiCarpoolDateRange.endDate)}
                                                 </p>
                                             </div>
                                         </div>
@@ -2969,13 +2971,13 @@ const EmployeeCommutingFormCarpool = () => {
                                             <div>
                                                 <p className="text-sm text-gray-500">Start Date</p>
                                                 <p className="font-medium">
-                                                    {new Date(originalFormData.taxiDateRange.startDate).toLocaleDateString()}
+                                                    {formatDateDMY(originalFormData.taxiDateRange.startDate)}
                                                 </p>
                                             </div>
                                             <div>
                                                 <p className="text-sm text-gray-500">End Date</p>
                                                 <p className="font-medium">
-                                                    {new Date(originalFormData.taxiDateRange.endDate).toLocaleDateString()}
+                                                    {formatDateDMY(originalFormData.taxiDateRange.endDate)}
                                                 </p>
                                             </div>
                                         </div>
