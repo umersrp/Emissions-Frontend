@@ -43,7 +43,7 @@ const MobileMenu = ({ className = "custom-class" }) => {
         <Link to="/dashboard">
           <div className="flex items-center space-x-4">
      
-            <div>
+            <div >
               {!isDark && !isSemiDark ? (
                 <img src={SrpLogo} alt="SRP Logo" className="w-[50px]" />
               ) : (

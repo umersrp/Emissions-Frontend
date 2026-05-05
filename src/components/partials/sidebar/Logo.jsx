@@ -20,12 +20,12 @@ const SidebarLogo = ({ menuHover }) => {
   return (
     <>
      <Link to="/dashboard">
-        <div className="flex items-center justify-center w-full ">
+        <div className="flex items-center justify-center pl-2 pr-2 w-full ">
           <div className="logo-icon">
             {!isDark && !isSemiDark ? (
-              <img src={sufilogo} alt="" style={{width: '200px'}} />
+              <img src={sufilogo} alt="" style={{width: '100px'}} />
             ) : (
-              <img src={MobileLogoWhite} alt="" style={{width: '200px'}} />
+              <img src={MobileLogoWhite} alt="" style={{width: '100px'}} />
             )}
           </div>
 

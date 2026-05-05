@@ -570,8 +570,8 @@ const FugitiveCombustionListing = () => {
                 ]}
                 fileName="fugitive_emissions_current_page"
                 sheetName="Current Page"
-                buttonText="Export Page"
-                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+                buttonText=""
+                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#1b934f] to-[#208839] text-white border-0 hover:opacity-90"
                 exportFormat="current"
                 customFormatter={customFormatter}
                 pageInfo={{ currentPage: pageIndex, limit: pageSize }}
@@ -600,8 +600,8 @@ const FugitiveCombustionListing = () => {
               ]}
               fileName="fugitive_emissions_records"
               sheetName="Fugitive Emissions"
-              buttonText="Export All Entries"
-              buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+              buttonText="All "
+              buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#1b934f] to-[#208839] text-white border-0 hover:opacity-90"
               successMessage="Fugitive records exported successfully!"
               customFormatter={customFormatter}
               exportFormat="all"
@@ -609,8 +609,8 @@ const FugitiveCombustionListing = () => {
             />
             <Button
               icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
-              text="Import"
-              className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+             
+              className="btn font-normal btn-sm bg-gradient-to-r from-[#1b934f] to-[#208839] text-white border-0 hover:opacity-90"
               onClick={() => setBulkUploadModalOpen(true)}
             />
             <Button

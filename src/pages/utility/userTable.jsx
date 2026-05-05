@@ -1012,8 +1012,7 @@ const UserPage = () => {
 
             <Button
               icon={"heroicons:document-arrow-down"}
-              text="Import"
-              className="bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90 btn-sm"
+              className="bg-gradient-to-r from-[#1b934f] to-[#208839] text-white border-0 hover:opacity-90 btn-sm"
               iconClass="text-lg"
               onClick={() => setShowImportModal(true)}
             />
