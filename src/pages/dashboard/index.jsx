@@ -402,28 +402,28 @@ const Dashboard = () => {
       {/* Sidebar: Building filter */}
       {/* Main content */}
       <main className={`flex-1 overflow-auto scrollbar-hide  ${loading ? 'opacity-100' : ''}`}>
-        <div className="bg-white rounded-2xl shadow-lg mb-8">
+        <div className="bg-white rounded-2xl shadow-lg sm:mb-3 2xl:mb-8">
           {/* Header */}
-          <div className="px-3 py-2  xl:px-6 xl:py-4 border-b rounded-t-2xl bg-gradient-to-r from-gray-50 to-white">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-md bg-blue-100 flex items-center justify-center">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="sm:px-0 2xl:px-3 sm:py-0 2xl:py-2  border-b rounded-t-2xl bg-gradient-to-r from-gray-50 to-white">
+            <div className="flex items-center gap-3  sm:pl-3 2xl:pl-0">
+              <div className="sm:w-6 2xl:w-8 sm:h-6 2xl:h-8 rounded-md bg-blue-100 flex items-center justify-center">
+                <svg className="2xl:w-5 2xl:h-5 sm:w-6 sm:h-6  text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                 </svg>
               </div>
               <div>
-                <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800">Filters</h3>
-                <p className="text-xs xl:text-sm text-gray-500 xl:text-blue-700">Refine your data view</p>
+                <h3 className="sm:text-[16px] 2xl:text-lg text-gray-800">Filters</h3>
+                <p className="sm:text-[14px]  2xl:text-sm text-gray-500 sm:mt-[-16px] 2xl:mt-[-0px]">Refine your data view</p>
               </div>
             </div>
           </div>
 
           {/* Filter Controls */}
-          <div className="p-3 sm:p-4 lg:p-6">
+          <div className="sm:pt-1 2xl:pt-4 xl:p-3 p-3 pb-2 ">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* Building filter */}
               <div className="flex flex-col">
-                <label className="text-[12px] xl:text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                <label className="sm:text-[12px] 2xl:text-lg font-semibold text-gray-700 mb-2 flex items-center gap-1">
                   <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 lg:w-4 lg:h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
@@ -462,7 +462,7 @@ const Dashboard = () => {
 
               {/* Department filter */}
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                <label className="sm:text-[12px] 2xl:text-lg font-semibold text-gray-700 mb-2 flex items-center gap-1">
                   <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
@@ -498,7 +498,7 @@ const Dashboard = () => {
 
               {/* From Date filter */}
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                <label className="sm:text-[12px] 2xl:text-lg font-semibold text-gray-700 mb-2 flex items-center gap-1">
                   <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -520,7 +520,7 @@ const Dashboard = () => {
 
               {/* To Date filter */}
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                <label className="sm:text-[12px] 2xl:text-lg font-semibold text-gray-700 mb-1 xl:mb-2 flex items-center gap-1">
                   <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -544,7 +544,7 @@ const Dashboard = () => {
 
             {/* Active Filters Display */}
             {(selectedBuilding || selectedDepartments || fromDate || toDate) && (
-              <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+              <div className="flex justify-between items-center sm:mt-2 2xl:mt-4 pt-2   border-t border-gray-100">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-medium text-gray-500">Active filters:</span>
                   {selectedBuilding && (
@@ -584,16 +584,16 @@ const Dashboard = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={applyFilters}
-                    className="w-auto btn-dark py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                    className="w-auto btn-dark sm:py-1 sm:px-2 2xl:py-2.5 2xl:px-4     rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="md:w-4 w-3 md:h-4 h-3 " fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                     </svg>
                     Apply Filters
                   </button>
                   <button
                     onClick={clearFilters}
-                    className="w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2"
+                    className="w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 xl:py-2.5 px-2 xl:px-4 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -607,9 +607,9 @@ const Dashboard = () => {
         </div>
 
         {/* Summary cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 sm:mb-3 2xl:mb-8">
           {/* Total GHG Emissions - Featured Card */}
-          <div className="lg:col-span-1 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-lg border border-slate-700 p-6 transition-all hover:shadow-xl hover:scale-[1.02]">
+          <div className="lg:col-span-1 bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-lg border border-slate-700 sm:p-3 2xl:p-6 transition-all hover:shadow-xl hover:scale-[1.02]">
             <div>
               <div className="flex justify-between items-center gap-2">
                 <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider">Total GHG Emissions</h3>
@@ -619,47 +619,46 @@ const Dashboard = () => {
                   </svg>
                 </div>
               </div>
-              <p className="text-3xl font-bold text-white mt-3">
+              <p className="sm:text-xl 2xl:text-3xl font-bold text-white sm:mt-1 2xl:mt-3">
                 {formatNumber(totalEmission)}
                 <span className="text-sm font-normal text-slate-400 ml-1">tCO₂e</span>
               </p>
             </div>
-            <div className="mt-4 pt-3 border-t border-slate-700">
+            <div className="mt-2 sm:mt-4 pt-2 2xl:pt-3 border-t border-slate-700">
               <p className="text-xs text-slate-400">All scopes combined</p>
             </div>
           </div>
 
           {/* Scope 1 Emissions */}
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 transition-all hover:shadow-lg hover:border-purple-200">
+          <div className="bg-white rounded-2xl shadow-md border border-gray-100 sm:pl-3 sm:pr-3 2xl:pl-3 2xl:pr-3 sm:p-2 2xl:p-3  transition-all hover:shadow-lg hover:border-purple-200">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-primary-50/20 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center gap-2 sm:mb-1 2xl:mb-3">
+                  <div className="sm:w-6 2xl:w-8 sm:h-6 2xl:h-8 bg-primary-50/20 rounded-lg flex items-center justify-center">
+                    <svg className="sm:w-3 sm:h-3 2xl:w-4 2xl:h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 7-3 1-3-1-1-7z" />
                     </svg>
                   </div>
                   <h3 className="text-sm font-semibold text-gray-700">Scope 1 Emissions</h3>
                 </div>
-                <p className="text-2xl font-bold text-primary-500">
+                <p className="sm:text-xl 2xl:text-3xl font-bold text-primary-500">
                   {formatNumber(scope1Emission)}
                   <span className="text-sm font-normal text-gray-500 ml-1">tCO₂e</span>
                 </p>
-                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary-50/20 text-primary-500">
+                <span className="inline-flex sm:mt-0 2xl:mt-4 items-center px-2 py-1 rounded-md text-xs font-medium bg-primary-50/20 text-primary-500">
                   Direct Emissions
                 </span>
-
               </div>
             </div>
 
           </div>
 
           {/* Scope 2 Emissions */}
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 transition-all hover:shadow-lg hover:border-orange-200">
-            <div className="flex items-start justify-between mb-4">
+          <div className="bg-white rounded-2xl shadow-md border border-gray-100 sm:pl-3 sm:pr-3 2xl:pl-3 2xl:pr-3 sm:p-2 2xl:p-3 transition-all hover:shadow-lg hover:border-orange-200">
+            <div className="flex items-start justify-between sm:mb-2 2xl:mb-4">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary-50/20 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="sm:w-6 2xl:w-8 sm:h-6 2xl:h-8 bg-primary-50/20 rounded-lg flex items-center justify-center">
+                  <svg className="sm:w-3 sm:h-3 2xl:w-4 2xl:h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
@@ -667,52 +666,73 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+            <div className="space-y-0">
+              {/* <div className="flex items-center justify-between sm:p-0 2xl:p-2 sm:pl-1 2xl:pl-0  sm:pt-0 sm:pb-0 2xl:pb-2 2xl:pt-2 bg-gray-50 rounded-lg">
                 <div>
-                  <p className="text-xs font-medium text-gray-600">Location Based</p>
+                  <p className="text-xs font-medium ml-1 text-gray-600">Location Based</p>
                 </div>
-                <p className="text-lg font-bold text-primary-500">
+                <p className="sm:text-md 2xl:text-2xl font-bold text-primary-500">
+                  {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)}
+                  <span className="text-xs font-normal text-gray-500"> tCO₂e</span>
+                </p>
+              </div> */}
+              <div className="flex flex-wrap items-center justify-between sm:p-0 2xl:p-2 sm:pl-1 2xl:pl-0 sm:pt-0 sm:pb-0 2xl:pb-2 2xl:pt-2 bg-gray-50 rounded-lg gap-y-1">
+                <div>
+                  <p className="text-xs font-medium ml-1 text-gray-600">Location Based</p>
+                </div>
+                <p className="sm:text-md 2xl:text-2xl font-bold text-primary-500">
                   {formatNumber(purchasedElectricity?.totalLocationTCo2e || 0)}
                   <span className="text-xs font-normal text-gray-500"> tCO₂e</span>
                 </p>
               </div>
 
-              <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+              {/* <div className="flex items-center justify-between sm:p-0 2xl:p-2 sm:pl-1 2xl:pl-0 sm:pt-0 sm:pb-0 2xl:pb-2 2xl:pt-2 bg-gray-50 rounded-lg">
                 <div>
-                  <p className="text-xs font-medium text-gray-600">Market Based</p>
+                  <p className="text-xs font-medium ml-1 text-gray-600">Market Based</p>
                 </div>
-                <p className="text-lg font-bold text-primary-500">
+                <p className="sm:text-md 2xl:text-2xl font-bold text-primary-500">
+                  {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)}
+                  <span className="text-xs font-normal text-gray-500"> tCO₂e</span>
+                </p>
+              </div> */}
+              <div className="flex flex-wrap items-center justify-between sm:p-0 2xl:p-2 sm:pl-1 2xl:pl-0 sm:pt-0 sm:pb-0 2xl:pb-2 2xl:pt-2 bg-gray-50 rounded-lg gap-y-1">
+                <div>
+                  <p className="text-xs font-medium ml-1 text-gray-600">Market Based</p>
+                </div>
+                <p className="sm:text-md 2xl:text-2xl font-bold text-primary-500">
                   {formatNumber(purchasedElectricity?.totalMarketTCo2e || 0)}
                   <span className="text-xs font-normal text-gray-500"> tCO₂e</span>
                 </p>
               </div>
             </div>
 
-            <div className="mt-3 pt-2">
+            <div className="sm:mt-0 2xl:mt-3 sm:pt-0 2xl:pt-2">
               <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-primary-50/20 text-primary-500">
                 Indirect Emissions
               </span>
             </div>
+
           </div>
 
           {/* Scope 3 Emissions */}
-          <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-6 transition-all hover:shadow-lg hover:border-teal-200">
+          <div className="bg-white rounded-2xl shadow-md border border-gray-100 sm:pl-3 sm:pr-3 2xl:pl-3 2xl:pr-3 sm:p-2 2xl:p-3  transition-all hover:shadow-lg hover:border-teal-200">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 bg-teal-100 rounded-lg flex items-center justify-center">
-                    <svg className="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center gap-2 sm:mb-1 2xl:mb-3">
+                  <div className="sm:w-6 2xl:w-8 sm:h-6 2xl:h-8 bg-primary-50/20 rounded-lg flex items-center justify-center">
+                    <svg className="sm:w-3 sm:h-3 2xl:w-4 2xl:h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   </div>
                   <h3 className="text-sm font-semibold text-gray-700">Scope 3 Emissions</h3>
                 </div>
-                <p className="text-2xl font-bold text-primary-500">
+                <p className="sm:text-xl 2xl:text-3xl font-bold text-primary-500">
                   {formatNumber(scope3Emission)}
                   <span className="text-sm font-normal text-gray-500 ml-1">tCO₂e</span>
                 </p>
-                <p className="text-xs text-gray-500 mt-2">Other Indirect Emissions</p>
+                <span className="inline-flex sm:mt-0 2xl:mt-4 items-center px-2 py-1 rounded-md text-xs font-medium bg-primary-50/20 text-primary-500">
+                  Other Indirect Emissions
+                </span>
               </div>
             </div>
 

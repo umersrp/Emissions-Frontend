@@ -16,7 +16,7 @@ const profileLabel = () => {
     <div className="flex items-center gap-3 p-1 rounded-full bg-white shadow-sm border border-slate-200 dark:bg-slate-800 dark:border-slate-700 hover:shadow-md transition-all duration-200">
       {/* Avatar Section */}
       <div className="flex-shrink-0">
-        <div className="lg:h-9 lg:w-9 h-8 w-8 rounded-full ring-2 ring-primary-100 dark:ring-primary-900/30 ring-offset-2 ring-offset-white dark:ring-offset-slate-800">
+        <div className="lg:h-9 lg:w-9 h-8 w-8 rounded-full ring-2 ring-primary-500 dark:ring-primary-900/30 ring-offset-2 ring-offset-white dark:ring-offset-slate-800">
           <img
             src={UserAvatar}
             alt="User avatar"
@@ -27,7 +27,7 @@ const profileLabel = () => {
 
       {/* User Type & Dropdown Section */}
       <div className="flex items-center gap-2 pr-2">
-        <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-full shadow-sm hover:shadow-md transition-all duration-200">
+        <div className="bg-gradient-to-r from-[#2d6d74] to-[#094382] rounded-full shadow-sm hover:shadow-md transition-all duration-200">
           <span className="inline-flex items-center px-4 py-1.5 rounded-full text-white text-sm font-semibold tracking-wide">
             <span className="max-w-[120px] truncate">
               {userType}

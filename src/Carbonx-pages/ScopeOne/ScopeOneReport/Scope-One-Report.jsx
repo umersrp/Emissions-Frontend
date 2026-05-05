@@ -718,7 +718,7 @@ console.log("Building Data:", buildingData);
 
       {/* Total Scope One */}
       <motion.div
-        className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl p-6 mb-8"
+        className="bg-gradient-to-r from-[#2d6d74] to-[#094382]  shadow-md rounded-2xl p-6 mb-8"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
       >
@@ -774,7 +774,7 @@ console.log("Building Data:", buildingData);
               : emissionType.charAt(0).toUpperCase() + emissionType.slice(1)}
               {" "} Emissions (Building-Wise) 
           </h6>
-          <div className="w-64">
+          <div className="max-w-5xl">
             <Select
               options={emissionOptions}
               value={emissionOptions.find((opt) => opt.value === emissionType)}

@@ -674,8 +674,8 @@ const FuelFusion = () => {
                                 ]}
                                 fileName="fuel_energy_current_page"
                                 sheetName="Current Page"
-                                buttonText="Export Page"
-                                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+                                buttonText=""
+                                buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#1b934f] to-[#208839] text-white border-0 hover:opacity-90"
                                 exportFormat="current"
                                 customFormatter={customFormatter}
                                 pageInfo={{ currentPage: pageIndex, limit: pageSize }}
@@ -723,8 +723,8 @@ const FuelFusion = () => {
                             ]}
                             fileName="fuel_energy_records"
                             sheetName="Fuel & Energy"
-                            buttonText="Export All Entries"
-                            buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+                            buttonText="All"
+                            buttonClassName="btn font-normal btn-sm bg-gradient-to-r from-[#1b934f] to-[#208839] text-white border-0 hover:opacity-90"
                             successMessage="Fuel & Energy records exported successfully!"
                             customFormatter={customFormatter}
                             exportFormat="all"
@@ -734,8 +734,8 @@ const FuelFusion = () => {
                         {/* Import Button */}
                         <Button
                             icon={csvState.uploading ? "heroicons:arrow-path" : "heroicons:document-arrow-down"}
-                            text={csvState.uploading ? "Uploading..." : "Import"}
-                            className="btn font-normal btn-sm bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90"
+                            text={csvState.uploading ? "Uploading..." : ""}
+                            className="btn font-normal btn-sm bg-gradient-to-r from-[#1b934f] to-[#208839] text-white border-0 hover:opacity-90"
                             iconClass={csvState.uploading ? "text-lg animate-spin" : "text-lg"}
                             onClick={() => setBulkUploadModalOpen(true)}
                             disabled={csvState.uploading}
