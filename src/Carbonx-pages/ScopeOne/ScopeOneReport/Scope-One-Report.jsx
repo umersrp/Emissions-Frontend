@@ -714,16 +714,16 @@ console.log("Building Data:", buildingData);
 
   return (
     <Card>
-      <h2 className="text-2xl font-semibold text-gray-700 mb-4">GHG Emissions</h2>
+      <h2 className="sm:text-lg 2xl:text-2xl font-semibold text-gray-700 sm:mb-2 2xl:mb-4">GHG Emissions</h2>
 
       {/* Total Scope One */}
       <motion.div
-        className="bg-gradient-to-r from-[#2d6d74] to-[#094382]  shadow-md rounded-2xl p-6 mb-8"
+        className="bg-gradient-to-r from-[#2d6d74] to-[#094382]  shadow-md rounded-2xl sm:p-3 2xl:p-6 sm:mb-3 2xl:mb-8"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
       >
-        <h2 className="text-2xl font-semibold mb-2 text-white">Total Scope 1 Emissions</h2>
-        <p className="text-xl font-bold text-white">
+        <h2 className="sm:text-lg 2xl:text-2xl font-semibold sm:mb-0 2xl:mb-2 text-white">Total Scope 1 Emissions</h2>
+        <p className="sm:text-md 2xl:text-xl font-bold text-white">
           {loading
             ? "Loading..."
             : `${formatNumber(allTotalKg)} KgCO₂e | ${formatNumber(allTotalT)} tCO₂e`}
@@ -749,9 +749,9 @@ console.log("Building Data:", buildingData);
                   icon={iconMap[item.name] || "heroicons:circle-stack"}
                   className="text-gray-700 text-2xl"
                 />
-                <h2 className="text-xl font-semibold mb-1 text-gray-700">{item.name}</h2>
+                <h2 className="sm:text-[16px] 2xl:text-xl font-semibold mb-1 text-gray-700">{item.name}</h2>
               </div>
-              <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
+              <p className="sm:text-sm 2xl:text-base font-medium text-gray-600 flex flex-col pl-8">
                 <span>
                   {formatNumber(item.kg)}<span className="text-black-500"> KgCO₂e</span>
                 </span>
@@ -766,8 +766,8 @@ console.log("Building Data:", buildingData);
 
       {/* Building-wise Table + Filter */}
       <Card>
-        <div className="flex justify-between items-center mb-4">
-          <h6 className="text-gray-800 font-semibold">
+        <div className="flex justify-between items-center sm:mb-2 2xl:mb-4">
+          <h6 className="text-gray-800 sm:text-[16px] 2xl:text-xl">
             
             {emissionType === "all"
               ? "All Scope 1"

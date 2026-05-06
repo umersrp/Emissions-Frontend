@@ -26,36 +26,7 @@ const GroupChart1 = ({ chartData = [], loading }) => {
     chart: {
       type: "pie",
       events: {
-        // dataPointMouseEnter: function(event, chartContext, config) {
-        //   // Get the slice element
-        //   const slices = event.target.closest('svg').querySelectorAll('.apexcharts-pie-area');
-        //   const slice = slices[config.dataPointIndex];
-
-        //   if (slice) {
-        //     // Get the center point of the pie
-        //     const bbox = slice.getBBox();
-        //     const centerX = bbox.x + bbox.width / 2;
-        //     const centerY = bbox.y + bbox.height / 2;
-
-        //     // Calculate offset direction based on slice position
-        //     const svgRect = slice.closest('svg').getBoundingClientRect();
-        //     const sliceCenter = slice.getBBox();
-        //     const dx = (sliceCenter.x + sliceCenter.width / 2) - (svgRect.width / 2);
-        //     const dy = (sliceCenter.y + sliceCenter.height / 2) - (svgRect.height / 2);
-        //     const distance = Math.sqrt(dx * dx + dy * dy);
-        //     const offsetDistance = 8;
-        //     const offsetX = (dx / distance) * offsetDistance;
-        //     const offsetY = (dy / distance) * offsetDistance;
-        //     const findHighestEmission = originalPercentages.find((perc) => perc > 75)
-        //     slice.style.transition = 'transform 0.5s ease';                 
-        //     if (findHighestEmission) {
-        //       slice.style.transform = `translate(15px, ${0}px)`;
-        //     } else {
-        //       slice.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-        //     }
-        //     console.log('offset  ===+>', offsetX, originalPercentages);
-        //   }
-        // },
+        
         dataPointMouseEnter: function (event, chartContext, config) {
           // Get the slice element
           const slices = event.target.closest('svg').querySelectorAll('.apexcharts-pie-area');
@@ -253,7 +224,7 @@ const GroupChart1 = ({ chartData = [], loading }) => {
       <Chart options={options} series={series} type="donut" height={290} />
 
       {/* Custom Legend (like PDF) */}
-      <div className="flex gap-4 mt-10">
+      <div className="flex gap-4 sm:mt-0 2xl:mt-10">
         {chartData.map((item, index) => {
           const percent = calculatePercent(item.value, index);
 

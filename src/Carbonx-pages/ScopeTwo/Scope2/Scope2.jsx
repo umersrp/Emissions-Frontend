@@ -8,31 +8,31 @@ const Scope2 = () => {
   const navigate = useNavigate();
 
   const categories = [
-    { 
-      title: "Purchased Electricity", 
+    {
+      title: "Purchased Electricity",
       path: "/Purchased-Electricity",
-      icon: "mdi:power-plug", 
+      icon: "mdi:power-plug",
       bg: "bg-cyan-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
     },
-    { 
-      title: "Purchased Steam", 
+    {
+      title: "Purchased Steam",
       path: "/",
-      icon: "heroicons:truck", 
+      icon: "heroicons:truck",
       bg: "bg-red-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
     },
-    { 
-      title: "Purchased Heating", 
+    {
+      title: "Purchased Heating",
       path: "/",
-      icon: "heroicons:cloud", 
+      icon: "heroicons:cloud",
       bg: "bg-purple-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#d8bbf7] to-[#a66ee0]"
     },
-    { 
-      title: "Purchased Cooling", 
+    {
+      title: "Purchased Cooling",
       path: "/",
-      icon: "heroicons:cog-6-tooth", 
+      icon: "heroicons:cog-6-tooth",
       bg: "bg-green-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebc0] to-[#6fcf97]"
     },
@@ -42,32 +42,35 @@ const Scope2 = () => {
     <div className="w-full mx-auto space-y-8">
       {/* Header Section */}
       <Card title={"Scope 2: Direct GHG Emissions"}
-       className="w-full  flex flex-col justify-center pb-44 min-h-screen">
-         <div className="space-y-6 w-full">
-        <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
-         Scope 2 accounts for GHG emissions from the generation of purchased electricity, steam, heating and cooling or consumed by the company. Purchased energy is defined as electricity, steam, heating and cooling that is purchased or otherwise brought into the organizational boundary of the company. Scope 2 emissions physically occur at the facility.        </p>
-        {/* <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
+        className="w-full  flex flex-col justify-center pb-44 min-h-screen">
+        <div className="sm:space-y-2 2xl:space-y-6 w-full">
+          <p className="text-slate-700 leading-relaxed sm:text-[12px] 2xl:text-lg  sm:mb-0 2xl:mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
+            Scope 2 accounts for GHG emissions from the generation of purchased electricity, steam, heating and cooling or consumed by the company. Purchased energy is defined as electricity, steam, heating and cooling that is purchased or otherwise brought into the organizational boundary of the company. Scope 2 emissions physically occur at the facility.        </p>
+          {/* <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
           <span className="font-semibold ">Note:</span> Direct CO₂ emissions from the combustion of biomass shall not be included in scope 1 but reported separately.
         </p> */}
 
-        {/* Sub-Task Cards Section */}
-        <label className="w-full font-extrabold text-2xl text-slate-700 pb-8 text-center">
-          SCOPE 2 CATEGORIES
-        </label>
-        <div className="grid sm:grid-cols-4 gap-10 pb-10">
-          {categories.map((cat, index) => (
-            <div
-              key={index}
-              onClick={() => navigate(cat.path)}
-              className={`h-40 flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer ${cat.bg} ${cat.hoverGradient}`}
-            >
-              <Icon icon={cat.icon} className="text-4xl mb-3 text-gray-700 hover:text-white" />
-              <h3 className="text-lg font-semibold text-center text-gray-700 hover:text-white">
-                {cat.title}
-              </h3>
-            </div>
-          ))}
-        </div>
+          {/* Sub-Task Cards Section */}
+          <label className="w-full font-extrabold sm:text-[14px] 2xl:text-lg  text-slate-700 sm:pt-2 2xl:pb-8 text-center">
+            SCOPE 2 CATEGORIES
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5 2xl:gap-10 pb-6 sm:pb-5 2xl:pb-10">
+            {categories.map((cat, index) => (
+              <div
+                key={index}
+                onClick={() => navigate(cat.path)}
+                className={`flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer py-4 sm:py-5 2xl:py-8 px-2 ${cat.bg} ${cat.hoverGradient}`}
+              >
+                <Icon
+                  icon={cat.icon}
+                  className="text-3xl 2xl:text-4xl mb-2 2xl:mb-3 text-gray-700 hover:text-white"
+                />
+                <h3 className="text-[11px] sm:text-[12px] 2xl:text-lg font-semibold text-center text-gray-700 hover:text-white px-2 leading-tight">
+                  {cat.title}
+                </h3>
+              </div>
+            ))}
+          </div>
         </div>
       </Card>
     </div>

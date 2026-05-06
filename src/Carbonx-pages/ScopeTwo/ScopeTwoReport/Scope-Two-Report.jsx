@@ -249,45 +249,45 @@ const ScopeTwoReport = () => {
 
   return (
     <Card>
-      <h2 className="text-2xl font-semibold text-gray-700 mb-4">GHG Emissions</h2>
+      <h2 className="sm:text-[16px] 2xl:text-2xl font-semibold text-gray-700 sm:mb-0 2xl:mb-4">GHG Emissions</h2>
 
       {/* Total Scope One */}
       {/* <motion.div
-        className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl p-6 mb-8"
+        className="bg-gradient-to-r from-[#6fceba] to-[#6ca0b9] shadow-md rounded-2xl sm:p-3 2xl:p-6 mb-8"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
       >
-        <h2 className="text-2xl font-semibold mb-2 text-white">Total Scope 2 Emissions</h2>
-        <p className="text-xl font-bold text-white">
+        <h2 className="sm:text-[16px] 2xl:text-2xl font-semibold mb-2 text-white">Total Scope 2 Emissions</h2>
+        <p className="sm:text-[16px] 2xl:text-xl font-bold text-white">
           {loading
             ? "Loading..."
             : `${formatNumber(allTotalKg)} kg CO₂e | ${formatNumber(allTotalT)} t CO₂e`}
         </p>
       </motion.div> */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6 sm:p-3 2xl:p-6">
         <motion.div
-          className="bg-gradient-to-r from-[#2d6d74] to-[#094382]  shadow-md rounded-2xl p-6 mb-8"
+          className="bg-gradient-to-r from-[#2d6d74] to-[#094382]  shadow-md rounded-2xl sm:p-3 2xl:p-6 sm:mb-0 2xl:mb-8"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <h2 className="text-2xl font-semibold mb-4 text-white">Total Scope 2 Emissions Location Based </h2>
+          <h2 className="sm:text-[16px] 2xl:text-2xl font-semibold sm:mb-2 2xl:mb-4 text-white">Total Scope 2 Emissions Location Based </h2>
 
           <div className="space-y-2 text-white">
-            <p className="text-lg font-medium">
+            <p className="sm:text-[16px] 2xl:text-xl font-medium">
               {formatNumber(totalLocationKg)} KgCO₂e |{" "} 
               {formatNumber(totalLocationT)} tCO₂e
             </p>
           </div>
         </motion.div>
         <motion.div
-          className="bg-gradient-to-r from-[#2d6d74] to-[#094382]  shadow-md rounded-2xl p-6 mb-8"
+          className="bg-gradient-to-r from-[#2d6d74] to-[#094382]  shadow-md rounded-2xl sm:p-3 2xl:p-6 sm:mb-0 2xl:mb-8"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <h2 className="text-2xl font-semibold mb-4 text-white">Total Scope 2 Emissions Market Based </h2>
+          <h2 className="sm:text-[16px] 2xl:text-2xl font-semibold sm:mb-2 2xl:mb-4 text-white">Total Scope 2 Emissions Market Based </h2>
 
           <div className="space-y-2 text-white">
-            <p className="text-lg font-medium">
+            <p className="sm:text-[16px] 2xl:text-xl font-medium">
               {formatNumber(totalMarketKg)} KgCO₂e |{" "} 
               {formatNumber(totalMarketT)} tCO₂e
             </p>
@@ -296,7 +296,8 @@ const ScopeTwoReport = () => {
       </div>
 
       {/* Individual Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+      {/* <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6"> */}
+        <div className="w-1/2 gap-3 sm:mb-3 2xl:mb-6">
         {summaryCards.map((item, idx) => {
           const iconMap = {
             "Stationary Combustion": "heroicons:fire",
@@ -307,23 +308,23 @@ const ScopeTwoReport = () => {
           return (
             <div
               key={idx}
-              className={`${item.bg} rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 p-3`}
+              className={`${item.bg} rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 sm:p-1.5 2xl:p-3`}
             >
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 sm:mb-0 2xl:mb-1">
                 <Icon
                   icon={iconMap[item.name] || "mdi:power-plug"}
-                  className="text-gray-700 text-2xl"
+                  className="text-gray-700 sm:text-lg 2xl:text-2xl"
                 />
-                <h2 className="text-xl font-semibold mb-1 text-gray-700">{item.name}</h2>
+                <h2 className="sm:text-[16px] 2xl:text-xl font-semibold sm:mb-0 2xl:mb-1 text-gray-700">{item.name}</h2>
               </div>
-              <p className="text-[14px] font-medium text-gray-600 flex flex-col pl-8">
+              <p className="sm:text-[14px] 2xl:text-base font-medium text-gray-600 flex flex-col pl-8">
                 {item.name === "Purchased Electricity" ? (
                   <>
-                    <span className="text-md font-semibold mb-1 text-gray-700">Location Based</span>
+                    <span className="text-md font-semibold sm:mb-0 2xl:mb-1 text-gray-700">Location Based</span>
                     <span>
                       {formatNumber(item.locationKg)} KgCO₂e | {formatNumber(item.locationT)} tCO₂e
                     </span>
-                    <span className="text-md font-semibold mb-1 text-gray-700">Market Based</span>
+                    <span className="text-md font-semibold sm:mb-0 2xl:mb-1 text-gray-700">Market Based</span>
                     <span>
                       {formatNumber(item.marketKg)} KgCO₂e | {formatNumber(item.marketT)} tCO₂e
                     </span>
@@ -342,9 +343,9 @@ const ScopeTwoReport = () => {
 
       {/* Building-wise Table + Filter */}
       <Card>
-        <div className="flex justify-between items-center mb-4">
-          <h6 className="text-gray-800 font-semibold">
-            {emissionType === "all"
+        <div className="flex justify-between items-center sm:mb-2 2xl:mb-4">
+          <h6 className="text-gray-800 sm:text-[16px] 2xl:sm:text-lg 2xl:text-xl font-semibold">
+            {emissionType === "all"   
               ? "All Scope 2"
               : emissionType.charAt(0).toUpperCase() + emissionType.slice(1)}
             {" "} Emissions (Building-Wise)

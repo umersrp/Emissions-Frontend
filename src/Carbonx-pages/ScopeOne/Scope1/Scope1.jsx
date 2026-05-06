@@ -58,83 +58,84 @@ const Scope1 = () => {
   const navigate = useNavigate();
 
   const categories = [
-    { 
-      title: "Stationary Combustion", 
+    {
+      title: "Stationary Combustion",
       path: "/Stationary-Combustion",
-      icon: "heroicons:fire", 
+      icon: "heroicons:fire",
       bg: "bg-cyan-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
     },
-    { 
-      title: "Mobile Combustion", 
+    {
+      title: "Mobile Combustion",
       path: "/Mobile-Combustion",
-      icon: "heroicons:truck", 
+      icon: "heroicons:truck",
       bg: "bg-red-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
     },
-    { 
-      title: "Fugitive Emissions", 
+    {
+      title: "Fugitive Emissions",
       path: "/Fugitive-Emissions",
-      icon: "heroicons:cloud", 
+      icon: "heroicons:cloud",
       bg: "bg-purple-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#d8bbf7] to-[#a66ee0]"
     },
-    { 
-      title: "Process Emissions", 
+    {
+      title: "Process Emissions",
       path: "/Process-Emissions",
-      icon: "heroicons:cog-6-tooth", 
+      icon: "heroicons:cog-6-tooth",
       bg: "bg-green-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebc0] to-[#6fcf97]"
     },
   ];
 
   return (
-  <div className="w-full">
-  <Card
-    title={"Scope 1: Direct GHG Emissions"}
-    className="w-full  flex flex-col justify-center pb-44 min-h-screen"
-  >
-    {/* <div className="max-w-5xl  mx-auto min-h-screen w-full space-y-8"> */}
-      <div className="space-y-6 w-full">
+    <div className="w-full">
+      <Card
+        title={"Scope 1: Direct GHG Emissions"}
+        className="w-full  flex flex-col justify-center pb-44 min-h-screen"
+      >
+        {/* <div className="max-w-5xl  mx-auto min-h-screen w-full space-y-8"> */}
+        <div className="sm:space-y-2 2xl:space-y-6 w-full">
 
+          {/* Description */}
+          <p className="text-slate-700 sm:text-[12px] 2xl:text-lg leading-relaxed bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
+            Scope 1 includes direct GHG emissions from owned and leased facilities
+            under the operational control of the organisation (e.g. offices / warehouses).
+            These are emissions resulting from the combustion of fuels, refrigerant
+            leakage and the use of selected industrial and shielding gases.
+          </p>
 
-      {/* Description */}
-      <p className="text-slate-700 leading-relaxed bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
-        Scope 1 includes direct GHG emissions from owned and leased facilities 
-        under the operational control of the organisation (e.g. offices / warehouses).
-        These are emissions resulting from the combustion of fuels, refrigerant 
-        leakage and the use of selected industrial and shielding gases.
-      </p>
+          <p className="text-slate-700 sm:text-[12px] 2xl:text-lg leading-relaxed bg-gray-100 sm:p-1 2xl:p-2 rounded-lg border-l-4 border-primary-400">
+            <span className="font-semibold">Note:</span>
+            Direct CO₂ emissions from the combustion of biomass shall not be included
+            in scope 1 but reported separately.
+          </p>
 
-      <p className="text-slate-700 leading-relaxed bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
-        <span className="font-semibold">Note:</span>  
-        Direct CO₂ emissions from the combustion of biomass shall not be included 
-        in scope 1 but reported separately.
-      </p>
+          {/* Sub-Task Cards Section */}
+          <label className="w-full font-extrabold sm:text-lg 2xl:text-2xl text-slate-700 text-center block">
+            SCOPE 1 CATEGORIES
+          </label>
 
-      {/* Sub-Task Cards Section */}
-      <label className="w-full font-extrabold text-2xl text-slate-700 text-center block">
-        SCOPE 1 CATEGORIES
-      </label>
-
-      <div className="grid sm:grid-cols-4 gap-10  pb-10">
-        {categories.map((cat, index) => (
-          <div
-            key={index}
-            onClick={() => navigate(cat.path)}
-            className={`h-40 flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer ${cat.bg} ${cat.hoverGradient}`}
-          >
-            <Icon icon={cat.icon} className="text-4xl mb-3 text-gray-700" />
-            <h3 className="text-lg font-semibold text-center text-gray-700">
-              {cat.title}
-            </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5 2xl:gap-10 pb-6 sm:pb-5 2xl:pb-10">
+            {categories.map((cat, index) => (
+              <div
+                key={index}
+                onClick={() => navigate(cat.path)}
+                className={`flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer py-4 sm:py-5 2xl:py-8 px-2 ${cat.bg} ${cat.hoverGradient}`}
+              >
+                <Icon
+                  icon={cat.icon}
+                  className="text-3xl 2xl:text-4xl mb-2 2xl:mb-3 text-gray-700 hover:text-white"
+                />
+                <h3 className="text-[11px] sm:text-[12px] 2xl:text-lg font-semibold text-center text-gray-700 hover:text-white px-2 leading-tight">
+                  {cat.title}
+                </h3>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-
+        </div>
+      </Card>
     </div>
-  </Card>
-</div>
 
   );
 };

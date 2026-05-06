@@ -766,15 +766,15 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
   return (
     <div className="space-y-6">
       {/* Total Scope 3 Summary Card */}
-      <div className="bg-gradient-to-r from-[#094382] to-[#037db9] rounded-2xl shadow-lg p-4 border border-teal-700">
+      <div className="bg-gradient-to-r from-[#094382] to-[#037db9] rounded-2xl shadow-lg sm:p-2 2xl:p-4 sm:pl-4 sm:pr-4 border border-teal-700">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm font-medium text-blue-300 uppercase tracking-wider">Total Scope 3 Emissions</p>
-            <p className="text-3xl font-bold text-white mt-2">
+            <p className="sm:text-[10px] 2xl:text-sm font-medium text-blue-300 uppercase tracking-wider">Total Scope 3 Emissions</p>
+            <p className="sm:text-lg 2xl:text-3xl font-bold text-white sm:mt-0 2xl:mt-2">
               {formatNumber(totalScope3)}
               <span className="text-sm font-normal text-blue-300 ml-1">tCO₂e</span>
             </p>
-            <p className="text-xs text-blue-300 mt-2">Other indirect emissions across value chain</p>
+            <p className="text-xs text-blue-300 sm:mt-0 2xl:mt-2">Other indirect emissions across value chain</p>
           </div>
           <div className="p-2 bg-blue-700/50 rounded-xl">
             <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -873,7 +873,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
             </div>
 
             {/* Scrollable Table Content */}
-            <div className="max-h-[550px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <div className="max-h-[515px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               <div className="p-6 space-y-5">
                 {Object.entries(topScope3Categories)
                   .filter(([categoryName, items]) => (selectedCategory ? categoryName === selectedCategory : true))
@@ -902,7 +902,7 @@ const Scope3EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
                     return (
                       <div key={categoryName} className="space-y-3">
                         {/* Category Header */}
-                        <div className={`flex items-center justify-between p-3 rounded-xl ${metadata.bg} border ${metadata.border}`}>
+                        <div className={`flex items-center justify-between sm:p-1.5 2xl:p-3 rounded-xl ${metadata.bg} border ${metadata.border}`}>
                           <div className="flex items-center gap-2">
                             {metadata.iconType === "png" ? (
                               <img

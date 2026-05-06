@@ -622,7 +622,7 @@ const getTopEntriesByMethod = (list = [], methodType, limit = 3) => {
 //   );
 // };
 
-import Icon from '@/components/ui/Icon'; 
+import Icon from '@/components/ui/Icon';
 
 const truncateNumber = (num) => {
   if (num === null || num === undefined) return "0";
@@ -750,13 +750,13 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
       {/* Summary Cards Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Total Scope 2 Card */}
-        <div className="bg-gradient-to-r from-[#094382] to-[#037db9] rounded-2xl shadow-lg p-4 border border-orange-700">
+        <div className="bg-gradient-to-r from-[#094382] to-[#037db9] rounded-2xl shadow-lg sm:p-2 2xl:p-4 sm:pl-4 sm:pr-4 border border-orange-700">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-blue-200 uppercase tracking-wider">Total Scope 2</p>
-              <p className="text-2xl font-bold text-white mt-2">
+              <p className="sm:text-[10px] 2xl:text-sm font-medium text-blue-200 uppercase tracking-wider">Total Scope 2</p>
+              <p className="sm:text-lg 2xl:text-2xl font-bold text-white sm:mt-0 2xl:mt-2">
                 {truncateNumber(totalScope2)}
-                <span className="text-sm font-normal text-blue-200 ml-1">tCO₂e</span>
+                <span className="sm:text-[10px] 2xl:text-sm font-normal text-blue-200 ml-1">tCO₂e</span>
               </p>
             </div>
             <div className="p-2 bg-blue-600/50 rounded-xl">
@@ -768,20 +768,20 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
         </div>
 
         {/* Location Based Card */}
-        <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all">
+        <div className="bg-white rounded-2xl shadow-md border border-gray-100 sm:p-2 2xl:p-4 sm:pl-4 sm:pr-4 hover:shadow-lg transition-all">
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-lg">
                   <Icon icon="heroicons:map-pin" />
                 </span>
-                <p className="text-sm font-semibold text-gray-700">Location Based</p>
+                <p className="sm:text-[10px] 2xl:text-sm font-semibold text-gray-700">Location Based</p>
               </div>
-              <p className="text-2xl font-bold text-blue-600">
+              <p className="sm:text-lg 2xl:text-2xl font-bold text-blue-600">
                 {truncateNumber(locationTotal)}
-                <span className="text-sm font-normal text-gray-500 ml-1">tCO₂e</span>
+                <span className="sm:text-[10px] 2xl:text-sm font-normal text-gray-500 ml-1">tCO₂e</span>
               </p>
-              <p className="text-xs text-gray-500 mt-2">Grid average method</p>
+              <p className="text-xs text-gray-500 sm:mt-0 2xl:mt-2">Grid average method</p>
             </div>
             <div className="px-2 py-1 bg-blue-100 rounded-lg">
               <span className="text-xs font-medium text-blue-700">Scope 2</span>
@@ -790,20 +790,20 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
         </div>
 
         {/* Market Based Card */}
-        <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-4 hover:shadow-lg transition-all">
+        <div className="bg-white rounded-2xl shadow-md border border-gray-100 sm:p-2 2xl:p-4 sm:pl-4 sm:pr-4 hover:shadow-lg transition-all">
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-lg">
                   <Icon icon="heroicons:chart-bar" />
                 </span>
-                <p className="text-sm font-semibold text-gray-700">Market Based</p>
+                <p className="sm:text-[10px] 2xl:text-sm font-semibold text-gray-700">Market Based</p>
               </div>
-              <p className="text-2xl font-bold text-emerald-600">
+              <p className="sm:text-lg 2xl:text-2xl font-bold text-emerald-600">
                 {truncateNumber(marketTotal)}
-                <span className="text-sm font-normal text-gray-500 ml-1">tCO₂e</span>
+                <span className="sm:text-[10px] 2xl:text-sm font-normal text-gray-500 ml-1">tCO₂e</span>
               </p>
-              <p className="text-xs text-gray-500 mt-2">Contract instruments</p>
+              <p className="text-xs text-gray-500 sm:mt-0 2xl:mt-2">Contract instruments</p>
             </div>
             <div className="px-2 py-1 bg-emerald-100 rounded-lg">
               <span className="text-xs font-medium text-emerald-700">Scope 2</span>
@@ -913,7 +913,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
             </div>
 
             {/* Scrollable Table Content */}
-            <div className="max-h-[520px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <div className="max-h-[458px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
               <div className="p-6 space-y-6">
                 {Object.entries(topScope2Categories).map(([categoryKey, entries]) => {
                   if (selectedCategory && selectedCategory !== categoryKey) {
@@ -938,7 +938,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
                   return (
                     <div key={categoryKey} className="space-y-3">
                       {/* Category Header */}
-                      <div className={`flex items-center justify-between p-3 rounded-xl ${colorScheme.bg} border ${colorScheme.border}`}>
+                      <div className={`flex items-center justify-between sm:p-1.5 2xl:p-3  rounded-xl ${colorScheme.bg} border ${colorScheme.border}`}>
                         <div className="flex items-center gap-2">
                           {/* <span className="text-xl">{colorScheme.icon}</span> */}
                           <span className="text-xl">
@@ -955,8 +955,8 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
                       {/* Grid of entries */}
                       <div
                         className={`grid gap-3 ${selectedCategory === categoryKey
-                            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                            : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
+                          ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                          : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3"
                           }`}
                       >
                         {entries.map((entry) => (
@@ -965,14 +965,14 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
                             className="group bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-all hover:border-gray-300"
                           >
                             {/* Unit Name */}
-                            <div className="px-3 py-2 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
+                            {/* <div className="px-3 py-2 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100">
                               <p className="text-sm font-medium text-gray-800 truncate" title={entry.unit}>
                                 {entry.unit}
                               </p>
-                            </div>
+                            </div> */}
 
                             {/* Emission Value */}
-                            <div className="px-3 py-2 border-b border-gray-100">
+                            {/* <div className="px-3 py-2 border-b border-gray-100">
                               <div className="flex items-baseline justify-between">
                                 <span className="text-xs text-gray-500">Emissions:</span>
                                 <span className={`text-base font-bold ${categoryKey === "Location-Based" ? "text-blue-600" : "text-emerald-600"}`}>
@@ -980,6 +980,22 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
                                 </span>
                               </div>
                               <span className="text-xs text-gray-400">tCO₂e</span>
+                            </div> */}
+                            <div className="px-3 py-2 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                              <p className="text-sm font-medium text-gray-800 truncate" title={entry.unit}>
+                                {entry.unit}
+                              </p>
+                              <div className="flex items-baseline justify-between mt-1 gap-1 flex-wrap">
+                                <span className="text-xs text-gray-500">Emissions:</span>
+                                <div className="flex items-baseline gap-1">
+                                  <span className={`text-base font-bold ${categoryKey === "Location-Based" ? "text-blue-600" : "text-emerald-600"}`}>
+                                    {Math.trunc(entry.emissionTCo2e).toLocaleString()}
+                                  </span>
+                                  
+                                </div>
+                              
+                              </div>
+                                <span className="text-xs text-gray-400">tCO₂e</span>
                             </div>
 
                             {/* Electricity Consumption */}
@@ -989,7 +1005,7 @@ const Scope2EmissionsSection = ({ dashboardData, loading, resetTrigger = 0, onRe
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                                 <span className="text-xs text-gray-600 truncate">
-                                 {Math.trunc(entry.totalElectricityConsumed).toLocaleString()} {entry.unit.toLowerCase().includes('kwh') ? 'kWh' : 'MWh'}
+                                  {Math.trunc(entry.totalElectricityConsumed).toLocaleString()} {entry.unit.toLowerCase().includes('kwh') ? 'kWh' : 'MWh'}
                                 </span>
                               </div>
                             </div>
