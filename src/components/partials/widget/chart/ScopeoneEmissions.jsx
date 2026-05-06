@@ -335,15 +335,15 @@ const calculateProcessEmissions = (emissionActivityListData = []) => {
    <>
 
       {/* Total Scope 1 Summary Card */}
-      <div className="bg-gradient-to-r from-[#094382] to-[#037db9] rounded-2xl shadow-lg p-4 border border-blue-700 mb-4">
+      <div className="bg-gradient-to-r from-[#094382] to-[#037db9] rounded-2xl shadow-lg sm:p-2 2xl:p-4 sm:pl-4 sm:pr-4 border border-blue-700 sm:mb-2 2xl:mb-4">
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-sm font-medium text-blue-300 uppercase tracking-wider">Total Scope 1 Emissions</p>
-            <p className="text-3xl font-bold text-white mt-2">
+            <p className="sm:text-[10px] 2xl:text-sm font-medium text-blue-300 uppercase tracking-wider">Total Scope 1 Emissions</p>
+            <p className="sm:text-lg 2xl:text-3xl font-bold text-white sm:mt-0 2xl:mt-2">
               {formatEmissionValue(totalScope1)}
               <span className="text-sm font-normal text-blue-300 ml-1">tCO₂e</span>
             </p>
-            <p className="text-xs text-blue-300 mt-2">Direct emissions from owned or controlled sources</p>
+            <p className="text-xs text-blue-300 sm:mt-0 2xl:mt-2">Direct emissions from owned or controlled sources</p>
           </div>
           <div className="p-2 bg-blue-700/50 rounded-xl">
             <svg className="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -359,7 +359,7 @@ const calculateProcessEmissions = (emissionActivityListData = []) => {
       <div className="flex-1">
         <div className="h-full bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transition-all hover:shadow-xl">
           {/* Card Header */}
-          <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+          <div className="sm:px-3 sm:py-2 2xl:px-6 2xl:py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
@@ -368,8 +368,8 @@ const calculateProcessEmissions = (emissionActivityListData = []) => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800">Scope 1 Emissions Overview</h3>
-                  <p className="text-sm text-gray-500">Direct emissions from owned or controlled sources</p>
+                  <h3 className="sm:text-lg 2xl:text-xl font-semibold text-gray-800">Scope 1 Emissions Overview</h3>
+                  <p className="sm:text-sm 2xl:text-base text-gray-500">Direct emissions from owned or controlled sources</p>
                 </div>
               </div>
               {selectedCategory && (
@@ -384,7 +384,7 @@ const calculateProcessEmissions = (emissionActivityListData = []) => {
           </div>
 
           {/* Chart Content */}
-          <div className="p-6">
+          <div className="sm:p-3 2xl:p-6">
             {loading ? (
               <div className="h-[400px] flex items-center justify-center">
                 <div className="text-center">
@@ -393,12 +393,14 @@ const calculateProcessEmissions = (emissionActivityListData = []) => {
                 </div>
               </div>
             ) : (
+              <div>
               <RevenueBarChart
                 chartData={barChartData}
                 loading={loading}
                 onBarClick={handleBarClick}
                 selectedCategory={selectedCategory}
               />
+              </div>
             )}
           </div>
 
@@ -425,7 +427,7 @@ const calculateProcessEmissions = (emissionActivityListData = []) => {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800">
+                  <h3 className="sm:text-lg 2xl:text-xl font-semibold text-gray-800">
                     {selectedCategory ? `${barChartData.find(c => c.name === selectedCategory)?.displayName || selectedCategory} Details` : "Top Categories"}
                   </h3>
                   <p className="text-sm text-gray-500">
@@ -450,7 +452,7 @@ const calculateProcessEmissions = (emissionActivityListData = []) => {
           </div>
 
           {/* Scrollable Content */}
-          <div className="max-h-[580px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+          <div className="sm:max-h-[457px] 2xl:max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             <div className="p-6 space-y-5">
               {Object.entries(topItemsByCategory)
                 .filter(([categoryKey]) =>
@@ -475,7 +477,7 @@ const calculateProcessEmissions = (emissionActivityListData = []) => {
                   return (
                     <div key={categoryKey} className="space-y-3">
                       {/* Category Header */}
-                      <div className={`flex items-center justify-between p-3 rounded-xl ${getCategoryColor(categoryKey)}`}>
+                      <div className={`flex items-center justify-between sm:p-1.5 2xl:p-3 rounded-xl ${getCategoryColor(categoryKey)}`}>
                         <div className="flex items-center gap-2">
                           {/* <span className="text-xl">{categoryInfo?.icon || "📊"}</span> */}
                           <span className="text-xl">

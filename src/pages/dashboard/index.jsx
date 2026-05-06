@@ -738,11 +738,11 @@ const Dashboard = () => {
 
           </div>
         </div>
-
         {/* Charts */}
-        <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 mb-5">
-          <Card className="flex-1  min-w-[320px]">
-            <h3 className="font-semibold mb-20 text-xl flex items-center gap-2">
+        {/* <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 sm:mb-2 2xl:mb-5"> */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:mb-2 2xl:mb-5">
+          <Card className="lg:col-span-1 ">
+            <h3 className="font-semibold sm:mb-0 2xl:mb-20 text-xl flex items-center gap-2">
               GHG Emissions by Scopes
               <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e.">
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
@@ -751,62 +751,81 @@ const Dashboard = () => {
             <GroupChart1 chartData={pieData} loading={loading} />
           </Card>
 
-          <Card className="flex-1 min-w-[320px] col-span-2 ">
+          <Card className="lg:col-span-2">
             <h3 className="font-semibold text-xl flex items-center gap-2">
               Building-Wise GHG Emissions
               <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e. The selected building will be highlighted in blue.">
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
               </Tooltip>
             </h3>
-            {/* <div className="pr-20 min-w-[300px] overflow-x-auto scrollbar-hide ">  */}
-            {/*            <div style={{ minWidth: `${Math.max(barChartData.length * 60, 800)}px` }} > */}
-            <RevenueBarChart
-              key={appliedBuilding}
-              chartData={barChartData}
-              showZeroValues={false}
-              onBarClick={(building) => {
-                console.log("Clicked building:", building);
-              }}
-              selectedBuilding={appliedBuilding}
-            />
-            {/* </div> */}
-
+            <div>
+              <div className="2xl:block sm:hidden">
+                <RevenueBarChart
+                  key={appliedBuilding}
+                  height={450}
+                  chartData={barChartData}
+                  showZeroValues={false}
+                  onBarClick={(building) => console.log("Clicked building:", building)}
+                  selectedBuilding={appliedBuilding}
+                />
+              </div>
+              <div className="2xl:hidden block ">
+                <RevenueBarChart
+                  key={appliedBuilding}
+                  height={320}
+                  chartData={barChartData}
+                  showZeroValues={false}
+                  onBarClick={(building) => console.log("Clicked building:", building)}
+                  selectedBuilding={appliedBuilding}
+                />
+              </div>
+            </div>
           </Card>
         </div>
 
         {/* Category-Wise GHG Emissions */}
-        <div className="mb-5">
+        <div className="sm:mb-3 2xl:mb-5">
           <Card className="flex-1 min-w-[320px]" title="Category-Wise GHG Emissions">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 sm:mb-1 2xl:mb-4">
               <span>Category-Wise GHG Emissions</span>
               <Tooltip title="This chart shows emissions from all emission models combined (tCO₂e)." arrow>
                 <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
               </Tooltip>
             </div>
-
+             <div>
+               <div className="2xl:block sm:hidden">
             <RevenueBarChart
               chartData={allModelEmissionData}
               height={450}
             />
+            </div>
+            <div className="2xl:hidden block ">
+            <RevenueBarChart
+              chartData={allModelEmissionData}
+              height={300}
+            />
+            </div>
+            </div>
           </Card>
         </div>
 
+
         {/* scope 1 */}
-        <div className="mb-5">
+        <div className="sm:mb-3 2xl:mb-5">
           <Card className="flex-1  min-w-[320px]" title="Scope 1 Emissions by Category">
             <Scope1EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>
 
         {/* scope 2 */}
-        <div className="mb-5">
+        <div className="sm:mb-3 2xl:mb-5">
           <Card className="flex-1  min-w-[320px]" title="Scope 2 Emissions by Category">
             <Scope2EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>
         </div>
 
         {/* scope 3 */}
-        <div>
+        <div className="sm:mb-3 2xl:mb-5">
           <Card className="flex-1  min-w-[320px]" title="Scope 3 Emissions by Category">
             <Scope3EmissionsSection dashboardData={dashboardData} loading={loading} resetTrigger={resetTrigger} />
           </Card>

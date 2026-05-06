@@ -3,9 +3,9 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Card from "@/components/ui/Card";
 import { Icon } from "@iconify/react";
-import buildingIcon  from "@/assets/images/icon/building.png";
- import bulletTrainIcon  from "@/assets/images/icon/bullet-train.png";
- import cargoShipIcon from "@/assets/images/icon/cargo-ship.png";
+import buildingIcon from "@/assets/images/icon/building.png";
+import bulletTrainIcon from "@/assets/images/icon/bullet-train.png";
+import cargoShipIcon from "@/assets/images/icon/cargo-ship.png";
 import factoryIcon from "@/assets/images/icon/factory.png";
 import twoTruckIcon from "@/assets/images/icon/tow-truck.png";
 import charcoalIcon from "@/assets/images/icon/charcoal.png";
@@ -36,7 +36,7 @@ const Scope3 = () => {
       title: "Capital Goods",
       path: "/Capital-Goods",
       // icon: "heroicons:cube-transparent",
-       icon: twoTruckIcon,
+      icon: twoTruckIcon,
       iconType: "png",
       bg: "bg-red-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#f6baba] to-[#f77878]"
@@ -130,7 +130,7 @@ const Scope3 = () => {
     {
       title: "Downstream Leased Assets",
       path: "",
-       icon: buildingIcon,
+      icon: buildingIcon,
       iconType: "png",
       bg: "bg-cyan-50",
       hoverGradient: "hover:bg-gradient-to-r from-[#bcebdd] to-[#6fceba]"
@@ -157,68 +157,66 @@ const Scope3 = () => {
     <div className="w-full">      {/* Header Section */}
       <Card title={"Scope 3: Direct GHG Emissions"}
         className="w-full  flex flex-col justify-center pb-44 min-h-screen">
-        <div className="space-y-6 w-full">
-          <p className="text-slate-700 leading-relaxed mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
+        <div className="sm:space-y-2 2xl:space-y-6 w-full">
+          <p className="text-slate-700 sm:text-[12px] 2xl:text-lg  leading-relaxed sm:mb-0 2xl:mb-6 bg-gray-100 p-2 rounded-lg border-l-4 border-primary-400">
             Scope 3 emissions are a consequence of the activities of the company, but occur from sources not owned or controlled by the company, it refers to indirect greenhouse gas emissions from a <span className="font-extrabold "> company's value chain</span> that are not owned or controlled by the company itself. This broad category includes emissions from activities such as the production of purchased goods and services, employee commuting, business travel, and the use and disposal of sold products.
           </p>
 
           {/*Upstream Categories */}
-          <label className="w-full font-extrabold text-2xl text-slate-700 pb-8 text-center">
+          {/* Upstream Categories */}
+          <label className="w-full font-extrabold text-[14px] 2xl:text-lg text-slate-700 pt-2 2xl:pb-8 text-center block">
             Upstream Categories
           </label>
-          <div className="grid sm:grid-cols-4 gap-10 pl-10 pr-10 pb-10">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5 2xl:gap-10 px-4 sm:px-10 pb-6 sm:pb-10">
             {upstream_categories.map((cat, index) => (
               <div
                 key={index}
                 onClick={() => navigate(cat.path)}
-                className={`h-40 flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer ${cat.bg} ${cat.hoverGradient}`}
+                className={`flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer py-4 sm:py-5 2xl:py-8 px-2 ${cat.bg} ${cat.hoverGradient}`}
               >
-                {/* Conditionally render PNG or Iconify icon */}
                 {cat.iconType === "png" ? (
                   <img
                     src={cat.icon}
                     alt={cat.title}
-                    className="w-10 h-10 mb-3 object-contain filter grayscale opacity-60 transition-all duration-300"
+                    className="w-8 h-8 2xl:w-10 2xl:h-10 mb-2 2xl:mb-3 object-contain filter grayscale opacity-60 transition-all duration-300"
                   />
                 ) : (
                   <Icon
                     icon={cat.icon}
-                    className="text-4xl mb-3 text-gray-700 hover:text-white"
+                    className="text-3xl 2xl:text-4xl mb-2 2xl:mb-3 text-gray-700 hover:text-white"
                   />
                 )}
-                <h3 className="text-lg font-semibold text-center text-gray-700 hover:text-white px-2">
+                <h3 className="text-[11px] sm:text-[12px] 2xl:text-lg font-semibold text-center text-gray-700 hover:text-white px-2 leading-tight">
                   {cat.title}
                 </h3>
               </div>
             ))}
           </div>
 
-
           {/* Downstream Categories */}
-          <label className="w-full font-extrabold text-2xl text-slate-700 pb-8 text-center">
+          <label className="w-full font-extrabold text-[14px] 2xl:text-lg text-slate-700 pt-2 2xl:pb-8 text-center block">
             Downstream Categories
           </label>
-          <div className="grid sm:grid-cols-4 gap-10 pl-10 pr-10 pb-10">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-5 2xl:gap-10 px-4 sm:px-10 pb-6 sm:pb-10">
             {downstream_categories.map((cat, index) => (
               <div
                 key={index}
                 onClick={() => navigate(cat.path)}
-                className={`h-40 flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer ${cat.bg} ${cat.hoverGradient}`}
+                className={`flex flex-col items-center justify-center rounded-xl shadow-md hover:shadow-lg hover:scale-[1.05] transition-all duration-300 cursor-pointer py-4 sm:py-5 2xl:py-8 px-2 ${cat.bg} ${cat.hoverGradient}`}
               >
-                {/* Conditionally render PNG or Iconify icon */}
                 {cat.iconType === "png" ? (
                   <img
                     src={cat.icon}
                     alt={cat.title}
-                    className="w-10 h-10 mb-3 object-contain filter grayscale opacity-60 transition-all duration-300"
+                    className="w-8 h-8 2xl:w-10 2xl:h-10 mb-2 2xl:mb-3 object-contain filter grayscale opacity-60 transition-all duration-300"
                   />
                 ) : (
                   <Icon
                     icon={cat.icon}
-                    className="text-4xl mb-3 text-gray-700 hover:text-white"
+                    className="text-3xl 2xl:text-4xl mb-2 2xl:mb-3 text-gray-700 hover:text-white"
                   />
                 )}
-                <h3 className="text-lg font-semibold text-center text-gray-700 hover:text-white px-2">
+                <h3 className="text-[11px] sm:text-[12px] 2xl:text-lg font-semibold text-center text-gray-700 hover:text-white px-2 leading-tight">
                   {cat.title}
                 </h3>
               </div>
