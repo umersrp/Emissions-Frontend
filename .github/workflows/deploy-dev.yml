@@ -27,7 +27,7 @@ jobs:
       env:
         REACT_APP_API_URL: ${{ secrets.DEV_API_URL }}
 
-    - name: Clean target directory first
+    - name: Clean and fix permissions on target directory
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.EC2_HOST_MAIN }}
@@ -35,8 +35,10 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
-          mkdir -p /var/www/html/carbonx-client-frontend
-          rm -rf /var/www/html/carbonx-client-frontend/*
+          sudo mkdir -p /var/www/html/carbonx-client-frontend
+          sudo rm -rf /var/www/html/carbonx-client-frontend/*
+          sudo chown -R ec2-user:ec2-user /var/www/html/carbonx-client-frontend
+          sudo chmod -R 755 /var/www/html/carbonx-client-frontend
 
     - name: Copy build files via SSH
       uses: appleboy/scp-action@master
