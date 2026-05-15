@@ -31,11 +31,11 @@ const getCurrentTimePlusMinutes = (minutes = 50) => {
     const now = new Date();
     // Add minutes to local time
     now.setMinutes(now.getMinutes() + minutes);
-    
+
     // Get local hours and minutes (not UTC)
     const hours = now.getHours().toString().padStart(2, '0');
     const mins = now.getMinutes().toString().padStart(2, '0');
-    
+
     return `${hours}:${mins}`;
 };
 
@@ -825,7 +825,7 @@ const EmailSent = () => {
                     </div>
                     <div>
                         <label className="field-label">Employees Email List</label>
-                        <CustomSelect
+                        {/* <CustomSelect
                             className="mt-2"
                             isMulti
                             showSelectAll={true}
@@ -851,6 +851,41 @@ const EmailSent = () => {
                                     handleInputChange("selectedEmployees", limitedSelection);
 
 
+                                    return;
+                                }
+
+                                handleInputChange("selectedEmployees", selected);
+                            }}
+                            placeholder={`Select Employees (Min: ${formData.minEmployeesRequired || 0})`}
+                            noOptionsMessage={() =>
+                                employeesOptions.length === 0
+                                    ? "No employees available"
+                                    : "All available employees have been selected"
+                            }
+                            isDisabled={!formData.totalEmployees || Number(formData.totalEmployees) <= 0}
+                        /> */}
+                        <CustomSelect
+                            className="mt-2"
+                            isMulti
+                            showSelectAll={true}
+                            options={employeesOptions.filter(option =>
+                                // More explicit check to prevent duplicates
+                                !formData.selectedEmployees.some(selected =>
+                                    selected.value === option.value
+                                )
+                            )}
+                            value={formData.selectedEmployees}
+                            onChange={(selected) => {
+                                const maxLimit = Number(formData.totalEmployees);
+                                const minLimit = Number(formData.minEmployeesRequired);
+
+                                if (maxLimit > 0 && selected.length > maxLimit) {
+                                    toast.error(`Cannot select more than ${maxLimit} employees.`, {
+                                        autoClose: 3000,
+                                        position: "top-right"
+                                    });
+                                    const limitedSelection = selected.slice(0, maxLimit);
+                                    handleInputChange("selectedEmployees", limitedSelection);
                                     return;
                                 }
 
