@@ -23,7 +23,7 @@ const Submenu = ({
                   className={`${
                     activeMultiMenu
                       ? " text-black dark:text-white font-medium"
-                      : "text-slate-600 dark:text-slate-300"
+                      : "text-white dark:text-slate-300"
                   } text-sm flex space-x-3 items-center transition-all duration-150 cursor-pointer rtl:space-x-reverse`}
                 >
                   <span
@@ -56,8 +56,8 @@ const Submenu = ({
                   <span
                     className={`${
                       isActive
-                        ? " text-black dark:text-white font-medium"
-                        : "text-slate-600 dark:text-slate-300"
+                        ? " text-white dark:text-white font-medium"
+                        : "text-white dark:text-slate-300"
                     } text-sm flex space-x-3 items-center transition-all duration-150 rtl:space-x-reverse`}
                   >
                     <span

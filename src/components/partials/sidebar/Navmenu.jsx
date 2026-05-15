@@ -174,7 +174,7 @@ const Navmenu = ({ menus, collapsed }) => {
           {/* Menu Label/Header - Hide when collapsed */}
           {item.isHeadr && !item.child && (
             <div className={`px-4 py-1 mb-1 transition-all duration-200 ${collapsed ? "opacity-0 invisible" : "opacity-100 visible"}`}>
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap">
+              <span className="text-xs font-semibold text-white uppercase tracking-wider whitespace-nowrap">
                 {item.title}
               </span>
             </div>
@@ -189,7 +189,7 @@ const Navmenu = ({ menus, collapsed }) => {
             ${collapsed ? "justify-center mx-1" : "mx-2"}
             ${isActive || locationName === item.link
                   ? "btn-dark shadow-sm"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  : "text-white hover:bg-[#07ea8838] hover:text-white"
                 }
           `}
               to={item.link}
@@ -204,7 +204,7 @@ const Navmenu = ({ menus, collapsed }) => {
               <span className={`
             menu-icon flex-shrink-0 transition-all duration-200
             ${collapsed ? "mx-auto" : ""}
-            ${locationName === item.link ? "text-white" : "text-gray-400 group-hover:text-gray-600"}
+            ${locationName === item.link ? "text-white" : "text-white group-hover:text-white"}
           `}>
                 <Icon icon={item.icon} width="20" height="20" />
               </span>
@@ -235,12 +235,12 @@ const Navmenu = ({ menus, collapsed }) => {
             <div className="relative">
               <div
                 className={`
-              menu-link group relative flex items-center justify-between
+              menu-link group relative flex items-center justify-between 
               px-4 py-2.5 rounded-xl transition-all duration-200 ease-in-out cursor-pointer
               ${collapsed ? "justify-center mx-1" : "mx-2"}
               ${activeSubmenu === i
-                    ? "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-gradient-to-r from-[#2d6d74] to-[#082b51] text-white"
+                    : "text-white hover:bg-[#07ea8838] hover:text-white"
                   }
             `}
               >
@@ -256,7 +256,7 @@ const Navmenu = ({ menus, collapsed }) => {
                   <span className={`
                 menu-icon flex-shrink-0 transition-colors duration-200
                 ${collapsed ? "mx-auto" : ""}
-                ${activeSubmenu === i ? "text-blue-600" : "text-gray-400 group-hover:text-gray-600"}
+                ${activeSubmenu === i ? "text-white" : "text-white group-hover:text-white"}
               `}>
                     <Icon icon={item.icon} width="20" height="20" />
                   </span>

@@ -7,7 +7,7 @@ import useSemiDark from "@/hooks/useSemiDark";
 import useSkin from "@/hooks/useSkin";
 
 // import images
-import sufilogo from "@/assets/images/logo/logo-carbon.png";
+import sufilogo from "@/assets/images/logo/logo-white.png";
 import MobileLogoWhite from "@/assets/images/logo/logo-carbon.png";
 
 const SidebarLogo = ({ menuHover }) => {
