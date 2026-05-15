@@ -648,22 +648,22 @@ const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate 
                 buttonClass: "bg-green-600 hover:bg-green-700",
                 defaultMessage: "You have already submitted this form. Thank you for your response!"
             };
-        } 
-         else if (status === 'deleted') {
-        return {
-            title: "Form Deleted",
-            icon: (
-                <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-            ),
-            bgColor: "bg-red-100",
-            iconBgColor: "bg-red-100",
-            buttonClass: "bg-red-600 hover:bg-red-700",
-            defaultMessage: "This form has been deleted by the administrator."
-        };
-    }
-    else {
+        }
+        else if (status === 'deleted') {
+            return {
+                title: "Form Deleted",
+                icon: (
+                    <svg className="h-10 w-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                ),
+                bgColor: "bg-red-100",
+                iconBgColor: "bg-red-100",
+                buttonClass: "bg-red-600 hover:bg-red-700",
+                defaultMessage: "This form has been deleted by the administrator."
+            };
+        }
+        else {
             // Fallback for unknown status - check message text
             const msg = message || '';
             if (msg.toLowerCase().includes('not started')) {
@@ -722,7 +722,7 @@ const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate 
                     {startDate && (
                         <div className="mt-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                             <p className="text-sm font-medium text-yellow-800 mb-1">
-                                 Submission Opens:
+                                Submission Opens:
                             </p>
                             <p className="text-sm text-yellow-700">
                                 {formatDate(startDate)}
@@ -746,7 +746,7 @@ const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate 
                     {endDate && (
                         <div className="mt-3 p-3 bg-red-50 rounded-lg border border-red-200">
                             <p className="text-sm font-medium text-red-800 mb-1">
-                                 Deadline Passed:
+                                Deadline Passed:
                             </p>
                             <p className="text-sm text-red-700">
                                 {formatDate(endDate)}
@@ -761,22 +761,22 @@ const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate 
                     </div>
                 </div>
             );
-        } 
-          //  ADD THIS - Deleted form message
-    else if (status === 'deleted') {
-        return (
-            <div className="space-y-3">
-                <p className="text-gray-700 text-center">
-                    {message || config.defaultMessage}
-                </p>
-               
-                <div className="mt-2 text-center text-sm text-gray-500">
-                    If you believe this is an error, please reach out to your administrator.
+        }
+        //  ADD THIS - Deleted form message
+        else if (status === 'deleted') {
+            return (
+                <div className="space-y-3">
+                    <p className="text-gray-700 text-center">
+                        {message || config.defaultMessage}
+                    </p>
+
+                    <div className="mt-2 text-center text-sm text-gray-500">
+                        If you believe this is an error, please reach out to your administrator.
+                    </div>
                 </div>
-            </div>
-        );
-    }
-    else {
+            );
+        }
+        else {
             return (
                 <div className="space-y-3">
                     <p className="text-gray-700 text-center">
@@ -1504,126 +1504,12 @@ const EmployeeCommutingForm = () => {
     //     }
     // };
     const checkFormAccess = async () => {
-    const currentToken = getToken();
-    const currentUserId = urlUserId || getUserIdFromToken(currentToken);
-    const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
+        const currentToken = getToken();
+        const currentUserId = urlUserId || getUserIdFromToken(currentToken);
+        const currentEmailDocId = new URLSearchParams(location.search).get('emailDocId');
 
-    if (!currentToken || !currentUserId || !currentEmailDocId) {
-        console.log('Missing required parameters for form access check');
-        setFormAccessStatus({
-            checking: false,
-            canAccess: true,
-            message: '',
-            status: null,
-            startDate: null,
-            endDate: null
-        });
-        return;
-    }
-
-    try {
-        console.log('Checking form access for:', {
-            userId: currentUserId,
-            emailDocId: currentEmailDocId
-        });
-
-        const response = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/check-access`,
-            {
-                params: {
-                    emailDocId: currentEmailDocId,
-                    userId: currentUserId
-                },
-                headers: {
-                    Authorization: `Bearer ${currentToken}`,
-                    'Content-Type': 'application/json',
-                },
-            }
-        );
-
-        // If we get a successful response (200), form is available and not submitted
-        setFormAccessStatus({
-            checking: false,
-            canAccess: true,
-            message: '',
-            status: null,
-            startDate: null,
-            endDate: null
-        });
-        console.log('Form access granted - user can submit');
-
-    } catch (error) {
-        console.error('Form access check error:', error);
-
-        //  ADD THIS - Handle 404 Not Found (Email document deleted)
-        if (error.response && error.response.status === 404) {
-            const errorMessage = error.response.data?.message || '';
-            console.log('404 Error - Email document not found:', errorMessage);
-            
-            setFormAccessStatus({
-                checking: false,
-                canAccess: false,
-                message: "This form has been deleted by the administrator. Please contact your administrator for assistance.",
-                status: 'deleted', // New status for deleted form
-                startDate: null,
-                endDate: null
-            });
-            return;
-        }
-
-        if (error.response && error.response.status === 403) {
-            const errorMessage = error.response.data?.message || '';
-            console.log('Error message received:', errorMessage);
-
-            // Exact message matching for your three statuses
-            if (errorMessage === "Form not started yet") {
-                setFormAccessStatus({
-                    checking: false,
-                    canAccess: false,
-                    message: errorMessage,
-                    status: 'not-started',
-                    startDate: error.response.data?.startDate || null,
-                    endDate: error.response.data?.endDate || null
-                });
-                console.log('Form access denied - form not started yet');
-            }
-            else if (errorMessage === "Form Expired") {
-                setFormAccessStatus({
-                    checking: false,
-                    canAccess: false,
-                    message: errorMessage,
-                    status: 'expired',
-                    startDate: error.response.data?.startDate || null,
-                    endDate: error.response.data?.endDate || null
-                });
-                console.log('Form access denied - form expired');
-            }
-            else if (errorMessage === "Form Already Submitted") {
-                setFormAccessStatus({
-                    checking: false,
-                    canAccess: false,
-                    message: errorMessage,
-                    status: 'already-submitted',
-                    startDate: null,
-                    endDate: null
-                });
-                console.log('Form access denied - already submitted');
-            }
-            else {
-                // Handle any other 403 messages as generic error
-                console.warn('Unknown 403 error message:', errorMessage);
-                setFormAccessStatus({
-                    checking: false,
-                    canAccess: false,
-                    message: errorMessage || 'Unable to access form',
-                    status: 'expired', // default to expired if unknown
-                    startDate: null,
-                    endDate: null
-                });
-            }
-        } else {
-            // Network or other errors - allow access as fallback
-            console.warn('Unexpected error, allowing access:', error);
+        if (!currentToken || !currentUserId || !currentEmailDocId) {
+            console.log('Missing required parameters for form access check');
             setFormAccessStatus({
                 checking: false,
                 canAccess: true,
@@ -1632,9 +1518,123 @@ const EmployeeCommutingForm = () => {
                 startDate: null,
                 endDate: null
             });
+            return;
         }
-    }
-};
+
+        try {
+            console.log('Checking form access for:', {
+                userId: currentUserId,
+                emailDocId: currentEmailDocId
+            });
+
+            const response = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/check-access`,
+                {
+                    params: {
+                        emailDocId: currentEmailDocId,
+                        userId: currentUserId
+                    },
+                    headers: {
+                        Authorization: `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+
+            // If we get a successful response (200), form is available and not submitted
+            setFormAccessStatus({
+                checking: false,
+                canAccess: true,
+                message: '',
+                status: null,
+                startDate: null,
+                endDate: null
+            });
+            console.log('Form access granted - user can submit');
+
+        } catch (error) {
+            console.error('Form access check error:', error);
+
+            //  ADD THIS - Handle 404 Not Found (Email document deleted)
+            if (error.response && error.response.status === 404) {
+                const errorMessage = error.response.data?.message || '';
+                console.log('404 Error - Email document not found:', errorMessage);
+
+                setFormAccessStatus({
+                    checking: false,
+                    canAccess: false,
+                    message: "This form has been deleted by the administrator. Please contact your administrator for assistance.",
+                    status: 'deleted', // New status for deleted form
+                    startDate: null,
+                    endDate: null
+                });
+                return;
+            }
+
+            if (error.response && error.response.status === 403) {
+                const errorMessage = error.response.data?.message || '';
+                console.log('Error message received:', errorMessage);
+
+                // Exact message matching for your three statuses
+                if (errorMessage === "Form not started yet") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'not-started',
+                        startDate: error.response.data?.startDate || null,
+                        endDate: error.response.data?.endDate || null
+                    });
+                    console.log('Form access denied - form not started yet');
+                }
+                else if (errorMessage === "Form Expired") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'expired',
+                        startDate: error.response.data?.startDate || null,
+                        endDate: error.response.data?.endDate || null
+                    });
+                    console.log('Form access denied - form expired');
+                }
+                else if (errorMessage === "Form Already Submitted") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'already-submitted',
+                        startDate: null,
+                        endDate: null
+                    });
+                    console.log('Form access denied - already submitted');
+                }
+                else {
+                    // Handle any other 403 messages as generic error
+                    console.warn('Unknown 403 error message:', errorMessage);
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage || 'Unable to access form',
+                        status: 'expired', // default to expired if unknown
+                        startDate: null,
+                        endDate: null
+                    });
+                }
+            } else {
+                // Network or other errors - allow access as fallback
+                console.warn('Unexpected error, allowing access:', error);
+                setFormAccessStatus({
+                    checking: false,
+                    canAccess: true,
+                    message: '',
+                    status: null,
+                    startDate: null,
+                    endDate: null
+                });
+            }
+        }
+    };
 
     // Fetch buildings from API
     const fetchBuildings = async (authToken) => {
@@ -3941,25 +3941,52 @@ const EmployeeCommutingForm = () => {
                         const currentUserId = formData[actualUserIdsField][index] || '';
 
                         // Find the user in companyUsers by userId or email
+                        // const selectedUser = companyUsers.find(user =>
+                        //     user.value === currentUserId || user.email === currentEmail
+                        // );
+
+                        // return (
+                        //     <div key={index} className="space-y-2">
+                        //         <div className="flex items-center justify-between mb-1">
+                        //             <span className="text-sm text-gray-600">
+                        //                 Colleague {index + 1}
+                        //             </span>
+                        //             <span className="text-xs text-gray-500">
+                        //                 Select from list or type manually
+                        //             </span>
+                        //         </div>
+                        //         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        //             <div>
+                        //                 <CustomSelect
+                        //                     placeholder="Select colleague from list"
+                        //                     options={companyUsers}
+                        //                     value={selectedUser || null}
+                        // Find the user in companyUsers by userId or email
                         const selectedUser = companyUsers.find(user =>
                             user.value === currentUserId || user.email === currentEmail
                         );
 
+                        // Filter out already-selected users from other fields
+                        const alreadySelectedUserIds = formData[actualUserIdsField]
+                            .filter((id, i) => i !== index && id)
+                            .map(String);
+                        const alreadySelectedEmails = formData[actualEmailsField]
+                            .filter((email, i) => i !== index && email && email.trim())
+                            .map(String);
+
+                        const filteredOptions = companyUsers.filter(user =>
+                            !alreadySelectedUserIds.includes(String(user.value)) &&
+                            !alreadySelectedEmails.includes(user.email)
+                        );
+
                         return (
                             <div key={index} className="space-y-2">
-                                <div className="flex items-center justify-between mb-1">
-                                    <span className="text-sm text-gray-600">
-                                        Colleague {index + 1}
-                                    </span>
-                                    <span className="text-xs text-gray-500">
-                                        Select from list or type manually
-                                    </span>
-                                </div>
+                                ...
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div>
                                         <CustomSelect
                                             placeholder="Select colleague from list"
-                                            options={companyUsers}
+                                            options={filteredOptions}   // ← changed from companyUsers
                                             value={selectedUser || null}
                                             onChange={(selectedOption) => handlePassengerSelect(transportType, index, selectedOption)}
                                             isLoading={companyUsersLoading}

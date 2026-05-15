@@ -185,9 +185,9 @@ const Sidebar = () => {
   const [skin] = useSkin();
 
   return (
-    <div className={isSemiDark ? "dark" : ""}>
+    <div className="">
       <div
-        className={`sidebar-wrapper bg-white dark:bg-slate-800 
+        className={`sidebar-wrapper bg-gradient-to-t from-[#0a2836] to-[#091f24] dark:bg-slate-800 
           ${collapsed ? "w-[72px] pt-4 close_sidebar" : "w-[248px]"}
           ${skin === "bordered"
             ? "border-r border-slate-200 dark:border-slate-700"
@@ -200,7 +200,7 @@ const Sidebar = () => {
 
         {/* Shadow on scroll */}
         <div
-          className={`h-[60px] absolute top-[70px] nav-shadow z-[1] mb-10 w-full transition-all duration-200 pointer-events-none  dark:bg-slate-800 ${scroll ? "opacity-100" : "opacity-0"
+          className={`h-[60px] absolute top-[70px] nav-shadow z-[1] mb-10 w-full transition-all duration-200 pointer-events-none  dark:bg-slate-800 ${scroll ? "opacity-20" : "opacity-0"
             }`}
         />
 
