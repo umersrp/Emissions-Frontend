@@ -1532,7 +1532,8 @@ const EmployeeCommutingForm = () => {
                 {
                     params: {
                         emailDocId: currentEmailDocId,
-                        userId: currentUserId
+                        userId: currentUserId,
+                        entryStatus: 'Parent'
                     },
                     headers: {
                         Authorization: `Bearer ${currentToken}`,

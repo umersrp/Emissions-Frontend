@@ -1769,7 +1769,8 @@ const EmployeeCommutingFormCarpool = () => {
                 {
                     params: {
                         emailDocId: currentEmailDocId,
-                        userId: currentUserId
+                        userId: currentUserId,
+                          entryStatus: 'Carpool' // Pass the entryStatus to check access for carpool form
                     },
                     headers: {
                         Authorization: `Bearer ${currentToken}`,
