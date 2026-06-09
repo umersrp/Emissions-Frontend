@@ -1723,132 +1723,183 @@ const EmployeeCommutingFormCarpool = () => {
         }
     }, [passengerDetailsLoaded, originalFormData]);
 
-    const checkFormAccess = async () => {
-        const currentToken = getToken();
-        const currentUserId = urlParticipantId;
+  const checkFormAccess = async () => {
+    const currentToken = getToken();
+    const currentUserId = urlParticipantId;
 
-        // IMPORTANT: Get emailDocId from the fetched form data, not from URL
-        const currentEmailDocId = originalFormData?.emailDocId || formData.emailDocId;
+    const urlParams = new URLSearchParams(window.location.search);
+    const participantId = urlParams.get('participantId');
 
-        // If we don't have emailDocId yet, wait for it
-        if (!currentEmailDocId) {
-            console.log('Waiting for emailDocId to be loaded from form data...');
-            setFormAccessStatus({
-                checking: true,
-                canAccess: false,
-                message: '',
-                status: null,
-                startDate: null,
-                endDate: null
-            });
-            return;
+    // Get emailDocId from the fetched form data
+    const currentEmailDocId = originalFormData?.emailDocId || formData.emailDocId;
+
+    if (!currentEmailDocId) {
+        console.log('Waiting for emailDocId to be loaded from form data...');
+        setFormAccessStatus({
+            checking: true,
+            canAccess: false,
+            message: '',
+            status: null,
+            startDate: null,
+            endDate: null,
+        });
+        return;
+    }
+
+    if (!currentToken || !currentUserId) {
+        console.log('Missing required parameters for form access check');
+        setFormAccessStatus({
+            checking: false,
+            canAccess: true,
+            message: '',
+            status: null,
+            startDate: null,
+            endDate: null,
+        });
+        return;
+    }
+
+    try {
+        console.log('Checking form access for carpool:', {
+            userId: currentUserId,
+            emailDocId: currentEmailDocId,
+            participantId,
+        });
+
+        // Build params and include participantId for carpool partner
+        const params = {
+            emailDocId: currentEmailDocId,
+            userId: currentUserId,
+            entryStatus: 'Carpool',
+        };
+
+        if (participantId) {
+            params.participantId = participantId;
         }
 
-        if (!currentToken || !currentUserId) {
-            console.log('Missing required parameters for form access check');
-            setFormAccessStatus({
-                checking: false,
-                canAccess: true,
-                message: '',
-                status: null,
-                startDate: null,
-                endDate: null
-            });
-            return;
-        }
+        const response = await axios.get(
+            `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/check-access`,
+            {
+                params,
+                headers: {
+                    Authorization: `Bearer ${currentToken}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
 
-        try {
-            console.log('Checking form access for carpool:', {
-                userId: currentUserId,
-                emailDocId: currentEmailDocId,
-                formId: urlFormId
-            });
+        setFormAccessStatus({
+            checking: false,
+            canAccess: true,
+            message: '',
+            status: null,
+            startDate: null,
+            endDate: null,
+        });
+        console.log('Form access granted - user can submit');
 
-            const response = await axios.get(
-                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/check-access`,
-                {
-                    params: {
-                        emailDocId: currentEmailDocId,
-                        userId: currentUserId,
-                          entryStatus: 'Carpool' // Pass the entryStatus to check access for carpool form
-                    },
-                    headers: {
-                        Authorization: `Bearer ${currentToken}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            );
+    } catch (error) {
+        console.error('Form access check error:', error);
 
-            setFormAccessStatus({
-                checking: false,
-                canAccess: true,
-                message: '',
-                status: null,
-                startDate: null,
-                endDate: null
-            });
-            console.log('Form access granted - user can submit');
+        const status = error?.response?.status;
+        const errorMessage = error?.response?.data?.message || '';
 
-        } catch (error) {
-            console.error('Form access check error:', error);
+        console.log('Error status:', status, '| Error message:', errorMessage);
 
-            if (error.response && error.response.status === 403) {
-                const errorMessage = error.response.data?.message || '';
-                console.log('Error message received:', errorMessage);
+        if (status === 403) {
+            if (errorMessage === "Form not started yet") {
+                setFormAccessStatus({
+                    checking: false,
+                    canAccess: false,
+                    message: errorMessage,
+                    status: 'not-started',
+                    startDate: error.response.data?.startDate || null,
+                    endDate: error.response.data?.endDate || null,
+                });
 
-                if (errorMessage === "Form not started yet") {
-                    setFormAccessStatus({
-                        checking: false,
-                        canAccess: false,
-                        message: errorMessage,
-                        status: 'not-started',
-                        startDate: error.response.data?.startDate || null,
-                        endDate: error.response.data?.endDate || null
-                    });
-                }
-                else if (errorMessage === "Form Expired") {
-                    setFormAccessStatus({
-                        checking: false,
-                        canAccess: false,
-                        message: errorMessage,
-                        status: 'expired',
-                        startDate: error.response.data?.startDate || null,
-                        endDate: error.response.data?.endDate || null
-                    });
-                }
-                else if (errorMessage === "Form Already Submitted") {
-                    setFormAccessStatus({
-                        checking: false,
-                        canAccess: false,
-                        message: errorMessage,
-                        status: 'already-submitted',
-                        startDate: null,
-                        endDate: null
-                    });
-                }
-                else {
-                    setFormAccessStatus({
-                        checking: false,
-                        canAccess: false,
-                        message: errorMessage || 'Unable to access form',
-                        status: 'expired',
-                        startDate: null,
-                        endDate: null
-                    });
-                }
+            } else if (
+                errorMessage === "Form expired" ||
+                errorMessage === "Form Expired"
+            ) {
+                setFormAccessStatus({
+                    checking: false,
+                    canAccess: false,
+                    message: errorMessage,
+                    status: 'expired',
+                    startDate: error.response.data?.startDate || null,
+                    endDate: error.response.data?.endDate || null,
+                });
+
+            } else if (
+                errorMessage === "Carpool form already submitted. You cannot submit again." ||
+                errorMessage === "Form Already Submitted"
+            ) {
+                setFormAccessStatus({
+                    checking: false,
+                    canAccess: false,
+                    message: errorMessage,
+                    status: 'already-submitted',
+                    startDate: null,
+                    endDate: null,
+                });
+
+            } else if (
+                errorMessage === "All months have been submitted. You cannot access this carpool form anymore." ||
+                errorMessage === "All months have been submitted. You cannot access this form anymore."
+            ) {
+                setFormAccessStatus({
+                    checking: false,
+                    canAccess: false,
+                    message: errorMessage,
+                    status: 'all-months-completed',
+                    startDate: null,
+                    endDate: null,
+                });
+
+            } else if (errorMessage === "Commute date range expired") {
+                setFormAccessStatus({
+                    checking: false,
+                    canAccess: false,
+                    message: errorMessage,
+                    status: 'expired',
+                    startDate: null,
+                    endDate: null,
+                });
+
             } else {
                 setFormAccessStatus({
                     checking: false,
-                    canAccess: true,
-                    message: '',
-                    status: null,
+                    canAccess: false,
+                    message: errorMessage || 'Unable to access form',
+                    status: 'expired',
                     startDate: null,
-                    endDate: null
+                    endDate: null,
                 });
             }
-        }
-    };
 
+        } else if (status === 404) {
+            setFormAccessStatus({
+                checking: false,
+                canAccess: false,
+                message: errorMessage || 'Form not found or access denied',
+                status: 'not-found',
+                startDate: null,
+                endDate: null,
+            });
+
+        } else {
+            // Network/unknown error — allow access to not block user
+            setFormAccessStatus({
+                checking: false,
+                canAccess: true,
+                message: '',
+                status: null,
+                startDate: null,
+                endDate: null,
+            });
+        }
+    }
+};
     // Check form access when component mounts AND originalFormData is loaded
     useEffect(() => {
         const performAccessCheck = async () => {
