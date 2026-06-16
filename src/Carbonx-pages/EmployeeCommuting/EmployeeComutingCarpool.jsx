@@ -580,17 +580,7 @@ const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate 
                     <p className="text-gray-700 text-center">
                         {message || config.defaultMessage}
                     </p>
-                    <div className="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                        <p className="text-sm font-medium text-green-800 mb-1">
-                            ✓ Submission Confirmed
-                        </p>
-                        <p className="text-sm text-green-700">
-                            Thank you for completing the employee commuting data collection form.
-                        </p>
-                        <p className="text-xs text-green-600 mt-2">
-                            Your response has been recorded and will be included in the emissions calculation.
-                        </p>
-                    </div>
+                  
                     <div className="mt-2 text-center text-sm text-gray-500">
                         If you need to update your submission, please contact your administrator.
                     </div>
@@ -615,28 +605,7 @@ const FormStatusModal = ({ isOpen, onClose, status, message, startDate, endDate 
 
                     {getDetailedMessage()}
 
-                    <div className="flex justify-center space-x-3 mt-6">
-                        {status === 'already-submitted' && (
-                            <button
-                                onClick={() => {
-                                    if (onClose) onClose();
-                                    navigate('/my-submissions');
-                                }}
-                                className={`px-4 py-2 text-white rounded-md transition-colors ${config.buttonClass}`}
-                            >
-                                View My Submission
-                            </button>
-                        )}
-                        <button
-                            onClick={() => {
-                                if (onClose) onClose();
-                                window.location.reload();
-                            }}
-                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
-                        >
-                            Refresh
-                        </button>
-                    </div>
+                  
                 </div>
             </div>
         </div>
@@ -1723,150 +1692,151 @@ const EmployeeCommutingFormCarpool = () => {
         }
     }, [passengerDetailsLoaded, originalFormData]);
 
-const checkFormAccess = async () => {
-    const currentToken = getToken();
+    const checkFormAccess = async () => {
+        const currentToken = getToken();
 
-    // :point_right: This is COMMUTE RECORD ID (NOT userId)
-    const currentParticipantId = urlParticipantId;
+        // :point_right: This is COMMUTE RECORD ID (NOT userId)
+        const currentParticipantId = urlParticipantId;
 
-    // :point_right: REAL EMPLOYEE ID (must come from form or auth context)
-    const currentUserId =
-        formData?.usersubmittedId ||
-        originalFormData?.usersubmittedId ||
-        null;
+        // :point_right: REAL EMPLOYEE ID (must come from form or auth context)
+        const currentUserId =
+            formData?.usersubmittedId ||
+            originalFormData?.usersubmittedId ||
+            null;
 
-    // IMPORTANT: emailDocId from loaded form data
-    const currentEmailDocId =
-        originalFormData?.emailDocId || formData.emailDocId;
+        // IMPORTANT: emailDocId from loaded form data
+        const currentEmailDocId =
+            originalFormData?.emailDocId || formData.emailDocId;
 
-    if (!currentEmailDocId) {
-        console.log('Waiting for emailDocId...');
-        setFormAccessStatus({
-            checking: true,
-            canAccess: false,
-            message: '',
-            status: null,
-            startDate: null,
-            endDate: null
-        });
-        return;
-    }
+        if (!currentEmailDocId) {
+            console.log('Waiting for emailDocId...');
+            setFormAccessStatus({
+                checking: true,
+                canAccess: false,
+                message: '',
+                status: null,
+                startDate: null,
+                endDate: null
+            });
+            return;
+        }
 
-    if (!currentToken || !currentParticipantId) {
-        console.log('Missing token or participantId');
+        if (!currentToken || !currentParticipantId) {
+            console.log('Missing token or participantId');
 
-        setFormAccessStatus({
-            checking: false,
-            canAccess: true,
-            message: '',
-            status: null,
-            startDate: null,
-            endDate: null
-        });
-        return;
-    }
+            setFormAccessStatus({
+                checking: false,
+                canAccess: true,
+                message: '',
+                status: null,
+                startDate: null,
+                endDate: null
+            });
+            return;
+        }
 
-    try {
-        console.log('Checking form access:', {
-            emailDocId: currentEmailDocId,
-            userId: currentUserId,
-            participantId: currentParticipantId
-        });
+        try {
+            console.log('Checking form access:', {
+                emailDocId: currentEmailDocId,
+                userId: currentUserId,
+                participantId: currentParticipantId
+            });
 
-        const response = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/check-access`,
-            {
-                params: {
-                    emailDocId: currentEmailDocId,
+            const response = await axios.get(
+                `${process.env.REACT_APP_BASE_URL}/email/employee-commuting/check-access`,
+                {
+                    params: {
+                        emailDocId: currentEmailDocId,
 
-                    // :white_check_mark: REAL EMPLOYEE ID
-                    userId: currentUserId,
+                        // :white_check_mark: REAL EMPLOYEE ID
+                        userId: currentUserId,
 
-                    // :white_check_mark: CARPOOL RECORD ID
-                    participantId: currentParticipantId,
+                        // :white_check_mark: CARPOOL RECORD ID
+                        participantId: currentParticipantId,
 
-                    entryStatus: 'Carpool'
-                },
-                headers: {
-                    Authorization: `Bearer ${currentToken}`,
-                    'Content-Type': 'application/json',
-                },
-            }
-        );
+                        entryStatus: 'Carpool'
+                    },
+                    headers: {
+                        Authorization: `Bearer ${currentToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
 
-        setFormAccessStatus({
-            checking: false,
-            canAccess: true,
-            message: '',
-            status: null,
-            startDate: null,
-            endDate: null
-        });
+            setFormAccessStatus({
+                checking: false,
+                canAccess: true,
+                message: '',
+                status: null,
+                startDate: null,
+                endDate: null
+            });
 
-        console.log('Form access granted');
+            console.log('Form access granted');
 
-    } catch (error) {
-        console.error('Form access error:', error);
+        } catch (error) {
+            console.error('Form access error:', error);
 
-        if (error.response?.status === 403) {
-            const errorMessage = error.response.data?.message;
+            if (error.response?.status === 403) {
+                const errorMessage = error.response.data?.message;
 
-            if (errorMessage === "Form not started yet") {
-                setFormAccessStatus({
-                    checking: false,
-                    canAccess: false,
-                    message: errorMessage,
-                    status: 'not-started',
-                    startDate: error.response.data?.startDate || null,
-                    endDate: error.response.data?.endDate || null
-                });
-            }
+                if (errorMessage === "Form not started yet") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'not-started',
+                        startDate: error.response.data?.startDate || null,
+                        endDate: error.response.data?.endDate || null
+                    });
+                }
 
-            else if (errorMessage === "Form expired") {
-                setFormAccessStatus({
-                    checking: false,
-                    canAccess: false,
-                    message: errorMessage,
-                    status: 'expired',
-                    startDate: null,
-                    endDate: null
-                });
-            }
+                else if (errorMessage === "Form expired") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'expired',
+                        startDate: null,
+                        endDate: null
+                    });
+                }
 
-            else if (errorMessage === "Carpool form already submitted") {
-                setFormAccessStatus({
-                    checking: false,
-                    canAccess: false,
-                    message: errorMessage,
-                    status: 'already-submitted',
-                    startDate: null,
-                    endDate: null
-                });
-            }
 
-            else {
-                setFormAccessStatus({
-                    checking: false,
-                    canAccess: false,
-                    message: errorMessage || 'Access denied',
-                    status: 'blocked',
-                    startDate: null,
-                    endDate: null
-                });
-            }
-        } else {
-            // fallback (don’t block wrongly)
-            setFormAccessStatus({
-                checking: false,
-                canAccess: true,
-                message: '',
-                status: null,
-                startDate: null,
-                endDate: null
-            });
-        }
-    }
-};
+                else if (errorMessage === "Carpool form already submitted") {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage,
+                        status: 'already-submitted',
+                        startDate: null,
+                        endDate: null
+                    });
+                }
+
+                else {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: errorMessage || 'Access denied',
+                        status: 'blocked',
+                        startDate: null,
+                        endDate: null
+                    });
+                }
+            } else {
+                // fallback (don’t block wrongly)
+                setFormAccessStatus({
+                    checking: false,
+                    canAccess: true,
+                    message: '',
+                    status: null,
+                    startDate: null,
+                    endDate: null
+                });
+            }
+        }
+    };
     // Check form access when component mounts AND originalFormData is loaded
     useEffect(() => {
         const performAccessCheck = async () => {
@@ -3293,6 +3263,29 @@ const checkFormAccess = async () => {
 
         } catch (error) {
             console.error('Submission error:', error);
+
+            // 👇 ADD THIS NEW CODE HERE
+            if (error.response?.status === 403) {
+                const errorMessage = error.response.data?.message;
+
+                if (
+                    errorMessage === "Motorbike entry already submitted for the selected date range" ||
+                    errorMessage === "Taxi entry already submitted for the selected date range" ||
+                    errorMessage === "car entry already submitted for the selected date range"
+                ) {
+                    setFormAccessStatus({
+                        checking: false,
+                        canAccess: false,
+                        message: 'You have already submitted an entry for this date range. You can only submit once.',
+                        status: 'already-submitted',
+                        startDate: null,
+                        endDate: null
+                    });
+                    setLoading(false);
+                    return; // Stop execution, modal will show
+                }
+            }
+
             if (error.response) {
                 toast.error(`Server error: ${error.response.data?.message || error.response.status}`);
             } else if (error.request) {
