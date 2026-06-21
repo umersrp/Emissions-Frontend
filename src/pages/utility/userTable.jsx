@@ -1311,7 +1311,7 @@ const UserPage = () => {
             />
 
             <Button
-              icon="heroicons:arrow-up-tray"
+              icon={"heroicons:document-arrow-down"}
               text="Import"
               className="bg-gradient-to-r from-[#FF6B6B] to-[#FF8E53] text-white border-0 hover:opacity-90 btn-sm"
               iconClass="text-lg"
