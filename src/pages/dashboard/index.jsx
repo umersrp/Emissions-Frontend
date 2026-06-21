@@ -130,46 +130,83 @@ const Dashboard = () => {
   }, []); // Empty dependency array - runs once on mount
 
 
+  // const applyFilters = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const params = {};
+
+  //     // Set applied building from the current dropdown selection
+  //     setAppliedBuilding(selectedBuilding);
+
+  //     if (selectedBuilding) {
+  //       params.buildingId = selectedBuilding;
+  //     }
+  //     // if (selectedDepartments.length > 0) {
+  //     //   params.stakeholder = selectedDepartments;
+  //     // }
+  //     if (selectedDepartments && selectedDepartments.length > 0) {
+  //       params.stakeholder = selectedDepartments;
+  //     }
+  //     if (fromDate) {
+  //       params.fromDate = fromDate;
+  //     }
+  //     if (toDate) {
+  //       params.toDate = toDate;
+  //     }
+
+  //     const res = await axios.get(
+  //       `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
+  //       {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //         params,
+  //       }
+  //     );
+  //     setDashboardData(res.data.data);
+  //   } catch (err) {
+  //     console.error("Filter error", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const applyFilters = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const params = {};
+  setLoading(true);
+  try {
+    const token = localStorage.getItem("token");
+    const params = {};
 
-      // Set applied building from the current dropdown selection
-      setAppliedBuilding(selectedBuilding);
+    // Set applied building from the current dropdown selection
+    const buildingToApply = selectedBuilding;
+    setAppliedBuilding(buildingToApply);
 
-      if (selectedBuilding) {
-        params.buildingId = selectedBuilding;
-      }
-      // if (selectedDepartments.length > 0) {
-      //   params.stakeholder = selectedDepartments;
-      // }
-      if (selectedDepartments && selectedDepartments.length > 0) {
-        params.stakeholder = selectedDepartments;
-      }
-      if (fromDate) {
-        params.fromDate = fromDate;
-      }
-      if (toDate) {
-        params.toDate = toDate;
-      }
-
-      const res = await axios.get(
-        `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          params,
-        }
-      );
-      setDashboardData(res.data.data);
-    } catch (err) {
-      console.error("Filter error", err);
-    } finally {
-      setLoading(false);
+    if (selectedBuilding) {
+      params.buildingId = selectedBuilding;
     }
-  };
+    if (selectedDepartments && selectedDepartments.length > 0) {
+      params.stakeholder = selectedDepartments;
+    }
+    if (fromDate) {
+      params.fromDate = fromDate;
+    }
+    if (toDate) {
+      params.toDate = toDate;
+    }
 
+    const res = await axios.get(
+      `${process.env.REACT_APP_BASE_URL}/dashboard/dashboard-data`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        params,
+      }
+    );
+    setDashboardData(res.data.data);
+  } catch (err) {
+    console.error("Filter error", err);
+  } finally {
+    setLoading(false);
+  }
+};
   const clearFilters = () => {
     setSelectedDepartments([]);
     setFromDate("");
@@ -557,25 +594,6 @@ const Dashboard = () => {
             <GroupChart1 chartData={pieData} loading={loading} />
           </Card>
 
-          {/* <Card className="flex-1  min-w-[320px] col-span-2">
-            <h3 className="font-semibold  text-xl flex items-center gap-2">
-              Building-Wise GHG Emissions
-              <Tooltip title="This chart shows total GHG emissions for each building in tCO₂e. The selected building will be highlighted in blue.">
-                <InfoOutlinedIcon className="text-red-400 cursor-pointer" fontSize="small" />
-              </Tooltip>
-            </h3>
-
-            <RevenueBarChart
-              chartData={barChartData}
-              onBarClick={(building) => {
-                console.log("Clicked building:", building);
-                // If you want clicking to also select the building in the filter
-                // setSelectedBuilding([building.buildingId]);
-                // setSelectedBuilding(building.buildingId);
-              }}
-              selectedBuilding={appliedBuilding} // Pass the selected building ID
-            />
-          </Card> */}
           <Card className="flex-1 min-w-[320px] col-span-2 ">
             <h3 className="font-semibold text-xl flex items-center gap-2">
               Building-Wise GHG Emissions
@@ -586,6 +604,7 @@ const Dashboard = () => {
             {/* <div className="pr-20 min-w-[300px] overflow-x-auto scrollbar-hide ">  */}
             {/*            <div style={{ minWidth: `${Math.max(barChartData.length * 60, 800)}px` }} > */}
             <RevenueBarChart
+             key={appliedBuilding} 
               chartData={barChartData}
               showZeroValues={false}
               onBarClick={(building) => {

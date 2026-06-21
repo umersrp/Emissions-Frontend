@@ -986,61 +986,14 @@ const EmailReportListing = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
 
-  // Handle delete email record
+  const userData = JSON.parse(localStorage.getItem("user") || "{}");
+  const userEmail = userData?.email || localStorage.getItem("email");
 
-  // Columns
-  // const COLUMNS = useMemo(
-  //   () => [
-  //     // ... existing columns ...
-  //     {
-  //       Header: "Actions",
-  //       accessor: "_id",
-  //       Cell: ({ cell, row }) => {
-  //         const recipients = row.original.recipients || [];
-  //         const subject = row.original.subject || "Recipients";
-  //         return (
-  //           <div className="flex space-x-3 rtl:space-x-reverse">
-  //             <Tippy content="View Recipients">
-  //               <button
-  //                 className="action-btn"
-  //                 onClick={() => openRecipientsModal(recipients, subject)}
-  //                 disabled={!recipients || recipients.length === 0}
-  //               >
-  //                 <Icon icon="heroicons:user-group" className="text-purple-600" />
-  //               </button>
-  //             </Tippy>
-  //             <Tippy content="Edit">
-  //               <button
-  //                 className="action-btn"
-  //                 onClick={() => {
-  //                   openEditRecipientsModal(recipients, subject)
-  //                   setSelectedId(cell.value);
-  //                   setStartDate(new Date(row.original.startDateTime).toISOString().split('T')[0]);
-  //                   setEndDate(new Date(row.original.endDateTime).toISOString().split('T')[0]);
-  //                 }}
-  //                 disabled={!recipients || recipients.length === 0}
-  //               >
-  //                 <Icon icon="heroicons:pencil" className="text-purple-600" />
-  //               </button>
-  //             </Tippy>
-  //             <Tippy content="Delete">
-  //               <button
-  //                 className="action-btn"
-  //                 onClick={() => {
-  //                   setSelectedId(cell.value);
-  //                   setDeleteModalOpen(true);
-  //                 }}
-  //               >
-  //                 <Icon icon="heroicons:trash" className="text-red-600" />
-  //               </button>
-  //             </Tippy>
-  //           </div>
-  //         );
-  //       },
-  //     },
-  //   ],
-  //   [pageIndex, pageSize, navigate]
-  // );
+
+  const storedEmail = localStorage.getItem("email") ||
+    JSON.parse(localStorage.getItem("user") || "{}")?.email ||
+    "N/A";
+
   const COLUMNS = useMemo(
     () => [
       {
@@ -1137,11 +1090,12 @@ const EmailReportListing = () => {
           );
         },
       },
-      // {
-      //   Header: "Sent By",
-      //   accessor: "submittedByEmail",
-      //   Cell: ({ cell }) => cell.value || "N/A",
-      // },
+      {
+        Header: "Sent By",
+        id: "sentBy",
+        accessor: (row) => row.sentBy?.name || storedEmail, // closure captures it
+        Cell: ({ value }) => <span>{value}</span>,
+      },
       {
         Header: "Created At",
         accessor: "createdAt",
@@ -1745,11 +1699,7 @@ const EmailReportListing = () => {
                             </label>
                             <input
                               disabled={true}
-<<<<<<< HEAD
-                              type="date"
-=======
                               type="datetime-local"
->>>>>>> 469773435484835bf8bc1e922be0c3f1cecb9e87
                               className="w-full border-2 border-gray-200 rounded-lg px-4 py-2.5 text-sm 
               focus:border-[#3AB89D] focus:outline-none focus:ring-2 focus:ring-[#3AB89D]/20
               hover:border-gray-300 transition-all duration-200
@@ -1853,10 +1803,14 @@ const EmailReportListing = () => {
                       </div>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                       
 =======
 
 >>>>>>> 469773435484835bf8bc1e922be0c3f1cecb9e87
+=======
+
+>>>>>>> 39127f4 (employee modal fix)
                     </div>
                   </div>
 
