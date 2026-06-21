@@ -1801,16 +1801,6 @@ const EmailReportListing = () => {
                           </table>
                         </div>
                       </div>
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-                      
-=======
-
->>>>>>> 469773435484835bf8bc1e922be0c3f1cecb9e87
-=======
-
->>>>>>> 39127f4 (employee modal fix)
                     </div>
                   </div>
 
