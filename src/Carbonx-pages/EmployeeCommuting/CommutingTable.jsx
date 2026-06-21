@@ -616,7 +616,7 @@ const CommutingTable = () => {
                         <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
                             {loading ? (
                                 <div className="flex justify-center items-center py-8">
-                                    <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                                    <img src={Logo} alt="Loading..." className="w-52 h-52" />
                                 </div>
                             ) : currentRows.length === 0 ? (
                                 <div className="flex justify-center items-center py-16">

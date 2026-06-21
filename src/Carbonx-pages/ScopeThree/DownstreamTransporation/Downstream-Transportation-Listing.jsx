@@ -17,6 +17,7 @@ import Modal from "@/components/ui/Modal";
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import ExcelExportButton from "@/components/ui/ExcelExportButton";
 import useDownstreamTransportationCSVUpload from "@/hooks/scope3/useDownstreamTransportationCSVUpload";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -285,7 +286,7 @@ const DownstreamTransportationListing = () => {
       toast.warning("Please select records to delete");
       return;
     }
-     setDeleteModalOpen(false);
+    setDeleteModalOpen(false);
     setIsDeletingMultiple(true);
     try {
       await Promise.all(
@@ -295,20 +296,20 @@ const DownstreamTransportationListing = () => {
           })
         )
       );
-  toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`);      setSelectedRows({});
+      toast.success(`${selectedIds.length} record${selectedIds.length > 1 ? "s" : ""} deleted successfully`); setSelectedRows({});
       fetchData();
     } catch (err) {
       console.error("Error deleting records:", err);
       toast.error("Failed to delete some records");
     } finally {
       setIsDeletingMultiple(false);
-     
+
     }
   };
   const selectedCount = Object.values(selectedRows).filter(Boolean).length;
   // Delete Record
   const handleDelete = async (id) => {
-     setDeleteModalOpen(false);
+    setDeleteModalOpen(false);
     try {
       await axios.delete(`${process.env.REACT_APP_BASE_URL}/downstream/Delete/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -506,19 +507,12 @@ const DownstreamTransportationListing = () => {
       {
         Header: "Posting Date",
         accessor: "postingDate",
-        Cell: ({ cell }) => {
-          if (!cell.value) return "N/A";
-          try {
-            return new Date(cell.value).toLocaleDateString('en-GB');
-          } catch {
-            return "Invalid Date";
-          }
-        }
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Created At",
         accessor: "createdAt",
-        Cell: ({ value }) => value ? new Date(value).toLocaleDateString() : "N/A",
+        Cell: ({ cell }) => formatDateDMY(cell.value),
       },
       {
         Header: "Actions",
@@ -750,7 +744,7 @@ const DownstreamTransportationListing = () => {
             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                  <img src={Logo} alt="Loading..." className="w-52 h-52" />
                 </div>
               ) : (
                 <table

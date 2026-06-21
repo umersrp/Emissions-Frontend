@@ -17,6 +17,7 @@ import Select from "@/components/ui/Select";
 import CSVUploadModal from "@/components/ui/CSVUploadModal";
 import ExcelExportButton from "@/components/ui/ExcelExportButton";
 import usePurchasedElectricityCSVUpload from "@/hooks/scope2/usePurchasedElectricityCSVUpload";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, checked, onChange, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -536,14 +537,7 @@ const handleConfirmDelete = async () => {
     {
       Header: "Posting Date",
       accessor: "postingDate",
-      Cell: ({ value }) => {
-        if (!value) return "N/A";
-        try {
-          return new Date(value).toLocaleDateString('en-GB');
-        } catch {
-          return "Invalid Date";
-        }
-      }
+      Cell: ({ cell }) => formatDateDMY(cell.value),
     },
     {
       Header: "Actions",
@@ -825,7 +819,7 @@ const handleConfirmDelete = async () => {
             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading ? (
                 <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                  <img src={Logo} alt="Loading..." className="w-52 h-52" />
                 </div>
               ) : (
                 <table

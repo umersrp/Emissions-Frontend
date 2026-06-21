@@ -12,6 +12,7 @@ import Logo from "../../assets/images/logo/SrpLogo.png";
 import Modal from "@/components/ui/Modal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { formatDateDMY } from "@/hooks/dateFormateDMY";
 
 const IndeterminateCheckbox = React.forwardRef(({ indeterminate, ...rest }, ref) => {
   const defaultRef = React.useRef();
@@ -165,8 +166,8 @@ const BuildingTable = () => {
     { Header: "Heating Used", accessor: "heatingUsed", Cell: ({ cell }) => (cell.value ? "Yes" : "No") },
     { Header: "Steam Used", accessor: "steamUsed", Cell: ({ cell }) => (cell.value ? "Yes" : "No") },
     { Header: "Operating Hours", accessor: "operatingHours", Cell: ({ cell }) => cell.value || "N/A", },
-    { Header: "Created At", accessor: "createdAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-") },
-    { Header: "Updated At", accessor: "updatedAt", Cell: ({ cell }) => (cell.value ? new Date(cell.value).toLocaleDateString() : "-") },
+    { Header: "Created At", accessor: "createdAt",  Cell: ({ cell }) => formatDateDMY(cell.value), },
+    { Header: "Updated At", accessor: "updatedAt",  Cell: ({ cell }) => formatDateDMY(cell.value), },
     {
       Header: "Actions",
       accessor: "_id",
@@ -903,7 +904,7 @@ const BuildingTable = () => {
             <div className="overflow-y-auto max-h-[calc(100vh-300px)] overflow-x-auto">
               {loading || isPaginationLoading ? (
                 <div className="flex justify-center items-center py-8">
-                  <img src={Logo} alt="Loading..." className="w-52 h-24" />
+                  <img src={Logo} alt="Loading..." className="w-52 h-52" />
                 </div>
               ) : (
                 <table
