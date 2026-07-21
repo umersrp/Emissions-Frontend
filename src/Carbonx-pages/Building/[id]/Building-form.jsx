@@ -7,6 +7,8 @@ import { toast } from "react-toastify";
 import Switch from "@/components/ui/Switch";
 import Select from "@/components/ui/Select";
 import InputGroup from "@/components/ui/InputGroup";
+import {countryData } from "@/constant/data";
+
 
 const buildingTypeOptions = [
   { value: "office", label: "Office" },
@@ -74,23 +76,26 @@ const BuildingFormPage = () => {
       .join(" ");
 
   // --- Fetch country list ---
-  useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const res = await axios.get("https://restcountries.com/v3.1/all?fields=name");
-        const formatted = res.data
-          .map((country) => ({
-            value: country.name.common,
-            label: country.name.common,
-          }))
-          .sort((a, b) => a.label.localeCompare(b.label));
-        setCountryOptions(formatted);
-      } catch (error) {
-        toast.error("Failed to load countries");
-        console.error(error);
-      }
-    };
-    fetchCountries();
+  // useEffect(() => {
+  //   const fetchCountries = async () => {
+  //     try {
+  //       const res = await axios.get("https://restcountries.com/v3.1/all?fields=name");
+  //       const formatted = res.data
+  //         .map((country) => ({
+  //           value: country.name.common,
+  //           label: country.name.common,
+  //         }))
+  //         .sort((a, b) => a.label.localeCompare(b.label));
+  //       setCountryOptions(formatted);
+  //     } catch (error) {
+  //       toast.error("Failed to load countries");
+  //       console.error(error);
+  //     }
+  //   };
+  //   fetchCountries();
+  // }, []);
+      useEffect(() => {
+      setCountryOptions(countryData);
   }, []);
 
   // --- Fetch data for view/edit mode ---
