@@ -6,6 +6,8 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Datepicker from "react-tailwindcss-datepicker";
+import {countryData, currencyOptions } from "@/constant/data";
+
 
 
 const boundaryOptions = [
@@ -145,30 +147,34 @@ const CompanyProfileForm = () => {
     //     fetchIndustries();
     // }, [formData.sectorId]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                //  Fetch countries
-                const countryRes = await axios.get("https://restcountries.com/v3.1/all?fields=name");
-                const countryList = countryRes.data
-                    .map((c) => ({ value: c.name.common, label: c.name.common }))
-                    .sort((a, b) => a.label.localeCompare(b.label));
-                setCountries(countryList);
-                //  Fetch currencies from Open Exchange Rate API (no key needed)
-                const currencyRes = await axios.get("https://open.er-api.com/v6/latest/USD");
-                // The API gives rates in key-value format like { "USD": 1, "PKR": 278.6, ... }
-                const currencyList = Object.keys(currencyRes.data.rates).map((code) => ({
-                    value: code,
-                    label: code,
-                }));
-                setCurrencies(currencyList);
-            } catch (error) {
-                console.error("Error fetching country/currency:", error);
-                toast.error("Failed to load country or currency data");
-            }
-        };
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             //  Fetch countries
+    //             const countryRes = await axios.get("https://restcountries.com/v3.1/all?fields=name");
+    //             const countryList = countryRes.data
+    //                 .map((c) => ({ value: c.name.common, label: c.name.common }))
+    //                 .sort((a, b) => a.label.localeCompare(b.label));
+    //             setCountries(countryList);
+    //             //  Fetch currencies from Open Exchange Rate API (no key needed)
+    //             const currencyRes = await axios.get("https://open.er-api.com/v6/latest/USD");
+    //             // The API gives rates in key-value format like { "USD": 1, "PKR": 278.6, ... }
+    //             const currencyList = Object.keys(currencyRes.data.rates).map((code) => ({
+    //                 value: code,
+    //                 label: code,
+    //             }));
+    //             setCurrencies(currencyList);
+    //         } catch (error) {
+    //             console.error("Error fetching country/currency:", error);
+    //             toast.error("Failed to load country or currency data");
+    //         }
+    //     };
 
-        fetchData();
+    //     fetchData();
+    // }, []);
+        useEffect(() => {
+        setCountries(countryData);
+        setCurrencies(currencyOptions);
     }, []);
 
 
