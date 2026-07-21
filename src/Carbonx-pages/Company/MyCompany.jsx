@@ -6,6 +6,7 @@ import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Datepicker from "react-tailwindcss-datepicker";
+import {countryData, currencyOptions } from "@/constant/data";
 
 const boundaryOptions = [
     { value: "operational control", label: "Operational Control" },
@@ -52,29 +53,33 @@ const MyCompany = () => {
 
     const [errors, setErrors] = useState({});
 
-    //   Fetch countries and currencies
-    useEffect(() => {
-        const fetchDropdownData = async () => {
-            try {
-                const countryRes = await axios.get("https://restcountries.com/v3.1/all?fields=name");
-                const countryList = countryRes.data
-                    .map((c) => ({ value: c.name.common, label: c.name.common }))
-                    .sort((a, b) => a.label.localeCompare(b.label));
-                setCountries(countryList);
+    // //   Fetch countries and currencies
+    // useEffect(() => {
+    //     const fetchDropdownData = async () => {
+    //         try {
+    //             const countryRes = await axios.get("https://restcountries.com/v3.1/all?fields=name");
+    //             const countryList = countryRes.data
+    //                 .map((c) => ({ value: c.name.common, label: c.name.common }))
+    //                 .sort((a, b) => a.label.localeCompare(b.label));
+    //             setCountries(countryList);
 
-                const currencyRes = await axios.get("https://open.er-api.com/v6/latest/USD");
-                const currencyList = Object.keys(currencyRes.data.rates).map((code) => ({
-                    value: code,
-                    label: code,
-                }));
-                setCurrencies(currencyList);
-            } catch (error) {
-                console.error("Error fetching dropdown data:", error);
-                toast.error("Failed to load dropdown data");
-            }
-        };
-        fetchDropdownData();
-    }, []);
+    //             const currencyRes = await axios.get("https://open.er-api.com/v6/latest/USD");
+    //             const currencyList = Object.keys(currencyRes.data.rates).map((code) => ({
+    //                 value: code,
+    //                 label: code,
+    //             }));
+    //             setCurrencies(currencyList);
+    //         } catch (error) {
+    //             console.error("Error fetching dropdown data:", error);
+    //             toast.error("Failed to load dropdown data");
+    //         }
+    //     };
+    //     fetchDropdownData();
+    // }, []);
+    useEffect(() => {
+    setCountries(countryData);
+    setCurrencies(currencyOptions);
+}, []);
 
     //   Fetch company by logged-in user ID
     useEffect(() => {

@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
+import {countryData, currencyOptions } from "@/constant/data";
 
 const EditCompanyProfile = () => {
     const navigate = useNavigate();
@@ -45,35 +46,38 @@ const EditCompanyProfile = () => {
     const [errors, setErrors] = useState({});
 
     //Fetch dropdown data
+    // useEffect(() => {
+    //     const fetchDropdowns = async () => {
+    //         try {
+    //             const [countryRes, currencyRes, sectorRes] = await Promise.all([
+    //                 axios.get("https://restcountries.com/v3.1/all?fields=name"),
+    //                 axios.get("https://open.er-api.com/v6/latest/USD"),
+    //                 axios.get(`${process.env.REACT_APP_BASE_URL}/sector/Get-All`, {
+    //                     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    //                 }),
+    //             ]);
+
+    //             const countryList = countryRes.data.map((c) => c.name.common).sort();
+    //             setCountries(countryList);
+
+    //             const currencyList = Object.entries(currencyRes.data.rates).map(([code, rate]) => ({
+    //                 code,
+    //                 rate,
+    //             }));
+    //             setCurrencies(currencyList);
+
+    //             setSectors(sectorRes.data.data || []);
+    //         } catch (error) {
+    //             console.error("Dropdown data error:", error);
+    //             toast.error("Failed to load dropdown data");
+    //         }
+    //     };
+    //     fetchDropdowns();
+    // }, []);
     useEffect(() => {
-        const fetchDropdowns = async () => {
-            try {
-                const [countryRes, currencyRes, sectorRes] = await Promise.all([
-                    axios.get("https://restcountries.com/v3.1/all?fields=name"),
-                    axios.get("https://open.er-api.com/v6/latest/USD"),
-                    axios.get(`${process.env.REACT_APP_BASE_URL}/sector/Get-All`, {
-                        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-                    }),
-                ]);
-
-                const countryList = countryRes.data.map((c) => c.name.common).sort();
-                setCountries(countryList);
-
-                const currencyList = Object.entries(currencyRes.data.rates).map(([code, rate]) => ({
-                    code,
-                    rate,
-                }));
-                setCurrencies(currencyList);
-
-                setSectors(sectorRes.data.data || []);
-            } catch (error) {
-                console.error("Dropdown data error:", error);
-                toast.error("Failed to load dropdown data");
-            }
-        };
-        fetchDropdowns();
-    }, []);
-
+    setCountries(countryData);
+    setCurrencies(currencyOptions);
+}, []);
     //Fetch industries when sectorId changes
     useEffect(() => {
         if (!formData.sectorId) return;
