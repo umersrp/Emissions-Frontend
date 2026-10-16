@@ -1,31 +1,28 @@
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import Textinput from "@/components/ui/Textinput";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import Checkbox from "@/components/ui/Checkbox";
-import Button from "@/components/ui/Button";
-import { Link } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useNavigate, Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { useLoginMutation } from "@/store/api/auth/authApiSlice";
 import { setUser } from "@/store/api/auth/authSlice";
 import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
-import { Email } from "@mui/icons-material";
+import { Eye, EyeOff } from "lucide-react";
 
 const LoginForm = () => {
-  
   const [login, { isLoading }] = useLoginMutation();
+  const [checked, setChecked] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = useSelector((state) => state.auth);
-  const formRef = useRef(null);
 
   const {
     register,
     formState: { errors },
     handleSubmit,
     setValue,
-    getValues,
   } = useForm({
     mode: "onSubmit",
     defaultValues: {
@@ -33,86 +30,62 @@ const LoginForm = () => {
       password: "",
     },
   });
-  
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (user?.isAuth) {
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     }
   }, [user?.isAuth, navigate]);
 
-  // Handle Enter key press globally on the form
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Enter" && !isLoading) {
-        e.preventDefault();
-        
-        // Get autofilled values from DOM
-        const emailInput = document.querySelector('input[name="email"]');
-        const passwordInput = document.querySelector('input[name="password"]');
-        
-        const actualEmail = emailInput?.value;
-        const actualPassword = passwordInput?.value;
+  const getActualValues = () => {
+    const emailInput = document.querySelector(
+      'input[name="email"]'
+    );
+    const passwordInput = document.querySelector(
+      'input[name="password"]'
+    );
 
-        // If both fields have values (autofilled or typed), submit
-        if (actualEmail && actualPassword) {
-          // Update form values
-          setValue("email", actualEmail);
-          setValue("password", actualPassword);
-          
-          // Trigger form submission
-          if (formRef.current) {
-            formRef.current.dispatchEvent(
-              new Event('submit', { cancelable: true, bubbles: true })
-            );
-          }
-        }
-      }
-    };
+    const email = emailInput?.value?.trim() || "";
+    const password = passwordInput?.value || "";
 
-    // Add listener to document to catch Enter from anywhere in the form
-    document.addEventListener('keydown', handleKeyDown);
+    setValue("email", email);
+    setValue("password", password);
 
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isLoading, setValue]);
+    return { email, password };
+  };
 
   const onSubmit = async (data) => {
-    // Get actual input values from DOM (handles autofill)
-    const emailInput = document.querySelector('input[name="email"]');
-    const passwordInput = document.querySelector('input[name="password"]');
-    
-    const actualEmail = emailInput?.value || data.email;
-    const actualPassword = passwordInput?.value || data.password;
+    const emailInput = document.querySelector(
+      'input[name="email"]'
+    );
+    const passwordInput = document.querySelector(
+      'input[name="password"]'
+    );
 
-    // Simple client-side validation
-    if (!actualEmail || !actualEmail.includes('@')) {
+    const email = (
+      emailInput?.value || data.email || ""
+    ).trim();
+
+    const password =
+      passwordInput?.value || data.password || "";
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast.error("Please enter a valid email");
       return;
     }
-    
-    if (!actualPassword) {
+
+    if (!password) {
       toast.error("Please enter your password");
       return;
     }
 
     try {
-      // Use actual values from DOM
       const response = await login({
-        email: actualEmail,
-        password: actualPassword,
-      });
+        email,
+        password,
+      }).unwrap();
 
-      if (response?.error) {
-        throw new Error(response.error.data?.message || "Something went wrong");
-      }
-
-      const userData = response?.data?.data;
-      const companyId = userData?.companyId;
-      const userId = userData?._id;
-      const email = userData?.email;
+      const userData = response?.data ?? response;
 
       if (!userData?.token) {
         throw new Error("Invalid credentials");
@@ -122,26 +95,78 @@ const LoginForm = () => {
         throw new Error("Invalid credentials");
       }
 
+      const storage = checked ? localStorage : sessionStorage;
+      const otherStorage = checked ? sessionStorage : localStorage;
+
+      const storageKeys = [
+        "user",
+        "token",
+        "companyId",
+        "userId",
+        "email",
+      ];
+
+      storageKeys.forEach((key) => {
+        otherStorage.removeItem(key);
+      });
+
+      storage.setItem("user", JSON.stringify(userData));
+      storage.setItem("token", userData.token);
+
+      if (userData.companyId) {
+        storage.setItem("companyId", userData.companyId);
+      }
+
+      if (userData._id) {
+        storage.setItem("userId", userData._id);
+      }
+
+      if (userData.email) {
+        storage.setItem("email", userData.email);
+      }
+
       dispatch(setUser(userData));
-      localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("token", userData.token);
-      localStorage.setItem("companyId", companyId);
-      localStorage.setItem("userId", userId);
-      localStorage.setItem("email", email);
 
-
-
-      toast.success("Login Successful");
-      navigate("/dashboard");
+      toast.success("Login successful");
+      navigate("/dashboard", { replace: true });
     } catch (error) {
-      toast.error(error.message);
+      toast.error(
+        error?.data?.message ||
+          error?.message ||
+          "Something went wrong. Please try again."
+      );
     }
   };
 
-  const [checked, setChecked] = useState(false);
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key !== "Enter" || isLoading) return;
+
+      const target = event.target;
+      const form = target?.closest?.("form");
+
+      if (!form?.querySelector('input[name="email"]')) return;
+
+      const { email, password } = getActualValues();
+
+      if (email && password) {
+        event.preventDefault();
+        handleSubmit(onSubmit)();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isLoading, handleSubmit, setValue]);
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4"
+    >
       <Textinput
         name="email"
         label="Email"
@@ -150,34 +175,68 @@ const LoginForm = () => {
         error={errors.email}
         className="h-[48px]"
       />
-      <Textinput
-        name="password"
-        label="Password"
-        type="password"
-        register={register}
-        error={errors.password}
-        className="h-[48px]"
-      />
-      <div className="flex justify-between">
-        <Checkbox
-          value={checked}
-          onChange={() => setChecked(!checked)}
-          label="Keep me signed in"
+
+      {/* Password field with show/hide toggle */}
+      <div className="relative">
+        <Textinput
+          name="password"
+          label="Password"
+          type={showPassword ? "text" : "password"}
+          register={register}
+          error={errors.password}
+          className="h-[48px] pr-12"
         />
+
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          aria-label={showPassword ? "Hide password" : "Show password"}
+          aria-pressed={showPassword}
+          className="absolute right-3 top-[38px] z-10 flex h-8 w-8 items-center justify-center rounded text-slate-500 hover:text-slate-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-slate-400"
+        >
+          {showPassword ? (
+            <EyeOff size={19} />
+          ) : (
+            <Eye size={19} />
+          )}
+        </button>
+      </div>
+
+      {/* Keep me signed in */}
+      <div className="flex items-center justify-between gap-3">
+        <label
+          htmlFor="keepSignedIn"
+          className="flex cursor-pointer select-none items-center"
+        >
+          <input
+            id="keepSignedIn"
+            name="keepSignedIn"
+            type="checkbox"
+            checked={checked}
+            onChange={(event) => setChecked(event.target.checked)}
+            className="h-4 w-4 cursor-pointer accent-slate-900"
+          />
+
+          <span className="ml-2 text-sm text-slate-800 dark:text-slate-400">
+            Keep me signed in
+          </span>
+        </label>
+
         <Link
           to="/forgot-password"
-          className="text-sm text-slate-800 dark:text-slate-400 leading-6 font-medium"
+          className="text-sm font-medium leading-6 text-slate-800 dark:text-slate-400"
         >
           Forgot Password?
         </Link>
       </div>
 
-      <Button
+      <button
         type="submit"
-        text="Sign in"
-        className="btn btn-dark block w-full text-center"
-        isLoading={isLoading}
-      />
+        disabled={isLoading}
+        className="btn btn-dark block w-full text-center disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {isLoading ? "Signing in..." : "Sign in"}
+      </button>
     </form>
   );
 };
