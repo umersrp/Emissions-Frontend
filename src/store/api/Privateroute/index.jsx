@@ -6,7 +6,7 @@ const getUserDetails = () => {
   const state = store.getState();
   const user = state.auth.user || {};
   return {
-    token: localStorage.getItem('token'),
+    token: sessionStorage.getItem("token") || localStorage.getItem('token'),
     authType: user.type,
   };
 };
@@ -14,6 +14,7 @@ const getUserDetails = () => {
 const PrivateRoute = ({ element: Component, requiredAuthTypes, ...rest }) => {
   const { token, authType } = getUserDetails();
   const isAuthenticated = token && requiredAuthTypes.includes(authType);
+  console.log('run hoga ==========>', isAuthenticated, token, authType, requiredAuthTypes);
 
   return isAuthenticated ? <Component {...rest} /> : <Navigate to="/login" replace />;
 };
